@@ -1,1 +1,6 @@
+<div *ngIf="!environment.production" class="version-container">
+    v{{ version$ | async }}
+</div>
+  
 <router-outlet></router-outlet>
+  

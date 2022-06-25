@@ -3,15 +3,18 @@ import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { LandingComponent } from './components/landing/landing.component';
 import { HttpClientModule } from '@angular/common/http';
 import { BackButtonDisableModule } from 'angular-disable-browser-back-button';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { CoreModule } from './core/core.module';
+import { AppStoreModule } from './store/app-store.module';
+import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { SharedModule } from './shared/shared.module';
 
 @NgModule({
   declarations: [
-    AppComponent,
-    LandingComponent
+    AppComponent
   ],
   imports: [
     BrowserModule,
@@ -20,8 +23,17 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     FormsModule,
     ReactiveFormsModule,
     BackButtonDisableModule.forRoot({ preserveScrollPosition: true }),
+    CoreModule,
+    AppStoreModule,
+    SharedModule
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true,
+    },
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
