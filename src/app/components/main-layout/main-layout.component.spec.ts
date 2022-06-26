@@ -5,22 +5,22 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { Action } from '@ngrx/store';
 import { provideMockStore } from '@ngrx/store/testing';
 import { Observable } from 'rxjs';
-import { MainLayoutPageComponent } from './main-layout-page.component';
-import { MainLayoutPageModule } from './main-layout-page.module';
+import { MainLayoutComponent } from './main-layout.component';
+import { MainLayoutModule } from './main-layout.module';
 
 describe('MainLayoutPageComponent', () => {
-  let component: MainLayoutPageComponent;
-  let fixture: ComponentFixture<MainLayoutPageComponent>;
+  let component: MainLayoutComponent;
+  let fixture: ComponentFixture<MainLayoutComponent>;
   let actions$: Observable<Action>;
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        declarations: [MainLayoutPageComponent],
+        declarations: [MainLayoutComponent],
         imports: [
           RouterTestingModule,
           NoopAnimationsModule,
-          MainLayoutPageModule,
+          MainLayoutModule,
         ],
         providers: [provideMockStore(), provideMockActions(() => actions$)],
       }).compileComponents();
@@ -28,7 +28,7 @@ describe('MainLayoutPageComponent', () => {
   );
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(MainLayoutPageComponent);
+    fixture = TestBed.createComponent(MainLayoutComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

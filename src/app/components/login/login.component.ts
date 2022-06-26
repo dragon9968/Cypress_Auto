@@ -1,18 +1,20 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from 'src/app/core/services/auth/auth.service';
+import { Store } from '@ngrx/store';
 import { RouteSegments } from 'src/app/enums/routes/route-segments.enum';
+import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
-  selector: 'app-login-page',
-  templateUrl: './login-page.component.html',
-  styleUrls: ['./login-page.component.scss'],
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss'],
 })
 export class LoginPageComponent {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private store: Store<{ count: number }>
   ) {}
 
   login() {

@@ -3,12 +3,11 @@ import { MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
 import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
 import { SharedModule } from '../shared/shared.module';
 import { GuardsModule } from './guards/guards.module';
-import { ServicesModule } from './services/services.module';
 import { StorageModule } from './storage/storage.module';
 import { VersionService } from './version/version.service';
 
 @NgModule({
-  imports: [SharedModule, ServicesModule, GuardsModule, StorageModule],
+  imports: [SharedModule, GuardsModule, StorageModule],
   providers: [
     VersionService,
     {

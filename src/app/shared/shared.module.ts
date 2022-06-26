@@ -19,17 +19,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
-import { LoginPageComponent } from './components/login/login-page.component';
-import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { BaseDialogComponent } from './dialogs/base/base-dialog.component';
 import { NavBarComponent } from './nav-bar/nav-bar.component';
 
 @NgModule({
   declarations: [
-    LoginPageComponent,
     BaseDialogComponent,
     NavBarComponent,
-    PageNotFoundComponent,
   ],
   imports: [
     CommonModule,
@@ -59,7 +55,6 @@ import { NavBarComponent } from './nav-bar/nav-bar.component';
     CommonModule,
     BaseDialogComponent,
     NavBarComponent,
-    PageNotFoundComponent,
     NavBarComponent,
   ],
 })

@@ -7,7 +7,7 @@ import { Action } from '@ngrx/store';
 import { provideMockStore } from '@ngrx/store/testing';
 import { Observable } from 'rxjs';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { LoginPageComponent } from './login-page.component';
+import { LoginPageComponent } from './login.component';
 
 describe('LoginPageComponent', () => {
   let component: LoginPageComponent;

@@ -2,18 +2,24 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { PermissionLevels } from 'src/app/enums/permission-levels.enum';
 import { AppRoute } from 'src/app/models/app-route.model';
-import { PageNotFoundComponent } from 'src/app/shared/components/page-not-found/page-not-found.component';
-import { MainLayoutPageComponent } from './main-layout-page.component';
+import { PageNotFoundComponent } from 'src/app/components/page-not-found/page-not-found.component';
+import { MapComponent } from './map.component';
 
 const routes: AppRoute[] = [
   {
     path: '',
-    component: MainLayoutPageComponent,
     data: {
       permissionLevel: PermissionLevels.USER,
     },
     runGuardsAndResolvers: 'always',
     children: [
+      {
+        path: '',
+        component: MapComponent,
+        data: {
+          permissionLevel: PermissionLevels.USER,
+        }
+      },
       {
         path: '**',
         data: {
@@ -30,4 +36,4 @@ const routes: AppRoute[] = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class MainLayoutPageRoutingModule {}
+export class MapRoutingModule {}

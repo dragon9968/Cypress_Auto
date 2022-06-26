@@ -29,12 +29,10 @@
             ],
             "styles": [
               "src/styles.scss",
-              "node_modules/bootstrap/scss/bootstrap.scss",
               "node_modules/@fortawesome/fontawesome-free/scss/fontawesome.scss"
             ],
             "scripts": [
-              "node_modules/@fortawesome/fontawesome-free/js/all.js",
-              "node_modules/jquery/dist/jquery.min.js"
+              "node_modules/@fortawesome/fontawesome-free/js/all.js"
             ]
           },
           "configurations": {

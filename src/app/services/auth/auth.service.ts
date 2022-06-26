@@ -1,11 +1,11 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { LocalStorageService } from 'src/app/core/storage/local-storage/local-storage.service';
 import { ApiPaths } from 'src/app/enums/api/api-paths.enums';
 import { LocalStorageKeys } from 'src/app/enums/storage/local-storage-keys.enum';
 import { Token } from 'src/app/models/auth/token.model';
 import { environment } from 'src/environments/environment';
-import { LocalStorageService } from '../../storage/local-storage/local-storage.service';
 
 @Injectable({
   providedIn: 'root',
