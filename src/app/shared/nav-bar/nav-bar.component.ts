@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { PermissionLevels } from 'src/app/enums/permission-levels.enum';
-import { RouteSegments } from 'src/app/enums/routes/route-segments.enum';
+import { PermissionLevels } from 'src/app/core/enums/permission-levels.enum';
+import { RouteSegments } from 'src/app/core/enums/routes/route-segments.enum';
 
 @Component({
   selector: 'app-nav-bar',
@@ -12,7 +11,7 @@ export class NavBarComponent implements OnInit {
   permissionLevels = PermissionLevels;
   routeSegments = RouteSegments;
 
-  constructor(private dialog: MatDialog) {}
+  constructor() {}
 
   ngOnInit(): void {}
 }

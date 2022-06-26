@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { PermissionLevels } from 'src/app/enums/permission-levels.enum';
-import { AppRoute } from 'src/app/models/app-route.model';
+import { PermissionLevels } from 'src/app/core/enums/permission-levels.enum';
+import { AppRoute } from 'src/app/core/models/app-route.model';
 import { PageNotFoundComponent } from 'src/app/components/page-not-found/page-not-found.component';
 import { DashboardComponent } from './dashboard.component';
 

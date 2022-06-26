@@ -1,11 +1,11 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { LocalStorageService } from 'src/app/core/storage/local-storage/local-storage.service';
-import { ApiPaths } from 'src/app/enums/api/api-paths.enums';
-import { LocalStorageKeys } from 'src/app/enums/storage/local-storage-keys.enum';
-import { Token } from 'src/app/models/auth/token.model';
+import { ApiPaths } from 'src/app/core/enums/api/api-paths.enums';
+import { Token } from 'src/app/core/models/token.model';
 import { environment } from 'src/environments/environment';
+import { LocalStorageKeys } from 'src/app/core/enums/storage/local-storage-keys.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +17,7 @@ export class AuthService {
   ) {}
 
   login() {
-    return this.httpClient.post<Token>(environment.apiBaseUrl + ApiPaths.LOGIN, {
+    return this.httpClient.post<Token>(ApiPaths.LOGIN, {
       username: 'admin',
       password: '12345',
       provider: "db"

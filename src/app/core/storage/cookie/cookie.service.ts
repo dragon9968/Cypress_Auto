@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as NgxCookieService from 'ngx-cookie-service';
-import { CookieKeys } from 'src/app/enums/storage/cookie-keys.enum';
-import { CookieData } from 'src/app/models/storage/cookie-data.model';
+import { CookieKeys } from 'src/app/core/enums/storage/cookie-keys.enum';
+import { CookieData } from 'src/app/core/models/cookie-data.model';
 
 @Injectable({
   providedIn: 'root',

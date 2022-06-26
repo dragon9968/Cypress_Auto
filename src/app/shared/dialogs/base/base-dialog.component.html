@@ -1,13 +1,13 @@
-<mat-toolbar>
-  <div fxFlex *ngIf="showClose"></div>
-  <div fxFlex fxLayoutAlign="center" class="title">
+<div>
+  <div *ngIf="showClose"></div>
+  <div class="title">
     {{ header }}
   </div>
-  <div fxFlex fxLayoutAlign="end" *ngIf="showClose" (click)="onCloseClick()">
+  <div *ngIf="showClose" (click)="onCloseClick()">
     <img class="e-icon" src="/assets/icons/icon-close.png" />
   </div>
-</mat-toolbar>
+</div>
 
-<div mat-dialog-content>
+<div >
   <ng-content></ng-content>
 </div>

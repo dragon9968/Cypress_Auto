@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { RouteSegments } from 'src/app/enums/routes/route-segments.enum';
-import { AuthService } from 'src/app/services/auth/auth.service';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { RouteSegments } from 'src/app/core/enums/routes/route-segments.enum';
 
 @Component({
   selector: 'app-login',

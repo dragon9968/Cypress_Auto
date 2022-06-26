@@ -10,8 +10,6 @@ import { VersionService } from './core/version/version.service';
 })
 export class AppComponent implements OnInit {
   environment = environment;
-  title = "Project Keromatsu"
-
   version$: Observable<string> | undefined;
 
   constructor(private versionService: VersionService) {}

@@ -6,10 +6,11 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { CoreModule } from './core/core.module';
-import { AppStoreModule } from './store/app-store.module';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { SharedModule } from './shared/shared.module';
-import { ServicesModule } from './services/services.module';
+import { StoreModule } from '@ngrx/store';
+import { reducers } from './app.reducer'
+
 
 @NgModule({
   declarations: [
@@ -22,9 +23,8 @@ import { ServicesModule } from './services/services.module';
     FormsModule,
     ReactiveFormsModule,
     CoreModule,
-    AppStoreModule,
     SharedModule,
-    ServicesModule,
+    StoreModule.forRoot(reducers),
   ],
   providers: [
     {
