@@ -15,7 +15,7 @@
                   </div>
                   <form [formGroup]="loginForm" (ngSubmit)="login()">
                     <div class="form-group">
-                      <label class="control-label" for="openid">Username:</label>
+                      <label class="control-label" for="username">Username:</label>
                       <div class="controls">
                         <div class="input-group">
                             <div class="input-group-prepend">
@@ -23,14 +23,15 @@
                                 <span class="fa fa-user"></span>
                               </div>
                             </div>
-                            <input id="username" type="text" formControlName="username">
+                            
+                            <input id="username" type="text" formControlName="username" autofocus>
                             
                         </div>
                         <span class="help-inline"></span><br>
                       </div>
                     </div>
                     <div class="form-group">
-                      <label class="control-label" for="openid">Password:</label>
+                      <label class="control-label" for="password">Password:</label>
                       <div class="input-group">
                           <div class="input-group-prepend">
                             <div class="input-group-text bg-light">
@@ -45,12 +46,6 @@
                         <div class="controls">
                             <br>
                             <div>
-                                <!-- {% if appbuilder.sm.auth_user_registration %}
-                                <a href="{{appbuilder.sm.get_url_for_registeruser}}" class="btn btn-block btn-primary" data-toggle="tooltip" rel="tooltip"
-                                title="{{_('If you are not already a user, please register')}}">
-                                    {{_('Register')}}
-                                </a>
-                                {% endif %} -->
                                 <input class="btn btn-primary btn-block" type="submit" value="Sign In" [disabled]="!loginForm.valid">
                             </div>
                         </div>
