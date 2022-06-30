@@ -74,3 +74,72 @@ $transition-collapse: height .15s ease !default;
 // Dropdowns
 $dropdown-font-size: 0.85rem;
 $dropdown-border-color: $border-color;
+
+.img-responsive{
+    width: 100%;
+    height: auto;
+}
+.img-responsive-sm{
+  width: 100%;
+  max-width: 800px;
+  height: auto;
+}
+.img-responsive-xs{
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+}
+
+.thumbnail-responsive-md{
+  width: 100%;
+  max-width: 100px;
+  height: auto;
+}
+
+.thumbnail-responsive-sm{
+  width: 100%;
+  max-width: 75px;
+  height: auto;
+}
+
+.thumbnail-responsive-xs, .icon-responsive-md{
+  width: 50px;
+  height: auto;
+}
+
+.icon-responsive-md{
+  width: 50px;
+  height: auto;
+}
+
+.icon-responsive-sm{
+  width: 30px;
+  height: auto;
+}
+.grid {
+  max-width: 100%;
+}
+/* clear fix */
+.grid:after {
+  content: '';
+  display: block;
+  clear: both;
+}
+
+/* ---- .grid-item ---- */
+.grid-item:hover {
+  border-color: hsla(0, 0%, 100%, 0.5);
+  cursor: move;
+}
+
+.grid-item.is-dragging,
+.grid-item.is-positioning-post-drag {
+  z-index: 2;
+}
+
+.packery-drop-placeholder {
+  outline: 2px dashed hsla(0, 0%, 0%, 0.5);
+  outline-offset: -8px;
+  -webkit-transition: -webkit-transform 0.2s;
+          transition: transform 0.2s;
+}

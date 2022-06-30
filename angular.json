@@ -30,16 +30,19 @@
             "styles": [
               "src/styles.scss",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "node_modules/@fortawesome/fontawesome-free/scss/fontawesome.scss"
+              "node_modules/@fortawesome/fontawesome-free/css/fontawesome.min.css",
+              "node_modules/admin-lte/dist/css/adminlte.min.css",
+              "node_modules/selectize/dist/css/selectize.css",
+              "node_modules/toastr/build/toastr.min.css",
+              "node_modules/bootstrap-switch-button/css/bootstrap-switch-button.min.css",
+              "node_modules/cytoscape-context-menus/cytoscape-context-menus.css",
+              "node_modules/cytoscape-navigator/cytoscape.js-navigator.css"
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
               "node_modules/bootstrap/dist/js/bootstrap.min.js",
-              "node_modules/popper.js/dist/umd/popper.min.js",
-              "node_modules/cytoscape/dist/cytoscape.min.js",
-              "node_modules/cytoscape-popper/cytoscape-popper.js",
               "node_modules/@fortawesome/fontawesome-free/js/all.js"
-            ],
+            ],  
             "allowedCommonJsDependencies": [
               "cytoscape"
             ]
