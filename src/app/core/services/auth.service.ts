@@ -16,10 +16,10 @@ export class AuthService {
     private localStorageService: LocalStorageService
   ) {}
 
-  login() {
+  login(username: string, password: string) {
     return this.httpClient.post<Token>(ApiPaths.LOGIN, {
-      username: 'admin',
-      password: '12345',
+      username: username,
+      password: password,
       provider: "db"
     });
   }

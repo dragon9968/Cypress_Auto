@@ -39,6 +39,9 @@
               "node_modules/cytoscape/dist/cytoscape.min.js",
               "node_modules/cytoscape-popper/cytoscape-popper.js",
               "node_modules/@fortawesome/fontawesome-free/js/all.js"
+            ],
+            "allowedCommonJsDependencies": [
+              "cytoscape"
             ]
           },
           "configurations": {

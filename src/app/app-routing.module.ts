@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { LoginPageComponent } from './components/login/login.component';
+import { LoginComponent } from './components/login/login.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { PermissionLevels } from './core/enums/permission-levels.enum';
 import { RouteSegments } from './core/enums/routes/route-segments.enum';
@@ -10,7 +10,7 @@ import { AppRoute } from './core/models/app-route.model';
 const routes: AppRoute[] = [
   {
     path: RouteSegments.LOGIN,
-    component: LoginPageComponent,
+    component: LoginComponent,
   },
   {
     path: '',

@@ -1,20 +1,56 @@
-$bg-img: url("/assets/images/login-page-bg.jpg");
+// Pulling these images from Unsplash
+// Toshi the dog from https://unsplash.com/@charlesdeluvio - what a funny dog...
 
-.login-page {
-  height: 100%;
-  display: flex;
-  justify-content: space-between;
-  .left-panel {
-    background-image: $bg-img;
-    background-position: top;
-    background-repeat: no-repeat;
-    background-size: cover;
-    width: calc(100% - 400px);
+.bg-login-image {
+  background: url("/assets/img/bcprofile.png");
+  background-position: center;
+  background-size: cover;
+  background-color: #eeeeee;
+}
+
+.bg-register-image {
+  background: url('https://source.unsplash.com/Mv9hjnEUHR4/600x800');
+  background-position: center;
+  background-size: cover;
+}
+
+.bg-password-image {
+  background: url('https://source.unsplash.com/oWTW-jNGl9I/600x800');
+  background-position: center;
+  background-size: cover;
+}
+
+.bg-image { 
+  /* The image used */
+  background-image: linear-gradient(rgba(28,29,38,1) 20%, rgba(28,29,38,.4) 90%), url("/assets/img/blue_bg.png");
+
+  /* Full height */
+  height: 100%; 
+
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+form.user {
+
+  .custom-checkbox.small {
+    label {
+      line-height: 1.5rem;
+    }
   }
-  .right-panel {
-    background: white;
-    box-shadow: -1px 1px 6px black;
-    width: 400px;
-    height: 100%;
+
+  .form-control-user {
+    font-size: 0.8rem;
+    border-radius: 10rem;
+    padding: 1.5rem 1rem;
   }
+
+  .btn-user {
+    font-size: 0.8rem;
+    border-radius: 10rem;
+    padding: 0.75rem 1rem;
+  }
+
 }

@@ -2,22 +2,21 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
-import { provideMockActions } from '@ngrx/effects/testing';
 import { Action } from '@ngrx/store';
 import { provideMockStore } from '@ngrx/store/testing';
 import { Observable } from 'rxjs';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { LoginPageComponent } from './login.component';
+import { LoginComponent } from './login.component';
 
-describe('LoginPageComponent', () => {
-  let component: LoginPageComponent;
-  let fixture: ComponentFixture<LoginPageComponent>;
+describe('LoginComponent', () => {
+  let component: LoginComponent;
+  let fixture: ComponentFixture<LoginComponent>;
   let actions$: Observable<Action>;
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        declarations: [LoginPageComponent],
+        declarations: [LoginComponent],
         imports: [
           RouterTestingModule,
           HttpClientTestingModule,
@@ -30,7 +29,7 @@ describe('LoginPageComponent', () => {
   );
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(LoginPageComponent);
+    fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -39,3 +38,7 @@ describe('LoginPageComponent', () => {
     expect(component).toBeTruthy();
   });
 });
+function provideMockActions(arg0: () => Observable<Action>): any {
+  throw new Error('Function not implemented.');
+}
+

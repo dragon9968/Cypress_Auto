@@ -1,8 +1,68 @@
-<div class="login-page">
-  <div class="left-panel"></div>
-  <div class="right-panel">
-    <button mat-raised-button color="accent" type="submit" (click)="login()">
-      Log In
-    </button>
+<div class="bg-image">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-xl-10 col-lg-12 col-md-9">
+        <div class="card o-hidden border-0 shadow-lg my-5">
+          <div class="card-body p-0">
+            <div class="row">
+              <div class="col-lg-6 d-none d-lg-block bg-login-image"></div>
+              <div class="col-lg-6 bg-white">
+                <div class="p-5" style="height: 500px;">
+                  <div class="text-center">
+                    <h1 class=" text-gray-900 mb-4">Welcome to Project KEROMATSU</h1>
+                    <hr>
+                    <h4 class="text-primary">Sign In</h4>
+                  </div>
+                  <form [formGroup]="loginForm" (ngSubmit)="login()">
+                    <div class="form-group">
+                      <label class="control-label" for="openid">Username:</label>
+                      <div class="controls">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                              <div class="input-group-text bg-light">
+                                <span class="fa fa-user"></span>
+                              </div>
+                            </div>
+                            <input id="username" type="text" formControlName="username">
+                            
+                        </div>
+                        <span class="help-inline"></span><br>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label" for="openid">Password:</label>
+                      <div class="input-group">
+                          <div class="input-group-prepend">
+                            <div class="input-group-text bg-light">
+                              <span class="fa fa-key"></span>
+                            </div>
+                          </div>
+                          <input id="password" type="text" formControlName="password">
+                      </div>
+                      <span class="help-inline"></span><br>
+                    </div>
+                    <div class="control-group">
+                        <div class="controls">
+                            <br>
+                            <div>
+                                <!-- {% if appbuilder.sm.auth_user_registration %}
+                                <a href="{{appbuilder.sm.get_url_for_registeruser}}" class="btn btn-block btn-primary" data-toggle="tooltip" rel="tooltip"
+                                title="{{_('If you are not already a user, please register')}}">
+                                    {{_('Register')}}
+                                </a>
+                                {% endif %} -->
+                                <input class="btn btn-primary btn-block" type="submit" value="Sign In" [disabled]="!loginForm.valid">
+                            </div>
+                        </div>
+                    </div>
+                  </form>
+                  <hr>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
