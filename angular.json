@@ -36,7 +36,8 @@
               "node_modules/toastr/build/toastr.min.css",
               "node_modules/bootstrap-switch-button/css/bootstrap-switch-button.min.css",
               "node_modules/cytoscape-context-menus/cytoscape-context-menus.css",
-              "node_modules/cytoscape-navigator/cytoscape.js-navigator.css"
+              "node_modules/cytoscape-navigator/cytoscape.js-navigator.css",
+              "src/assets/fonts/sanpro.css"
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",

@@ -10,7 +10,7 @@
                 <div class="p-5" style="height: 500px;">
                   <div class="text-center">
                     <h1 class=" text-gray-900 mb-4">Welcome to Project KEROMATSU</h1>
-                    <hr>
+                    <hr size="0">
                     <h4 class="text-primary">Sign In</h4>
                   </div>
                   <form [formGroup]="loginForm" (ngSubmit)="login()">
@@ -23,35 +23,31 @@
                                 <span class="fa fa-user"></span>
                               </div>
                             </div>
-                            
-                            <input id="username" type="text" formControlName="username" autofocus>
-                            
+                            <input class="form-control" id="username" type="text" formControlName="username" autofocus size="80">
                         </div>
-                        <span class="help-inline"></span><br>
                       </div>
-                    </div>
-                    <div class="form-group">
-                      <label class="control-label" for="password">Password:</label>
-                      <div class="input-group">
+                      <div class="form-group">
+                        <label class="control-label" for="password">Password:</label>
+                        <div class="input-group">
                           <div class="input-group-prepend">
                             <div class="input-group-text bg-light">
                               <span class="fa fa-key"></span>
                             </div>
                           </div>
-                          <input id="password" type="text" formControlName="password">
+                          <input class="form-control" id="password" type="password" formControlName="password" size="80">
+                        </div>
                       </div>
-                      <span class="help-inline"></span><br>
-                    </div>
-                    <div class="control-group">
+                      <div class="control-group">
                         <div class="controls">
                             <br>
                             <div>
                                 <input class="btn btn-primary btn-block" type="submit" value="Sign In" [disabled]="!loginForm.valid">
                             </div>
                         </div>
+                      </div>
                     </div>
                   </form>
-                  <hr>
+                  <hr size="0">
                 </div>
               </div>
             </div>
