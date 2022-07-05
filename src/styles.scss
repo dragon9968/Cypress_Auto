@@ -1,8 +1,14 @@
-// Override Bootstrap default variables here
-// Do not edit any of the files in /vendor/bootstrap/scss/!
+@import 'ag-grid-community/dist/styles/ag-grid.css';
+@import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
+@import 'admin-lte/dist/css/adminlte.min.css';
+@import 'selectize/dist/css/selectize.css';
+@import 'cytoscape-context-menus/cytoscape-context-menus.css';
+@import 'cytoscape-navigator/cytoscape.js-navigator.css';
+@import 'bootstrap-switch-button/css/bootstrap-switch-button.min.css';
+@import 'toastr/build/toastr.min.css';
 
-// Color Variables
-// Bootstrap Color Overrides
 
 $white: #fff !default;
 $gray-100: #f8f9fc !default;
@@ -142,4 +148,10 @@ $dropdown-border-color: $border-color;
   outline-offset: -8px;
   -webkit-transition: -webkit-transform 0.2s;
           transition: transform 0.2s;
+}
+
+.project-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

@@ -5,6 +5,7 @@ import { AppRoute } from 'src/app/core/models/app-route.model';
 import { PageNotFoundComponent } from 'src/app/components/page-not-found/page-not-found.component';
 import { MainLayoutComponent } from './main-layout.component';
 import { HomeComponent } from '../home/home.component';
+import { RouteSegments } from 'src/app/core/enums/routes/route-segments.enum';
 
 const routes: AppRoute[] = [
   {
@@ -23,7 +24,17 @@ const routes: AppRoute[] = [
         component: HomeComponent,
       },
       {
-        path: 'dashboard',
+        path: RouteSegments.PROJECTS,
+        data: {
+          permissionLevel: PermissionLevels.USER,
+        },
+        loadChildren: () =>
+          import('../project/project.module').then(
+            (m) => m.ProjectModule
+          ),
+      },
+      {
+        path: RouteSegments.DASHBOARD,
         data: {
           permissionLevel: PermissionLevels.USER,
         },
@@ -33,7 +44,7 @@ const routes: AppRoute[] = [
           ),
       },
       {
-        path: 'map',
+        path: RouteSegments.MAP,
         data: {
           permissionLevel: PermissionLevels.USER,
         },

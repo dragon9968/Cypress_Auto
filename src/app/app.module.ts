@@ -26,7 +26,7 @@ import { LoginComponent } from './components/login/login.component';
     ReactiveFormsModule,
     CoreModule,
     SharedModule,
-    StoreModule.forRoot(reducers),
+    StoreModule.forRoot(reducers)
   ],
   providers: [
     {
