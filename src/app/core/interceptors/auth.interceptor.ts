@@ -19,17 +19,13 @@ export class AuthInterceptor implements HttpInterceptor {
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
     if (!req.headers.has('Content-Type')) {
-      const headers: HttpHeaders = req.headers;
-      
-      headers.set('Content-Type', 'application/json');
-
       const access_token = this.authService.getToken();
-      if (access_token) {
-        headers.set('Authorization', 'Bearer ' + this.authService.getToken());
-      }
       req = req.clone({
         url: environment.apiBaseUrl + req.url,
-        headers: headers,
+        setHeaders: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${access_token}`
+        },
       });
     }
     return next.handle(req);

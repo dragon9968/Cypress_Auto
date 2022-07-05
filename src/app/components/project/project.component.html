@@ -1,0 +1,25 @@
+<a href="/">Home</a>
+<br>
+<div class="container-fluid pt-3" id="content_div">
+    <div class="card w-auto shadow bg-white">
+        <div class="card-header elevation-1 bg-dark">
+            <h4 class="card-title">Your Projects</h4>
+        </div>
+        <div class="p-2">
+            <div style="height: 500px">
+                <ag-grid-angular 
+                    class="ag-theme-alpine"
+                    [pagination]="true"
+                    [columnDefs]="columnDefs"
+                    [defaultColDef]="defaultColDef"
+                    [rowData]="rowData$ | async" 
+                    [rowSelection]="'multiple'"
+                    [suppressRowClickSelection]="true"
+                    [animateRows]="true"
+                    (gridReady)="onGridReady($event)">
+                </ag-grid-angular>
+            </div>
+
+        </div>
+    </div>
+</div>

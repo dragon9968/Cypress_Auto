@@ -1,14 +1,14 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { selectMap } from 'src/app/components/map/store/map.selectors';
-import { retrievedMapData } from 'src/app/components/map/store/map.action';
+import { retrievedMapData } from 'src/app/components/map/store/map.actions';
 import { MapService } from './services/map.service';
-import { HelpersService } from 'src/app/shared/services/helpers.service';
 import { Subscription } from 'rxjs';
 import * as cytoscape from 'cytoscape';
 import { MapDataModel } from './models/map-data.model';
 import { environment } from 'src/environments/environment';
 import { generateCyStyle } from './constants/cy-style.constant';
+import { ActivatedRoute, Params } from '@angular/router';
 
 @Component({
   selector: 'app-map',
@@ -18,7 +18,7 @@ import { generateCyStyle } from './constants/cy-style.constant';
 export class MapComponent implements OnInit, OnDestroy {
   cy: cytoscape.Core | undefined;
   map_category = 'logical';
-  map_id = 1;
+  collection_id = 0;
   map_items: any;
   map_properties: any;
   gb_dict: any;
@@ -33,19 +33,23 @@ export class MapComponent implements OnInit, OnDestroy {
   constructor(
     private mapService: MapService,
     private store: Store,
-    private helpers: HelpersService
+    private route: ActivatedRoute
   ) {
     this.selectMapData$ = this.store.select(selectMap)
-    .subscribe((mapData: MapDataModel) => {
-      if (Object.keys(mapData).length > 0) {
-        this.initCytoscape(mapData);
+    .subscribe((data: MapDataModel) => {
+      if (Object.keys(data).length > 0) {
+        this.initCytoscape(data);
       }
     });
   }
 
   ngOnInit(): void {
-    this.mapService.getMapData(this.map_category, this.map_id)
-    .subscribe((mapData: MapDataModel) => this.store.dispatch(retrievedMapData({ mapData })));
+    this.route.queryParams.subscribe((params: Params) => {
+      this.map_category = params['category'];
+      this.collection_id = params['collection_id'];
+      this.mapService.getMapData(this.map_category, this.collection_id)
+      .subscribe((data: MapDataModel) => this.store.dispatch(retrievedMapData({ data })));
+    });
   }
 
   ngOnDestroy(): void {
@@ -70,7 +74,7 @@ export class MapComponent implements OnInit, OnDestroy {
         node_view_url: '/ap1/v1/node/gen_data',
         enc_node_view_url: '/nodeview/gen_enc_data/',
         save_url: '/api/v1/map/save_data/' + this.map_category,
-        enclave_save_url: "/enclaveview/save_map/" + this.map_id,
+        enclave_save_url: "/enclaveview/save_map/" + this.collection_id,
         enc_to_proj: "/enclaveview/enclave_to_project/",
         enc_to_enc: "/enclaveview/enclave_to_enclave/",
         infra_to_proj: "/infraview/infra_to_project/"
