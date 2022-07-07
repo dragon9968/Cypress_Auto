@@ -1,5 +1,5 @@
-import { mapReducer } from "./components/map/store/map.reducer";
-import { projectReducer } from "./components/project/store/project.reducer";
+import { mapReducer } from "./map/store/map.reducer";
+import { projectReducer } from "./project/store/project.reducer";
 
 export const reducers = {
     map: mapReducer,

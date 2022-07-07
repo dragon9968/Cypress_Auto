@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { PermissionLevels } from 'src/app/core/enums/permission-levels.enum';
-import { RouteSegments } from 'src/app/core/enums/routes/route-segments.enum';
+import { PermissionLevels } from '../enums/permission-levels.enum';
+import { RouteSegments } from '../enums/routes/route-segments.enum';
 
 @Component({
   selector: 'app-nav-bar',

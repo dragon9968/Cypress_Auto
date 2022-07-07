@@ -1,0 +1,15 @@
+<a href="/">Home</a>
+<br>
+
+<ag-grid-angular 
+    class="ag-theme-alpine"
+    [pagination]="true"
+    [columnDefs]="columnDefs"
+    [defaultColDef]="defaultColDef"
+    [rowData]="rowData$ | async" 
+    [rowSelection]="'multiple'"
+    [suppressRowClickSelection]="true"
+    [animateRows]="true"
+    (gridReady)="onGridReady($event)">
+</ag-grid-angular>
+    
