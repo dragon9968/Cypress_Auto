@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Build the image') {
             when {
-                branch "feature/KR-1568"
+                branch "dev"
             }
             steps {
                 sh "docker build -t ${CONTAINER_NAME}:${VERSION} ."
@@ -17,7 +17,7 @@ pipeline {
         }
         stage('Stop the running containers on the port') {
             when {
-                branch "feature/KR-1568"
+                branch "dev"
             }
             steps {
                 sh "chmod +x ./stop_container_by_port.sh"
@@ -26,7 +26,7 @@ pipeline {
         }
         stage('Run the container') {
             when {
-                branch "feature/KR-1568"
+                branch "dev"
             }
             steps {
                 sh "docker run -d --rm -p ${HOST_PORT}:${APP_PORT} ${CONTAINER_NAME}:${VERSION}"
