@@ -1,10 +1,3 @@
-<div class="btn-group btn-group-xs">
-    <a 
-        href="/map?category={{category}}&collection_id={{id}}"
-        class="btn btn-sm btn-default"
-        data-toggle="tooltip" 
-        rel="tooltip" 
-        title="Open Map Editor">
-        <i class="fa fa-folder-open"></i>
-    </a>
-</div>
+<button mat-raised-button isIconButton="true" color="primary" (click)="openProject()">
+    <mat-icon aria-hidden="false">folder_open</mat-icon>
+</button>
