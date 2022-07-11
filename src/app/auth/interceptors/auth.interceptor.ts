@@ -8,6 +8,7 @@ import {
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, filter, switchMap, take } from 'rxjs/operators';
+import { ApiPaths } from 'src/app/shared/enums/api/api-paths.enums';
 import { environment } from 'src/environments/environment';
 import { AuthService } from '../services/auth.service';
 
@@ -26,27 +27,25 @@ export class AuthInterceptor implements HttpInterceptor {
       headers: req.headers.set('Content-Type', 'application/json')
     });
     const access_token = this.authService.getAccessToken();
-    if (access_token != null) {
+    const refreshToken = this.authService.getRefreshToken();
+    if (authReq.url.includes(ApiPaths.REFRESH_TOKEN) ) {
+      authReq = this.addTokenHeader(authReq, refreshToken);
+    } else if (access_token != null) {
       authReq = this.addTokenHeader(authReq, access_token);
     }
     return next.handle(authReq).pipe(catchError(error => {
-      if (
-        error instanceof HttpErrorResponse
-        && !authReq.url.includes('security/login')
-        && error.status === 401
-      ) {
-        return this.handle401Error(authReq, next);
+      if (error instanceof HttpErrorResponse && !authReq.url.includes(ApiPaths.LOGIN) && error.status === 401) {
+        return this.handle401Error(authReq, refreshToken, next);
       }
       return throwError(() => error);
     }));
   }
-  private handle401Error(request: HttpRequest<any>, next: HttpHandler) {
+  private handle401Error(request: HttpRequest<any>, refreshToken: string, next: HttpHandler) {
     if (!this.isRefreshing) {
       this.isRefreshing = true;
       this.refreshTokenSubject.next(null);
-      const token = this.authService.getRefreshToken();
-      if (token)
-        return this.authService.refreshToken(token).pipe(
+      if (refreshToken)
+        return this.authService.refreshToken().pipe(
           switchMap((token: any) => {
             this.isRefreshing = false;
             this.authService.updateAccessToken(token.access_token);
@@ -54,23 +53,22 @@ export class AuthInterceptor implements HttpInterceptor {
             
             return next.handle(this.addTokenHeader(request, token.access_token));
           }),
-          catchError((err) => {
+          catchError((error) => {
             this.isRefreshing = false;
-            
             this.authService.logout();
-            return throwError(() => err);
+            return throwError(() => error);
           })
         );
     }
     return this.refreshTokenSubject.pipe(
-      filter(token => token !== null),
+      filter(accessToken => accessToken !== null),
       take(1),
-      switchMap((token) => next.handle(this.addTokenHeader(request, token)))
+      switchMap((accessToken) => next.handle(this.addTokenHeader(request, accessToken)))
     );
   }
-  private addTokenHeader(req: HttpRequest<any>, token: string) {
+  private addTokenHeader(req: HttpRequest<any>, accessToken: string) {
     return req.clone({
-      headers: req.headers.set('Authorization', 'Bearer ' + token) 
+      headers: req.headers.set('Authorization', 'Bearer ' + accessToken) 
     });
   }
 }

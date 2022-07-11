@@ -7,13 +7,13 @@ import { MapDataModel } from '../models/map-data.model';
 @Injectable({
   providedIn: 'root'
 })
-export class MapService {
+export class MapEditorService {
 
   constructor(private http: HttpClient) { }
 
-  getMapData(category: string, collection_id: number): Observable<MapDataModel> {
+  getMapData(category: string, collectionId: number): Observable<MapDataModel> {
     const url = ApiPaths.GET_MAP_DATA + '/' + category;
-    const params = new HttpParams().set('collection_id', collection_id);
+    const params = new HttpParams().set('collection_id', collectionId);
     return this.http.get<MapDataModel>(url, {
       params
     });

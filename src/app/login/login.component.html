@@ -15,8 +15,11 @@
       <p *ngIf="error" class="error">
         {{ error }}
       </p>
-      <div class="button">
-        <button type="submit" mat-raised-button color="primary" [disabled]="!loginForm.valid">Login</button>
+      <div class="login-btn">
+        <button mat-raised-button type="submit" color="primary">
+          <mat-icon>login</mat-icon>
+          <span> Login</span>
+        </button>
       </div>
     </form>
   </mat-card-content>
