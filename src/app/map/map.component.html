@@ -1,5 +1,19 @@
-<p>map works!</p>
-<a href="/">Home</a>
-
-<div id="cy" style="height: calc(100vh - 3.6rem); width:100%; z-index: 1;"></div>
-
+<mat-sidenav-container class="sidenav-container" [hasBackdrop]="false">
+    <mat-sidenav class="tool-panel" mode="push" [opened]="isOpenToolPanel">
+        <app-map-tool-panel></app-map-tool-panel>
+    </mat-sidenav>
+    <mat-sidenav-content>
+        <div class="sidenav-content">
+            <div class="tool-panel-toggle">
+                <button mat-icon-button (click)="isOpenToolPanel = !isOpenToolPanel">
+                    <mat-icon *ngIf="isOpenToolPanel">keyboard_double_arrow_left</mat-icon>
+                    <mat-icon *ngIf="!isOpenToolPanel">keyboard_double_arrow_right</mat-icon>
+                </button>
+            </div>
+            <div class="map-editor">
+                <app-map-editor></app-map-editor>
+                <app-map-info-panel></app-map-info-panel>
+            </div>
+        </div>
+    </mat-sidenav-content>
+</mat-sidenav-container>

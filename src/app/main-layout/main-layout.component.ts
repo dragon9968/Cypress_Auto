@@ -1,7 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { RouteSegments } from 'src/app/shared/enums/routes/route-segments.enum';
-import { AuthService } from '../auth/services/auth.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -11,15 +8,7 @@ import { AuthService } from '../auth/services/auth.service';
 export class MainLayoutComponent implements OnInit {
   name: string | undefined;
 
-  constructor(
-    private authService: AuthService,
-    private router: Router
-  ) {}
+  constructor() {}
 
   ngOnInit(): void {}
-
-  logout() {
-    this.authService.logout();
-    this.router.navigate([RouteSegments.ROOT, RouteSegments.LOGIN]);
-  }
 }

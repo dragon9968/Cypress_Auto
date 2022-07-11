@@ -2,7 +2,10 @@ export enum RouteSegments {
   ROOT = '/',
   LOGIN = 'login',
   HOME = 'home',
-  PROJECTS = 'projects',
   DASHBOARD = 'dashboard',
+  PROJECTS = 'projects',
+  PREFERENCES = 'preferences',
+  SECURITY = 'security',
+  HELP = 'help',
   MAP = 'map',
 }

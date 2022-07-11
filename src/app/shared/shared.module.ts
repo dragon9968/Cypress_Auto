@@ -7,7 +7,7 @@ import { GuardsModule } from '../auth/guards/guards.module';
 import { StorageModule } from '../storage/storage.module';
 import { ProjectActionsRenderer } from './components/renderers/project-actions-renderer.component';
 import { BaseDialogComponent } from './dialogs/base/base-dialog.component';
-import { NavBarComponent } from './nav-bar/nav-bar.component';
+import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -21,7 +21,15 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatCardModule } from '@angular/material/card';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatExpansionModule } from '@angular/material/expansion';
+
+
 const materialModules = [
+  MatToolbarModule,
   MatFormFieldModule,
   MatInputModule,
   MatDialogModule,
@@ -34,7 +42,11 @@ const materialModules = [
   MatSnackBarModule,
   MatSliderModule,
   MatCardModule,
-  MatSlideToggleModule
+  MatSlideToggleModule,
+  MatSidenavModule,
+  MatListModule,
+  MatTabsModule,
+  MatExpansionModule
 ];
 
 @NgModule({
