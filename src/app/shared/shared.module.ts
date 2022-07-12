@@ -7,7 +7,6 @@ import { GuardsModule } from '../auth/guards/guards.module';
 import { StorageModule } from '../storage/storage.module';
 import { ProjectActionsRenderer } from './components/renderers/project-actions-renderer.component';
 import { BaseDialogComponent } from './dialogs/base/base-dialog.component';
-import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -26,6 +25,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatMenuModule } from '@angular/material/menu';
 
 
 const materialModules = [
@@ -46,13 +46,13 @@ const materialModules = [
   MatSidenavModule,
   MatListModule,
   MatTabsModule,
-  MatExpansionModule
+  MatExpansionModule,
+  MatMenuModule
 ];
 
 @NgModule({
   declarations: [
     BaseDialogComponent,
-    NavBarComponent,
     ProjectActionsRenderer
   ],
   imports: [
@@ -67,7 +67,6 @@ const materialModules = [
   exports: [
     CommonModule,
     BaseDialogComponent,
-    NavBarComponent,
     AgGridModule,
     GuardsModule,
     StorageModule,
