@@ -1,0 +1,107 @@
+<mat-toolbar color="primary">
+    <a mat-button [routerLink]="routeSegments.ROOT">
+        <img alt="App icon" src="favicon.ico" style="height: 24px">
+        <span>Keromatsu</span>
+    </a>
+    <a mat-button [matMenuTriggerFor]="project">Project</a>
+    <mat-menu #project="matMenu">
+        <button mat-menu-item>
+            <mat-icon>create_new_folder</mat-icon>
+            <span>New</span>
+        </button>
+        <button mat-menu-item [routerLink]="routeSegments.PROJECTS">
+            <mat-icon>folder_open</mat-icon>
+            <span>Open</span>
+        </button>
+        <button mat-menu-item>
+            <mat-icon>file_download</mat-icon>
+            <span>Export</span>
+        </button>
+        <button mat-menu-item>
+            <mat-icon>file_upload</mat-icon>
+            <span>Import</span>
+        </button>
+        <button mat-menu-item>
+            <mat-icon>folder_delete</mat-icon>
+            <span>Close</span>
+        </button>
+    </mat-menu>
+    <a mat-button [matMenuTriggerFor]="report">Report</a>
+    <mat-menu #report="matMenu">
+        <button mat-menu-item>
+            <mat-icon>note_add</mat-icon>
+            <span>New</span>
+        </button>
+        <button mat-menu-item>
+            <mat-icon>file_open</mat-icon>
+            <span>Open</span>
+        </button>
+        <button mat-menu-item>
+            <mat-icon>file_download</mat-icon>
+            <span>Export</span>
+        </button>
+        <button mat-menu-item>
+            <mat-icon>file_upload</mat-icon>
+            <span>Import</span>
+        </button>
+        <button mat-menu-item>
+            <mat-icon>delete</mat-icon>
+            <span>Close</span>
+        </button>
+    </mat-menu>
+    <a mat-button [matMenuTriggerFor]="components">Components</a>
+    <mat-menu #components="matMenu">
+        <button mat-menu-item>
+            <mat-icon>devices</mat-icon>
+            <span>Device/Template</span>
+        </button>
+        <button mat-menu-item>
+            <mat-icon>router</mat-icon>
+            <span>Hardware</span>
+        </button>
+        <button mat-menu-item>
+            <mat-icon>laptop</mat-icon>
+            <span>Icon</span>
+        </button>
+        <button mat-menu-item>
+            <mat-icon>wifi</mat-icon>
+            <span>Connections</span>
+        </button>
+        <button mat-menu-item>
+            <mat-icon>source</mat-icon>
+            <span>Config Templates</span>
+        </button>
+        <button mat-menu-item>
+            <mat-icon>groups</mat-icon>
+            <span>Login Profiles</span>
+        </button>
+    </mat-menu>
+    <a mat-button [routerLink]="routeSegments.SETTINGS" routerLinkActive="active">Settings</a>
+    <a mat-button [matMenuTriggerFor]="help">Help</a>
+    <mat-menu #help="matMenu">
+        <button mat-menu-item>
+            <mat-icon>book</mat-icon>
+            <span>User Guide</span>
+        </button>
+        <button mat-menu-item>
+            <mat-icon>info</mat-icon>
+            <span>About</span>
+        </button>
+    </mat-menu>
+    
+    <span class="menu-spacer"></span>
+    <a mat-button [matMenuTriggerFor]="account">
+        <mat-icon>person</mat-icon>
+        <span>{{"User Name"}}</span>
+    </a>
+    <mat-menu #account="matMenu">
+        <button mat-menu-item>
+            <mat-icon>account_box</mat-icon>
+            <span>Profile</span>
+        </button>
+        <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            <span>Logout</span>
+        </button>
+    </mat-menu>
+</mat-toolbar>

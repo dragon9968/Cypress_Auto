@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/auth/services/auth.service';
-import { PermissionLevels } from '../../enums/permission-levels.enum';
-import { RouteSegments } from '../../enums/routes/route-segments.enum';
+import { PermissionLevels } from '../shared/enums/permission-levels.enum';
+import { RouteSegments } from '../shared/enums/routes/route-segments.enum';
 
 @Component({
   selector: 'app-nav-bar',
@@ -16,7 +16,9 @@ export class NavBarComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) {
+    
+  }
 
   ngOnInit(): void {}
 
