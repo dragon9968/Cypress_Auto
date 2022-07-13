@@ -10,6 +10,7 @@ import { reducers } from './app.reducer'
 import { LoginComponent } from './login/login.component';
 import { AuthInterceptor } from './auth/interceptors/auth.interceptor';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { BrowserModule } from '@angular/platform-browser';
 
 
 @NgModule({
@@ -18,11 +19,10 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     LoginComponent
   ],
   imports: [
+    BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,
     HttpClientModule,
-    FormsModule,
-    ReactiveFormsModule,
     SharedModule,
     StoreModule.forRoot(reducers)
   ],

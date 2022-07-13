@@ -1,11 +1,12 @@
 <mat-accordion class="map-info-panel" hideToggle>
-    <mat-expansion-panel>
+    <mat-expansion-panel (opened)="isOpenInfoPanel = true" (closed)="isOpenInfoPanel = false">
         <mat-expansion-panel-header>
-            <mat-panel-title>
-                Infomation Panel
-            </mat-panel-title>
+            <mat-panel-description style="justify-content: end;">
+                <mat-icon color="accent" *ngIf="isOpenInfoPanel">keyboard_double_arrow_down</mat-icon>
+                <mat-icon color="accent" *ngIf="!isOpenInfoPanel">keyboard_double_arrow_up</mat-icon>
+            </mat-panel-description>
         </mat-expansion-panel-header>
-        <mat-tab-group mat-align-tabs="start">
+        <mat-tab-group>
             <mat-tab label="Nodes">Nodes</mat-tab>
             <mat-tab label="Port Groups">Port Groups</mat-tab>
             <mat-tab label="Interfaces">Interfaces</mat-tab>
