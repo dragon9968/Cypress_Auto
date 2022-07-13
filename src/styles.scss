@@ -1,10 +1,11 @@
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
-@import url("assets/fonts/material-fonts.css");
 @import url("assets/icons/material-icons.css");
 @import 'ag-grid-community/dist/styles/ag-grid.css';
 @import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 @import 'cytoscape-context-menus/cytoscape-context-menus.css';
 @import 'cytoscape-navigator/cytoscape.js-navigator.css';
+
+$tool-panel-width: 300px;
 
 .project-actions {
     display: flex;
@@ -12,6 +13,7 @@
     align-items: center;
 }
 
-.ag-theme-alpine {
-    font-family: 'Source Sans Pro', sans-serif;
+.mat-tab-label {
+	min-width: $tool-panel-width/4 !important;
+    padding: 0 8px !important;
 }

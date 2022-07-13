@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AgGridModule } from 'ag-grid-angular';
 import { GuardsModule } from '../auth/guards/guards.module';
@@ -14,7 +14,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
-import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSliderModule } from '@angular/material/slider';
@@ -26,6 +25,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 
 const materialModules = [
@@ -34,7 +34,6 @@ const materialModules = [
   MatInputModule,
   MatDialogModule,
   MatButtonModule,
-  MatSelectModule,
   MatRadioModule,
   MatIconModule,
   MatCheckboxModule,
@@ -47,7 +46,8 @@ const materialModules = [
   MatListModule,
   MatTabsModule,
   MatExpansionModule,
-  MatMenuModule
+  MatMenuModule,
+  MatAutocompleteModule
 ];
 
 @NgModule({
@@ -62,15 +62,18 @@ const materialModules = [
     GuardsModule,
     StorageModule,
     AgGridModule,
+    FormsModule,
     ...materialModules
   ],
   exports: [
     CommonModule,
-    BaseDialogComponent,
+    ReactiveFormsModule,
+    FormsModule,
     AgGridModule,
     GuardsModule,
     StorageModule,
-    ...materialModules
+    ...materialModules,
+    BaseDialogComponent
   ],
 })
 export class SharedModule {}
