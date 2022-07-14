@@ -1,6 +1,6 @@
 <mat-sidenav-container class="sidenav-container" [hasBackdrop]="false">
     <mat-sidenav mode="push" [opened]="isOpenToolPanel">
-        <app-map-tool-panel></app-map-tool-panel>
+        <app-tool-panel></app-tool-panel>
     </mat-sidenav>
     <mat-sidenav-content>
         <div class="sidenav-content">
@@ -11,8 +11,8 @@
                 </button>
             </div>
             <div class="map-editor">
-                <app-map-editor></app-map-editor>
-                <app-map-info-panel></app-map-info-panel>
+                <app-editor></app-editor>
+                <app-info-panel></app-info-panel>
             </div>
         </div>
     </mat-sidenav-content>

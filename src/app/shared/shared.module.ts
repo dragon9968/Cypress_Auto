@@ -26,6 +26,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { ColorPickerModule } from 'ngx-color-picker';
 
 
 const materialModules = [
@@ -63,6 +64,7 @@ const materialModules = [
     StorageModule,
     AgGridModule,
     FormsModule,
+    ColorPickerModule,
     ...materialModules
   ],
   exports: [
@@ -72,6 +74,7 @@ const materialModules = [
     AgGridModule,
     GuardsModule,
     StorageModule,
+    ColorPickerModule,
     ...materialModules,
     BaseDialogComponent
   ],

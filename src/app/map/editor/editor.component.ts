@@ -6,16 +6,16 @@ import { environment } from 'src/environments/environment';
 import { ActivatedRoute, Params } from '@angular/router';
 import { selectMap } from './store/map-editor.selectors';
 import { retrievedMapData } from './store/map-editor.actions';
-import { MapEditorService } from './services/map-editor.service';
+import { EditorService } from './service/editor.service';
 import { MapDataModel } from './models/map-data.model';
 import { generateCyStyle } from './constants/cy-style.constant';
 
 @Component({
-  selector: 'app-map-editor',
-  templateUrl: './map-editor.component.html',
-  styleUrls: ['./map-editor.component.scss']
+  selector: 'app-editor',
+  templateUrl: './editor.component.html',
+  styleUrls: ['./editor.component.scss']
 })
-export class MapEditorComponent implements OnInit, OnDestroy {
+export class EditorComponent implements OnInit, OnDestroy {
   sideNavOpened = false;
   cy: cytoscape.Core | undefined;
   mapCategory = 'logical';
@@ -32,7 +32,7 @@ export class MapEditorComponent implements OnInit, OnDestroy {
   selectMapData$ = new Subscription()
 
   constructor(
-    private mapEditorService: MapEditorService,
+    private editorService: EditorService,
     private store: Store,
     private route: ActivatedRoute
   ) {
@@ -48,7 +48,7 @@ export class MapEditorComponent implements OnInit, OnDestroy {
     this.route.queryParams.subscribe((params: Params) => {
       this.mapCategory = params['category'];
       this.collectionId = params['collection_id'];
-      this.mapEditorService.getMapData(this.mapCategory, this.collectionId)
+      this.editorService.getMapData(this.mapCategory, this.collectionId)
       .subscribe((data: MapDataModel) => this.store.dispatch(retrievedMapData({ data })));
     });
   }

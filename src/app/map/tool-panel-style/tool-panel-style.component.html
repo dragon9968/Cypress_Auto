@@ -1,0 +1,151 @@
+<section class="tab-section">
+    <h4>Default Map Preference</h4>
+    <mat-form-field class="tab-select-field">
+        <mat-label>Map Preference</mat-label>
+        <input matInput type="text" placeholder="Select Map Preference" [formControl]="mapPrefCtr"
+            [matAutocomplete]="autoMapPref">
+        <mat-autocomplete #autoMapPref="matAutocomplete">
+            <mat-option *ngFor="let device of filteredMapPref  | async" [value]="device">
+                {{ device }}
+            </mat-option>
+        </mat-autocomplete>
+    </mat-form-field>
+    <div class="tab-field">
+        <button mat-raised-button color="primary" class="apply-map-pref-btn" (click)="applyMapPref()" matTooltip="Apply">
+            <mat-icon>check</mat-icon>
+        </button>
+    </div>
+</section>
+<mat-divider></mat-divider>
+<section class="tab-section">
+    <h4>Node</h4>
+    <div class="tab-field">
+        <label>Size</label>
+        <mat-slider class="slider" step="1" min="1" max="100" [(ngModel)]="nodeSize"></mat-slider>
+        <label>{{ nodeSize }}px</label>
+    </div>
+</section>
+<mat-divider></mat-divider>
+<section class="tab-section">
+    <h4>Edge</h4>
+    <div class="tab-field">
+        <label for="edgeColor">Color</label>
+        <button mat-mini-fab id="edgeColor" class="color-picker" [(colorPicker)]="edgeColor" [style.background]="edgeColor" cpPosition="bottom"></button>
+    </div>
+    <div class="tab-field">
+        <label>Size</label>
+        <mat-slider class="slider" step="1" min="1" max="50" [(ngModel)]="edgeSize"></mat-slider>
+        <label>{{ edgeSize }}px</label>
+    </div>
+    <h4>Arrow</h4>
+    <div class="tab-field direction">
+        <label>Direction</label>
+        <button mat-mini-fab color="primary" matTooltip="Both" (click)="setDirection('both')">
+            <mat-icon>sync_alt</mat-icon>
+        </button>
+        <button mat-mini-fab color="primary" matTooltip="Inbound" (click)="setDirection('inbound')">
+            <mat-icon>west</mat-icon>
+        </button>
+        <button mat-mini-fab color="primary" matTooltip="Outbound" (click)="setDirection('outbound')">
+            <mat-icon>east</mat-icon>
+        </button>
+    </div>
+    <div class="tab-field">
+        <label>Size</label>
+        <mat-slider class="slider" step="1" min="1" max="10" [(ngModel)]="arrowSize"></mat-slider>
+        <label>{{ arrowSize }}px</label>
+    </div>
+</section>
+<mat-divider></mat-divider>
+<section class="tab-section">
+    <h4>Port Group</h4>
+    <div class="tab-field">
+        <label for="pgColor">Color</label>
+        <button mat-mini-fab id="pgColor" class="color-picker" [(colorPicker)]="pgColor" [style.background]="pgColor" cpPosition="bottom"></button>
+    </div>
+    <div class="tab-field">
+        <label>Size</label>
+        <mat-slider class="slider" step="1" min="1" max="50" [(ngModel)]="pgSize"></mat-slider>
+        <label>{{ pgSize }}px</label>
+    </div>
+</section>
+<mat-divider></mat-divider>
+<section class="tab-section">
+    <h4>Group Box</h4>
+    <div class="tab-field">
+        <label for="gbColor">Color</label>
+        <button mat-mini-fab id="gbColor" class="color-picker" [(colorPicker)]="gbColor" [style.background]="gbColor" cpPosition="bottom"></button>
+    </div>
+    <div class="tab-field">
+        <label>Opacity</label>
+        <mat-slider class="slider" step="0.01" min="0" max="1" [(ngModel)]="gbOpacity"></mat-slider>
+        <label>{{ gbOpacity*100 }}%</label>
+    </div>
+    <h4>Group Box Border</h4>
+    <div class="tab-field">
+        <label for="gbBorderColor">Color</label>
+        <button mat-mini-fab id="gbBorderColor" class="color-picker" [(colorPicker)]="gbBorderColor" [style.background]="gbBorderColor" cpPosition="bottom"></button>
+    </div>
+    <div class="tab-field direction">
+        <label>Type</label>
+        <button mat-mini-fab color="primary" matTooltip="Solid" (click)="setGBType('solid')">
+            <mat-icon>horizontal_rule</mat-icon>
+        </button>
+        <button mat-mini-fab color="primary" matTooltip="Dotted" (click)="setGBType('dotted')">
+            <mat-icon>more_horiz</mat-icon>
+        </button>
+        <button mat-mini-fab color="primary" matTooltip="Dashed" (click)="setGBType('dashed')">
+            <mat-icon svgIcon="dashed"></mat-icon>
+        </button>
+        <button mat-mini-fab color="primary" matTooltip="Double" (click)="setGBType('double')">
+            <mat-icon svgIcon="double"></mat-icon>
+        </button>
+    </div>
+</section>
+<mat-divider></mat-divider>
+<section class="tab-section">
+    <h4>Text</h4>
+    <div class="tab-field">
+        <label for="textColor">Color</label>
+        <button mat-mini-fab id="textColor" class="color-picker" [(colorPicker)]="textColor" [style.background]="textColor" cpPosition="bottom"></button>
+    </div>
+    <div class="tab-field">
+        <label>Size</label>
+        <mat-slider class="slider" step="1" min="0" max="200" [(ngModel)]="textSize"></mat-slider>
+        <label>{{ textSize }}px</label>
+    </div>
+    <div class="tab-field text-align">
+        <label>V Align</label>
+        <button mat-mini-fab color="primary" matTooltip="Top" (click)="setTextVAlign('top')">
+            <mat-icon>align_vertical_top</mat-icon>
+        </button>
+        <button mat-mini-fab color="primary" matTooltip="Center" (click)="setTextVAlign('center')">
+            <mat-icon>align_vertical_center</mat-icon>
+        </button>
+        <button mat-mini-fab color="primary" matTooltip="Bottom" (click)="setTextVAlign('bottom')">
+            <mat-icon>align_vertical_bottom</mat-icon>
+        </button>
+    </div>
+    <div class="tab-field text-align">
+        <label>H Align</label>
+        <button mat-mini-fab color="primary" matTooltip="Left" (click)="setTextHAlign('left')">
+            <mat-icon>align_horizontal_left</mat-icon>
+        </button>
+        <button mat-mini-fab color="primary" matTooltip="Center" (click)="setTextHAlign('center')">
+            <mat-icon>align_horizontal_center</mat-icon>
+        </button>
+        <button mat-mini-fab color="primary" matTooltip="Right" (click)="setTextHAlign('right')">
+            <mat-icon>align_horizontal_right</mat-icon>
+        </button>
+    </div>
+    <h4>Text Background</h4>
+    <div class="tab-field">
+        <label for="textBGColor">Color</label>
+        <button mat-mini-fab id="textBGColor" class="color-picker" [(colorPicker)]="textBGColor" [style.background]="textBGColor" cpPosition="bottom"></button>
+    </div>
+    <div class="tab-field">
+        <label>Opacity</label>
+        <mat-slider class="slider" step="0.01" min="0" max="1" [(ngModel)]="textBGOpacity"></mat-slider>
+        <label>{{ textBGOpacity*100 }}%</label>
+    </div>
+</section>

@@ -38,6 +38,7 @@
     "cytoscape-popper": "^2.0.0",
     "cytoscape-svg": "^0.4.0",
     "cytoscape-undo-redo": "^1.3.3",
+    "ngx-color-picker": "^12.0.1",
     "ngx-cookie-service": "^14.0.0",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
