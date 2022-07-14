@@ -23,7 +23,7 @@ export class AuthInterceptor implements HttpInterceptor {
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
     let authReq = req.clone({
-      url: environment.apiBaseUrl + req.url,
+      url: !req.url.includes(ApiPaths.ASSETS) ? environment.apiBaseUrl + req.url : req.url,
       headers: req.headers.set('Content-Type', 'application/json')
     });
     const access_token = this.authService.getAccessToken();

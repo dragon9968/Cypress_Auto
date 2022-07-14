@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MapInfoPanelComponent } from './map-info-panel.component';
+import { ToolPanelComponent } from './tool-panel.component';
 
-describe('MapInfoPanelComponent', () => {
-  let component: MapInfoPanelComponent;
-  let fixture: ComponentFixture<MapInfoPanelComponent>;
+describe('ToolPanelComponent', () => {
+  let component: ToolPanelComponent;
+  let fixture: ComponentFixture<ToolPanelComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ MapInfoPanelComponent ]
+      declarations: [ ToolPanelComponent ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(MapInfoPanelComponent);
+    fixture = TestBed.createComponent(ToolPanelComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

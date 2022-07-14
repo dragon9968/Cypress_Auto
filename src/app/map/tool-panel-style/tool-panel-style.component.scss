@@ -1,0 +1,42 @@
+$tool-panel-width: 300px;
+$margin: 8px;
+
+.tab-section {
+    margin: $margin;
+    width: calc($tool-panel-width - $margin*2);
+    text-align: center;
+    display: table;
+}
+
+.tab-select-field {
+    width: 100%;
+    align-items: center;
+}
+
+.tab-field {
+    width: 100%;
+    margin: $margin 0;
+    align-items: center;
+    display: flex;
+}
+
+.apply-map-pref-btn {
+    width: 100%;
+}
+
+.slider {
+    width: 70%;
+}
+
+.color-picker {
+    width: 40px;
+    height: 40px;
+    margin: 0 $margin;
+    cursor: pointer;
+}
+
+.text-align,
+.direction {
+    display: flex;
+    justify-content: space-between;
+}

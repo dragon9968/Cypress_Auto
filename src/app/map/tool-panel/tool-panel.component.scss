@@ -1,0 +1,7 @@
+$padding: 8px;
+
+.tool-panel-actions {
+    display: flex;
+    justify-content: space-between;
+    padding: $padding;
+}

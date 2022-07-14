@@ -7,7 +7,7 @@ import { MapDataModel } from '../models/map-data.model';
 @Injectable({
   providedIn: 'root'
 })
-export class MapEditorService {
+export class EditorService {
 
   constructor(private http: HttpClient) { }
 
