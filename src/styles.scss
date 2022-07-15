@@ -17,3 +17,9 @@ $tool-panel-width: 300px;
 	min-width: $tool-panel-width/4 !important;
     padding: 0 8px !important;
 }
+
+.cytoscape-navigator {
+	top: 64px !important;
+    width: 300px !important;
+	height: 150px !important;
+}

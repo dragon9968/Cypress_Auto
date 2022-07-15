@@ -1,6 +1,6 @@
 <mat-sidenav-container class="sidenav-container" [hasBackdrop]="false">
     <mat-sidenav mode="push" [opened]="isOpenToolPanel">
-        <app-tool-panel></app-tool-panel>
+        <app-tool-panel [cy]="cy" [config]="config"></app-tool-panel>
     </mat-sidenav>
     <mat-sidenav-content>
         <div class="sidenav-content">

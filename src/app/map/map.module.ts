@@ -7,6 +7,7 @@ import { ToolPanelComponent } from './tool-panel/tool-panel.component';
 import { InfoPanelComponent } from './info-panel/info-panel.component';
 import { ToolPanelEditComponent } from './tool-panel-edit/tool-panel-edit.component';
 import { ToolPanelStyleComponent } from './tool-panel-style/tool-panel-style.component';
+import { ToolPanelOptionComponent } from './tool-panel-option/tool-panel-option.component';
 
 
 
@@ -17,7 +18,8 @@ import { ToolPanelStyleComponent } from './tool-panel-style/tool-panel-style.com
     ToolPanelComponent,
     InfoPanelComponent,
     ToolPanelEditComponent,
-    ToolPanelStyleComponent
+    ToolPanelStyleComponent,
+    ToolPanelOptionComponent
   ],
   imports: [
     MapRoutingModule,

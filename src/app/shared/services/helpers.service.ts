@@ -1,21 +1,23 @@
 import { Injectable } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { map, startWith } from 'rxjs';
+import { Option } from 'src/app/shared/models/option.model';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class HelpersService {
 
-  constructor() { }
+    constructor() { }
 
-  filter(control: FormControl<string | null>, options: string[]) {
-    return control.valueChanges.pipe(
-        startWith(''),
-        map(value => {
-            const filterValue = value ? value.toLowerCase() : '';
-            return options.filter(option => option.toLowerCase().includes(filterValue));
-        }),
-    );
-}
+    filter(control: FormControl<any>, options: Option[]) {
+        return control.valueChanges.pipe(
+            startWith(''),
+            map(value => {
+                const name = typeof value === 'string' ? value : value?.name;
+                const filterValue = name.toLowerCase();
+                return options.filter(option => option.name.toLowerCase().includes(filterValue));
+            }),
+        );
+    }
 }

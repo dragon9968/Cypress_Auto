@@ -4,9 +4,9 @@
         <mat-label>Map Preference</mat-label>
         <input matInput type="text" placeholder="Select Map Preference" [formControl]="mapPrefCtr"
             [matAutocomplete]="autoMapPref">
-        <mat-autocomplete #autoMapPref="matAutocomplete">
+        <mat-autocomplete #autoMapPref="matAutocomplete" [displayWith]="optionDisplay">
             <mat-option *ngFor="let device of filteredMapPref  | async" [value]="device">
-                {{ device }}
+                {{ device.name }}
             </mat-option>
         </mat-autocomplete>
     </mat-form-field>
