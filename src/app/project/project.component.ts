@@ -5,7 +5,7 @@ import { Observable, of, Subscription } from 'rxjs';
 import { ProjectModel } from './models/project.model';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
-import { selectProject } from './store/project.selectors';
+import { selectProject, selectProjects } from './store/project.selectors';
 import { retrievedProjects } from './store/project.actions';
 import { ProjectActionsRenderer } from '../shared/components/renderers/project-actions-renderer.component';
 
@@ -49,9 +49,9 @@ export class ProjectComponent implements OnInit, OnDestroy {
     private projectService: ProjectService,
     private store: Store,
   ) {
-    this.selectProjects$ = this.store.select(selectProject)
-    .subscribe((data: ProjectModel) => {
-      this.rowData$ = of(data.list)
+    this.selectProjects$ = this.store.select(selectProjects)
+    .subscribe((data: any) => {
+      this.rowData$ = of(data)
     })
   }
 

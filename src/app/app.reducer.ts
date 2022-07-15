@@ -1,7 +1,8 @@
-import { mapReducer } from "./map/editor/store/map-editor.reducer";
+import { mapReducer } from "./map/store/map.reducer";
 import { projectReducer } from "./project/store/project.reducer";
+import { ReducerKeys } from "./shared/enums/reducer-keys.enum";
 
 export const reducers = {
-    map: mapReducer,
-    project: projectReducer
+    [ReducerKeys.MAP]: mapReducer,
+    [ReducerKeys.PROJECT]: projectReducer
 }

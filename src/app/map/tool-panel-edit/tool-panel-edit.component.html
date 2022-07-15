@@ -31,9 +31,9 @@
         <mat-label>Device</mat-label>
         <input matInput type="text" placeholder="Select Device" [formControl]="deviceCtr"
             [matAutocomplete]="autoDevice">
-        <mat-autocomplete #autoDevice="matAutocomplete">
+        <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="optionDisplay">
             <mat-option *ngFor="let device of filteredDevices  | async" [value]="device">
-                {{device}}
+                {{ device.name }}
             </mat-option>
         </mat-autocomplete>
     </mat-form-field>
@@ -42,9 +42,9 @@
         <mat-label>Template/Model</mat-label>
         <input matInput type="text" placeholder="Select Template/Model" [formControl]="templateCtr"
             [matAutocomplete]="autoTemplate">
-        <mat-autocomplete #autoTemplate="matAutocomplete">
+        <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="optionDisplay">
             <mat-option *ngFor="let template of filteredTemplates  | async" [value]="template">
-                {{template}}
+                {{ template.name }}
             </mat-option>
         </mat-autocomplete>
     </mat-form-field>
@@ -81,9 +81,9 @@
         <mat-label>Image</mat-label>
         <input matInput type="text" placeholder="Select Image" [formControl]="imageCtr"
             [matAutocomplete]="autoImage">
-        <mat-autocomplete #autoImage="matAutocomplete">
+        <mat-autocomplete #autoImage="matAutocomplete" [displayWith]="optionDisplay">
             <mat-option *ngFor="let image of filteredImages  | async" [value]="image">
-                {{image}}
+                {{ image.name }}
             </mat-option>
         </mat-autocomplete>
     </mat-form-field>

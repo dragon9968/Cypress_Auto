@@ -1,4 +1,3 @@
 export interface ProjectModel {
-  list: any[],
-  current: any, 
+  list: any[]
 }
