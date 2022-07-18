@@ -4,11 +4,11 @@ import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { generateCyStyle } from './constants/cy-style.constant';
 import { MapDataModel } from './models/map-data.model';
-import { MapService } from './service/map.service';
 import { retrievedMapData } from './store/map.actions';
 import { selectMap } from './store/map.selectors';
 import { environment } from 'src/environments/environment';
 import * as cytoscape from 'cytoscape';
+import { MapService } from './service/map.service';
 var navigator = require('cytoscape-navigator');
 
 
@@ -43,8 +43,6 @@ export class MapComponent implements OnInit {
         this.selectMapData$ = this.store.select(selectMap)
             .subscribe((map: MapDataModel) => {
                 if (Object.keys(map).length > 0) {
-                    this.mapCategory = map.mapCategory;
-                    this.collectionId = map.collectionId;
                     this.nodes = map.nodes;
                     this.interfaces = map.interfaces;
                     this.groupBoxes = map.groupBoxes;
@@ -59,12 +57,10 @@ export class MapComponent implements OnInit {
 
     ngOnInit(): void {
         this.route.queryParams.subscribe((params: Params) => {
+            this.mapCategory = params['category'];
+            this.collectionId = params['collection_id'];
             this.mapService.getMapData(params['category'], params['collection_id'])
-                .subscribe((data: any) => this.store.dispatch(retrievedMapData({
-                    mapCategory: params['category'],
-                    collectionId: params['collection_id'],
-                    data
-                })));
+                .subscribe((data: any) => this.store.dispatch(retrievedMapData({ data })));
         });
     }
 

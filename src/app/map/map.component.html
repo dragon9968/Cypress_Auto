@@ -1,6 +1,6 @@
 <mat-sidenav-container class="sidenav-container" [hasBackdrop]="false">
     <mat-sidenav mode="push" [opened]="isOpenToolPanel">
-        <app-tool-panel [cy]="cy" [config]="config"></app-tool-panel>
+        <app-tool-panel [cy]="cy" [config]="config" [collectionId]="collectionId"></app-tool-panel>
     </mat-sidenav>
     <mat-sidenav-content>
         <div class="sidenav-content">
@@ -11,7 +11,7 @@
                 </button>
             </div>
             <div class="map-editor">
-                <app-editor></app-editor>
+                <div id="cy" style="height: calc(100vh - 4rem); width:100%; z-index: 1;"></div>
                 <app-info-panel></app-info-panel>
             </div>
         </div>

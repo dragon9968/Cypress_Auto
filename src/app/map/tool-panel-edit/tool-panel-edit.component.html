@@ -31,9 +31,9 @@
         <mat-label>Device</mat-label>
         <input matInput type="text" placeholder="Select Device" [formControl]="deviceCtr"
             [matAutocomplete]="autoDevice">
-        <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="optionDisplay">
-            <mat-option *ngFor="let device of filteredDevices  | async" [value]="device">
-                {{ device.name }}
+        <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="helper.optionDisplay">
+            <mat-option *ngFor="let option of devices" [value]="option">
+                {{ option.name }}
             </mat-option>
         </mat-autocomplete>
     </mat-form-field>
@@ -42,9 +42,9 @@
         <mat-label>Template/Model</mat-label>
         <input matInput type="text" placeholder="Select Template/Model" [formControl]="templateCtr"
             [matAutocomplete]="autoTemplate">
-        <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="optionDisplay">
-            <mat-option *ngFor="let template of filteredTemplates  | async" [value]="template">
-                {{ template.name }}
+        <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helper.optionDisplay">
+            <mat-option *ngFor="let option of templates" [value]="option">
+                {{ option.name }}
             </mat-option>
         </mat-autocomplete>
     </mat-form-field>
@@ -54,7 +54,7 @@
         </button>
     </div>
     <div class="tab-field">
-        <mat-checkbox ([ngModel])="isCustomizeNode">Customize</mat-checkbox>
+        <mat-checkbox [(ngModel)]="isCustomizeNode">Customize</mat-checkbox>
     </div>
 </section>
 <mat-divider></mat-divider>
@@ -71,7 +71,7 @@
         </button>
     </div>
     <div class="tab-field">
-        <mat-checkbox ([ngModel])="isCustomizePG">Customize</mat-checkbox>
+        <mat-checkbox [(ngModel)]="isCustomizePG">Customize</mat-checkbox>
     </div>
 </section>
 <mat-divider></mat-divider>
@@ -81,9 +81,9 @@
         <mat-label>Image</mat-label>
         <input matInput type="text" placeholder="Select Image" [formControl]="imageCtr"
             [matAutocomplete]="autoImage">
-        <mat-autocomplete #autoImage="matAutocomplete" [displayWith]="optionDisplay">
-            <mat-option *ngFor="let image of filteredImages  | async" [value]="image">
-                {{ image.name }}
+        <mat-autocomplete #autoImage="matAutocomplete" [displayWith]="helper.optionDisplay">
+            <mat-option *ngFor="let option of images" [value]="option">
+                {{ option.name }}
             </mat-option>
         </mat-autocomplete>
     </mat-form-field>

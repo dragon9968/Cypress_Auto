@@ -1,8 +1,9 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { Observable } from 'rxjs';
-import { HelpersService } from 'src/app/shared/services/helpers.service';
 import { Option } from 'src/app/shared/models/option.model';
+import { MatDialog } from '@angular/material/dialog';
+import { AddUpdateNodeDialogComponent } from '../add-update-node-dialog/add-update-node-dialog.component';
+import { HelpersService } from 'src/app/shared/services/helper/helpers.service';
 
 @Component({
     selector: 'app-tool-panel-edit',
@@ -10,19 +11,20 @@ import { Option } from 'src/app/shared/models/option.model';
     styleUrls: ['./tool-panel-edit.component.scss']
 })
 export class ToolPanelEditComponent implements OnInit {
+    @Input() collectionId: any;
     deviceCtr = new FormControl();
     templateCtr = new FormControl();
     imageCtr = new FormControl();
     isCustomizeNode = true;
     isCustomizePG = true;
-    filteredDevices: Observable<Option[]>;
-    filteredTemplates: Observable<Option[]>;
-    filteredImages: Observable<Option[]>;
     devices: Option[];
     templates: Option[];
     images: Option[];
 
-    constructor(private helper: HelpersService) {
+    constructor(
+        private dialog: MatDialog,
+        public helper: HelpersService
+    ) {
         this.devices = [
             { value: "v1", name: "Name 1" },
             { value: "v2", name: "Name 2" },
@@ -38,21 +40,31 @@ export class ToolPanelEditComponent implements OnInit {
             { value: "v2", name: "Name 2" },
             { value: "v3", name: "Name 3" },
         ];
-        this.filteredDevices = this.helper.filter(this.deviceCtr, this.devices)
-        this.filteredTemplates = this.helper.filter(this.templateCtr, this.templates)
-        this.filteredImages = this.helper.filter(this.imageCtr, this.images)
     }
 
-    ngOnInit(): void {}
-
-    optionDisplay(option: Option) {
-        return option && option.name ? option.name : '';
-    }
+    ngOnInit(): void { }
 
     addNode() {
-        console.log(this.deviceCtr.value);
-        console.log(this.templateCtr.value);
-        console.log(this.isCustomizeNode);
+        if (this.isCustomizeNode) {
+            const dialogData = {
+                mode: 'add',
+                collectionId: this.collectionId,
+                device: this.deviceCtr.value,
+                template: this.templateCtr.value,
+            }
+            this.dialog.open(AddUpdateNodeDialogComponent, {
+                width: '500px',
+                data: dialogData
+            });
+        } else {
+            const dialogData = {
+                mode: 'update',
+            }
+            this.dialog.open(AddUpdateNodeDialogComponent, {
+                width: '500px',
+                data: dialogData
+            });
+        }
     }
 
     addPublicPG() {

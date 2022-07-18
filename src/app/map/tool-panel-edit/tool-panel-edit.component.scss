@@ -8,15 +8,14 @@ $margin: 8px;
     display: table;
 }
 
-.tab-select-field {
+.tab-select-field,
+.tab-field {
     width: 100%;
     align-items: center;
 }
 
 .tab-field {
-    width: 100%;
     margin: $margin 0;
-    align-items: center;
     display: flex;
 }
 

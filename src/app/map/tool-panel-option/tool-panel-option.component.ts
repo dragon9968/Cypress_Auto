@@ -1,8 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Store } from '@ngrx/store';
-import { Observable, Subscription } from 'rxjs';
-import { HelpersService } from 'src/app/shared/services/helpers.service';
+import { Subscription } from 'rxjs';
 import { selectDefaultPreferences } from '../store/map.selectors';
 import { Option } from 'src/app/shared/models/option.model';
 
@@ -21,7 +20,6 @@ export class ToolPanelOptionComponent implements OnInit {
     isMapOverviewChecked = false;
     gridSpacingSize = "100";
     groupCategoryCtr = new FormControl();
-    filteredGroupCategory: Observable<Option[]>;
     groupCategories: Option[] = [
         { value: "domain", name: "Domain" },
         { value: "device", name: "Device" },
@@ -32,11 +30,7 @@ export class ToolPanelOptionComponent implements OnInit {
     selectDefaultPreferences$ = new Subscription();
     nav: any;
 
-    constructor(
-        private helper: HelpersService,
-        private store: Store
-    ) {
-        this.filteredGroupCategory = this.helper.filter(this.groupCategoryCtr, this.groupCategories);
+    constructor(private store: Store) {
         this.selectDefaultPreferences$ = this.store.select(selectDefaultPreferences)
             .subscribe((defaultPreferences: any) => {
                 if (defaultPreferences) {
