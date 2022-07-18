@@ -1,4 +1,4 @@
-import { MapDataModel } from "./components/map/models/map-data.model";
+import { MapDataModel } from "./map/models/map-data.model";
 
 export interface AppState {
     map: MapDataModel;

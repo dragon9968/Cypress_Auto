@@ -6,7 +6,6 @@ import { AgGridModule } from 'ag-grid-angular';
 import { GuardsModule } from '../auth/guards/guards.module';
 import { StorageModule } from '../storage/storage.module';
 import { ProjectActionsRenderer } from './components/renderers/project-actions-renderer.component';
-import { BaseDialogComponent } from './dialogs/base/base-dialog.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -53,7 +52,6 @@ const materialModules = [
 
 @NgModule({
   declarations: [
-    BaseDialogComponent,
     ProjectActionsRenderer
   ],
   imports: [
@@ -76,7 +74,6 @@ const materialModules = [
     StorageModule,
     ColorPickerModule,
     ...materialModules,
-    BaseDialogComponent
   ],
 })
 export class SharedModule {}

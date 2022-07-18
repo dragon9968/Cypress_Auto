@@ -1,0 +1,112 @@
+<form [formGroup]="nodeAddForm" (ngSubmit)="data.mode == 'add' ? addNode() : updateNode()">
+    <h1 mat-dialog-title>Node Add Form</h1>
+    <div mat-dialog-content>
+        <mat-form-field class="field">
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name">
+        </mat-form-field>
+        <mat-form-field class="field">
+            <mat-label>Notes</mat-label>
+            <textarea matInput formControlName="notes"></textarea>
+        </mat-form-field>
+        <mat-form-field class="field">
+            <mat-label>Icon</mat-label>
+            <input matInput type="text" placeholder="Select Icon" formControlName="icon" [matAutocomplete]="autoIcon">
+            <mat-autocomplete #autoIcon="matAutocomplete" [displayWith]="helper.optionDisplay">
+                <mat-option *ngFor="let option of icons" [value]="option">
+                    {{ option.name }}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+        <div class="category">
+            <label>Category:</label>
+            <mat-radio-group class="category-group" formControlName="category" (change)="onCategoryChange($event)">
+                <mat-radio-button class="category-items" value="vm">VM</mat-radio-button>
+                <mat-radio-button class="category-items" value="hw">HW</mat-radio-button>
+                <mat-radio-button class="category-items" value="other">Other</mat-radio-button>
+            </mat-radio-group>
+        </div>
+        <mat-form-field class="field">
+            <mat-label>Device</mat-label>
+            <input matInput type="text" placeholder="Select Device" formControlName="device"
+                [matAutocomplete]="autoDevice">
+            <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="helper.optionDisplay">
+                <mat-option *ngFor="let option of devices" [value]="option">
+                    {{ option.name }}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+        <mat-form-field class="field">
+            <mat-label>Template</mat-label>
+            <input matInput type="text" placeholder="Select Template" formControlName="template"
+                [matAutocomplete]="autoTemplate">
+            <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helper.optionDisplay">
+                <mat-option *ngFor="let option of templates" [value]="option">
+                    {{ option.name }}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+        <mat-form-field class="field">
+            <mat-label>Hardware</mat-label>
+            <input matInput type="text" placeholder="Select Hardware" formControlName="hardware"
+                [matAutocomplete]="autoHardware">
+            <mat-autocomplete #autoHardware="matAutocomplete" [displayWith]="helper.optionDisplay">
+                <mat-option *ngFor="let option of hardwares" [value]="option">
+                    {{ option.name }}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+        <mat-form-field class="field">
+            <mat-label>Folder</mat-label>
+            <input matInput formControlName="folder">
+        </mat-form-field>
+        <mat-form-field class="field">
+            <mat-label>Role</mat-label>
+            <input matInput type="text" placeholder="Select Role" formControlName="role" [matAutocomplete]="autoRole">
+            <mat-autocomplete #autoRole="matAutocomplete" [displayWith]="helper.optionDisplay">
+                <mat-option *ngFor="let option of roles" [value]="option">
+                    {{ option.name }}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+        <mat-form-field class="field">
+            <mat-label>Domain</mat-label>
+            <input matInput type="text" placeholder="Select Domain" formControlName="domain"
+                [matAutocomplete]="autoDomain">
+            <mat-autocomplete #autoDomain="matAutocomplete" [displayWith]="helper.optionDisplay">
+                <mat-option *ngFor="let option of domains" [value]="option">
+                    {{ option.name }}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+        <mat-form-field class="field">
+            <mat-label>Hostname</mat-label>
+            <input matInput formControlName="hostname">
+        </mat-form-field>
+        <mat-form-field class="field">
+            <mat-label>Configuration</mat-label>
+            <input matInput type="text" placeholder="Select Configuration" formControlName="config"
+                [matAutocomplete]="autoConfig">
+            <mat-autocomplete #autoConfig="matAutocomplete" [displayWith]="helper.optionDisplay">
+                <mat-option *ngFor="let option of configs" [value]="option">
+                    {{ option.name }}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+        <mat-form-field class="field">
+            <mat-label>Login Profile</mat-label>
+            <input matInput type="text" placeholder="Select Profile" formControlName="loginProfile"
+                [matAutocomplete]="autoLoginProfile">
+            <mat-autocomplete #autoLoginProfile="matAutocomplete" [displayWith]="helper.optionDisplay">
+                <mat-option *ngFor="let option of loginProfiles" [value]="option">
+                    {{ option.name }}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+    </div>
+    <div mat-dialog-actions [align]="'end'">
+        <button mat-raised-button (click)="onCancel()">Cancel</button>
+        <button mat-raised-button cdkFocusInitial type="submit" color="primary"
+            [disabled]="!nodeAddForm.valid">{{data.mode == 'add' ? 'Add' : 'Update'}}</button>
+    </div>
+</form>

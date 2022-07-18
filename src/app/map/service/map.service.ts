@@ -1,8 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { MapDataModel } from 'src/app/map/models/map-data.model';
 import { ApiPaths } from 'src/app/shared/enums/api/api-paths.enums';
-import { MapDataModel } from '../models/map-data.model';
 
 @Injectable({
   providedIn: 'root'

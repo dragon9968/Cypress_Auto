@@ -6,10 +6,8 @@ const initialState = {} as MapDataModel;
 
 export const mapReducer = createReducer(
     initialState,
-    on(retrievedMapData, (state, { mapCategory, collectionId, data }) => ({
+    on(retrievedMapData, (state, { data }) => ({
         ...state,
-        mapCategory,
-        collectionId,
         mapItems: data.map_items,
         mapProperties: data.map_properties,
         defaultPreferences: data.map_properties.default_preferences,

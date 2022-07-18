@@ -1,6 +1,4 @@
 export interface MapDataModel {
-  mapCategory: string;
-  collectionId: number;
   mapItems: any;
   mapProperties: any;
   defaultPreferences: any;
