@@ -1,0 +1,16 @@
+export const ROLES = [
+  { id: 'none', name: 'none' },
+  { id: 'firewall', name: 'firewall' },
+  { id: 'ad_server', name: 'ad_server' },
+  { id: 'primary_dc', name: 'primary_dc' },
+  { id: 'secondary_dc', name: 'secondary_dc' },
+  { id: 'domain_client', name: 'domain_client' },
+  { id: 'linux_client', name: 'linux_client' },
+  { id: 'linux_server', name: 'linux_server' },
+  { id: 'router', name: 'router' },
+  { id: 'switch', name: 'switch' },
+  { id: 'windows_client', name: 'windows_client' },
+  { id: 'windows_server', name: 'windows_server' },
+  { id: 'tor_directory', name: 'tor_directory' },
+  { id: 'tor_relay', name: 'tor_relay' },
+];

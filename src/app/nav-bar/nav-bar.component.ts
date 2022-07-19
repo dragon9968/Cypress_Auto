@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from 'src/app/auth/services/auth.service';
 import { PermissionLevels } from '../shared/enums/permission-levels.enum';
 import { RouteSegments } from '../shared/enums/routes/route-segments.enum';
+import { AuthService } from '../shared/services/auth/auth.service';
 
 @Component({
   selector: 'app-nav-bar',

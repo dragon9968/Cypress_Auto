@@ -4,7 +4,7 @@ import { AppRoute } from './shared/models/app-route.model';
 import { PermissionLevels } from './shared/enums/permission-levels.enum';
 import { RouteSegments } from './shared/enums/routes/route-segments.enum';
 import { LoginComponent } from './login/login.component';
-import { AuthGuard } from './auth/guards/auth.guard';
+import { AuthGuard } from './shared/guards/auth.guard';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 
 const routes: AppRoute[] = [
