@@ -1,13 +1,12 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { ProjectService } from './services/project.service';
 import { Observable, of, Subscription } from 'rxjs';
-import { ProjectModel } from './models/project.model';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
-import { selectProject, selectProjects } from './store/project.selectors';
-import { retrievedProjects } from './store/project.actions';
+import { retrievedProjects } from '../shared/store/project/project.actions';
 import { ProjectActionsRenderer } from '../shared/components/renderers/project-actions-renderer.component';
+import { ProjectService } from '../shared/services/project/project.service';
+import { selectProjects } from '../shared/store/project/project.selectors';
 
 @Component({
   selector: 'app-project',

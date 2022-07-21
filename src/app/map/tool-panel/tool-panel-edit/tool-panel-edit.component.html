@@ -1,0 +1,102 @@
+<section class="tab-section">
+  <div class="tab-field node-actions">
+    <button mat-mini-fab class="node-action" color="primary" matTooltip="Delete">
+      <mat-icon>delete</mat-icon>
+    </button>
+    <button mat-mini-fab class="node-action" color="primary" matTooltip="Collapse">
+      <mat-icon>unfold_less</mat-icon>
+    </button>
+    <button mat-mini-fab class="node-action" color="primary" matTooltip="Expand">
+      <mat-icon>unfold_more</mat-icon>
+    </button>
+    <button mat-mini-fab class="node-action" color="primary" matTooltip="Increase Z-Index">
+      <mat-icon>text_increase</mat-icon>
+    </button>
+    <button mat-mini-fab class="node-action" color="primary" matTooltip="Decrease Z-Index">
+      <mat-icon>text_decrease</mat-icon>
+    </button>
+    <button mat-mini-fab class="node-action" color="primary" matTooltip="Lock">
+      <mat-icon>lock</mat-icon>
+    </button>
+    <button mat-mini-fab class="node-action" color="primary" matTooltip="Unlock">
+      <mat-icon>lock_open</mat-icon>
+    </button>
+  </div>
+</section>
+<mat-divider></mat-divider>
+<section class="tab-section">
+  <h4>Node</h4>
+  <mat-form-field class="tab-select-field">
+    <mat-label>Device</mat-label>
+    <input matInput type="text" placeholder="Select Device" [formControl]="deviceCtr" [matAutocomplete]="autoDevice">
+    <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="helper.optionDisplay" (optionSelected)="selectDevice($event)">
+      <mat-option *ngFor="let option of devices" [value]="option">
+        <div class="option-text">
+          <img [src]="'http://localhost:5000/static/img/uploads/' + option.icon.photo" height="24" width="24">
+          &nbsp;
+          <span>{{ option.name }}</span>
+        </div>
+      </mat-option>
+    </mat-autocomplete>
+    <mat-error *ngIf="deviceCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+  </mat-form-field>
+
+  <mat-form-field class="tab-select-field">
+    <mat-label>Template/Model</mat-label>
+    <input matInput type="text" placeholder="Select Template/Model" [formControl]="templateCtr"
+      [matAutocomplete]="autoTemplate">
+    <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helper.templateDisplay">
+      <mat-option *ngFor="let option of filteredTemplates" [value]="option">
+        <div class="option-text">
+          <img [src]="'http://localhost:5000/static/img/uploads/' + option.icon.photo" height="24" width="24">
+          &nbsp;
+          <span>{{ option.display_name }}</span>
+        </div>
+      </mat-option>
+    </mat-autocomplete>
+    <mat-error *ngIf="templateCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+  </mat-form-field>
+  <div class="tab-field">
+    <button mat-raised-button color="primary" class="add-node-btn" matTooltip="Add" [disabled]="!deviceCtr.value || !templateCtr.value" (click)="addNode()">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+  <div class="tab-field">
+    <mat-checkbox [(ngModel)]="isCustomizeNode">Customize</mat-checkbox>
+  </div>
+</section>
+<mat-divider></mat-divider>
+<section class="tab-section">
+  <h4>Port Group</h4>
+  <div class="tab-field pg-actions">
+    <button mat-raised-button color="primary" class="add-pg-btn" matTooltip="Add Public" (click)="addPublicPG()">
+      <mat-icon>add</mat-icon>
+      <span>Public</span>
+    </button>
+    <button mat-raised-button color="primary" class="add-pg-btn" matTooltip="Add Private" (click)="addPrivatePG()">
+      <mat-icon>add</mat-icon>
+      <span>Private</span>
+    </button>
+  </div>
+  <div class="tab-field">
+    <mat-checkbox [(ngModel)]="isCustomizePG">Customize</mat-checkbox>
+  </div>
+</section>
+<mat-divider></mat-divider>
+<section class="tab-section">
+  <h4>Images</h4>
+  <mat-form-field class="tab-select-field">
+    <mat-label>Image</mat-label>
+    <input matInput type="text" placeholder="Select Image" [formControl]="imageCtr" [matAutocomplete]="autoImage">
+    <mat-autocomplete #autoImage="matAutocomplete" [displayWith]="helper.optionDisplay">
+      <mat-option *ngFor="let option of images" [value]="option">
+        {{ option.name }}
+      </mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
+  <div class="tab-field">
+    <button mat-raised-button color="primary" class="add-image-btn" matTooltip="Add" (click)="addImage()">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+</section>

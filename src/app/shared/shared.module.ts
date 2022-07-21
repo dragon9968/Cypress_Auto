@@ -3,8 +3,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AgGridModule } from 'ag-grid-angular';
-import { GuardsModule } from '../auth/guards/guards.module';
-import { StorageModule } from '../storage/storage.module';
+import { GuardsModule } from './guards/guards.module';
 import { ProjectActionsRenderer } from './components/renderers/project-actions-renderer.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -26,6 +25,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ColorPickerModule } from 'ngx-color-picker';
+import { StorageModule } from './storage/storage.module';
 
 
 const materialModules = [
