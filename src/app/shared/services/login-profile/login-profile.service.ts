@@ -10,7 +10,7 @@ export class LoginProfileService {
 
   constructor(private http: HttpClient) { }
 
-  getLoginProfiles(): Observable<any> {
-    return this.http.get<any>(ApiPaths.GET_LOGIN_PROFILES);
+  getAll(): Observable<any> {
+    return this.http.get<any>(ApiPaths.LOGIN_PROFILES);
   }
 }

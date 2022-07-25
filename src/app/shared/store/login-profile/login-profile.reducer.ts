@@ -8,6 +8,6 @@ export const loginProfileReducer = createReducer(
   initialState,
   on(retrievedLoginProfiles, (state, { data }) => ({
     ...state,
-    loginProfiles: data.result,
+    loginProfiles: data,
   })),
 );

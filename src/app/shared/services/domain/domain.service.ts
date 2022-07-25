@@ -10,7 +10,7 @@ export class DomainService {
 
   constructor(private http: HttpClient) { }
 
-  getDomains(): Observable<any> {
-    return this.http.get<any>(ApiPaths.GET_DOMAINS);
+  getAll(): Observable<any> {
+    return this.http.get<any>(ApiPaths.DOMAINS);
   }
 }

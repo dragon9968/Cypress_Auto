@@ -8,6 +8,6 @@ export const projectReducer = createReducer(
   initialState,
   on(retrievedProjects, (state, { data }) => ({
     ...state,
-    projects: data.result
+    projects: data,
   }))
 );

@@ -10,7 +10,7 @@ export class ConfigTemplateService {
 
   constructor(private http: HttpClient) { }
 
-  getConfigTemplates(): Observable<any> {
-    return this.http.get<any>(ApiPaths.GET_CONFIG_TEMPLATES);
+  getAll(): Observable<any> {
+    return this.http.get<any>(ApiPaths.CONFIG_TEMPLATES);
   }
 }

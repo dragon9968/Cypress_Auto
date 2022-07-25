@@ -8,6 +8,6 @@ export const deviceReducer = createReducer(
   initialState,
   on(retrievedDevices, (state, { data }) => ({
     ...state,
-    devices: data.result,
+    devices: data,
   })),
 );
