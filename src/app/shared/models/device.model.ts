@@ -1,3 +1,3 @@
 export interface DeviceModel {
-  devices: any[]
+  devices: any[];
 }

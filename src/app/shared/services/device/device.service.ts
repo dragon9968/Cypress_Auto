@@ -10,7 +10,7 @@ export class DeviceService {
 
   constructor(private http: HttpClient) { }
 
-  getDevices(): Observable<any> {
-    return this.http.get<any>(ApiPaths.GET_DEVICES);
+  getAll(): Observable<any> {
+    return this.http.get<any>(ApiPaths.DEVICES);
   }
 }

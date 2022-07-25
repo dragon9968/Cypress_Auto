@@ -1,36 +1,39 @@
 <section>
-    <div class="tool-panel-actions">
-        <button mat-mini-fab color="primary" matTooltip="Download">
-            <mat-icon>download</mat-icon>
-        </button>
-        <button mat-mini-fab color="accent" matTooltip="Save">
-            <mat-icon>save</mat-icon>
-        </button>
-        <button mat-mini-fab color="primary" matTooltip="Refresh">
-            <mat-icon>refresh</mat-icon>
-        </button>
-        <button mat-mini-fab color="primary" matTooltip="Undo">
-            <mat-icon>undo</mat-icon>
-        </button>
-        <button mat-mini-fab color="primary" matTooltip="Redo">
-            <mat-icon>redo</mat-icon>
-        </button>
-        <button mat-mini-fab color="warn" matTooltip="Cancel">
-            <mat-icon>cancel</mat-icon>
-        </button>
-    </div>
+  <div class="tool-panel-actions">
+    <button mat-mini-fab color="primary" matTooltip="Download" (click)="downloadMap()">
+      <mat-icon>download</mat-icon>
+    </button>
+    <button mat-mini-fab color="accent" matTooltip="Save" (click)="saveMap()">
+      <mat-icon>save</mat-icon>
+    </button>
+    <button mat-mini-fab color="primary" matTooltip="Refresh" (click)="refreshMap()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+    <button mat-mini-fab color="primary" matTooltip="Undo" (click)="undoMap()">
+      <mat-icon>undo</mat-icon>
+    </button>
+    <button mat-mini-fab color="primary" matTooltip="Redo" (click)="redoMap()">
+      <mat-icon>redo</mat-icon>
+    </button>
+    <button mat-mini-fab color="warn" matTooltip="Cancel" [disabled]="isDisableCancel" (click)="cancelEditMap()">
+      <mat-icon>cancel</mat-icon>
+    </button>
+  </div>
 </section>
 <section>
-    <mat-tab-group>
-        <mat-tab label="Edit">
-            <app-tool-panel-edit [collectionId]="collectionId"></app-tool-panel-edit>
-        </mat-tab>
-        <mat-tab label="Style">
-            <app-tool-panel-style></app-tool-panel-style>
-        </mat-tab>
-        <mat-tab label="Option">
-            <app-tool-panel-option [cy]="cy" [config]="config"></app-tool-panel-option>
-        </mat-tab>
-        <mat-tab label="Remote">Content 3</mat-tab>
-    </mat-tab-group>
+  <mat-tab-group>
+    <mat-tab label="Edit">
+      <app-tool-panel-edit [collectionId]="collectionId" [devices]="devices" [templates]="templates"
+        [filteredTemplates]="filteredTemplates" [isDisableAddNode]="isDisableAddNode" [isDisableAddPG]="isDisableAddPG"
+        [isDisableAddImage]="isDisableAddImage">
+      </app-tool-panel-edit>
+    </mat-tab>
+    <mat-tab label="Style">
+      <app-tool-panel-style></app-tool-panel-style>
+    </mat-tab>
+    <mat-tab label="Option">
+      <app-tool-panel-option [cy]="cy" [config]="config"></app-tool-panel-option>
+    </mat-tab>
+    <mat-tab label="Remote">Content 3</mat-tab>
+  </mat-tab-group>
 </section>

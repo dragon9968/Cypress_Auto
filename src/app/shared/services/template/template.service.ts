@@ -10,7 +10,7 @@ export class TemplateService {
 
   constructor(private http: HttpClient) { }
 
-  getTemplates(): Observable<any> {
-    return this.http.get<any>(ApiPaths.GET_TEMPLATES);
+  getAll(): Observable<any> {
+    return this.http.get<any>(ApiPaths.TEMPLATES);
   }
 }

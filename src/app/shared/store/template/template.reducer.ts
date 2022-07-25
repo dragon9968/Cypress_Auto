@@ -8,6 +8,6 @@ export const templateReducer = createReducer(
   initialState,
   on(retrievedTemplates, (state, { data }) => ({
     ...state,
-    templates: data.result,
+    templates: data,
   })),
 );

@@ -10,7 +10,7 @@ export class HardwareService {
 
   constructor(private http: HttpClient) { }
 
-  getHardwares(): Observable<any> {
-    return this.http.get<any>(ApiPaths.GET_HARDWARES);
+  getAll(): Observable<any> {
+    return this.http.get<any>(ApiPaths.HARDWARES);
   }
 }

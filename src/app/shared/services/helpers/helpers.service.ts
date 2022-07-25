@@ -302,4 +302,12 @@ export class HelpersService {
       }
     ]
   }
+
+  addCYNode(cy: any, data: any) {
+    return cy.add({
+      group: "nodes",
+      data: data.newNodeData,
+      position: data.newNodePosition,
+    });
+  }
 }

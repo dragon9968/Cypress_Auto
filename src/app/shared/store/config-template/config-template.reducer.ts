@@ -8,6 +8,6 @@ export const configTemplateReducer = createReducer(
   initialState,
   on(retrievedConfigTemplates, (state, { data }) => ({
     ...state,
-    configTemplates: data.result,
+    configTemplates: data,
   })),
 );

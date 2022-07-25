@@ -1,6 +1,6 @@
-<h1 mat-dialog-title>Node Add Form</h1>
-<div mat-dialog-content>
-  <form [formGroup]="nodeAddForm" (ngSubmit)="data.mode == 'add' ? addNode() : updateNode()">
+<form [formGroup]="nodeAddForm" (ngSubmit)="data.mode == 'add' ? addNode() : updateNode()">
+  <h1 mat-dialog-title>Node Add Form</h1>
+  <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
       <input matInput formControlName="nameCtr">
@@ -13,8 +13,8 @@
     <mat-form-field class="field">
       <mat-label>Icon</mat-label>
       <input matInput type="text" placeholder="Select an icon" formControlName="iconCtr" [matAutocomplete]="autoIcon">
-      <mat-autocomplete #autoIcon="matAutocomplete" [displayWith]="helper.optionDisplay">
-        <mat-option *ngFor="let option of icons" [value]="option">
+      <mat-autocomplete #autoIcon="matAutocomplete" [displayWith]="helpers.optionDisplay">
+        <mat-option *ngFor="let option of data.icons" [value]="option">
           <div class="option-text">
             <img [src]="'/static/img/uploads/' + option.photo" height="24" width="24">
             &nbsp;
@@ -33,9 +33,11 @@
     </div>
     <mat-form-field class="field">
       <mat-label>Device</mat-label>
-      <input matInput type="text" placeholder="Select a device" formControlName="deviceCtr" [matAutocomplete]="autoDevice">
-      <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="helper.optionDisplay" (optionSelected)="selectDevice($event)">
-        <mat-option *ngFor="let option of devices" [value]="option">
+      <input matInput type="text" placeholder="Select a device" formControlName="deviceCtr"
+        [matAutocomplete]="autoDevice">
+      <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="helpers.optionDisplay"
+        (optionSelected)="selectDevice($event)">
+        <mat-option *ngFor="let option of data.devices" [value]="option">
           <div class="option-text">
             <img [src]="'/static/img/uploads/' + option.icon.photo" height="24" width="24">
             &nbsp;
@@ -50,7 +52,7 @@
       <mat-label>Template</mat-label>
       <input matInput type="text" placeholder="Select a template" formControlName="templateCtr"
         [matAutocomplete]="autoTemplate">
-      <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helper.templateDisplay">
+      <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helpers.templateDisplay">
         <mat-option *ngFor="let option of filteredTemplates" [value]="option">
           <div class="option-text">
             <img [src]="'/static/img/uploads/' + option.icon.photo" height="24" width="24">
@@ -66,8 +68,8 @@
       <mat-label>Hardware</mat-label>
       <input matInput type="text" placeholder="Select a hardware" formControlName="hardwareCtr"
         [matAutocomplete]="autoHardware">
-      <mat-autocomplete #autoHardware="matAutocomplete" [displayWith]="helper.hardwareDisplay">
-        <mat-option *ngFor="let option of hardwares" [value]="option" height="60">
+      <mat-autocomplete #autoHardware="matAutocomplete" [displayWith]="helpers.hardwareDisplay">
+        <mat-option *ngFor="let option of data.hardwares" [value]="option" height="60">
           <div class="hardware-option-text">
             <span class="option-text-items"><b>{{ option.device.name }} {{ option.template.name }}</b></span>
             <span class="option-text-items">Serial #: {{ option.serial_number }}</span>
@@ -86,7 +88,7 @@
     <mat-form-field class="field">
       <mat-label>Role</mat-label>
       <input matInput type="text" placeholder="Select a role" formControlName="roleCtr" [matAutocomplete]="autoRole">
-      <mat-autocomplete #autoRole="matAutocomplete" [displayWith]="helper.optionDisplay">
+      <mat-autocomplete #autoRole="matAutocomplete" [displayWith]="helpers.optionDisplay">
         <mat-option *ngFor="let option of ROLES" [value]="option">
           {{ option.name }}
         </mat-option>
@@ -96,9 +98,10 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Domain</mat-label>
-      <input matInput type="text" placeholder="Select a domain" formControlName="domainCtr" [matAutocomplete]="autoDomain">
-      <mat-autocomplete #autoDomain="matAutocomplete" [displayWith]="helper.optionDisplay">
-        <mat-option *ngFor="let option of domains" [value]="option">
+      <input matInput type="text" placeholder="Select a domain" formControlName="domainCtr"
+        [matAutocomplete]="autoDomain">
+      <mat-autocomplete #autoDomain="matAutocomplete" [displayWith]="helpers.optionDisplay">
+        <mat-option *ngFor="let option of data.domains" [value]="option">
           {{ option.name }}
         </mat-option>
       </mat-autocomplete>
@@ -112,9 +115,10 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Configurations</mat-label>
-      <input matInput type="text" placeholder="Select a config" formControlName="configTemplateCtr" [matAutocomplete]="autoConfig">
-      <mat-autocomplete #autoConfig="matAutocomplete" [displayWith]="helper.optionDisplay">
-        <mat-option *ngFor="let option of configTemplates" [value]="option">
+      <input matInput type="text" placeholder="Select a config" formControlName="configTemplateCtr"
+        [matAutocomplete]="autoConfig">
+      <mat-autocomplete #autoConfig="matAutocomplete" [displayWith]="helpers.optionDisplay">
+        <mat-option *ngFor="let option of data.configTemplates" [value]="option">
           {{ option.name }}
         </mat-option>
       </mat-autocomplete>
@@ -124,17 +128,17 @@
       <mat-label>Login Profile</mat-label>
       <input matInput type="text" placeholder="Assign a login profile" formControlName="loginProfileCtr"
         [matAutocomplete]="autoLoginProfile">
-      <mat-autocomplete #autoLoginProfile="matAutocomplete" [displayWith]="helper.optionDisplay">
-        <mat-option *ngFor="let option of loginProfiles" [value]="option">
+      <mat-autocomplete #autoLoginProfile="matAutocomplete" [displayWith]="helpers.optionDisplay">
+        <mat-option *ngFor="let option of data.loginProfiles" [value]="option">
           {{ option.name }}
         </mat-option>
       </mat-autocomplete>
       <mat-error *ngIf="domainCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
     </mat-form-field>
-  </form>
-</div>
-<div mat-dialog-actions [align]="'end'">
-  <button mat-raised-button (click)="onCancel()">Cancel</button>
-  <button mat-raised-button color="primary" [disabled]="!nodeAddForm.valid">{{data.mode == 'add' ? 'Add' :
-    'Update'}}</button>
-</div>
+  </div>
+  <div mat-dialog-actions [align]="'end'">
+    <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+    <button mat-raised-button type="submit" color="primary" [disabled]="!nodeAddForm.valid">{{data.mode == 'add' ? 'Add'
+      : 'Update'}}</button>
+  </div>
+</form>

@@ -8,6 +8,6 @@ export const hardwareReducer = createReducer(
   initialState,
   on(retrievedHardwares, (state, { data }) => ({
     ...state,
-    hardwares: data.result,
+    hardwares: data,
   })),
 );

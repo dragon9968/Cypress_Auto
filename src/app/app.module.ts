@@ -10,6 +10,7 @@ import { LoginComponent } from './login/login.component';
 import { AuthInterceptor } from './shared/interceptors/auth.interceptor';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
+import { ToastrModule } from 'ngx-toastr';
 
 
 @NgModule({
@@ -23,7 +24,8 @@ import { BrowserModule } from '@angular/platform-browser';
     AppRoutingModule,
     HttpClientModule,
     SharedModule,
-    StoreModule.forRoot(reducers)
+    StoreModule.forRoot(reducers),
+    ToastrModule.forRoot(),
   ],
   providers: [
     {

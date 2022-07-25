@@ -8,4 +8,6 @@ export enum ReducerKeys {
     DOMAIN = 'domain',
     CONFIG_TEMPLATE = 'configTemplate',
     LOGIN_PROFILE = 'loginProfile',
+    NODE = 'node',
+    MAP_PREF = 'mappref',
 }

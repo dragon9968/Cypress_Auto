@@ -1,66 +1,91 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import {MatIconRegistry} from '@angular/material/icon';
+import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { HelpersService } from 'src/app/shared/services/helper/helpers.service';
+import { Store } from '@ngrx/store';
+import { HelpersService } from 'src/app/shared/services/helpers/helpers.service';
+import { MapPrefService } from 'src/app/shared/services/map-pref/map-pref.service';
+import { retrievedMapPref } from 'src/app/shared/store/map-pref/map-pref.actions';
+import { selectDefaultPreferences } from 'src/app/shared/store/map/map.selectors';
 
 @Component({
-    selector: 'app-tool-panel-style',
-    templateUrl: './tool-panel-style.component.html',
-    styleUrls: ['./tool-panel-style.component.scss']
+  selector: 'app-tool-panel-style',
+  templateUrl: './tool-panel-style.component.html',
+  styleUrls: ['./tool-panel-style.component.scss']
 })
-export class ToolPanelStyleComponent {
-    mapPrefCtr = new FormControl();
-    mapPrefs: any[];
-    nodeSize = 70;
-    edgeColor = '#000000';
-    edgeSize = 2;
-    arrowSize = 3;
-    pgColor = '#0000FF';
-    pgSize = 20;
-    gbColor = '#00DCFF';
-    gbOpacity = 0.0;
-    gbBorderColor = '#CCCCCC';
-    textSize = 25;
-    textColor = '#000000';
-    textBGColor = '#000000';
-    textBGOpacity = 0.0;
+export class ToolPanelStyleComponent implements OnInit {
+  mapPrefCtr = new FormControl();
+  mapPrefs!: any[];
+  nodeSize = 70;
+  edgeColor = '#000000';
+  edgeSize = 2;
+  arrowSize = 3;
+  pgColor = '#0000FF';
+  pgSize = 20;
+  gbColor = '#00DCFF';
+  gbOpacity = 0.0;
+  gbBorderColor = '#CCCCCC';
+  textSize = 25;
+  textColor = '#000000';
+  textBGColor = '#000000';
+  textBGOpacity = 0.0;
 
-    constructor(
-        public helper: HelpersService,
-        iconRegistry: MatIconRegistry,
-        private domSanitizer: DomSanitizer
-    ) {
-        iconRegistry.addSvgIcon('dashed', this.setPath('/assets/icons/dashed.svg'));
-        iconRegistry.addSvgIcon('double', this.setPath('/assets/icons/double.svg'));
-        this.mapPrefs = [
-            { id: "v1", name: "Name 1" },
-            { id: "v2", name: "Name 2" },
-            { id: "v3", name: "Name 3" },
-        ];
-    }
+  constructor(
+    private domSanitizer: DomSanitizer,
+    private mapPrefService: MapPrefService,
+    private store: Store,
+    public helper: HelpersService,
+    iconRegistry: MatIconRegistry,
+  ) {
+    iconRegistry.addSvgIcon('dashed', this.setPath('/assets/icons/dashed.svg'));
+    iconRegistry.addSvgIcon('double', this.setPath('/assets/icons/double.svg'));
+    this.store.select(selectDefaultPreferences).subscribe(defaultPref => {
+      if (defaultPref) {
+        this.mapPrefService.get(defaultPref.default_map_pref_id).subscribe(data => {
+          this.mapPrefCtr.setValue({
+            id: data.result.id,
+            name: data.result.name
+          });
+          this.store.dispatch(retrievedMapPref({ data: data.result }));
+        });
+      }
+    })
+  }
 
-    private setPath(url: string): SafeResourceUrl { 
-        return this.domSanitizer.bypassSecurityTrustResourceUrl(url); 
-    }
+  ngOnInit(): void {
+    this.mapPrefService.getAll().subscribe(data => {
+      this.mapPrefs = data.result;
+    });
+  }
 
-    applyMapPref() {
-        console.log(this.mapPrefCtr.value);
-    }
+  private setPath(url: string): SafeResourceUrl {
+    return this.domSanitizer.bypassSecurityTrustResourceUrl(url);
+  }
 
-    setTextVAlign(value: string) {
-        console.log(value);
-    }
+  applyMapPref() {
+    console.log(this.mapPrefCtr.value);
+  }
 
-    setTextHAlign(value: string) {
-        console.log(value);
-    }
+  selectMapPref($event: MatAutocompleteSelectedEvent) {
+    this.mapPrefService.get($event.option.value.id).subscribe(data => {
+      this.store.dispatch(retrievedMapPref({ data: data.result }));
+    });
+  }
 
-    setDirection(value: string) {
-        console.log(value);
-    }
+  setTextVAlign(value: string) {
+    console.log(value);
+  }
 
-    setGBType(value: string) {
-        console.log(value);
-    }
+  setTextHAlign(value: string) {
+    console.log(value);
+  }
+
+  setDirection(value: string) {
+    console.log(value);
+  }
+
+  setGBType(value: string) {
+    console.log(value);
+  }
 }

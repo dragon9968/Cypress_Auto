@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
-import { HelpersService } from 'src/app/shared/services/helper/helpers.service';
+import { HelpersService } from 'src/app/shared/services/helpers/helpers.service';
 import { selectDefaultPreferences } from 'src/app/shared/store/map/map.selectors';
 
 @Component({

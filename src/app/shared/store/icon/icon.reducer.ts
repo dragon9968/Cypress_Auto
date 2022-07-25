@@ -8,6 +8,6 @@ export const iconReducer = createReducer(
   initialState,
   on(retrievedIcons, (state, { data }) => ({
     ...state,
-    icons: data.result,
+    icons: data,
   })),
 );

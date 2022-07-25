@@ -8,6 +8,6 @@ export const domainReducer = createReducer(
   initialState,
   on(retrievedDomains, (state, { data }) => ({
     ...state,
-    domains: data.result,
+    domains: data,
   })),
 );

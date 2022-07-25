@@ -4,7 +4,7 @@
         <mat-label>Map Preference</mat-label>
         <input matInput type="text" placeholder="Select Map Preference" [formControl]="mapPrefCtr"
             [matAutocomplete]="autoMapPref">
-        <mat-autocomplete #autoMapPref="matAutocomplete" [displayWith]="helper.optionDisplay">
+        <mat-autocomplete #autoMapPref="matAutocomplete" [displayWith]="helper.optionDisplay" (optionSelected)="selectMapPref($event)">
             <mat-option *ngFor="let option of mapPrefs" [value]="option">
                 {{ option.name }}
             </mat-option>

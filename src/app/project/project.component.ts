@@ -55,7 +55,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.projectService.getProjects().subscribe((data: any) => this.store.dispatch(retrievedProjects({ data })));
+    this.projectService.getAll().subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
   }
 
   ngOnDestroy(): void {

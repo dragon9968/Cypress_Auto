@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiPaths } from 'src/app/shared/enums/api-paths.enum';
@@ -6,16 +6,16 @@ import { ApiPaths } from 'src/app/shared/enums/api-paths.enum';
 @Injectable({
   providedIn: 'root'
 })
-export class ProjectService {
+export class MapPrefService {
 
   constructor(private http: HttpClient) { }
 
   getAll(): Observable<any> {
-    return this.http.get<any>(ApiPaths.PROJECTS);
+    return this.http.get<any>(ApiPaths.MAP_PREF);
   }
 
-  get(id: number): Observable<any> {
-    return this.http.get<any>(ApiPaths.PROJECTS + id);
+  get(id: string): Observable<any> {
+    return this.http.get<any>(ApiPaths.MAP_PREF + id);
   }
 
 }

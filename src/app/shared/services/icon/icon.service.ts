@@ -10,7 +10,7 @@ export class IconService {
 
   constructor(private http: HttpClient) { }
 
-  getIcons(): Observable<any> {
-    return this.http.get<any>(ApiPaths.GET_ICONS);
+  getAll(): Observable<any> {
+    return this.http.get<any>(ApiPaths.ICONS);
   }
 }
