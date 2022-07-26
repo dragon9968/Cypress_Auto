@@ -406,8 +406,8 @@ export class MapComponent implements OnInit {
         outThreshold: 10
       }
     }
-    this.styleExists = this.mapProperties.styleExists;
-    this.cleared = this.mapProperties.cleared;
+    this.styleExists = this.config.styleExists;
+    this.cleared = this.config.cleared;
     this.eles = JSON.parse(JSON.stringify(this.nodes
       .concat(this.interfaces)
       .concat(this.mapBackgrounds)));
