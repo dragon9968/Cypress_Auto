@@ -4,7 +4,7 @@ import { HelpersService } from 'src/app/shared/services/helpers/helpers.service'
 import { Store } from '@ngrx/store';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
-import { retrievedNodeAdd } from 'src/app/shared/store/node/node.actions';
+import { retrievedNodeAdd } from 'src/app/shared/store/map-edit/map-edit.actions';
 
 @Component({
   selector: 'app-tool-panel-edit',

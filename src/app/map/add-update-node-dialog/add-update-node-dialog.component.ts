@@ -149,6 +149,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
       this.nodeService.get(id).subscribe(respData => {
         cyData.groups = respData.result.groups;
         this.helpers.addCYNode(this.data.cy, { newNodeData: { ...this.data.newNodeData, ...cyData }, newNodePosition: this.data.newNodePosition });
+        this.helpers.reloadGroupBoxes(this.data.cy, this.data.groupBoxes, this.data.groupCategoryId, this.data.isGroupBoxesChecked);
         this.toastr.success('Node details added!');
       })
       this.dialogRef.close();

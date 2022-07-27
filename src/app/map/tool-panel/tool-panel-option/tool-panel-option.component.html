@@ -7,8 +7,9 @@
     <mat-label>Group Category</mat-label>
     <input matInput type="text" placeholder="Select Group Category" [formControl]="groupCategoryCtr"
       [matAutocomplete]="autoGroupCategory">
-    <mat-autocomplete #autoGroupCategory="matAutocomplete" [displayWith]="helper.optionDisplay">
-      <mat-option *ngFor="let option of categories" [value]="option">
+    <mat-autocomplete #autoGroupCategory="matAutocomplete" [displayWith]="helpers.optionDisplay"
+      (optionSelected)="selectGroupCategory()">
+      <mat-option *ngFor="let option of groupCategories" [value]="option">
         {{ option.name }}
       </mat-option>
     </mat-autocomplete>
@@ -16,10 +17,11 @@
   <mat-slide-toggle class="tab-field" labelPosition="before" [(ngModel)]="isMapGridChecked" (change)="toggleMapGrid()">
     Map Grid</mat-slide-toggle>
   <mat-slide-toggle *ngIf="isMapGridChecked" class="tab-field" labelPosition="before" [(ngModel)]="isSnapToGridChecked"
-    (change)="toggleMapGrid()">Snap To Grid</mat-slide-toggle>
+    (change)="toggleSnapToGrid()">Snap To Grid</mat-slide-toggle>
   <div *ngIf="isMapGridChecked" class="tab-field">
     <label>Grid Spacing</label>
-    <mat-slider step="1" min="1" max="200" [(ngModel)]="gridSpacingSize"></mat-slider>
+    <mat-slider step="1" min="1" max="200" [(ngModel)]="gridSpacingSize" (change)="changeGridSpacingSize()">
+    </mat-slider>
     <label>{{ gridSpacingSize }}px</label>
   </div>
   <mat-slide-toggle class="tab-field" labelPosition="before" [(ngModel)]="isMapOverviewChecked"

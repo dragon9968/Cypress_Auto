@@ -32,11 +32,21 @@ import { selectConfigTemplates } from '../shared/store/config-template/config-te
 import { selectLoginProfiles } from '../shared/store/login-profile/login-profile.selectors';
 import { MatDialog } from '@angular/material/dialog';
 import { AddUpdateNodeDialogComponent } from './add-update-node-dialog/add-update-node-dialog.component';
-import { selectNodeAdd } from '../shared/store/node/node.selectors';
+import { selectMapEdit } from '../shared/store/map-edit/map-edit.selectors';
 import { NodeService } from '../shared/services/node/node.service';
 import { selectMapPref } from '../shared/store/map-pref/map-pref.selectors';
 import { ToastrService } from 'ngx-toastr';
-var navigator = require('cytoscape-navigator');
+import { selectMapOption } from '../shared/store/map-option/map-option.selectors';
+const navigator = require('cytoscape-navigator');
+const gridGuide = require('cytoscape-grid-guide');
+const expandCollapse = require('cytoscape-expand-collapse');
+const undoRedo = require('cytoscape-undo-redo');
+const contextMenus = require('cytoscape-context-menus');
+const panzoom = require('cytoscape-panzoom');
+const compoundDragAndDrop = require('cytoscape-compound-drag-and-drop');
+const nodeEditing = require('cytoscape-node-editing');
+const konva = require('konva');
+const jquery = require('jquery');
 
 
 @Component({
@@ -75,6 +85,8 @@ export class MapComponent implements OnInit {
   deviceId = '';
   templateId = '';
   selectedDefaultPref: any;
+  groupCategoryId!: string;
+  isGroupBoxesChecked!: boolean;
   selectMap$ = new Subscription();
   selectIcons$ = new Subscription();
   selectDevices$ = new Subscription();
@@ -83,7 +95,9 @@ export class MapComponent implements OnInit {
   selectDomains$ = new Subscription();
   selectConfigTemplates$ = new Subscription();
   selectLoginProfiles$ = new Subscription();
-  selectNodeAdd$ = new Subscription();
+  selectMapPref$ = new Subscription();
+  selectMapEdit$ = new Subscription();
+  selectMapOption$ = new Subscription();
 
   constructor(
     private route: ActivatedRoute,
@@ -102,6 +116,13 @@ export class MapComponent implements OnInit {
     private toastr: ToastrService,
   ) {
     navigator(cytoscape);
+    gridGuide(cytoscape);
+    expandCollapse(cytoscape);
+    undoRedo(cytoscape);
+    contextMenus(cytoscape);
+    panzoom(cytoscape);
+    cytoscape.use(compoundDragAndDrop);
+    nodeEditing(cytoscape, jquery, konva);
     this.selectMap$ = this.store.select(selectMapFeature).subscribe((map: MapModel) => {
       if (Object.keys(map).length > 0) {
         this.nodes = map.nodes;
@@ -136,21 +157,23 @@ export class MapComponent implements OnInit {
     this.selectLoginProfiles$ = this.store.select(selectLoginProfiles).subscribe((loginProfiles: any) => {
       this.loginProfiles = loginProfiles;
     });
-    this.store.select(selectMapPref).subscribe((selectedDefaultPref: any) => {
+    this.selectMapPref$ = this.store.select(selectMapPref).subscribe((selectedDefaultPref: any) => {
       this.selectedDefaultPref = selectedDefaultPref;
     });
-    this.selectNodeAdd$ = this.store.select(selectNodeAdd).subscribe((addNode: any) => {
+    this.selectMapEdit$ = this.store.select(selectMapEdit).subscribe((addNode: any) => {
       if (addNode) {
         if (addNode.isAddNode) {
-          this.isDisableAddNode = true;
-          this.isDisableAddPG = true;
-          this.isDisableAddImage = true;
-          this.isDisableCancel = false;
+          this._disableEditButtons();
         }
-        this.isAddNode = addNode.isAddNode;
         this.deviceId = addNode.deviceId;
         this.templateId = addNode.templateId;
         this.isCustomizeNode = addNode.isCustomizeNode;
+      }
+    });
+    this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
+      if (mapOption) {
+        this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
+        this.groupCategoryId = mapOption.groupCategoryId;
       }
     });
   }
@@ -179,6 +202,24 @@ export class MapComponent implements OnInit {
     this.selectDomains$.unsubscribe();
     this.selectConfigTemplates$.unsubscribe();
     this.selectLoginProfiles$.unsubscribe();
+    this.selectMapPref$.unsubscribe();
+    this.selectMapOption$.unsubscribe();
+  }
+
+  private _disableEditButtons () {
+    this.isAddNode = true;
+    this.isDisableAddNode = true;
+    this.isDisableAddPG = true;
+    this.isDisableAddImage = true;
+    this.isDisableCancel = false;
+  }
+
+  private _enableEditButtons () {
+    this.isAddNode = false;
+    this.isDisableAddNode = false;
+    this.isDisableAddPG = false;
+    this.isDisableAddImage = false;
+    this.isDisableCancel = true;
   }
 
   private _dragFreeOnNode() {
@@ -252,16 +293,14 @@ export class MapComponent implements OnInit {
               selectedDefaultPref: this.selectedDefaultPref,
               newNodeData,
               newNodePosition,
-              cy: this.cy
+              cy: this.cy,
+              groupBoxes: this.groupBoxes,
+              groupCategoryId: this.groupCategoryId,
+              isGroupBoxesChecked: this.isGroupBoxesChecked,
             }
             const dialogRef = this.dialog.open(AddUpdateNodeDialogComponent, { width: '500px', data: dialogData });
             dialogRef.afterClosed().subscribe((_data: any) => {
-              this.isAddNode = false;
-              this.isDisableAddNode = false;
-              this.isDisableAddPG = false;
-              this.isDisableAddImage = false;
-              this.isDisableCancel = true;
-              // this.reloadGroupBoxes();
+              this._enableEditButtons();
             });
           } else {
             const jsonData = {
@@ -280,14 +319,18 @@ export class MapComponent implements OnInit {
               logical_map_position: newNodePosition
             };
             this.nodeService.add(jsonData).subscribe((respData: any) => {
-              const node_id = respData.id;
+              const id = respData.id;
               const cyData = respData.result;
-              cyData.id = 'node-' + node_id;
-              cyData.node_id = node_id;
+              cyData.id = 'node-' + id;
+              cyData.node_id = id;
               cyData.domain = genData.domain.name;
-              this.helpers.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
-              this.toastr.success('Quick add node successfully!');
-              // this.reloadGroupBoxes();
+              this.nodeService.get(id).subscribe(respData => {
+                cyData.groups = respData.result.groups;
+                this.helpers.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
+                this.helpers.reloadGroupBoxes(this.cy, this.groupBoxes, this.groupCategoryId, this.isGroupBoxesChecked);
+                this.toastr.success('Quick add node successfully!');
+                this._enableEditButtons();
+              });
             });
           }
         });

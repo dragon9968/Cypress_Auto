@@ -5,6 +5,9 @@ import { Stylesheet } from 'cytoscape';
   providedIn: 'root'
 })
 export class HelpersService {
+  last_width = 0;
+  last_height = 0;
+  zoom_limit = false;
 
   constructor() { }
 
@@ -309,5 +312,78 @@ export class HelpersService {
       data: data.newNodeData,
       position: data.newNodePosition,
     });
+  }
+
+  removeGroupBoxes(cy: any) {
+    const gbs = cy.nodes().filter('[label="group_box"]');
+    gbs.forEach((gb: any) => {
+      const data = gb.data();
+      if (data.collapsedChildren) {
+        cy.expandCollapse('get').expandRecursively(gb, {});
+      }
+      const gbNodes = gb.children();
+      gbNodes.forEach((node: any) => {
+        node.move({ 'parent': null });
+      });
+      cy.remove(gb);
+    });
+    return true;
+  }
+
+  addGroupBoxes(cy: any, groupBoxes: any, groupCategory: string) {
+    const gbs = groupBoxes.filter((gb: any) => gb.data.group_category == groupCategory);
+    cy.add(gbs);
+    cy.nodes().forEach((ele: any) => {
+      const data = ele.data();
+      if (data.elem_category != 'group') {
+        const g = data.groups.filter((gb: any) => gb.category == groupCategory);
+        if (g.length > 0) ele.move({ parent: 'group-' + g[0].id });
+      }
+    });
+    let done = false;
+    for (let i = 0; i < gbs.length; i++) {
+      let gb = gbs[i];
+      const gbn = cy.getElementById(gb.data.id);
+      if (gbn.children().length > 0) {
+        if (gb.data.collapsed) {
+          gb = cy.getElementById(gb.data.id);
+          const pos = gbn.position();
+          cy.expandCollapse('get').collapseRecursively(gbn, {});
+          gbn.data('width', '90px');
+          gbn.data('height', '90px');
+          gbn.position(pos);
+          if (!done) {
+            done = true;
+            this.last_width = 90;
+            this.last_height = 90;
+          }
+
+        } else {
+          this.last_width = gbn.renderedWidth()
+          this.last_height = gbn.renderedHeight()
+        }
+        if (gb.data.locked) {
+          gbn.lock()
+        }
+      } else {
+        cy.remove(gbn)
+      }
+    }
+    const z = cy.zoom()
+    const cyW = cy.container().clientWidth
+    const cyH = cy.container().clientHeight
+    const nW = this.last_width || 100
+    const nH = this.last_height || 100
+    const lim = (nW * nH * z) / (cyW * cyH)
+    this.zoom_limit = lim < 0.0005
+    cy.resize();
+    return true;
+  }
+
+  reloadGroupBoxes(cy: any, groupBoxes: any, groupCategory: string, isGroupBoxesChecked: boolean) {
+    if (isGroupBoxesChecked) {
+      this.removeGroupBoxes(cy);
+      this.addGroupBoxes(cy, groupBoxes, groupCategory);
+    }
   }
 }

@@ -15,7 +15,7 @@ $tool-panel-width: 300px;
 }
 
 .mat-tab-label {
-	min-width: $tool-panel-width/4 !important;
+	min-width: calc($tool-panel-width/4) !important;
     padding: 0 8px !important;
 }
 
