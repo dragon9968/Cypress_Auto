@@ -1,5 +1,5 @@
 <form [formGroup]="nodeAddForm" (ngSubmit)="data.mode == 'add' ? addNode() : updateNode()">
-  <h1 mat-dialog-title>Node Add Form</h1>
+  <h1 mat-dialog-title>{{data.mode == 'add' ? 'Node Add Form' : 'Node Edit Form'}}</h1>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
@@ -24,7 +24,7 @@
       </mat-autocomplete>
     </mat-form-field>
     <div class="category">
-      <label>Category:</label>
+      <label class="category-label">Category:</label>
       <mat-radio-group class="category-group" formControlName="categoryCtr" (change)="onCategoryChange($event)">
         <mat-radio-button class="category-items" value="vm">VM</mat-radio-button>
         <mat-radio-button class="category-items" value="hw">HW</mat-radio-button>

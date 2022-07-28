@@ -1,4 +1,4 @@
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
@@ -15,7 +15,7 @@ import { ToastrService } from 'ngx-toastr';
   templateUrl: './add-update-node-dialog.component.html',
   styleUrls: ['./add-update-node-dialog.component.scss']
 })
-export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
+export class AddUpdateNodeDialogComponent implements OnInit {
   nodeAddForm: FormGroup;
   ROLES = ROLES;
   filteredTemplates!: any[];
@@ -78,8 +78,6 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void { }
-
   private disableItems(category: string) {
     if (category == 'hw') {
       this.deviceCtr?.disable();
@@ -137,16 +135,15 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
       } : undefined,
     }
     this.nodeService.add(jsonData).subscribe((respData: any) => {
-      const id = respData.id;
-      const cyData = respData.result;
-      cyData.id = 'node-' + id;
-      cyData.node_id = id;
-      cyData.domain = this.domainCtr?.value.name;
-      cyData.height = cyData.logical_map_style.height;
-      cyData.width = cyData.logical_map_style.width;
-      cyData.text_color = cyData.logical_map_style.text_color;
-      cyData.text_size = cyData.logical_map_style.text_size;
-      this.nodeService.get(id).subscribe(respData => {
+      this.nodeService.get(respData.id).subscribe(respData => {
+        const cyData = respData.result;
+        cyData.id = 'node-' + respData.id;
+        cyData.node_id = respData.id;
+        cyData.domain = this.domainCtr?.value.name;
+        cyData.height = cyData.logical_map_style.height;
+        cyData.width = cyData.logical_map_style.width;
+        cyData.text_color = cyData.logical_map_style.text_color;
+        cyData.text_size = cyData.logical_map_style.text_size;
         cyData.groups = respData.result.groups;
         this.helpers.addCYNode(this.data.cy, { newNodeData: { ...this.data.newNodeData, ...cyData }, newNodePosition: this.data.newNodePosition });
         this.helpers.reloadGroupBoxes(this.data.cy, this.data.groupBoxes, this.data.groupCategoryId, this.data.isGroupBoxesChecked);

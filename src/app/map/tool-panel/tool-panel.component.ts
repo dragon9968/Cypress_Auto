@@ -1,4 +1,6 @@
 import { Component, Input } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { retrievedMapEdit } from 'src/app/shared/store/map-edit/map-edit.actions';
 
 @Component({
   selector: 'app-tool-panel',
@@ -17,7 +19,7 @@ export class ToolPanelComponent {
   @Input() isDisableAddPG = false;
   @Input() isDisableAddImage = false;
 
-  constructor() { }
+  constructor(private store: Store) { }
 
   downloadMap() {
     console.log('downloadMap');
@@ -40,6 +42,12 @@ export class ToolPanelComponent {
   }
 
   cancelEditMap() {
-    console.log('cancelEditMap');
+    this.store.dispatch(retrievedMapEdit({
+      data: {
+        isAddNode: false,
+        isAddPublicPG: false,
+        isAddPrivatePG: false,
+      }
+    }));
   }
 }

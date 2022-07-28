@@ -1,6 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 
-export const retrievedNodeAdd = createAction(
-  'retrievedNodeAdd',
+export const retrievedMapEdit = createAction(
+  'retrievedMapEdit',
   props<{ data: any }>()
 );
