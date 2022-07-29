@@ -8,6 +8,7 @@ import { ToolPanelEditComponent } from './tool-panel/tool-panel-edit/tool-panel-
 import { ToolPanelStyleComponent } from './tool-panel/tool-panel-style/tool-panel-style.component';
 import { ToolPanelOptionComponent } from './tool-panel/tool-panel-option/tool-panel-option.component';
 import { AddUpdateNodeDialogComponent } from './add-update-node-dialog/add-update-node-dialog.component';
+import { AddUpdatePGDialogComponent } from './add-update-pg-dialog/add-update-pg-dialog.component';
 
 
 
@@ -19,7 +20,8 @@ import { AddUpdateNodeDialogComponent } from './add-update-node-dialog/add-updat
     ToolPanelEditComponent,
     ToolPanelStyleComponent,
     ToolPanelOptionComponent,
-    AddUpdateNodeDialogComponent
+    AddUpdateNodeDialogComponent,
+    AddUpdatePGDialogComponent
   ],
   imports: [
     MapRoutingModule,

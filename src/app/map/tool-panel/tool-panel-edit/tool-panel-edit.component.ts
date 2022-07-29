@@ -4,7 +4,7 @@ import { HelpersService } from 'src/app/shared/services/helpers/helpers.service'
 import { Store } from '@ngrx/store';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
-import { retrievedNodeAdd } from 'src/app/shared/store/map-edit/map-edit.actions';
+import { retrievedMapEdit } from 'src/app/shared/store/map-edit/map-edit.actions';
 
 @Component({
   selector: 'app-tool-panel-edit',
@@ -45,7 +45,7 @@ export class ToolPanelEditComponent {
 
   addNode() {
     if (this.deviceCtr.value && this.templateCtr.value) {
-      this.store.dispatch(retrievedNodeAdd({
+      this.store.dispatch(retrievedMapEdit({
         data: {
           isAddNode: true,
           deviceId: this.deviceCtr.value.id,
@@ -57,11 +57,23 @@ export class ToolPanelEditComponent {
   }
 
   addPublicPG() {
-    console.log(this.isCustomizePG);
+    this.store.dispatch(retrievedMapEdit({
+      data: {
+        isAddPublicPG: true,
+        isAddPrivatePG: false,
+        isCustomizePG: this.isCustomizePG
+      }
+    }));
   }
 
   addPrivatePG() {
-    console.log(this.isCustomizePG);
+    this.store.dispatch(retrievedMapEdit({
+      data: {
+        isAddPublicPG: false,
+        isAddPrivatePG: true,
+        isCustomizePG: this.isCustomizePG
+      }
+    }));
   }
 
   addImage() {

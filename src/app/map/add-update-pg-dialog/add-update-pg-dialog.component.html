@@ -1,0 +1,52 @@
+<form [formGroup]="pgAddForm" (ngSubmit)="data.mode == 'add' ? addPG() : updatePG()">
+  <h1 mat-dialog-title>{{data.mode == 'add' ? 'Port Group Add Form' : 'Port Group Edit Form'}}</h1>
+  <div mat-dialog-content>
+    <mat-form-field class="field">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="nameCtr">
+      <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>VLAN ID</mat-label>
+      <input matInput formControlName="vlanIdCtr">
+      <mat-error *ngIf="vlanIdCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+    <div class="category">
+      <label class="category-label">Category:</label>
+      <mat-radio-group class="category-group" formControlName="categoryCtr">
+        <mat-radio-button class="category-items" value="private">Private</mat-radio-button>
+        <mat-radio-button class="category-items" value="public">Public</mat-radio-button>
+        <mat-radio-button class="category-items" value="management">Management</mat-radio-button>
+      </mat-radio-group>
+    </div>
+    <mat-form-field class="field">
+      <mat-label>Domain</mat-label>
+      <input matInput type="text" placeholder="Select a domain" formControlName="domainCtr"
+        [matAutocomplete]="autoDomain">
+      <mat-autocomplete #autoDomain="matAutocomplete" [displayWith]="helpers.optionDisplay">
+        <mat-option *ngFor="let option of data.domains" [value]="option">
+          {{ option.name }}
+        </mat-option>
+      </mat-autocomplete>
+      <mat-error *ngIf="domainCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="domainCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+    </mat-form-field>
+    <div class="category">
+      <label class="category-label">Subnet Allocation:</label>
+      <mat-radio-group class="category-group" formControlName="subnetAllocationCtr" (change)="onSubnetAllocationChange($event)">
+        <mat-radio-button class="category-items" value="static_auto">Static-Auto</mat-radio-button>
+        <mat-radio-button class="category-items" value="static_manual">Static-Manual</mat-radio-button>
+      </mat-radio-group>
+    </div>
+    <mat-form-field class="field">
+      <mat-label>Subnet</mat-label>
+      <input matInput formControlName="subnetCtr">
+      <mat-error *ngIf="subnetCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+  </div>
+  <div mat-dialog-actions [align]="'end'">
+    <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+    <button mat-raised-button type="submit" color="primary" [disabled]="!pgAddForm.valid">{{data.mode == 'add' ? 'Add'
+      : 'Update'}}</button>
+  </div>
+</form>

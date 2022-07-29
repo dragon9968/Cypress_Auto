@@ -37,6 +37,8 @@ import { NodeService } from '../shared/services/node/node.service';
 import { selectMapPref } from '../shared/store/map-pref/map-pref.selectors';
 import { ToastrService } from 'ngx-toastr';
 import { selectMapOption } from '../shared/store/map-option/map-option.selectors';
+import { PortGroupService } from '../shared/services/portgroup/portgroup.service';
+import { AddUpdatePGDialogComponent } from './add-update-pg-dialog/add-update-pg-dialog.component';
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
 const expandCollapse = require('cytoscape-expand-collapse');
@@ -62,6 +64,8 @@ export class MapComponent implements OnInit {
   isDisableAddPG = false;
   isDisableAddImage = false;
   isAddNode = false;
+  isAddPublicPG = false;
+  isAddPrivatePG = false;
   mapCategory = '';
   collectionId = '1';
   nodes: any;
@@ -82,6 +86,7 @@ export class MapComponent implements OnInit {
   configTemplates!: any[];
   loginProfiles!: any[];
   isCustomizeNode = true;
+  isCustomizePG = true;
   deviceId = '';
   templateId = '';
   selectedDefaultPref: any;
@@ -112,6 +117,7 @@ export class MapComponent implements OnInit {
     private configTemplateService: ConfigTemplateService,
     private loginProfileService: LoginProfileService,
     private nodeService: NodeService,
+    private portGroupService: PortGroupService,
     private dialog: MatDialog,
     private toastr: ToastrService,
   ) {
@@ -160,14 +166,20 @@ export class MapComponent implements OnInit {
     this.selectMapPref$ = this.store.select(selectMapPref).subscribe((selectedDefaultPref: any) => {
       this.selectedDefaultPref = selectedDefaultPref;
     });
-    this.selectMapEdit$ = this.store.select(selectMapEdit).subscribe((addNode: any) => {
-      if (addNode) {
-        if (addNode.isAddNode) {
-          this._disableEditButtons();
+    this.selectMapEdit$ = this.store.select(selectMapEdit).subscribe((mapEdit: any) => {
+      if (mapEdit) {
+        this.isAddNode = mapEdit.isAddNode;
+        this.templateId = mapEdit.templateId;
+        this.deviceId = mapEdit.deviceId;
+        this.isCustomizeNode = mapEdit.isCustomizeNode;
+        this.isAddPublicPG = mapEdit.isAddPublicPG;
+        this.isAddPrivatePG = mapEdit.isAddPrivatePG;
+        this.isCustomizePG = mapEdit.isCustomizePG;
+        if (this.isAddNode || this.isAddPublicPG || this.isAddPrivatePG) {
+          this._disableMapEditButtons();
+        } else {
+          this._enableMapEditButtons();
         }
-        this.deviceId = addNode.deviceId;
-        this.templateId = addNode.templateId;
-        this.isCustomizeNode = addNode.isCustomizeNode;
       }
     });
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
@@ -206,16 +218,14 @@ export class MapComponent implements OnInit {
     this.selectMapOption$.unsubscribe();
   }
 
-  private _disableEditButtons () {
-    this.isAddNode = true;
+  private _disableMapEditButtons() {
     this.isDisableAddNode = true;
     this.isDisableAddPG = true;
     this.isDisableAddImage = true;
     this.isDisableCancel = false;
   }
 
-  private _enableEditButtons () {
-    this.isAddNode = false;
+  private _enableMapEditButtons() {
     this.isDisableAddNode = false;
     this.isDisableAddPG = false;
     this.isDisableAddImage = false;
@@ -263,6 +273,7 @@ export class MapComponent implements OnInit {
   }
 
   private _click($event: any) {
+    const newNodePosition = { x: $event.position.x, y: $event.position.y }
     if (this.isAddNode && this.deviceId && this.templateId) {
       this.nodeService.getGenNodeData(this.collectionId, this.deviceId, this.templateId)
         .subscribe(genData => {
@@ -277,61 +288,27 @@ export class MapComponent implements OnInit {
             "shape": "roundrectangle",
             "text-opacity": 1
           }
-          const newNodePosition = { x: $event.position.x, y: $event.position.y }
           if (this.isCustomizeNode) {
-            const dialogData = {
-              mode: 'add',
-              collectionId: this.collectionId,
-              icons: this.icons,
-              devices: this.devices,
-              templates: this.templates,
-              hardwares: this.hardwares,
-              domains: this.domains,
-              configTemplates: this.configTemplates,
-              loginProfiles: this.loginProfiles,
-              genData: genData,
-              selectedDefaultPref: this.selectedDefaultPref,
-              newNodeData,
-              newNodePosition,
-              cy: this.cy,
-              groupBoxes: this.groupBoxes,
-              groupCategoryId: this.groupCategoryId,
-              isGroupBoxesChecked: this.isGroupBoxesChecked,
-            }
-            const dialogRef = this.dialog.open(AddUpdateNodeDialogComponent, { width: '500px', data: dialogData });
-            dialogRef.afterClosed().subscribe((_data: any) => {
-              this._enableEditButtons();
-            });
+            this._openAddUpdateNodeDialog(genData, newNodeData, newNodePosition);
           } else {
-            const jsonData = {
-              name: genData.name,
-              notes: genData.notes,
-              collection_id: genData.collection_id,
-              icon_id: genData.icon_id,
-              category: genData.category,
-              device_id: genData.device_id,
-              template_id: genData.template_id,
-              hardware_id: null,
-              folder: genData.folder,
-              role: genData.role,
-              domain_id: genData.domain_id,
-              hostname: genData.hostname,
-              logical_map_position: newNodePosition
-            };
-            this.nodeService.add(jsonData).subscribe((respData: any) => {
-              const id = respData.id;
-              const cyData = respData.result;
-              cyData.id = 'node-' + id;
-              cyData.node_id = id;
-              cyData.domain = genData.domain.name;
-              this.nodeService.get(id).subscribe(respData => {
-                cyData.groups = respData.result.groups;
-                this.helpers.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
-                this.helpers.reloadGroupBoxes(this.cy, this.groupBoxes, this.groupCategoryId, this.isGroupBoxesChecked);
-                this.toastr.success('Quick add node successfully!');
-                this._enableEditButtons();
-              });
-            });
+            this._addNewNode(genData, newNodeData, newNodePosition);
+          }
+        });
+    } else if (this.isAddPublicPG || this.isAddPrivatePG) {
+      const category = this.isAddPrivatePG ? 'private' : 'public';
+      this.portGroupService.getGenNodeData(this.collectionId, category)
+        .subscribe(genData => {
+          const newNodeData = {
+            "elem_category": "port_group",
+            "zIndex": 999,
+            "background-opacity": 1,
+            "shape": "ellipse",
+            "text-opacity": 0,
+          }
+          if (this.isCustomizePG) {
+            this._openAddUpdatePGDialog(genData, newNodeData, newNodePosition);
+          } else {
+            this._addNewPortGroup(genData, newNodeData, newNodePosition);
           }
         });
     }
@@ -497,5 +474,123 @@ export class MapComponent implements OnInit {
     });
 
     document.addEventListener("keydown", this._keyDown.bind(this));
+  }
+
+  private _openAddUpdateNodeDialog(genData: any, newNodeData: any, newNodePosition: any) {
+    const dialogData = {
+      mode: 'add',
+      collectionId: this.collectionId,
+      icons: this.icons,
+      devices: this.devices,
+      templates: this.templates,
+      hardwares: this.hardwares,
+      domains: this.domains,
+      configTemplates: this.configTemplates,
+      loginProfiles: this.loginProfiles,
+      selectedDefaultPref: this.selectedDefaultPref,
+      cy: this.cy,
+      groupBoxes: this.groupBoxes,
+      groupCategoryId: this.groupCategoryId,
+      isGroupBoxesChecked: this.isGroupBoxesChecked,
+      genData,
+      newNodeData,
+      newNodePosition,
+    }
+    const dialogRef = this.dialog.open(AddUpdateNodeDialogComponent, { width: '600px', data: dialogData });
+    dialogRef.afterClosed().subscribe((_data: any) => {
+      this.isAddNode = false;
+      this._enableMapEditButtons();
+    });
+  }
+
+  private _addNewNode(genData: any, newNodeData: any, newNodePosition: any) {
+    const jsonData = {
+      name: genData.name,
+      notes: genData.notes,
+      icon_id: genData.icon_id,
+      category: genData.category,
+      device_id: genData.device_id,
+      template_id: genData.template_id,
+      hardware_id: null,
+      folder: genData.folder,
+      role: genData.role,
+      domain_id: genData.domain_id,
+      hostname: genData.hostname,
+      collection_id: this.collectionId,
+      logical_map_position: newNodePosition
+    };
+    this.nodeService.add(jsonData).subscribe((respData: any) => {
+      this.nodeService.get(respData.id).subscribe(respData => {
+        const cyData = respData.result;
+        cyData.id = 'node-' + respData.id;
+        cyData.node_id = respData.id;
+        cyData.domain = genData.domain.name;
+        cyData.height = cyData.logical_map_style.height;
+        cyData.width = cyData.logical_map_style.width;
+        cyData.text_color = cyData.logical_map_style.text_color;
+        cyData.text_size = cyData.logical_map_style.text_size;
+        cyData.groups = respData.result.groups;
+        this.helpers.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
+        this.helpers.reloadGroupBoxes(this.cy, this.groupBoxes, this.groupCategoryId, this.isGroupBoxesChecked);
+        this.isAddNode = false;
+        this._enableMapEditButtons();
+        this.toastr.success('Quick add node successfully!');
+      });
+    });
+  }
+
+  private _openAddUpdatePGDialog(genData: any, newNodeData: any, newNodePosition: any) {
+    const dialogData = {
+      mode: 'add',
+      collectionId: this.collectionId,
+      domains: this.domains,
+      selectedDefaultPref: this.selectedDefaultPref,
+      cy: this.cy,
+      groupBoxes: this.groupBoxes,
+      groupCategoryId: this.groupCategoryId,
+      isGroupBoxesChecked: this.isGroupBoxesChecked,
+      genData,
+      newNodeData,
+      newNodePosition,
+    }
+    const dialogRef = this.dialog.open(AddUpdatePGDialogComponent, { width: '600px', data: dialogData });
+    dialogRef.afterClosed().subscribe((_data: any) => {
+      if (this.isAddPublicPG) this.isAddPublicPG = false;
+      if (this.isAddPrivatePG) this.isAddPrivatePG = false;
+      this._enableMapEditButtons();
+    });
+  }
+
+  private _addNewPortGroup(genData: any, newNodeData: any, newNodePosition: any) {
+    const jsonData = {
+      name: genData.name,
+      vlan: genData.vlan,
+      category: genData.category,
+      domain_id: genData.domain_id,
+      subnet_allocation: genData.subnet_allocation,
+      subnet: genData.subnet,
+      collection_id: this.collectionId,
+      logical_map_position: newNodePosition
+    };
+    this.portGroupService.add(jsonData).subscribe((respData: any) => {
+      this.portGroupService.get(respData.id).subscribe(respData => {
+        const cyData = respData.result;
+        cyData.id = 'pg-' + respData.id;
+        cyData.pg_id = respData.id;
+        cyData.domain = genData.domain.name;
+        cyData.height = cyData.logical_map_style.height;
+        cyData.width = cyData.logical_map_style.width;
+        cyData.text_color = cyData.logical_map_style.text_color;
+        cyData.text_size = cyData.logical_map_style.text_size;
+        cyData.color = cyData.logical_map_style.color;
+        cyData.groups = respData.result.groups;
+        this.helpers.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
+        this.helpers.reloadGroupBoxes(this.cy, this.groupBoxes, this.groupCategoryId, this.isGroupBoxesChecked);
+        if (this.isAddPublicPG) this.isAddPublicPG = false;
+        if (this.isAddPrivatePG) this.isAddPrivatePG = false;
+        this._enableMapEditButtons();
+        this.toastr.success('Quick add port group successfully!');
+      });
+    });
   }
 }
