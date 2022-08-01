@@ -6,23 +6,22 @@ import { ApiPaths } from 'src/app/shared/enums/api-paths.enum';
 @Injectable({
   providedIn: 'root'
 })
-export class NodeService {
+export class InterfaceService {
 
   constructor(private http: HttpClient) { }
 
-  genData(collectionId: string, deviceId: string, templateId: string): Observable<any> {
-    return this.http.post<any>(ApiPaths.GEN_NODE_DATA, {
-      collection_id: collectionId,
-      device_id: deviceId,
-      template_id: templateId 
+  genData(nodeId: string, portgroupId: string): Observable<any> {
+    return this.http.post<any>(ApiPaths.GEN_INTERFACE_DATA, {
+      node_id: nodeId,
+      pg_id: portgroupId
     });
   }
 
   get(id: string): Observable<any> {
-    return this.http.get<any>(ApiPaths.NODE + id);
+    return this.http.get<any>(ApiPaths.INTERFACE + id);
   }
 
   add(data: any): Observable<any> {
-    return this.http.post<any>(ApiPaths.NODE, data);
+    return this.http.post<any>(ApiPaths.INTERFACE, data);
   }
 }

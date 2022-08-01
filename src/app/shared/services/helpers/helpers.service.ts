@@ -314,6 +314,13 @@ export class HelpersService {
     });
   }
 
+  addCYEdge(cy: any, data: any) {
+    return cy.add({
+      group: "edges",
+      data: data.newNodeData,
+    });
+  }
+
   removeGroupBoxes(cy: any) {
     const gbs = cy.nodes().filter('[label="group_box"]');
     gbs.forEach((gb: any) => {
@@ -385,5 +392,16 @@ export class HelpersService {
       this.removeGroupBoxes(cy);
       this.addGroupBoxes(cy, groupBoxes, groupCategory);
     }
+  }
+
+  createUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+
+  getOptionById(options: any, id: string) {
+    return options?.filter((option: any) => option.id == id)[0];
   }
 }

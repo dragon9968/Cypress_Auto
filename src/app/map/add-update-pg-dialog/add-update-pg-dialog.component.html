@@ -1,5 +1,5 @@
 <form [formGroup]="pgAddForm" (ngSubmit)="data.mode == 'add' ? addPG() : updatePG()">
-  <h1 mat-dialog-title>{{data.mode == 'add' ? 'Port Group Add Form' : 'Port Group Edit Form'}}</h1>
+  <h1 mat-dialog-title>{{data.mode == 'add' ? 'Port Group Add' : 'Port Group Edit'}}</h1>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
@@ -8,8 +8,8 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>VLAN ID</mat-label>
-      <input matInput formControlName="vlanIdCtr">
-      <mat-error *ngIf="vlanIdCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <input matInput formControlName="vlanCtr">
+      <mat-error *ngIf="vlanCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
     <div class="category">
       <label class="category-label">Category:</label>
