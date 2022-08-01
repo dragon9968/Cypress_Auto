@@ -20,7 +20,6 @@ export class AddUpdateNodeDialogComponent implements OnInit {
   ROLES = ROLES;
   filteredTemplates!: any[];
   errorMessages = ErrorMessages;
-  selectedDefaultPref: any;
 
   constructor(
     private nodeService: NodeService,
@@ -64,16 +63,16 @@ export class AddUpdateNodeDialogComponent implements OnInit {
   ngOnInit(): void {
     if (this.data.mode == 'add') {
       this.nameCtr?.setValue(this.data.genData.name);
-      this.iconCtr?.setValue(this.data.genData.icon);
+      this.iconCtr?.setValue(this.helpers.getOptionById(this.data.icons, this.data.genData.icon_id));
       this.categoryCtr?.setValue(this.data.genData.category);
-      this.deviceCtr?.setValue(this.data.genData.device);
-      this.templateCtr?.setValue(this.data.genData.template);
+      this.deviceCtr?.setValue(this.helpers.getOptionById(this.data.devices, this.data.genData.device_id));
+      this.templateCtr?.setValue(this.helpers.getOptionById(this.data.templates, this.data.genData.template_id));
       this.folderCtr?.setValue(this.data.genData.folder);
-      this.roleCtr?.setValue(ROLES.filter(role => role.id == this.data.genData.role)[0]);
-      this.domainCtr?.setValue(this.data.genData.domain);
+      this.roleCtr?.setValue(this.helpers.getOptionById(ROLES, this.data.genData.role));
+      this.domainCtr?.setValue(this.helpers.getOptionById(this.data.domains, this.data.genData.domain_id));
       this.hostnameCtr?.setValue(this.data.genData.hostname);
+      this.loginProfileCtr?.setValue(this.helpers.getOptionById(this.data.loginProfiles, this.data.genData.login_profile_id));
       this.disableItems(this.categoryCtr?.value);
-      this.selectedDefaultPref = this.data.selectedDefaultPref;
     } else if (this.data.mode == 'update') {
     }
   }
@@ -121,14 +120,14 @@ export class AddUpdateNodeDialogComponent implements OnInit {
       collection_id: this.data.collectionId,
       logical_map_position: this.data.newNodePosition,
       logical_map_style: (this.data.mode == 'add') ? {
-        "height": this.selectedDefaultPref.node_size,
-        "width": this.selectedDefaultPref.node_size,
-        "text_size": this.selectedDefaultPref.text_size,
-        "text_color": this.selectedDefaultPref.text_color,
-        "text_halign": this.selectedDefaultPref.text_halign,
-        "text_valign": this.selectedDefaultPref.text_valign,
-        "text_bg_color": this.selectedDefaultPref.text_bg_color,
-        "text_bg_opacity": this.selectedDefaultPref.text_bg_opacity,
+        "height": this.data.selectedDefaultPref.node_size,
+        "width": this.data.selectedDefaultPref.node_size,
+        "text_size": this.data.selectedDefaultPref.text_size,
+        "text_color": this.data.selectedDefaultPref.text_color,
+        "text_halign": this.data.selectedDefaultPref.text_halign,
+        "text_valign": this.data.selectedDefaultPref.text_valign,
+        "text_bg_color": this.data.selectedDefaultPref.text_bg_color,
+        "text_bg_opacity": this.data.selectedDefaultPref.text_bg_opacity,
         "background-color": "rgb(255,255,255)",
         "background-image": "",
         "background-fit": "contain"

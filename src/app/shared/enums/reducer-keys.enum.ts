@@ -11,4 +11,5 @@ export enum ReducerKeys {
     MAP_EDIT = 'mapEdit',
     MAP_PREF = 'mappref',
     MAP_OPTION = 'mapOption',
+    PORTGROUP = 'portgroup',
 }

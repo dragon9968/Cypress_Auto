@@ -39,6 +39,10 @@ import { ToastrService } from 'ngx-toastr';
 import { selectMapOption } from '../shared/store/map-option/map-option.selectors';
 import { PortGroupService } from '../shared/services/portgroup/portgroup.service';
 import { AddUpdatePGDialogComponent } from './add-update-pg-dialog/add-update-pg-dialog.component';
+import { AddUpdateInterfaceDialogComponent } from './add-update-interface-dialog/add-update-interface-dialog.component';
+import { InterfaceService } from '../shared/services/interface/interface.service';
+import { retrievedPortGroups } from '../shared/store/portgroup/portgroup.actions';
+import { selectPortGroups } from '../shared/store/portgroup/portgroup.selectors';
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
 const expandCollapse = require('cytoscape-expand-collapse');
@@ -92,6 +96,8 @@ export class MapComponent implements OnInit {
   selectedDefaultPref: any;
   groupCategoryId!: string;
   isGroupBoxesChecked!: boolean;
+  portGroups!: any[];
+  gateways!: any[];
   selectMap$ = new Subscription();
   selectIcons$ = new Subscription();
   selectDevices$ = new Subscription();
@@ -103,6 +109,7 @@ export class MapComponent implements OnInit {
   selectMapPref$ = new Subscription();
   selectMapEdit$ = new Subscription();
   selectMapOption$ = new Subscription();
+  selectPortGroups$ = new Subscription();
 
   constructor(
     private route: ActivatedRoute,
@@ -117,7 +124,8 @@ export class MapComponent implements OnInit {
     private configTemplateService: ConfigTemplateService,
     private loginProfileService: LoginProfileService,
     private nodeService: NodeService,
-    private portGroupService: PortGroupService,
+    private portgroupService: PortGroupService,
+    private interfaceService: InterfaceService,
     private dialog: MatDialog,
     private toastr: ToastrService,
   ) {
@@ -188,6 +196,9 @@ export class MapComponent implements OnInit {
         this.groupCategoryId = mapOption.groupCategoryId;
       }
     });
+    this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe((portGroups: any) => {
+        this.portGroups = portGroups;
+    });
   }
 
   ngOnInit(): void {
@@ -203,6 +214,7 @@ export class MapComponent implements OnInit {
     this.domainService.getAll().subscribe((data: any) => this.store.dispatch(retrievedDomains({ data: data.result })));
     this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
     this.loginProfileService.getAll().subscribe((data: any) => this.store.dispatch(retrievedLoginProfiles({ data: data.result })));
+    this.portgroupService.getByCollectionId(this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedPortGroups({ data: data.result })));
   }
 
   ngOnDestroy(): void {
@@ -275,9 +287,10 @@ export class MapComponent implements OnInit {
   private _click($event: any) {
     const newNodePosition = { x: $event.position.x, y: $event.position.y }
     if (this.isAddNode && this.deviceId && this.templateId) {
-      this.nodeService.getGenNodeData(this.collectionId, this.deviceId, this.templateId)
+      this.nodeService.genData(this.collectionId, this.deviceId, this.templateId)
         .subscribe(genData => {
-          const icon_src = '/static/img/uploads/' + genData.icon.photo;
+          const icon = this.helpers.getOptionById(this.icons, genData.icon_id);
+          const icon_src = '/static/img/uploads/' + icon.photo;
           const newNodeData = {
             "elem_category": "node",
             "icon": icon_src,
@@ -296,7 +309,7 @@ export class MapComponent implements OnInit {
         });
     } else if (this.isAddPublicPG || this.isAddPrivatePG) {
       const category = this.isAddPrivatePG ? 'private' : 'public';
-      this.portGroupService.getGenNodeData(this.collectionId, category)
+      this.portgroupService.genData(this.collectionId, category)
         .subscribe(genData => {
           const newNodeData = {
             "elem_category": "port_group",
@@ -572,8 +585,8 @@ export class MapComponent implements OnInit {
       collection_id: this.collectionId,
       logical_map_position: newNodePosition
     };
-    this.portGroupService.add(jsonData).subscribe((respData: any) => {
-      this.portGroupService.get(respData.id).subscribe(respData => {
+    this.portgroupService.add(jsonData).subscribe((respData: any) => {
+      this.portgroupService.get(respData.id).subscribe(respData => {
         const cyData = respData.result;
         cyData.id = 'pg-' + respData.id;
         cyData.pg_id = respData.id;
@@ -592,5 +605,30 @@ export class MapComponent implements OnInit {
         this.toastr.success('Quick add port group successfully!');
       });
     });
+  }
+
+  private _openAddUpdateInterfaceDialog(genData: any) {
+    const newEdgeData = {
+      "source": 'node-1',
+      "target": 'pg-9',
+      "id": 'new_edge_' + this.helpers.createUUID(),
+      "name": "",
+      "category": "wired",
+      "direction": "both",
+      'curve_style': 'straight',
+      "color": this.selectedDefaultPref.edge_color,
+      "width": this.selectedDefaultPref.edge_size + "px",
+    }
+    const dialogData = {
+      mode: 'add',
+      collectionId: this.collectionId,
+      portGroups: this.portGroups,
+      gateways: this.gateways,
+      selectedDefaultPref: this.selectedDefaultPref,
+      cy: this.cy,
+      genData,
+      newEdgeData,
+    }
+    this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', data: dialogData });
   }
 }

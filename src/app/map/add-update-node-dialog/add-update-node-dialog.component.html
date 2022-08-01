@@ -1,5 +1,5 @@
 <form [formGroup]="nodeAddForm" (ngSubmit)="data.mode == 'add' ? addNode() : updateNode()">
-  <h1 mat-dialog-title>{{data.mode == 'add' ? 'Node Add Form' : 'Node Edit Form'}}</h1>
+  <h1 mat-dialog-title>{{data.mode == 'add' ? 'Node Add' : 'Node Edit'}}</h1>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
@@ -122,7 +122,7 @@
           {{ option.name }}
         </mat-option>
       </mat-autocomplete>
-      <mat-error *ngIf="domainCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+      <mat-error *ngIf="configTemplateCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Login Profile</mat-label>
@@ -133,7 +133,7 @@
           {{ option.name }}
         </mat-option>
       </mat-autocomplete>
-      <mat-error *ngIf="domainCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+      <mat-error *ngIf="loginProfileCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
     </mat-form-field>
   </div>
   <div mat-dialog-actions [align]="'end'">

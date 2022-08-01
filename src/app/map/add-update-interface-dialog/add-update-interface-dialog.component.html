@@ -1,0 +1,98 @@
+<form [formGroup]="interfaceAddForm" (ngSubmit)="data.mode == 'add' ? addInterface() : updateInterface()">
+  <h1 mat-dialog-title>{{data.mode == 'add' ? 'Edge Add' : 'Edge Edit'}}</h1>
+  <div mat-dialog-content>
+    <mat-form-field class="field">
+      <mat-label>Order</mat-label>
+      <input matInput formControlName="orderCtr">
+      <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="nameCtr">
+      <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Description</mat-label>
+      <input matInput formControlName="descriptionCtr">
+      <mat-error *ngIf="descriptionCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+    <div class="category">
+      <label class="category-label">Category:</label>
+      <mat-radio-group class="category-group" formControlName="categoryCtr">
+        <mat-radio-button class="category-items" value="wired">Wired</mat-radio-button>
+        <mat-radio-button class="category-items" value="wireless">Wireless</mat-radio-button>
+        <mat-radio-button class="category-items" value="management">Management</mat-radio-button>
+      </mat-radio-group>
+    </div>
+    <mat-form-field class="field">
+      <mat-label>Direction</mat-label>
+      <input matInput type="text" placeholder="Select or enter a direction" formControlName="directionCtr"
+        [matAutocomplete]="autoDirection">
+      <mat-autocomplete #autoDirection="matAutocomplete" [displayWith]="helpers.optionDisplay">
+        <mat-option *ngFor="let option of DIRECTIONS" [value]="option">
+          {{ option.name }}
+        </mat-option>
+      </mat-autocomplete>
+      <mat-error *ngIf="directionCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>MAC Address</mat-label>
+      <input matInput formControlName="macAddressCtr">
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>PortGroup</mat-label>
+      <input matInput type="text" placeholder="Select a portgroup" formControlName="portGroupCtr"
+        [matAutocomplete]="autoPortgroup">
+      <mat-autocomplete #autoPortgroup="matAutocomplete" [displayWith]="helpers.optionDisplay">
+        <mat-option *ngFor="let option of data.portGroups" [value]="option">
+          <div class="portgroup-option-text">
+            <span class="option-text-items"><b>{{ option.name }}</b></span>
+            <span class="option-text-items">Subnet: {{ option.subnet }}</span>
+            <span class="option-text-items">VLAN: {{ option.vlan }}</span>
+          </div>
+        </mat-option>
+      </mat-autocomplete>
+      <mat-error *ngIf="portGroupCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="portGroupCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+    </mat-form-field>
+    <div class="category">
+      <label class="category-label">IP Allocation:</label>
+      <mat-radio-group class="category-group" formControlName="ipAllocationCtr" (change)="onIpAllocationChange($event)">
+        <mat-radio-button class="category-items" value="static_auto">Static Auto</mat-radio-button>
+        <mat-radio-button class="category-items" value="static_manual">Static Manual</mat-radio-button>
+        <mat-radio-button class="category-items" value="dhcp">Dhcp</mat-radio-button>
+      </mat-radio-group>
+    </div>
+    <mat-form-field class="field">
+      <mat-label>IP</mat-label>
+      <input matInput formControlName="ipCtr">
+      <mat-error *ngIf="ipCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>DNS Server</mat-label>
+      <input matInput formControlName="dnsServerCtr">
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Gateway</mat-label>
+      <input matInput type="text" placeholder="Select or enter a gateway" formControlName="gatewayCtr"
+        [matAutocomplete]="autoGateway">
+      <mat-autocomplete #autoGateway="matAutocomplete" [displayWith]="helpers.optionDisplay">
+        <mat-option *ngFor="let option of data.gateways" [value]="option">
+          {{ option.name }}
+        </mat-option>
+      </mat-autocomplete>
+      <mat-error *ngIf="gatewayCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+    </mat-form-field>
+    <div class="field">
+      <mat-checkbox formControlName="isGatewayCtr" labelPosition="before">Is Gateway</mat-checkbox>
+    </div>
+    <div class="field">
+      <mat-checkbox formControlName="isNatCtr" labelPosition="before">Is Nat</mat-checkbox>
+    </div>
+  </div>
+  <div mat-dialog-actions [align]="'end'">
+    <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+    <button mat-raised-button type="submit" color="primary" [disabled]="!interfaceAddForm.valid">{{data.mode == 'add' ? 'Add'
+      : 'Update'}}</button>
+  </div>
+</form>

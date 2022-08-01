@@ -10,10 +10,18 @@ export class PortGroupService {
 
   constructor(private http: HttpClient) { }
 
-  getGenNodeData(collectionId: string, category: string): Observable<any> {
-    return this.http.post<any>(ApiPaths.GET_GEN_PG_DATA, {
+  genData(collectionId: string, category: string): Observable<any> {
+    return this.http.post<any>(ApiPaths.GEN_PG_DATA, {
       collection_id: collectionId,
       category
+    });
+  }
+
+  getByCollectionId(collectionId: string): Observable<any> {
+    return this.http.get<any>(ApiPaths.PORTGROUP, {
+      params: {
+        q: '(columns:!(id,name,subnet,vlan,collection_id),filters:!((col:collection_id,opr:eq,value:' + collectionId + ')),keys:!(list_columns),page:0,page_size:1000)'
+      }
     });
   }
 
@@ -21,7 +29,7 @@ export class PortGroupService {
     return this.http.get<any>(ApiPaths.PORTGROUP + id);
   }
 
-  add(newNodeData: any): Observable<any> {
-    return this.http.post<any>(ApiPaths.PORTGROUP, newNodeData);
+  add(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.PORTGROUP, data);
   }
 }

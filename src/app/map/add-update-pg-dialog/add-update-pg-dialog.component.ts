@@ -2,7 +2,6 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
-import { ROLES } from 'src/app/shared/contants/roles.contant';
 import { HelpersService } from 'src/app/shared/services/helpers/helpers.service';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
@@ -16,10 +15,7 @@ import { PortGroupService } from 'src/app/shared/services/portgroup/portgroup.se
 })
 export class AddUpdatePGDialogComponent implements OnInit {
   pgAddForm: FormGroup;
-  ROLES = ROLES;
-  filteredTemplates!: any[];
   errorMessages = ErrorMessages;
-  selectedDefaultPref: any;
 
   constructor(
     private portGroupService: PortGroupService,
@@ -28,10 +24,9 @@ export class AddUpdatePGDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
     public helpers: HelpersService,
   ) {
-    this.filteredTemplates = this.data.templates;
     this.pgAddForm = new FormGroup({
       nameCtr: new FormControl('', Validators.required),
-      vlanIdCtr: new FormControl('', Validators.required),
+      vlanCtr: new FormControl('', Validators.required),
       categoryCtr: new FormControl(''),
       domainCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.data.domains)]),
       subnetAllocationCtr: new FormControl(''),
@@ -40,7 +35,7 @@ export class AddUpdatePGDialogComponent implements OnInit {
   }
 
   get nameCtr() { return this.pgAddForm.get('nameCtr'); }
-  get vlanIdCtr() { return this.pgAddForm.get('vlanIdCtr'); }
+  get vlanCtr() { return this.pgAddForm.get('vlanCtr'); }
   get categoryCtr() { return this.pgAddForm.get('categoryCtr'); }
   get domainCtr() { return this.pgAddForm.get('domainCtr'); }
   get subnetAllocationCtr() { return this.pgAddForm.get('subnetAllocationCtr'); }
@@ -49,13 +44,12 @@ export class AddUpdatePGDialogComponent implements OnInit {
   ngOnInit(): void {
     if (this.data.mode == 'add') {
       this.nameCtr?.setValue(this.data.genData.name);
-      this.vlanIdCtr?.setValue(this.data.genData.vlan);
+      this.vlanCtr?.setValue(this.data.genData.vlan);
       this.categoryCtr?.setValue(this.data.genData.category);
-      this.domainCtr?.setValue(this.data.genData.domain);
+      this.domainCtr?.setValue(this.helpers.getOptionById(this.data.domains, this.data.genData.domain_id));
       this.subnetAllocationCtr?.setValue(this.data.genData.subnet_allocation);
       this.subnetCtr?.setValue(this.data.genData.subnet);
       this.disableItems(this.subnetAllocationCtr?.value);
-      this.selectedDefaultPref = this.data.selectedDefaultPref;
     } else if (this.data.mode == 'update') {
     }
   }
@@ -79,7 +73,7 @@ export class AddUpdatePGDialogComponent implements OnInit {
   addPG() {
     const jsonData = {
       name: this.nameCtr?.value,
-      vlan: this.vlanIdCtr?.value,
+      vlan: this.vlanCtr?.value,
       category: this.categoryCtr?.value,
       domain_id: this.domainCtr?.value.id,
       subnet_allocation: this.subnetAllocationCtr?.value,
@@ -87,15 +81,15 @@ export class AddUpdatePGDialogComponent implements OnInit {
       collection_id: this.data.collectionId,
       logical_map_position: this.data.newNodePosition,
       logical_map_style: (this.data.mode == 'add') ? {
-        "height": this.selectedDefaultPref.port_group_size,
-        "width": this.selectedDefaultPref.port_group_size,
-        "color": this.selectedDefaultPref.port_group_color,
-        "text_size": this.selectedDefaultPref.text_size,
-        "text_color": this.selectedDefaultPref.text_color,
-        "text_halign": this.selectedDefaultPref.text_halign,
-        "text_valign": this.selectedDefaultPref.text_valign,
-        "text_bg_color": this.selectedDefaultPref.text_bg_color,
-        "text_bg_opacity": this.selectedDefaultPref.text_bg_opacity,
+        "height": this.data.selectedDefaultPref.port_group_size,
+        "width": this.data.selectedDefaultPref.port_group_size,
+        "color": this.data.selectedDefaultPref.port_group_color,
+        "text_size": this.data.selectedDefaultPref.text_size,
+        "text_color": this.data.selectedDefaultPref.text_color,
+        "text_halign": this.data.selectedDefaultPref.text_halign,
+        "text_valign": this.data.selectedDefaultPref.text_valign,
+        "text_bg_color": this.data.selectedDefaultPref.text_bg_color,
+        "text_bg_opacity": this.data.selectedDefaultPref.text_bg_opacity,
       } : undefined,
     }
     this.portGroupService.add(jsonData).subscribe((respData: any) => {
