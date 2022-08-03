@@ -3,10 +3,10 @@ import { Store } from '@ngrx/store';
 import { Observable, of, Subscription } from 'rxjs';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
-import { retrievedProjects } from '../shared/store/project/project.actions';
-import { ProjectActionsRenderer } from '../shared/components/renderers/project-actions-renderer.component';
-import { ProjectService } from '../shared/services/project/project.service';
-import { selectProjects } from '../shared/store/project/project.selectors';
+import { ProjectActionsRenderer } from './renderers/project-actions-renderer.component';
+import { selectProjects } from '../store/project/project.selectors';
+import { retrievedProjects } from '../store/project/project.actions';
+import { ProjectService } from './services/project.service';
 
 @Component({
   selector: 'app-project',

@@ -2,11 +2,11 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
-import { HelpersService } from 'src/app/shared/services/helpers/helpers.service';
+import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { ToastrService } from 'ngx-toastr';
-import { PortGroupService } from 'src/app/shared/services/portgroup/portgroup.service';
+import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
 
 @Component({
   selector: 'app-add-update-pg-dialog',

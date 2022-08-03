@@ -2,9 +2,9 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
-import { HelpersService } from 'src/app/shared/services/helpers/helpers.service';
-import { retrievedMapOption } from 'src/app/shared/store/map-option/map-option.actions';
-import { selectDefaultPreferences, selectGroupBoxes } from 'src/app/shared/store/map/map.selectors';
+import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
+import { retrievedMapOption } from 'src/app/store/map-option/map-option.actions';
+import { selectDefaultPreferences, selectGroupBoxes } from 'src/app/store/map/map.selectors';
 
 @Component({
   selector: 'app-tool-panel-option',
