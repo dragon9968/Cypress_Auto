@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { AppRoute } from 'src/app/shared/models/app-route.model';
+import { AppRoute } from 'src/app/core/models/app-route.model';
 import { ProjectComponent } from './project.component';
-import { PermissionLevels } from 'src/app/shared/enums/permission-levels.enum';
-import { PageNotFoundComponent } from '../page-not-found/page-not-found.component';
+import { PermissionLevels } from 'src/app/core/enums/permission-levels.enum';
+import { PageNotFoundComponent } from '../core/page-not-found/page-not-found.component';
 
 const routes: AppRoute[] = [
   {

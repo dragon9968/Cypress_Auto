@@ -2,57 +2,57 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
-import { MapModel } from '../shared/models/map.model';
-import { retrievedMap } from '../shared/store/map/map.actions';
+import { retrievedMap } from '../store/map/map.actions';
 import { environment } from 'src/environments/environment';
 import * as cytoscape from 'cytoscape';
-import { MapService } from '../shared/services/map/map.service';
-import { HelpersService } from '../shared/services/helpers/helpers.service';
-import { selectMapFeature } from '../shared/store/map/map.selectors';
-import { retrievedIcons } from '../shared/store/icon/icon.actions';
-import { retrievedDevices } from '../shared/store/device/device.actions';
-import { retrievedTemplates } from '../shared/store/template/template.actions';
-import { retrievedHardwares } from '../shared/store/hardware/hardware.actions';
-import { retrievedDomains } from '../shared/store/domain/domain.actions';
-import { retrievedConfigTemplates } from '../shared/store/config-template/config-template.actions';
-import { retrievedLoginProfiles } from '../shared/store/login-profile/login-profile.actions';
-import { IconService } from '../shared/services/icon/icon.service';
-import { DeviceService } from '../shared/services/device/device.service';
-import { TemplateService } from '../shared/services/template/template.service';
-import { HardwareService } from '../shared/services/hardware/hardware.service';
-import { DomainService } from '../shared/services/domain/domain.service';
-import { ConfigTemplateService } from '../shared/services/config-template/config-template.service';
-import { LoginProfileService } from '../shared/services/login-profile/login-profile.service';
-import { selectIcons } from '../shared/store/icon/icon.selectors';
-import { selectDevices } from '../shared/store/device/device.selectors';
-import { selectTemplates } from '../shared/store/template/template.selectors';
-import { selectHardwares } from '../shared/store/hardware/hardware.selectors';
-import { selectDomains } from '../shared/store/domain/domain.selectors';
-import { selectConfigTemplates } from '../shared/store/config-template/config-template.selectors';
-import { selectLoginProfiles } from '../shared/store/login-profile/login-profile.selectors';
+import { HelpersService } from '../core/services/helpers/helpers.service';
+import { selectMapFeature } from '../store/map/map.selectors';
+import { retrievedIcons } from '../store/icon/icon.actions';
+import { retrievedDevices } from '../store/device/device.actions';
+import { retrievedTemplates } from '../store/template/template.actions';
+import { retrievedHardwares } from '../store/hardware/hardware.actions';
+import { retrievedDomains } from '../store/domain/domain.actions';
+import { retrievedConfigTemplates } from '../store/config-template/config-template.actions';
+import { retrievedLoginProfiles } from '../store/login-profile/login-profile.actions';
+import { IconService } from './services/icon/icon.service';
+import { DeviceService } from './services/device/device.service';
+import { ConfigTemplateService } from './services/config-template/config-template.service';
+import { selectIcons } from '../store/icon/icon.selectors';
+import { selectDevices } from '../store/device/device.selectors';
+import { selectTemplates } from '../store/template/template.selectors';
+import { selectHardwares } from '../store/hardware/hardware.selectors';
+import { selectDomains } from '../store/domain/domain.selectors';
+import { selectConfigTemplates } from '../store/config-template/config-template.selectors';
+import { selectLoginProfiles } from '../store/login-profile/login-profile.selectors';
 import { MatDialog } from '@angular/material/dialog';
 import { AddUpdateNodeDialogComponent } from './add-update-node-dialog/add-update-node-dialog.component';
-import { selectMapEdit } from '../shared/store/map-edit/map-edit.selectors';
-import { NodeService } from '../shared/services/node/node.service';
-import { selectMapPref } from '../shared/store/map-pref/map-pref.selectors';
+import { selectMapEdit } from '../store/map-edit/map-edit.selectors';
+import { selectMapPref } from '../store/map-pref/map-pref.selectors';
 import { ToastrService } from 'ngx-toastr';
-import { selectMapOption } from '../shared/store/map-option/map-option.selectors';
-import { PortGroupService } from '../shared/services/portgroup/portgroup.service';
+import { selectMapOption } from '../store/map-option/map-option.selectors';
 import { AddUpdatePGDialogComponent } from './add-update-pg-dialog/add-update-pg-dialog.component';
 import { AddUpdateInterfaceDialogComponent } from './add-update-interface-dialog/add-update-interface-dialog.component';
-import { InterfaceService } from '../shared/services/interface/interface.service';
-import { retrievedPortGroups } from '../shared/store/portgroup/portgroup.actions';
-import { selectPortGroups } from '../shared/store/portgroup/portgroup.selectors';
-import { CMAddMenuService } from '../shared/services/context-menu/cm-add/cm-add.service';
-import { CMActionsMenuService } from '../shared/services/context-menu/cm-actions/cm-actions.service';
-import { CMViewDetailsService } from '../shared/services/context-menu/cm-view-details/cm-view-details.service';
-import { CMEditService } from '../shared/services/context-menu/cm-edit/cm-edit.service';
-import { CMDeleteService } from '../shared/services/context-menu/cm-delete/cm-delete.service';
-import { CMGroupBoxService } from '../shared/services/context-menu/cm-groupbox/cm-groupbox.service';
-import { CMLockUnlockMenuService } from '../shared/services/context-menu/cm-lock-unlock/cm-lock-unlock.service';
-import { CMRemoteMenuService } from '../shared/services/context-menu/cm-remote/cm-remote.service';
-import { CMGoToTableMenuService } from '../shared/services/context-menu/cm-go-to-table/cm-go-to-table.service';
-import { CMMapService } from '../shared/services/context-menu/cm-map/cm-map.service';
+import { retrievedPortGroups } from '../store/portgroup/portgroup.actions';
+import { selectPortGroups } from '../store/portgroup/portgroup.selectors';
+import { MapState } from '../store/map/map.state';
+import { CMActionsService } from './services/context-menu/cm-actions/cm-actions.service';
+import { CMAddService } from './services/context-menu/cm-add/cm-add.service';
+import { CMViewDetailsService } from './services/context-menu/cm-view-details/cm-view-details.service';
+import { CMEditService } from './services/context-menu/cm-edit/cm-edit.service';
+import { CMDeleteService } from './services/context-menu/cm-delete/cm-delete.service';
+import { CMGroupBoxService } from './services/context-menu/cm-groupbox/cm-groupbox.service';
+import { CMLockUnlockService } from './services/context-menu/cm-lock-unlock/cm-lock-unlock.service';
+import { CMRemoteService } from './services/context-menu/cm-remote/cm-remote.service';
+import { CMGoToTableService } from './services/context-menu/cm-go-to-table/cm-go-to-table.service';
+import { CMMapService } from './services/context-menu/cm-map/cm-map.service';
+import { MapService } from './services/map/map.service';
+import { HardwareService } from './services/hardware/hardware.service';
+import { DomainService } from './services/domain/domain.service';
+import { LoginProfileService } from './services/login-profile/login-profile.service';
+import { TemplateService } from './services/template/template.service';
+import { NodeService } from '../core/services/node/node.service';
+import { PortGroupService } from '../core/services/portgroup/portgroup.service';
+import { InterfaceService } from '../core/services/interface/interface.service';
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
 const expandCollapse = require('cytoscape-expand-collapse');
@@ -108,6 +108,14 @@ export class MapComponent implements OnInit {
   isGroupBoxesChecked!: boolean;
   portGroups!: any[];
   gateways!: any[];
+  newEdgeData: any;
+  e: any;
+  inv: any;
+  edgeNode: any;
+  edgePortGroup: any;
+  isAddEdge: any;
+  isAddTunnel: any;
+  deletedInterface: any;
   selectMap$ = new Subscription();
   selectIcons$ = new Subscription();
   selectDevices$ = new Subscription();
@@ -138,15 +146,15 @@ export class MapComponent implements OnInit {
     private interfaceService: InterfaceService,
     private dialog: MatDialog,
     private toastr: ToastrService,
-    private cmAddMenuService: CMAddMenuService,
-    private cmActionsMenuService: CMActionsMenuService,
+    private cmAddService: CMAddService,
+    private cmActionsService: CMActionsService,
     private cmViewDetailsService: CMViewDetailsService,
     private cmEditService: CMEditService,
     private cmDeleteService: CMDeleteService,
     private cmGroupBoxService: CMGroupBoxService,
-    private cmLockUnlockMenuService: CMLockUnlockMenuService,
-    private cmRemoteMenuService: CMRemoteMenuService,
-    private cmGoToTableMenuService: CMGoToTableMenuService,
+    private cmLockUnlockService: CMLockUnlockService,
+    private cmRemoteService: CMRemoteService,
+    private cmGoToTableService: CMGoToTableService,
     private cmMapService: CMMapService,
   ) {
     navigator(cytoscape);
@@ -157,7 +165,7 @@ export class MapComponent implements OnInit {
     panzoom(cytoscape);
     cytoscape.use(compoundDragAndDrop);
     nodeEditing(cytoscape, jquery, konva);
-    this.selectMap$ = this.store.select(selectMapFeature).subscribe((map: MapModel) => {
+    this.selectMap$ = this.store.select(selectMapFeature).subscribe((map: MapState) => {
       if (Object.keys(map).length > 0) {
         this.nodes = map.nodes;
         this.interfaces = map.interfaces;
@@ -218,7 +226,7 @@ export class MapComponent implements OnInit {
       }
     });
     this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe((portGroups: any) => {
-        this.portGroups = portGroups;
+      this.portGroups = portGroups;
     });
   }
 
@@ -273,8 +281,43 @@ export class MapComponent implements OnInit {
     console.log('zoom');
   }
 
-  private _tapNode() {
-    console.log('tapNode');
+  private _tapNode($event: any) {
+    const targetData = $event.target.data();
+    if (this.isAddEdge) {
+      if (
+        targetData.temp
+        || $event.target.group() != 'nodes'
+        || targetData.label == 'group_box'
+        || (this.edgeNode && targetData.elem_category != 'port_group')
+        || (this.edgePortGroup && targetData.elem_category == 'port_group')
+      ) {
+        return this._unqueueEdge();
+      }
+      let src: any;
+      let targ: any;
+      if (this.edgePortGroup) {
+        src = "'" + this.edgePortGroup.data().id + "'";
+        targ = "'" + targetData.id + "'";
+      } else {
+        src = "'" + this.edgeNode.data().id + "'";
+        targ = "'" + targetData.id + "'";
+      }
+      const el = this.cy.edges().filter(`[source=${src}][target=${targ}]`).length
+      if (el > 0) {
+        return this.toastr.warning("The edge already exists.");
+      }
+      this._addNewEdge($event);
+    } else if (this.isAddTunnel) {
+      if (
+        targetData.temp
+        || $event.target.group() != 'nodes'
+        || targetData.label == 'group_box'
+        || targetData.elem_category == 'port_group'
+      ) {
+        return this._unqueueEdge();
+      }
+      this._addNewEdge($event);
+    }
   }
 
   private _selectNode() {
@@ -489,36 +532,34 @@ export class MapComponent implements OnInit {
 
   private _initMouseEvents() {
     this.cy.removeAllListeners();
-
     this.cy.on("dragfreeon", "node", this._dragFreeOnNode.bind(this));
     this.cy.on("zoom", this._zoom.bind(this));
     this.cy.on("tap", "node", this._tapNode.bind(this));
-    this.cy.on("select", "node", this._selectNode.bind(this)) //3
-    this.cy.on("select", "edge", this._selectEdge.bind(this))
-    this.cy.on("unselect", "node", this._unselectNode.bind(this))
-    this.cy.on("unselect", "edge", this._unselectEdge.bind(this))
-    this.cy.on("boxstart", this._boxStart.bind(this)) //1
-    this.cy.on("boxselect", this._boxSelect.bind(this)) //4
-    this.cy.on("box", this._boxCheck.bind(this)) //2
+    this.cy.on("select", "node", this._selectNode.bind(this));
+    this.cy.on("select", "edge", this._selectEdge.bind(this));
+    this.cy.on("unselect", "node", this._unselectNode.bind(this));
+    this.cy.on("unselect", "edge", this._unselectEdge.bind(this));
+    this.cy.on("boxstart", this._boxStart.bind(this));
+    this.cy.on("boxselect", this._boxSelect.bind(this));
+    this.cy.on("box", this._boxCheck.bind(this));
     this.cy.on("click", this._click.bind(this));
     this.cy.on("nodeediting.resizeend", this._nodeEditing.bind(this));
     this.cy.on('cdnddrop', this._cdndDrop.bind(this));
     this.cy.on("noderesize.resizeend", (_e: any, _type: any) => {
       document.body.style.cursor = "initial";
     });
-
     document.addEventListener("keydown", this._keyDown.bind(this));
   }
 
   private _initContextMenu() {
     this.cy.contextMenus({
       menuItems: [
-        this.cmAddMenuService.getNodeAddMenu(),
-        this.cmAddMenuService.getPortGroupAddMenu(),
-        this.cmAddMenuService.getEdgeAddMenu(),
-        this.cmActionsMenuService.getNodeActionsMenu(),
-        this.cmActionsMenuService.getPortGroupActionsMenu(),
-        this.cmActionsMenuService.getEdgeActionsMenu(),
+        this.cmAddService.getNodeAddMenu(this.queueEdge.bind(this)),
+        this.cmAddService.getPortGroupAddMenu(),
+        this.cmAddService.getEdgeAddMenu(),
+        this.cmActionsService.getNodeActionsMenu(),
+        this.cmActionsService.getPortGroupActionsMenu(),
+        this.cmActionsService.getEdgeActionsMenu(),
         this.cmViewDetailsService.getMenu(),
         this.cmEditService.getMenu(),
         this.cmDeleteService.getMenu(),
@@ -526,10 +567,10 @@ export class MapComponent implements OnInit {
         this.cmGroupBoxService.getExpandMenu(),
         this.cmGroupBoxService.getMoveToFrontMenu(),
         this.cmGroupBoxService.getMoveToBackMenu(),
-        this.cmLockUnlockMenuService.getLockMenu(),
-        this.cmLockUnlockMenuService.getUnlockMenu(),
-        this.cmRemoteMenuService.getMenu(),
-        this.cmGoToTableMenuService.getMenu(),
+        this.cmLockUnlockService.getLockMenu(),
+        this.cmLockUnlockService.getUnlockMenu(),
+        this.cmRemoteService.getMenu(),
+        this.cmGoToTableService.getMenu(),
         this.cmMapService.getSaveChangesMenu(),
         this.cmMapService.getUndoMenu(),
         this.cmMapService.getRedoMenu(),
@@ -538,7 +579,7 @@ export class MapComponent implements OnInit {
         this.cmMapService.getUnlockAllMenu(),
         this.cmMapService.getSelectAllMenu(),
       ],
-       submenuIndicator: { src: '/assets/icons/submenu-indicator-default.svg', width: 12, height: 12 }
+      submenuIndicator: { src: '/assets/icons/submenu-indicator-default.svg', width: 12, height: 12 }
     });
   }
 
@@ -660,18 +701,7 @@ export class MapComponent implements OnInit {
     });
   }
 
-  private _openAddUpdateInterfaceDialog(genData: any) {
-    const newEdgeData = {
-      "source": 'node-1',
-      "target": 'pg-9',
-      "id": 'new_edge_' + this.helpers.createUUID(),
-      "name": "",
-      "category": "wired",
-      "direction": "both",
-      'curve_style': 'straight',
-      "color": this.selectedDefaultPref.edge_color,
-      "width": this.selectedDefaultPref.edge_size + "px",
-    }
+  private _openAddUpdateInterfaceDialog(genData: any, newEdgeData: any) {
     const dialogData = {
       mode: 'add',
       collectionId: this.collectionId,
@@ -682,6 +712,98 @@ export class MapComponent implements OnInit {
       genData,
       newEdgeData,
     }
-    this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', data: dialogData });
+    const dialogRef = this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', data: dialogData });
+    dialogRef.afterClosed().subscribe((_data: any) => {
+      this.inv.remove();
+      this.e.remove();
+      this.inv = null;
+      this.edgePortGroup = null;
+      this.edgeNode = null;
+      this.isAddEdge = false;
+      this._enableMapEditButtons();
+    });
+  }
+
+  private _addNewEdge($event: any) {
+    if (this.isAddEdge) {
+      this.cy.unbind('mousemove');
+      let targ: any;
+      if (this.edgePortGroup) {
+        this.edgeNode = $event.target;
+        targ = this.edgeNode.data().id;
+      } else {
+        this.edgePortGroup = $event.target;
+        targ = this.edgePortGroup.data().id;
+      }
+      this.e.move({ target: targ });
+      this.newEdgeData.target = targ;
+      this.interfaceService.genData(this.edgeNode.data().node_id, this.edgePortGroup.data().pg_id)
+        .subscribe(genData => {
+          this._openAddUpdateInterfaceDialog(genData, this.newEdgeData);
+        });
+    } else if (this.isAddTunnel) {
+      this.cy.unbind('mousemove');
+      this.isDisableCancel = false;
+      this.e.move({ target: $event.target.data().id });
+      this.inv.remove();
+      this.inv = null;
+      this.edgeNode = null;
+      this.isDisableCancel = true;
+      this.isAddTunnel = false;
+    }
+  }
+
+  queueEdge(target: any, position: any, category: string) {
+    const data = target.data();
+    if (data.elem_category === 'port_group') {
+      this.edgePortGroup = target;
+    } else {
+      this.edgeNode = target;
+    }
+    const invisNode = {
+      group: "nodes",
+      data: {
+        id: "tempNode" + this.helpers.createUUID(),
+        temp: true,
+        name: "",
+        height: "1px",
+        width: "1px",
+        zIndex: 10,
+      },
+      selectable: false,
+      position,
+    }
+    this.inv = this.cy.add(invisNode)[0];
+    this.inv.style({ 'zIndex': 10 });
+    this.newEdgeData = {
+      source: data.id,
+      target: invisNode.data.id,
+      id: 'new_edge_' + this.helpers.createUUID(),
+      name: "",
+      category,
+      direction: "both",
+      curve_style: category == 'tunnel' ? 'bezier' : 'straight',
+      color: this.selectedDefaultPref.edge_color,
+      width: this.selectedDefaultPref.edge_width + "px",
+    }
+    this.e = this.helpers.addCYEdge(this.cy, this.newEdgeData)[0];
+    if (category == "tunnel") {
+      this.isAddTunnel = true
+    } else {
+      this.isAddEdge = true;
+    }
+    this.cy.bind('mousemove', (event: any) => {
+      this.inv.position(event.position);
+    });
+  }
+
+  private _unqueueEdge() {
+    this.cy.unbind('mousemove');
+    this.e.remove()
+    this.inv.remove()
+    this.edgeNode = null;
+    this.edgePortGroup = null;
+    this.isAddEdge = false;
+    this.isAddTunnel = false
   }
 }

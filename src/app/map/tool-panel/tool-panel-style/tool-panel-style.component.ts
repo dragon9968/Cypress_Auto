@@ -4,10 +4,10 @@ import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Store } from '@ngrx/store';
-import { HelpersService } from 'src/app/shared/services/helpers/helpers.service';
-import { MapPrefService } from 'src/app/shared/services/map-pref/map-pref.service';
-import { retrievedMapPref } from 'src/app/shared/store/map-pref/map-pref.actions';
-import { selectDefaultPreferences } from 'src/app/shared/store/map/map.selectors';
+import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
+import { MapPrefService } from 'src/app/map/tool-panel/tool-panel-style/services/map-pref/map-pref.service';
+import { retrievedMapPref } from 'src/app/store/map-pref/map-pref.actions';
+import { selectDefaultPreferences } from 'src/app/store/map/map.selectors';
 
 @Component({
   selector: 'app-tool-panel-style',

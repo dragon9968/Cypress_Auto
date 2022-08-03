@@ -2,11 +2,11 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
-import { HelpersService } from 'src/app/shared/services/helpers/helpers.service';
+import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { ToastrService } from 'ngx-toastr';
-import { InterfaceService } from 'src/app/shared/services/interface/interface.service';
 import { DIRECTIONS } from 'src/app/shared/contants/directions.contant';
+import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 
 @Component({
   selector: 'app-add-update-interface-dialog',
@@ -104,11 +104,11 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
       ip_allocation: this.ipAllocationCtr?.value,
       ip: this.ipCtr?.value,
       dns_server: this.dnsServerCtr?.value,
-      gateway: this.gatewayCtr?.value.id,
+      gateway: this.gatewayCtr?.value?.id,
       is_gateway: this.isGatewayCtr?.value,
       is_nat: this.isNatCtr?.value,
-      node_id: this.data.node_id,
-      netmask_id: this.data.netmask_id,
+      node_id: this.data.genData.node_id,
+      netmask_id: this.data.genData.netmask_id,
       logical_map_position: this.data.newNodePosition,
       logical_map_style: (this.data.mode == 'add') ? {
         "width": this.data.selectedDefaultPref.edge_width,
@@ -134,7 +134,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
       cyData.text_color = cyData.logical_map_style.text_color;
       cyData.text_size = cyData.logical_map_style.text_size;
       cyData.color = cyData.logical_map_style.color;
-      this.helpers.addCYEdge(this.data.cy, { newNodeData: { ...this.data.newEdgeData, ...cyData }});
+      this.helpers.addCYEdge(this.data.cy, { ...this.data.newEdgeData, ...cyData });
       this.toastr.success('Edge details added!');
       this.dialogRef.close();
     });

@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { retrievedMapEdit } from 'src/app/shared/store/map-edit/map-edit.actions';
+import { retrievedMapEdit } from 'src/app/store/map-edit/map-edit.actions';
 
 @Component({
   selector: 'app-tool-panel',

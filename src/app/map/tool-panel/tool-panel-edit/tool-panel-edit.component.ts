@@ -1,10 +1,10 @@
 import { Component, Input } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { HelpersService } from 'src/app/shared/services/helpers/helpers.service';
+import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { Store } from '@ngrx/store';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
-import { retrievedMapEdit } from 'src/app/shared/store/map-edit/map-edit.actions';
+import { retrievedMapEdit } from 'src/app/store/map-edit/map-edit.actions';
 
 @Component({
   selector: 'app-tool-panel-edit',
