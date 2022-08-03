@@ -43,6 +43,16 @@ import { AddUpdateInterfaceDialogComponent } from './add-update-interface-dialog
 import { InterfaceService } from '../shared/services/interface/interface.service';
 import { retrievedPortGroups } from '../shared/store/portgroup/portgroup.actions';
 import { selectPortGroups } from '../shared/store/portgroup/portgroup.selectors';
+import { CMAddMenuService } from '../shared/services/context-menu/cm-add/cm-add.service';
+import { CMActionsMenuService } from '../shared/services/context-menu/cm-actions/cm-actions.service';
+import { CMViewDetailsService } from '../shared/services/context-menu/cm-view-details/cm-view-details.service';
+import { CMEditService } from '../shared/services/context-menu/cm-edit/cm-edit.service';
+import { CMDeleteService } from '../shared/services/context-menu/cm-delete/cm-delete.service';
+import { CMGroupBoxService } from '../shared/services/context-menu/cm-groupbox/cm-groupbox.service';
+import { CMLockUnlockMenuService } from '../shared/services/context-menu/cm-lock-unlock/cm-lock-unlock.service';
+import { CMRemoteMenuService } from '../shared/services/context-menu/cm-remote/cm-remote.service';
+import { CMGoToTableMenuService } from '../shared/services/context-menu/cm-go-to-table/cm-go-to-table.service';
+import { CMMapService } from '../shared/services/context-menu/cm-map/cm-map.service';
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
 const expandCollapse = require('cytoscape-expand-collapse');
@@ -71,7 +81,7 @@ export class MapComponent implements OnInit {
   isAddPublicPG = false;
   isAddPrivatePG = false;
   mapCategory = '';
-  collectionId = '1';
+  collectionId = '0';
   nodes: any;
   interfaces: any;
   groupBoxes: any;
@@ -128,6 +138,16 @@ export class MapComponent implements OnInit {
     private interfaceService: InterfaceService,
     private dialog: MatDialog,
     private toastr: ToastrService,
+    private cmAddMenuService: CMAddMenuService,
+    private cmActionsMenuService: CMActionsMenuService,
+    private cmViewDetailsService: CMViewDetailsService,
+    private cmEditService: CMEditService,
+    private cmDeleteService: CMDeleteService,
+    private cmGroupBoxService: CMGroupBoxService,
+    private cmLockUnlockMenuService: CMLockUnlockMenuService,
+    private cmRemoteMenuService: CMRemoteMenuService,
+    private cmGoToTableMenuService: CMGoToTableMenuService,
+    private cmMapService: CMMapService,
   ) {
     navigator(cytoscape);
     gridGuide(cytoscape);
@@ -148,6 +168,7 @@ export class MapComponent implements OnInit {
         this.defaultPreferences = map.defaultPreferences;
         this._initCytoscape();
         this._initMouseEvents();
+        this._initContextMenu();
       }
     });
     this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
@@ -487,6 +508,38 @@ export class MapComponent implements OnInit {
     });
 
     document.addEventListener("keydown", this._keyDown.bind(this));
+  }
+
+  private _initContextMenu() {
+    this.cy.contextMenus({
+      menuItems: [
+        this.cmAddMenuService.getNodeAddMenu(),
+        this.cmAddMenuService.getPortGroupAddMenu(),
+        this.cmAddMenuService.getEdgeAddMenu(),
+        this.cmActionsMenuService.getNodeActionsMenu(),
+        this.cmActionsMenuService.getPortGroupActionsMenu(),
+        this.cmActionsMenuService.getEdgeActionsMenu(),
+        this.cmViewDetailsService.getMenu(),
+        this.cmEditService.getMenu(),
+        this.cmDeleteService.getMenu(),
+        this.cmGroupBoxService.getCollapseMenu(),
+        this.cmGroupBoxService.getExpandMenu(),
+        this.cmGroupBoxService.getMoveToFrontMenu(),
+        this.cmGroupBoxService.getMoveToBackMenu(),
+        this.cmLockUnlockMenuService.getLockMenu(),
+        this.cmLockUnlockMenuService.getUnlockMenu(),
+        this.cmRemoteMenuService.getMenu(),
+        this.cmGoToTableMenuService.getMenu(),
+        this.cmMapService.getSaveChangesMenu(),
+        this.cmMapService.getUndoMenu(),
+        this.cmMapService.getRedoMenu(),
+        this.cmMapService.getDownloadMenu(),
+        this.cmMapService.getLockAllMenu(),
+        this.cmMapService.getUnlockAllMenu(),
+        this.cmMapService.getSelectAllMenu(),
+      ],
+       submenuIndicator: { src: '/assets/icons/submenu-indicator-default.svg', width: 12, height: 12 }
+    });
   }
 
   private _openAddUpdateNodeDialog(genData: any, newNodeData: any, newNodePosition: any) {
