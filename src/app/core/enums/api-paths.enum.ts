@@ -13,6 +13,7 @@ export enum ApiPaths {
   CONFIG_TEMPLATES = '/api/v1/configtemplate/',
   LOGIN_PROFILES = '/api/v1/loginprofile/',
   NODE = '/api/v1/node/',
+  CLONE_NODE = '/api/v1/node/clone/',
   PORTGROUP = '/api/v1/portgroup/',
   MAP_PREF = '/api/v1/mappref/',
   GEN_NODE_DATA = '/api/v1/node/gen_data',

@@ -557,7 +557,7 @@ export class MapComponent implements OnInit {
         this.cmAddService.getNodeAddMenu(this.queueEdge.bind(this)),
         this.cmAddService.getPortGroupAddMenu(),
         this.cmAddService.getEdgeAddMenu(),
-        this.cmActionsService.getNodeActionsMenu(),
+        this.cmActionsService.getNodeActionsMenu(this.cy),
         this.cmActionsService.getPortGroupActionsMenu(),
         this.cmActionsService.getEdgeActionsMenu(),
         this.cmViewDetailsService.getMenu(),

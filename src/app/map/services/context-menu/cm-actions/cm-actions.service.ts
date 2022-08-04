@@ -1,14 +1,21 @@
 import { Injectable } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { ToastrService } from 'ngx-toastr';
+import { catchError, of } from 'rxjs';
+import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
+import { NodeService } from 'src/app/core/services/node/node.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CMActionsService {
 
-  constructor(private dialog: MatDialog) { }
+  constructor(
+    private helpers: HelpersService,
+    private toastr: ToastrService,
+    private nodeService: NodeService,
+  ) { }
 
-  getNodeActionsMenu() {
+  getNodeActionsMenu(cy: any) {
     return {
       id: "node_actions",
       content: "Actions",
@@ -18,14 +25,43 @@ export class CMActionsService {
         {
           id: "clone_node",
           content: "Clone",
-          onClickFunction: (event: any) => {},
+          onClickFunction: (event: any) => {
+            const data = event.target.data();
+            this.nodeService.clone(data.node_id).pipe(
+              catchError((error: any) => {
+                this.toastr.error(error.message);
+                return of([]);
+              })
+            ).subscribe(clonedRes => {
+              const id = clonedRes.result.id;
+              this.nodeService.get(id).subscribe(nodeData => {
+                const cyData = nodeData.result;
+                cyData.id = 'node-' + id;
+                cyData.node_id = id;
+                cyData.height = cyData.logical_map_style.height;
+                cyData.width = cyData.logical_map_style.width;
+                cyData.text_color = cyData.logical_map_style.text_color;
+                cyData.text_size = cyData.logical_map_style.text_size;
+                cyData.elem_category = "node";
+                cyData.icon = '/static/img/uploads/' + cyData.icon.photo;
+                cyData.type = cyData.role;
+                cyData.zIndex = 999;
+                cyData['background-image'] = '/static/img/uploads/' + cyData.icon.photo;
+                cyData['background-opacity'] = 0;
+                cyData.shape = "roundrectangle";
+                cyData['text-opacity'] = 1;
+                this.helpers.addCYNode(cy, { newNodeData: cyData });
+                this.toastr.success(clonedRes.message);
+              });
+            });
+          },
           hasTrailingDivider: true,
           disabled: false,
         },
         {
           id: "validate_node",
           content: "Validate",
-          onClickFunction: (event: any) => {},
+          onClickFunction: (event: any) => { },
           hasTrailingDivider: true,
           disabled: false,
         },
@@ -44,14 +80,14 @@ export class CMActionsService {
         {
           id: "randomize_pg_subnet",
           content: "Randomize Subnet",
-          onClickFunction: (event: any) => {},
+          onClickFunction: (event: any) => { },
           hasTrailingDivider: true,
           disabled: false,
         },
         {
           id: "validate_pg",
           content: "Validate",
-          onClickFunction: (event: any) => {},
+          onClickFunction: (event: any) => { },
           hasTrailingDivider: true,
           disabled: false,
         },
