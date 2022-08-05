@@ -5,9 +5,6 @@ import { Stylesheet } from 'cytoscape';
   providedIn: 'root'
 })
 export class HelpersService {
-  last_width = 0;
-  last_height = 0;
-  zoom_limit = false;
 
   constructor() { }
 
@@ -337,7 +334,7 @@ export class HelpersService {
     return true;
   }
 
-  addGroupBoxes(cy: any, groupBoxes: any, groupCategory: string) {
+  addGroupBoxes(cy: any, groupBoxes: any, groupCategory: string, lastWidth: number, lastHeight: number, zoomLimit: boolean) {
     const gbs = groupBoxes.filter((gb: any) => gb.data.group_category == groupCategory);
     cy.add(gbs);
     cy.nodes().forEach((ele: any) => {
@@ -361,36 +358,36 @@ export class HelpersService {
           gbn.position(pos);
           if (!done) {
             done = true;
-            this.last_width = 90;
-            this.last_height = 90;
+            lastWidth = 90;
+            lastHeight = 90;
           }
 
         } else {
-          this.last_width = gbn.renderedWidth()
-          this.last_height = gbn.renderedHeight()
+          lastWidth = gbn.renderedWidth();
+          lastHeight = gbn.renderedHeight();
         }
         if (gb.data.locked) {
-          gbn.lock()
+          gbn.lock();
         }
       } else {
-        cy.remove(gbn)
+        cy.remove(gbn);
       }
     }
-    const z = cy.zoom()
-    const cyW = cy.container().clientWidth
-    const cyH = cy.container().clientHeight
-    const nW = this.last_width || 100
-    const nH = this.last_height || 100
-    const lim = (nW * nH * z) / (cyW * cyH)
-    this.zoom_limit = lim < 0.0005
+    const z = cy.zoom();
+    const cyW = cy.container().clientWidth;
+    const cyH = cy.container().clientHeight;
+    const nW = lastWidth || 100;
+    const nH = lastHeight || 100;
+    const lim = (nW * nH * z) / (cyW * cyH);
+    zoomLimit = lim < 0.0005;
     cy.resize();
     return true;
   }
 
-  reloadGroupBoxes(cy: any, groupBoxes: any, groupCategory: string, isGroupBoxesChecked: boolean) {
+  reloadGroupBoxes(cy: any, groupBoxes: any, groupCategory: string, isGroupBoxesChecked: boolean, lastWidth: number, lastHeight: number, zoomLimit: boolean) {
     if (isGroupBoxesChecked) {
       this.removeGroupBoxes(cy);
-      this.addGroupBoxes(cy, groupBoxes, groupCategory);
+      this.addGroupBoxes(cy, groupBoxes, groupCategory, lastWidth, lastHeight, zoomLimit);
     }
   }
 

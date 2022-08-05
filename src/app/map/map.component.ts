@@ -72,6 +72,7 @@ const jquery = require('jquery');
 })
 export class MapComponent implements OnInit {
   cy: any;
+  ur: any;
   isOpenToolPanel = true;
   isDisableCancel = true;
   isDisableAddNode = false;
@@ -116,6 +117,19 @@ export class MapComponent implements OnInit {
   isAddEdge: any;
   isAddTunnel: any;
   deletedInterface: any;
+  activeNodes: any[] = [];
+  activePGs: any[] = [];
+  activeEdges: any[] = [];
+  activeGBs: any[] = [];
+  activeMBs: any[] = [];
+  isBoxSelecting = false;
+  isSearching = false;
+  isSelectedProcessed = false;
+  connectionId!: string;
+  boxSelectedNodes = new Set();
+  lastWidth = 0;
+  lastHeight = 0;
+  zoomLimit = false;
   selectMap$ = new Subscription();
   selectIcons$ = new Subscription();
   selectDevices$ = new Subscription();
@@ -277,9 +291,7 @@ export class MapComponent implements OnInit {
     console.log('dragFreeOnNode');
   }
 
-  private _zoom() {
-    console.log('zoom');
-  }
+  private _zoom() { }
 
   private _tapNode($event: any) {
     const targetData = $event.target.data();
@@ -320,32 +332,144 @@ export class MapComponent implements OnInit {
     }
   }
 
-  private _selectNode() {
-    console.log('selectNode');
+  private _selectNode($event: any) {
+    const t = $event.target;
+    const d = t.data();
+    if (this.isBoxSelecting || this.isSearching) { return; }
+
+    if (this.isAddNode || this.isAddPublicPG || this.isAddPrivatePG) {
+      this.isAddNode = false;
+      this.isAddPublicPG = false;
+      this.isAddPrivatePG = false;
+      t.unselect();
+      return;
+    }
+    if (d.label == 'map_background') {
+      this.activeMBs.push(t);
+    } else if (d.label == 'group_box') {
+      this.isBoxSelecting = true;
+      this.activeGBs.push(t);
+      t.children().forEach((ele: any) => {
+        ele.select();
+        this.boxSelectedNodes.add(ele);
+      })
+      this._boxSelect();
+      this.isBoxSelecting = false;
+      this.isSelectedProcessed = false;
+      this.boxSelectedNodes.clear();
+      return;
+    } else {
+      if (d.elem_category == 'node' && !this.activeNodes.includes(t)) {
+        this.activeNodes.push(t);
+      } else if (d.elem_category == 'port_group' && !this.activePGs.includes(t)) {
+        this.activePGs.push(t);
+      }
+      if (!d.new) {
+        if (this.activeNodes.length == 0) {
+          this.activeNodes = [];
+        }
+        if (this.activePGs.length == 0) {
+          this.activePGs = [];
+        }
+      }
+    }
+    this._showContextMenu();
+    // this._tool_panel.update_components();
+    // this._info_panel.add_update_rows(dataList);
   }
 
-  private _selectEdge() {
-    console.log('selectEdge');
+  private _selectEdge($event: any) {
+    const t = $event.target;
+    const d = t.data()
+    if (this.isBoxSelecting || this.isSearching) { return; }
+    if (t.isEdge() && !this.activeEdges.includes(t)) {
+      this.activeEdges.push(t);
+    }
+    if (!d.new) {
+      if (this.activeEdges.length == 0) {
+        this.activeEdges = [];
+      }
+    }
+    this._showContextMenu();
+    // this._tool_panel.update_components();
+    // this._info_panel.add_update_rows(dataList);
   }
 
-  private _unselectNode() {
-    console.log('unselectNode');
+  private _unselectNode($event: any) {
+    const t = $event.target;
+    if (t.data('label') == 'map_background') {
+      if (this.activeMBs.includes(t)) {
+        const index = this.activeMBs.indexOf(t);
+        this.activeMBs.splice(index, 1);
+      }
+    } else if (t.data('label') == 'group_box') {
+      if (this.activeGBs.includes(t)) {
+        const index = this.activeGBs.indexOf(t);
+        this.activeGBs.splice(index, 1);
+      }
+      this.activeNodes = [];
+      this.activePGs = [];
+      this.activeEdges = [];
+    } else if (t.data('elem_category') == 'port_group') {
+      if (this.activePGs.includes(t)) {
+        const index = this.activePGs.indexOf(t);
+        this.activePGs.splice(index, 1);
+      }
+    } else {
+      if (this.activeNodes.includes(t)) {
+        const index = this.activeNodes.indexOf(t);
+        this.activeNodes.splice(index, 1);
+      }
+    }
+    // this._tool_panel.update_components();
   }
 
-  private _unselectEdge() {
-    console.log('unselectEdge');
+  private _unselectEdge($event: any) {
+    const t = $event.target;
+    if (this.activeEdges.includes(t)) {
+      const index = this.activeEdges.indexOf(t);
+      this.activeEdges.splice(index, 1);
+    }
+    // this._tool_panel.update_components();
   }
 
-  private _boxStart() {
-    console.log('boxStart');
+  private _boxStart(_$event: any) {
+    this.isBoxSelecting = true;
+    this.isSelectedProcessed = false;
+    this.boxSelectedNodes.clear();
   }
 
   private _boxSelect() {
-    console.log('boxSelect');
+    if (this.isSelectedProcessed || this.boxSelectedNodes.size == 0) return;
+    this._processNodeList(this.boxSelectedNodes);
   }
 
-  private _boxCheck() {
-    console.log('boxCheck');
+  private _boxCheck($event: any) {
+    const t = $event.target;
+    this.boxSelectedNodes.add(t);
+  }
+
+  private _processNodeList(elms: any) {
+    const activeEles = this.activeNodes.concat(this.activePGs, this.activeEdges);
+    if (activeEles.length == 0) {
+      this.activeNodes = [];
+      this.activePGs = [];
+      this.activeEdges = [];
+    }
+    for (let elm of elms) {
+      const d = elm.data();
+      if (d.elem_category == 'node' && !this.activeNodes.includes(elm)) {
+        this.activeNodes.push(elm);
+      } else if (d.elem_category == 'port_group' && !this.activePGs.includes(elm)) {
+        this.activePGs.push(elm);
+      } else if (elm.isEdge() && !this.activeEdges.includes(elm)) {
+        this.activeEdges.push(elm);
+      }
+    }
+    this.isSelectedProcessed = true;
+    this.isBoxSelecting = false;
+    // this._tool_panel.update_components();
+    // this._info_panel.add_update_rows(dataList);
   }
 
   private _click($event: any) {
@@ -399,8 +523,17 @@ export class MapComponent implements OnInit {
     console.log('cdndDrop');
   }
 
-  private _keyDown() {
-    console.log('keyDown');
+  private _keyDown($event: any) {
+    if ($event.which === 46) {
+      const selecteds = this.cy.$(":selected");
+      if (selecteds.length > 0) {
+        // this._tool_panel.$edge_delete.click();
+        // this._tool_panel.$node_delete.click();
+      }
+    } else if ($event.ctrlKey && $event.target.nodeName === "BODY") {
+      if ($event.which === 90) this.ur.undo();
+      else if ($event.which === 89) this.ur.redo();
+    }
   }
 
   private _initCytoscape(): void {
@@ -528,6 +661,37 @@ export class MapComponent implements OnInit {
       },
       wheelSensitivity: 0.2,
     });
+    this.cy.nodeEditing({
+      resizeToContentCueImage: "/static/img/resizeCue.svg",
+      isNoControlsMode: (node: any) => {
+        const z = this.cy.zoom();
+        const cyW = this.cy.container().clientWidth;
+        const cyH = this.cy.container().clientHeight;
+        const nW = node.renderedWidth();
+        const nH = node.renderedHeight();
+        return ((nW * nH * z) / (cyW * cyH) < .0005) ? true : false;
+      }
+    });
+
+    this.cy.panzoom({});
+    this.ur = this.cy.undoRedo({
+      isDebug: this.config['debug_output'],
+      stackSizeLimit: 20,
+    });
+    this.cy.expandCollapse({
+      layoutBy: null,
+      fisheye: false,
+      undoable: false,
+      animate: false
+    });
+    this.cy.nodes().on('expandcollapse.beforecollapse', ($event: any) => {
+      let a = this.cy.nodeEditing('get');
+      if (a) {
+        a.removeGrapples()
+      }
+      a = null;
+    });
+    this.cy.compoundDragAndDrop(this.config.cdnd_enable_options);
   }
 
   private _initMouseEvents() {
@@ -557,7 +721,7 @@ export class MapComponent implements OnInit {
         this.cmAddService.getNodeAddMenu(this.queueEdge.bind(this)),
         this.cmAddService.getPortGroupAddMenu(),
         this.cmAddService.getEdgeAddMenu(),
-        this.cmActionsService.getNodeActionsMenu(this.cy),
+        this.cmActionsService.getNodeActionsMenu(this.cy, this.activeNodes),
         this.cmActionsService.getPortGroupActionsMenu(),
         this.cmActionsService.getEdgeActionsMenu(),
         this.cmViewDetailsService.getMenu(),
@@ -602,6 +766,9 @@ export class MapComponent implements OnInit {
       genData,
       newNodeData,
       newNodePosition,
+      lastWidth: this.lastWidth,
+      lastHeight: this.lastHeight,
+      zoomLimit: this.zoomLimit,
     }
     const dialogRef = this.dialog.open(AddUpdateNodeDialogComponent, { width: '600px', data: dialogData });
     dialogRef.afterClosed().subscribe((_data: any) => {
@@ -638,7 +805,7 @@ export class MapComponent implements OnInit {
         cyData.text_size = cyData.logical_map_style.text_size;
         cyData.groups = respData.result.groups;
         this.helpers.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
-        this.helpers.reloadGroupBoxes(this.cy, this.groupBoxes, this.groupCategoryId, this.isGroupBoxesChecked);
+        this.helpers.reloadGroupBoxes(this.cy, this.groupBoxes, this.groupCategoryId, this.isGroupBoxesChecked, this.lastWidth, this.lastHeight, this.zoomLimit);
         this.isAddNode = false;
         this._enableMapEditButtons();
         this.toastr.success('Quick add node successfully!');
@@ -659,6 +826,9 @@ export class MapComponent implements OnInit {
       genData,
       newNodeData,
       newNodePosition,
+      lastWidth: this.lastWidth,
+      lastHeight: this.lastHeight,
+      zoomLimit: this.zoomLimit,
     }
     const dialogRef = this.dialog.open(AddUpdatePGDialogComponent, { width: '600px', data: dialogData });
     dialogRef.afterClosed().subscribe((_data: any) => {
@@ -692,7 +862,7 @@ export class MapComponent implements OnInit {
         cyData.color = cyData.logical_map_style.color;
         cyData.groups = respData.result.groups;
         this.helpers.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
-        this.helpers.reloadGroupBoxes(this.cy, this.groupBoxes, this.groupCategoryId, this.isGroupBoxesChecked);
+        this.helpers.reloadGroupBoxes(this.cy, this.groupBoxes, this.groupCategoryId, this.isGroupBoxesChecked, this.lastWidth, this.lastHeight, this.zoomLimit);
         if (this.isAddPublicPG) this.isAddPublicPG = false;
         if (this.isAddPrivatePG) this.isAddPrivatePG = false;
         this._enableMapEditButtons();
@@ -805,5 +975,53 @@ export class MapComponent implements OnInit {
     this.edgePortGroup = null;
     this.isAddEdge = false;
     this.isAddTunnel = false
+  }
+
+  private _showContextMenu() {
+    const contextMenu = this.cy.contextMenus('get');
+    const activeNodesLength = this.activeNodes.length;
+    const activePGsLength = this.activePGs.length;
+    const activeEdgesLength = this.activeEdges.length;
+    if (activeNodesLength > 0 && activePGsLength > 0 ||
+      activeNodesLength > 0 && activeEdgesLength > 0 ||
+      activePGsLength > 0 && activeEdgesLength > 0) {
+      contextMenu.hideMenuItem('node_add');
+      contextMenu.hideMenuItem('pg_add');
+      contextMenu.hideMenuItem('node_actions');
+      contextMenu.hideMenuItem('pg_actions');
+      contextMenu.hideMenuItem('edge_actions');
+      contextMenu.hideMenuItem('view_details');
+      contextMenu.hideMenuItem('edit');
+      contextMenu.hideMenuItem('node_remote');
+      contextMenu.hideMenuItem('go_to_table');
+    } else if (activeNodesLength >= 2 && activePGsLength == 0 && activeEdgesLength == 0) {
+      contextMenu.hideMenuItem('node_add');
+      contextMenu.hideMenuItem('clone_node');
+      contextMenu.hideMenuItem('view_details');
+      contextMenu.hideMenuItem('go_to_table');
+      contextMenu.hideMenuItem('web_console');
+    } else if (activePGsLength >= 2 && activeNodesLength == 0 && activeEdgesLength == 0) {
+      contextMenu.hideMenuItem('pg_add');
+      contextMenu.hideMenuItem('view_details');
+      contextMenu.hideMenuItem('go_to_table');
+    } else if (activeEdgesLength >= 2 && activeNodesLength == 0 && activePGsLength == 0) {
+      contextMenu.hideMenuItem('view_details');
+      contextMenu.hideMenuItem('go_to_table');
+    } else {
+      contextMenu.showMenuItem('node_add');
+      contextMenu.showMenuItem('pg_add');
+      contextMenu.hideMenuItem('edge_add');
+      contextMenu.showMenuItem('node_actions');
+      contextMenu.showMenuItem('pg_actions');
+      contextMenu.showMenuItem('edge_actions');
+      contextMenu.showMenuItem('view_details');
+      contextMenu.showMenuItem('edit');
+      contextMenu.showMenuItem('node_remote');
+      contextMenu.showMenuItem('web_console');
+      contextMenu.showMenuItem('go_to_table');
+    }
+    if (this.connectionId) {
+      contextMenu.hideMenuItem('node_remote');
+    }
   }
 }

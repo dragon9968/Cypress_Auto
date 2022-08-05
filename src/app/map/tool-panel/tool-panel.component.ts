@@ -18,6 +18,9 @@ export class ToolPanelComponent {
   @Input() isDisableAddNode = false;
   @Input() isDisableAddPG = false;
   @Input() isDisableAddImage = false;
+  @Input() lastWidth = 0;
+  @Input() lastHeight = 0;
+  @Input() zoomLimit = false;
 
   constructor(private store: Store) { }
 
