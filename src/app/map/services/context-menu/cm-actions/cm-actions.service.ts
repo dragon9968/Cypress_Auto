@@ -15,7 +15,7 @@ export class CMActionsService {
     private nodeService: NodeService,
   ) { }
 
-  getNodeActionsMenu(cy: any) {
+  getNodeActionsMenu(cy: any, activeNodes: any) {
     return {
       id: "node_actions",
       content: "Actions",
@@ -25,8 +25,8 @@ export class CMActionsService {
         {
           id: "clone_node",
           content: "Clone",
-          onClickFunction: (event: any) => {
-            const data = event.target.data();
+          onClickFunction: ($event: any) => {
+            const data = $event.target.data();
             this.nodeService.clone(data.node_id).pipe(
               catchError((error: any) => {
                 this.toastr.error(error.message);
@@ -61,7 +61,15 @@ export class CMActionsService {
         {
           id: "validate_node",
           content: "Validate",
-          onClickFunction: (event: any) => { },
+          onClickFunction: (_$event: any) => {
+            const pks = activeNodes.map((ele: any) => ele.data('node_id'));
+            this.nodeService.validate({ pks }).pipe(
+              catchError((error: any) => {
+                this.toastr.error(error.message);
+                return of([]);
+              })
+            ).subscribe(res => this.toastr.success(res.message));
+          },
           hasTrailingDivider: true,
           disabled: false,
         },

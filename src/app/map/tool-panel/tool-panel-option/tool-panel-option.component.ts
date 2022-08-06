@@ -14,6 +14,9 @@ import { selectDefaultPreferences, selectGroupBoxes } from 'src/app/store/map/ma
 export class ToolPanelOptionComponent implements OnInit {
   @Input() cy: any;
   @Input() config: any;
+  @Input() lastWidth = 0;
+  @Input() lastHeight = 0;
+  @Input() zoomLimit = false;
   isEdgeDirectionChecked = false;
   isGroupBoxesChecked = false;
   isMapGridChecked = false;
@@ -32,9 +35,6 @@ export class ToolPanelOptionComponent implements OnInit {
   nav: any;
   selectGroupBoxes$ = new Subscription();
   groupBoxes: any;
-  last_width = 0;
-  last_height = 0;
-  zoom_limit = false;
 
   constructor(
     private store: Store,
@@ -52,7 +52,7 @@ export class ToolPanelOptionComponent implements OnInit {
           this.isSnapToGridChecked = gridSettings.snap_to_grid;
           this.gridSpacingSize = gridSettings.spacing ? gridSettings.spacing.replace('px', '') : this.gridSpacingSize;
           this.isMapOverviewChecked = defaultPreferences.display_map_overview_checkbox;
-          this.store.dispatch(retrievedMapOption({ data: { isGroupBoxesChecked: this.isGroupBoxesChecked, groupCategoryId: groupCategory.id }}));
+          this.store.dispatch(retrievedMapOption({ data: { isGroupBoxesChecked: this.isGroupBoxesChecked, groupCategoryId: groupCategory.id } }));
         }
       });
     this.selectGroupBoxes$ = this.store.select(selectGroupBoxes).subscribe((groupBoxes: any) => this.groupBoxes = groupBoxes);
@@ -115,15 +115,15 @@ export class ToolPanelOptionComponent implements OnInit {
   }
   toggleGroupBoxes() {
     if (this.isGroupBoxesChecked) {
-      this.helpers.addGroupBoxes(this.cy, this.groupBoxes, this.groupCategoryCtr.value.id);
+      this.helpers.addGroupBoxes(this.cy, this.groupBoxes, this.groupCategoryCtr.value.id, this.lastWidth, this.lastHeight, this.zoomLimit);
     } else {
       this.helpers.removeGroupBoxes(this.cy);
     }
   }
 
   selectGroupCategory() {
-    this.helpers.reloadGroupBoxes(this.cy, this.groupBoxes, this.groupCategoryCtr.value.id, this.isGroupBoxesChecked);
-    this.store.dispatch(retrievedMapOption({ data: { isGroupBoxesChecked: this.isGroupBoxesChecked, groupCategoryId: this.groupCategoryCtr.value.id }}));
+    this.helpers.reloadGroupBoxes(this.cy, this.groupBoxes, this.groupCategoryCtr.value.id, this.isGroupBoxesChecked, this.lastWidth, this.lastHeight, this.zoomLimit);
+    this.store.dispatch(retrievedMapOption({ data: { isGroupBoxesChecked: this.isGroupBoxesChecked, groupCategoryId: this.groupCategoryCtr.value.id } }));
   }
 
   toggleMapGrid() {
