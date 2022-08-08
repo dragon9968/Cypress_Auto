@@ -17,13 +17,6 @@ import { retrievedLoginProfiles } from '../store/login-profile/login-profile.act
 import { IconService } from './services/icon/icon.service';
 import { DeviceService } from './services/device/device.service';
 import { ConfigTemplateService } from './services/config-template/config-template.service';
-import { selectIcons } from '../store/icon/icon.selectors';
-import { selectDevices } from '../store/device/device.selectors';
-import { selectTemplates } from '../store/template/template.selectors';
-import { selectHardwares } from '../store/hardware/hardware.selectors';
-import { selectDomains } from '../store/domain/domain.selectors';
-import { selectConfigTemplates } from '../store/config-template/config-template.selectors';
-import { selectLoginProfiles } from '../store/login-profile/login-profile.selectors';
 import { MatDialog } from '@angular/material/dialog';
 import { AddUpdateNodeDialogComponent } from './add-update-node-dialog/add-update-node-dialog.component';
 import { selectMapEdit } from '../store/map-edit/map-edit.selectors';
@@ -53,6 +46,8 @@ import { TemplateService } from './services/template/template.service';
 import { NodeService } from '../core/services/node/node.service';
 import { PortGroupService } from '../core/services/portgroup/portgroup.service';
 import { InterfaceService } from '../core/services/interface/interface.service';
+import { selectIcons } from '../store/icon/icon.selectors';
+import { selectDomains } from '../store/domain/domain.selectors';
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
 const expandCollapse = require('cytoscape-expand-collapse');
@@ -93,13 +88,6 @@ export class MapComponent implements OnInit {
   styleExists: any;
   cleared: any;
   eles: any[] = [];
-  icons!: any[];
-  devices!: any[];
-  templates!: any[];
-  hardwares!: any[];
-  domains!: any[];
-  configTemplates!: any[];
-  loginProfiles!: any[];
   isCustomizeNode = true;
   isCustomizePG = true;
   deviceId = '';
@@ -131,17 +119,14 @@ export class MapComponent implements OnInit {
   lastHeight = 0;
   zoomLimit = false;
   selectMap$ = new Subscription();
-  selectIcons$ = new Subscription();
-  selectDevices$ = new Subscription();
-  selectTemplates$ = new Subscription();
-  selectHardwares$ = new Subscription();
-  selectDomains$ = new Subscription();
-  selectConfigTemplates$ = new Subscription();
-  selectLoginProfiles$ = new Subscription();
   selectMapPref$ = new Subscription();
   selectMapEdit$ = new Subscription();
   selectMapOption$ = new Subscription();
   selectPortGroups$ = new Subscription();
+  selectIcons$ = new Subscription();
+  selectDomains$ = new Subscription();
+  icons!: any[];
+  domains!: any[];
 
   constructor(
     private route: ActivatedRoute,
@@ -179,6 +164,12 @@ export class MapComponent implements OnInit {
     panzoom(cytoscape);
     cytoscape.use(compoundDragAndDrop);
     nodeEditing(cytoscape, jquery, konva);
+    this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
+      this.icons = icons;
+    });
+    this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
+      this.domains = domains;
+    });
     this.selectMap$ = this.store.select(selectMapFeature).subscribe((map: MapState) => {
       if (Object.keys(map).length > 0) {
         this.nodes = map.nodes;
@@ -192,27 +183,6 @@ export class MapComponent implements OnInit {
         this._initMouseEvents();
         this._initContextMenu();
       }
-    });
-    this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
-      this.icons = icons;
-    });
-    this.selectDevices$ = this.store.select(selectDevices).subscribe((devices: any) => {
-      this.devices = devices;
-    });
-    this.selectTemplates$ = this.store.select(selectTemplates).subscribe((templates: any) => {
-      this.templates = templates;
-    });
-    this.selectHardwares$ = this.store.select(selectHardwares).subscribe((hardwares: any) => {
-      this.hardwares = hardwares;
-    });
-    this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
-      this.domains = domains;
-    });
-    this.selectConfigTemplates$ = this.store.select(selectConfigTemplates).subscribe((configTemplates: any) => {
-      this.configTemplates = configTemplates;
-    });
-    this.selectLoginProfiles$ = this.store.select(selectLoginProfiles).subscribe((loginProfiles: any) => {
-      this.loginProfiles = loginProfiles;
     });
     this.selectMapPref$ = this.store.select(selectMapPref).subscribe((selectedDefaultPref: any) => {
       this.selectedDefaultPref = selectedDefaultPref;
@@ -262,13 +232,6 @@ export class MapComponent implements OnInit {
 
   ngOnDestroy(): void {
     this.selectMap$.unsubscribe();
-    this.selectIcons$.unsubscribe();
-    this.selectDevices$.unsubscribe();
-    this.selectTemplates$.unsubscribe();
-    this.selectHardwares$.unsubscribe();
-    this.selectDomains$.unsubscribe();
-    this.selectConfigTemplates$.unsubscribe();
-    this.selectLoginProfiles$.unsubscribe();
     this.selectMapPref$.unsubscribe();
     this.selectMapOption$.unsubscribe();
   }
@@ -751,13 +714,6 @@ export class MapComponent implements OnInit {
     const dialogData = {
       mode: 'add',
       collectionId: this.collectionId,
-      icons: this.icons,
-      devices: this.devices,
-      templates: this.templates,
-      hardwares: this.hardwares,
-      domains: this.domains,
-      configTemplates: this.configTemplates,
-      loginProfiles: this.loginProfiles,
       selectedDefaultPref: this.selectedDefaultPref,
       cy: this.cy,
       groupBoxes: this.groupBoxes,
@@ -817,7 +773,6 @@ export class MapComponent implements OnInit {
     const dialogData = {
       mode: 'add',
       collectionId: this.collectionId,
-      domains: this.domains,
       selectedDefaultPref: this.selectedDefaultPref,
       cy: this.cy,
       groupBoxes: this.groupBoxes,

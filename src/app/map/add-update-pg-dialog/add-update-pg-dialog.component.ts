@@ -7,6 +7,9 @@ import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { ToastrService } from 'ngx-toastr';
 import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
+import { Store } from '@ngrx/store';
+import { selectDomains } from 'src/app/store/domain/domain.selectors';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-add-update-pg-dialog',
@@ -16,6 +19,8 @@ import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.serv
 export class AddUpdatePGDialogComponent implements OnInit {
   pgAddForm: FormGroup;
   errorMessages = ErrorMessages;
+  selectDomains$ = new Subscription();
+  domains!: any[];
 
   constructor(
     private portGroupService: PortGroupService,
@@ -23,12 +28,16 @@ export class AddUpdatePGDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<AddUpdatePGDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public helpers: HelpersService,
+    private store: Store,
   ) {
+    this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
+      this.domains = domains;
+    });
     this.pgAddForm = new FormGroup({
       nameCtr: new FormControl('', Validators.required),
       vlanCtr: new FormControl('', Validators.required),
       categoryCtr: new FormControl(''),
-      domainCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.data.domains)]),
+      domainCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.domains)]),
       subnetAllocationCtr: new FormControl(''),
       subnetCtr: new FormControl(''),
     });
@@ -42,16 +51,17 @@ export class AddUpdatePGDialogComponent implements OnInit {
   get subnetCtr() { return this.pgAddForm.get('subnetCtr'); }
 
   ngOnInit(): void {
-    if (this.data.mode == 'add') {
-      this.nameCtr?.setValue(this.data.genData.name);
-      this.vlanCtr?.setValue(this.data.genData.vlan);
-      this.categoryCtr?.setValue(this.data.genData.category);
-      this.domainCtr?.setValue(this.helpers.getOptionById(this.data.domains, this.data.genData.domain_id));
-      this.subnetAllocationCtr?.setValue(this.data.genData.subnet_allocation);
-      this.subnetCtr?.setValue(this.data.genData.subnet);
-      this.disableItems(this.subnetAllocationCtr?.value);
-    } else if (this.data.mode == 'update') {
-    }
+    this.nameCtr?.setValue(this.data.genData.name);
+    this.vlanCtr?.setValue(this.data.genData.vlan);
+    this.categoryCtr?.setValue(this.data.genData.category);
+    this.domainCtr?.setValue(this.helpers.getOptionById(this.domains, this.data.genData.domain_id));
+    this.subnetAllocationCtr?.setValue(this.data.genData.subnet_allocation);
+    this.subnetCtr?.setValue(this.data.genData.subnet);
+    this.disableItems(this.subnetAllocationCtr?.value);
+  }
+
+  ngOnDestroy(): void {
+    this.selectDomains$.unsubscribe();
   }
 
   private disableItems(subnetAllocation: string) {

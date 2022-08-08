@@ -9,6 +9,15 @@ import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { ToastrService } from 'ngx-toastr';
 import { NodeService } from 'src/app/core/services/node/node.service';
+import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs';
+import { selectIcons } from '../../store/icon/icon.selectors';
+import { selectDevices } from '../../store/device/device.selectors';
+import { selectTemplates } from '../../store/template/template.selectors';
+import { selectHardwares } from '../../store/hardware/hardware.selectors';
+import { selectDomains } from '../../store/domain/domain.selectors';
+import { selectConfigTemplates } from '../../store/config-template/config-template.selectors';
+import { selectLoginProfiles } from '../../store/login-profile/login-profile.selectors';
 
 @Component({
   selector: 'app-add-update-node-dialog',
@@ -20,6 +29,21 @@ export class AddUpdateNodeDialogComponent implements OnInit {
   ROLES = ROLES;
   filteredTemplates!: any[];
   errorMessages = ErrorMessages;
+  icons!: any[];
+  devices!: any[];
+  templates!: any[];
+  hardwares!: any[];
+  domains!: any[];
+  configTemplates!: any[];
+  loginProfiles!: any[];
+  selectIcons$ = new Subscription();
+  selectDevices$ = new Subscription();
+  selectTemplates$ = new Subscription();
+  selectHardwares$ = new Subscription();
+  selectDomains$ = new Subscription();
+  selectConfigTemplates$ = new Subscription();
+  selectLoginProfiles$ = new Subscription();
+  isViewMode = false;
 
   constructor(
     private nodeService: NodeService,
@@ -27,22 +51,45 @@ export class AddUpdateNodeDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<AddUpdateNodeDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public helpers: HelpersService,
+    private store: Store,
   ) {
-    this.filteredTemplates = this.data.templates;
+    this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
+      this.icons = icons;
+    });
+    this.selectDevices$ = this.store.select(selectDevices).subscribe((devices: any) => {
+      this.devices = devices;
+    });
+    this.selectTemplates$ = this.store.select(selectTemplates).subscribe((templates: any) => {
+      this.templates = templates;
+      this.filteredTemplates = templates;
+    });
+    this.selectHardwares$ = this.store.select(selectHardwares).subscribe((hardwares: any) => {
+      this.hardwares = hardwares;
+    });
+    this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
+      this.domains = domains;
+    });
+    this.selectConfigTemplates$ = this.store.select(selectConfigTemplates).subscribe((configTemplates: any) => {
+      this.configTemplates = configTemplates;
+    });
+    this.selectLoginProfiles$ = this.store.select(selectLoginProfiles).subscribe((loginProfiles: any) => {
+      this.loginProfiles = loginProfiles;
+    });
+
     this.nodeAddForm = new FormGroup({
       nameCtr: new FormControl('', Validators.required),
       notesCtr: new FormControl(''),
-      iconCtr: new FormControl('', [autoCompleteValidator(this.data.icons)]),
+      iconCtr: new FormControl('', [autoCompleteValidator(this.icons)]),
       categoryCtr: new FormControl(''),
-      deviceCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.data.devices)]),
-      templateCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.data.templates, 'display_name')]),
-      hardwareCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.data.hardwares)]),
+      deviceCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.devices)]),
+      templateCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.templates, 'display_name')]),
+      hardwareCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.hardwares)]),
       folderCtr: new FormControl('', Validators.required),
       roleCtr: new FormControl('', [Validators.required, autoCompleteValidator(ROLES)]),
-      domainCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.data.domains)]),
+      domainCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.domains)]),
       hostnameCtr: new FormControl('', Validators.required),
-      configTemplateCtr: new FormControl('', [autoCompleteValidator(this.data.configTemplates)]),
-      loginProfileCtr: new FormControl('', [autoCompleteValidator(this.data.loginProfiles)]),
+      configTemplateCtr: new FormControl('', [autoCompleteValidator(this.configTemplates)]),
+      loginProfileCtr: new FormControl('', [autoCompleteValidator(this.loginProfiles)]),
     });
   }
 
@@ -61,20 +108,32 @@ export class AddUpdateNodeDialogComponent implements OnInit {
   get loginProfileCtr() { return this.nodeAddForm.get('loginProfileCtr'); }
 
   ngOnInit(): void {
-    if (this.data.mode == 'add') {
-      this.nameCtr?.setValue(this.data.genData.name);
-      this.iconCtr?.setValue(this.helpers.getOptionById(this.data.icons, this.data.genData.icon_id));
-      this.categoryCtr?.setValue(this.data.genData.category);
-      this.deviceCtr?.setValue(this.helpers.getOptionById(this.data.devices, this.data.genData.device_id));
-      this.templateCtr?.setValue(this.helpers.getOptionById(this.data.templates, this.data.genData.template_id));
-      this.folderCtr?.setValue(this.data.genData.folder);
-      this.roleCtr?.setValue(this.helpers.getOptionById(ROLES, this.data.genData.role));
-      this.domainCtr?.setValue(this.helpers.getOptionById(this.data.domains, this.data.genData.domain_id));
-      this.hostnameCtr?.setValue(this.data.genData.hostname);
-      this.loginProfileCtr?.setValue(this.helpers.getOptionById(this.data.loginProfiles, this.data.genData.login_profile_id));
+    this.isViewMode = this.data.mode == 'view';
+    if (this.isViewMode) {
+      this.iconCtr?.setValue(this.helpers.getOptionById(this.icons, this.data.genData.icon.id));
+    } else {
+      this.iconCtr?.setValue(this.helpers.getOptionById(this.icons, this.data.genData.icon_id));
       this.disableItems(this.categoryCtr?.value);
-    } else if (this.data.mode == 'update') {
     }
+    this.nameCtr?.setValue(this.data.genData.name);
+    this.categoryCtr?.setValue(this.data.genData.category);
+    this.deviceCtr?.setValue(this.helpers.getOptionById(this.devices, this.data.genData.device_id));
+    this.templateCtr?.setValue(this.helpers.getOptionById(this.templates, this.data.genData.template_id));
+    this.folderCtr?.setValue(this.data.genData.folder);
+    this.roleCtr?.setValue(this.helpers.getOptionById(ROLES, this.data.genData.role));
+    this.domainCtr?.setValue(this.helpers.getOptionById(this.domains, this.data.genData.domain_id));
+    this.hostnameCtr?.setValue(this.data.genData.hostname);
+    this.loginProfileCtr?.setValue(this.helpers.getOptionById(this.loginProfiles, this.data.genData.login_profile_id));
+  }
+
+  ngOnDestroy(): void {
+    this.selectIcons$.unsubscribe();
+    this.selectDevices$.unsubscribe();
+    this.selectTemplates$.unsubscribe();
+    this.selectHardwares$.unsubscribe();
+    this.selectDomains$.unsubscribe();
+    this.selectConfigTemplates$.unsubscribe();
+    this.selectLoginProfiles$.unsubscribe();
   }
 
   private disableItems(category: string) {

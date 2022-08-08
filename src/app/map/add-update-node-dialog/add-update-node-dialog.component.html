@@ -3,18 +3,19 @@
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
-      <input matInput formControlName="nameCtr">
+      <input matInput formControlName="nameCtr" [readonly]="isViewMode">
       <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Notes</mat-label>
-      <textarea matInput formControlName="notesCtr"></textarea>
+      <textarea matInput formControlName="notesCtr" [readonly]="isViewMode"></textarea>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Icon</mat-label>
-      <input matInput type="text" placeholder="Select an icon" formControlName="iconCtr" [matAutocomplete]="autoIcon">
+      <input matInput type="text" placeholder="Select an icon" formControlName="iconCtr" [matAutocomplete]="autoIcon"
+        [readonly]="isViewMode">
       <mat-autocomplete #autoIcon="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of data.icons" [value]="option">
+        <mat-option *ngFor="let option of icons" [value]="option">
           <div class="option-text">
             <img [src]="'/static/img/uploads/' + option.photo" height="24" width="24">
             &nbsp;
@@ -25,7 +26,7 @@
     </mat-form-field>
     <div class="category">
       <label class="category-label">Category:</label>
-      <mat-radio-group class="category-group" formControlName="categoryCtr" (change)="onCategoryChange($event)">
+      <mat-radio-group class="category-group" formControlName="categoryCtr" (change)="onCategoryChange($event)" [disabled]="isViewMode">
         <mat-radio-button class="category-items" value="vm">VM</mat-radio-button>
         <mat-radio-button class="category-items" value="hw">HW</mat-radio-button>
         <mat-radio-button class="category-items" value="other">Other</mat-radio-button>
@@ -34,10 +35,10 @@
     <mat-form-field class="field">
       <mat-label>Device</mat-label>
       <input matInput type="text" placeholder="Select a device" formControlName="deviceCtr"
-        [matAutocomplete]="autoDevice">
+        [matAutocomplete]="autoDevice" [readonly]="isViewMode">
       <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="helpers.optionDisplay"
         (optionSelected)="selectDevice($event)">
-        <mat-option *ngFor="let option of data.devices" [value]="option">
+        <mat-option *ngFor="let option of devices" [value]="option">
           <div class="option-text">
             <img [src]="'/static/img/uploads/' + option.icon.photo" height="24" width="24">
             &nbsp;
@@ -51,7 +52,7 @@
     <mat-form-field class="field">
       <mat-label>Template</mat-label>
       <input matInput type="text" placeholder="Select a template" formControlName="templateCtr"
-        [matAutocomplete]="autoTemplate">
+        [matAutocomplete]="autoTemplate" [readonly]="isViewMode">
       <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helpers.templateDisplay">
         <mat-option *ngFor="let option of filteredTemplates" [value]="option">
           <div class="option-text">
@@ -67,9 +68,9 @@
     <mat-form-field class="field">
       <mat-label>Hardware</mat-label>
       <input matInput type="text" placeholder="Select a hardware" formControlName="hardwareCtr"
-        [matAutocomplete]="autoHardware">
+        [matAutocomplete]="autoHardware" [readonly]="isViewMode">
       <mat-autocomplete #autoHardware="matAutocomplete" [displayWith]="helpers.hardwareDisplay">
-        <mat-option *ngFor="let option of data.hardwares" [value]="option" height="60">
+        <mat-option *ngFor="let option of hardwares" [value]="option" height="60">
           <div class="hardware-option-text">
             <span class="option-text-items"><b>{{ option.device.name }} {{ option.template.name }}</b></span>
             <span class="option-text-items">Serial #: {{ option.serial_number }}</span>
@@ -82,12 +83,13 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Folder</mat-label>
-      <input matInput formControlName="folderCtr">
+      <input matInput formControlName="folderCtr" [readonly]="isViewMode">
       <mat-error *ngIf="folderCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Role</mat-label>
-      <input matInput type="text" placeholder="Select a role" formControlName="roleCtr" [matAutocomplete]="autoRole">
+      <input matInput type="text" placeholder="Select a role" formControlName="roleCtr" [matAutocomplete]="autoRole"
+        [readonly]="isViewMode">
       <mat-autocomplete #autoRole="matAutocomplete" [displayWith]="helpers.optionDisplay">
         <mat-option *ngFor="let option of ROLES" [value]="option">
           {{ option.name }}
@@ -99,9 +101,9 @@
     <mat-form-field class="field">
       <mat-label>Domain</mat-label>
       <input matInput type="text" placeholder="Select a domain" formControlName="domainCtr"
-        [matAutocomplete]="autoDomain">
+        [matAutocomplete]="autoDomain" [readonly]="isViewMode">
       <mat-autocomplete #autoDomain="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of data.domains" [value]="option">
+        <mat-option *ngFor="let option of domains" [value]="option">
           {{ option.name }}
         </mat-option>
       </mat-autocomplete>
@@ -110,15 +112,15 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Hostname</mat-label>
-      <input matInput formControlName="hostnameCtr">
+      <input matInput formControlName="hostnameCtr" [readonly]="isViewMode">
       <mat-error *ngIf="hostnameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Configurations</mat-label>
       <input matInput type="text" placeholder="Select a config" formControlName="configTemplateCtr"
-        [matAutocomplete]="autoConfig">
+        [matAutocomplete]="autoConfig" [readonly]="isViewMode">
       <mat-autocomplete #autoConfig="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of data.configTemplates" [value]="option">
+        <mat-option *ngFor="let option of configTemplates" [value]="option">
           {{ option.name }}
         </mat-option>
       </mat-autocomplete>
@@ -127,9 +129,9 @@
     <mat-form-field class="field">
       <mat-label>Login Profile</mat-label>
       <input matInput type="text" placeholder="Assign a login profile" formControlName="loginProfileCtr"
-        [matAutocomplete]="autoLoginProfile">
+        [matAutocomplete]="autoLoginProfile" [readonly]="isViewMode">
       <mat-autocomplete #autoLoginProfile="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of data.loginProfiles" [value]="option">
+        <mat-option *ngFor="let option of loginProfiles" [value]="option">
           {{ option.name }}
         </mat-option>
       </mat-autocomplete>
@@ -137,8 +139,10 @@
     </mat-form-field>
   </div>
   <div mat-dialog-actions [align]="'end'">
-    <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
-    <button mat-raised-button type="submit" color="primary" [disabled]="!nodeAddForm.valid">{{data.mode == 'add' ? 'Add'
+    <button mat-raised-button type="button" (click)="onCancel()">{{data.mode == 'view' ? 'Close'
+      : 'Cancel'}}</button>
+    <button *ngIf="data.mode != 'view'" mat-raised-button type="submit" color="primary"
+      [disabled]="!nodeAddForm.valid">{{data.mode == 'add' ? 'Add'
       : 'Update'}}</button>
   </div>
 </form>
