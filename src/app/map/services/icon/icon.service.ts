@@ -13,4 +13,8 @@ export class IconService {
   getAll(): Observable<any> {
     return this.http.get<any>(ApiPaths.ICONS);
   }
+
+  get(id: string): Observable<any> {
+    return this.http.get<any>(ApiPaths.ICONS + id);
+  }
 }

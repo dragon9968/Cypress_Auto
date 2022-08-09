@@ -14,9 +14,6 @@ import { selectDefaultPreferences, selectGroupBoxes } from 'src/app/store/map/ma
 export class ToolPanelOptionComponent implements OnInit {
   @Input() cy: any;
   @Input() config: any;
-  @Input() lastWidth = 0;
-  @Input() lastHeight = 0;
-  @Input() zoomLimit = false;
   isEdgeDirectionChecked = false;
   isGroupBoxesChecked = false;
   isMapGridChecked = false;
@@ -115,15 +112,15 @@ export class ToolPanelOptionComponent implements OnInit {
   }
   toggleGroupBoxes() {
     if (this.isGroupBoxesChecked) {
-      this.helpers.addGroupBoxes(this.cy, this.groupBoxes, this.groupCategoryCtr.value.id, this.lastWidth, this.lastHeight, this.zoomLimit);
+      this.helpers.addGroupBoxes(this.cy);
     } else {
       this.helpers.removeGroupBoxes(this.cy);
     }
   }
 
   selectGroupCategory() {
-    this.helpers.reloadGroupBoxes(this.cy, this.groupBoxes, this.groupCategoryCtr.value.id, this.isGroupBoxesChecked, this.lastWidth, this.lastHeight, this.zoomLimit);
     this.store.dispatch(retrievedMapOption({ data: { isGroupBoxesChecked: this.isGroupBoxesChecked, groupCategoryId: this.groupCategoryCtr.value.id } }));
+    this.helpers.reloadGroupBoxes(this.cy);
   }
 
   toggleMapGrid() {

@@ -26,7 +26,7 @@
     </mat-form-field>
     <div class="category">
       <label class="category-label">Category:</label>
-      <mat-radio-group class="category-group" formControlName="categoryCtr" (change)="onCategoryChange($event)" [disabled]="isViewMode">
+      <mat-radio-group class="category-group" formControlName="categoryCtr" (change)="onCategoryChange($event)">
         <mat-radio-button class="category-items" value="vm">VM</mat-radio-button>
         <mat-radio-button class="category-items" value="hw">HW</mat-radio-button>
         <mat-radio-button class="category-items" value="other">Other</mat-radio-button>

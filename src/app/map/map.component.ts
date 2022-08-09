@@ -93,8 +93,6 @@ export class MapComponent implements OnInit {
   deviceId = '';
   templateId = '';
   selectedDefaultPref: any;
-  groupCategoryId!: string;
-  isGroupBoxesChecked!: boolean;
   portGroups!: any[];
   gateways!: any[];
   newEdgeData: any;
@@ -115,9 +113,6 @@ export class MapComponent implements OnInit {
   isSelectedProcessed = false;
   connectionId!: string;
   boxSelectedNodes = new Set();
-  lastWidth = 0;
-  lastHeight = 0;
-  zoomLimit = false;
   selectMap$ = new Subscription();
   selectMapPref$ = new Subscription();
   selectMapEdit$ = new Subscription();
@@ -201,12 +196,6 @@ export class MapComponent implements OnInit {
         } else {
           this._enableMapEditButtons();
         }
-      }
-    });
-    this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
-      if (mapOption) {
-        this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
-        this.groupCategoryId = mapOption.groupCategoryId;
       }
     });
     this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe((portGroups: any) => {
@@ -688,7 +677,7 @@ export class MapComponent implements OnInit {
         this.cmActionsService.getPortGroupActionsMenu(),
         this.cmActionsService.getEdgeActionsMenu(),
         this.cmViewDetailsService.getMenu(),
-        this.cmEditService.getMenu(),
+        this.cmEditService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges),
         this.cmDeleteService.getMenu(),
         this.cmGroupBoxService.getCollapseMenu(),
         this.cmGroupBoxService.getExpandMenu(),
@@ -716,15 +705,9 @@ export class MapComponent implements OnInit {
       collectionId: this.collectionId,
       selectedDefaultPref: this.selectedDefaultPref,
       cy: this.cy,
-      groupBoxes: this.groupBoxes,
-      groupCategoryId: this.groupCategoryId,
-      isGroupBoxesChecked: this.isGroupBoxesChecked,
       genData,
       newNodeData,
       newNodePosition,
-      lastWidth: this.lastWidth,
-      lastHeight: this.lastHeight,
-      zoomLimit: this.zoomLimit,
     }
     const dialogRef = this.dialog.open(AddUpdateNodeDialogComponent, { width: '600px', data: dialogData });
     dialogRef.afterClosed().subscribe((_data: any) => {
@@ -761,7 +744,7 @@ export class MapComponent implements OnInit {
         cyData.text_size = cyData.logical_map_style.text_size;
         cyData.groups = respData.result.groups;
         this.helpers.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
-        this.helpers.reloadGroupBoxes(this.cy, this.groupBoxes, this.groupCategoryId, this.isGroupBoxesChecked, this.lastWidth, this.lastHeight, this.zoomLimit);
+        this.helpers.reloadGroupBoxes(this.cy);
         this.isAddNode = false;
         this._enableMapEditButtons();
         this.toastr.success('Quick add node successfully!');
@@ -775,15 +758,9 @@ export class MapComponent implements OnInit {
       collectionId: this.collectionId,
       selectedDefaultPref: this.selectedDefaultPref,
       cy: this.cy,
-      groupBoxes: this.groupBoxes,
-      groupCategoryId: this.groupCategoryId,
-      isGroupBoxesChecked: this.isGroupBoxesChecked,
       genData,
       newNodeData,
       newNodePosition,
-      lastWidth: this.lastWidth,
-      lastHeight: this.lastHeight,
-      zoomLimit: this.zoomLimit,
     }
     const dialogRef = this.dialog.open(AddUpdatePGDialogComponent, { width: '600px', data: dialogData });
     dialogRef.afterClosed().subscribe((_data: any) => {
@@ -817,7 +794,7 @@ export class MapComponent implements OnInit {
         cyData.color = cyData.logical_map_style.color;
         cyData.groups = respData.result.groups;
         this.helpers.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
-        this.helpers.reloadGroupBoxes(this.cy, this.groupBoxes, this.groupCategoryId, this.isGroupBoxesChecked, this.lastWidth, this.lastHeight, this.zoomLimit);
+        this.helpers.reloadGroupBoxes(this.cy);
         if (this.isAddPublicPG) this.isAddPublicPG = false;
         if (this.isAddPrivatePG) this.isAddPrivatePG = false;
         this._enableMapEditButtons();
