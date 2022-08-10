@@ -18,6 +18,7 @@ import { selectHardwares } from '../../store/hardware/hardware.selectors';
 import { selectDomains } from '../../store/domain/domain.selectors';
 import { selectConfigTemplates } from '../../store/config-template/config-template.selectors';
 import { selectLoginProfiles } from '../../store/login-profile/login-profile.selectors';
+import { IconService } from '../services/icon/icon.service';
 
 @Component({
   selector: 'app-add-update-node-dialog',
@@ -47,6 +48,7 @@ export class AddUpdateNodeDialogComponent implements OnInit {
 
   constructor(
     private nodeService: NodeService,
+    private iconService: IconService,
     private toastr: ToastrService,
     public dialogRef: MatDialogRef<AddUpdateNodeDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -75,12 +77,12 @@ export class AddUpdateNodeDialogComponent implements OnInit {
     this.selectLoginProfiles$ = this.store.select(selectLoginProfiles).subscribe((loginProfiles: any) => {
       this.loginProfiles = loginProfiles;
     });
-
+    this.isViewMode = this.data.mode == 'view';
     this.nodeAddForm = new FormGroup({
       nameCtr: new FormControl('', Validators.required),
       notesCtr: new FormControl(''),
       iconCtr: new FormControl('', [autoCompleteValidator(this.icons)]),
-      categoryCtr: new FormControl(''),
+      categoryCtr: new FormControl({ value: '', disabled: this.isViewMode }),
       deviceCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.devices)]),
       templateCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.templates, 'display_name')]),
       hardwareCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.hardwares)]),
@@ -108,15 +110,14 @@ export class AddUpdateNodeDialogComponent implements OnInit {
   get loginProfileCtr() { return this.nodeAddForm.get('loginProfileCtr'); }
 
   ngOnInit(): void {
-    this.isViewMode = this.data.mode == 'view';
-    if (this.isViewMode) {
+    if (this.isViewMode || this.data.mode == 'update') {
       this.iconCtr?.setValue(this.helpers.getOptionById(this.icons, this.data.genData.icon.id));
     } else {
       this.iconCtr?.setValue(this.helpers.getOptionById(this.icons, this.data.genData.icon_id));
-      this.disableItems(this.categoryCtr?.value);
     }
     this.nameCtr?.setValue(this.data.genData.name);
     this.categoryCtr?.setValue(this.data.genData.category);
+    this.disableItems(this.categoryCtr?.value);
     this.deviceCtr?.setValue(this.helpers.getOptionById(this.devices, this.data.genData.device_id));
     this.templateCtr?.setValue(this.helpers.getOptionById(this.templates, this.data.genData.template_id));
     this.folderCtr?.setValue(this.data.genData.folder);
@@ -204,14 +205,43 @@ export class AddUpdateNodeDialogComponent implements OnInit {
         cyData.text_size = cyData.logical_map_style.text_size;
         cyData.groups = respData.result.groups;
         this.helpers.addCYNode(this.data.cy, { newNodeData: { ...this.data.newNodeData, ...cyData }, newNodePosition: this.data.newNodePosition });
-        this.helpers.reloadGroupBoxes(this.data.cy, this.data.groupBoxes, this.data.groupCategoryId, this.data.isGroupBoxesChecked, this.data.lastWidth, this.data.lastHeight, this.data.zoomLimit);
+        this.helpers.reloadGroupBoxes(this.data.cy);
         this.toastr.success('Node details added!');
-      })
-      this.dialogRef.close();
+        this.dialogRef.close();
+      });
     });
   }
 
   updateNode() {
-    console.log('updateNode');
+    const ele = this.data.cy.getElementById('node-' + this.data.nodeId);
+    const jsonData = {
+      name: this.nameCtr?.value,
+      notes: this.notesCtr?.value,
+      icon_id: this.iconCtr?.value.id,
+      category: this.categoryCtr?.value,
+      device_id: this.deviceCtr?.value.id,
+      template_id: this.templateCtr?.value.id,
+      hardware_id: this.hardwareCtr?.value ? this.hardwareCtr?.value.id : undefined,
+      folder: this.folderCtr?.value,
+      role: this.roleCtr?.value.id,
+      domain_id: this.domainCtr?.value.id,
+      hostname: this.hostnameCtr?.value,
+      config_ids: this.configTemplateCtr?.value.id,
+      login_profile: this.loginProfileCtr?.value.id,
+      collection_id: this.data.genData.collection_id,
+      logical_map_position: ele.position(),
+    }
+    this.nodeService.put(this.data.genData.id, jsonData).subscribe((_respData: any) => {
+      this.nodeService.get(this.data.genData.id).subscribe(nodeData => {
+        ele.data('name', nodeData.result.name);
+        ele.data('groups', nodeData.result.groups);
+        this.iconService.get(jsonData.icon_id).subscribe(iconData => {
+          ele.data('icon', "/static/img/uploads/" + iconData.result.photo);
+        });
+        this.helpers.reloadGroupBoxes(this.data.cy);
+        this.toastr.success('Node details updated!');
+        this.dialogRef.close();
+      })
+    });
   }
 }

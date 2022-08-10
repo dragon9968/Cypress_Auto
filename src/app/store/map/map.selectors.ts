@@ -8,5 +8,5 @@ export const selectMapProperties = createSelector(selectMapFeature, (state: MapS
 export const selectDefaultPreferences = createSelector(selectMapFeature, (state: MapState) => state.defaultPreferences);
 export const selectNodes = createSelector(selectMapFeature, (state: MapState) => state.nodes);
 export const selectInterfaces = createSelector(selectMapFeature, (state: MapState) => state.interfaces);
-export const selectGroupBoxes= createSelector(selectMapFeature, (state: MapState) => state.groupBoxes);
+export const selectGroupBoxes = createSelector(selectMapFeature, (state: MapState) => state.groupBoxes);
 export const selectMapBackgrounds = createSelector(selectMapFeature, (state: MapState) => state.mapBackgrounds);

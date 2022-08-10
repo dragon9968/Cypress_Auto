@@ -1,12 +1,34 @@
 import { Injectable } from '@angular/core';
+import { Store } from '@ngrx/store';
 import { Stylesheet } from 'cytoscape';
+import { Subscription } from 'rxjs';
+import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
+import { selectGroupBoxes } from 'src/app/store/map/map.selectors';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HelpersService {
+  selectMapOption$ = new Subscription();
+  selectGroupBoxes$ = new Subscription();
+  groupCategoryId!: string;
+  isGroupBoxesChecked!: boolean;
+  groupBoxes!: any[];
+  lastWidth = 0;
+  lastHeight = 0;
+  zoomLimit = false;
 
-  constructor() { }
+  constructor(private store: Store,) {
+    this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
+      if (mapOption) {
+        this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
+        this.groupCategoryId = mapOption.groupCategoryId;
+      }
+    });
+    this.selectGroupBoxes$ = this.store.select(selectGroupBoxes).subscribe((groupBoxes: any[]) => {
+      this.groupBoxes = groupBoxes;
+    });
+   }
 
   optionDisplay(option: any) {
     return option && option.name ? option.name : '';
@@ -334,13 +356,13 @@ export class HelpersService {
     return true;
   }
 
-  addGroupBoxes(cy: any, groupBoxes: any, groupCategory: string, lastWidth: number, lastHeight: number, zoomLimit: boolean) {
-    const gbs = groupBoxes.filter((gb: any) => gb.data.group_category == groupCategory);
+  addGroupBoxes(cy: any) {
+    const gbs = this.groupBoxes.filter((gb: any) => gb.data.group_category == this.groupCategoryId);
     cy.add(gbs);
     cy.nodes().forEach((ele: any) => {
       const data = ele.data();
       if (data.elem_category != 'group') {
-        const g = data.groups.filter((gb: any) => gb.category == groupCategory);
+        const g = data.groups.filter((gb: any) => gb.category == this.groupCategoryId);
         if (g.length > 0) ele.move({ parent: 'group-' + g[0].id });
       }
     });
@@ -358,13 +380,13 @@ export class HelpersService {
           gbn.position(pos);
           if (!done) {
             done = true;
-            lastWidth = 90;
-            lastHeight = 90;
+            this.lastWidth = 90;
+            this.lastHeight = 90;
           }
 
         } else {
-          lastWidth = gbn.renderedWidth();
-          lastHeight = gbn.renderedHeight();
+          this.lastWidth = gbn.renderedWidth();
+          this.lastHeight = gbn.renderedHeight();
         }
         if (gb.data.locked) {
           gbn.lock();
@@ -376,18 +398,18 @@ export class HelpersService {
     const z = cy.zoom();
     const cyW = cy.container().clientWidth;
     const cyH = cy.container().clientHeight;
-    const nW = lastWidth || 100;
-    const nH = lastHeight || 100;
+    const nW = this.lastWidth || 100;
+    const nH = this.lastHeight || 100;
     const lim = (nW * nH * z) / (cyW * cyH);
-    zoomLimit = lim < 0.0005;
+    this.zoomLimit = lim < 0.0005;
     cy.resize();
     return true;
   }
 
-  reloadGroupBoxes(cy: any, groupBoxes: any, groupCategory: string, isGroupBoxesChecked: boolean, lastWidth: number, lastHeight: number, zoomLimit: boolean) {
-    if (isGroupBoxesChecked) {
+  reloadGroupBoxes(cy: any) {
+    if (this.isGroupBoxesChecked) {
       this.removeGroupBoxes(cy);
-      this.addGroupBoxes(cy, groupBoxes, groupCategory, lastWidth, lastHeight, zoomLimit);
+      this.addGroupBoxes(cy);
     }
   }
 

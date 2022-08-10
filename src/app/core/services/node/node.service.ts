@@ -26,6 +26,10 @@ export class NodeService {
     return this.http.post<any>(ApiPaths.NODE, data);
   }
 
+  put(id: string, data: any): Observable<any> {
+    return this.http.put<any>(ApiPaths.NODE + id, data);
+  }
+
   clone(id: string): Observable<any> {
     return this.http.get<any>(ApiPaths.CLONE_NODE + id);
   }

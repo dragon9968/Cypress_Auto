@@ -115,7 +115,7 @@ export class AddUpdatePGDialogComponent implements OnInit {
         cyData.color = cyData.logical_map_style.color;
         cyData.groups = respData.result.groups;
         this.helpers.addCYNode(this.data.cy, { newNodeData: { ...this.data.newNodeData, ...cyData }, newNodePosition: this.data.newNodePosition });
-        this.helpers.reloadGroupBoxes(this.data.cy, this.data.groupBoxes, this.data.groupCategoryId, this.data.isGroupBoxesChecked, this.data.lastWidth, this.data.lastHeight, this.data.zoomLimit);
+        this.helpers.reloadGroupBoxes(this.data.cy);
         this.toastr.success('Port Group details added!');
       })
       this.dialogRef.close();
