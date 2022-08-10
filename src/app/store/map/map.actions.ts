@@ -1,6 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 
 export const retrievedMap = createAction(
-  'retrievedMapData',
+  'retrievedMap',
   props<{ data: any }>()
 );

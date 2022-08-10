@@ -18,7 +18,7 @@ export class HelpersService {
   lastHeight = 0;
   zoomLimit = false;
 
-  constructor(private store: Store,) {
+  constructor(private store: Store) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
         this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
@@ -423,5 +423,44 @@ export class HelpersService {
   getOptionById(options: any, id: string) {
     const option = options?.filter((option: any) => option.id == id)[0];
     return option ? option : {};
+  }
+
+  removeNode(node: any, deletedNodes: any[], deletedInterface: any[]) {
+    const data = node.data();
+    if (!data.new) {
+      data.deleted = true;
+      if (data.elem_category == "port_group") {
+        deletedNodes.push({
+          'elem_category': data.elem_category,
+          'label': data.label,
+          'id': data.pg_id
+        });
+      } else if (data.elem_category == "node") {
+        deletedNodes.push({
+          'elem_category': data.elem_category,
+          'label': data.label,
+          'id': data.node_id
+        });
+      } else if (data.elem_category == "group") {
+        deletedNodes.push({
+          'elem_category': data.elem_category,
+          'label': data.label,
+          'id': data.group_id
+        });
+      }
+
+      node.edges().forEach((ele: any) => {
+        const data = ele.data();
+        if (data && !data.new) {
+          data.deleted = true;
+          deletedInterface.push({
+            'name': data.id,
+            'interface_id': data.interface_id
+          });
+        }
+      });
+    }
+    // this._info_panel.remove_row(data.id);
+    return node.remove();
   }
 }

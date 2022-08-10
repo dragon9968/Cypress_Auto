@@ -23,9 +23,9 @@
 <section>
   <mat-tab-group>
     <mat-tab label="Edit">
-      <app-tool-panel-edit [collectionId]="collectionId" [devices]="devices" [templates]="templates"
-        [filteredTemplates]="filteredTemplates" [isDisableAddNode]="isDisableAddNode" [isDisableAddPG]="isDisableAddPG"
-        [isDisableAddImage]="isDisableAddImage">
+      <app-tool-panel-edit [cy]="cy" [isDisableAddNode]="isDisableAddNode" [isDisableAddPG]="isDisableAddPG"
+        [isDisableAddImage]="isDisableAddImage" [activeNodes]="activeNodes" [activePGs]="activePGs"
+        [activeGBs]="activeGBs" [deletedNodes]="deletedNodes" [deletedInterface]="deletedInterface">
       </app-tool-panel-edit>
     </mat-tab>
     <mat-tab label="Style">

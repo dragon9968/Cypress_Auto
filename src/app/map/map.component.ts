@@ -102,7 +102,8 @@ export class MapComponent implements OnInit {
   edgePortGroup: any;
   isAddEdge: any;
   isAddTunnel: any;
-  deletedInterface: any;
+  deletedNodes: any[] = [];
+  deletedInterface: any[] = [];
   activeNodes: any[] = [];
   activePGs: any[] = [];
   activeEdges: any[] = [];
@@ -678,7 +679,7 @@ export class MapComponent implements OnInit {
         this.cmActionsService.getEdgeActionsMenu(),
         this.cmViewDetailsService.getMenu(),
         this.cmEditService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges),
-        this.cmDeleteService.getMenu(),
+        this.cmDeleteService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs, this.deletedNodes, this.deletedInterface),
         this.cmGroupBoxService.getCollapseMenu(),
         this.cmGroupBoxService.getExpandMenu(),
         this.cmGroupBoxService.getMoveToFrontMenu(),

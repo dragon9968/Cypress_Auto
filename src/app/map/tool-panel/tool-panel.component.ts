@@ -18,21 +18,18 @@ export class ToolPanelComponent {
   @Input() isDisableAddNode = false;
   @Input() isDisableAddPG = false;
   @Input() isDisableAddImage = false;
+  @Input() activeNodes: any[] = [];
+  @Input() activePGs: any[] = [];
+  @Input() activeGBs: any[] = [];
+  @Input() deletedNodes: any[] = [];
+  @Input() deletedInterface: any[] = [];
   devices!: any[];
   templates!: any[];
   filteredTemplates!: any[];
   selectDevices$ = new Subscription();
   selectTemplates$ = new Subscription();
 
-  constructor(private store: Store) {
-    this.selectDevices$ = this.store.select(selectDevices).subscribe((devices: any) => {
-      this.devices = devices;
-    });
-    this.selectTemplates$ = this.store.select(selectTemplates).subscribe((templates: any) => {
-      this.templates = templates;
-      this.filteredTemplates = templates;
-    });
-  }
+  constructor(private store: Store) { }
 
   downloadMap() {
     console.log('downloadMap');
