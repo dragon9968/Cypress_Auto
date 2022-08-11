@@ -1,9 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs';
-import { selectDevices } from 'src/app/store/device/device.selectors';
 import { retrievedMapEdit } from 'src/app/store/map-edit/map-edit.actions';
-import { selectTemplates } from 'src/app/store/template/template.selectors';
 
 @Component({
   selector: 'app-tool-panel',
@@ -20,14 +17,11 @@ export class ToolPanelComponent {
   @Input() isDisableAddImage = false;
   @Input() activeNodes: any[] = [];
   @Input() activePGs: any[] = [];
+  @Input() activeEdges: any[] = [];
   @Input() activeGBs: any[] = [];
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterface: any[] = [];
-  devices!: any[];
-  templates!: any[];
-  filteredTemplates!: any[];
-  selectDevices$ = new Subscription();
-  selectTemplates$ = new Subscription();
+  @Input() deletedTunnel: any[] = [];
 
   constructor(private store: Store) { }
 

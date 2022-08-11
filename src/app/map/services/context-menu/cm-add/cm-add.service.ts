@@ -6,7 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 })
 export class CMAddService {
 
-  constructor(private dialog: MatDialog) { }
+  constructor() { }
 
   getNodeAddMenu(queueEdge: Function) {
     const addInterface = {

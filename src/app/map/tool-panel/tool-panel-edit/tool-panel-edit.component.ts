@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnDestroy } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { Store } from '@ngrx/store';
@@ -9,19 +9,23 @@ import { selectDevices } from 'src/app/store/device/device.selectors';
 import { selectTemplates } from 'src/app/store/template/template.selectors';
 import { Subscription } from 'rxjs';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
+import { CMLockUnlockService } from '../../services/context-menu/cm-lock-unlock/cm-lock-unlock.service';
+import { CMDeleteService } from '../../services/context-menu/cm-delete/cm-delete.service';
 
 @Component({
   selector: 'app-tool-panel-edit',
   templateUrl: './tool-panel-edit.component.html',
   styleUrls: ['./tool-panel-edit.component.scss']
 })
-export class ToolPanelEditComponent {
+export class ToolPanelEditComponent implements OnDestroy {
   @Input() cy: any;
   @Input() activeNodes: any[] = [];
   @Input() activePGs: any[] = [];
+  @Input() activeEdges: any[] = [];
   @Input() activeGBs: any[] = [];
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterface: any[] = [];
+  @Input() deletedTunnel: any[] = [];
   @Input() isDisableAddNode = false;
   @Input() isDisableAddPG = false;
   @Input() isDisableAddImage = false;
@@ -34,14 +38,16 @@ export class ToolPanelEditComponent {
   errorMessages = ErrorMessages;
   selectDevices$ = new Subscription();
   selectTemplates$ = new Subscription();
+  selectMapOption$ = new Subscription();
   devices!: any[];
   templates!: any[];
   filteredTemplates!: any[];
   isGroupBoxesChecked!: boolean;
-  selectMapOption$ = new Subscription();
 
   constructor(
     private store: Store,
+    private cmDeleteService: CMDeleteService,
+    private cmLockUnlockService: CMLockUnlockService,
     public helpers: HelpersService,
   ) {
     this.selectDevices$ = this.store.select(selectDevices).subscribe((devices: any) => {
@@ -61,6 +67,12 @@ export class ToolPanelEditComponent {
       { id: "v2", name: "Name 2" },
       { id: "v3", name: "Name 3" },
     ];
+  }
+
+  ngOnDestroy(): void {
+    this.selectDevices$.unsubscribe();
+    this.selectTemplates$.unsubscribe();
+    this.selectMapOption$.unsubscribe();
   }
 
   selectDevice($event: MatAutocompleteSelectedEvent) {
@@ -106,19 +118,24 @@ export class ToolPanelEditComponent {
   }
 
   deleteNodes() {
-    this.activeNodes.concat(this.activePGs, this.activeGBs).forEach((node: any) => {
-      this.helpers.removeNode(node, this.deletedNodes, this.deletedInterface);
-    });
-    if (this.isGroupBoxesChecked) {
-      this.cy.nodes().filter('[label="group_box"]').forEach((gb: any) => {
-        if (gb.children().length == 0) {
-          this.helpers.removeNode(gb, this.deletedNodes, this.deletedInterface);
-        }
-      });
-    }
-    this.activeNodes = [];
-    this.activePGs = [];
-    this.activeGBs = [];
+    this.cmDeleteService.delete(
+      this.cy,
+      this.activeNodes,
+      this.activePGs,
+      this.activeEdges,
+      this.activeGBs,
+      this.deletedNodes,
+      this.deletedInterface,
+      this.deletedTunnel
+    );
     // this.update_components();
+  }
+
+  lockNodes() {
+    this.cmLockUnlockService.lockNodes(this.cy, this.activeNodes, this.activePGs);
+  }
+
+  unlockNodes() {
+    this.cmLockUnlockService.unlockNodes(this.activeNodes, this.activePGs);
   }
 }

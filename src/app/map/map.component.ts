@@ -22,7 +22,6 @@ import { AddUpdateNodeDialogComponent } from './add-update-node-dialog/add-updat
 import { selectMapEdit } from '../store/map-edit/map-edit.selectors';
 import { selectMapPref } from '../store/map-pref/map-pref.selectors';
 import { ToastrService } from 'ngx-toastr';
-import { selectMapOption } from '../store/map-option/map-option.selectors';
 import { AddUpdatePGDialogComponent } from './add-update-pg-dialog/add-update-pg-dialog.component';
 import { AddUpdateInterfaceDialogComponent } from './add-update-interface-dialog/add-update-interface-dialog.component';
 import { retrievedPortGroups } from '../store/portgroup/portgroup.actions';
@@ -58,6 +57,7 @@ const compoundDragAndDrop = require('cytoscape-compound-drag-and-drop');
 const nodeEditing = require('cytoscape-node-editing');
 const konva = require('konva');
 const jquery = require('jquery');
+const popper = require('cytoscape-popper');
 
 
 @Component({
@@ -104,6 +104,7 @@ export class MapComponent implements OnInit {
   isAddTunnel: any;
   deletedNodes: any[] = [];
   deletedInterface: any[] = [];
+  deletedTunnel: any[] = [];
   activeNodes: any[] = [];
   activePGs: any[] = [];
   activeEdges: any[] = [];
@@ -117,7 +118,6 @@ export class MapComponent implements OnInit {
   selectMap$ = new Subscription();
   selectMapPref$ = new Subscription();
   selectMapEdit$ = new Subscription();
-  selectMapOption$ = new Subscription();
   selectPortGroups$ = new Subscription();
   selectIcons$ = new Subscription();
   selectDomains$ = new Subscription();
@@ -159,6 +159,7 @@ export class MapComponent implements OnInit {
     contextMenus(cytoscape);
     panzoom(cytoscape);
     cytoscape.use(compoundDragAndDrop);
+    cytoscape.use(popper);
     nodeEditing(cytoscape, jquery, konva);
     this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
       this.icons = icons;
@@ -223,7 +224,10 @@ export class MapComponent implements OnInit {
   ngOnDestroy(): void {
     this.selectMap$.unsubscribe();
     this.selectMapPref$.unsubscribe();
-    this.selectMapOption$.unsubscribe();
+    this.selectMapEdit$.unsubscribe();
+    this.selectPortGroups$.unsubscribe();
+    this.selectIcons$.unsubscribe();
+    this.selectDomains$.unsubscribe();
   }
 
   private _disableMapEditButtons() {
@@ -319,10 +323,10 @@ export class MapComponent implements OnInit {
       }
       if (!d.new) {
         if (this.activeNodes.length == 0) {
-          this.activeNodes = [];
+          this.activeNodes.splice(0);
         }
         if (this.activePGs.length == 0) {
-          this.activePGs = [];
+          this.activePGs.splice(0);
         }
       }
     }
@@ -340,7 +344,7 @@ export class MapComponent implements OnInit {
     }
     if (!d.new) {
       if (this.activeEdges.length == 0) {
-        this.activeEdges = [];
+        this.activeEdges.splice(0);
       }
     }
     this._showContextMenu();
@@ -360,9 +364,9 @@ export class MapComponent implements OnInit {
         const index = this.activeGBs.indexOf(t);
         this.activeGBs.splice(index, 1);
       }
-      this.activeNodes = [];
-      this.activePGs = [];
-      this.activeEdges = [];
+      this.activeNodes.splice(0);
+      this.activePGs.splice(0);
+      this.activeEdges.splice(0);
     } else if (t.data('elem_category') == 'port_group') {
       if (this.activePGs.includes(t)) {
         const index = this.activePGs.indexOf(t);
@@ -405,9 +409,9 @@ export class MapComponent implements OnInit {
   private _processNodeList(elms: any) {
     const activeEles = this.activeNodes.concat(this.activePGs, this.activeEdges);
     if (activeEles.length == 0) {
-      this.activeNodes = [];
-      this.activePGs = [];
-      this.activeEdges = [];
+      this.activeNodes.splice(0);
+      this.activePGs.splice(0);
+      this.activeEdges.splice(0);
     }
     for (let elm of elms) {
       const d = elm.data();
@@ -614,17 +618,17 @@ export class MapComponent implements OnInit {
       },
       wheelSensitivity: 0.2,
     });
-    this.cy.nodeEditing({
-      resizeToContentCueImage: "/static/img/resizeCue.svg",
-      isNoControlsMode: (node: any) => {
-        const z = this.cy.zoom();
-        const cyW = this.cy.container().clientWidth;
-        const cyH = this.cy.container().clientHeight;
-        const nW = node.renderedWidth();
-        const nH = node.renderedHeight();
-        return ((nW * nH * z) / (cyW * cyH) < .0005) ? true : false;
-      }
-    });
+    // this.cy.nodeEditing({
+    //   resizeToContentCueImage: "/static/img/resizeCue.svg",
+    //   isNoControlsMode: (node: any) => {
+    //     const z = this.cy.zoom();
+    //     const cyW = this.cy.container().clientWidth;
+    //     const cyH = this.cy.container().clientHeight;
+    //     const nW = node.renderedWidth();
+    //     const nH = node.renderedHeight();
+    //     return ((nW * nH * z) / (cyW * cyH) < .0005) ? true : false;
+    //   }
+    // });
 
     this.cy.panzoom({});
     this.ur = this.cy.undoRedo({
@@ -679,13 +683,22 @@ export class MapComponent implements OnInit {
         this.cmActionsService.getEdgeActionsMenu(),
         this.cmViewDetailsService.getMenu(),
         this.cmEditService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges),
-        this.cmDeleteService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs, this.deletedNodes, this.deletedInterface),
+        this.cmDeleteService.getMenu(
+          this.cy,
+          this.activeNodes,
+          this.activePGs,
+          this.activeEdges,
+          this.activeGBs,
+          this.deletedNodes,
+          this.deletedInterface,
+          this.deletedTunnel
+        ),
         this.cmGroupBoxService.getCollapseMenu(),
         this.cmGroupBoxService.getExpandMenu(),
         this.cmGroupBoxService.getMoveToFrontMenu(),
         this.cmGroupBoxService.getMoveToBackMenu(),
-        this.cmLockUnlockService.getLockMenu(),
-        this.cmLockUnlockService.getUnlockMenu(),
+        this.cmLockUnlockService.getLockMenu(this.cy, this.activeNodes, this.activePGs),
+        this.cmLockUnlockService.getUnlockMenu(this.activeNodes, this.activePGs),
         this.cmRemoteService.getMenu(),
         this.cmGoToTableService.getMenu(),
         this.cmMapService.getSaveChangesMenu(),
