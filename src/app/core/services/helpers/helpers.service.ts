@@ -17,6 +17,7 @@ export class HelpersService {
   lastWidth = 0;
   lastHeight = 0;
   zoomLimit = false;
+  popper: any;
 
   constructor(private store: Store) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
@@ -28,7 +29,7 @@ export class HelpersService {
     this.selectGroupBoxes$ = this.store.select(selectGroupBoxes).subscribe((groupBoxes: any[]) => {
       this.groupBoxes = groupBoxes;
     });
-   }
+  }
 
   optionDisplay(option: any) {
     return option && option.name ? option.name : '';
@@ -462,5 +463,57 @@ export class HelpersService {
     }
     // this._info_panel.remove_row(data.id);
     return node.remove();
+  }
+
+  addBadge(cy: any, ele: any) {
+    this.removeBadge(ele);
+    this.popper = ele.popper({
+      content: () => {
+        const badge = document.createElement('div');
+        badge.id = `popper-${ele.id()}`;
+        badge.innerHTML = `<img src="assets/icons/lock.png" width="10" height="10">`
+        badge.setAttribute("style", "z-index:1;");
+        document.body.appendChild(badge);
+        return badge;
+      },
+      popper: {
+        placement: 'top-end'
+      }
+    });
+    ele.on('position', () => {
+      this.popper.update();
+    });
+
+    cy.on('pan zoom resize', () => {
+      this.popper.update();
+    });
+  }
+
+  removeBadge(ele: any) {
+    const badgeId = `popper-${ele.id()}`;
+    const existingTarget = document.getElementById(badgeId);
+    if (existingTarget) {
+      existingTarget.remove();
+    }
+  }
+
+  removeEdge(edge: any, deletedTunnel: any[], deletedInterface: any[]) {
+    const data = edge.data();
+    if (data && !data.new) {
+      if (data?.elem_category == 'tunnel') {
+        deletedTunnel.push({
+          'id': data.id,
+          'node_id': edge.source().data('node_id'),
+          'target_id': edge.target().data('node_id'),
+        });
+      } else {
+        deletedInterface.push({
+          'name': data.id,
+          'interface_id': data.interface_id
+        });
+      }
+      data.deleted = true;
+    }
+    return edge.remove();
   }
 }

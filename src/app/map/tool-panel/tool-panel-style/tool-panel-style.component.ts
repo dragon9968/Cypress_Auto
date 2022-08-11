@@ -4,6 +4,7 @@ import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { MapPrefService } from 'src/app/map/tool-panel/tool-panel-style/services/map-pref/map-pref.service';
 import { retrievedMapPref } from 'src/app/store/map-pref/map-pref.actions';
@@ -30,6 +31,7 @@ export class ToolPanelStyleComponent implements OnInit {
   textColor = '#000000';
   textBGColor = '#000000';
   textBGOpacity = 0.0;
+  selectDefaultPreferences$ = new Subscription();
 
   constructor(
     private domSanitizer: DomSanitizer,
@@ -40,7 +42,7 @@ export class ToolPanelStyleComponent implements OnInit {
   ) {
     iconRegistry.addSvgIcon('dashed', this.setPath('/assets/icons/dashed.svg'));
     iconRegistry.addSvgIcon('double', this.setPath('/assets/icons/double.svg'));
-    this.store.select(selectDefaultPreferences).subscribe(defaultPref => {
+    this.selectDefaultPreferences$ = this.store.select(selectDefaultPreferences).subscribe(defaultPref => {
       if (defaultPref) {
         this.mapPrefService.get(defaultPref.default_map_pref_id).subscribe(data => {
           this.mapPrefCtr.setValue({
@@ -57,6 +59,10 @@ export class ToolPanelStyleComponent implements OnInit {
     this.mapPrefService.getAll().subscribe(data => {
       this.mapPrefs = data.result;
     });
+  }
+
+  ngOnDestroy(): void {
+    this.selectDefaultPreferences$.unsubscribe();
   }
 
   private setPath(url: string): SafeResourceUrl {
