@@ -1,13 +1,17 @@
 import { Injectable } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
+import { catchError, of, throwError } from 'rxjs';
+import { TaskService } from 'src/app/core/services/task/task.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CMRemoteService {
 
-  constructor(private toastr: ToastrService) { }
+  constructor(
+    private taskService: TaskService,
+    private toastr: ToastrService
+  ) { }
 
   getMenu() {
     const webConsole = {
@@ -37,7 +41,11 @@ export class CMRemoteService {
           id: "power_on",
           content: "Power On",
           selector: "node[icon]",
-          onClickFunction: (event: any) => { },
+          onClickFunction: (event: any) => {
+            const target = event.target;
+            const data = target.data();
+            this.add_task('power_on_node', data.node_id.toString());
+          },
           hasTrailingDivider: true,
           disabled: false,
         },
@@ -45,7 +53,11 @@ export class CMRemoteService {
           id: "power_off",
           content: "Power Off",
           selector: "node[icon]",
-          onClickFunction: (event: any) => { },
+          onClickFunction: (event: any) => {
+            const target = event.target;
+            const data = target.data();
+            this.add_task('power_off_node', data.node_id.toString());
+          },
           hasTrailingDivider: true,
           disabled: false,
         },
@@ -53,7 +65,11 @@ export class CMRemoteService {
           id: "power_restart",
           content: "Restart",
           selector: "node[icon]",
-          onClickFunction: (event: any) => { },
+          onClickFunction: (event: any) => {
+            const target = event.target;
+            const data = target.data();
+            this.add_task('restart_node', data.node_id.toString());
+          },
           hasTrailingDivider: true,
           disabled: false,
         },
@@ -135,5 +151,17 @@ export class CMRemoteService {
         snapshot
       ]
     }
+  }
+
+  add_task(jobName: string, pks: string) {
+    const jsonData = { job_name: jobName, pks };
+    this.taskService.add(jsonData).pipe(
+      catchError((error: any) => {
+        this.toastr.error(error.message);
+        return throwError(() => error);
+      })
+    ).subscribe(respData => {
+      this.toastr.success("Task added to the queue");
+    });
   }
 }

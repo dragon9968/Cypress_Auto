@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { catchError, of } from 'rxjs';
+import { catchError, of, throwError } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { NodeService } from 'src/app/core/services/node/node.service';
 
@@ -30,7 +30,7 @@ export class CMActionsService {
             this.nodeService.clone(data.node_id).pipe(
               catchError((error: any) => {
                 this.toastr.error(error.message);
-                return of([]);
+                return throwError(() => error);
               })
             ).subscribe(clonedRes => {
               const id = clonedRes.result.id;
@@ -66,7 +66,7 @@ export class CMActionsService {
             this.nodeService.validate({ pks }).pipe(
               catchError((error: any) => {
                 this.toastr.error(error.message);
-                return of([]);
+                return throwError(() => error);
               })
             ).subscribe(res => this.toastr.success(res.message));
           },

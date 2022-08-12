@@ -21,4 +21,5 @@ export enum ApiPaths {
   GEN_PG_DATA = '/api/v1/portgroup/gen_data',
   INTERFACE = '/api/v1/interface/',
   GEN_INTERFACE_DATA = '/api/v1/interface/gen_data',
+  TASK = '/api/v1/task/add',
 }
