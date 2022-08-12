@@ -1,19 +1,29 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CMRemoteService {
 
-  constructor(private dialog: MatDialog) { }
+  constructor(private toastr: ToastrService) { }
 
   getMenu() {
     const webConsole = {
       id: "web_console",
       content: "Web Console",
       selector: "node[icon]",
-      onClickFunction: (event: any) => { },
+      onClickFunction: (event: any) => {
+        const target = event.target;
+        const data = target.data();
+        const url = data.url;
+        if (url != null) {
+          window.open(url);
+        } else {
+          this.toastr.warning('Web Console not accessible')
+        }
+      },
       hasTrailingDivider: true,
       disabled: false,
     }
