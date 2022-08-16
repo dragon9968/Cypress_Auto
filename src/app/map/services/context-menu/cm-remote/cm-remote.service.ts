@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, of, throwError } from 'rxjs';
 import { TaskService } from 'src/app/core/services/task/task.service';
+import { AddNodeDeployDialogComponent } from 'src/app/map/add-node-deploy-dialog/add-node-deploy-dialog.component';
 
 @Injectable({
   providedIn: 'root'
@@ -10,10 +12,11 @@ export class CMRemoteService {
 
   constructor(
     private taskService: TaskService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private dialog: MatDialog,
   ) { }
 
-  getMenu() {
+  getMenu(activeNodes: any[]) {
     const webConsole = {
       id: "web_console",
       content: "Web Console",
@@ -85,7 +88,12 @@ export class CMRemoteService {
           id: "deploy_new",
           content: "New",
           selector: "node[icon]",
-          onClickFunction: (event: any) => { },
+          onClickFunction: (event: any) => {
+            const dialogData = {
+              activeNodes
+            };
+            this.dialog.open(AddNodeDeployDialogComponent, { width: '600px', data: dialogData });
+          },
           hasTrailingDivider: true,
           disabled: false,
         },
@@ -93,7 +101,11 @@ export class CMRemoteService {
           id: "deploy_delete",
           content: "Delete",
           selector: "node[icon]",
-          onClickFunction: (event: any) => { },
+          onClickFunction: (event: any) => {
+            const target = event.target;
+            const data = target.data();
+            this.add_task('delete_node', data.node_id.toString());
+          },
           hasTrailingDivider: true,
           disabled: false,
         },

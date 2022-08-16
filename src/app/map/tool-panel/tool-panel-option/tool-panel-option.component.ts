@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
@@ -11,7 +11,7 @@ import { selectDefaultPreferences, selectGroupBoxes } from 'src/app/store/map/ma
   templateUrl: './tool-panel-option.component.html',
   styleUrls: ['./tool-panel-option.component.scss']
 })
-export class ToolPanelOptionComponent implements OnInit {
+export class ToolPanelOptionComponent implements OnInit, OnDestroy {
   @Input() cy: any;
   @Input() config: any;
   isEdgeDirectionChecked = false;

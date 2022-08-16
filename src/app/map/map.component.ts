@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
@@ -65,7 +65,7 @@ const popper = require('cytoscape-popper');
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss']
 })
-export class MapComponent implements OnInit {
+export class MapComponent implements OnInit, OnDestroy {
   cy: any;
   ur: any;
   isOpenToolPanel = true;
@@ -699,7 +699,7 @@ export class MapComponent implements OnInit {
         this.cmGroupBoxService.getMoveToBackMenu(),
         this.cmLockUnlockService.getLockMenu(this.cy, this.activeNodes, this.activePGs),
         this.cmLockUnlockService.getUnlockMenu(this.activeNodes, this.activePGs),
-        this.cmRemoteService.getMenu(),
+        this.cmRemoteService.getMenu(this.activeNodes),
         this.cmGoToTableService.getMenu(),
         this.cmMapService.getSaveChangesMenu(),
         this.cmMapService.getUndoMenu(),

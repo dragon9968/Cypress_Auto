@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
@@ -25,7 +25,7 @@ import { IconService } from '../services/icon/icon.service';
   templateUrl: './add-update-node-dialog.component.html',
   styleUrls: ['./add-update-node-dialog.component.scss']
 })
-export class AddUpdateNodeDialogComponent implements OnInit {
+export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   nodeAddForm: FormGroup;
   ROLES = ROLES;
   filteredTemplates!: any[];

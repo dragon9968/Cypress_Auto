@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
@@ -16,7 +16,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './add-update-pg-dialog.component.html',
   styleUrls: ['./add-update-pg-dialog.component.scss']
 })
-export class AddUpdatePGDialogComponent implements OnInit {
+export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
   pgAddForm: FormGroup;
   errorMessages = ErrorMessages;
   selectDomains$ = new Subscription();

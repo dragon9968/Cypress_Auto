@@ -1,0 +1,44 @@
+$margin: 8px;
+
+.field {
+    width: 100%;
+    align-items: center;
+}
+
+.category {
+    width: 100%;
+    align-items: center;
+    margin: $margin 0;
+    display: flex;
+}
+
+.category-group {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.category-label {
+    width: 200px;
+}
+
+.category-items {
+    margin: 0 $margin;
+}
+
+.option-text {
+    display: flex;
+    align-items: center;
+}
+
+.option-text-items {
+    display: block;
+}
+
+.hardware-option-text {
+    line-height: normal;
+}
+
+.mat-option {
+    height: 60px;
+}
