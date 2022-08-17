@@ -18,7 +18,7 @@ import { selectHardwares } from '../../store/hardware/hardware.selectors';
 import { selectDomains } from '../../store/domain/domain.selectors';
 import { selectConfigTemplates } from '../../store/config-template/config-template.selectors';
 import { selectLoginProfiles } from '../../store/login-profile/login-profile.selectors';
-import { IconService } from '../services/icon/icon.service';
+import { IconService } from 'src/app/core/services/icon/icon.service';
 
 @Component({
   selector: 'app-add-update-node-dialog',

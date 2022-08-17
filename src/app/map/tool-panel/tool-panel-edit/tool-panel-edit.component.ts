@@ -9,8 +9,8 @@ import { selectDevices } from 'src/app/store/device/device.selectors';
 import { selectTemplates } from 'src/app/store/template/template.selectors';
 import { Subscription } from 'rxjs';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
-import { CMLockUnlockService } from '../../services/context-menu/cm-lock-unlock/cm-lock-unlock.service';
-import { CMDeleteService } from '../../services/context-menu/cm-delete/cm-delete.service';
+import { CMDeleteService } from '../../context-menu/cm-delete/cm-delete.service';
+import { CMLockUnlockService } from '../../context-menu/cm-lock-unlock/cm-lock-unlock.service';
 
 @Component({
   selector: 'app-tool-panel-edit',

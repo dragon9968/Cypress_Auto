@@ -11,6 +11,8 @@ import { AddUpdateNodeDialogComponent } from './add-update-node-dialog/add-updat
 import { AddUpdatePGDialogComponent } from './add-update-pg-dialog/add-update-pg-dialog.component';
 import { AddUpdateInterfaceDialogComponent } from './add-update-interface-dialog/add-update-interface-dialog.component';
 import { AddNodeDeployDialogComponent } from './add-node-deploy-dialog/add-node-deploy-dialog.component';
+import { CreateNodeSnapshotDialogComponent } from './create-node-snapshot-dialog/create-node-snapshot-dialog.component';
+import { DeleteNodeSnapshotDialogComponent } from './delete-node-snapshot-dialog copy/delete-node-snapshot-dialog.component';
 
 
 
@@ -25,7 +27,9 @@ import { AddNodeDeployDialogComponent } from './add-node-deploy-dialog/add-node-
     AddUpdateNodeDialogComponent,
     AddUpdatePGDialogComponent,
     AddUpdateInterfaceDialogComponent,
-    AddNodeDeployDialogComponent
+    AddNodeDeployDialogComponent,
+    CreateNodeSnapshotDialogComponent,
+    DeleteNodeSnapshotDialogComponent
   ],
   imports: [
     MapRoutingModule,

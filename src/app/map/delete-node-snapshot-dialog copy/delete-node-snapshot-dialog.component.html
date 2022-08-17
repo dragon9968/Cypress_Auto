@@ -1,0 +1,20 @@
+<form [formGroup]="deleteNodeSnapshotForm" (ngSubmit)="deleteSnapshot()">
+  <h1 mat-dialog-title>Delete Snapshot Form</h1>
+  <div mat-dialog-content>
+    <mat-form-field class="field">
+      <mat-label>Name</mat-label>
+      <input matInput type="text" placeholder="Select a name" formControlName="nameCtr" [matAutocomplete]="autoName">
+      <mat-autocomplete #autoName="matAutocomplete" [displayWith]="helpers.optionDisplay">
+        <mat-option *ngFor="let option of data.names" [value]="option">
+          {{ option.name }}
+        </mat-option>
+      </mat-autocomplete>
+      <mat-error *ngIf="nameCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+    </mat-form-field>
+  </div>
+  <div mat-dialog-actions [align]="'end'">
+    <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+    <button mat-raised-button type="submit" color="primary"
+      [disabled]="!deleteNodeSnapshotForm.valid">Delete</button>
+  </div>
+</form>

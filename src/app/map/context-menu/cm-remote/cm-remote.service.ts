@@ -4,6 +4,8 @@ import { ToastrService } from 'ngx-toastr';
 import { catchError, of, throwError } from 'rxjs';
 import { TaskService } from 'src/app/core/services/task/task.service';
 import { AddNodeDeployDialogComponent } from 'src/app/map/add-node-deploy-dialog/add-node-deploy-dialog.component';
+import { CreateNodeSnapshotDialogComponent } from '../../create-node-snapshot-dialog/create-node-snapshot-dialog.component';
+import { DeleteNodeSnapshotDialogComponent } from '../../delete-node-snapshot-dialog copy/delete-node-snapshot-dialog.component';
 
 @Injectable({
   providedIn: 'root'
@@ -129,7 +131,12 @@ export class CMRemoteService {
           id: "snapshot_create",
           content: "Create",
           selector: "node[icon]",
-          onClickFunction: (event: any) => { },
+          onClickFunction: (event: any) => {
+            const dialogData = {
+              activeNodes
+            };
+            this.dialog.open(CreateNodeSnapshotDialogComponent, { width: '600px', data: dialogData });
+          },
           hasTrailingDivider: true,
           disabled: false,
         },
@@ -137,7 +144,13 @@ export class CMRemoteService {
           id: "snapshot_delete",
           content: "Delete",
           selector: "node[icon]",
-          onClickFunction: (event: any) => { },
+          onClickFunction: (event: any) => {
+            const dialogData = {
+              activeNodes,
+              names: []
+            };
+            this.dialog.open(DeleteNodeSnapshotDialogComponent, { width: '600px', data: dialogData });
+          },
           hasTrailingDivider: true,
           disabled: false,
         },
