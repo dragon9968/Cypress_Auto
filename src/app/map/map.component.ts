@@ -676,7 +676,7 @@ export class MapComponent implements OnInit, OnDestroy {
     this.cy.contextMenus({
       menuItems: [
         this.cmAddService.getNodeAddMenu(this.queueEdge.bind(this)),
-        this.cmAddService.getPortGroupAddMenu(),
+        this.cmAddService.getPortGroupAddMenu(this.queueEdge.bind(this)),
         this.cmAddService.getEdgeAddMenu(),
         this.cmActionsService.getNodeActionsMenu(this.cy, this.activeNodes),
         this.cmActionsService.getPortGroupActionsMenu(),

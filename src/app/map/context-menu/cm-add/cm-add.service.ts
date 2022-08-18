@@ -69,7 +69,7 @@ export class CMAddService {
     }
   }
 
-  getPortGroupAddMenu() {
+  getPortGroupAddMenu(queueEdge: Function) {
     return {
       id: "pg_add",
       content: "Add",
@@ -80,7 +80,9 @@ export class CMAddService {
           id: "add_interface",
           content: "Add Interface",
           selector: "node[label!='group_box']",
-          onClickFunction: (event: any) => {},
+          onClickFunction: (event: any) => {
+            queueEdge(event.target, event.position, "wired");
+          },
           hasTrailingDivider: true,
           disabled: false,
         },
