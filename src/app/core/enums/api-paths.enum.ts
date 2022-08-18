@@ -22,4 +22,5 @@ export enum ApiPaths {
   INTERFACE = '/api/v1/interface/',
   GEN_INTERFACE_DATA = '/api/v1/interface/gen_data',
   TASK = '/api/v1/task/add',
+  PORTGROUP_RANDOMIZE_SUBNET = '/api/v1/portgroup/randomize_subnet/',
 }

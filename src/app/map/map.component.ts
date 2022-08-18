@@ -679,7 +679,7 @@ export class MapComponent implements OnInit, OnDestroy {
         this.cmAddService.getPortGroupAddMenu(this.queueEdge.bind(this)),
         this.cmAddService.getEdgeAddMenu(),
         this.cmActionsService.getNodeActionsMenu(this.cy, this.activeNodes),
-        this.cmActionsService.getPortGroupActionsMenu(),
+        this.cmActionsService.getPortGroupActionsMenu(this.cy, this.collectionId),
         this.cmActionsService.getEdgeActionsMenu(),
         this.cmViewDetailsService.getMenu(),
         this.cmEditService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges),

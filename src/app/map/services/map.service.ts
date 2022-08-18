@@ -10,7 +10,7 @@ export class MapService {
 
   constructor(private http: HttpClient) { }
 
-  getMapData(mapCategory: string, collectionId: number): Observable<any> {
+  getMapData(mapCategory: string, collectionId: string): Observable<any> {
     const url = ApiPaths.GET_MAP_DATA + '/' + mapCategory;
     const params = new HttpParams().set('collection_id', collectionId);
     return this.http.get<any>(url, {

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiPaths } from 'src/app/core/enums/api-paths.enum';
@@ -31,5 +31,12 @@ export class PortGroupService {
 
   add(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.PORTGROUP, data);
+  }
+
+  randomizeSubnet(id: string, collectionId: string): Observable<any> {
+    const params = new HttpParams().set('collection_id', collectionId);
+    return this.http.get<any>(ApiPaths.PORTGROUP_RANDOMIZE_SUBNET + id, {
+      params
+    });
   }
 }

@@ -3,6 +3,7 @@ import { ToastrService } from 'ngx-toastr';
 import { catchError, of, throwError } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { NodeService } from 'src/app/core/services/node/node.service';
+import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,7 @@ export class CMActionsService {
     private helpers: HelpersService,
     private toastr: ToastrService,
     private nodeService: NodeService,
+    private portGroupService: PortGroupService,
   ) { }
 
   getNodeActionsMenu(cy: any, activeNodes: any) {
@@ -78,7 +80,7 @@ export class CMActionsService {
     }
   }
 
-  getPortGroupActionsMenu() {
+  getPortGroupActionsMenu(cy: any, collectionId: string) {
     return {
       id: "pg_actions",
       content: "Actions",
@@ -88,7 +90,21 @@ export class CMActionsService {
         {
           id: "randomize_pg_subnet",
           content: "Randomize Subnet",
-          onClickFunction: (event: any) => { },
+          onClickFunction: (event: any) => {
+            const data = event.target.data();
+            this.portGroupService.randomizeSubnet(data.pg_id, collectionId).pipe(
+              catchError((error: any) => {
+                this.toastr.error(error.message);
+                return throwError(() => error);
+              })
+            ).subscribe(respData => {
+              const ele = cy.getElementById('pg-' + data.pg_id);
+              ele.data('subnet', respData.result.subnet);
+              ele.data('name', respData.result.name);
+              this.toastr.success(respData.message);
+              // this.info_panel.updateRow(data.pg_id, 'port_group');
+            });
+          },
           hasTrailingDivider: true,
           disabled: false,
         },
