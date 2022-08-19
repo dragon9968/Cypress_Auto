@@ -17,7 +17,7 @@ export class CMActionsService {
     private portGroupService: PortGroupService,
   ) { }
 
-  getNodeActionsMenu(cy: any, activeNodes: any) {
+  getNodeActionsMenu(cy: any, activeNodes: any[]) {
     return {
       id: "node_actions",
       content: "Actions",
@@ -80,7 +80,7 @@ export class CMActionsService {
     }
   }
 
-  getPortGroupActionsMenu(cy: any, collectionId: string) {
+  getPortGroupActionsMenu(cy: any, collectionId: string, activePGs: any[]) {
     return {
       id: "pg_actions",
       content: "Actions",
@@ -111,7 +111,17 @@ export class CMActionsService {
         {
           id: "validate_pg",
           content: "Validate",
-          onClickFunction: (event: any) => { },
+          onClickFunction: (event: any) => {
+            const pks = activePGs.map((ele: any) => ele.data('pg_id'));
+            this.portGroupService.validate({ pks }).pipe(
+              catchError((error: any) => {
+                this.toastr.error(error.message);
+                return throwError(() => error);
+              })
+            ).subscribe(respData => {
+              this.toastr.success(respData.message);
+            });
+          },
           hasTrailingDivider: true,
           disabled: false,
         },

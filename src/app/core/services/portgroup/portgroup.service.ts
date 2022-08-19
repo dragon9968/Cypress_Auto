@@ -39,4 +39,8 @@ export class PortGroupService {
       params
     });
   }
+  
+  validate(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.PORTGROUP_VALIDATE, data);
+  }
 }
