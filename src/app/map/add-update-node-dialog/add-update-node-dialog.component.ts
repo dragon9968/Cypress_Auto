@@ -213,7 +213,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   }
 
   updateNode() {
-    const ele = this.data.cy.getElementById('node-' + this.data.nodeId);
+    const ele = this.data.cy.getElementById('node-' + this.data.genData.id);
     const jsonData = {
       name: this.nameCtr?.value,
       notes: this.notesCtr?.value,

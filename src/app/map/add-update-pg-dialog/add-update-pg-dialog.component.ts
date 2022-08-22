@@ -123,6 +123,26 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
   }
 
   updatePG() {
-    console.log('updatePG');
+    const ele = this.data.cy.getElementById('pg-' + this.data.genData.id);
+    const jsonData = {
+      name: this.nameCtr?.value,
+      vlan: this.vlanCtr?.value,
+      category: this.categoryCtr?.value,
+      domain_id: this.domainCtr?.value.id,
+      subnet_allocation: this.subnetAllocationCtr?.value,
+      subnet: this.subnetCtr?.value,
+      collection_id: this.data.collectionId,
+      logical_map_position: ele.position(),
+    }
+    this.portGroupService.put(this.data.genData.id, jsonData).subscribe((_respData: any) => {
+      this.portGroupService.get(this.data.genData.id).subscribe(pgData => {
+        ele.data('subnet', pgData.result.subnet);
+        ele.data('groups', pgData.result.groups);
+        ele.data('domain', this.domainCtr?.value.id);
+        this.helpers.reloadGroupBoxes(this.data.cy);
+        this.toastr.success('Port group details updated!');
+        this.dialogRef.close();
+      })
+    });
   }
 }

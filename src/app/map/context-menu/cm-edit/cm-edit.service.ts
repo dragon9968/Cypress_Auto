@@ -2,7 +2,9 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { NodeService } from 'src/app/core/services/node/node.service';
+import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
 import { AddUpdateNodeDialogComponent } from 'src/app/map/add-update-node-dialog/add-update-node-dialog.component';
+import { AddUpdatePGDialogComponent } from '../../add-update-pg-dialog/add-update-pg-dialog.component';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +15,7 @@ export class CMEditService {
     private dialog: MatDialog,
     private toastr: ToastrService,
     private nodeService: NodeService,
+    private portGroupService: PortGroupService,
   ) { }
 
   getMenu(cy: any, activeNodes: any, activePGs: any, activeEdges: any) {
@@ -39,7 +42,14 @@ export class CMEditService {
             // this.map_forms.openPGBulkEditForm();
           } else if (activePGsLength == 1) {
             if (data.pg_id) {
-              // this.map_forms.openPGEditForm(data.pg_id);
+              this.portGroupService.get(data.pg_id).subscribe(pgData => {
+                const dialogData = {
+                  mode: 'update',
+                  genData: pgData.result,
+                  cy
+                }
+                this.dialog.open(AddUpdatePGDialogComponent, { width: '600px', data: dialogData });
+              });
             }
           }
         } else if (activePGsLength == 0 && activeEdgesLength == 0) {

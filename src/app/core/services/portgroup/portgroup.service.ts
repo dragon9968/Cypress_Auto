@@ -33,6 +33,10 @@ export class PortGroupService {
     return this.http.post<any>(ApiPaths.PORTGROUP, data);
   }
 
+  put(id: string, data: any): Observable<any> {
+    return this.http.put<any>(ApiPaths.PORTGROUP + id, data);
+  }
+
   randomizeSubnet(id: string, collectionId: string): Observable<any> {
     const params = new HttpParams().set('collection_id', collectionId);
     return this.http.get<any>(ApiPaths.PORTGROUP_RANDOMIZE_SUBNET + id, {
