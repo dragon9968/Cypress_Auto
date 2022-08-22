@@ -21,6 +21,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
   errorMessages = ErrorMessages;
   selectDomains$ = new Subscription();
   domains!: any[];
+  isViewMode = false;
 
   constructor(
     private portGroupService: PortGroupService,
@@ -33,12 +34,13 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
     this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
       this.domains = domains;
     });
+    this.isViewMode = this.data.mode == 'view';
     this.pgAddForm = new FormGroup({
       nameCtr: new FormControl('', Validators.required),
       vlanCtr: new FormControl('', Validators.required),
-      categoryCtr: new FormControl(''),
+      categoryCtr: new FormControl({ value: '', disabled: this.isViewMode }),
       domainCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.domains)]),
-      subnetAllocationCtr: new FormControl(''),
+      subnetAllocationCtr: new FormControl({ value: '', disabled: this.isViewMode }),
       subnetCtr: new FormControl(''),
     });
   }
