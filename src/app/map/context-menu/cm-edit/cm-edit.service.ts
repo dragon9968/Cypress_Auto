@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
+import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 import { NodeService } from 'src/app/core/services/node/node.service';
 import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
 import { AddUpdateNodeDialogComponent } from 'src/app/map/add-update-node-dialog/add-update-node-dialog.component';
+import { AddUpdateInterfaceDialogComponent } from '../../add-update-interface-dialog/add-update-interface-dialog.component';
 import { AddUpdatePGDialogComponent } from '../../add-update-pg-dialog/add-update-pg-dialog.component';
 
 @Injectable({
@@ -16,6 +18,7 @@ export class CMEditService {
     private toastr: ToastrService,
     private nodeService: NodeService,
     private portGroupService: PortGroupService,
+    private interfaceService: InterfaceService,
   ) { }
 
   getMenu(cy: any, activeNodes: any, activePGs: any, activeEdges: any) {
@@ -34,7 +37,14 @@ export class CMEditService {
             this.toastr.success("Open bulk edit form for edges");
           } else if (activeEdgesLength == 1) {
             if (data.interface_id) {
-              // this.map_forms.openInterfaceEditForm(data.interface_id)
+              this.interfaceService.get(data.interface_id).subscribe(interfaceData => {
+                const dialogData = {
+                  mode: 'update',
+                  genData: interfaceData.result,
+                  cy
+                }
+                this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', data: dialogData });
+              });
             }
           }
         } else if (activeNodesLength == 0 && activeEdgesLength == 0) {
