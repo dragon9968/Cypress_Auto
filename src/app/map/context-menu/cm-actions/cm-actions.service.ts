@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, of, throwError } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
+import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 import { NodeService } from 'src/app/core/services/node/node.service';
 import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
 
@@ -15,6 +16,7 @@ export class CMActionsService {
     private toastr: ToastrService,
     private nodeService: NodeService,
     private portGroupService: PortGroupService,
+    private interfaceService: InterfaceService,
   ) { }
 
   getNodeActionsMenu(cy: any, activeNodes: any[]) {
@@ -130,7 +132,7 @@ export class CMActionsService {
     }
   }
 
-  getEdgeActionsMenu() {
+  getEdgeActionsMenu(cy: any) {
     return {
       id: "edge_actions",
       content: "Actions",
@@ -149,7 +151,22 @@ export class CMActionsService {
           id: "randomize_edge_ip",
           content: "Randomize IP",
           selector: "edge",
-          onClickFunction: (event: any) => { },
+          onClickFunction: (event: any) => {
+            const data = event.target.data();
+            this.interfaceService.randomizeIP(data.interface_id).pipe(
+              catchError((error: any) => {
+                this.toastr.error(error.message);
+                return throwError(() => error);
+              })
+            ).subscribe(respData => {
+              const ele = cy.getElementById(data.interface_id);
+              const ip_str = respData.result.ip ? respData.result.ip : ""
+              const ip = ip_str.split(".")
+              const last_octet = ip.length == 4 ? "."+ip[3] : ""
+              ele.data('ip_last_octet', last_octet)
+              this.toastr.success(respData.message);
+            });
+          },
           hasTrailingDivider: true,
           disabled: false,
         },

@@ -24,4 +24,5 @@ export enum ApiPaths {
   TASK = '/api/v1/task/add',
   PORTGROUP_RANDOMIZE_SUBNET = '/api/v1/portgroup/randomize_subnet/',
   PORTGROUP_VALIDATE = '/api/v1/portgroup/validate',
+  INTERFACE_RANDOMIZE_IP = '/api/v1/interface/randomize_ip/',
 }
