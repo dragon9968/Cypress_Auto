@@ -28,4 +28,8 @@ export class InterfaceService {
   randomizeIP(id: string): Observable<any> {
     return this.http.get<any>(ApiPaths.INTERFACE_RANDOMIZE_IP + id);
   }
+
+  validate(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.INTERFACE_VALIDATE, data);
+  }
 }

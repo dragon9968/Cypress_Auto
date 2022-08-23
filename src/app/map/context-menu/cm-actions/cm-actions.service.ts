@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { catchError, of, throwError } from 'rxjs';
+import { catchError, throwError } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 import { NodeService } from 'src/app/core/services/node/node.service';
@@ -132,7 +132,7 @@ export class CMActionsService {
     }
   }
 
-  getEdgeActionsMenu(cy: any) {
+  getEdgeActionsMenu(cy: any, activeEdges: any[]) {
     return {
       id: "edge_actions",
       content: "Actions",
@@ -174,7 +174,17 @@ export class CMActionsService {
           id: "validate_edge",
           content: "Validate",
           selector: "edge",
-          onClickFunction: (event: any) => { },
+          onClickFunction: (event: any) => {
+            const pks = activeEdges.map((ele: any) => ele.data('interface_id'));
+            this.interfaceService.validate({ pks }).pipe(
+              catchError((error: any) => {
+                this.toastr.error(error.message);
+                return throwError(() => error);
+              })
+            ).subscribe(respData => {
+              this.toastr.success(respData.message);
+            });
+          },
           hasTrailingDivider: true,
           disabled: false,
         },
