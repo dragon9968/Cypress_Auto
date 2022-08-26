@@ -3,17 +3,17 @@
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Order</mat-label>
-      <input matInput formControlName="orderCtr">
+      <input matInput formControlName="orderCtr" [readonly]="isViewMode">
       <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
-      <input matInput formControlName="nameCtr">
+      <input matInput formControlName="nameCtr" [readonly]="isViewMode">
       <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Description</mat-label>
-      <input matInput formControlName="descriptionCtr">
+      <input matInput formControlName="descriptionCtr" [readonly]="isViewMode">
       <mat-error *ngIf="descriptionCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
     <div class="category">
@@ -27,7 +27,7 @@
     <mat-form-field class="field">
       <mat-label>Direction</mat-label>
       <input matInput type="text" placeholder="Select or enter a direction" formControlName="directionCtr"
-        [matAutocomplete]="autoDirection">
+        [matAutocomplete]="autoDirection" [readonly]="isViewMode">
       <mat-autocomplete #autoDirection="matAutocomplete" [displayWith]="helpers.optionDisplay">
         <mat-option *ngFor="let option of DIRECTIONS" [value]="option">
           {{ option.name }}
@@ -37,14 +37,14 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>MAC Address</mat-label>
-      <input matInput formControlName="macAddressCtr">
+      <input matInput formControlName="macAddressCtr" [readonly]="isViewMode">
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>PortGroup</mat-label>
       <input matInput type="text" placeholder="Select a portgroup" formControlName="portGroupCtr"
-        [matAutocomplete]="autoPortgroup">
+        [matAutocomplete]="autoPortgroup" [readonly]="isViewMode">
       <mat-autocomplete #autoPortgroup="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of data.portGroups" [value]="option">
+        <mat-option *ngFor="let option of portGroups" [value]="option">
           <div class="portgroup-option-text">
             <span class="option-text-items"><b>{{ option.name }}</b></span>
             <span class="option-text-items">Subnet: {{ option.subnet }}</span>
@@ -65,17 +65,17 @@
     </div>
     <mat-form-field class="field">
       <mat-label>IP</mat-label>
-      <input matInput formControlName="ipCtr">
+      <input matInput formControlName="ipCtr" [readonly]="isViewMode">
       <mat-error *ngIf="ipCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>DNS Server</mat-label>
-      <input matInput formControlName="dnsServerCtr">
+      <input matInput formControlName="dnsServerCtr" [readonly]="isViewMode">
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Gateway</mat-label>
       <input matInput type="text" placeholder="Select or enter a gateway" formControlName="gatewayCtr"
-        [matAutocomplete]="autoGateway">
+        [matAutocomplete]="autoGateway" [readonly]="isViewMode">
       <mat-autocomplete #autoGateway="matAutocomplete" [displayWith]="helpers.optionDisplay">
         <mat-option *ngFor="let option of data.gateways" [value]="option">
           {{ option.name }}
@@ -91,8 +91,9 @@
     </div>
   </div>
   <div mat-dialog-actions [align]="'end'">
-    <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
-    <button mat-raised-button type="submit" color="primary" [disabled]="!interfaceAddForm.valid">{{data.mode == 'add' ? 'Add'
+    <button mat-raised-button type="button" (click)="onCancel()">{{data.mode == 'view' ? 'Close'
+      : 'Cancel'}}</button>
+    <button *ngIf="data.mode != 'view'" mat-raised-button type="submit" color="primary" [disabled]="!interfaceAddForm.valid">{{data.mode == 'add' ? 'Add'
       : 'Update'}}</button>
   </div>
 </form>

@@ -7,6 +7,9 @@ import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { ToastrService } from 'ngx-toastr';
 import { DIRECTIONS } from 'src/app/shared/contants/directions.contant';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
+import { selectPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
+import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-add-update-interface-dialog',
@@ -17,6 +20,9 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
   interfaceAddForm: FormGroup;
   DIRECTIONS = DIRECTIONS;
   errorMessages = ErrorMessages;
+  portGroups!: any[];
+  isViewMode = false;
+  selectPortGroups$ = new Subscription();
 
   constructor(
     private interfaceService: InterfaceService,
@@ -24,21 +30,26 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<AddUpdateInterfaceDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public helpers: HelpersService,
+    private store: Store,
   ) {
+    this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe((portGroups: any) => {
+      this.portGroups = portGroups;
+    });
+    this.isViewMode = this.data.mode == 'view';
     this.interfaceAddForm = new FormGroup({
       orderCtr: new FormControl('', Validators.required),
       nameCtr: new FormControl('', Validators.required),
       descriptionCtr: new FormControl('', Validators.required),
-      categoryCtr: new FormControl(''),
+      categoryCtr: new FormControl({ value: '', disabled: this.isViewMode }),
       directionCtr: new FormControl(''),
       macAddressCtr: new FormControl(''),
       portGroupCtr: new FormControl('', Validators.required),
-      ipAllocationCtr: new FormControl(''),
+      ipAllocationCtr: new FormControl({ value: '', disabled: this.isViewMode }),
       ipCtr: new FormControl('', Validators.required),
       dnsServerCtr: new FormControl(''),
       gatewayCtr: new FormControl(''),
-      isGatewayCtr: new FormControl(''),
-      isNatCtr: new FormControl(''),
+      isGatewayCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      isNatCtr: new FormControl({ value: '', disabled: this.isViewMode }),
     });
   }
 
@@ -57,23 +68,20 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
   get isNatCtr() { return this.interfaceAddForm.get('isNatCtr'); }
 
   ngOnInit(): void {
-    if (this.data.mode == 'add') {
-      this.orderCtr?.setValue(this.data.genData.order);
-      this.nameCtr?.setValue(this.data.genData.name);
-      this.descriptionCtr?.setValue(this.data.genData.description);
-      this.categoryCtr?.setValue(this.data.genData.category);
-      this.directionCtr?.setValue(this.helpers.getOptionById(DIRECTIONS, this.data.genData.direction));
-      this.macAddressCtr?.setValue(this.data.genData.mac_address);
-      this.portGroupCtr?.setValue(this.helpers.getOptionById(this.data.portGroups, this.data.genData.port_group_id));
-      this.ipAllocationCtr?.setValue(this.data.genData.ip_allocation);
-      this.ipCtr?.setValue(this.data.genData.ip);
-      this.dnsServerCtr?.setValue(this.data.genData.dns_server);
-      this.gatewayCtr?.setValue(this.helpers.getOptionById(this.data.gateways, this.data.genData.gateway));
-      this.isGatewayCtr?.setValue(this.data.genData.is_gateway);
-      this.isNatCtr?.setValue(this.data.genData.is_nat);
-      this.disableItems(this.ipAllocationCtr?.value);
-    } else if (this.data.mode == 'update') {
-    }
+    this.orderCtr?.setValue(this.data.genData.order);
+    this.nameCtr?.setValue(this.data.genData.name);
+    this.descriptionCtr?.setValue(this.data.genData.description);
+    this.categoryCtr?.setValue(this.data.genData.category);
+    this.directionCtr?.setValue(this.helpers.getOptionById(DIRECTIONS, this.data.genData.direction));
+    this.macAddressCtr?.setValue(this.data.genData.mac_address);
+    this.portGroupCtr?.setValue(this.helpers.getOptionById(this.portGroups, this.data.genData.port_group_id));
+    this.ipAllocationCtr?.setValue(this.data.genData.ip_allocation);
+    this.ipCtr?.setValue(this.data.genData.ip);
+    this.dnsServerCtr?.setValue(this.data.genData.dns_server);
+    this.gatewayCtr?.setValue(this.helpers.getOptionById(this.data.gateways, this.data.genData.gateway));
+    this.isGatewayCtr?.setValue(this.data.genData.is_gateway);
+    this.isNatCtr?.setValue(this.data.genData.is_nat);
+    this.disableItems(this.ipAllocationCtr?.value);
   }
 
   private disableItems(subnetAllocation: string) {
