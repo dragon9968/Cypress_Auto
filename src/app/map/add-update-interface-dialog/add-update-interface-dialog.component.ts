@@ -149,6 +149,31 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
   }
 
   updateInterface() {
-    console.log('updateInterface');
+    const ele = this.data.cy.getElementById(this.data.genData.id);
+    const jsonData = {
+      order: this.orderCtr?.value,
+      name: this.nameCtr?.value,
+      description: this.descriptionCtr?.value,
+      category: this.categoryCtr?.value,
+      direction: this.directionCtr?.value.id,
+      mac_address: this.macAddressCtr?.value,
+      port_group_id: this.portGroupCtr?.value.id,
+      ip_allocation: this.ipAllocationCtr?.value,
+      ip: this.ipCtr?.value,
+      dns_server: this.dnsServerCtr?.value,
+      gateway: this.gatewayCtr?.value?.id,
+      is_gateway: this.isGatewayCtr?.value,
+      is_nat: this.isNatCtr?.value,
+      node_id: this.data.genData.node_id,
+      netmask_id: this.data.genData.netmask_id,
+    }
+    this.interfaceService.put(this.data.genData.id, jsonData).subscribe((respData: any) => {
+      const ip_str = respData.result.ip ? respData.result.ip : "";
+      const ip = ip_str.split(".");
+      const last_octet = ip.length == 4 ? "." + ip[3] : "";
+      ele.data('ip_last_octet', last_octet);
+      this.toastr.success('Edge details updated!');
+      this.dialogRef.close();
+    });
   }
 }
