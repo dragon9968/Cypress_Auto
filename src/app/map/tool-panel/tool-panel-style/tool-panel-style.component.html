@@ -4,20 +4,23 @@
         <mat-label>Map Preference</mat-label>
         <input matInput type="text" placeholder="Select Map Preference" [formControl]="mapPrefCtr"
             [matAutocomplete]="autoMapPref">
-        <mat-autocomplete #autoMapPref="matAutocomplete" [displayWith]="helper.optionDisplay" (optionSelected)="selectMapPref($event)">
+        <mat-autocomplete #autoMapPref="matAutocomplete" [displayWith]="helper.optionDisplay"
+            (optionSelected)="selectMapPref($event)">
             <mat-option *ngFor="let option of mapPrefs" [value]="option">
                 {{ option.name }}
             </mat-option>
         </mat-autocomplete>
     </mat-form-field>
     <div class="tab-field">
-        <button mat-raised-button color="primary" class="apply-map-pref-btn" (click)="applyMapPref()" matTooltip="Apply">
+        <button mat-raised-button color="primary" class="apply-map-pref-btn" (click)="applyMapPref()"
+            matTooltip="Apply">
             <mat-icon>check</mat-icon>
         </button>
     </div>
 </section>
-<mat-divider></mat-divider>
-<section class="tab-section">
+
+<section class="tab-section" hidden="{{activeNodes.length == 0}}">
+    <mat-divider></mat-divider>
     <h4>Node</h4>
     <div class="tab-field">
         <label>Size</label>
@@ -25,12 +28,14 @@
         <label>{{ nodeSize }}px</label>
     </div>
 </section>
-<mat-divider></mat-divider>
-<section class="tab-section">
+
+<section class="tab-section" hidden="{{activeEdges.length == 0}}">
+    <mat-divider></mat-divider>
     <h4>Edge</h4>
     <div class="tab-field">
         <label for="edgeColor">Color</label>
-        <button mat-mini-fab id="edgeColor" class="color-picker" [(colorPicker)]="edgeColor" [style.background]="edgeColor" cpPosition="bottom"></button>
+        <button mat-mini-fab id="edgeColor" class="color-picker" [(colorPicker)]="edgeColor"
+            [style.background]="edgeColor" cpPosition="bottom"></button>
     </div>
     <div class="tab-field">
         <label>Size</label>
@@ -56,12 +61,13 @@
         <label>{{ arrowSize }}px</label>
     </div>
 </section>
-<mat-divider></mat-divider>
-<section class="tab-section">
+<section class="tab-section" hidden="{{activePGs.length == 0}}">
+    <mat-divider></mat-divider>
     <h4>Port Group</h4>
     <div class="tab-field">
         <label for="pgColor">Color</label>
-        <button mat-mini-fab id="pgColor" class="color-picker" [(colorPicker)]="pgColor" [style.background]="pgColor" cpPosition="bottom"></button>
+        <button mat-mini-fab id="pgColor" class="color-picker" [(colorPicker)]="pgColor" [style.background]="pgColor"
+            cpPosition="bottom"></button>
     </div>
     <div class="tab-field">
         <label>Size</label>
@@ -69,12 +75,13 @@
         <label>{{ pgSize }}px</label>
     </div>
 </section>
-<mat-divider></mat-divider>
-<section class="tab-section">
+<section class="tab-section" hidden="{{activeGBs.length == 0}}">
+    <mat-divider></mat-divider>
     <h4>Group Box</h4>
     <div class="tab-field">
         <label for="gbColor">Color</label>
-        <button mat-mini-fab id="gbColor" class="color-picker" [(colorPicker)]="gbColor" [style.background]="gbColor" cpPosition="bottom"></button>
+        <button mat-mini-fab id="gbColor" class="color-picker" [(colorPicker)]="gbColor" [style.background]="gbColor"
+            cpPosition="bottom"></button>
     </div>
     <div class="tab-field">
         <label>Opacity</label>
@@ -84,7 +91,8 @@
     <h4>Group Box Border</h4>
     <div class="tab-field">
         <label for="gbBorderColor">Color</label>
-        <button mat-mini-fab id="gbBorderColor" class="color-picker" [(colorPicker)]="gbBorderColor" [style.background]="gbBorderColor" cpPosition="bottom"></button>
+        <button mat-mini-fab id="gbBorderColor" class="color-picker" [(colorPicker)]="gbBorderColor"
+            [style.background]="gbBorderColor" cpPosition="bottom"></button>
     </div>
     <div class="tab-field direction">
         <label>Type</label>
@@ -102,12 +110,14 @@
         </button>
     </div>
 </section>
-<mat-divider></mat-divider>
-<section class="tab-section">
+<section class="tab-section"
+    hidden="{{activeNodes.length + activePGs.length + activeEdges.length + activeGBs.length == 0}}">
+    <mat-divider></mat-divider>
     <h4>Text</h4>
     <div class="tab-field">
         <label for="textColor">Color</label>
-        <button mat-mini-fab id="textColor" class="color-picker" [(colorPicker)]="textColor" [style.background]="textColor" cpPosition="bottom"></button>
+        <button mat-mini-fab id="textColor" class="color-picker" [(colorPicker)]="textColor"
+            [style.background]="textColor" cpPosition="bottom"></button>
     </div>
     <div class="tab-field">
         <label>Size</label>
@@ -141,7 +151,8 @@
     <h4>Text Background</h4>
     <div class="tab-field">
         <label for="textBGColor">Color</label>
-        <button mat-mini-fab id="textBGColor" class="color-picker" [(colorPicker)]="textBGColor" [style.background]="textBGColor" cpPosition="bottom"></button>
+        <button mat-mini-fab id="textBGColor" class="color-picker" [(colorPicker)]="textBGColor"
+            [style.background]="textBGColor" cpPosition="bottom"></button>
     </div>
     <div class="tab-field">
         <label>Opacity</label>

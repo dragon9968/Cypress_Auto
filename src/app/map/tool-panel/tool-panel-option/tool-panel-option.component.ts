@@ -1,8 +1,10 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
+import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { retrievedMapOption } from 'src/app/store/map-option/map-option.actions';
 import { selectDefaultPreferences, selectGroupBoxes } from 'src/app/store/map/map.selectors';
 
@@ -35,6 +37,7 @@ export class ToolPanelOptionComponent implements OnInit, OnDestroy {
 
   constructor(
     private store: Store,
+    private dialog: MatDialog,
     public helpers: HelpersService
   ) {
     this.selectDefaultPreferences$ = this.store.select(selectDefaultPreferences)
@@ -89,24 +92,24 @@ export class ToolPanelOptionComponent implements OnInit, OnDestroy {
     if (!this.isEdgeDirectionChecked) {
       for (let i = 0; i < this.cy.edges().length; i++) {
         const edge = this.cy.edges()[i];
-        const current_dir = edge.data('direction')
-        edge.data('prev_direction', current_dir)
-        edge.data('direction', 'none')
-        edge.data('new', false)
-        edge.data('updated', true)
-        edge.data('deleted', false)
+        const current_dir = edge.data('direction');
+        edge.data('prev_direction', current_dir);
+        edge.data('direction', 'none');
+        edge.data('new', false);
+        edge.data('updated', true);
+        edge.data('deleted', false);
       }
     } else {
       for (let i = 0; i < this.cy.edges().length; i++) {
         const edge = this.cy.edges()[i];
-        let prev_dir = edge.data('prev_direction')
+        let prev_dir = edge.data('prev_direction');
         if (prev_dir == 'none') {
-          prev_dir = 'both'
+          prev_dir = 'both';
         }
-        edge.data('direction', prev_dir)
-        edge.data('new', false)
-        edge.data('updated', true)
-        edge.data('deleted', false)
+        edge.data('direction', prev_dir);
+        edge.data('new', false);
+        edge.data('updated', true);
+        edge.data('deleted', false);
       }
     }
   }
@@ -163,7 +166,75 @@ export class ToolPanelOptionComponent implements OnInit, OnDestroy {
   }
 
   reinitializeMap() {
-    console.log('reinitializeMap');
-  }
+    const dialogData = {
+      title: 'Network Map',
+      message: 'Do you want to remove all custom stylings and/or map background?'
+    }
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '600px',
+      data: dialogData
+    });
 
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // this._set_default_element_values();
+
+        // remove Group Boxes if present
+        if (this.isGroupBoxesChecked) {
+          this.helpers.removeGroupBoxes(this.cy);
+          this.isGroupBoxesChecked = false;
+        }
+
+        this.cy.nodes().filter('[label="map_background"]').remove()
+
+        // reset default sizes
+        const defaultPreferences = this.config.default_preferences
+        this.cy.elements().forEach((ele: any) => {
+          if (ele.group() == "edges") {
+            ele.data("line-color", defaultPreferences.edge.color );
+            ele.style("width", defaultPreferences.edge.size);
+          } else {
+            // text
+            ele.data("text_size", defaultPreferences.text.size);
+            ele.data("text_color", this.helpers.hexToRGB(defaultPreferences.text.color));
+            var d = ele.data()
+            if (!d.new) {
+              d.updated = true;
+            }
+            if (d.elem_category == "port_group") {
+              ele.data("color", defaultPreferences.port_group.color);
+              ele.data("height", defaultPreferences.port_group.size);
+              ele.data("width", defaultPreferences.port_group.size);
+            } // icon
+            else {
+              ele.data("width", defaultPreferences.node.width);
+              ele.data("height", defaultPreferences.node.height);
+            }
+          }
+        });
+
+        const options = {
+          name: "cose",
+          avoidOverlap: true,
+          avoidOverlapPadding: 10,
+          nodeDimensionsIncludeLabels: true,
+          fit: true,
+          animate: true,
+          zIndex: 999,
+        };
+
+        const layout = this.cy.layout(options);
+        layout.run();
+        this.isGroupBoxesChecked = false;
+        if (this.config.display_map_grid) {
+          this.isMapGridChecked = true;
+          this.cy.gridGuide(this.config.grid_on_options);
+        }
+        else {
+          this.isMapGridChecked = false;
+          this.cy.gridGuide(this.config.grid_off_options);
+        }
+      }
+    });
+  }
 }

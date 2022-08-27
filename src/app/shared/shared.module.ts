@@ -23,6 +23,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ColorPickerModule } from 'ngx-color-picker';
+import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 
 
 const materialModules = [
@@ -48,7 +49,7 @@ const materialModules = [
 ];
 
 @NgModule({
-  declarations: [],
+  declarations: [ConfirmationDialogComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -65,6 +66,7 @@ const materialModules = [
     AgGridModule,
     ColorPickerModule,
     ...materialModules,
+    ConfirmationDialogComponent
   ],
 })
 export class SharedModule {}

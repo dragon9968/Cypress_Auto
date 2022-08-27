@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatIconRegistry } from '@angular/material/icon';
@@ -16,6 +16,12 @@ import { selectDefaultPreferences } from 'src/app/store/map/map.selectors';
   styleUrls: ['./tool-panel-style.component.scss']
 })
 export class ToolPanelStyleComponent implements OnInit, OnDestroy {
+  @Input() cy: any;
+  @Input() config: any;
+  @Input() activeNodes: any[] = [];
+  @Input() activePGs: any[] = [];
+  @Input() activeEdges: any[] = [];
+  @Input() activeGBs: any[] = [];
   mapPrefCtr = new FormControl();
   mapPrefs!: any[];
   nodeSize = 70;
@@ -59,6 +65,21 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
     this.mapPrefService.getAll().subscribe(data => {
       this.mapPrefs = data.result;
     });
+  }
+
+  ngOnChanges(valueChange: any) {
+    if (valueChange.config.currentValue) {
+      const d = this.config.default_preferences;
+      this.nodeSize = d.node.width.replace('px', '');
+      this.textSize = d.text.size.replace('px', '');
+      this.textColor = d.text.color;
+      this.edgeSize = d.edge.size.replace('px', '');
+      this.edgeColor = d.edge.color;
+      this.pgSize = d.port_group.size.replace('px', '');
+      this.pgColor = d.port_group.color;
+      this.gbColor = d.group_box.color;
+      this.gbOpacity = d.group_box.group_opacity;
+    }
   }
 
   ngOnDestroy(): void {
