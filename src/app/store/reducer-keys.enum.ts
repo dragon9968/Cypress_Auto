@@ -9,7 +9,7 @@ export enum ReducerKeys {
     CONFIG_TEMPLATE = 'configTemplate',
     LOGIN_PROFILE = 'loginProfile',
     MAP_EDIT = 'mapEdit',
-    MAP_PREF = 'mappref',
+    MAP_STYLE = 'mapStyle',
     MAP_OPTION = 'mapOption',
     PORTGROUP = 'portgroup',
 }

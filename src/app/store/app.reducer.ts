@@ -5,7 +5,7 @@ import { hardwareReducer } from "./hardware/hardware.reducer";
 import { iconReducer } from "./icon/icon.reducer";
 import { loginProfileReducer } from "./login-profile/login-profile.reducer";
 import { mapOptionReducer } from "./map-option/map-option.reducer";
-import { mapPrefReducer } from "./map-pref/map-pref.reducer";
+import { mapStyleReducer } from "./map-style/map-style.reducer";
 import { mapReducer } from "./map/map.reducer";
 import { mapEditReducer } from "./map-edit/map-edit.reducer";
 import { projectReducer } from "./project/project.reducer";
@@ -23,7 +23,7 @@ export const reducers = {
     [ReducerKeys.DOMAIN]: domainReducer,
     [ReducerKeys.CONFIG_TEMPLATE]: configTemplateReducer,
     [ReducerKeys.LOGIN_PROFILE]: loginProfileReducer,
-    [ReducerKeys.MAP_PREF]: mapPrefReducer,
+    [ReducerKeys.MAP_STYLE]: mapStyleReducer,
     [ReducerKeys.MAP_EDIT]: mapEditReducer,
     [ReducerKeys.MAP_OPTION]: mapOptionReducer,
     [ReducerKeys.PORTGROUP]: portGroupReducer,

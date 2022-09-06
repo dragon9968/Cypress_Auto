@@ -7,7 +7,7 @@ import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { MapPrefService } from 'src/app/map/tool-panel/tool-panel-style/services/map-pref/map-pref.service';
-import { retrievedMapPref } from 'src/app/store/map-pref/map-pref.actions';
+import { retrievedMapPref } from 'src/app/store/map-style/map-style.actions';
 import { selectDefaultPreferences } from 'src/app/store/map/map.selectors';
 
 @Component({

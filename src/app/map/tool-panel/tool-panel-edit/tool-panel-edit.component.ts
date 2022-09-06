@@ -24,8 +24,7 @@ export class ToolPanelEditComponent implements OnDestroy {
   @Input() activeEdges: any[] = [];
   @Input() activeGBs: any[] = [];
   @Input() deletedNodes: any[] = [];
-  @Input() deletedInterface: any[] = [];
-  @Input() deletedTunnel: any[] = [];
+  @Input() deletedInterfaces: any[] = [];
   @Input() isDisableAddNode = false;
   @Input() isDisableAddPG = false;
   @Input() isDisableAddImage = false;
@@ -125,8 +124,7 @@ export class ToolPanelEditComponent implements OnDestroy {
       this.activeEdges,
       this.activeGBs,
       this.deletedNodes,
-      this.deletedInterface,
-      this.deletedTunnel
+      this.deletedInterfaces,
     );
     // this.update_components();
   }

@@ -46,13 +46,23 @@ export class ToolPanelOptionComponent implements OnInit, OnDestroy {
           this.isEdgeDirectionChecked = defaultPreferences.edge_direction_checkbox;
           this.isGroupBoxesChecked = defaultPreferences.groupbox_checkbox;
           const groupCategory = this.groupCategories.filter(category => category.id == defaultPreferences.group_category)[0];
-          this.groupCategoryCtr.setValue(groupCategory);
+          this.groupCategoryCtr.setValue(groupCategory ? groupCategory : this.groupCategories[0]);
           const gridSettings = defaultPreferences.grid_settings;
           this.isMapGridChecked = gridSettings.enabled;
           this.isSnapToGridChecked = gridSettings.snap_to_grid;
           this.gridSpacingSize = gridSettings.spacing ? gridSettings.spacing.replace('px', '') : this.gridSpacingSize;
           this.isMapOverviewChecked = defaultPreferences.display_map_overview_checkbox;
-          this.store.dispatch(retrievedMapOption({ data: { isGroupBoxesChecked: this.isGroupBoxesChecked, groupCategoryId: groupCategory.id } }));
+          this.store.dispatch(retrievedMapOption({
+            data: {
+              isEdgeDirectionChecked: this.isEdgeDirectionChecked,
+              isGroupBoxesChecked: this.isGroupBoxesChecked,
+              isMapGridChecked: this.isMapGridChecked,
+              isSnapToGridChecked: this.isSnapToGridChecked,
+              isMapOverviewChecked: this.isMapOverviewChecked,
+              gridSpacingSize: this.gridSpacingSize,
+              groupCategoryId: groupCategory ? groupCategory.id : this.groupCategories[0].id
+            }
+          }));
         }
       });
     this.selectGroupBoxes$ = this.store.select(selectGroupBoxes).subscribe((groupBoxes: any) => this.groupBoxes = groupBoxes);
@@ -112,17 +122,50 @@ export class ToolPanelOptionComponent implements OnInit, OnDestroy {
         edge.data('deleted', false);
       }
     }
+    this.store.dispatch(retrievedMapOption({
+      data: {
+        isEdgeDirectionChecked: this.isEdgeDirectionChecked,
+        isGroupBoxesChecked: this.isGroupBoxesChecked,
+        isMapGridChecked: this.isMapGridChecked,
+        isSnapToGridChecked: this.isSnapToGridChecked,
+        isMapOverviewChecked: this.isMapOverviewChecked,
+        gridSpacingSize: this.gridSpacingSize,
+        groupCategoryId: this.groupCategoryCtr.value.id
+      }
+    }));
   }
+
   toggleGroupBoxes() {
     if (this.isGroupBoxesChecked) {
       this.helpers.addGroupBoxes(this.cy);
     } else {
       this.helpers.removeGroupBoxes(this.cy);
     }
+    this.store.dispatch(retrievedMapOption({
+      data: {
+        isEdgeDirectionChecked: this.isEdgeDirectionChecked,
+        isGroupBoxesChecked: this.isGroupBoxesChecked,
+        isMapGridChecked: this.isMapGridChecked,
+        isSnapToGridChecked: this.isSnapToGridChecked,
+        isMapOverviewChecked: this.isMapOverviewChecked,
+        gridSpacingSize: this.gridSpacingSize,
+        groupCategoryId: this.groupCategoryCtr.value.id
+      }
+    }));
   }
 
   selectGroupCategory() {
-    this.store.dispatch(retrievedMapOption({ data: { isGroupBoxesChecked: this.isGroupBoxesChecked, groupCategoryId: this.groupCategoryCtr.value.id } }));
+    this.store.dispatch(retrievedMapOption({
+      data: {
+        isEdgeDirectionChecked: this.isEdgeDirectionChecked,
+        isGroupBoxesChecked: this.isGroupBoxesChecked,
+        isMapGridChecked: this.isMapGridChecked,
+        isSnapToGridChecked: this.isSnapToGridChecked,
+        isMapOverviewChecked: this.isMapOverviewChecked,
+        gridSpacingSize: this.gridSpacingSize,
+        groupCategoryId: this.groupCategoryCtr.value.id
+      }
+    }));
     this.helpers.reloadGroupBoxes(this.cy);
   }
 
@@ -137,24 +180,57 @@ export class ToolPanelOptionComponent implements OnInit, OnDestroy {
     } else {
       this.cy.gridGuide(this.config.grid_off_options);
     }
+    this.store.dispatch(retrievedMapOption({
+      data: {
+        isEdgeDirectionChecked: this.isEdgeDirectionChecked,
+        isGroupBoxesChecked: this.isGroupBoxesChecked,
+        isMapGridChecked: this.isMapGridChecked,
+        isSnapToGridChecked: this.isSnapToGridChecked,
+        isMapOverviewChecked: this.isMapOverviewChecked,
+        gridSpacingSize: this.gridSpacingSize,
+        groupCategoryId: this.groupCategoryCtr.value.id
+      }
+    }));
   }
 
   toggleSnapToGrid() {
-    this.config.grid_on_options.snapToGridOnRelease = this.isSnapToGridChecked;
-    this.config.grid_on_options.gridSpacing = this.gridSpacingSize;
-    this.cy.gridGuide(this.config.grid_on_options);
     if (this.isSnapToGridChecked) {
+      this.config.grid_on_options.snapToGridOnRelease = this.isSnapToGridChecked;
+      this.config.grid_on_options.gridSpacing = this.gridSpacingSize;
+      this.cy.gridGuide(this.config.grid_on_options);
       this._updateNodeStatus();
     }
+    this.store.dispatch(retrievedMapOption({
+      data: {
+        isEdgeDirectionChecked: this.isEdgeDirectionChecked,
+        isGroupBoxesChecked: this.isGroupBoxesChecked,
+        isMapGridChecked: this.isMapGridChecked,
+        isSnapToGridChecked: this.isSnapToGridChecked,
+        isMapOverviewChecked: this.isMapOverviewChecked,
+        gridSpacingSize: this.gridSpacingSize,
+        groupCategoryId: this.groupCategoryCtr.value.id
+      }
+    }));
   }
 
   changeGridSpacingSize() {
-    this.config.grid_on_options.snapToGridOnRelease = this.isSnapToGridChecked;
-    this.config.grid_on_options.gridSpacing = this.gridSpacingSize;
-    this.cy.gridGuide(this.config.grid_on_options);
     if (this.isSnapToGridChecked) {
+      this.config.grid_on_options.snapToGridOnRelease = this.isSnapToGridChecked;
+      this.config.grid_on_options.gridSpacing = this.gridSpacingSize;
+      this.cy.gridGuide(this.config.grid_on_options);
       this._updateNodeStatus();
     }
+    this.store.dispatch(retrievedMapOption({
+      data: {
+        isEdgeDirectionChecked: this.isEdgeDirectionChecked,
+        isGroupBoxesChecked: this.isGroupBoxesChecked,
+        isMapGridChecked: this.isMapGridChecked,
+        isSnapToGridChecked: this.isSnapToGridChecked,
+        isMapOverviewChecked: this.isMapOverviewChecked,
+        gridSpacingSize: this.gridSpacingSize,
+        groupCategoryId: this.groupCategoryCtr.value.id
+      }
+    }));
   }
 
   toggleMapOverview() {
@@ -162,7 +238,19 @@ export class ToolPanelOptionComponent implements OnInit, OnDestroy {
       this.nav = this.cy.navigator(this.config.nav_defaults);
     } else if (this.nav) {
       this.nav.destroy();
+      this.nav = undefined;
     }
+    this.store.dispatch(retrievedMapOption({
+      data: {
+        isEdgeDirectionChecked: this.isEdgeDirectionChecked,
+        isGroupBoxesChecked: this.isGroupBoxesChecked,
+        isMapGridChecked: this.isMapGridChecked,
+        isSnapToGridChecked: this.isSnapToGridChecked,
+        isMapOverviewChecked: this.isMapOverviewChecked,
+        gridSpacingSize: this.gridSpacingSize,
+        groupCategoryId: this.groupCategoryCtr.value.id
+      }
+    }));
   }
 
   reinitializeMap() {
@@ -177,21 +265,18 @@ export class ToolPanelOptionComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        // this._set_default_element_values();
-
         // remove Group Boxes if present
         if (this.isGroupBoxesChecked) {
           this.helpers.removeGroupBoxes(this.cy);
           this.isGroupBoxesChecked = false;
         }
-
         this.cy.nodes().filter('[label="map_background"]').remove()
 
         // reset default sizes
         const defaultPreferences = this.config.default_preferences
         this.cy.elements().forEach((ele: any) => {
           if (ele.group() == "edges") {
-            ele.data("line-color", defaultPreferences.edge.color );
+            ele.data("line-color", defaultPreferences.edge.color);
             ele.style("width", defaultPreferences.edge.size);
           } else {
             // text
@@ -235,6 +320,17 @@ export class ToolPanelOptionComponent implements OnInit, OnDestroy {
           this.cy.gridGuide(this.config.grid_off_options);
         }
       }
+      this.store.dispatch(retrievedMapOption({
+        data: {
+          isEdgeDirectionChecked: this.isEdgeDirectionChecked,
+          isGroupBoxesChecked: this.isGroupBoxesChecked,
+          isMapGridChecked: this.isMapGridChecked,
+          isSnapToGridChecked: this.isSnapToGridChecked,
+          isMapOverviewChecked: this.isMapOverviewChecked,
+          gridSpacingSize: this.gridSpacingSize,
+          groupCategoryId: this.groupCategoryCtr.value.id
+        }
+      }));
     });
   }
 }

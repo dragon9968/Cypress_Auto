@@ -23,13 +23,13 @@ export class CMDeleteService {
   }
 
   getMenu(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[],
-    deletedNodes: any[], deletedInterface: any[], deletedTunnel: any[]) {
+    deletedNodes: any[], deletedInterfaces: any[]) {
     return {
       id: "delete",
       content: "Delete",
       selector: "node[label!='group_box'], edge",
       onClickFunction: (event: any) => {
-        this.delete(cy, activeNodes, activePGs, activeEdges, activeGBs, deletedNodes, deletedInterface, deletedTunnel);
+        this.delete(cy, activeNodes, activePGs, activeEdges, activeGBs, deletedNodes, deletedInterfaces);
       },
       hasTrailingDivider: true,
       disabled: false,
@@ -37,24 +37,24 @@ export class CMDeleteService {
   }
 
   delete(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[],
-    deletedNodes: any[], deletedInterface: any[], deletedTunnel: any[]) {
+    deletedNodes: any[], deletedInterfaces: any[]) {
     activeEdges.forEach((edge: any) => {
       const sourceData = cy.getElementById(edge.data('source')).data();
       const targetData = cy.getElementById(edge.data('target')).data();
       if ('temp' in sourceData || 'temp' in targetData) {
         return
       } else {
-        this.helpers.removeEdge(edge, deletedTunnel, deletedInterface);
+        this.helpers.removeEdge(edge, deletedInterfaces);
         activeEdges.splice(0);
         // this.tool_panel.update_components();
       }
     });
     activeNodes.concat(activePGs, activeGBs).forEach((node: any) => {
-      this.helpers.removeNode(node, deletedNodes, deletedInterface);
+      this.helpers.removeNode(node, deletedNodes, deletedInterfaces);
       if (this.isGroupBoxesChecked) {
         cy.nodes().filter('[label="group_box"]').forEach((gb: any) => {
           if (gb.children().length == 0) {
-            this.helpers.removeNode(gb, deletedNodes, deletedInterface);
+            this.helpers.removeNode(gb, deletedNodes, deletedInterfaces);
           }
         });
       }

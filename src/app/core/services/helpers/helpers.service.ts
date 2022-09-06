@@ -426,7 +426,7 @@ export class HelpersService {
     return option ? option : {};
   }
 
-  removeNode(node: any, deletedNodes: any[], deletedInterface: any[]) {
+  removeNode(node: any, deletedNodes: any[], deletedInterfaces: any[]) {
     const data = node.data();
     if (!data.new) {
       data.deleted = true;
@@ -454,7 +454,7 @@ export class HelpersService {
         const data = ele.data();
         if (data && !data.new) {
           data.deleted = true;
-          deletedInterface.push({
+          deletedInterfaces.push({
             'name': data.id,
             'interface_id': data.interface_id
           });
@@ -497,21 +497,13 @@ export class HelpersService {
     }
   }
 
-  removeEdge(edge: any, deletedTunnel: any[], deletedInterface: any[]) {
+  removeEdge(edge: any, deletedInterfaces: any[]) {
     const data = edge.data();
     if (data && !data.new) {
-      if (data?.elem_category == 'tunnel') {
-        deletedTunnel.push({
-          'id': data.id,
-          'node_id': edge.source().data('node_id'),
-          'target_id': edge.target().data('node_id'),
-        });
-      } else {
-        deletedInterface.push({
-          'name': data.id,
-          'interface_id': data.interface_id
-        });
-      }
+      deletedInterfaces.push({
+        'name': data.id,
+        'interface_id': data.interface_id
+      });
       data.deleted = true;
     }
     return edge.remove();

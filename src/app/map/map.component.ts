@@ -19,7 +19,7 @@ import { ConfigTemplateService } from '../core/services/config-template/config-t
 import { MatDialog } from '@angular/material/dialog';
 import { AddUpdateNodeDialogComponent } from './add-update-node-dialog/add-update-node-dialog.component';
 import { selectMapEdit } from '../store/map-edit/map-edit.selectors';
-import { selectMapPref } from '../store/map-pref/map-pref.selectors';
+import { selectMapStyle } from '../store/map-style/map-style.selectors';
 import { ToastrService } from 'ngx-toastr';
 import { AddUpdatePGDialogComponent } from './add-update-pg-dialog/add-update-pg-dialog.component';
 import { AddUpdateInterfaceDialogComponent } from './add-update-interface-dialog/add-update-interface-dialog.component';
@@ -103,8 +103,7 @@ export class MapComponent implements OnInit, OnDestroy {
   isAddEdge: any;
   isAddTunnel: any;
   deletedNodes: any[] = [];
-  deletedInterface: any[] = [];
-  deletedTunnel: any[] = [];
+  deletedInterfaces: any[] = [];
   activeNodes: any[] = [];
   activePGs: any[] = [];
   activeEdges: any[] = [];
@@ -116,7 +115,7 @@ export class MapComponent implements OnInit, OnDestroy {
   connectionId!: string;
   boxSelectedNodes = new Set();
   selectMap$ = new Subscription();
-  selectMapPref$ = new Subscription();
+  selectMapStyle$ = new Subscription();
   selectMapEdit$ = new Subscription();
   selectPortGroups$ = new Subscription();
   selectIcons$ = new Subscription();
@@ -181,7 +180,7 @@ export class MapComponent implements OnInit, OnDestroy {
         this._initContextMenu();
       }
     });
-    this.selectMapPref$ = this.store.select(selectMapPref).subscribe((selectedDefaultPref: any) => {
+    this.selectMapStyle$ = this.store.select(selectMapStyle).subscribe((selectedDefaultPref: any) => {
       this.selectedDefaultPref = selectedDefaultPref;
     });
     this.selectMapEdit$ = this.store.select(selectMapEdit).subscribe((mapEdit: any) => {
@@ -223,7 +222,7 @@ export class MapComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.selectMap$.unsubscribe();
-    this.selectMapPref$.unsubscribe();
+    this.selectMapStyle$.unsubscribe();
     this.selectMapEdit$.unsubscribe();
     this.selectPortGroups$.unsubscribe();
     this.selectIcons$.unsubscribe();
@@ -244,8 +243,41 @@ export class MapComponent implements OnInit, OnDestroy {
     this.isDisableCancel = true;
   }
 
-  private _dragFreeOnNode() {
-    console.log('dragFreeOnNode');
+  private _dragFreeOnNode($event: any) {
+    const data = $event.target.data();
+    if (data && data.category != 'bg_image') {
+      if (data.new) {
+        data.new = true;
+        data.updated = false;
+        data.deleted = false;
+      } else {
+        data.new = false;
+        data.updated = true;
+        data.deleted = false;
+      }
+
+    }
+    if (data.label && data.label == 'group_box') {
+      const expandCollapse = this.cy.expandCollapse('get');
+      let gbNodes;
+      if (!data.collapsedChildren) {
+        const d = '"' + data.id + '"';
+        gbNodes = this.cy.nodes().filter(`[domain=${d}]`);
+      } else {
+        gbNodes = expandCollapse.getCollapsedChildrenRecursively($event.target);
+      }
+
+      if (gbNodes.length) {
+        gbNodes.forEach((node: any) => {
+          if (node.group() == 'nodes') {
+            const data = node.data();
+            if (!data.new) {
+              data.updated = true;
+            }
+          }
+        });
+      }
+    }
   }
 
   private _zoom() { }
@@ -690,8 +722,7 @@ export class MapComponent implements OnInit, OnDestroy {
           this.activeEdges,
           this.activeGBs,
           this.deletedNodes,
-          this.deletedInterface,
-          this.deletedTunnel
+          this.deletedInterfaces,
         ),
         this.cmGroupBoxService.getCollapseMenu(),
         this.cmGroupBoxService.getExpandMenu(),
