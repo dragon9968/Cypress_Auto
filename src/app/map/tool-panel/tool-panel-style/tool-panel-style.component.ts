@@ -38,6 +38,9 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   textBGColor = '#000000';
   textBGOpacity = 0.0;
   selectDefaultPreferences$ = new Subscription();
+  isHideNode = true;
+  vAlignSelect?: string;
+  hAlignSelect?: string;
 
   constructor(
     private domSanitizer: DomSanitizer,
@@ -61,25 +64,24 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
     })
   }
 
+  ngDoCheck(): void {
+    this.isHideNode = this.activeNodes.length == 0;
+    if (this.activeNodes.length == 1) {
+      const data = this.activeNodes[0].data();
+      this.nodeSize = data.height.replace('px', '');
+      this.textSize = typeof data.text_size === 'number' && !isNaN(data.text_size) ? data.text_size : data.text_size.replace('px', '');
+      this.textColor = data.text_color;
+      this.textBGColor = data.text_bg_color;
+      this.textBGOpacity = data.text_bg_opacity;
+      this.vAlignSelect = data.text_valign;
+      this.hAlignSelect = data.text_halign;
+    }
+  }
+
   ngOnInit(): void {
     this.mapPrefService.getAll().subscribe(data => {
       this.mapPrefs = data.result;
     });
-  }
-
-  ngOnChanges(valueChange: any) {
-    if (valueChange.config.currentValue) {
-      const d = this.config.default_preferences;
-      this.nodeSize = d.node.width.replace('px', '');
-      this.textSize = d.text.size.replace('px', '');
-      this.textColor = d.text.color;
-      this.edgeSize = d.edge.size.replace('px', '');
-      this.edgeColor = d.edge.color;
-      this.pgSize = d.port_group.size.replace('px', '');
-      this.pgColor = d.port_group.color;
-      this.gbColor = d.group_box.color;
-      this.gbOpacity = d.group_box.group_opacity;
-    }
   }
 
   ngOnDestroy(): void {
@@ -101,12 +103,42 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   }
 
   setTextVAlign(value: string) {
-    console.log(value);
+    const newTextValign = value;
+    const activeEles = this.activeNodes.concat(this.activePGs);
+    this.changeTextVAlign({activeEles, newTextValign});
   }
 
-  setTextHAlign(value: string) {
-    console.log(value);
+  changeTextVAlign(data: any) {
+    data.activeEles.forEach((ele: any) => {
+      data.old_text_valign = ele.data("text_valign");
+      ele.data("text_valign", data.newTextValign);
+      const d = ele.data();
+      if (!d.new) {
+        d.updated = true;
+      }
+    })
+    return data;
   }
+
+
+  setTextHAlign(value: string) {
+    const newTextHalign = value;
+    const activeEles = this.activeNodes.concat(this.activePGs);
+    this.changeTextHAlign({activeEles, newTextHalign});
+  }
+
+  changeTextHAlign(data: any) {
+    data.activeEles.forEach((ele: any) => {
+      data.old_text_halign = ele.data("text_halign");
+      ele.data("text_halign", data.newTextHalign);
+      const d = ele.data();
+      if (!d.new) {
+        d.updated = true;
+      }
+    })
+    return data;
+  }
+
 
   setDirection(value: string) {
     console.log(value);
@@ -114,5 +146,122 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
 
   setGBType(value: string) {
     console.log(value);
+  }
+
+  setNodeSize() {
+    const data = this.changeNodeSize({activeNodes: this.activeNodes, nodeSize: this.nodeSize});
+    this.activeNodes = data.activeNodes;
+  }
+
+  changeNodeSize(data: any) {
+    data.nodeSize = data.nodeSize <= 200 ? data.nodeSize : 200;
+    const newIconSize = data.nodeSize + "px";
+    data.activeNodes.forEach((ele: any) => {
+      data.old_icon_size = ele.data("width")
+      if (ele.data("elem_category") != "port_group" && ele.data("label") != "map_background") {
+        ele.data("width", newIconSize);
+        ele.data("height", newIconSize);
+        const d = ele.data();
+        if (!d.new) {
+          d.updated = true;
+        }
+      }
+    })
+    return data;
+  }
+
+  setTextColor(color: string) {
+    this._setColorCommon(color, this.changTextColor.bind(this));
+  }
+
+  changTextColor(data: any) {
+    data.activeEles.forEach((ele : any) => {
+      data.old_text_color = ele.data("text_color")
+      if (ele.data("label") == "map_background") {
+        data.newColor = "#ffffff";
+      } else {
+        if (!ele.data('label')) {
+          const d = ele.data();
+          if (!d.new) {
+            d.updated = true;
+          }
+        }
+      }
+      ele.data("text_color", data.newColor);
+    })
+    this.textColor = this.helper.fullColorHex(data?.newColor)
+    return data
+  }
+
+  setTextSize(size: any) {
+    const newTextSize = size.value
+    const activeEles = this.activeNodes.concat(this.activeEdges, this.activePGs);
+    this.changeTextSize({activeEles, newTextSize})
+  }
+
+  changeTextSize(data: any) {
+    data.activeEles.forEach((ele: any) => {
+      data.old_text_size = ele.data("text_size");
+      ele.data("text_size", data.newTextSize);
+      if (!ele.data('label')) {
+        const d = ele.data();
+        if (!d.new) {
+          d.updated = true;
+        }
+      }
+    })
+    this.textSize = data.newTextSize <= 200 ? data.newTextSize : 200;
+    return data;
+  }
+
+  changeTextBGOpacity(data: any) {
+    data.activeEles.forEach((ele: any) => {
+      data.old_text_bg_opacity = ele.data("text_bg_opacity");
+      ele.data("text_bg_opacity", data.newTextBgOpacity);
+      const d = ele.data();
+      if (!d.new) {
+        d.updated = true;
+      }
+    })
+    this.textBGOpacity = data.newTextBgOpacity;
+    return data;
+  }
+
+  setTextBGOpacity(opacity: any) {
+    const newTextBgOpacity = opacity.value;
+    const activeEles = this.activeNodes.concat(this.activeEdges, this.activePGs);
+    this.changeTextBGOpacity({activeEles, newTextBgOpacity})
+  }
+
+  setTextBGColor(color: any) {
+    this._setColorCommon(color, this.changeTextBGColor.bind(this));
+  }
+
+  private _setColorCommon(color: any, changeColorFunc: Function) {
+    const hexPattern = '#d{0,}';
+    const hexColor = color;
+    const hexPatternFound = hexColor.match(hexPattern)
+    if (hexPatternFound) {
+      const r = parseInt(hexColor.slice(1, 3), 16).toString();
+      const g = parseInt(hexColor.slice(3, 5), 16).toString();
+      const b = parseInt(hexColor.slice(5, 7), 16).toString();
+      const newColor = "rgb(" + r + ',' + g + ',' + b + ")";
+      const activeEles = this.activeNodes.concat(this.activeEdges, this.activePGs, this.activeGBs);
+      changeColorFunc({ activeEles, newColor });
+    }
+  }
+
+  changeTextBGColor(data: any) {
+    data.activeEles.forEach((ele: any) => {
+      data.old_text_bg_color = ele.data("text_bg_color");
+      ele.data("text_bg_color", data.newColor);
+      const d = ele.data();
+      if (!d.new) {
+        d.updated = true;
+      }
+    })
+
+    this.textBGColor = this.helper.fullColorHex(data.newColor);
+    return data;
   }
 }

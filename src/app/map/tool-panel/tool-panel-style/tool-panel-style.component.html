@@ -19,12 +19,12 @@
     </div>
 </section>
 
-<section class="tab-section" hidden="{{activeNodes.length == 0}}">
+<section class="tab-section" [hidden]="isHideNode">
     <mat-divider></mat-divider>
     <h4>Node</h4>
     <div class="tab-field">
         <label>Size</label>
-        <mat-slider class="slider" step="1" min="1" max="100" [(ngModel)]="nodeSize"></mat-slider>
+        <mat-slider class="slider" step="1" min="1" max="100" [(ngModel)]="nodeSize" (change)="setNodeSize()"></mat-slider>
         <label>{{ nodeSize }}px</label>
     </div>
 </section>
@@ -110,41 +110,40 @@
         </button>
     </div>
 </section>
-<section class="tab-section"
-    hidden="{{activeNodes.length + activePGs.length + activeEdges.length + activeGBs.length == 0}}">
+<section class="tab-section" [hidden]="isHideNode">
     <mat-divider></mat-divider>
     <h4>Text</h4>
     <div class="tab-field">
         <label for="textColor">Color</label>
         <button mat-mini-fab id="textColor" class="color-picker" [(colorPicker)]="textColor"
-            [style.background]="textColor" cpPosition="bottom"></button>
+            [style.background]="textColor" cpPosition="bottom" (colorPickerChange)="setTextColor($event)"></button>
     </div>
     <div class="tab-field">
         <label>Size</label>
-        <mat-slider class="slider" step="1" min="0" max="200" [(ngModel)]="textSize"></mat-slider>
+        <mat-slider class="slider" step="1" min="0" max="200" [(ngModel)]="textSize" (change)="setTextSize($event)"></mat-slider>
         <label>{{ textSize }}px</label>
     </div>
     <div class="tab-field text-align">
         <label>V Align</label>
-        <button mat-mini-fab color="primary" matTooltip="Top" (click)="setTextVAlign('top')">
+        <button mat-mini-fab color="primary" matTooltip="Top" [class.mat-accent]="vAlignSelect == 'top'" (click)="setTextVAlign('top')">
             <mat-icon>align_vertical_top</mat-icon>
         </button>
-        <button mat-mini-fab color="primary" matTooltip="Center" (click)="setTextVAlign('center')">
+        <button mat-mini-fab color="primary" matTooltip="Center" [class.mat-accent]="vAlignSelect == 'center'" (click)="setTextVAlign('center')">
             <mat-icon>align_vertical_center</mat-icon>
         </button>
-        <button mat-mini-fab color="primary" matTooltip="Bottom" (click)="setTextVAlign('bottom')">
+        <button mat-mini-fab color="primary" matTooltip="Bottom" [class.mat-accent]="vAlignSelect == 'bottom'" (click)="setTextVAlign('bottom')">
             <mat-icon>align_vertical_bottom</mat-icon>
         </button>
     </div>
     <div class="tab-field text-align">
         <label>H Align</label>
-        <button mat-mini-fab color="primary" matTooltip="Left" (click)="setTextHAlign('left')">
+        <button mat-mini-fab color="primary" matTooltip="Left" [class.mat-accent]="hAlignSelect == 'left'" (click)="setTextHAlign('left')">
             <mat-icon>align_horizontal_left</mat-icon>
         </button>
-        <button mat-mini-fab color="primary" matTooltip="Center" (click)="setTextHAlign('center')">
+        <button mat-mini-fab color="primary" matTooltip="Center" [class.mat-accent]="hAlignSelect == 'center'" (click)="setTextHAlign('center')">
             <mat-icon>align_horizontal_center</mat-icon>
         </button>
-        <button mat-mini-fab color="primary" matTooltip="Right" (click)="setTextHAlign('right')">
+        <button mat-mini-fab color="primary" matTooltip="Right" [class.mat-accent]="hAlignSelect == 'right'" (click)="setTextHAlign('right')">
             <mat-icon>align_horizontal_right</mat-icon>
         </button>
     </div>
@@ -152,11 +151,11 @@
     <div class="tab-field">
         <label for="textBGColor">Color</label>
         <button mat-mini-fab id="textBGColor" class="color-picker" [(colorPicker)]="textBGColor"
-            [style.background]="textBGColor" cpPosition="bottom"></button>
+            [style.background]="textBGColor" cpPosition="bottom" (colorPickerChange)="setTextBGColor($event)"></button>
     </div>
     <div class="tab-field">
         <label>Opacity</label>
-        <mat-slider class="slider" step="0.01" min="0" max="1" [(ngModel)]="textBGOpacity"></mat-slider>
+        <mat-slider class="slider" step="0.01" min="0" max="1" [(ngModel)]="textBGOpacity" (change)="setTextBGOpacity($event)"></mat-slider>
         <label>{{ textBGOpacity*100 }}%</label>
     </div>
 </section>

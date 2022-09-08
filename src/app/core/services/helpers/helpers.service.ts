@@ -509,15 +509,42 @@ export class HelpersService {
     return edge.remove();
   }
 
-  hexToRGB(hex_color: string) {
+  hexToRGB(hexColor: string) {
     const hexPattern = '#d{0,}'
-    const hexPatternFound = hex_color.match(hexPattern)
+    const hexPatternFound = hexColor.match(hexPattern)
     if (hexPatternFound) {
-      const r = parseInt(hex_color.slice(1, 3), 16).toString()
-      const g = parseInt(hex_color.slice(3, 5), 16).toString()
-      const b = parseInt(hex_color.slice(5, 7), 16).toString()
+      const r = parseInt(hexColor.slice(1, 3), 16).toString()
+      const g = parseInt(hexColor.slice(3, 5), 16).toString()
+      const b = parseInt(hexColor.slice(5, 7), 16).toString()
       return "rgb(" + r + ',' + g + ',' + b + ")"
     }
     return undefined;
   }
+
+  fullColorHex(rgbColor: any) {
+    // check if value is already in a hex format
+    const hexPattern = '#\d{0,}'
+    const hexPatternFound = rgbColor.match(hexPattern)
+    if (hexPatternFound != null) {
+      return (rgbColor)
+    }
+    else {
+      const rgbArray = rgbColor.match("rgb\\((\\d{1,},\\d{1,},\\d{1,})"); // retrieves the RGB numbers into an array
+      let rgb = rgbArray[1];
+      rgb = rgb.split(","); // split the RGB color array
+      const red = this.rgbToHex(rgb[0]);
+      const green = this.rgbToHex(rgb[1]);
+      const blue = this.rgbToHex(rgb[2]);
+      return "#" + red + green + blue;
+    }
+  }
+
+  rgbToHex(rgb: any) {
+    let hex = Number(rgb).toString(16);
+    if (hex.length < 2) {
+      hex = "0" + hex;
+    }
+    return hex;
+  }
+
 }
