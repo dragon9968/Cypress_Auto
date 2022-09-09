@@ -32,6 +32,7 @@ $margin: 8px;
     height: 40px;
     margin: 0 $margin;
     cursor: pointer;
+    z-index: 1;
     &.mat-mini-fab {
       position: relative;
     }

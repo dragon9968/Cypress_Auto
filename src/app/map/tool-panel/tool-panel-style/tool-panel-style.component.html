@@ -4,7 +4,7 @@
         <mat-label>Map Preference</mat-label>
         <input matInput type="text" placeholder="Select Map Preference" [formControl]="mapPrefCtr"
             [matAutocomplete]="autoMapPref">
-        <mat-autocomplete #autoMapPref="matAutocomplete" [displayWith]="helper.optionDisplay"
+        <mat-autocomplete #autoMapPref="matAutocomplete" [displayWith]="helpers.optionDisplay"
             (optionSelected)="selectMapPref($event)">
             <mat-option *ngFor="let option of mapPrefs" [value]="option">
                 {{ option.name }}
@@ -61,17 +61,17 @@
         <label>{{ arrowSize }}px</label>
     </div>
 </section>
-<section class="tab-section" hidden="{{activePGs.length == 0}}">
+<section class="tab-section" [hidden]="isHidePGs">
     <mat-divider></mat-divider>
     <h4>Port Group</h4>
     <div class="tab-field">
         <label for="pgColor">Color</label>
         <button mat-mini-fab id="pgColor" class="color-picker" [(colorPicker)]="pgColor" [style.background]="pgColor"
-            cpPosition="bottom"></button>
+            cpPosition="bottom" (colorPickerChange)="setPGColor($event)"></button>
     </div>
     <div class="tab-field">
         <label>Size</label>
-        <mat-slider class="slider" step="1" min="1" max="50" [(ngModel)]="pgSize"></mat-slider>
+        <mat-slider class="slider" step="1" min="1" max="50" [(ngModel)]="pgSize" (change)="setPGSize($event)"></mat-slider>
         <label>{{ pgSize }}px</label>
     </div>
 </section>
@@ -110,7 +110,7 @@
         </button>
     </div>
 </section>
-<section class="tab-section" [hidden]="isHideNode">
+<section class="tab-section" [hidden]="isHideText">
     <mat-divider></mat-divider>
     <h4>Text</h4>
     <div class="tab-field">

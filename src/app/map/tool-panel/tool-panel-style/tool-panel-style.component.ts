@@ -38,7 +38,9 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   textBGColor = '#000000';
   textBGOpacity = 0.0;
   selectDefaultPreferences$ = new Subscription();
-  isHideNode = true;
+  isHideNode: boolean = true;
+  isHidePGs: boolean = true;
+  isHideText: boolean = true;
   vAlignSelect?: string;
   hAlignSelect?: string;
 
@@ -46,7 +48,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
     private domSanitizer: DomSanitizer,
     private mapPrefService: MapPrefService,
     private store: Store,
-    public helper: HelpersService,
+    public helpers: HelpersService,
     iconRegistry: MatIconRegistry,
   ) {
     iconRegistry.addSvgIcon('dashed', this.setPath('/assets/icons/dashed.svg'));
@@ -66,16 +68,32 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
 
   ngDoCheck(): void {
     this.isHideNode = this.activeNodes.length == 0;
+    this.isHidePGs = this.activePGs.length == 0;
+    this.isHideText = this.activeNodes.length + this.activePGs.length + this.activeEdges.length + this.activeGBs.length == 0;
     if (this.activeNodes.length == 1) {
       const data = this.activeNodes[0].data();
       this.nodeSize = data.height.replace('px', '');
-      this.textSize = typeof data.text_size === 'number' && !isNaN(data.text_size) ? data.text_size : data.text_size.replace('px', '');
-      this.textColor = data.text_color;
-      this.textBGColor = data.text_bg_color;
-      this.textBGOpacity = data.text_bg_opacity;
-      this.vAlignSelect = data.text_valign;
-      this.hAlignSelect = data.text_halign;
+      this.textSize = this.removePx(data.text_size);
+      this._setPropertiesCommon(data);
     }
+    if (this.activePGs.length == 1) {
+      const data = this.activePGs[0].data();
+      this.pgColor = data.color;
+      this.pgSize = this.removePx(data.height);
+      this._setPropertiesCommon(data);
+    }
+  }
+
+  private _setPropertiesCommon(data: any) {
+    this.textColor = data.text_color;
+    this.textBGColor = data.text_bg_color;
+    this.textBGOpacity = data.text_bg_opacity;
+    this.vAlignSelect = data.text_valign;
+    this.hAlignSelect = data.text_halign;
+  }
+
+  removePx(value: any){
+    return typeof value === 'number' && !isNaN(value) ? value : value.replace('px', '');
   }
 
   ngOnInit(): void {
@@ -189,7 +207,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
       }
       ele.data("text_color", data.newColor);
     })
-    this.textColor = this.helper.fullColorHex(data?.newColor)
+    this.textColor = this.helpers.fullColorHex(data?.newColor)
     return data
   }
 
@@ -261,7 +279,53 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
       }
     })
 
-    this.textBGColor = this.helper.fullColorHex(data.newColor);
+    this.textBGColor = this.helpers.fullColorHex(data.newColor);
     return data;
   }
+
+  setPGColor(color: string) {
+    const newPgColor = color;
+    const activePGs = this.activePGs;
+    this.changePGColor({activePGs, newPgColor});
+  }
+
+  changePGColor(data: any) {
+    data.activePGs.forEach((ele: any) => {
+      data.old_pg_color = ele.data("color");
+      if (ele.data("elem_category") == "port_group") {
+        ele.data("color", data.newPgColor);
+        const d = ele.data();
+        if (!d.new) {
+          d.updated = true;
+        }
+      }
+    })
+
+    this.pgColor = this.helpers.fullColorHex(data.newPgColor);
+    return data;
+  }
+
+  setPGSize(size: any) {
+    const newPgSize = size.value;
+    const activePgs = this.activePGs;
+    this.changePGSize({activePgs, newPgSize});
+  }
+
+  changePGSize(data: any) {
+    data.activePgs.forEach((ele: any) => {
+      data.old_pg_size = ele.data("width")
+      if (ele.data("elem_category") == "port_group") {
+        ele.data("width", data.newPgSize);
+        ele.data("height", data.newPgSize);
+        ele.style({ "background-fit": "cover" });
+        const d = ele.data();
+        if (!d.new) {
+          d.updated = true;
+        }
+      }
+    })
+    this.pgSize = data.newPgSize <= 200 ? data.newPgSize : 200;
+    return data;
+  }
+
 }
