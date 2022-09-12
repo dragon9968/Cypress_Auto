@@ -41,8 +41,10 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   isHideNode: boolean = true;
   isHidePGs: boolean = true;
   isHideText: boolean = true;
+  isHideEdge: boolean = true;
   vAlignSelect?: string;
   hAlignSelect?: string;
+  arrowActivated?: string;
 
   constructor(
     private domSanitizer: DomSanitizer,
@@ -68,6 +70,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
 
   ngDoCheck(): void {
     this.isHideNode = this.activeNodes.length == 0;
+    this.isHideEdge = this.activeEdges.length == 0;
     this.isHidePGs = this.activePGs.length == 0;
     this.isHideText = this.activeNodes.length + this.activePGs.length + this.activeEdges.length + this.activeGBs.length == 0;
     if (this.activeNodes.length == 1) {
@@ -80,6 +83,15 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
       const data = this.activePGs[0].data();
       this.pgColor = data.color;
       this.pgSize = this.removePx(data.height);
+      this._setPropertiesCommon(data);
+    }
+    if (this.activeEdges.length == 1) {
+      const data = this.activeEdges[0].data();
+      this.textSize = this.removePx(data.text_size);
+      this.edgeColor = data.color;
+      this.edgeSize = this.removePx(data.width);
+      this.arrowActivated = data.direction;
+      this.arrowSize = data.arrow_scale ? this.removePx(data.arrow_scale): 1;
       this._setPropertiesCommon(data);
     }
   }
@@ -159,7 +171,20 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
 
 
   setDirection(value: string) {
-    console.log(value);
+    const newDirection = value;
+    this.changeDirection({activeEdges: this.activeEdges, newDirection});
+  }
+
+  changeDirection(data: any) {
+    data.activeEdges.forEach((ele: any) => {
+      data.old_direction = ele.data("direction")
+      ele.data("direction", data.newDirection);
+      const d = ele.data();
+      if (!d.new) {
+        d.updated = true;
+      }
+    })
+    return data;
   }
 
   setGBType(value: string) {
@@ -285,8 +310,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
 
   setPGColor(color: string) {
     const newPgColor = color;
-    const activePGs = this.activePGs;
-    this.changePGColor({activePGs, newPgColor});
+    this.changePGColor({activePGs: this.activePGs, newPgColor});
   }
 
   changePGColor(data: any) {
@@ -307,8 +331,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
 
   setPGSize(size: any) {
     const newPgSize = size.value;
-    const activePgs = this.activePGs;
-    this.changePGSize({activePgs, newPgSize});
+    this.changePGSize({activePgs: this.activePGs, newPgSize});
   }
 
   changePGSize(data: any) {
@@ -328,4 +351,57 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
     return data;
   }
 
+  setEdgeColor(color: string) {
+    const newEdgeColor = color;
+    this.changeEdgeColor({activeEdges: this.activeEdges, newEdgeColor});
+  }
+
+  changeEdgeColor(data: any) {
+    data.activeEdges.forEach((ele: any) => {
+      data.old_edge_color = ele.data("color")
+      ele.data("color", data.newEdgeColor);
+      const d = ele.data();
+      if (!d.new) {
+        d.updated = true;
+      }
+    })
+    this.edgeColor = this.helpers.fullColorHex(data.newEdgeColor);
+    return data;
+  }
+
+  setEdgeSize(size: any) {
+    const newEdgeSize = size.value;
+    this.changeEdgeSize({activeEdges: this.activeEdges, newEdgeSize});
+  }
+
+  changeEdgeSize(data: any) {
+    data.activeEdges.forEach((ele: any) => {
+      data.old_edge_size = ele.data("width");
+      ele.data("width", data.newEdgeSize);
+      const d = ele.data();
+      if (!d.new) {
+        d.updated = true;
+      }
+    })
+    this.edgeSize = data.newEdgeSize <= 50 ? data.newEdgeSize : 50;
+    return data;
+  }
+
+  setArrowScale(size: any) {
+    const newArrowScale = size.value;
+    this.changeArrowScale({ activeEdges: this.activeEdges, newArrowScale });
+  }
+
+  changeArrowScale(data: any) {
+    data.activeEdges.forEach((ele: any) => {
+      data.old_arrow_scale = ele.data("arrow_scale");
+      ele.data("arrow_scale", data.newArrowScale);
+      const d = ele.data();
+      if (!d.new) {
+        d.updated = true;
+      }
+    })
+    this.arrowSize = data.newArrowScale <= 200 ? data.newArrowScale : 200;
+    return data;
+  }
 }

@@ -29,35 +29,35 @@
     </div>
 </section>
 
-<section class="tab-section" hidden="{{activeEdges.length == 0}}">
+<section class="tab-section" [hidden]="isHideEdge">
     <mat-divider></mat-divider>
     <h4>Edge</h4>
     <div class="tab-field">
         <label for="edgeColor">Color</label>
         <button mat-mini-fab id="edgeColor" class="color-picker" [(colorPicker)]="edgeColor"
-            [style.background]="edgeColor" cpPosition="bottom"></button>
+            [style.background]="edgeColor" cpPosition="bottom" (colorPickerChange)="setEdgeColor($event)"></button>
     </div>
     <div class="tab-field">
         <label>Size</label>
-        <mat-slider class="slider" step="1" min="1" max="50" [(ngModel)]="edgeSize"></mat-slider>
+        <mat-slider class="slider" step="1" min="1" max="50" [(ngModel)]="edgeSize" (change)="setEdgeSize($event)"></mat-slider>
         <label>{{ edgeSize }}px</label>
     </div>
     <h4>Arrow</h4>
     <div class="tab-field direction">
         <label>Direction</label>
-        <button mat-mini-fab color="primary" matTooltip="Both" (click)="setDirection('both')">
+        <button mat-mini-fab color="primary" matTooltip="Both" [class.mat-accent]="arrowActivated == 'both'" (click)="setDirection('both')">
             <mat-icon>sync_alt</mat-icon>
         </button>
-        <button mat-mini-fab color="primary" matTooltip="Inbound" (click)="setDirection('inbound')">
+        <button mat-mini-fab color="primary" matTooltip="Inbound" [class.mat-accent]="arrowActivated == 'inbound'" (click)="setDirection('inbound')">
             <mat-icon>west</mat-icon>
         </button>
-        <button mat-mini-fab color="primary" matTooltip="Outbound" (click)="setDirection('outbound')">
+        <button mat-mini-fab color="primary" matTooltip="Outbound" [class.mat-accent]="arrowActivated == 'outbound'" (click)="setDirection('outbound')">
             <mat-icon>east</mat-icon>
         </button>
     </div>
     <div class="tab-field">
         <label>Size</label>
-        <mat-slider class="slider" step="1" min="1" max="10" [(ngModel)]="arrowSize"></mat-slider>
+        <mat-slider class="slider" step="1" min="1" max="10" [(ngModel)]="arrowSize" (change)="setArrowScale($event)"></mat-slider>
         <label>{{ arrowSize }}px</label>
     </div>
 </section>
