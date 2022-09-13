@@ -75,37 +75,37 @@
         <label>{{ pgSize }}px</label>
     </div>
 </section>
-<section class="tab-section" hidden="{{activeGBs.length == 0}}">
+<section class="tab-section" [hidden]="isHideGBs">
     <mat-divider></mat-divider>
     <h4>Group Box</h4>
     <div class="tab-field">
         <label for="gbColor">Color</label>
         <button mat-mini-fab id="gbColor" class="color-picker" [(colorPicker)]="gbColor" [style.background]="gbColor"
-            cpPosition="bottom"></button>
+            cpPosition="bottom" (colorPickerChange)="setGBColor($event)"></button>
     </div>
     <div class="tab-field">
         <label>Opacity</label>
-        <mat-slider class="slider" step="0.01" min="0" max="1" [(ngModel)]="gbOpacity"></mat-slider>
+        <mat-slider class="slider" step="0.01" min="0" max="1" [(ngModel)]="gbOpacity" (change)="setGBOpacity($event)"></mat-slider>
         <label>{{ gbOpacity*100 }}%</label>
     </div>
     <h4>Group Box Border</h4>
     <div class="tab-field">
         <label for="gbBorderColor">Color</label>
         <button mat-mini-fab id="gbBorderColor" class="color-picker" [(colorPicker)]="gbBorderColor"
-            [style.background]="gbBorderColor" cpPosition="bottom"></button>
+            [style.background]="gbBorderColor" cpPosition="bottom" (colorPickerChange)="setGBBorderColor($event)"></button>
     </div>
     <div class="tab-field direction">
         <label>Type</label>
-        <button mat-mini-fab color="primary" matTooltip="Solid" (click)="setGBType('solid')">
+        <button mat-mini-fab color="primary" matTooltip="Solid" [class.mat-accent]="gbBorderTypeActivated == 'solid'" (click)="setGBType('solid')">
             <mat-icon>horizontal_rule</mat-icon>
         </button>
-        <button mat-mini-fab color="primary" matTooltip="Dotted" (click)="setGBType('dotted')">
+        <button mat-mini-fab color="primary" matTooltip="Dotted" [class.mat-accent]="gbBorderTypeActivated == 'dotted'" (click)="setGBType('dotted')">
             <mat-icon>more_horiz</mat-icon>
         </button>
-        <button mat-mini-fab color="primary" matTooltip="Dashed" (click)="setGBType('dashed')">
+        <button mat-mini-fab color="primary" matTooltip="Dashed" [class.mat-accent]="gbBorderTypeActivated == 'dashed'" (click)="setGBType('dashed')">
             <mat-icon svgIcon="dashed"></mat-icon>
         </button>
-        <button mat-mini-fab color="primary" matTooltip="Double" (click)="setGBType('double')">
+        <button mat-mini-fab color="primary" matTooltip="Double" [class.mat-accent]="gbBorderTypeActivated == 'double'" (click)="setGBType('double')">
             <mat-icon svgIcon="double"></mat-icon>
         </button>
     </div>

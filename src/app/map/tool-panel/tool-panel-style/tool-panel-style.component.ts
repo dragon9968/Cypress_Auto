@@ -42,9 +42,11 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   isHidePGs: boolean = true;
   isHideText: boolean = true;
   isHideEdge: boolean = true;
+  isHideGBs: boolean = true;
   vAlignSelect?: string;
   hAlignSelect?: string;
   arrowActivated?: string;
+  gbBorderTypeActivated?: string;
 
   constructor(
     private domSanitizer: DomSanitizer,
@@ -72,20 +74,21 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
     this.isHideNode = this.activeNodes.length == 0;
     this.isHideEdge = this.activeEdges.length == 0;
     this.isHidePGs = this.activePGs.length == 0;
+    this.isHideGBs = this.activeGBs.length == 0;
     this.isHideText = this.activeNodes.length + this.activePGs.length + this.activeEdges.length + this.activeGBs.length == 0;
-    if (this.activeNodes.length == 1) {
+    if (this.activeNodes.length >= 1) {
       const data = this.activeNodes[0].data();
       this.nodeSize = data.height.replace('px', '');
       this.textSize = this.removePx(data.text_size);
       this._setPropertiesCommon(data);
     }
-    if (this.activePGs.length == 1) {
+    if (this.activePGs.length >= 1) {
       const data = this.activePGs[0].data();
       this.pgColor = data.color;
       this.pgSize = this.removePx(data.height);
       this._setPropertiesCommon(data);
     }
-    if (this.activeEdges.length == 1) {
+    if (this.activeEdges.length >= 1) {
       const data = this.activeEdges[0].data();
       this.textSize = this.removePx(data.text_size);
       this.edgeColor = data.color;
@@ -93,6 +96,14 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
       this.arrowActivated = data.direction;
       this.arrowSize = data.arrow_scale ? this.removePx(data.arrow_scale): 1;
       this._setPropertiesCommon(data);
+    }
+    if (this.activeGBs.length >= 1) {
+      const data = this.activeGBs[0].data();
+      this.gbColor = data.color;
+      this.gbOpacity = data.group_opacity;
+      this.gbBorderColor = data.border_color;
+      this.gbBorderTypeActivated = data.border_style;
+      this.textColor = data.text_color;
     }
   }
 
@@ -187,8 +198,22 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
     return data;
   }
 
-  setGBType(value: string) {
-    console.log(value);
+  setGBType(newGbBorderType: string) {
+    this.changeGBType({activeGbs: this.activeGBs, newGbBorderType});
+  }
+
+  changeGBType(data: any) {
+    data.activeGbs.forEach((ele: any) => {
+      data.old_gb_border_type = ele.data("border_style");
+      ele._private['data'] = {...ele._private['data']};
+      ele.data("border_style", data.newGbBorderType);
+      const d = ele.data();
+      if (!d.new) {
+        d.updated = true;
+      }
+    })
+    this.gbBorderTypeActivated = data.newGbBorderType;
+    return data;
   }
 
   setNodeSize() {
@@ -219,7 +244,8 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
 
   changTextColor(data: any) {
     data.activeEles.forEach((ele : any) => {
-      data.old_text_color = ele.data("text_color")
+      data.old_text_color = ele.data("text_color");
+      ele._private['data'] = {...ele._private['data']};
       if (ele.data("label") == "map_background") {
         data.newColor = "#ffffff";
       } else {
@@ -232,8 +258,8 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
       }
       ele.data("text_color", data.newColor);
     })
-    this.textColor = this.helpers.fullColorHex(data?.newColor)
-    return data
+    this.textColor = this.helpers.fullColorHex(data?.newColor);
+    return data;
   }
 
   setTextSize(size: any) {
@@ -297,6 +323,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   changeTextBGColor(data: any) {
     data.activeEles.forEach((ele: any) => {
       data.old_text_bg_color = ele.data("text_bg_color");
+      ele._private['data'] = {...ele._private['data']};
       ele.data("text_bg_color", data.newColor);
       const d = ele.data();
       if (!d.new) {
@@ -402,6 +429,63 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
       }
     })
     this.arrowSize = data.newArrowScale <= 200 ? data.newArrowScale : 200;
+    return data;
+  }
+
+  setGBColor(newGbColor: string) {
+    this.changeGBColor({activeGbs: this.activeGBs, newGbColor});
+  }
+
+  changeGBColor(data: any) {
+    data.activeGbs.forEach((ele: any) => {
+      data.old_gb_color = ele.data("color");
+      ele._private['data'] = {...ele._private['data']};
+      ele.data("color", data.newGbColor);
+      const d = ele.data();
+      if (!d.new) {
+        d.updated = true;
+      }
+    });
+
+    this.gbColor = this.helpers.fullColorHex(data.newGbColor);
+    return data;
+  }
+
+  setGBOpacity(event: any) {
+    const newGbOpacity = event.value;
+    this.changeGBOpacity({activeGbs: this.activeGBs, newGbOpacity});
+  }
+
+  changeGBOpacity(data: any) {
+    data.activeGbs.forEach((ele: any) => {
+      data.old_gb_opacity = ele.data("group_opacity");
+      ele._private['data'] = {...ele._private['data']};
+      ele.data("group_opacity", data.newGbOpacity);
+      const d = ele.data();
+      if (!d.new) {
+        d.updated = true;
+      }
+    })
+    this.gbOpacity = data.newGbOpacity;
+    return data;
+  }
+
+  setGBBorderColor(newGbBorderColor: string) {
+    this.changeGBBorderColor({activeGbs: this.activeGBs, newGbBorderColor});
+  }
+
+  changeGBBorderColor(data: any) {
+    data.activeGbs.forEach((ele: any) => {
+      data.old_gb_border_color = ele.data("border_color");
+      ele._private['data'] = {...ele._private['data']};
+      ele.data("border_color", data.newGbBorderColor);
+      const d = ele.data();
+      if (!d.new) {
+        d.updated = true;
+      }
+    })
+
+    this.gbBorderColor = this.helpers.fullColorHex(data.newGbBorderColor);
     return data;
   }
 }
