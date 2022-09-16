@@ -25,35 +25,39 @@ export class CMViewDetailsService {
       content: "View",
       selector: "node[label!='group_box'], edge",
       onClickFunction: (event: any) => {
-        let data = event.target.data()
-        if (data.interface_id) {
-          this.interfaceService.get(data.interface_id).subscribe(interfaceData => {
-            const dialogData = {
-              mode: 'view',
-              genData: interfaceData.result,
-            }
-            this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', data: dialogData });
-          });
-        } else if (data.pg_id) {
-          this.portGroupService.get(data.pg_id).subscribe(pgData => {
-            const dialogData = {
-              mode: 'view',
-              genData: pgData.result,
-            }
-            this.dialog.open(AddUpdatePGDialogComponent, { width: '600px', data: dialogData });
-          });
-        } else if (data.node_id) {
-          this.nodeService.get(data.node_id).subscribe(nodeData => {
-            const dialogData = {
-              mode: 'view',
-              genData: nodeData.result,
-            }
-            this.dialog.open(AddUpdateNodeDialogComponent, { width: '600px', data: dialogData });
-          });
-        }
+        this.openViewDetailForm(event);
       },
       hasTrailingDivider: false,
       disabled: false,
+    }
+  }
+
+  openViewDetailForm(event: any) {
+    let data = event.target.data()
+    if (data.interface_id) {
+      this.interfaceService.get(data.interface_id).subscribe(interfaceData => {
+        const dialogData = {
+          mode: 'view',
+          genData: interfaceData.result,
+        }
+        this.dialog.open(AddUpdateInterfaceDialogComponent, {width: '600px', data: dialogData});
+      });
+    } else if (data.pg_id) {
+      this.portGroupService.get(data.pg_id).subscribe(pgData => {
+        const dialogData = {
+          mode: 'view',
+          genData: pgData.result,
+        }
+        this.dialog.open(AddUpdatePGDialogComponent, {width: '600px', data: dialogData});
+      });
+    } else if (data.node_id) {
+      this.nodeService.get(data.node_id).subscribe(nodeData => {
+        const dialogData = {
+          mode: 'view',
+          genData: nodeData.result,
+        }
+        this.dialog.open(AddUpdateNodeDialogComponent, {width: '600px', data: dialogData});
+      });
     }
   }
 }

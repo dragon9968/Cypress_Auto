@@ -16,7 +16,10 @@
       </div>
       <div class="map-editor">
         <div id="cy" style="height: calc(100vh - 4rem); width:100%; z-index: 1;"></div>
-        <app-info-panel></app-info-panel>
+        <app-info-panel [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs" [activeEdges]="activeEdges"
+                        [activeGBs]="activeGBs" [deletedNodes]="deletedNodes" [deletedInterfaces]="deletedInterfaces">
+
+        </app-info-panel>
       </div>
     </div>
   </mat-sidenav-content>

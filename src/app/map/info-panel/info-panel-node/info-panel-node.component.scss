@@ -1,0 +1,9 @@
+.info-panel-node {
+  height: 400px;
+  &.node-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+

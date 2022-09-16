@@ -7,9 +7,13 @@
             </mat-panel-description>
         </mat-expansion-panel-header>
         <mat-tab-group>
-            <mat-tab label="Nodes">Nodes</mat-tab>
-            <mat-tab label="Port Groups">Port Groups</mat-tab>
-            <mat-tab label="Interfaces">Interfaces</mat-tab>
+            <mat-tab label="Nodes">
+              <app-info-panel-node [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs" [activeEdges]="activeEdges"
+                                   [activeGBs]="activeGBs" [deletedNodes]="deletedNodes" [deletedInterfaces]="deletedInterfaces">
+              </app-info-panel-node>
+            </mat-tab>
+            <mat-tab label="Port Groups"><app-info-panel-port-group></app-info-panel-port-group></mat-tab>
+            <mat-tab label="Interfaces"><app-info-panel-interface></app-info-panel-interface></mat-tab>
           </mat-tab-group>
     </mat-expansion-panel>
 </mat-accordion>
