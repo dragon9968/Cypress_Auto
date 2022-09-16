@@ -7,4 +7,5 @@ export enum RouteSegments {
   SETTINGS = 'settings',
   HELP = 'help',
   MAP = 'map',
+  USER_PROFILE = 'user-profile',
 }

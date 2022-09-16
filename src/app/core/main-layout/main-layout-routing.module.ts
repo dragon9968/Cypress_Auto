@@ -6,6 +6,7 @@ import { HomeComponent } from '../../home/home.component';
 import { PermissionLevels } from 'src/app/core/enums/permission-levels.enum';
 import { PageNotFoundComponent } from '../page-not-found/page-not-found.component';
 import { RouteSegments } from '../enums/route-segments.enum';
+import { UserProfileComponent } from 'src/app/user-profile/user-profile.component';
 
 const routes: AppRoute[] = [
   {
@@ -22,6 +23,13 @@ const routes: AppRoute[] = [
           permissionLevel: PermissionLevels.USER,
         },
         component: HomeComponent,
+      },
+      {
+        path: 'user-profile',
+        data: {
+          permissionLevel: PermissionLevels.ADMIN,
+        },
+        component: UserProfileComponent,
       },
       {
         path: RouteSegments.PROJECTS,

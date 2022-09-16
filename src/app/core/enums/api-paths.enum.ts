@@ -27,4 +27,5 @@ export enum ApiPaths {
   INTERFACE_RANDOMIZE_IP = '/api/v1/interface/randomize_ip/',
   INTERFACE_VALIDATE = '/api/v1/interface/validate',
   SAVE_MAP = '/api/v1/map/save',
+  USER = '/api/v1/user/',
 }

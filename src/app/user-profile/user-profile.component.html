@@ -1,0 +1,35 @@
+<form [formGroup]="userProfileForm" class="form" >
+  <h1>Your user information</h1>
+  <div>
+    <mat-form-field class="field">
+      <mat-label>User Name</mat-label>
+      <input matInput formControlName="usernameCtr" [readonly]="isViewMode">
+      <mat-error *ngIf="usernameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>First Name</mat-label>
+      <input matInput formControlName="firstNameCtr" [readonly]="isViewMode">
+      <mat-error *ngIf="firstNameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Last Name</mat-label>
+      <input matInput formControlName="lastNameCtr" [readonly]="isViewMode">
+      <mat-error *ngIf="lastNameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="emailCtr" [readonly]="isViewMode">
+      <mat-error *ngIf="emailCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Role</mat-label>
+      <input matInput formControlName="roleCtr" [readonly]="isViewMode">
+      <mat-error *ngIf="roleCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Active</mat-label>
+      <input matInput formControlName="activeCtr" [readonly]="isViewMode">
+      <mat-error *ngIf="activeCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+  </div>
+</form>

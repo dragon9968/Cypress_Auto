@@ -95,7 +95,7 @@
         <span>{{"User Name"}}</span>
     </a>
     <mat-menu #account="matMenu">
-        <button mat-menu-item>
+        <button mat-menu-item (click)="userProfile()">
             <mat-icon>account_box</mat-icon>
             <span>Profile</span>
         </button>
