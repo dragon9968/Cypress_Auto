@@ -1,0 +1,9 @@
+.info-panel-pg {
+  height: 400px;
+  &.pg-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+

@@ -1,5 +1,6 @@
 <ag-grid-angular
   class="ag-theme-alpine info-panel-node"
   [gridOptions]="gridOptions"
-  (gridReady)="onGridReady($event)">
+  (gridReady)="onGridReady($event)"
+  (rowSelected)="selectedRows()">
 </ag-grid-angular>

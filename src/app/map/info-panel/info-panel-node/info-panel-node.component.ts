@@ -18,8 +18,9 @@ export class InfoPanelNodeComponent implements DoCheck {
   @Input() activeGBs: any[] = [];
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterfaces: any[] = [];
-  private gridApi?: GridApi;
+  private gridApi!: GridApi;
   private activeNodeOld?: string;
+  rowsSelected: any[] = [];
 
   private _setNodeInfoPanel(activeNodes: any[]) {
     if (activeNodes.length === 0) {
@@ -88,6 +89,7 @@ export class InfoPanelNodeComponent implements DoCheck {
         cellRenderer: InfoPanelRenderComponent,
         cellClass: 'node-actions',
         cellRendererParams: {
+          tabName: 'node',
           getExternalParams: () => this
         }
       },
@@ -181,5 +183,9 @@ export class InfoPanelNodeComponent implements DoCheck {
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
     this.gridApi.sizeColumnsToFit();
+  }
+
+  selectedRows() {
+    this.rowsSelected = this.gridApi.getSelectedRows();
   }
 }
