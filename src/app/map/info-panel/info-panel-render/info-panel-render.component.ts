@@ -13,6 +13,8 @@ import { selectMapOption } from "../../../store/map-option/map-option.selectors"
 import { Subscription } from "rxjs";
 import { AddUpdatePGDialogComponent } from "../../add-update-pg-dialog/add-update-pg-dialog.component";
 import { PortGroupService } from "../../../core/services/portgroup/portgroup.service";
+import { InterfaceService } from "../../../core/services/interface/interface.service";
+import { AddUpdateInterfaceDialogComponent } from "../../add-update-interface-dialog/add-update-interface-dialog.component";
 
 @Component({
   selector: 'app-info-panel-render',
@@ -33,6 +35,7 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp {
     private dialog: MatDialog,
     private nodeService: NodeService,
     private portGroupService: PortGroupService,
+    private interfaceService: InterfaceService,
     private cmViewDetailsService: CMViewDetailsService,
     private cmEditService: CMEditService,
     private cmDeleteService: CMDeleteService,
@@ -80,6 +83,15 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp {
         }
         this.dialog.open(AddUpdateNodeDialogComponent, {width: '600px', data: dialogData});
       });
+    } else if (this.interface_id) {
+      this.interfaceService.get(this.interface_id).subscribe(interfaceData => {
+        const dialogData = {
+          mode: 'update',
+          genData: interfaceData.result,
+          cy: this.getExternalParams().cy
+        }
+        this.dialog.open(AddUpdateInterfaceDialogComponent, {width: '600px', data: dialogData});
+      })
     }
   }
 
@@ -103,6 +115,8 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp {
       this.node_id = params.rowsSelected[0].id;
     } else if (this.tabName == 'portGroup') {
       this.pg_id = params.rowsSelected[0].id;
+    } else if (this.tabName == 'edge') {
+      this.interface_id = params.rowsSelected[0].id;
     }
   }
 
@@ -117,16 +131,20 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp {
     } else if (this.tabName == 'portGroup') {
       idName = 'pg_id';
       id = params.rowsSelected[0].id;
+    } else if (this.tabName == 'edge') {
+      idName = 'interface_id';
+      id = params.rowsSelected[0].id;
     }
 
-    activeEdges.forEach((edge: any) => {
+    activeEdges.filter(ele => ele.data(idName) === id).forEach((edge: any) => {
       const sourceData = cy.getElementById(edge.data('source')).data();
       const targetData = cy.getElementById(edge.data('target')).data();
       if ('temp' in sourceData || 'temp' in targetData) {
         return
       } else {
         this.helpers.removeEdge(edge, deletedInterfaces);
-        activeEdges.splice(0);
+        const index = activeEdges.findIndex(ele => ele.data(idName) === id);
+        activeEdges.splice(index, 1);
         // TODO: this.tool_panel.update_components();
       }
     });
@@ -134,6 +152,16 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp {
     activeNodes.concat(activePGs, activeGBs)
       .filter(ele => ele.data(idName) === id)
       .forEach((node: any) => {
+        // Remove the interface is connecting to the Port Group or Node
+        const interfacesDeleted = this._getEdgesConnectingToNode(node);
+        for (let i = 0; i < activeEdges.length; i++) {
+          const data = activeEdges[i].data();
+          if (interfacesDeleted.includes(data.interface_id)) {
+            activeEdges.splice(i, 1);
+            i--;
+          }
+        }
+
         this.helpers.removeNode(node, deletedNodes, deletedInterfaces);
         if (this.isGroupBoxesChecked) {
           cy.nodes().filter('[label="group_box"]').forEach((gb: any) => {
@@ -151,5 +179,20 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp {
         activeGBs.splice(0);
         // TODO: this.tool_panel.update_components();
       });
+  }
+
+  private _getEdgesConnectingToNode(node: any) {
+    const interfacesDeleted: any[] = [];
+    node.connectedEdges().forEach((ele: any) => {
+      const data = ele.data();
+      if (data && !data.new) {
+        data.deleted = true;
+        interfacesDeleted.push({
+          'name': data.id,
+          'interface_id': data.interface_id
+        });
+      }
+    });
+    return interfacesDeleted.map(ele => ele.interface_id);
   }
 }

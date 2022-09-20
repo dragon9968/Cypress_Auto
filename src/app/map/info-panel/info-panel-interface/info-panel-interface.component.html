@@ -1,1 +1,6 @@
-<p>info-panel-interface works!</p>
+<ag-grid-angular
+  class="ag-theme-alpine info-panel-interface"
+  [gridOptions]="gridOptions"
+  (gridReady)="onGridReady($event)"
+  (rowSelected)="selectedRows()">
+</ag-grid-angular>

@@ -1,0 +1,8 @@
+.info-panel-interface {
+  height: 400px;
+  &.interface-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}

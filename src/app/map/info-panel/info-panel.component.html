@@ -17,7 +17,11 @@
                                          [activeGBs]="activeGBs" [deletedNodes]="deletedNodes" [deletedInterfaces]="deletedInterfaces">
               </app-info-panel-port-group>
             </mat-tab>
-            <mat-tab label="Interfaces"><app-info-panel-interface></app-info-panel-interface></mat-tab>
+            <mat-tab label="Interfaces">
+              <app-info-panel-interface [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs" [activeEdges]="activeEdges"
+                                        [activeGBs]="activeGBs" [deletedNodes]="deletedNodes" [deletedInterfaces]="deletedInterfaces">
+              </app-info-panel-interface>
+            </mat-tab>
           </mat-tab-group>
     </mat-expansion-panel>
 </mat-accordion>
