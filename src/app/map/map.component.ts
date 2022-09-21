@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
-import { retrievedMap } from '../store/map/map.actions';
+import { retrievedIsMapOpen, retrievedMap } from '../store/map/map.actions';
 import { environment } from 'src/environments/environment';
 import * as cytoscape from 'cytoscape';
 import { HelpersService } from '../core/services/helpers/helpers.service';
@@ -46,7 +46,9 @@ import { IconService } from '../core/services/icon/icon.service';
 import { HardwareService } from '../core/services/hardware/hardware.service';
 import { DomainService } from '../core/services/domain/domain.service';
 import { LoginProfileService } from '../core/services/login-profile/login-profile.service';
-import { MapService } from './services/map.service';
+import { SearchService } from '../core/services/search/search.service';
+import { MapService } from '../core/services/map/map.service';
+import { selectSearchText } from '../store/map-option/map-option.selectors';
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
 const expandCollapse = require('cytoscape-expand-collapse');
@@ -120,6 +122,7 @@ export class MapComponent implements OnInit, OnDestroy {
   selectPortGroups$ = new Subscription();
   selectIcons$ = new Subscription();
   selectDomains$ = new Subscription();
+  selectSearchText$ = new Subscription();
   icons!: any[];
   domains!: any[];
 
@@ -150,6 +153,7 @@ export class MapComponent implements OnInit, OnDestroy {
     private cmRemoteService: CMRemoteService,
     private cmGoToTableService: CMGoToTableService,
     private cmMapService: CMMapService,
+    private searchService: SearchService,
   ) {
     navigator(cytoscape);
     gridGuide(cytoscape);
@@ -202,6 +206,13 @@ export class MapComponent implements OnInit, OnDestroy {
     this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe((portGroups: any) => {
       this.portGroups = portGroups;
     });
+    this.selectSearchText$ = this.store.select(selectSearchText).subscribe((searchText: string) => {
+      if (searchText?.length > 0) {
+        this.searchMap(searchText);
+      } else if (searchText?.length == 0) {
+        this.clearSearch();
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -218,6 +229,7 @@ export class MapComponent implements OnInit, OnDestroy {
     this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
     this.loginProfileService.getAll().subscribe((data: any) => this.store.dispatch(retrievedLoginProfiles({ data: data.result })));
     this.portgroupService.getByCollectionId(this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedPortGroups({ data: data.result })));
+    this.store.dispatch(retrievedIsMapOpen({ data: true }));
   }
 
   ngOnDestroy(): void {
@@ -227,6 +239,8 @@ export class MapComponent implements OnInit, OnDestroy {
     this.selectPortGroups$.unsubscribe();
     this.selectIcons$.unsubscribe();
     this.selectDomains$.unsubscribe();
+    this.selectSearchText$.unsubscribe();
+    this.store.dispatch(retrievedIsMapOpen({ data: false }));
   }
 
   private _disableMapEditButtons() {
@@ -1000,5 +1014,68 @@ export class MapComponent implements OnInit, OnDestroy {
     if (this.connectionId) {
       contextMenu.hideMenuItem('node_remote');
     }
+  }
+
+  searchMap(searchText: string) {
+    searchText = searchText.trim();
+    if (searchText) {
+      const jsonData = {
+        operator: 'contains',
+        value: searchText
+      }
+      this.searchService.search(jsonData, this.collectionId).subscribe(respData => {
+        const nodes = respData.nodes
+        const pgs = respData.port_groups
+        const interfaces = respData.interfaces
+        if (nodes.length >= 0) {
+          this.cy.nodes().filter('[node_id]').forEach((ele: any) => {
+            if (!(nodes.includes(ele.data('node_id')))) {
+              ele.style('opacity', 0.1);
+              ele.unselect();
+            } else {
+              ele.style('opacity', 1.0);
+              ele.select();
+            }
+          })
+        }
+        if (interfaces.length >= 0) {
+          this.cy.edges().filter('[interface_id]').forEach((ele: any) => {
+            if (!(interfaces.includes(ele.data('interface_id')))) {
+              ele.style('opacity', 0.1);
+              ele.unselect();
+            } else {
+              ele.style('opacity', 1.0);
+              ele.select();
+            }
+          })
+        }
+        if (pgs.length >= 0) {
+          this.cy.nodes().filter('[pg_id]').forEach((ele: any) => {
+            if (!(pgs.includes(ele.data('pg_id')))) {
+              ele.style('opacity', 0.1);
+              ele.unselect();
+            } else {
+              ele.style('opacity', 1.0);
+              ele.select();
+            }
+          })
+        }
+      });
+    } else {
+      this.clearSearch();
+    }
+  }
+
+  clearSearch() {
+    this.cy.nodes().forEach((ele: any) => {
+      if (ele.data('label') != 'group_box') {
+        ele.style('opacity', 1.0);
+        ele.unselect();
+      }
+    })
+    this.cy.edges().forEach((ele: any) => {
+      ele.style('opacity', 1.0);
+      ele.unselect();
+    })
   }
 }

@@ -2,12 +2,10 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, Subscription, throwError } from 'rxjs';
+import { MapService } from 'src/app/core/services/map/map.service';
 import { retrievedMapEdit } from 'src/app/store/map-edit/map-edit.actions';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 import { selectMapStyle } from 'src/app/store/map-style/map-style.selectors';
-import { retrievedMap } from 'src/app/store/map/map.actions';
-import { selectDefaultPreferences } from 'src/app/store/map/map.selectors';
-import { MapService } from '../services/map.service';
 
 @Component({
   selector: 'app-tool-panel',

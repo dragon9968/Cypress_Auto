@@ -1,7 +1,7 @@
 <mat-toolbar color="primary">
     <a mat-button [routerLink]="routeSegments.ROOT" class="home-btn">
         <img alt="App icon" src="favicon.ico" style="height: 40px; width: 55px">
-        <span><b style="color:#007bff">Blue</b> Cloak</span>
+        <span style="font-size: 24px;"><b style="color:#007bff;">Blue</b> Cloak</span>
     </a>
     <a mat-button [matMenuTriggerFor]="project" class="menu-btn">Project</a>
     <mat-menu #project="matMenu">
@@ -88,7 +88,15 @@
             <span>About</span>
         </button>
     </mat-menu>
-    
+    <mat-form-field *ngIf="isMapOpen" floatLabel="never" class="search-bar">
+        <input matInput #searchbar [(ngModel)]="searchText">
+        <button mat-button mat-icon-button (click)="close()" matSuffix>
+            <mat-icon>close</mat-icon>
+        </button>
+        <button mat-icon-button (click)="search()" matSuffix>
+            <mat-icon>search</mat-icon>
+        </button>
+    </mat-form-field>
     <span class="menu-spacer"></span>
     <a mat-button [matMenuTriggerFor]="account">
         <mat-icon>person</mat-icon>

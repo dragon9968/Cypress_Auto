@@ -13,4 +13,5 @@ export interface MapState {
   domains: any;
   configs: any;
   loginProfiles: any;
+  isMapOpen: boolean;
 }

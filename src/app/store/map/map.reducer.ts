@@ -1,6 +1,6 @@
 import { createReducer, on } from '@ngrx/store';
 import { MapState } from 'src/app/store/map/map.state';
-import { retrievedMap } from './map.actions';
+import { retrievedMap, retrievedIsMapOpen } from './map.actions';
 
 const initialState = {} as MapState;
 
@@ -14,6 +14,10 @@ export const mapReducer = createReducer(
     nodes: data.map_items.nodes,
     interfaces: data.map_items.interfaces,
     groupBoxes: data.map_items.group_boxes,
-    mapBackgrounds: data.map_items.map_backgrounds
+    mapBackgrounds: data.map_items.map_backgrounds,
+  })),
+  on(retrievedIsMapOpen, (state, { data }) => ({
+    ...state,
+    isMapOpen: data,
   })),
 );

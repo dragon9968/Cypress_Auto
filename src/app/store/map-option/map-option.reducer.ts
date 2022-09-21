@@ -1,5 +1,5 @@
 import { createReducer, on } from '@ngrx/store';
-import { retrievedMapOption } from './map-option.actions';
+import { retrievedMapOption, retrievedSearchText } from './map-option.actions';
 
 const initialState = {} as any;
 
@@ -8,5 +8,9 @@ export const mapOptionReducer = createReducer(
   on(retrievedMapOption, (state, { data }) => ({
     ...state,
     mapOption: data,
+  })),
+  on(retrievedSearchText, (state, { data }) => ({
+    ...state,
+    searchText: data,
   })),
 );
