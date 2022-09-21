@@ -4,6 +4,8 @@
 @import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 @import 'cytoscape-context-menus/cytoscape-context-menus.css';
 @import 'cytoscape-navigator/cytoscape.js-navigator.css';
+@import 'cytoscape-panzoom/cytoscape.js-panzoom.css';
+@import 'font-awesome/css/font-awesome.min.css';
 @import '~ngx-toastr/toastr';
 
 $tool-panel-width: 300px;
@@ -28,4 +30,18 @@ $tool-panel-width: 300px;
 
 ul {
   margin-top: 0;
+}
+
+.cy-panzoom {
+	position: relative;
+	font-size: 12px;
+	color: #faf;
+	font-family: arial, helvetica, sans-serif;
+	line-height: 1;
+	color: #666;
+	font-size: 11px;
+	z-index: 99999;
+	box-sizing: content-box;
+	padding-top: 225px;	
+	bottom: 48px;
 }
