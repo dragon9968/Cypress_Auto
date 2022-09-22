@@ -12,6 +12,7 @@ import { projectReducer } from "./project/project.reducer";
 import { templateReducer } from "./template/template.reducer";
 import { portGroupReducer } from "./portgroup/portgroup.reducer";
 import { ReducerKeys } from "./reducer-keys.enum";
+import { mapContextMenuReducer } from "./map-context-menu/map-context-menu.reducer";
 
 export const reducers = {
     [ReducerKeys.MAP]: mapReducer,
@@ -27,4 +28,5 @@ export const reducers = {
     [ReducerKeys.MAP_EDIT]: mapEditReducer,
     [ReducerKeys.MAP_OPTION]: mapOptionReducer,
     [ReducerKeys.PORTGROUP]: portGroupReducer,
+    [ReducerKeys.MAP_CM]: mapContextMenuReducer,
 }

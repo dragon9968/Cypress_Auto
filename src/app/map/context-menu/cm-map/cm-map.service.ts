@@ -1,19 +1,22 @@
 import { Injectable } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { Store } from '@ngrx/store';
+import { retrievedMapContextMenu } from 'src/app/store/map-context-menu/map-context-menu.actions';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CMMapService {
 
-  constructor(private dialog: MatDialog) { }
+  constructor(private store: Store) { }
 
   getSaveChangesMenu() {
     return {
       id: "save_changes",
       content: "Save Changes",
       coreAsWell: true,
-      onClickFunction: (event: any) => { },
+      onClickFunction: (event: any) => {
+        this.store.dispatch(retrievedMapContextMenu({ data: { event: 'save' } }));
+      },
       hasTrailingDivider: false,
       disabled: false,
     }
@@ -46,7 +49,9 @@ export class CMMapService {
       id: "download",
       content: "Download",
       coreAsWell: true,
-      onClickFunction: (event: any) => { },
+      onClickFunction: (event: any) => {
+        this.store.dispatch(retrievedMapContextMenu({ data: { event: 'download' } }));
+      },
       hasTrailingDivider: false,
       disabled: false,
     }

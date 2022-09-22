@@ -1,8 +1,12 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, Subscription, throwError } from 'rxjs';
+import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { MapService } from 'src/app/core/services/map/map.service';
+import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
+import { selectMapContextMenu } from 'src/app/store/map-context-menu/map-context-menu.selectors';
 import { retrievedMapEdit } from 'src/app/store/map-edit/map-edit.actions';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 import { selectMapStyle } from 'src/app/store/map-style/map-style.selectors';
@@ -34,6 +38,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   selectMapOption$ = new Subscription();
   selectMapStyle$ = new Subscription();
   selectDefaultPreferences$ = new Subscription();
+  selectMapContextMenu$ = new Subscription();
   isEdgeDirectionChecked!: boolean;
   isGroupBoxesChecked!: boolean;
   isMapGridChecked!: boolean;
@@ -48,6 +53,8 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     private store: Store,
     private toastr: ToastrService,
     private mapService: MapService,
+    private dialog: MatDialog,
+    private helpersService: HelpersService,
   ) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
@@ -63,6 +70,13 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     this.selectMapStyle$ = this.store.select(selectMapStyle).subscribe((selectedDefaultPref: any) => {
       this.selectedDefaultPrefId = selectedDefaultPref?.id;
     });
+    this.selectMapContextMenu$ = this.store.select(selectMapContextMenu).subscribe((mapContextMenu: any) => {
+      if (mapContextMenu?.event == 'download') {
+        this.downloadMap();
+      } else if (mapContextMenu?.event == 'save') {
+        this.saveMap()
+      }
+    });
   }
 
   ngOnInit() { }
@@ -73,7 +87,23 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   }
 
   downloadMap() {
-    console.log('downloadMap');
+    const dialogData = {
+      title: 'Download Map',
+      message: 'PNG file format.',
+      submitButtonName: 'Download'
+    }
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '600px', data: dialogData });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const text = this.cy.png({
+          output: "blob",
+          bg: "#ffffff",
+          full: false,
+        });
+        const file = new Blob([text], { type: "image/png" });
+        this.helpersService.downloadBlob("download_map.png", file);
+      }
+    });
   }
 
   saveMap() {

@@ -12,4 +12,5 @@ export enum ReducerKeys {
     MAP_STYLE = 'mapStyle',
     MAP_OPTION = 'mapOption',
     PORTGROUP = 'portgroup',
+    MAP_CM = 'mapContextMenu',
 }
