@@ -72,9 +72,13 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     });
     this.selectMapContextMenu$ = this.store.select(selectMapContextMenu).subscribe((mapContextMenu: any) => {
       if (mapContextMenu?.event == 'download') {
-        this.downloadMap();
+        this.download();
       } else if (mapContextMenu?.event == 'save') {
-        this.saveMap()
+        this.save();
+      } else if (mapContextMenu?.event == 'undo') {
+        this.undo();
+      } else if (mapContextMenu?.event == 'redo') {
+        this.redo();
       }
     });
   }
@@ -86,7 +90,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     this.selectMapStyle$.unsubscribe();
   }
 
-  downloadMap() {
+  download() {
     const dialogData = {
       title: 'Download Map',
       message: 'PNG file format.',
@@ -106,7 +110,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     });
   }
 
-  saveMap() {
+  save() {
     this.cy.elements().forEach((ele: any) => {
       if (ele.group() == "nodes") {
         this.getUpdatedNodeOrPGOrGB(ele);
@@ -156,19 +160,19 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     this.updatedInterfaces.splice(0);
   }
 
-  refreshMap() {
+  refresh() {
     console.log('refreshMap');
   }
 
-  undoMap() {
+  undo() {
     console.log('undoMap');
   }
 
-  redoMap() {
+  redo() {
     console.log('redoMap');
   }
 
-  cancelEditMap() {
+  cancel() {
     this.store.dispatch(retrievedMapEdit({
       data: {
         isAddNode: false,

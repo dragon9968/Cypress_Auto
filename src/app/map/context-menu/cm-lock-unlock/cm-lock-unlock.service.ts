@@ -9,7 +9,7 @@ export class CMLockUnlockService {
 
   constructor(
     private toastr: ToastrService,
-    private helpers: HelpersService,
+    private helpersService: HelpersService,
   ) { }
 
   getLockMenu(cy: any, activeNodes: any[], activePGs: any[]) {
@@ -51,7 +51,7 @@ export class CMLockUnlockService {
         d.updated = true;
         d.deleted = false;
       }
-      this.helpers.addBadge(cy, ele);
+      this.helpersService.addBadge(cy, ele);
     });
   }
 
@@ -68,7 +68,7 @@ export class CMLockUnlockService {
         d.updated = true;
         d.deleted = false;
       }
-      this.helpers.removeBadge(ele);
+      this.helpersService.removeBadge(ele);
     });
   }
 }

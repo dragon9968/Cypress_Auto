@@ -129,7 +129,7 @@ export class MapComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private store: Store,
-    private helpers: HelpersService,
+    private helpersService: HelpersService,
     private mapService: MapService,
     private iconService: IconService,
     private deviceService: DeviceService,
@@ -171,7 +171,7 @@ export class MapComponent implements OnInit, OnDestroy {
       this.domains = domains;
     });
     this.selectMap$ = this.store.select(selectMapFeature).subscribe((map: MapState) => {
-      if (Object.keys(map).length > 0) {
+      if (map.mapProperties && map.defaultPreferences) {
         this.nodes = map.nodes;
         this.interfaces = map.interfaces;
         this.groupBoxes = map.groupBoxes;
@@ -480,7 +480,7 @@ export class MapComponent implements OnInit, OnDestroy {
     if (this.isAddNode && this.deviceId && this.templateId) {
       this.nodeService.genData(this.collectionId, this.deviceId, this.templateId)
         .subscribe(genData => {
-          const icon = this.helpers.getOptionById(this.icons, genData.icon_id);
+          const icon = this.helpersService.getOptionById(this.icons, genData.icon_id);
           const icon_src = '/static/img/uploads/' + icon.photo;
           const newNodeData = {
             "elem_category": "node",
@@ -559,8 +559,8 @@ export class MapComponent implements OnInit, OnDestroy {
       live_packets: false,
       default_domain_id: this.mapProperties.default_domain_id,
       styleExists: this.defaultPreferences.accessed,
-      cleared: this.defaultPreferences.cleared,
-      grid_settings: this.defaultPreferences.grid_settings ? this.defaultPreferences.grid_settings : null,
+      cleared: this.defaultPreferences?.cleared,
+      grid_settings: this.defaultPreferences?.grid_settings ? this.defaultPreferences.grid_settings : null,
       nodes_size_max: 200,
       text_size_max: 200,
       edge_size_max: 50,
@@ -653,7 +653,7 @@ export class MapComponent implements OnInit, OnDestroy {
     this.cy = cytoscape({
       container: document.getElementById("cy"),
       elements: this.eles,
-      style: this.helpers.generateCyStyle(this.config.default_preferences),
+      style: this.helpersService.generateCyStyle(this.config.default_preferences),
       layout: (this.styleExists || this.cleared) ? { name: 'preset' } : {
         name: "cose",
         avoidOverlap: true,
@@ -695,6 +695,19 @@ export class MapComponent implements OnInit, OnDestroy {
       a = null;
     });
     this.cy.compoundDragAndDrop(this.config.cdnd_enable_options);
+    this.cy.elements().forEach((ele: any) => {
+      const data = ele.data();
+      if (ele.group() == "nodes") {
+        if (data.locked) {
+          ele.lock();
+          this.helpersService.addBadge(this.cy, ele);
+        }
+      }
+    });
+    this.ur = this.cy.undoRedo({
+      isDebug: this.config['debug_output'],
+      stackSizeLimit: 20,
+    });
   }
 
   private _initMouseEvents() {
@@ -750,9 +763,9 @@ export class MapComponent implements OnInit, OnDestroy {
         this.cmMapService.getUndoMenu(),
         this.cmMapService.getRedoMenu(),
         this.cmMapService.getDownloadMenu(),
-        this.cmMapService.getLockAllMenu(),
-        this.cmMapService.getUnlockAllMenu(),
-        this.cmMapService.getSelectAllMenu(),
+        this.cmMapService.getLockAllMenu(this.cy),
+        this.cmMapService.getUnlockAllMenu(this.cy),
+        this.cmMapService.getSelectAllMenu(this.cy),
       ],
       submenuIndicator: { src: '/assets/icons/submenu-indicator-default.svg', width: 12, height: 12 }
     });
@@ -802,8 +815,8 @@ export class MapComponent implements OnInit, OnDestroy {
         cyData.text_color = cyData.logical_map_style.text_color;
         cyData.text_size = cyData.logical_map_style.text_size;
         cyData.groups = respData.result.groups;
-        this.helpers.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
-        this.helpers.reloadGroupBoxes(this.cy);
+        this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
+        this.helpersService.reloadGroupBoxes(this.cy);
         this.isAddNode = false;
         this._enableMapEditButtons();
         this.toastr.success('Quick add node successfully!');
@@ -852,8 +865,8 @@ export class MapComponent implements OnInit, OnDestroy {
         cyData.text_size = cyData.logical_map_style.text_size;
         cyData.color = cyData.logical_map_style.color;
         cyData.groups = respData.result.groups;
-        this.helpers.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
-        this.helpers.reloadGroupBoxes(this.cy);
+        this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
+        this.helpersService.reloadGroupBoxes(this.cy);
         if (this.isAddPublicPG) this.isAddPublicPG = false;
         if (this.isAddPrivatePG) this.isAddPrivatePG = false;
         this._enableMapEditButtons();
@@ -924,7 +937,7 @@ export class MapComponent implements OnInit, OnDestroy {
     const invisNode = {
       group: "nodes",
       data: {
-        id: "tempNode" + this.helpers.createUUID(),
+        id: "tempNode" + this.helpersService.createUUID(),
         temp: true,
         name: "",
         height: "1px",
@@ -939,7 +952,7 @@ export class MapComponent implements OnInit, OnDestroy {
     this.newEdgeData = {
       source: data.id,
       target: invisNode.data.id,
-      id: 'new_edge_' + this.helpers.createUUID(),
+      id: 'new_edge_' + this.helpersService.createUUID(),
       name: "",
       category,
       direction: "both",
@@ -947,7 +960,7 @@ export class MapComponent implements OnInit, OnDestroy {
       color: this.selectedDefaultPref.edge_color,
       width: this.selectedDefaultPref.edge_width + "px",
     }
-    this.e = this.helpers.addCYEdge(this.cy, this.newEdgeData)[0];
+    this.e = this.helpersService.addCYEdge(this.cy, this.newEdgeData)[0];
     if (category == "tunnel") {
       this.isAddTunnel = true
     } else {

@@ -43,12 +43,12 @@ export class HelpersService {
     return option && option.serial_number ? option.serial_number : '';
   }
 
-  generateCyStyle(defaults: any): Stylesheet[] {
+  generateCyStyle(defaults: any): any[] {
     return [
       {
         selector: "node",
         style: {
-          "content": function (ele: any) { return ele.data('name') },
+          "content": (ele: any) => ele.data('name'),
           "text-wrap": "wrap",
           "text-opacity": 1,
           "color": defaults.text.color,
@@ -58,63 +58,64 @@ export class HelpersService {
           "text-halign": "center",
           "background-fit": "contain",
           "background-image-opacity": 1,
-          "z-index": function (ele: any) { return ele.data('zIndex') },
+          "z-index": (ele: any) => ele.data('zIndex'),
           "z-compound-depth": "bottom",
         },
+        locked: (ele: any) => ele.data('locked'),
       },
       {
         selector: '[text_color]',
         style: {
-          'color': function (ele: any) { return ele.data('text_color') },
+          'color': (ele: any) => ele.data('text_color'),
         }
       },
       {
         selector: '[text_size]',
         style: {
-          'font-size': function (ele: any) { return ele.data('text_size') },
+          'font-size': (ele: any) => ele.data('text_size'),
         }
       },
       {
         selector: '[text_bg_color]',
         style: {
-          'text-background-color': function (ele: any) { return ele.data('text_bg_color') },
+          'text-background-color': (ele: any) => ele.data('text_bg_color'),
         }
       },
       {
         selector: '[text_bg_opacity]',
         style: {
-          'text-background-opacity': function (ele: any) { return ele.data('text_bg_opacity') },
+          'text-background-opacity': (ele: any) => ele.data('text_bg_opacity'),
         }
       },
       {
         selector: '[text_valign]',
         style: {
-          'text-valign': function (ele: any) { return ele.data('text_valign') },
+          'text-valign': (ele: any) => ele.data('text_valign'),
         }
       },
       {
         selector: '[text_halign]',
         style: {
-          'text-halign': function (ele: any) { return ele.data('text_halign') },
+          'text-halign': (ele: any) => ele.data('text_halign'),
         }
       },
       {
         selector: '[border_color]',
         style: {
-          'border-color': function (ele: any) { return ele.data('border_color') },
+          'border-color': (ele: any) => ele.data('border_color'),
         }
       },
       {
         selector: '[border_style]',
         style: {
-          'border-style': function (ele: any) { return ele.data('border_style') },
+          'border-style': (ele: any) => ele.data('border_style'),
         }
       },
       {
         selector: 'node[width][height]',
         style: {
-          "height": function (ele: any) { return ele.data('height') },
-          "width": function (ele: any) { return ele.data('width') },
+          "height": (ele: any) => ele.data('height'),
+          "width": (ele: any) => ele.data('width'),
         }
       },
       {
@@ -122,27 +123,27 @@ export class HelpersService {
         style: {
           "background-opacity": 0,
           'background-color': '#ffffff',
-          "background-image": function (ele: any) { return ele.data('icon') },
+          "background-image": (ele: any) => ele.data('icon'),
           'shape': "roundrectangle",
         }
       },
       {
         selector: 'node[color]',
         style: {
-          "background-color": function (ele: any) { return ele.data('color') },
+          "background-color": (ele: any) => ele.data('color'),
         }
       },
       {
         selector: '[font_weight]',
         style: {
-          "font-weight": function (ele: any) { return ele.data('font_weight') },
+          "font-weight": (ele: any) => ele.data('font_weight'),
         }
       },
       {
         selector: 'node[packet]',
         style: {
-          "shape": function (ele: any) { return ele.data('shape') },
-          "background-color": function (ele: any) { return ele.data('color') },
+          "shape": (ele: any) => ele.data('shape'),
+          "background-color": (ele: any) => ele.data('color'),
           'text-opacity': 0
         }
       },
@@ -151,7 +152,7 @@ export class HelpersService {
         style: {
           'shape': "ellipse",
           "background-opacity": 1,
-          'content': function (ele: any) { return ele.data('subnet') },
+          'content': (ele: any) => ele.data('subnet'),
         }
       },
       {
@@ -159,19 +160,19 @@ export class HelpersService {
         style: {
           'shape': "roundrectangle",
           "background-opacity": 1,
-          "background-image": function (ele: any) { return ele.data('src') },
+          "background-image": (ele: any) => ele.data('src'),
           "background-fit": "contain",
           "text-opacity": 0,
           "z-index-compare": "manual",
-          'content': function (ele: any) { return ele.data('id') },
+          'content': (ele: any) => ele.data('id'),
         }
       },
       {
         selector: ':parent',
         style: {
-          'content': function (ele: any) { return ele.data('name') },
-          'background-opacity': function (ele: any) { return ele.data('group_opacity') },
-          'background-color': function (ele: any) { return ele.data('color') },
+          'content': (ele: any) => ele.data('name'),
+          'background-opacity': (ele: any) => ele.data('group_opacity'),
+          'background-color': (ele: any) => ele.data('color'),
           "z-index-compare": "manual"
         }
       },
@@ -186,9 +187,9 @@ export class HelpersService {
       {
         selector: 'node.cy-expand-collapse-collapsed-node',
         style: {
-          'content': function (ele: any) { return ele.data('id') },
-          'background-color': function (ele: any) { return ele.data('color') },
-          'background-opacity': function (ele: any) { return ele.data('group_opacity') },
+          'content': (ele: any) => ele.data('id'),
+          'background-color': (ele: any) => ele.data('color'),
+          'background-opacity': (ele: any) => ele.data('group_opacity'),
           "z-index-compare": "manual",
           'shape': 'rectangle',
         }
@@ -218,25 +219,25 @@ export class HelpersService {
       {
         selector: "edge[ip]",
         style: {
-          "content": function (ele: any) { return ele.data('ip') },
+          "content": (ele: any) => ele.data('ip'),
         },
       },
       {
         selector: "edge[color]",
         style: {
-          "line-color": function (ele: any) { return ele.data('color') },
+          "line-color": (ele: any) => ele.data('color'),
         },
       },
       {
         selector: "edge[curve_style]",
         style: {
-          "curve-style": function (ele: any) { return ele.data('curve_style') },
+          "curve-style": (ele: any) => ele.data('curve_style'),
         },
       },
       {
         selector: "edge[width]",
         style: {
-          "width": function (ele: any) { return ele.data('width') },
+          "width": (ele: any) => ele.data('width'),
         },
       },
       {
@@ -250,13 +251,13 @@ export class HelpersService {
       {
         selector: "[arrow_scale]",
         style: {
-          "arrow-scale": function (ele: any) { return ele.data('arrow_scale') },
+          "arrow-scale": (ele: any) => ele.data('arrow_scale'),
         },
       },
       {
         selector: "[ip_last_octet]",
         style: {
-          "content": function (ele: any) { return ele.data('ip_last_octet') },
+          "content": (ele: any) => ele.data('ip_last_octet'),
         },
       },
       {
@@ -278,8 +279,8 @@ export class HelpersService {
       {
         selector: "[direction='both'][color]",
         style: {
-          "target-arrow-color": function (ele: any) { return ele.data('color') },
-          "source-arrow-color": function (ele: any) { return ele.data('color') },
+          "target-arrow-color": (ele: any) => ele.data('color'),
+          "source-arrow-color": (ele: any) => ele.data('color'),
         }
       },
       {
@@ -292,7 +293,7 @@ export class HelpersService {
       {
         selector: "[direction='inbound'][color]",
         style: {
-          "source-arrow-color": function (ele: any) { return ele.data('color') },
+          "source-arrow-color": (ele: any) => ele.data('color'),
         }
       },
       {
@@ -305,7 +306,7 @@ export class HelpersService {
       {
         selector: "[direction='outbound'][color]",
         style: {
-          "target-arrow-color": function (ele: any) { return ele.data('color') },
+          "target-arrow-color": (ele: any) => ele.data('color'),
         }
       },
       {

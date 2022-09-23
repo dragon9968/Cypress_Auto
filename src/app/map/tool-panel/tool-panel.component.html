@@ -1,21 +1,21 @@
 <section>
   <div class="tool-panel-actions">
-    <button mat-mini-fab color="primary" matTooltip="Download" (click)="downloadMap()">
+    <button mat-mini-fab color="primary" matTooltip="Download" (click)="download()">
       <mat-icon>download</mat-icon>
     </button>
-    <button mat-mini-fab color="accent" matTooltip="Save" (click)="saveMap()">
+    <button mat-mini-fab color="accent" matTooltip="Save" (click)="save()">
       <mat-icon>save</mat-icon>
     </button>
-    <button mat-mini-fab color="primary" matTooltip="Refresh" (click)="refreshMap()">
+    <button mat-mini-fab color="primary" matTooltip="Refresh" (click)="refresh()">
       <mat-icon>refresh</mat-icon>
     </button>
-    <button mat-mini-fab color="primary" matTooltip="Undo" (click)="undoMap()">
+    <button mat-mini-fab color="primary" matTooltip="Undo" (click)="undo()">
       <mat-icon>undo</mat-icon>
     </button>
-    <button mat-mini-fab color="primary" matTooltip="Redo" (click)="redoMap()">
+    <button mat-mini-fab color="primary" matTooltip="Redo" (click)="redo()">
       <mat-icon>redo</mat-icon>
     </button>
-    <button mat-mini-fab color="warn" matTooltip="Cancel" [disabled]="isDisableCancel" (click)="cancelEditMap()">
+    <button mat-mini-fab color="warn" matTooltip="Cancel" [disabled]="isDisableCancel" (click)="cancel()">
       <mat-icon>cancel</mat-icon>
     </button>
   </div>

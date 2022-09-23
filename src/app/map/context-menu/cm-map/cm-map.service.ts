@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
+import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { retrievedMapContextMenu } from 'src/app/store/map-context-menu/map-context-menu.actions';
 
 @Injectable({
@@ -7,7 +8,10 @@ import { retrievedMapContextMenu } from 'src/app/store/map-context-menu/map-cont
 })
 export class CMMapService {
 
-  constructor(private store: Store) { }
+  constructor(
+    private store: Store,
+    private helpersService: HelpersService,
+  ) { }
 
   getSaveChangesMenu() {
     return {
@@ -27,7 +31,9 @@ export class CMMapService {
       id: "undo",
       content: "Undo",
       coreAsWell: true,
-      onClickFunction: (event: any) => { },
+      onClickFunction: (event: any) => {
+        this.store.dispatch(retrievedMapContextMenu({ data: { event: 'undo' } }));
+      },
       hasTrailingDivider: false,
       disabled: false,
     }
@@ -38,7 +44,9 @@ export class CMMapService {
       id: "redo",
       content: "Redo",
       coreAsWell: true,
-      onClickFunction: (event: any) => { },
+      onClickFunction: (event: any) => {
+        this.store.dispatch(retrievedMapContextMenu({ data: { event: 'redo' } }));
+      },
       hasTrailingDivider: false,
       disabled: false,
     }
@@ -57,34 +65,65 @@ export class CMMapService {
     }
   }
 
-  getLockAllMenu() {
+  getLockAllMenu(cy: any) {
     return {
       id: "lock_all",
       content: "Lock All",
       coreAsWell: true,
-      onClickFunction: (event: any) => { },
+      onClickFunction: (event: any) => {
+        cy.nodes().forEach((ele: any) => {
+          const d = ele.data();
+          if (d.elem_category != 'group') {
+            ele.lock();
+            d.locked = true;
+            if (!d.new) {
+                d.new = false;
+                d.updated = true;
+                d.deleted = false;
+            }
+            this.helpersService.addBadge(cy, ele);
+          }
+        });
+      },
       hasTrailingDivider: false,
       disabled: false,
     }
   }
 
-  getUnlockAllMenu() {
+  getUnlockAllMenu(cy: any) {
     return {
       id: "unlock_all",
       content: "Unlock All",
       coreAsWell: true,
-      onClickFunction: (event: any) => { },
+      onClickFunction: (event: any) => {
+        cy.nodes().forEach((ele: any) => {
+          const d = ele.data();
+          if (d.elem_category != 'group') {
+            ele.unlock();
+            d.locked = false;
+            if (!d.new) {
+                d.new = false;
+                d.updated = true;
+                d.deleted = false;
+            }
+            this.helpersService.removeBadge(ele);
+          }
+        });
+      },
       hasTrailingDivider: false,
       disabled: false,
     }
   }
 
-  getSelectAllMenu() {
+  getSelectAllMenu(cy: any) {
     return {
       id: "select_all",
       content: "Select All",
       coreAsWell: true,
-      onClickFunction: (event: any) => { },
+      onClickFunction: (event: any) => {
+        cy.nodes().select();
+        cy.edges().select();
+      },
       hasTrailingDivider: false,
       disabled: false,
     }
