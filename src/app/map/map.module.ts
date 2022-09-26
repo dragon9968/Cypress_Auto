@@ -17,6 +17,8 @@ import { InfoPanelNodeComponent } from './info-panel/info-panel-node/info-panel-
 import { InfoPanelPortGroupComponent } from './info-panel/info-panel-port-group/info-panel-port-group.component';
 import { InfoPanelInterfaceComponent } from './info-panel/info-panel-interface/info-panel-interface.component';
 import { InfoPanelRenderComponent } from './info-panel/info-panel-render/info-panel-render.component';
+import { InfoPanelDomainComponent } from './info-panel/info-panel-domain/info-panel-domain.component';
+import { AddUpdateDomainDialogComponent } from './add-update-domain-dialog/add-update-domain-dialog.component';
 
 
 
@@ -37,7 +39,9 @@ import { InfoPanelRenderComponent } from './info-panel/info-panel-render/info-pa
     InfoPanelNodeComponent,
     InfoPanelPortGroupComponent,
     InfoPanelInterfaceComponent,
-    InfoPanelRenderComponent
+    InfoPanelRenderComponent,
+    InfoPanelDomainComponent,
+    AddUpdateDomainDialogComponent
   ],
   imports: [
     MapRoutingModule,

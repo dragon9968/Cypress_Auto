@@ -14,7 +14,7 @@ export class NodeService {
     return this.http.post<any>(ApiPaths.GEN_NODE_DATA, {
       collection_id: collectionId,
       device_id: deviceId,
-      template_id: templateId 
+      template_id: templateId
     });
   }
 
@@ -36,5 +36,13 @@ export class NodeService {
 
   validate(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.VALIDATE_NODE, data);
+  }
+
+  getNodesByCollectionId(collectionId: string): Observable<any> {
+    return this.http.get<any>(ApiPaths.NODE, {
+      params: {
+        q: '(columns:!(id,collection_id,domain_id),filters:!((col:collection_id,opr:eq,value:' + collectionId +')),keys:!(list_columns),page:0,page_size:1000)'
+      }
+    })
   }
 }

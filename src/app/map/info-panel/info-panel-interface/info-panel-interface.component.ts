@@ -145,7 +145,6 @@ export class InfoPanelInterfaceComponent implements OnInit, DoCheck {
 
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
-    this.gridApi.sizeColumnsToFit();
   }
 
   private _setEdgeInfoPanel(activeEdges: any[]) {

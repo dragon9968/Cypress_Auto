@@ -1,5 +1,5 @@
-<form [formGroup]="pgAddForm" (ngSubmit)="data.mode == 'add' ? addPG() : updatePG()">
-  <h1 mat-dialog-title>{{data.mode == 'add' ? 'Port Group Add' : 'Port Group Edit'}}</h1>
+<form [formGroup]="pgAddForm" (ngSubmit)="data.mode === 'add' ? addPG() : updatePG()">
+  <h1 mat-dialog-title>{{data.mode === 'add' ? 'Port Group Add' : data.mode === 'update' ? 'Port Group Edit' : 'Port Group Info'}}</h1>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
@@ -46,10 +46,11 @@
     </mat-form-field>
   </div>
   <div mat-dialog-actions [align]="'end'">
-    <button mat-raised-button type="button" (click)="onCancel()">{{data.mode == 'view' ? 'Close'
-      : 'Cancel'}}</button>
-    <button *ngIf="data.mode != 'view'" mat-raised-button type="submit" color="primary"
-      [disabled]="!pgAddForm.valid">{{data.mode == 'add' ? 'Add'
-      : 'Update'}}</button>
+    <button mat-raised-button type="button" (click)="onCancel()">
+      {{data.mode === 'view' ? 'Close' : 'Cancel'}}
+    </button>
+    <button *ngIf="data.mode !== 'view'" mat-raised-button type="submit" color="primary" [disabled]="!pgAddForm.valid">
+      {{data.mode === 'add' ? 'Add' : 'Update'}}
+    </button>
   </div>
 </form>

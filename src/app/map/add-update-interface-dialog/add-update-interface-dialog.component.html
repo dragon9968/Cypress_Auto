@@ -1,5 +1,5 @@
-<form [formGroup]="interfaceAddForm" (ngSubmit)="data.mode == 'add' ? addInterface() : updateInterface()">
-  <h1 mat-dialog-title>{{data.mode == 'add' ? 'Edge Add' : 'Edge Edit'}}</h1>
+<form [formGroup]="interfaceAddForm" (ngSubmit)="data.mode === 'add' ? addInterface() : updateInterface()">
+  <h1 mat-dialog-title>{{data.mode === 'add' ? 'Edge Add' : data.mode === 'update' ? 'Edge Edit': 'Edge Info'}}</h1>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Order</mat-label>
@@ -91,9 +91,11 @@
     </div>
   </div>
   <div mat-dialog-actions [align]="'end'">
-    <button mat-raised-button type="button" (click)="onCancel()">{{data.mode == 'view' ? 'Close'
-      : 'Cancel'}}</button>
-    <button *ngIf="data.mode != 'view'" mat-raised-button type="submit" color="primary" [disabled]="!interfaceAddForm.valid">{{data.mode == 'add' ? 'Add'
-      : 'Update'}}</button>
+    <button mat-raised-button type="button" (click)="onCancel()">
+      {{data.mode === 'view' ? 'Close' : 'Cancel'}}
+    </button>
+    <button *ngIf="data.mode !== 'view'" mat-raised-button type="submit" color="primary" [disabled]="!interfaceAddForm.valid">
+      {{data.mode === 'add' ? 'Add' : 'Update'}}
+    </button>
   </div>
 </form>

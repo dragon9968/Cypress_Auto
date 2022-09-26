@@ -9,7 +9,7 @@ import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
   templateUrl: './project-actions-renderer.component.html',
   styleUrls: ['./project-actions-renderer.component.scss']
 })
-export class ProjectActionsRenderer implements ICellRendererAngularComp {
+export class ProjectActionsRendererComponent implements ICellRendererAngularComp {
   id: any;
   category: any;
 

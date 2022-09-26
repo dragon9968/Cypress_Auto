@@ -1,5 +1,5 @@
-<form [formGroup]="nodeAddForm" (ngSubmit)="data.mode == 'add' ? addNode() : updateNode()">
-  <h1 mat-dialog-title>{{data.mode == 'add' ? 'Node Add' : 'Node Edit'}}</h1>
+<form [formGroup]="nodeAddForm" (ngSubmit)="data.mode === 'add' ? addNode() : updateNode()">
+  <h1 mat-dialog-title>{{data.mode === 'add' ? 'Node Add' : data.mode === 'update' ? 'Node Edit Form' : 'Node form'}}</h1>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
@@ -140,10 +140,11 @@
     </mat-form-field>
   </div>
   <div mat-dialog-actions [align]="'end'">
-    <button mat-raised-button type="button" (click)="onCancel()">{{data.mode == 'view' ? 'Close'
-      : 'Cancel'}}</button>
-    <button *ngIf="data.mode != 'view'" mat-raised-button type="submit" color="primary"
-      [disabled]="!nodeAddForm.valid">{{data.mode == 'add' ? 'Add'
-      : 'Update'}}</button>
+    <button mat-raised-button type="button" (click)="onCancel()">
+      {{data.mode === 'view' ? 'Close' : 'Cancel'}}
+    </button>
+    <button *ngIf="data.mode !== 'view'" mat-raised-button type="submit" color="primary" [disabled]="!nodeAddForm.valid">
+      {{data.mode === 'add' ? 'Add' : 'Update'}}
+    </button>
   </div>
 </form>

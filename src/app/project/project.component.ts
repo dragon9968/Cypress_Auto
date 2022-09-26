@@ -3,7 +3,7 @@ import { Store } from '@ngrx/store';
 import { Observable, of, Subscription } from 'rxjs';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
-import { ProjectActionsRenderer } from './renderers/project-actions-renderer.component';
+import { ProjectActionsRendererComponent } from './renderers/project-actions-renderer.component';
 import { selectProjects } from '../store/project/project.selectors';
 import { retrievedProjects } from '../store/project/project.actions';
 import { ProjectService } from './services/project.service';
@@ -34,7 +34,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
       field: 'id',
       suppressSizeToFit: true,
       width: 67,
-      cellRenderer: ProjectActionsRenderer,
+      cellRenderer: ProjectActionsRendererComponent,
       cellClass: 'project-actions'
     },
     { field: 'name'},
@@ -66,5 +66,5 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.gridApi = params.api;
     this.gridApi.sizeColumnsToFit();
   }
- 
+
 }

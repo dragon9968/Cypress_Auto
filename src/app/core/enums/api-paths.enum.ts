@@ -29,4 +29,5 @@ export enum ApiPaths {
   SAVE_MAP = '/api/v1/map/save',
   USER = '/api/v1/user/',
   SEARCH = '/api/v1/search/map',
+  DOMAIN_USER = '/api/v1/domainuser/',
 }

@@ -1,0 +1,27 @@
+<form [formGroup]="domainAddForm" (ngSubmit)="data.mode === 'add' ? addDomain() : updateDomain()">
+  <h1 mat-dialog-title>{{data.mode === 'add' ? 'Domain Add' : data.mode === 'update' ? 'Domain Edit': 'Domain View'}}</h1>
+  <div mat-dialog-content>
+    <mat-form-field class="field">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="nameCtr" [readonly]="isViewMode">
+      <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="nameCtr?.errors?.isExist">{{ errorMessages.DOMAIN_NAME_EXIST }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Admin User</mat-label>
+      <input matInput formControlName="adminUserCtr" [readonly]="isViewMode">
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Admin Password</mat-label>
+      <input matInput formControlName="adminPasswordCtr" [readonly]="isViewMode">
+    </mat-form-field>
+  </div>
+  <div mat-dialog-actions [align]="'end'">
+    <button mat-raised-button type="button" (click)="onCancel()">
+      {{data.mode === 'view' ? 'Close' : 'Cancel'}}
+    </button>
+    <button *ngIf="data.mode !== 'view'" mat-raised-button type="submit" color="primary" [disabled]="!domainAddForm.valid">
+      {{data.mode === 'add' ? 'Add' : 'Update'}}
+    </button>
+  </div>
+</form>

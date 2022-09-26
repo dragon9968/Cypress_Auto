@@ -127,7 +127,6 @@ export class InfoPanelPortGroupComponent implements OnInit, DoCheck {
 
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
-    this.gridApi.sizeColumnsToFit();
   }
 
   private _setPGInfoPanel(activePGs: any[]) {

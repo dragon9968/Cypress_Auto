@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
@@ -13,7 +13,7 @@ import { selectDefaultPreferences, selectGroupBoxes } from 'src/app/store/map/ma
   templateUrl: './tool-panel-option.component.html',
   styleUrls: ['./tool-panel-option.component.scss']
 })
-export class ToolPanelOptionComponent implements OnInit, OnDestroy {
+export class ToolPanelOptionComponent implements OnInit, OnDestroy, OnChanges {
   @Input() cy: any;
   @Input() config: any;
   isEdgeDirectionChecked = false;

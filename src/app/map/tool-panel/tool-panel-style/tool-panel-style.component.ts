@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, DoCheck, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatIconRegistry } from '@angular/material/icon';
@@ -15,7 +15,7 @@ import { selectDefaultPreferences } from 'src/app/store/map/map.selectors';
   templateUrl: './tool-panel-style.component.html',
   styleUrls: ['./tool-panel-style.component.scss']
 })
-export class ToolPanelStyleComponent implements OnInit, OnDestroy {
+export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
   @Input() cy: any;
   @Input() config: any;
   @Input() activeNodes: any[] = [];
