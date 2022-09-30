@@ -7,6 +7,7 @@
 @import 'cytoscape-panzoom/cytoscape.js-panzoom.css';
 @import 'font-awesome/css/font-awesome.min.css';
 @import '~ngx-toastr/toastr';
+@import "~@ng-select/ng-select/themes/material.theme.css";
 
 $tool-panel-width: 300px;
 
@@ -42,6 +43,6 @@ ul {
 	font-size: 11px;
 	z-index: 99999;
 	box-sizing: content-box;
-	padding-top: 225px;	
+	padding-top: 225px;
 	bottom: 48px;
 }

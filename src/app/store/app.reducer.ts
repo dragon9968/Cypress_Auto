@@ -15,6 +15,7 @@ import { nodeReducer } from "./node/node.reducer";
 import { domainUserReducer } from "./domain-user/domain-user.reducer";
 import { ReducerKeys } from "./reducer-keys.enum";
 import { mapContextMenuReducer } from "./map-context-menu/map-context-menu.reducer";
+import { groupReducer } from "./group/group.reducer";
 
 export const reducers = {
     [ReducerKeys.MAP]: mapReducer,
@@ -33,4 +34,5 @@ export const reducers = {
     [ReducerKeys.MAP_CM]: mapContextMenuReducer,
     [ReducerKeys.NODE]: nodeReducer,
     [ReducerKeys.DOMAIN_USER]: domainUserReducer,
+    [ReducerKeys.GROUP]: groupReducer,
 }

@@ -1,0 +1,10 @@
+<button mat-button color="primary" (click)="addGroup()">
+  <mat-icon>add_box</mat-icon>
+</button>
+<ag-grid-angular
+  class="ag-theme-alpine info-panel-group"
+  [gridOptions]="gridOptions"
+  (gridReady)="onGridReady($event)"
+  [rowData]="rowData$ | async"
+  (rowSelected)="selectedRows()">
+</ag-grid-angular>

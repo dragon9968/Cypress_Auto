@@ -427,6 +427,11 @@ export class HelpersService {
     return option ? option : {};
   }
 
+  getOptionByName(options: any, name: string) {
+    const option = options?.filter((option: any) => option.name == name)[0];
+    return option ? option : {};
+  }
+
   removeNode(node: any, deletedNodes: any[], deletedInterfaces: any[]) {
     const data = node.data();
     if (!data.new) {

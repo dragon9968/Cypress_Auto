@@ -19,7 +19,9 @@ import { InfoPanelInterfaceComponent } from './info-panel/info-panel-interface/i
 import { InfoPanelRenderComponent } from './info-panel/info-panel-render/info-panel-render.component';
 import { InfoPanelDomainComponent } from './info-panel/info-panel-domain/info-panel-domain.component';
 import { AddUpdateDomainDialogComponent } from './add-update-domain-dialog/add-update-domain-dialog.component';
-
+import { InfoPanelGroupComponent } from './info-panel/info-panel-group/info-panel-group.component';
+import { AddUpdateGroupDialogComponent } from './add-update-group-dialog/add-update-group-dialog.component';
+import { NgSelectModule } from "@ng-select/ng-select";
 
 
 @NgModule({
@@ -41,11 +43,14 @@ import { AddUpdateDomainDialogComponent } from './add-update-domain-dialog/add-u
     InfoPanelInterfaceComponent,
     InfoPanelRenderComponent,
     InfoPanelDomainComponent,
-    AddUpdateDomainDialogComponent
+    AddUpdateDomainDialogComponent,
+    InfoPanelGroupComponent,
+    AddUpdateGroupDialogComponent
   ],
   imports: [
     MapRoutingModule,
-    SharedModule
+    SharedModule,
+    NgSelectModule,
   ]
 })
 export class MapModule { }

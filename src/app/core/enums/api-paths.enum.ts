@@ -30,4 +30,6 @@ export enum ApiPaths {
   USER = '/api/v1/user/',
   SEARCH = '/api/v1/search/map',
   DOMAIN_USER = '/api/v1/domainuser/',
+  GROUP = '/api/v1/group/',
+  UPDATE_GROUP = '/api/v1/group/update'
 }

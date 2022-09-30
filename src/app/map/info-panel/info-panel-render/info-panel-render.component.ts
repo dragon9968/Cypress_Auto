@@ -25,6 +25,9 @@ import { retrievedPortGroups } from "../../../store/portgroup/portgroup.actions"
 import { retrievedNode } from "../../../store/node/node.actions";
 import { retrievedDomains } from "../../../store/domain/domain.actions";
 import { retrievedDomainUsers } from "../../../store/domain-user/domain-user.actions";
+import { GroupService } from "../../../core/services/group/group.service";
+import { AddUpdateGroupDialogComponent } from "../../add-update-group-dialog/add-update-group-dialog.component";
+import { retrievedGroups } from "../../../store/group/group.actions";
 
 @Component({
   selector: 'app-info-panel-render',
@@ -37,6 +40,7 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
   interface_id: any;
   pg_id: any;
   domain_id: any;
+  group_id: any;
   collectionId: any;
   getExternalParams: (() => any) | any;
   selectMapOption$ = new Subscription();
@@ -61,6 +65,7 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
     private interfaceService: InterfaceService,
     private domainService: DomainService,
     private domainUserService: DomainUserService,
+    private groupService: GroupService,
     private cmViewDetailsService: CMViewDetailsService
   ) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
@@ -108,6 +113,14 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
         };
         this.dialog.open(AddUpdateDomainDialogComponent, {width: '600px', data: dialogData});
       })
+    } else if (this.group_id) {
+      this.groupService.get(this.group_id).subscribe(groupData => {
+        const dialogData = {
+          mode: 'view',
+          genData: groupData.result
+        };
+        this.dialog.open(AddUpdateGroupDialogComponent, {width: '600px', data: dialogData});
+      })
     } else {
       this._setDataGetter(event);
       this.cmViewDetailsService.openViewDetailForm(event);
@@ -151,6 +164,15 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
         };
         this.dialog.open(AddUpdateDomainDialogComponent, {width: '600px', data: dialogData});
       })
+    } else if (this.group_id) {
+      this.groupService.get(this.group_id).subscribe(groupData => {
+          const dialogData = {
+            mode: 'update',
+            genData: groupData.result
+          };
+          this.dialog.open(AddUpdateGroupDialogComponent, {width: '600px', data: dialogData});
+        }
+      )
     }
   }
 
@@ -161,6 +183,10 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
       this.domainService.get(this.domain_id).subscribe(domainData => {
         this._deleteDomain(domainData.result);
       });
+    } if (this.group_id) {
+      this.groupService.get(this.group_id).subscribe(groupData => {
+        this._deleteGroup(groupData.result);
+      })
     } else {
       this.delete(params.cy, params.activeNodes, params.activePGs, params.activeEdges,
         params.activeGBs, params.deletedNodes, params.deletedInterfaces);
@@ -184,6 +210,8 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
       this.interface_id = this.id;
     } else if (this.tabName == 'domain') {
       this.domain_id = this.id;
+    } else if (this.tabName == 'group') {
+      this.group_id = this.id;
     }
   }
 
@@ -268,25 +296,32 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
     const isDomainInPG = this.portGroups.some(ele => ele.domain_id === domain.id);
     const domainName = domain.name;
     if (isDomainInNode && isDomainInPG) {
-      this.toastr.error(`Port groups and nodes are still associated with domain ${ domainName }`);
+      this.toastr.error(`Port groups and nodes are still associated with domain ${domainName}`);
     } else if (isDomainInNode) {
-      this.toastr.error(`Nodes are still associated with this domain ${ domainName }`);
+      this.toastr.error(`Nodes are still associated with this domain ${domainName}`);
     } else if (isDomainInPG) {
-      this.toastr.error(`Port groups are still associated with domain ${ domainName }`)
+      this.toastr.error(`Port groups are still associated with domain ${domainName}`)
     } else {
       this.domainUsers
         .filter(ele => ele.domain_id === domain.id)
         .map(ele => {
           return this.domainUserService.delete(ele.id).subscribe(response => {
-            this.toastr.success(`Deleted domain user ${ ele.username }`);
+            this.toastr.success(`Deleted domain user ${ele.username}`);
           })
         });
       this.domainService.delete(domain.id).subscribe(response => {
-        this.toastr.success(`Deleted domain ${ domainName }`);
+        this.toastr.success(`Deleted domain ${domainName}`);
         this.domainService.getDomainByCollectionId(this.collectionId).subscribe(
           (data: any) => this.store.dispatch(retrievedDomains({data: data.result}))
         );
       })
     }
+  }
+
+  private _deleteGroup(group: any) {
+    this.groupService.delete(group.id).subscribe(response => this.toastr.success('Deleted Row'));
+    this.groupService.getGroupByCollectionId(this.collectionId).subscribe(data => {
+      this.store.dispatch(retrievedGroups({data: data.result}));
+    })
   }
 }

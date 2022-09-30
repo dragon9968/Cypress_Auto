@@ -1,0 +1,76 @@
+<form [formGroup]="groupAddForm" (ngSubmit)="data.mode === 'add' ? addGroup() : updateGroup()">
+  <h1 mat-dialog-title>{{data.mode === 'add' ? 'Group Add' : data.mode === 'update' ? 'Group Edit' : 'Group View'}}</h1>
+  <div mat-dialog-content>
+    <mat-form-field class="field">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="nameCtr" placeholder="Name" [readonly]="isViewMode">
+      <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="nameCtr?.errors?.isExist">{{ errorMessages.GROUP_NAME_EXIST }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Category</mat-label>
+      <input matInput type="text" placeholder="Select a category" formControlName="categoryCtr"
+             [matAutocomplete]="autoCategory" [readonly]="isViewMode">
+      <mat-autocomplete #autoCategory="matAutocomplete" [displayWith]="helpers.optionDisplay">
+        <mat-option *ngFor="let option of CATEGORIES" [value]="option" (onSelectionChange)="changeCategory($event)">
+          {{ option.name }}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <mat-form-field *ngIf="data.mode !== 'update'" [class.invisible]="isHiddenCategoryChild" class="field">
+      <input matInput type="text" [matAutocomplete]="autoCategoryChild" [readonly]="isViewMode"
+             [placeholder]="categoryName" formControlName="categoryIdCtr">
+      <mat-autocomplete #autoCategoryChild="matAutocomplete" [displayWith]="helpers.optionDisplay">
+        <mat-option *ngFor="let data of dataCategoryChild" [value]="data">
+          {{ data.name }}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <mat-form-field *ngIf="!isViewMode" class="field">
+      <mat-label>Description</mat-label>
+      <input matInput formControlName="descriptionCtr" placeholder="Description" [readonly]="isViewMode">
+    </mat-form-field>
+
+    <mat-form-field *ngIf="isViewMode && data.mode !== 'add'" class="field">
+      <mat-label>Nodes</mat-label>
+      <input matInput formControlName="nodesCtr" [readonly]="isViewMode">
+    </mat-form-field>
+
+    <ng-select
+      *ngIf="!isViewMode && data.mode !== 'add'"
+      formControlName="nodesCtr"
+      [items]="nodes"
+      [multiple]="true"
+      bindLabel="name"
+      bindValue="id"
+      placeholder="Nodes">
+    </ng-select>
+
+    <mat-form-field *ngIf="isViewMode && data.mode !== 'add'" class="field">
+      <mat-label>Port Groups</mat-label>
+      <input matInput formControlName="portGroupsCtr" [readonly]="isViewMode">
+    </mat-form-field>
+
+    <ng-select
+      *ngIf="!isViewMode && data.mode !== 'add'"
+      formControlName="portGroupsCtr"
+      [items]="portGroups"
+      [multiple]="true"
+      bindLabel="name"
+      bindValue="id"
+      placeholder="Port Groups">
+    </ng-select>
+  </div>
+
+  <div mat-dialog-actions [align]="'end'">
+    <button mat-raised-button type="button" (click)="onCancel()">
+      {{data.mode === 'view' ? 'Close' : 'Cancel'}}
+    </button>
+    <button *ngIf="data.mode !== 'view'" mat-raised-button type="submit" color="primary"
+            [disabled]="!groupAddForm.valid">
+      {{data.mode === 'add' ? 'Add' : 'Update'}}
+    </button>
+  </div>
+</form>

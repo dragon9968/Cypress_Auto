@@ -9,7 +9,7 @@ import { HelpersService } from "../../core/services/helpers/helpers.service";
 import { ErrorMessages } from "../../shared/enums/error-messages.enum";
 import { selectDomains } from "../../store/domain/domain.selectors";
 import { retrievedDomains } from "../../store/domain/domain.actions";
-import { validateDomainName } from "../../shared/validations/domain.validation";
+import { validateNameExist } from "../../shared/validations/name-exist.validation";
 
 
 @Component({
@@ -40,7 +40,7 @@ export class AddUpdateDomainDialogComponent implements OnInit {
       nameCtr: new FormControl({
         value: '',
         disabled: this.isViewMode
-      }, [Validators.required, validateDomainName(() => this.domains)]),
+      }, [Validators.required, validateNameExist(() => this.domains, this.data.mode, this.data.genData.id)]),
       adminUserCtr: new FormControl({value: '', disabled: this.isViewMode}),
       adminPasswordCtr: new FormControl({value: '', disabled: this.isViewMode})
     })
