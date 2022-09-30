@@ -14,6 +14,14 @@ export class ProjectService {
     return this.http.get<any>(ApiPaths.PROJECTS);
   }
 
+  getProjectByStatus(status: string) : Observable<any> {
+    return this.http.get<any>(ApiPaths.PROJECTS, {
+      params: {
+        q: '(filters:!((col:status,opr:eq,value:' + status + ')),keys:!(list_columns),page:0,page_size:1000)'
+      }
+    });
+  }
+
   get(id: number): Observable<any> {
     return this.http.get<any>(ApiPaths.PROJECTS + id);
   }
