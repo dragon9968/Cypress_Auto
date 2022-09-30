@@ -9,6 +9,7 @@ import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { MapPrefService } from 'src/app/map/tool-panel/tool-panel-style/services/map-pref/map-pref.service';
 import { retrievedMapPref } from 'src/app/store/map-style/map-style.actions';
 import { selectDefaultPreferences } from 'src/app/store/map/map.selectors';
+import { CommonService } from 'src/app/map/context-menu/cm-common-service/common.service';
 
 @Component({
   selector: 'app-tool-panel-style',
@@ -53,6 +54,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
     private mapPrefService: MapPrefService,
     private store: Store,
     public helpers: HelpersService,
+    private commonService: CommonService,
     iconRegistry: MatIconRegistry,
   ) {
     iconRegistry.addSvgIcon('dashed', this.setPath('/assets/icons/dashed.svg'));
@@ -144,348 +146,138 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   setTextVAlign(value: string) {
-    const newTextValign = value;
-    const activeEles = this.activeNodes.concat(this.activePGs);
-    this.changeTextVAlign({activeEles, newTextValign});
+    this.commonService.textVAlign(
+      value, this.activeNodes, this.activePGs
+    )
   }
-
-  changeTextVAlign(data: any) {
-    data.activeEles.forEach((ele: any) => {
-      data.old_text_valign = ele.data("text_valign");
-      ele.data("text_valign", data.newTextValign);
-      const d = ele.data();
-      if (!d.new) {
-        d.updated = true;
-      }
-    })
-    return data;
-  }
-
 
   setTextHAlign(value: string) {
-    const newTextHalign = value;
-    const activeEles = this.activeNodes.concat(this.activePGs);
-    this.changeTextHAlign({activeEles, newTextHalign});
+    this.commonService.textHAlign(
+      value, this.activeNodes, this.activePGs
+    );
   }
-
-  changeTextHAlign(data: any) {
-    data.activeEles.forEach((ele: any) => {
-      data.old_text_halign = ele.data("text_halign");
-      ele.data("text_halign", data.newTextHalign);
-      const d = ele.data();
-      if (!d.new) {
-        d.updated = true;
-      }
-    })
-    return data;
-  }
-
 
   setDirection(value: string) {
-    const newDirection = value;
-    this.changeDirection({activeEdges: this.activeEdges, newDirection});
-  }
-
-  changeDirection(data: any) {
-    data.activeEdges.forEach((ele: any) => {
-      data.old_direction = ele.data("direction")
-      ele.data("direction", data.newDirection);
-      const d = ele.data();
-      if (!d.new) {
-        d.updated = true;
-      }
-    })
-    return data;
+    this.commonService.edgeDirection(
+      value,
+      this.activeEdges,
+    );
   }
 
   setGBType(newGbBorderType: string) {
-    this.changeGBType({activeGbs: this.activeGBs, newGbBorderType});
-  }
-
-  changeGBType(data: any) {
-    data.activeGbs.forEach((ele: any) => {
-      data.old_gb_border_type = ele.data("border_style");
-      ele._private['data'] = {...ele._private['data']};
-      ele.data("border_style", data.newGbBorderType);
-      const d = ele.data();
-      if (!d.new) {
-        d.updated = true;
-      }
-    })
-    this.gbBorderTypeActivated = data.newGbBorderType;
-    return data;
+    this.commonService.gBType(
+      newGbBorderType,
+      this.activeGBs,
+      this.gbBorderTypeActivated
+    );
   }
 
   setNodeSize() {
-    const data = this.changeNodeSize({activeNodes: this.activeNodes, nodeSize: this.nodeSize});
-    this.activeNodes = data.activeNodes;
-  }
-
-  changeNodeSize(data: any) {
-    data.nodeSize = data.nodeSize <= 200 ? data.nodeSize : 200;
-    const newIconSize = data.nodeSize + "px";
-    data.activeNodes.forEach((ele: any) => {
-      data.old_icon_size = ele.data("width")
-      if (ele.data("elem_category") != "port_group" && ele.data("label") != "map_background") {
-        ele.data("width", newIconSize);
-        ele.data("height", newIconSize);
-        const d = ele.data();
-        if (!d.new) {
-          d.updated = true;
-        }
-      }
-    })
-    return data;
+    this.commonService.changeNode(
+      this.activeNodes,
+      this.nodeSize
+    );
   }
 
   setTextColor(color: string) {
-    this._setColorCommon(color, this.changTextColor.bind(this));
-  }
-
-  changTextColor(data: any) {
-    data.activeEles.forEach((ele : any) => {
-      data.old_text_color = ele.data("text_color");
-      ele._private['data'] = {...ele._private['data']};
-      if (ele.data("label") == "map_background") {
-        data.newColor = "#ffffff";
-      } else {
-        if (!ele.data('label')) {
-          const d = ele.data();
-          if (!d.new) {
-            d.updated = true;
-          }
-        }
-      }
-      ele.data("text_color", data.newColor);
-    })
-    this.textColor = this.helpers.fullColorHex(data?.newColor);
-    return data;
+    this.commonService.textColor(
+      color, 
+      this.activeNodes, 
+      this.activePGs, 
+      this.activeEdges, 
+      this.activeGBs,
+      this.textColor
+    );
   }
 
   setTextSize(size: any) {
-    const newTextSize = size.value
-    const activeEles = this.activeNodes.concat(this.activeEdges, this.activePGs);
-    this.changeTextSize({activeEles, newTextSize})
-  }
-
-  changeTextSize(data: any) {
-    data.activeEles.forEach((ele: any) => {
-      data.old_text_size = ele.data("text_size");
-      ele.data("text_size", data.newTextSize);
-      if (!ele.data('label')) {
-        const d = ele.data();
-        if (!d.new) {
-          d.updated = true;
-        }
-      }
-    })
-    this.textSize = data.newTextSize <= 200 ? data.newTextSize : 200;
-    return data;
-  }
-
-  changeTextBGOpacity(data: any) {
-    data.activeEles.forEach((ele: any) => {
-      data.old_text_bg_opacity = ele.data("text_bg_opacity");
-      ele.data("text_bg_opacity", data.newTextBgOpacity);
-      const d = ele.data();
-      if (!d.new) {
-        d.updated = true;
-      }
-    })
-    this.textBGOpacity = data.newTextBgOpacity;
-    return data;
+    this.commonService.textSize(
+      size,
+      this.textSize,
+      this.activeNodes,
+      this.activeEdges,
+      this.activePGs
+    );
   }
 
   setTextBGOpacity(opacity: any) {
-    const newTextBgOpacity = opacity.value;
-    const activeEles = this.activeNodes.concat(this.activeEdges, this.activePGs);
-    this.changeTextBGOpacity({activeEles, newTextBgOpacity})
+    this.commonService.textBGOpacity(
+      opacity, 
+      this.activeNodes,
+      this.activeEdges, 
+      this.activePGs,
+      this.textBGOpacity
+    );
   }
 
   setTextBGColor(color: any) {
-    this._setColorCommon(color, this.changeTextBGColor.bind(this));
-  }
-
-  private _setColorCommon(color: any, changeColorFunc: Function) {
-    const hexPattern = '#d{0,}';
-    const hexColor = color;
-    const hexPatternFound = hexColor.match(hexPattern)
-    if (hexPatternFound) {
-      const r = parseInt(hexColor.slice(1, 3), 16).toString();
-      const g = parseInt(hexColor.slice(3, 5), 16).toString();
-      const b = parseInt(hexColor.slice(5, 7), 16).toString();
-      const newColor = "rgb(" + r + ',' + g + ',' + b + ")";
-      const activeEles = this.activeNodes.concat(this.activeEdges, this.activePGs, this.activeGBs);
-      changeColorFunc({ activeEles, newColor });
-    }
-  }
-
-  changeTextBGColor(data: any) {
-    data.activeEles.forEach((ele: any) => {
-      data.old_text_bg_color = ele.data("text_bg_color");
-      ele._private['data'] = {...ele._private['data']};
-      ele.data("text_bg_color", data.newColor);
-      const d = ele.data();
-      if (!d.new) {
-        d.updated = true;
-      }
-    })
-
-    this.textBGColor = this.helpers.fullColorHex(data.newColor);
-    return data;
+    this.commonService.textBGColor(
+      color,
+      this.activeNodes,
+      this.activeEdges,
+      this.activePGs,
+      this.activeGBs,
+      this.textBGColor
+    );
   }
 
   setPGColor(color: string) {
-    const newPgColor = color;
-    this.changePGColor({activePGs: this.activePGs, newPgColor});
+    this.commonService.pgColor(
+      color,
+      this.activePGs,
+      this.pgColor
+    );
   }
 
-  changePGColor(data: any) {
-    data.activePGs.forEach((ele: any) => {
-      data.old_pg_color = ele.data("color");
-      if (ele.data("elem_category") == "port_group") {
-        ele.data("color", data.newPgColor);
-        const d = ele.data();
-        if (!d.new) {
-          d.updated = true;
-        }
-      }
-    })
-
-    this.pgColor = this.helpers.fullColorHex(data.newPgColor);
-    return data;
-  }
 
   setPGSize(size: any) {
-    const newPgSize = size.value;
-    this.changePGSize({activePgs: this.activePGs, newPgSize});
-  }
-
-  changePGSize(data: any) {
-    data.activePgs.forEach((ele: any) => {
-      data.old_pg_size = ele.data("width")
-      if (ele.data("elem_category") == "port_group") {
-        ele.data("width", data.newPgSize);
-        ele.data("height", data.newPgSize);
-        ele.style({ "background-fit": "cover" });
-        const d = ele.data();
-        if (!d.new) {
-          d.updated = true;
-        }
-      }
-    })
-    this.pgSize = data.newPgSize <= 200 ? data.newPgSize : 200;
-    return data;
+    this.commonService.pgSize (
+      size,
+      this.activePGs,
+      this.pgSize
+    );
   }
 
   setEdgeColor(color: string) {
-    const newEdgeColor = color;
-    this.changeEdgeColor({activeEdges: this.activeEdges, newEdgeColor});
-  }
-
-  changeEdgeColor(data: any) {
-    data.activeEdges.forEach((ele: any) => {
-      data.old_edge_color = ele.data("color")
-      ele.data("color", data.newEdgeColor);
-      const d = ele.data();
-      if (!d.new) {
-        d.updated = true;
-      }
-    })
-    this.edgeColor = this.helpers.fullColorHex(data.newEdgeColor);
-    return data;
+    this.commonService.edgeColor(
+      color,
+      this.activeEdges,
+      this.edgeColor
+    );
   }
 
   setEdgeSize(size: any) {
-    const newEdgeSize = size.value;
-    this.changeEdgeSize({activeEdges: this.activeEdges, newEdgeSize});
-  }
-
-  changeEdgeSize(data: any) {
-    data.activeEdges.forEach((ele: any) => {
-      data.old_edge_size = ele.data("width");
-      ele.data("width", data.newEdgeSize);
-      const d = ele.data();
-      if (!d.new) {
-        d.updated = true;
-      }
-    })
-    this.edgeSize = data.newEdgeSize <= 50 ? data.newEdgeSize : 50;
-    return data;
+    this.commonService.edgeSize(
+      size,
+      this.activeEdges,
+      this.edgeSize
+    );
   }
 
   setArrowScale(size: any) {
-    const newArrowScale = size.value;
-    this.changeArrowScale({ activeEdges: this.activeEdges, newArrowScale });
-  }
-
-  changeArrowScale(data: any) {
-    data.activeEdges.forEach((ele: any) => {
-      data.old_arrow_scale = ele.data("arrow_scale");
-      ele.data("arrow_scale", data.newArrowScale);
-      const d = ele.data();
-      if (!d.new) {
-        d.updated = true;
-      }
-    })
-    this.arrowSize = data.newArrowScale <= 200 ? data.newArrowScale : 200;
-    return data;
+    this.commonService.arrowScale (
+      size, 
+      this.activeEdges,
+      this.arrowSize
+    );
   }
 
   setGBColor(newGbColor: string) {
-    this.changeGBColor({activeGbs: this.activeGBs, newGbColor});
-  }
-
-  changeGBColor(data: any) {
-    data.activeGbs.forEach((ele: any) => {
-      data.old_gb_color = ele.data("color");
-      ele._private['data'] = {...ele._private['data']};
-      ele.data("color", data.newGbColor);
-      const d = ele.data();
-      if (!d.new) {
-        d.updated = true;
-      }
-    });
-
-    this.gbColor = this.helpers.fullColorHex(data.newGbColor);
-    return data;
+    this.commonService.gBColor(
+      newGbColor, this.activeGBs, this.gbColor
+    );
   }
 
   setGBOpacity(event: any) {
-    const newGbOpacity = event.value;
-    this.changeGBOpacity({activeGbs: this.activeGBs, newGbOpacity});
-  }
-
-  changeGBOpacity(data: any) {
-    data.activeGbs.forEach((ele: any) => {
-      data.old_gb_opacity = ele.data("group_opacity");
-      ele._private['data'] = {...ele._private['data']};
-      ele.data("group_opacity", data.newGbOpacity);
-      const d = ele.data();
-      if (!d.new) {
-        d.updated = true;
-      }
-    })
-    this.gbOpacity = data.newGbOpacity;
-    return data;
+    this.commonService.gbOpacity(event, this.activeGBs, this.gbOpacity);
   }
 
   setGBBorderColor(newGbBorderColor: string) {
-    this.changeGBBorderColor({activeGbs: this.activeGBs, newGbBorderColor});
-  }
-
-  changeGBBorderColor(data: any) {
-    data.activeGbs.forEach((ele: any) => {
-      data.old_gb_border_color = ele.data("border_color");
-      ele._private['data'] = {...ele._private['data']};
-      ele.data("border_color", data.newGbBorderColor);
-      const d = ele.data();
-      if (!d.new) {
-        d.updated = true;
-      }
-    })
-
-    this.gbBorderColor = this.helpers.fullColorHex(data.newGbBorderColor);
-    return data;
+    // this.changeGBBorderColor({activeGbs: this.activeGBs, newGbBorderColor});
+    this.commonService.gBBorderColor(
+      newGbBorderColor,
+      this.activeGBs, 
+      this.gbBorderColor
+      );
   }
 }

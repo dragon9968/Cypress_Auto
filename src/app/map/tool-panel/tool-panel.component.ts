@@ -10,6 +10,7 @@ import { selectMapContextMenu } from 'src/app/store/map-context-menu/map-context
 import { retrievedMapEdit } from 'src/app/store/map-edit/map-edit.actions';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 import { selectMapStyle } from 'src/app/store/map-style/map-style.selectors';
+import { CommonService } from 'src/app/map/context-menu/cm-common-service/common.service';
 
 @Component({
   selector: 'app-tool-panel',
@@ -18,6 +19,7 @@ import { selectMapStyle } from 'src/app/store/map-style/map-style.selectors';
 })
 export class ToolPanelComponent implements OnInit, OnDestroy {
   @Input() cy: any;
+  @Input() ur: any;
   @Input() config: any;
   @Input() collectionId: any;
   @Input() mapCategory: any;
@@ -55,6 +57,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     private mapService: MapService,
     private dialog: MatDialog,
     private helpersService: HelpersService,
+    private commonService: CommonService
   ) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
@@ -165,11 +168,12 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   }
 
   undo() {
-    console.log('undoMap');
+    this.commonService?.ur.undo();
+
   }
 
   redo() {
-    console.log('redoMap');
+    this.commonService?.ur.redo();
   }
 
   cancel() {

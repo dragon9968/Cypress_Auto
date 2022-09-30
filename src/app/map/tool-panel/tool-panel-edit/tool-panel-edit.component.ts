@@ -11,6 +11,7 @@ import { Subscription } from 'rxjs';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 import { CMDeleteService } from '../../context-menu/cm-delete/cm-delete.service';
 import { CMLockUnlockService } from '../../context-menu/cm-lock-unlock/cm-lock-unlock.service';
+import { CommonService } from 'src/app/map/context-menu/cm-common-service/common.service';
 
 @Component({
   selector: 'app-tool-panel-edit',
@@ -48,6 +49,7 @@ export class ToolPanelEditComponent implements OnDestroy {
     private cmDeleteService: CMDeleteService,
     private cmLockUnlockService: CMLockUnlockService,
     public helpers: HelpersService,
+    private commonService: CommonService,
   ) {
     this.selectDevices$ = this.store.select(selectDevices).subscribe((devices: any) => {
       this.devices = devices;
@@ -117,7 +119,7 @@ export class ToolPanelEditComponent implements OnDestroy {
   }
 
   deleteNodes() {
-    this.cmDeleteService.delete(
+    this.commonService.delete(
       this.cy,
       this.activeNodes,
       this.activePGs,

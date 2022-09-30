@@ -49,6 +49,8 @@ import { LoginProfileService } from '../core/services/login-profile/login-profil
 import { SearchService } from '../core/services/search/search.service';
 import { MapService } from '../core/services/map/map.service';
 import { selectSearchText } from '../store/map-option/map-option.selectors';
+import { CommonService } from 'src/app/map/context-menu/cm-common-service/common.service';
+import { StyleService } from 'src/app/core/services/helpers/style.service';
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
 const expandCollapse = require('cytoscape-expand-collapse');
@@ -154,6 +156,8 @@ export class MapComponent implements OnInit, OnDestroy {
     private cmGoToTableService: CMGoToTableService,
     private cmMapService: CMMapService,
     private searchService: SearchService,
+    private commonService: CommonService,
+    private styleService: StyleService,
   ) {
     navigator(cytoscape);
     gridGuide(cytoscape);
@@ -182,6 +186,7 @@ export class MapComponent implements OnInit, OnDestroy {
         this._initCytoscape();
         this._initMouseEvents();
         this._initContextMenu();
+        this._initUndoRedo();
       }
     });
     this.selectMapStyle$ = this.store.select(selectMapStyle).subscribe((selectedDefaultPref: any) => {
@@ -676,11 +681,10 @@ export class MapComponent implements OnInit, OnDestroy {
     //   }
     // });
 
+  }
+
+  private _initUndoRedo() {
     this.cy.panzoom({});
-    this.ur = this.cy.undoRedo({
-      isDebug: this.config['debug_output'],
-      stackSizeLimit: 20,
-    });
     this.cy.expandCollapse({
       layoutBy: null,
       fisheye: false,
@@ -708,6 +712,27 @@ export class MapComponent implements OnInit, OnDestroy {
       isDebug: this.config['debug_output'],
       stackSizeLimit: 20,
     });
+    this.commonService.ur = this.ur;
+    this.ur.action("removeNode", this.helpersService.removeNode.bind(this), this.helpersService.restoreNode.bind(this.commonService));
+    this.ur.action("removeEdge", this.helpersService.removeEdge.bind(this), this.helpersService.restoreEdge.bind(this));
+    this.ur.action("changeNodeSize", this.helpersService.changeNodeSize.bind(this.commonService), this.helpersService.restoreNodeSize.bind(this.commonService));
+    this.ur.action("changTextColor", this.styleService.changTextColor.bind(this.commonService).bind(this.commonService), this.styleService.restoreTextColor.bind(this.commonService).bind(this.commonService));
+
+    this.ur.action("changeTextSize", this.styleService.changeTextSize.bind(this.commonService).bind(this.commonService), this.styleService.restoreTextSize.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changePGColor", this.styleService.changePGColor.bind(this.commonService).bind(this.commonService), this.styleService.restorePGColor.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changePGSize", this.styleService.changePGSize.bind(this.commonService).bind(this.commonService), this.styleService.restorePGSize.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changeEdgeColor", this.styleService.changeEdgeColor.bind(this.commonService).bind(this.commonService), this.styleService.restoreEdgeColor.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changeEdgeSize", this.styleService.changeEdgeSize.bind(this.commonService).bind(this.commonService), this.styleService.restoreEdgeSize.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changeArrowScale", this.styleService.changeArrowScale.bind(this.commonService).bind(this.commonService), this.styleService.restoreArrowScale.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changeDirection", this.styleService.changeDirection.bind(this.commonService).bind(this.commonService), this.styleService.restoreDirection.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changeTextBGColor", this.styleService.changeTextBGColor.bind(this.commonService).bind(this.commonService), this.styleService.restoreTextBGColor.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changeTextBGOpacity", this.styleService.changeTextBGOpacity.bind(this.commonService).bind(this.commonService), this.styleService.restoreTextBGOpacity.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changeTextVAlign", this.styleService.changeTextVAlign.bind(this.commonService), this.styleService.restoreTextVAlign.bind(this.commonService));
+    this.ur.action("changeTextHAlign", this.styleService.changeTextHAlign.bind(this.commonService), this.styleService.restoreTextHAlign.bind(this.commonService));
+    this.ur.action("changeGBOpacity", this.styleService.changeGBOpacity.bind(this.commonService).bind(this.commonService), this.styleService.restoreGBOpacity.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changeGBColor", this.styleService.changeGBColor.bind(this.commonService).bind(this.commonService), this.styleService.restoreGBColor.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changeGBBorderColor", this.styleService.changeGBBorderColor.bind(this.commonService).bind(this.commonService), this.styleService.restoreGBBorderColor.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changeGBType", this.styleService.changeGBType.bind(this.commonService).bind(this.commonService), this.styleService.restoreGBType.bind(this.commonService).bind(this.commonService));
   }
 
   private _initMouseEvents() {

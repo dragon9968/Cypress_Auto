@@ -437,19 +437,19 @@ export class HelpersService {
     if (!data.new) {
       data.deleted = true;
       if (data.elem_category == "port_group") {
-        deletedNodes.push({
+        deletedNodes?.push({
           'elem_category': data.elem_category,
           'label': data.label,
           'id': data.pg_id
         });
       } else if (data.elem_category == "node") {
-        deletedNodes.push({
+        deletedNodes?.push({
           'elem_category': data.elem_category,
           'label': data.label,
           'id': data.node_id
         });
       } else if (data.elem_category == "group") {
-        deletedNodes.push({
+        deletedNodes?.push({
           'elem_category': data.elem_category,
           'label': data.label,
           'id': data.group_id
@@ -460,7 +460,7 @@ export class HelpersService {
         const data = ele.data();
         if (data && !data.new) {
           data.deleted = true;
-          deletedInterfaces.push({
+          deletedInterfaces?.push({
             'name': data.id,
             'interface_id': data.interface_id
           });
@@ -469,6 +469,27 @@ export class HelpersService {
     }
     // this._info_panel.remove_row(data.id);
     return node.remove();
+  }
+
+  restoreNode(_node: any, deletedNodes: any[], deletedInterfaces: any[]){
+    var restored = _node.restore();
+    var node = null;
+    restored.forEach(function (ele: any) {
+        var d = ele.data()
+        if(ele.group() == 'nodes'){
+            if (!d.new) {
+                d.deleted = false;
+                // delete deletedNodes[d.id];
+                node = ele;
+            }
+        }else{
+            if (!d.new) {
+                d.deleted = false;
+                // delete deletedInterfaces[d.id];
+            }
+        }
+    });
+    return node;
   }
 
   addBadge(cy: any, ele: any) {
@@ -506,13 +527,23 @@ export class HelpersService {
   removeEdge(edge: any, deletedInterfaces: any[]) {
     const data = edge.data();
     if (data && !data.new) {
-      deletedInterfaces.push({
+      deletedInterfaces?.push({
         'name': data.id,
         'interface_id': data.interface_id
       });
       data.deleted = true;
     }
     return edge.remove();
+  }
+
+  restoreEdge(edge: any, deletedInterfaces: any[]) {
+    const edge_restore = edge.restore();
+    const data = edge_restore.data();
+    if (data && !data.new) {
+      data.deleted = false;
+      // delete deletedInterfaces[data.id];
+    }
+    return edge_restore;
   }
 
   hexToRGB(hexColor: string) {
@@ -551,6 +582,40 @@ export class HelpersService {
       hex = "0" + hex;
     }
     return hex;
+  }
+
+  changeNodeSize(data: any) {
+    data.nodeSize = data.nodeSize <= 200 ? data.nodeSize : 200;
+    const newIconSize = data.nodeSize + "px";
+    data.activeNodes?.forEach((ele: any) => {
+      data.old_icon_size = ele.data("width")
+      if (ele.data("elem_category") != "port_group" && ele.data("label") != "map_background") {
+        ele.data("width", newIconSize);
+        ele.data("height", newIconSize);
+        const d = ele.data();
+        if (!d.new) {
+          d.updated = true;
+        }
+      }
+    })
+    return data;
+  }
+
+  restoreNodeSize(data: any) {
+    data.nodeSize = data.nodeSize <= 200 ? data.nodeSize : 200;
+    // const newIconSize = data.nodeSize + "px";
+    data.activeNodes.forEach((ele: any) => {
+      // data.old_icon_size = ele.data("width")
+      if (ele.data("elem_category") != "port_group" && ele.data("label") != "map_background") {
+        ele.data("width", data.old_icon_size);
+        ele.data("height", data.old_icon_size);
+        const d = ele.data();
+        if (!d.new) {
+          d.updated = true;
+        }
+      }
+    });
+    return data;
   }
 
   private urlBase64Decode(str: string) {
