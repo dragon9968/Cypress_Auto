@@ -1,0 +1,58 @@
+<form [formGroup]="interfaceBulkEditForm" (ngSubmit)="updateInterfaceBulk()">
+  <h1 mat-dialog-title>Interface Bulk Edit Form</h1>
+  <div mat-dialog-content>
+    <mat-form-field class="field">
+      <mat-label>Status</mat-label>
+      <input matInput type="text" placeholder="Select a status" formControlName="statusCtr"
+             [matAutocomplete]="autoStatus">
+      <mat-autocomplete #autoStatus="matAutocomplete"
+                        [displayWith]="helpers.optionDisplay">
+        <mat-option *ngFor="let option of STATUS" [value]="option">
+          {{ option.name }}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Direction</mat-label>
+      <input matInput type="text" placeholder="Select a direction" formControlName="directionCtr"
+             [matAutocomplete]="autoDirection">
+      <mat-autocomplete #autoDirection="matAutocomplete" [displayWith]="helpers.optionDisplay">
+        <mat-option *ngFor="let option of DIRECTIONS" [value]="option">
+          {{ option.name }}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+    <div class="ip-allocation">
+      <label class="ip-allocation-label">IP Allocation</label>
+      <mat-radio-group class="ip-allocation-group" formControlName="ipAllocationCtr">
+        <mat-radio-button class="ip-allocation-item" value="static_auto">Static Auto</mat-radio-button>
+        <mat-radio-button class="ip-allocation-item" value="static_manual">Static Manual</mat-radio-button>
+        <mat-radio-button class="ip-allocation-item" value="dhcp">DHCP</mat-radio-button>
+      </mat-radio-group>
+    </div>
+    <mat-form-field class="field">
+      <mat-label>DNS Server</mat-label>
+      <input matInput type="text" formControlName="dnsServerCtr">
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Gateway</mat-label>
+      <input matInput type="text" placeholder="Select or enter a gateway" formControlName="gatewayCtr"
+             [matAutocomplete]="autoGateway">
+      <mat-autocomplete #autoGateway="matAutocomplete" [displayWith]="helpers.optionDisplay">
+        <mat-option *ngFor="let option of data.gateways" [value]="option">
+          {{ option.name }}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+    <div class="field field-checkbox">
+      <mat-checkbox formControlName="isGatewayCtr" labelPosition="before">Is Gateway</mat-checkbox>
+    </div>
+    <div class="field field-checkbox">
+      <mat-checkbox formControlName="isNatCtr" labelPosition="before">Is NAT</mat-checkbox>
+    </div>
+  </div>
+  <div mat-dialog-actions [align]="'end'">
+    <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+    <button mat-raised-button type="submit" color="primary" [disabled]="!interfaceBulkEditForm.valid">Update</button>
+  </div>
+</form>

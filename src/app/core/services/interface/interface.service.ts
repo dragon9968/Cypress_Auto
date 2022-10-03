@@ -36,4 +36,8 @@ export class InterfaceService {
   validate(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.INTERFACE_VALIDATE, data);
   }
+
+  editBulk(data: any): Observable<any> {
+    return this.http.put<any>(ApiPaths.INTERFACE + 'bulk_edit', data);
+  }
 }

@@ -1,0 +1,32 @@
+$margin: 8px;
+
+.field {
+  width: 100%;
+  align-items: center;
+}
+
+.ip-allocation {
+  width: 100%;
+  align-items: center;
+  margin: $margin 0;
+  display: flex;
+  .ip-allocation-label {
+    width: 200px;
+  }
+  .ip-allocation-group {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    .ip-allocation-item {
+      margin: 0 $margin;
+    }
+  }
+}
+
+.mat-option {
+  height: 50px;
+}
+
+.field-checkbox {
+  height: 35px;
+}

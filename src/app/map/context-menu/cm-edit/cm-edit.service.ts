@@ -9,6 +9,7 @@ import { AddUpdateInterfaceDialogComponent } from '../../add-update-interface-di
 import { AddUpdatePGDialogComponent } from '../../add-update-pg-dialog/add-update-pg-dialog.component';
 import { NodeBulkEditDialogComponent } from "../../bulk-edit-dialog/node-bulk-edit-dialog/node-bulk-edit-dialog.component";
 import { PortGroupBulkEditDialogComponent } from "../../bulk-edit-dialog/port-group-bulk-edit-dialog/port-group-bulk-edit-dialog.component";
+import { InterfaceBulkEditDialogComponent } from "../../bulk-edit-dialog/interface-bulk-edit-dialog/interface-bulk-edit-dialog.component";
 
 @Injectable({
   providedIn: 'root'
@@ -45,7 +46,12 @@ export class CMEditService {
 
     if (activeNodesLength == 0 && activePGsLength == 0) {
       if (activeEdgesLength > 1) {
-        this.toastr.success("Open bulk edit form for edges");
+        const edgeActiveIds = activeEdges.map((ele: any) => ele.data('interface_id'));
+        const dialogData = {
+          genData: { ids: edgeActiveIds },
+          cy
+        };
+        this.dialog.open(InterfaceBulkEditDialogComponent, { width: '600px', data: dialogData});
       } else if (activeEdgesLength == 1) {
         if (data.interface_id) {
           this.interfaceService.get(data.interface_id).subscribe(interfaceData => {

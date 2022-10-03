@@ -24,6 +24,7 @@ import { AddUpdateGroupDialogComponent } from './add-update-group-dialog/add-upd
 import { NgSelectModule } from "@ng-select/ng-select";
 import { NodeBulkEditDialogComponent } from './bulk-edit-dialog/node-bulk-edit-dialog/node-bulk-edit-dialog.component';
 import { PortGroupBulkEditDialogComponent } from './bulk-edit-dialog/port-group-bulk-edit-dialog/port-group-bulk-edit-dialog.component';
+import { InterfaceBulkEditDialogComponent } from "./bulk-edit-dialog/interface-bulk-edit-dialog/interface-bulk-edit-dialog.component";
 
 
 @NgModule({
@@ -49,7 +50,8 @@ import { PortGroupBulkEditDialogComponent } from './bulk-edit-dialog/port-group-
     InfoPanelGroupComponent,
     AddUpdateGroupDialogComponent,
     NodeBulkEditDialogComponent,
-    PortGroupBulkEditDialogComponent
+    PortGroupBulkEditDialogComponent,
+    InterfaceBulkEditDialogComponent
   ],
   imports: [
     MapRoutingModule,
