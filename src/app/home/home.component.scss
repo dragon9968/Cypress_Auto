@@ -1,0 +1,39 @@
+.home-container {
+  height: calc(100vh - 100px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.home-content {
+  width: 50%;
+  margin: 10px auto;
+  border: 2px solid #A9A9A9;
+  text-align: center;
+  height: 50%;
+  box-shadow: 3px 6px 12px #a9a9a9;
+}
+
+button {
+  border: 1px solid;
+  width: 100px;
+  height: 100px;
+  margin: 0 30px;
+  line-height: 25px;
+  font-size: 16px;
+}
+
+mat-card-title {
+  font-weight: 600px;
+  font-size: 28px;
+}
+
+mat-card-subtitle {
+  padding: 20px 0;
+  color: black;
+  font-size: 18px;
+}
+
+span {
+  color:#007bff;
+}

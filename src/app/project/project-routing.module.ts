@@ -4,6 +4,7 @@ import { AppRoute } from 'src/app/core/models/app-route.model';
 import { ProjectComponent } from './project.component';
 import { PermissionLevels } from 'src/app/core/enums/permission-levels.enum';
 import { PageNotFoundComponent } from '../core/page-not-found/page-not-found.component';
+import { AddProjectComponent } from 'src/app/project/add-project/add-project.component';
 
 const routes: AppRoute[] = [
   {
@@ -13,6 +14,13 @@ const routes: AppRoute[] = [
     },
     runGuardsAndResolvers: 'always',
     children: [
+      {
+        path: 'add',
+        component: AddProjectComponent,
+        data: {
+          permissionLevel: PermissionLevels.USER,
+        }
+      },
       {
         path: '',
         component: ProjectComponent,
