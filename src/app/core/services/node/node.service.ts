@@ -45,4 +45,8 @@ export class NodeService {
       }
     })
   }
+
+  editBulk(data: any): Observable<any> {
+    return this.http.put<any>(ApiPaths.NODE + 'bulk_edit', data);
+  }
 }

@@ -7,6 +7,8 @@ import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.serv
 import { AddUpdateNodeDialogComponent } from 'src/app/map/add-update-node-dialog/add-update-node-dialog.component';
 import { AddUpdateInterfaceDialogComponent } from '../../add-update-interface-dialog/add-update-interface-dialog.component';
 import { AddUpdatePGDialogComponent } from '../../add-update-pg-dialog/add-update-pg-dialog.component';
+import { NodeBulkEditDialogComponent } from "../../bulk-edit-dialog/node-bulk-edit-dialog/node-bulk-edit-dialog.component";
+import { PortGroupBulkEditDialogComponent } from "../../bulk-edit-dialog/port-group-bulk-edit-dialog/port-group-bulk-edit-dialog.component";
 
 @Injectable({
   providedIn: 'root'
@@ -59,6 +61,12 @@ export class CMEditService {
     } else if (activeNodesLength == 0 && activeEdgesLength == 0) {
       if (activePGsLength > 1) {
         // this.map_forms.openPGBulkEditForm();
+        const pgActiveIds = activePGs.map((ele: any) => ele.data('pg_id'));
+        const dialogData = {
+          genData: { ids: pgActiveIds },
+          cy
+        }
+        this.dialog.open(PortGroupBulkEditDialogComponent, {width: '600px', data: dialogData});
       } else if (activePGsLength == 1) {
         if (data.pg_id) {
           this.portGroupService.get(data.pg_id).subscribe(pgData => {
@@ -74,6 +82,12 @@ export class CMEditService {
     } else if (activePGsLength == 0 && activeEdgesLength == 0) {
       if (activeNodesLength > 1) {
         // this.map_forms.openNodeBulkEditForm();
+        const nodeActiveIds = activeNodes.map((ele: any) => ele.data('node_id'));
+        const dialogData = {
+          genData: { ids: nodeActiveIds },
+          cy
+        }
+        this.dialog.open(NodeBulkEditDialogComponent, {width: '600px', data: dialogData});
       } else if (activeNodesLength == 1) {
         if (data.node_id) {
           this.nodeService.get(data.node_id).subscribe(nodeData => {

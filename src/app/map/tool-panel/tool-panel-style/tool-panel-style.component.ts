@@ -118,7 +118,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   removePx(value: any){
-    return typeof value === 'number' && !isNaN(value) ? value : value.replace('px', '');
+    return value ? (typeof value === 'number' && !isNaN(value) ? value : value.replace('px', '')) : value;
   }
 
   ngOnInit(): void {
