@@ -55,4 +55,8 @@ export class NavBarComponent implements OnInit, OnDestroy {
   search() {
     this.store.dispatch(retrievedSearchText({ data: this.searchText }));
   }
+
+  closeProject() {
+    this.router.navigate([RouteSegments.ROOT]);
+  }
 }

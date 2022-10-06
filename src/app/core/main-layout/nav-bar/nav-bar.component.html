@@ -5,7 +5,7 @@
     </a>
     <a mat-button [matMenuTriggerFor]="project" class="menu-btn">Project</a>
     <mat-menu #project="matMenu">
-        <button mat-menu-item>
+        <button mat-menu-item [routerLink]="routeSegments.ADD_PROJECT">
             <mat-icon>create_new_folder</mat-icon>
             <span>New</span>
         </button>
@@ -13,77 +13,74 @@
             <mat-icon>folder_open</mat-icon>
             <span>Open</span>
         </button>
-        <button mat-menu-item>
+        <button mat-menu-item [routerLink]="routeSegments.EDIT_PROJECT">
+            <mat-icon>edit</mat-icon>
+            <span>Edit</span>
+        </button>
+        <button mat-menu-item [routerLink]="routeSegments.EXPORT_IMPORT">
             <mat-icon>download</mat-icon>
-            <span>Export</span>
+            <span>Export/Import</span>
         </button>
-        <button mat-menu-item>
-            <mat-icon>upload</mat-icon>
-            <span>Import</span>
-        </button>
-        <button mat-menu-item>
+        <button mat-menu-item (click)="closeProject()">
             <mat-icon>folder_delete</mat-icon>
             <span>Close</span>
         </button>
     </mat-menu>
-    <a mat-button [matMenuTriggerFor]="report" class="menu-btn">Report</a>
-    <mat-menu #report="matMenu">
-        <button mat-menu-item>
-            <mat-icon>note_add</mat-icon>
-            <span>New</span>
-        </button>
-        <button mat-menu-item>
-            <mat-icon>file_open</mat-icon>
-            <span>Open</span>
-        </button>
-        <button mat-menu-item>
-            <mat-icon>file_download</mat-icon>
-            <span>Export</span>
-        </button>
-        <button mat-menu-item>
-            <mat-icon>file_upload</mat-icon>
-            <span>Import</span>
-        </button>
-        <button mat-menu-item>
-            <mat-icon>delete</mat-icon>
-            <span>Close</span>
-        </button>
-    </mat-menu>
-    <a mat-button [matMenuTriggerFor]="components" class="menu-btn">Components</a>
-    <mat-menu #components="matMenu">
-        <button mat-menu-item>
+    <a mat-button [matMenuTriggerFor]="devices" class="menu-btn">Devices</a>
+    <mat-menu #devices="matMenu">
+        <button mat-menu-item [routerLink]="routeSegments.DEVICES_TEMPLATE">
             <mat-icon>devices</mat-icon>
             <span>Device/Template</span>
         </button>
-        <button mat-menu-item>
+        <button mat-menu-item [routerLink]="routeSegments.HARDWARE">
             <mat-icon>router</mat-icon>
             <span>Hardware</span>
-        </button>
-        <button mat-menu-item>
-            <mat-icon>laptop</mat-icon>
-            <span>Icon</span>
-        </button>
-        <button mat-menu-item>
-            <mat-icon>wifi</mat-icon>
-            <span>Connections</span>
-        </button>
-        <button mat-menu-item>
-            <mat-icon>source</mat-icon>
-            <span>Config Templates</span>
         </button>
         <button mat-menu-item>
             <mat-icon>groups</mat-icon>
             <span>Login Profiles</span>
         </button>
     </mat-menu>
-    <a mat-button [routerLink]="routeSegments.SETTINGS" class="menu-btn" routerLinkActive="active">Settings</a>
+    <a mat-button [matMenuTriggerFor]="templates" class="menu-btn">Templates</a>
+    <mat-menu #templates="matMenu">
+        <button mat-menu-item [routerLink]="routeSegments.CONFIG_TEMPLATES">
+            <mat-icon>source</mat-icon>
+            <span>Configuration Templates</span>
+        </button>
+        <button mat-menu-item [routerLink]="routeSegments.NETWORK_TEMPLATES">
+            <mat-icon>network_wifi</mat-icon>
+            <span>Network Templates</span>
+        </button>
+    </mat-menu>
+    <a mat-button [matMenuTriggerFor]="remote" class="menu-btn">Remote</a>
+    <mat-menu #remote="matMenu">
+        <button mat-menu-item [routerLink]="routeSegments.CONNECT_REMOTE">
+            <mat-icon>wifi</mat-icon>
+            <span>Connect</span>
+        </button>
+        <button mat-menu-item [routerLink]="routeSegments.CONNECTION_PROFILES">
+            <mat-icon>power</mat-icon>
+            <span>Connection Profiles</span>
+        </button>
+    </mat-menu>
+    <a mat-button [matMenuTriggerFor]="settings" class="menu-btn">Settings</a>
+    <mat-menu #settings="matMenu">
+        <button mat-menu-item [routerLink]="routeSegments.APP_PREFERENCES">
+            <mat-icon>settings</mat-icon>
+            <span>App Preferences</span>
+        </button>
+        <button mat-menu-item [routerLink]="routeSegments.MAP_PREFERENCES">
+            <mat-icon>settings</mat-icon>
+            <span>Map Preferences</span>
+        </button>
+    </mat-menu>
     <a mat-button [matMenuTriggerFor]="help" class="menu-btn">Help</a>
     <mat-menu #help="matMenu">
-        <button mat-menu-item>
+        <button mat-menu-item [routerLink]="routeSegments.USER_GUIDE">
             <mat-icon>book</mat-icon>
             <span>User Guide</span>
         </button>
-        <button mat-menu-item>
+        <button mat-menu-item [routerLink]="routeSegments.ABOUT">
             <mat-icon>info</mat-icon>
             <span>About</span>
         </button>

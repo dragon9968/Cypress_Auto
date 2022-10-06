@@ -42,6 +42,56 @@ const routes: AppRoute[] = [
           ),
       },
       {
+        path: RouteSegments.DEVICES,
+        data: {
+          permissionLevel: PermissionLevels.USER,
+        },
+        loadChildren: () =>
+          import('../../devices/devices.module').then(
+            (m) => m.DevicesModule
+          ),
+      },
+      {
+        path: RouteSegments.TEMPLATES,
+        data: {
+          permissionLevel: PermissionLevels.USER,
+        },
+        loadChildren: () =>
+          import('../../templates/templates.module').then(
+            (m) => m.TemplatesModule
+          ),
+      },
+      {
+        path: RouteSegments.REMOTE,
+        data: {
+          permissionLevel: PermissionLevels.USER,
+        },
+        loadChildren: () =>
+          import('../../remote/remote.module').then(
+            (m) => m.RemoteModule
+          ),
+      },
+      {
+        path: RouteSegments.SETTINGS,
+        data: {
+          permissionLevel: PermissionLevels.USER,
+        },
+        loadChildren: () =>
+          import('../../settings/settings.module').then(
+            (m) => m.SettingsModule
+          ),
+      },
+      {
+        path: RouteSegments.HELP,
+        data: {
+          permissionLevel: PermissionLevels.USER,
+        },
+        loadChildren: () =>
+          import('../../help/help.module').then(
+            (m) => m.HelpModule
+          ),
+      },
+      {
         path: RouteSegments.DASHBOARD,
         data: {
           permissionLevel: PermissionLevels.USER,

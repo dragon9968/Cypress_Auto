@@ -5,6 +5,8 @@ import { ProjectComponent } from './project.component';
 import { PermissionLevels } from 'src/app/core/enums/permission-levels.enum';
 import { PageNotFoundComponent } from '../core/page-not-found/page-not-found.component';
 import { AddProjectComponent } from 'src/app/project/add-project/add-project.component';
+import { EditProjectComponent } from './edit-project/edit-project.component';
+import { ExportImportProjectComponent } from './export-import-project/export-import-project.component';
 
 const routes: AppRoute[] = [
   {
@@ -17,6 +19,20 @@ const routes: AppRoute[] = [
       {
         path: 'add',
         component: AddProjectComponent,
+        data: {
+          permissionLevel: PermissionLevels.USER,
+        }
+      },
+      {
+        path: 'edit',
+        component: EditProjectComponent,
+        data: {
+          permissionLevel: PermissionLevels.USER,
+        }
+      },
+      {
+        path: 'export-import',
+        component: ExportImportProjectComponent,
         data: {
           permissionLevel: PermissionLevels.USER,
         }
