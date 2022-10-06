@@ -26,4 +26,8 @@ export class ProjectService {
     return this.http.get<any>(ApiPaths.PROJECTS + id);
   }
 
+  addProject(data: any) {
+    return this.http.post<any>(ApiPaths.ADD_PROJECT, data);
+  }
+
 }
