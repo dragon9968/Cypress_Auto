@@ -25,6 +25,8 @@ import { NgSelectModule } from "@ng-select/ng-select";
 import { NodeBulkEditDialogComponent } from './bulk-edit-dialog/node-bulk-edit-dialog/node-bulk-edit-dialog.component';
 import { PortGroupBulkEditDialogComponent } from './bulk-edit-dialog/port-group-bulk-edit-dialog/port-group-bulk-edit-dialog.component';
 import { InterfaceBulkEditDialogComponent } from "./bulk-edit-dialog/interface-bulk-edit-dialog/interface-bulk-edit-dialog.component";
+import { ToolPanelRemoteComponent } from './tool-panel/tool-panel-remote/tool-panel-remote.component';
+import { ServerConnectDialogComponent } from './tool-panel/tool-panel-remote/server-connect-dialog/server-connect-dialog.component';
 
 
 @NgModule({
@@ -51,7 +53,9 @@ import { InterfaceBulkEditDialogComponent } from "./bulk-edit-dialog/interface-b
     AddUpdateGroupDialogComponent,
     NodeBulkEditDialogComponent,
     PortGroupBulkEditDialogComponent,
-    InterfaceBulkEditDialogComponent
+    InterfaceBulkEditDialogComponent,
+    ToolPanelRemoteComponent,
+    ServerConnectDialogComponent
   ],
   imports: [
     MapRoutingModule,

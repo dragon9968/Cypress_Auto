@@ -1,0 +1,15 @@
+<section class="tab-section">
+  <div class="tab-field">
+    <mat-label class="tab-label">Connection Name: </mat-label>
+    <span> {{ connection.name }}</span>
+  </div>
+  <mat-slide-toggle [(ngModel)]="vmStatusChecked" color="primary" class="tab-field" labelPosition="before"
+                    (change)="toggleVMStatus($event)" >
+    VM Status:
+  </mat-slide-toggle>
+  <div class="tab-field">
+    <button mat-raised-button color="primary" class="connection-map-btn" (click)="openConnectServerForm()">
+      Connect
+    </button>
+  </div>
+</section>

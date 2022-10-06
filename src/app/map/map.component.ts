@@ -51,6 +51,11 @@ import { MapService } from '../core/services/map/map.service';
 import { selectSearchText } from '../store/map-option/map-option.selectors';
 import { CommonService } from 'src/app/map/context-menu/cm-common-service/common.service';
 import { StyleService } from 'src/app/core/services/helpers/style.service';
+import { ServerConnectService } from "../core/services/server-connect/server-connect.service";
+import { retrievedServerConnect } from "../store/server-connect/server-connect.actions";
+import { ProjectService } from "../project/services/project.service";
+import { retrievedVMStatus } from "../store/project/project.actions";
+
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
 const expandCollapse = require('cytoscape-expand-collapse');
@@ -158,6 +163,8 @@ export class MapComponent implements OnInit, OnDestroy {
     private searchService: SearchService,
     private commonService: CommonService,
     private styleService: StyleService,
+    private serverConnectService: ServerConnectService,
+    private projectService: ProjectService
   ) {
     navigator(cytoscape);
     gridGuide(cytoscape);
@@ -234,6 +241,10 @@ export class MapComponent implements OnInit, OnDestroy {
     this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
     this.loginProfileService.getAll().subscribe((data: any) => this.store.dispatch(retrievedLoginProfiles({ data: data.result })));
     this.portgroupService.getByCollectionId(this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedPortGroups({ data: data.result })));
+    this.serverConnectService.getAll().subscribe((data: any) => this.store.dispatch(retrievedServerConnect({data: data.result})))
+    this.projectService.get(+this.collectionId).subscribe((data: any) => {
+      this.store.dispatch(retrievedVMStatus({ vmStatus: data.result.configuration.vm_status }))
+    })
     this.store.dispatch(retrievedIsMapOpen({ data: true }));
   }
 

@@ -1,3 +1,4 @@
 export interface ProjectState {
-  projects: any[]
+  projects: any[],
+  vmStatus: any
 }

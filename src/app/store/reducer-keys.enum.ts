@@ -15,5 +15,6 @@ export enum ReducerKeys {
     MAP_CM = 'mapContextMenu',
     NODE = 'node',
     DOMAIN_USER = 'domainUser',
-    GROUP = 'group'
+    GROUP = 'group',
+    SERVER_CONNECT = 'serverConnect'
 }

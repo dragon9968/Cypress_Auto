@@ -1,0 +1,24 @@
+$tool-panel-width: 300px;
+$margin: 8px;
+
+.tab-section {
+  margin: $margin;
+  width: calc($tool-panel-width - $margin*2);
+  text-align: center;
+  display: table;
+}
+
+.tab-field {
+  margin: $margin 0;
+  display: flex;
+  width: 100%;
+  align-items: center;
+}
+
+.tab-label {
+  margin-right: $margin;
+}
+
+.connection-map-btn {
+  width: 100%;
+}

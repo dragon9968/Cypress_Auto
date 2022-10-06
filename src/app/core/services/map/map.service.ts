@@ -22,4 +22,16 @@ export class MapService {
       .set('map_category', mapCategory);
     return this.http.post<any>(ApiPaths.SAVE_MAP, data, { params });
   }
+
+  getVMStatus(projectId: number, connectionId: number): Observable<any> {
+    const params = new HttpParams()
+      .set('project_id', projectId)
+      .set('connection_id', connectionId);
+    return this.http.get<any>(ApiPaths.VM_STATUS, { params });
+  }
+
+  saveVMStatus(data: any, value: string): Observable<any> {
+    const url = ApiPaths.SAVE_VM_STATUS + '/' + value;
+    return this.http.post<any>(url, data);
+  }
 }
