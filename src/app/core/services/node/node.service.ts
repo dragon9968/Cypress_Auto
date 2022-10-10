@@ -49,4 +49,12 @@ export class NodeService {
   editBulk(data: any): Observable<any> {
     return this.http.put<any>(ApiPaths.NODE + 'bulk_edit', data);
   }
+
+  cloneBulk(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.NODE_CLONE, data)
+  }
+
+  export(format: string, data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.NODE_EXPORT + format, data);
+  }
 }

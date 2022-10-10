@@ -35,5 +35,7 @@ export enum ApiPaths {
   SERVER_CONNECT = '/api/v1/server_connect/',
   VM_STATUS = '/api/v1/map/vm_status',
   SAVE_VM_STATUS = '/api/v1/map/save_vm_status',
-  ADD_PROJECT = '/api/v1/project/add'
+  ADD_PROJECT = '/api/v1/project/add',
+  NODE_CLONE = '/api/v1/node/clone_bulk',
+  NODE_EXPORT = '/api/v1/node/export/'
 }

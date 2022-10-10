@@ -1,7 +1,13 @@
+import { catchError } from "rxjs/operators";
+import { ToastrService } from "ngx-toastr";
+import { MatIconRegistry } from "@angular/material/icon";
+import { forkJoin, map, throwError } from "rxjs";
 import { Component, DoCheck, Input } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
-import { forkJoin, map } from "rxjs";
+import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { NodeService } from "../../../core/services/node/node.service";
+import { InfoPanelService } from "../../../core/services/helpers/info-panel.service";
 import { InfoPanelRenderComponent } from "../info-panel-render/info-panel-render.component";
 
 @Component({
@@ -21,6 +27,10 @@ export class InfoPanelNodeComponent implements DoCheck {
   private gridApi!: GridApi;
   private activeNodeOld?: string;
   rowsSelected: any[] = [];
+  rowsSelectedId: any[] = [];
+  isClickAction: boolean = true;
+  isDisableDelete?: boolean = true;
+  tabName = 'node';
 
   private _setNodeInfoPanel(activeNodes: any[]) {
     if (activeNodes.length === 0) {
@@ -89,7 +99,7 @@ export class InfoPanelNodeComponent implements DoCheck {
         cellRenderer: InfoPanelRenderComponent,
         cellClass: 'node-actions',
         cellRendererParams: {
-          tabName: 'node',
+          tabName: this.tabName,
           getExternalParams: () => this
         }
       },
@@ -168,16 +178,26 @@ export class InfoPanelNodeComponent implements DoCheck {
     ]
   };
 
-  constructor(private nodeService: NodeService) {
+  constructor(
+    private toastr: ToastrService,
+    private domSanitizer: DomSanitizer,
+    private nodeService: NodeService,
+    private infoPanelService: InfoPanelService,
+    private helpers: HelpersService,
+    iconRegistry: MatIconRegistry
+  ) {
+    iconRegistry.addSvgIcon('export-csv', this._setPath('/assets/icons/export-csv.svg'));
+    iconRegistry.addSvgIcon('export-json', this._setPath('/assets/icons/export-json.svg'));
   }
 
   ngDoCheck(): void {
-    const data = this.activeNodes.map(ele=> ele.data());
+    const data = this.activeNodes.map(ele => ele.data());
     const stringNodeData = JSON.stringify(data);
     if (this.activeNodeOld !== stringNodeData) {
       this.activeNodeOld = stringNodeData;
       this._setNodeInfoPanel(this.activeNodes);
     }
+    this.isDisableDelete = this.activeNodes.length >= 1;
   }
 
   onGridReady(params: GridReadyEvent) {
@@ -186,5 +206,131 @@ export class InfoPanelNodeComponent implements DoCheck {
 
   selectedRows() {
     this.rowsSelected = this.gridApi.getSelectedRows();
+    this.rowsSelectedId = this.rowsSelected.map(ele => ele.id);
+  }
+
+  cloneNodes() {
+    if (this.rowsSelected.length === 0) {
+      this.toastr.info('No row selected');
+    } else {
+      const ids = this.rowsSelected.map(ele => ele.id);
+      const jsonData = {
+        ids: ids
+      }
+      this.nodeService.cloneBulk(jsonData).pipe(
+        catchError((error: any) => {
+          this.toastr.error(error.message);
+          return throwError(() => error.message)
+        })).subscribe(response => {
+        const newNodeIds = response.result.map((ele: any) => ele.data.id);
+        newNodeIds.map((id: any) => {
+          this.nodeService.get(id).subscribe(nodeData => {
+            const cyData = nodeData.result;
+            const newNodePosition = {x: cyData.logical_map_position.x, y: cyData.logical_map_position.y};
+            const icon_src = '/static/img/uploads/' + cyData.icon.photo;
+            const newNodeData = {
+              "elem_category": "node",
+              "icon": icon_src,
+              "type": cyData.role,
+              "zIndex": 999,
+              "background-image": icon_src,
+              "background-opacity": 0,
+              "shape": "roundrectangle",
+              "text-opacity": 1
+            }
+            cyData.id = 'node-' + cyData.id;
+            cyData.node_id = cyData.id;
+            cyData.domain = cyData.domain.name;
+            cyData.height = cyData.logical_map_style.height;
+            cyData.width = cyData.logical_map_style.width;
+            cyData.text_color = cyData.logical_map_style.text_color;
+            cyData.text_size = cyData.logical_map_style.text_size;
+            cyData.groups = nodeData.result.groups;
+            this.helpers.addCYNode(this.cy, {
+              newNodeData: {...newNodeData, ...cyData},
+              newNodePosition: newNodePosition
+            });
+            this.helpers.reloadGroupBoxes(this.cy);
+          })
+        })
+        const nameNodeStr = response.result.map((ele: any) => ele.data.name).join(', ');
+        this.toastr.success(`Cloned node ${nameNodeStr} successfully`);
+      })
+    }
+  }
+
+  deleteNodes() {
+    if (this.rowsSelected.length === 0) {
+      this.toastr.info('No row selected');
+    } else {
+      this.rowsSelectedId.map(id => {
+        this.infoPanelService.delete(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
+          this.deletedNodes, this.deletedInterfaces, this.tabName, id);
+      })
+      this._updateRowSelected();
+    }
+  }
+
+  editNodes() {
+    if (this.rowsSelected.length === 0) {
+      this.toastr.info('No row selected');
+    } else {
+      if (this.rowsSelected.length == 1) {
+        this.infoPanelService.openEditInfoPanelForm(this.cy, this.activeNodes, this.activePGs, this.activeEdges,
+          this.tabName, this.rowsSelectedId[0])
+      } else {
+        this.infoPanelService.openEditInfoPanelForm(this.cy, this.activeNodes, this.activePGs, this.activeEdges,
+          this.tabName, undefined);
+      }
+      this._updateRowSelected();
+    }
+  }
+
+  exportNodes(format: string) {
+    if (this.rowsSelected.length === 0) {
+      this.toastr.info('No row selected');
+    } else {
+      const jsonData = {
+        pks: this.rowsSelectedId
+      }
+      const fileName = format === 'json' ? 'Node-Export.json' : 'node_export.csv';
+      let file = new Blob();
+      this.nodeService.export(format, jsonData).subscribe(response => {
+        if (format === 'json') {
+          file = new Blob([JSON.stringify(response, null, 4)], {type: 'application/json'});
+        } else if (format === 'csv') {
+          file = new Blob([response], {type: 'text/csv;charset=utf-8;'});
+        }
+        this.helpers.downloadBlob(fileName, file);
+        this.toastr.success(`Exported node as ${format.toUpperCase()} file successfully`);
+      })
+      this.gridApi.deselectAll();
+    }
+  }
+
+  validateNode() {
+    if (this.rowsSelected.length === 0) {
+      this.toastr.info('No row selected');
+    } else {
+      const pks = this.rowsSelectedId;
+      this.nodeService.validate({pks}).pipe(
+        catchError((err: any) => {
+          this.toastr.error(err.error.message);
+          return throwError(() => err.error.message);
+        })
+      ).subscribe(response => {
+        this.toastr.success(response.message);
+      });
+      this.gridApi.deselectAll();
+    }
+  }
+
+  private _updateRowSelected() {
+    this.rowsSelected = [];
+    this.rowsSelectedId = [];
+  }
+
+  private _setPath(url: string): SafeResourceUrl {
+    return this.domSanitizer.bypassSecurityTrustResourceUrl(url);
   }
 }
