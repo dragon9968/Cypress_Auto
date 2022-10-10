@@ -122,6 +122,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
     this.disableItems(this.categoryCtr?.value);
     this.deviceCtr?.setValue(this.helpers.getOptionById(this.devices, this.data.genData.device_id));
     this.templateCtr?.setValue(this.helpers.getOptionById(this.templates, this.data.genData.template_id));
+    this.hardwareCtr?.setValue(this.helpers.getOptionById(this.hardwares, this.data.genData.hardware_id));
     this.folderCtr?.setValue(this.data.genData.folder);
     this.roleCtr?.setValue(this.helpers.getOptionById(ROLES, this.data.genData.role));
     this.domainCtr?.setValue(this.helpers.getOptionById(this.domains, this.data.genData.domain_id));
