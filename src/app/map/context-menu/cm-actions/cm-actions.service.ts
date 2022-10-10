@@ -5,6 +5,7 @@ import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 import { NodeService } from 'src/app/core/services/node/node.service';
 import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
+import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 
 @Injectable({
   providedIn: 'root'
@@ -47,10 +48,10 @@ export class CMActionsService {
                 cyData.text_color = cyData.logical_map_style.text_color;
                 cyData.text_size = cyData.logical_map_style.text_size;
                 cyData.elem_category = "node";
-                cyData.icon = '/static/img/uploads/' + cyData.icon.photo;
+                cyData.icon = ICON_PATH + cyData.icon.photo;
                 cyData.type = cyData.role;
                 cyData.zIndex = 999;
-                cyData['background-image'] = '/static/img/uploads/' + cyData.icon.photo;
+                cyData['background-image'] = cyData.icon;
                 cyData['background-opacity'] = 0;
                 cyData.shape = "roundrectangle";
                 cyData['text-opacity'] = 1;

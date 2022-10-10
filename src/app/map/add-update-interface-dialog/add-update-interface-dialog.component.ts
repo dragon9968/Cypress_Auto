@@ -5,7 +5,7 @@ import { MatRadioChange } from '@angular/material/radio';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { ToastrService } from 'ngx-toastr';
-import { DIRECTIONS } from 'src/app/shared/contants/directions.contant';
+import { DIRECTIONS } from 'src/app/shared/contants/directions.constant';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 import { selectPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { Store } from '@ngrx/store';

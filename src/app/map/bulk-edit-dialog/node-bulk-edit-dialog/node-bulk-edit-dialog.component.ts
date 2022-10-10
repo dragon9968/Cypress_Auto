@@ -5,7 +5,7 @@ import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
-import { ROLES } from "../../../shared/contants/roles.contant";
+import { ROLES } from "../../../shared/contants/roles.constant";
 import { ErrorMessages } from "../../../shared/enums/error-messages.enum";
 import { NodeService } from "../../../core/services/node/node.service";
 import { IconService } from "../../../core/services/icon/icon.service";
@@ -17,6 +17,7 @@ import { selectDomains } from "../../../store/domain/domain.selectors";
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
 import { selectConfigTemplates } from "../../../store/config-template/config-template.selectors";
 import { selectLoginProfiles } from "../../../store/login-profile/login-profile.selectors";
+import { ICON_PATH } from "src/app/shared/contants/icon-path.constant";
 
 @Component({
   selector: 'app-node-bulk-edit-dialog',
@@ -27,6 +28,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
   nodeBulkEditForm: FormGroup;
   errorMessages = ErrorMessages;
   ROLES = ROLES;
+  ICON_PATH = ICON_PATH;
   icons!: any[];
   devices!: any[];
   templates!: any[];
@@ -124,7 +126,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
             ele.data('groups', nodeData.result.groups);
             if (jsonData.icon_id) {
               this.iconService.get(jsonData.icon_id).subscribe(iconData => {
-                ele.data('icon', '/static/img/uploads/' + iconData.result.photo);
+                ele.data('icon', ICON_PATH + iconData.result.photo);
               })
             }
           }

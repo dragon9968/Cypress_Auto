@@ -55,6 +55,7 @@ import { ServerConnectService } from "../core/services/server-connect/server-con
 import { retrievedServerConnect } from "../store/server-connect/server-connect.actions";
 import { ProjectService } from "../project/services/project.service";
 import { retrievedVMStatus } from "../store/project/project.actions";
+import { ICON_PATH } from '../shared/contants/icon-path.constant';
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -497,7 +498,7 @@ export class MapComponent implements OnInit, OnDestroy {
       this.nodeService.genData(this.collectionId, this.deviceId, this.templateId)
         .subscribe(genData => {
           const icon = this.helpersService.getOptionById(this.icons, genData.icon_id);
-          const icon_src = '/static/img/uploads/' + icon.photo;
+          const icon_src = ICON_PATH + icon.photo;
           const newNodeData = {
             "elem_category": "node",
             "icon": icon_src,
@@ -560,7 +561,7 @@ export class MapComponent implements OnInit, OnDestroy {
       default_preferences: {
         ...this.defaultPreferences,
         default_icon_path: "/assets/icons/default_icon.png",
-        default_img_path: "/static/img/uploads/",
+        default_img_path: ICON_PATH,
         public_portgroup_url: '/api/v1/portgroup/gen_data/public',
         private_portgroup_url: '/api/v1/portgroup/gen_data/private',
         node_view_url: '/ap1/v1/node/gen_data',

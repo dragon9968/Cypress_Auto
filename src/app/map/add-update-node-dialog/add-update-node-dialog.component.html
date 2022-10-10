@@ -17,7 +17,7 @@
       <mat-autocomplete #autoIcon="matAutocomplete" [displayWith]="helpers.optionDisplay">
         <mat-option *ngFor="let option of icons" [value]="option">
           <div class="option-text">
-            <img [src]="'/static/img/uploads/' + option.photo" height="24" width="24">
+            <img [src]="ICON_PATH + option.photo" height="24" width="24">
             &nbsp;
             <span>{{ option.name }}</span>
           </div>
@@ -41,7 +41,7 @@
         (optionSelected)="selectDevice($event)">
         <mat-option *ngFor="let option of devices" [value]="option">
           <div class="option-text">
-            <img [src]="'/static/img/uploads/' + option.icon.photo" height="24" width="24">
+            <img [src]="ICON_PATH + option.icon.photo" height="24" width="24">
             &nbsp;
             <span>{{ option.name }}</span>
           </div>
@@ -57,7 +57,7 @@
       <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helpers.templateDisplay">
         <mat-option *ngFor="let option of filteredTemplates" [value]="option">
           <div class="option-text">
-            <img [src]="'/static/img/uploads/' + option.icon.photo" height="24" width="24">
+            <img [src]="ICON_PATH + option.icon.photo" height="24" width="24">
             &nbsp;
             <span>{{ option.display_name }}</span>
           </div>

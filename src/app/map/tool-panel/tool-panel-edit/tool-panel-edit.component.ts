@@ -12,6 +12,7 @@ import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 import { CMDeleteService } from '../../context-menu/cm-delete/cm-delete.service';
 import { CMLockUnlockService } from '../../context-menu/cm-lock-unlock/cm-lock-unlock.service';
 import { CommonService } from 'src/app/map/context-menu/cm-common-service/common.service';
+import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 
 @Component({
   selector: 'app-tool-panel-edit',
@@ -43,6 +44,7 @@ export class ToolPanelEditComponent implements OnDestroy {
   templates!: any[];
   filteredTemplates!: any[];
   isGroupBoxesChecked!: boolean;
+  ICON_PATH = ICON_PATH;
 
   constructor(
     private store: Store,

@@ -2,7 +2,7 @@ import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
-import { ROLES } from 'src/app/shared/contants/roles.contant';
+import { ROLES } from 'src/app/shared/contants/roles.constant';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
@@ -19,6 +19,7 @@ import { selectDomains } from '../../store/domain/domain.selectors';
 import { selectConfigTemplates } from '../../store/config-template/config-template.selectors';
 import { selectLoginProfiles } from '../../store/login-profile/login-profile.selectors';
 import { IconService } from 'src/app/core/services/icon/icon.service';
+import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 
 @Component({
   selector: 'app-add-update-node-dialog',
@@ -28,6 +29,7 @@ import { IconService } from 'src/app/core/services/icon/icon.service';
 export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   nodeAddForm: FormGroup;
   ROLES = ROLES;
+  ICON_PATH = ICON_PATH;
   filteredTemplates!: any[];
   errorMessages = ErrorMessages;
   icons!: any[];
@@ -204,6 +206,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
         cyData.text_color = cyData.logical_map_style.text_color;
         cyData.text_size = cyData.logical_map_style.text_size;
         cyData.groups = respData.result.groups;
+        cyData.icon = ICON_PATH + respData.result.icon.photo;
         this.helpers.addCYNode(this.data.cy, { newNodeData: { ...this.data.newNodeData, ...cyData }, newNodePosition: this.data.newNodePosition });
         this.helpers.reloadGroupBoxes(this.data.cy);
         this.toastr.success('Node details added!');
@@ -236,7 +239,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
         ele.data('name', nodeData.result.name);
         ele.data('groups', nodeData.result.groups);
         this.iconService.get(jsonData.icon_id).subscribe(iconData => {
-          ele.data('icon', "/static/img/uploads/" + iconData.result.photo);
+          ele.data('icon', ICON_PATH + iconData.result.photo);
         });
         this.helpers.reloadGroupBoxes(this.data.cy);
         this.toastr.success('Node details updated!');

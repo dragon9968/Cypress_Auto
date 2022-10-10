@@ -13,8 +13,8 @@ import { selectDevices } from "../../store/device/device.selectors";
 import { selectPortGroups } from "../../store/portgroup/portgroup.selectors";
 import { GroupService } from "../../core/services/group/group.service";
 import { selectTemplates } from "../../store/template/template.selectors";
-import { ROLES } from 'src/app/shared/contants/roles.contant';
-import { CATEGORIES } from "../../shared/contants/categories.contant";
+import { ROLES } from 'src/app/shared/contants/roles.constant';
+import { CATEGORIES } from "../../shared/contants/categories.constant";
 import { retrievedGroups } from "../../store/group/group.actions";
 import { validateNameExist } from "../../shared/validations/name-exist.validation";
 
