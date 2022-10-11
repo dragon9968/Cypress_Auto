@@ -6,14 +6,14 @@ import { Subscription } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { retrievedMapOption } from 'src/app/store/map-option/map-option.actions';
-import { selectDefaultPreferences, selectGroupBoxes } from 'src/app/store/map/map.selectors';
+import { selectGroupBoxes } from 'src/app/store/map/map.selectors';
 
 @Component({
   selector: 'app-tool-panel-option',
   templateUrl: './tool-panel-option.component.html',
   styleUrls: ['./tool-panel-option.component.scss']
 })
-export class ToolPanelOptionComponent implements OnInit, OnDestroy, OnChanges {
+export class ToolPanelOptionComponent implements OnDestroy, OnChanges {
   @Input() cy: any;
   @Input() config: any;
   isEdgeDirectionChecked = false;
@@ -30,7 +30,6 @@ export class ToolPanelOptionComponent implements OnInit, OnDestroy, OnChanges {
     { id: 'role', name: 'Role' },
     { id: 'custom', name: 'Custom' },
   ];
-  selectDefaultPreferences$ = new Subscription();
   nav: any;
   selectGroupBoxes$ = new Subscription();
   groupBoxes: any;
@@ -39,44 +38,41 @@ export class ToolPanelOptionComponent implements OnInit, OnDestroy, OnChanges {
     private store: Store,
     private dialog: MatDialog,
     public helpers: HelpersService
-  ) {
-    this.selectDefaultPreferences$ = this.store.select(selectDefaultPreferences)
-      .subscribe((defaultPreferences: any) => {
-        if (defaultPreferences) {
-          this.isEdgeDirectionChecked = defaultPreferences.edge_direction_checkbox;
-          this.isGroupBoxesChecked = defaultPreferences.groupbox_checkbox;
-          const groupCategory = this.groupCategories.filter(category => category.id == defaultPreferences.group_category)[0];
-          this.groupCategoryCtr.setValue(groupCategory ? groupCategory : this.groupCategories[0]);
-          const gridSettings = defaultPreferences.grid_settings;
-          this.isMapGridChecked = gridSettings.enabled;
-          this.isSnapToGridChecked = gridSettings.snap_to_grid;
-          this.gridSpacingSize = gridSettings.spacing ? gridSettings.spacing.replace('px', '') : this.gridSpacingSize;
-          this.isMapOverviewChecked = defaultPreferences.display_map_overview_checkbox;
-          this.store.dispatch(retrievedMapOption({
-            data: {
-              isEdgeDirectionChecked: this.isEdgeDirectionChecked,
-              isGroupBoxesChecked: this.isGroupBoxesChecked,
-              isMapGridChecked: this.isMapGridChecked,
-              isSnapToGridChecked: this.isSnapToGridChecked,
-              isMapOverviewChecked: this.isMapOverviewChecked,
-              gridSpacingSize: this.gridSpacingSize,
-              groupCategoryId: groupCategory ? groupCategory.id : this.groupCategories[0].id
-            }
-          }));
-        }
-      });
-    this.selectGroupBoxes$ = this.store.select(selectGroupBoxes).subscribe((groupBoxes: any) => this.groupBoxes = groupBoxes);
-  }
-
-  ngOnInit(): void {
-  }
+  ) { }
 
   ngOnDestroy(): void {
-    this.selectDefaultPreferences$.unsubscribe();
+    this.selectGroupBoxes$.unsubscribe();
   }
 
   ngOnChanges(valueChange: any) {
-    if (valueChange.cy.currentValue) {
+    if (valueChange.cy.currentValue && valueChange.config.currentValue) {
+      this.isEdgeDirectionChecked = this.config.default_preferences.edge_direction_checkbox;
+      this.isGroupBoxesChecked = this.config.default_preferences.groupbox_checkbox;
+      const groupCategory = this.groupCategories.filter(category => category.id == this.config.default_preferences.group_category)[0];
+      this.groupCategoryCtr.setValue(groupCategory ? groupCategory : this.groupCategories[0]);
+      this.isSnapToGridChecked = this.config.grid_settings.snap_to_grid;
+      this.gridSpacingSize = this.config.grid_settings.spacing ? this.config.grid_settings.spacing.replace('px', '') : this.gridSpacingSize;
+      if (this.config.grid_settings.enabled) {
+        this.config.grid_on_options.gridSpacing = this.gridSpacingSize;
+        this.config.grid_on_options.gridStackOrder = -1;
+        this.config.grid_on_options.snapToGridOnRelease = this.config.grid_settings.snap_to_grid;
+        this.isMapGridChecked = true;
+      } else {
+        this.isMapGridChecked = false;
+      }
+      this.isMapOverviewChecked = this.config.default_preferences.display_map_overview_checkbox;
+      this.store.dispatch(retrievedMapOption({
+        data: {
+          isEdgeDirectionChecked: this.isEdgeDirectionChecked,
+          isGroupBoxesChecked: this.isGroupBoxesChecked,
+          isMapGridChecked: this.isMapGridChecked,
+          isSnapToGridChecked: this.isSnapToGridChecked,
+          isMapOverviewChecked: this.isMapOverviewChecked,
+          gridSpacingSize: this.gridSpacingSize,
+          groupCategoryId: groupCategory ? groupCategory.id : this.groupCategories[0].id
+        }
+      }));
+      this.selectGroupBoxes$ = this.store.select(selectGroupBoxes).subscribe((groupBoxes: any) => this.groupBoxes = groupBoxes);
       this.toggleEdgeDirection();
       this.toggleGroupBoxes();
       this.toggleMapGrid();
@@ -194,10 +190,10 @@ export class ToolPanelOptionComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   toggleSnapToGrid() {
+    this.config.grid_on_options.snapToGridOnRelease = this.isSnapToGridChecked;
+    this.config.grid_on_options.gridSpacing = this.gridSpacingSize;
+    this.cy.gridGuide(this.config.grid_on_options);
     if (this.isSnapToGridChecked) {
-      this.config.grid_on_options.snapToGridOnRelease = this.isSnapToGridChecked;
-      this.config.grid_on_options.gridSpacing = this.gridSpacingSize;
-      this.cy.gridGuide(this.config.grid_on_options);
       this._updateNodeStatus();
     }
     this.store.dispatch(retrievedMapOption({
@@ -214,10 +210,10 @@ export class ToolPanelOptionComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   changeGridSpacingSize() {
+    this.config.grid_on_options.snapToGridOnRelease = this.isSnapToGridChecked;
+    this.config.grid_on_options.gridSpacing = this.gridSpacingSize;
+    this.cy.gridGuide(this.config.grid_on_options);
     if (this.isSnapToGridChecked) {
-      this.config.grid_on_options.snapToGridOnRelease = this.isSnapToGridChecked;
-      this.config.grid_on_options.gridSpacing = this.gridSpacingSize;
-      this.cy.gridGuide(this.config.grid_on_options);
       this._updateNodeStatus();
     }
     this.store.dispatch(retrievedMapOption({
