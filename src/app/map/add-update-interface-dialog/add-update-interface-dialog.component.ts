@@ -72,13 +72,13 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
     this.nameCtr?.setValue(this.data.genData.name);
     this.descriptionCtr?.setValue(this.data.genData.description);
     this.categoryCtr?.setValue(this.data.genData.category);
-    this.directionCtr?.setValue(this.helpers.getOptionById(DIRECTIONS, this.data.genData.direction));
+    this.helpers.setAutoCompleteValue(this.directionCtr, DIRECTIONS, this.data.genData.direction);
     this.macAddressCtr?.setValue(this.data.genData.mac_address);
-    this.portGroupCtr?.setValue(this.helpers.getOptionById(this.portGroups, this.data.genData.port_group_id));
+    this.helpers.setAutoCompleteValue(this.portGroupCtr, this.portGroups, this.data.genData.port_group_id);
     this.ipAllocationCtr?.setValue(this.data.genData.ip_allocation);
     this.ipCtr?.setValue(this.data.genData.ip);
     this.dnsServerCtr?.setValue(this.data.genData.dns_server);
-    this.gatewayCtr?.setValue(this.helpers.getOptionById(this.data.gateways, this.data.genData.gateway));
+    this.helpers.setAutoCompleteValue(this.gatewayCtr, this.data.gateways, this.data.genData.gateway);
     this.isGatewayCtr?.setValue(this.data.genData.is_gateway);
     this.isNatCtr?.setValue(this.data.genData.is_nat);
     this.disableItems(this.ipAllocationCtr?.value);

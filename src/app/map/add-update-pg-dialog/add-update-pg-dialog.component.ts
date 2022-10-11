@@ -56,7 +56,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
     this.nameCtr?.setValue(this.data.genData.name);
     this.vlanCtr?.setValue(this.data.genData.vlan);
     this.categoryCtr?.setValue(this.data.genData.category);
-    this.domainCtr?.setValue(this.helpers.getOptionById(this.domains, this.data.genData.domain_id));
+    this.helpers.setAutoCompleteValue(this.domainCtr, this.domains, this.data.genData.domain_id);
     this.subnetAllocationCtr?.setValue(this.data.genData.subnet_allocation);
     this.subnetCtr?.setValue(this.data.genData.subnet);
     this.disableItems(this.subnetAllocationCtr?.value);

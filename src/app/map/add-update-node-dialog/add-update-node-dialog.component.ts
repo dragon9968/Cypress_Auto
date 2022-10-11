@@ -113,21 +113,21 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.isViewMode || this.data.mode == 'update') {
-      this.iconCtr?.setValue(this.helpers.getOptionById(this.icons, this.data.genData.icon.id));
+      this.helpers.setAutoCompleteValue(this.iconCtr, this.icons, this.data.genData.id);
     } else {
-      this.iconCtr?.setValue(this.helpers.getOptionById(this.icons, this.data.genData.icon_id));
+      this.helpers.setAutoCompleteValue(this.iconCtr, this.icons, this.data.genData.icon_id);
     }
     this.nameCtr?.setValue(this.data.genData.name);
     this.categoryCtr?.setValue(this.data.genData.category);
     this.disableItems(this.categoryCtr?.value);
-    this.deviceCtr?.setValue(this.helpers.getOptionById(this.devices, this.data.genData.device_id));
-    this.templateCtr?.setValue(this.helpers.getOptionById(this.templates, this.data.genData.template_id));
-    this.hardwareCtr?.setValue(this.helpers.getOptionById(this.hardwares, this.data.genData.hardware_id));
+    this.helpers.setAutoCompleteValue(this.deviceCtr, this.devices, this.data.genData.device_id);
+    this.helpers.setAutoCompleteValue(this.templateCtr, this.templates, this.data.genData.template_id);
+    this.helpers.setAutoCompleteValue(this.hardwareCtr, this.hardwares, this.data.genData.hardware_id);
     this.folderCtr?.setValue(this.data.genData.folder);
-    this.roleCtr?.setValue(this.helpers.getOptionById(ROLES, this.data.genData.role));
-    this.domainCtr?.setValue(this.helpers.getOptionById(this.domains, this.data.genData.domain_id));
+    this.helpers.setAutoCompleteValue(this.roleCtr, ROLES, this.data.genData.role);
+    this.helpers.setAutoCompleteValue(this.domainCtr, this.domains, this.data.genData.role);
     this.hostnameCtr?.setValue(this.data.genData.hostname);
-    this.loginProfileCtr?.setValue(this.helpers.getOptionById(this.loginProfiles, this.data.genData.login_profile_id));
+    this.helpers.setAutoCompleteValue(this.loginProfileCtr, this.loginProfiles, this.data.genData.login_profile_id);
   }
 
   ngOnDestroy(): void {

@@ -426,10 +426,11 @@ export class HelpersService {
     const option = options?.filter((option: any) => option.id == id)[0];
     return option ? option : {};
   }
-
-  getOptionByName(options: any, name: string) {
-    const option = options?.filter((option: any) => option.name == name)[0];
-    return option ? option : {};
+  
+  setAutoCompleteValue(control: any, options: any, id: string) {
+    if (id) {
+      control.setValue(this.getOptionById(options, id));
+    }
   }
 
   removeNode(node: any, deletedNodes: any[], deletedInterfaces: any[]) {

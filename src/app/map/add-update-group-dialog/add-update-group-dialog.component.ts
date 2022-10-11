@@ -13,10 +13,10 @@ import { selectDevices } from "../../store/device/device.selectors";
 import { selectPortGroups } from "../../store/portgroup/portgroup.selectors";
 import { GroupService } from "../../core/services/group/group.service";
 import { selectTemplates } from "../../store/template/template.selectors";
-import { ROLES } from 'src/app/shared/contants/roles.constant';
-import { CATEGORIES } from "../../shared/contants/categories.constant";
 import { retrievedGroups } from "../../store/group/group.actions";
 import { validateNameExist } from "../../shared/validations/name-exist.validation";
+import { CATEGORIES } from 'src/app/shared/contants/categories.constant';
+import { ROLES } from 'src/app/shared/contants/roles.constant';
 
 @Component({
   selector: 'app-add-update-group-dialog',
@@ -107,7 +107,7 @@ export class AddUpdateGroupDialogComponent implements OnInit {
     if (this.data.mode == 'update') {
       this.nodesCtr?.setValue(this.data.genData.nodes?.map((ele: any) => ele.id));
       this.portGroupsCtr?.setValue(this.data.genData.port_groups?.map((ele: any) => ele.id));
-      this.categoryCtr?.setValue(this.helpers.getOptionByName(this.CATEGORIES, this.data.genData.category));
+      this.helpers.setAutoCompleteValue(this.categoryCtr, this.CATEGORIES, this.data.genData.category);
     } else {
       this.categoryCtr?.setValue(this.CATEGORIES[0]);
       this.nodesCtr?.setValue('[' + this.data.genData.nodes?.map((nodeData: any) => nodeData.name).join(', ') + ']');

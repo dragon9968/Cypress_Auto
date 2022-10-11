@@ -852,6 +852,7 @@ export class MapComponent implements OnInit, OnDestroy {
         cyData.text_color = cyData.logical_map_style.text_color;
         cyData.text_size = cyData.logical_map_style.text_size;
         cyData.groups = respData.result.groups;
+        cyData.icon = ICON_PATH + respData.result.icon.photo;
         this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
         this.helpersService.reloadGroupBoxes(this.cy);
         this.isAddNode = false;
