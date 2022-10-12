@@ -846,7 +846,7 @@ export class MapComponent implements OnInit, OnDestroy {
         const cyData = respData.result;
         cyData.id = 'node-' + respData.id;
         cyData.node_id = respData.id;
-        cyData.domain = genData.domain.name;
+        cyData.domain = respData.result.domain.name;
         cyData.height = cyData.logical_map_style.height;
         cyData.width = cyData.logical_map_style.width;
         cyData.text_color = cyData.logical_map_style.text_color;
@@ -896,7 +896,7 @@ export class MapComponent implements OnInit, OnDestroy {
         const cyData = respData.result;
         cyData.id = 'pg-' + respData.id;
         cyData.pg_id = respData.id;
-        cyData.domain = genData.domain.name;
+        cyData.domain = respData.result.domain.name;
         cyData.height = cyData.logical_map_style.height;
         cyData.width = cyData.logical_map_style.width;
         cyData.text_color = cyData.logical_map_style.text_color;
