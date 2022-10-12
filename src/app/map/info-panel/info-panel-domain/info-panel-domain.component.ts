@@ -1,12 +1,20 @@
 import { Store } from "@ngrx/store";
-import { Observable, of, Subscription } from "rxjs";
+import { ToastrService } from "ngx-toastr";
+import { catchError } from "rxjs/operators";
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from "@angular/material/dialog";
 import { ActivatedRoute, Params } from "@angular/router";
+import { MatIconRegistry } from "@angular/material/icon";
+import { Observable, of, Subscription, throwError } from "rxjs";
 import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
+import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
+import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { DomainService } from "../../../core/services/domain/domain.service";
+import { InfoPanelService } from "../../../core/services/helpers/info-panel.service";
 import { InfoPanelRenderComponent } from "../info-panel-render/info-panel-render.component";
 import { AddUpdateDomainDialogComponent } from "../../add-update-domain-dialog/add-update-domain-dialog.component";
+import { AddDomainUserDialogComponent } from "./add-domain-user-dialog/add-domain-user-dialog.component";
+import { DomainBulkEditDialogComponent } from "../../bulk-edit-dialog/domain-bulk-edit-dialog/domain-bulk-edit-dialog.component";
 import { retrievedDomains } from "../../../store/domain/domain.actions";
 import { selectDomains } from "../../../store/domain/domain.selectors";
 
@@ -22,7 +30,10 @@ export class InfoPanelDomainComponent implements OnInit {
   name: string = '';
   selectDomains$ = new Subscription();
   rowsSelected: any[] = [];
+  rowsSelectedId: any[] = [];
+  domains!: any;
   rowData$!: Observable<any[]>;
+  isClickAction = false;
 
   public gridOptions: GridOptions = {
     headerHeight: 48,
@@ -84,10 +95,17 @@ export class InfoPanelDomainComponent implements OnInit {
     private store: Store,
     private route: ActivatedRoute,
     private dialog: MatDialog,
-    private domainService: DomainService
+    private toastr: ToastrService,
+    private iconRegister: MatIconRegistry,
+    private domSanitizer: DomSanitizer,
+    private helpers: HelpersService,
+    private domainService: DomainService,
+    private infoPanelService: InfoPanelService
   ) {
+    iconRegister.addSvgIcon('add-user', this._setPath('/assets/icons/add-user.svg'))
     this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
       if (domains) {
+        this.domains = domains;
         this.rowData$ = of(domains);
       }
     });
@@ -106,6 +124,7 @@ export class InfoPanelDomainComponent implements OnInit {
 
   selectedRows() {
     this.rowsSelected = this.gridApi.getSelectedRows();
+    this.rowsSelectedId = this.rowsSelected.map(ele => ele.id);
   }
 
   addDomain() {
@@ -119,5 +138,92 @@ export class InfoPanelDomainComponent implements OnInit {
       }
     };
     this.dialog.open(AddUpdateDomainDialogComponent, {width: '600px', data: dialogData});
+  }
+
+  addDomainUser() {
+    if (this.rowsSelectedId.length === 0) {
+      this.toastr.info('Please select the domain for creating users');
+    } else {
+      const dialogData = {
+        genData: { domainId: this.rowsSelectedId }
+      }
+      this.dialog.open(AddDomainUserDialogComponent, {width: '600px', data: dialogData});
+      this.gridApi.deselectAll();
+    }
+  }
+
+  editDomain() {
+    if (this.rowsSelected.length == 0) {
+      this.toastr.info('No row selected');
+    } else if (this.rowsSelected.length == 1) {
+      this.domains.find((ele: any) => ele.id === this.rowsSelected[0].id)
+      this.domainService.get(this.rowsSelected[0].id).subscribe(domainData => {
+        const dialogData = {
+          mode: 'update',
+          genData: domainData.result
+        };
+        this.dialog.open(AddUpdateDomainDialogComponent, {width: '600px', data: dialogData});
+      })
+    } else {
+      const dialogData = {
+        genData: {
+          pks: this.rowsSelectedId,
+          collectionId: this.collectionId
+        }
+      }
+      this.dialog.open(DomainBulkEditDialogComponent, { width: '600px', data: dialogData });
+    }
+  }
+
+  deleteDomain() {
+    this.rowsSelected.map(domain => {
+      this.infoPanelService.deleteDomain(domain, this.collectionId);
+    })
+  }
+
+  exportDomain(format: string) {
+    if (this.rowsSelectedId.length === 0) {
+      this.toastr.info('No row selected');
+    } else {
+      const jsonData = {
+        domain_id: this.rowsSelectedId,
+        format: format
+      }
+      let file = new Blob();
+      this.domainService.export(jsonData).subscribe(response => {
+        if (format === 'json') {
+          file = new Blob([response.data], { type: 'application/json' });
+        } else if (format === 'csv') {
+          file = new Blob([response.data], { type: 'text/csv;charset=utf-8;'})
+        }
+        const fileName = response.filename;
+        this.helpers.downloadBlob(fileName, file);
+        this.toastr.success(`Export domains as ${format.toUpperCase()} successfully`);
+      })
+      this.gridApi.deselectAll();
+    }
+  }
+
+  validateDomain() {
+    if (this.rowsSelected.length == 0) {
+      this.toastr.info('No row selected');
+    } else {
+      const jsonData = {
+        domain_id: this.rowsSelectedId
+      }
+      this.domainService.validate(jsonData).pipe(
+        catchError((error: any) => {
+          this.toastr.error(error.error.message)
+          return throwError(() => error.error.message);
+        })
+      ).subscribe(response => {
+        this.toastr.success(response.message);
+      })
+      this.gridApi.deselectAll();
+    }
+  }
+
+  private _setPath(url: string): SafeResourceUrl {
+    return this.domSanitizer.bypassSecurityTrustResourceUrl(url);
   }
 }

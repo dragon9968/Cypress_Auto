@@ -27,6 +27,8 @@ import { PortGroupBulkEditDialogComponent } from './bulk-edit-dialog/port-group-
 import { InterfaceBulkEditDialogComponent } from "./bulk-edit-dialog/interface-bulk-edit-dialog/interface-bulk-edit-dialog.component";
 import { ToolPanelRemoteComponent } from './tool-panel/tool-panel-remote/tool-panel-remote.component';
 import { ServerConnectDialogComponent } from './tool-panel/tool-panel-remote/server-connect-dialog/server-connect-dialog.component';
+import { DomainBulkEditDialogComponent } from './bulk-edit-dialog/domain-bulk-edit-dialog/domain-bulk-edit-dialog.component';
+import { AddDomainUserDialogComponent } from './info-panel/info-panel-domain/add-domain-user-dialog/add-domain-user-dialog.component';
 
 
 @NgModule({
@@ -55,7 +57,9 @@ import { ServerConnectDialogComponent } from './tool-panel/tool-panel-remote/ser
     PortGroupBulkEditDialogComponent,
     InterfaceBulkEditDialogComponent,
     ToolPanelRemoteComponent,
-    ServerConnectDialogComponent
+    ServerConnectDialogComponent,
+    DomainBulkEditDialogComponent,
+    AddDomainUserDialogComponent
   ],
   imports: [
     MapRoutingModule,

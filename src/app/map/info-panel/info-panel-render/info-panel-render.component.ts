@@ -26,7 +26,6 @@ import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
 import { selectDomainUsers } from "../../../store/domain-user/domain-user.selectors";
 import { retrievedPortGroups } from "../../../store/portgroup/portgroup.actions";
 import { retrievedNode } from "../../../store/node/node.actions";
-import { retrievedDomains } from "../../../store/domain/domain.actions";
 import { retrievedDomainUsers } from "../../../store/domain-user/domain-user.actions";
 import { retrievedGroups } from "../../../store/group/group.actions";
 
@@ -183,9 +182,9 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
     const params = this.getExternalParams();
     if (this.domain_id) {
       this.domainService.get(this.domain_id).subscribe(domainData => {
-        this._deleteDomain(domainData.result);
+        this.infoPanelService.deleteDomain(domainData.result, this.collectionId);
       });
-    } if (this.group_id) {
+    } else if (this.group_id) {
       this.groupService.get(this.group_id).subscribe(groupData => {
         this._deleteGroup(groupData.result);
       })
@@ -214,33 +213,6 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
       this.domain_id = this.id;
     } else if (this.tabName == 'group') {
       this.group_id = this.id;
-    }
-  }
-
-  private _deleteDomain(domain: any) {
-    const isDomainInNode = this.nodes.some(ele => ele.domain_id === domain.id);
-    const isDomainInPG = this.portGroups.some(ele => ele.domain_id === domain.id);
-    const domainName = domain.name;
-    if (isDomainInNode && isDomainInPG) {
-      this.toastr.error(`Port groups and nodes are still associated with domain ${domainName}`);
-    } else if (isDomainInNode) {
-      this.toastr.error(`Nodes are still associated with this domain ${domainName}`);
-    } else if (isDomainInPG) {
-      this.toastr.error(`Port groups are still associated with domain ${domainName}`)
-    } else {
-      this.domainUsers
-        .filter(ele => ele.domain_id === domain.id)
-        .map(ele => {
-          return this.domainUserService.delete(ele.id).subscribe(response => {
-            this.toastr.success(`Deleted domain user ${ele.username}`);
-          })
-        });
-      this.domainService.delete(domain.id).subscribe(response => {
-        this.toastr.success(`Deleted domain ${domainName}`);
-        this.domainService.getDomainByCollectionId(this.collectionId).subscribe(
-          (data: any) => this.store.dispatch(retrievedDomains({data: data.result}))
-        );
-      })
     }
   }
 

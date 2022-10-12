@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiPaths } from 'src/app/core/enums/api-paths.enum';
@@ -36,5 +36,21 @@ export class DomainService {
 
   delete(id: string): Observable<any> {
     return this.http.delete<any>(ApiPaths.DOMAINS + id);
+  }
+
+  addDomainUser(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.DOMAINS_CREATE_USERS, data);
+  }
+
+  editBulk(data: any): Observable<any> {
+    return this.http.put<any>(ApiPaths.DOMAINS_BULK_EDIT, data);
+  }
+
+  export(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.DOMAINS_EXPORT, data);
+  }
+
+  validate(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.DOMAINS_VALIDATE, data);
   }
 }

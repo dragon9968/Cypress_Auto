@@ -1,0 +1,22 @@
+<form [formGroup]="addDomainUserForm" (ngSubmit)="addDomainUsers()">
+  <h1 mat-dialog-title>Create Domain Users</h1>
+  <div mat-dialog-content>
+    <mat-form-field class="field">
+      <mat-label>Number of User</mat-label>
+      <input type="number" matInput formControlName="numberUserCtr" placeholder="Please enter the number of user">
+      <mat-error *ngIf="numberUserCtr?.errors?.required">{{ errorMessage.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="numberUserCtr?.errors?.min">{{ errorMessage.MIN_NUMBER }}</mat-error>
+
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>User Password</mat-label>
+      <input type="text" matInput formControlName="userPasswordCtr" value="P@ssw0rd123">
+    </mat-form-field>
+  </div>
+  <div mat-dialog-actions [align]="'end'">
+    <button type="text" mat-raised-button (click)="onCancel()">Cancel</button>
+    <button type="submit" mat-raised-button color="primary" [disabled]="!addDomainUserForm.valid">
+      Save <mat-icon>save</mat-icon>
+    </button>
+  </div>
+</form>

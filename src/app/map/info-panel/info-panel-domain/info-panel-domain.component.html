@@ -1,6 +1,32 @@
 <button mat-button color="primary" (click)="addDomain()">
   <mat-icon>add_box</mat-icon>
 </button>
+<button mat-button [matMenuTriggerFor]="actionMenu" (click)="isClickAction = !isClickAction">
+  Actions
+  <mat-icon *ngIf="isClickAction">keyboard_arrow_down</mat-icon>
+  <mat-icon *ngIf="!isClickAction">keyboard_arrow_up</mat-icon>
+</button>
+<mat-menu #actionMenu="matMenu" yPosition="below">
+  <button mat-menu-item  (click)="addDomainUser()">
+    <mat-icon svgIcon="add-user"></mat-icon>Create Users
+  </button>
+  <button mat-menu-item (click)="editDomain()">
+    <mat-icon>edit</mat-icon>Edit
+  </button>
+  <button mat-menu-item  (click)="deleteDomain()">
+    <mat-icon>delete_forever</mat-icon>Delete
+  </button>
+  <button mat-menu-item (click)="exportDomain('csv')">
+    <mat-icon svgIcon="export-csv"></mat-icon>Export as CSV
+  </button>
+  <button mat-menu-item (click)="exportDomain('json')">
+    <mat-icon svgIcon="export-json"></mat-icon>Export as JSON
+  </button>
+  <button mat-menu-item (click)="validateDomain()">
+    <mat-icon>check</mat-icon>Validate
+  </button>
+</mat-menu>
+
 <ag-grid-angular
   class="ag-theme-alpine info-panel-domain"
   [gridOptions]="gridOptions"

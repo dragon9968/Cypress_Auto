@@ -7,20 +7,33 @@ import { HelpersService } from "./helpers.service";
 import { NodeService } from "../node/node.service";
 import { InterfaceService } from "../interface/interface.service";
 import { PortGroupService } from "../portgroup/portgroup.service";
-import { selectMapOption } from "../../../store/map-option/map-option.selectors";
+import { DomainService } from "../domain/domain.service";
+import { DomainUserService } from "../domain-user/domain-user.service";
 import { AddUpdatePGDialogComponent } from "../../../map/add-update-pg-dialog/add-update-pg-dialog.component";
 import { AddUpdateNodeDialogComponent } from "../../../map/add-update-node-dialog/add-update-node-dialog.component";
 import { AddUpdateInterfaceDialogComponent } from "../../../map/add-update-interface-dialog/add-update-interface-dialog.component";
 import { InterfaceBulkEditDialogComponent } from "../../../map/bulk-edit-dialog/interface-bulk-edit-dialog/interface-bulk-edit-dialog.component";
 import { PortGroupBulkEditDialogComponent } from "../../../map/bulk-edit-dialog/port-group-bulk-edit-dialog/port-group-bulk-edit-dialog.component";
 import { NodeBulkEditDialogComponent } from "../../../map/bulk-edit-dialog/node-bulk-edit-dialog/node-bulk-edit-dialog.component";
+import { retrievedDomains } from "../../../store/domain/domain.actions";
+import { selectPortGroups } from "../../../store/portgroup/portgroup.selectors";
+import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
+import { selectMapOption } from "../../../store/map-option/map-option.selectors";
+import { selectDomainUsers } from "../../../store/domain-user/domain-user.selectors";
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class InfoPanelService {
 
+  selectNode$ = new Subscription();
   selectMapOption$ = new Subscription();
+  selectPortGroup$ = new Subscription();
+  selectDomainUser$ = new Subscription();
+  nodes!: any[];
+  portGroups!: any[];
+  domainUsers!: any[];
   isGroupBoxesChecked!: boolean;
 
   constructor(
@@ -30,13 +43,18 @@ export class InfoPanelService {
     private helpers: HelpersService,
     private nodeService: NodeService,
     private interfaceService: InterfaceService,
-    private portGroupService: PortGroupService
+    private portGroupService: PortGroupService,
+    private domainService: DomainService,
+    private domainUserService: DomainUserService
   ) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
         this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
       }
     });
+    this.selectNode$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => this.nodes = nodes);
+    this.selectPortGroup$ = this.store.select(selectPortGroups).subscribe(portGroups => this.portGroups = portGroups);
+    this.selectDomainUser$ = this.store.select(selectDomainUsers).subscribe(domainUsers => this.domainUsers = domainUsers);
   }
 
   delete(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[],
@@ -172,5 +190,32 @@ export class InfoPanelService {
       }
     });
     return interfacesDeleted.map(ele => ele.interface_id);
+  }
+
+  deleteDomain(domain: any, collectionId: any) {
+    const isDomainInNode = this.nodes.some(ele => ele.domain_id === domain.id);
+    const isDomainInPG = this.portGroups.some(ele => ele.domain_id === domain.id);
+    const domainName = domain.name;
+    if (isDomainInNode && isDomainInPG) {
+      this.toastr.error(`Port groups and nodes are still associated with domain ${domainName}`);
+    } else if (isDomainInNode) {
+      this.toastr.error(`Nodes are still associated with this domain ${domainName}`);
+    } else if (isDomainInPG) {
+      this.toastr.error(`Port groups are still associated with domain ${domainName}`)
+    } else {
+      this.domainUsers
+        .filter(ele => ele.domain_id === domain.id)
+        .map(ele => {
+          return this.domainUserService.delete(ele.id).subscribe(response => {
+            this.toastr.success(`Deleted domain user ${ele.username}`);
+          })
+        });
+      this.domainService.delete(domain.id).subscribe(response => {
+        this.toastr.success(`Deleted domain ${domainName}`);
+        this.domainService.getDomainByCollectionId(collectionId).subscribe(
+          (data: any) => this.store.dispatch(retrievedDomains({data: data.result}))
+        );
+      })
+    }
   }
 }
