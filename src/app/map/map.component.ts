@@ -1,7 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs';
+import { delay, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { retrievedIsMapOpen, retrievedMap } from '../store/map/map.actions';
 import { environment } from 'src/environments/environment';
 import * as cytoscape from 'cytoscape';
@@ -75,7 +75,7 @@ const popper = require('cytoscape-popper');
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss']
 })
-export class MapComponent implements OnInit, OnDestroy {
+export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   cy: any;
   ur: any;
   isOpenToolPanel = true;
@@ -133,6 +133,7 @@ export class MapComponent implements OnInit, OnDestroy {
   selectSearchText$ = new Subscription();
   icons!: any[];
   domains!: any[];
+  selectMapFeatureSubject: Subject<MapState> = new ReplaySubject(1);
 
   constructor(
     private route: ActivatedRoute,
@@ -182,20 +183,10 @@ export class MapComponent implements OnInit, OnDestroy {
     this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
       this.domains = domains;
     });
-    this.selectMap$ = this.store.select(selectMapFeature).subscribe((map: MapState) => {
-      if (map.mapProperties && map.defaultPreferences) {
-        this.nodes = map.nodes;
-        this.interfaces = map.interfaces;
-        this.groupBoxes = map.groupBoxes;
-        this.nodes = map.nodes;
-        this.mapBackgrounds = map.mapBackgrounds;
-        this.mapProperties = map.mapProperties;
-        this.defaultPreferences = map.defaultPreferences;
-        this._initCytoscape();
-        this._initMouseEvents();
-        this._initContextMenu();
-        this._initUndoRedo();
-      }
+    this.selectMap$ = this.store.select(selectMapFeature).subscribe({
+      next: value => this.selectMapFeatureSubject.next(value),
+      error: err => this.selectMapFeatureSubject.error(err),
+      complete: () => this.selectMapFeatureSubject.complete()
     });
     this.selectMapStyle$ = this.store.select(selectMapStyle).subscribe((selectedDefaultPref: any) => {
       this.selectedDefaultPref = selectedDefaultPref;
@@ -224,6 +215,24 @@ export class MapComponent implements OnInit, OnDestroy {
         this.searchMap(searchText);
       } else if (searchText?.length == 0) {
         this.clearSearch();
+      }
+    });
+  }
+
+  ngAfterViewInit(): void {
+    this.selectMapFeatureSubject.pipe(delay(1)).subscribe((map: MapState) => {
+      if (map.mapProperties && map.defaultPreferences) {
+        this.nodes = map.nodes;
+        this.interfaces = map.interfaces;
+        this.groupBoxes = map.groupBoxes;
+        this.nodes = map.nodes;
+        this.mapBackgrounds = map.mapBackgrounds;
+        this.mapProperties = map.mapProperties;
+        this.defaultPreferences = map.defaultPreferences;
+        this._initCytoscape();
+        this._initMouseEvents();
+        this._initContextMenu();
+        this._initUndoRedo();
       }
     });
   }
