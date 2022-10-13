@@ -1,0 +1,80 @@
+<div class="connection-container">
+  <mat-card class="connection-content">
+    <mat-card-title *ngIf="isViewMode" class="connection-title">Add Server Connect</mat-card-title>
+    <mat-card-title *ngIf="!isViewMode" class="connection-title">Edit Server Connect</mat-card-title>
+    <mat-card-content>
+      <form [formGroup]="connectionForm" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline">
+            <mat-label>Name</mat-label>
+            <input type="text" formControlName="name" matInput>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Category</mat-label>
+          <select matNativeControl formControlName="category">
+            <option value="vmware_vcenter">VMWare vCenter</option>
+            <option value="datasource">Datasource</option>
+          </select>
+          <mat-error *ngIf="category?.errors?.required">Category is required*</mat-error>
+        </mat-form-field>
+        <div class="hint">
+          <mat-form-field appearance="outline">
+            <mat-label>Server</mat-label>
+            <input type="text" formControlName="server" matInput>
+            <mat-hint *ngIf="isViewMode" align="start"><strong>IP address or FQDN of hypervisor</strong></mat-hint>
+          </mat-form-field>
+        </div>
+        <mat-form-field appearance="outline">
+          <mat-label>Datacenter</mat-label>
+          <input type="text" formControlName="dataCenter" matInput>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Cluster</mat-label>
+          <input type="text" formControlName="cluster" matInput>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Data Store</mat-label>
+          <input type="text" formControlName="dataStore" matInput>
+        </mat-form-field>
+        <div class="hint">
+          <mat-form-field appearance="outline">
+            <mat-label>Switch</mat-label>
+            <input type="text" formControlName="switch" matInput>
+            <mat-hint *ngIf="isViewMode" align="start"><strong>Optional - For deployment to an existing DSwitch or VSwitch</strong></mat-hint>
+          </mat-form-field>
+        </div>
+        <mat-form-field appearance="outline">
+          <mat-label>Switch Type</mat-label>
+          <select matNativeControl formControlName="switchType" >
+            <option value="vswitch">vSwitch</option>
+            <option value="dvswitch">dvSwitch</option>
+          </select>
+        </mat-form-field>
+        <div class="hint">
+          <mat-form-field appearance="outline">
+            <mat-label>VM Management Network</mat-label>
+            <input type="text" formControlName="managementNetwork" matInput>
+            <mat-hint *ngIf="isViewMode" align="start"><strong>VM management network</strong></mat-hint>
+          </mat-form-field>
+        </div>
+        <mat-form-field appearance="outline">
+          <mat-label>User Name:</mat-label>
+          <input type="text" formControlName="username" matInput>
+          <mat-error *ngIf="username?.errors?.required">Username is required*</mat-error>
+        </mat-form-field>
+        <mat-form-field *ngIf="isViewMode" appearance="outline">
+          <mat-label>Password</mat-label>
+          <input type="password" formControlName="password" matInput>
+          <mat-error *ngIf="password?.errors?.required">Password is required*</mat-error>
+        </mat-form-field>
+        <mat-form-field *ngIf="!isViewMode" appearance="outline">
+          <mat-label>Update Password</mat-label>
+          <input type="password" formControlName="update_password" matInput>
+        </mat-form-field>
+        <mat-card-actions [align]="'end'" class="create-btn">
+          <button mat-raised-button color="primary">Save</button>
+          <button mat-raised-button color="warn" (click)="onCancle()">Cancel</button>
+        </mat-card-actions>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

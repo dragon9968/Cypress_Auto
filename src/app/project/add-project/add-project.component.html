@@ -8,7 +8,7 @@
             <input type="text" formControlName="name" matInput required>
             <mat-error *ngIf="name?.errors?.required">Name is required*</mat-error>
             <mat-error *ngIf="name?.errors?.minlength || name?.errors?.maxlength">Field must be between 3 and 50 characters long.</mat-error>
-            <mat-error *ngIf="name?.errors?.isExist">isExist</mat-error>
+            <mat-error *ngIf="name?.errors?.isExist">Name already exists</mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Description</mat-label>
@@ -68,7 +68,7 @@
     </mat-card-content>
       <mat-card-actions [align]="'end'" class="create-btn">
         <button mat-raised-button color="primary" (click)="addProject()">Create</button>
-        <button mat-raised-button color="primary" (click)="cancelProject()">Cancel</button>
+        <button mat-raised-button color="warn" (click)="cancelProject()">Cancel</button>
       </mat-card-actions>
   </mat-card>
 </div>

@@ -41,5 +41,9 @@ export enum ApiPaths {
   SAVE_VM_STATUS = '/api/v1/map/save_vm_status',
   ADD_PROJECT = '/api/v1/project/add',
   NODE_CLONE = '/api/v1/node/clone_bulk',
-  NODE_EXPORT = '/api/v1/node/export/'
+  NODE_EXPORT = '/api/v1/node/export/',
+  CLEAR_PARAMETERS = '/api/v1/server_connect/clear_parameters',
+  CONNECTION_EXPORT = '/api/v1/server_connect/export',
+  PING_TEST = '/api/v1/server_connect/ping_test',
+  LOGIN_CHECK = '/api/v1/server_connect/login_check'
 }
