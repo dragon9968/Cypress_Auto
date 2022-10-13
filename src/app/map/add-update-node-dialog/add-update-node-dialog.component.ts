@@ -157,7 +157,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   }
 
   selectDevice($event: MatAutocompleteSelectedEvent) {
-    this.filteredTemplates = this.data.templates.filter((template: any) => template.device_id == $event.option.value.id);
+    this.filteredTemplates = this.templates.filter((template: any) => template.device_id == $event.option.value.id);
     this.templateCtr?.setValue('');
   }
 
