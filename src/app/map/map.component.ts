@@ -19,7 +19,7 @@ import { ConfigTemplateService } from '../core/services/config-template/config-t
 import { MatDialog } from '@angular/material/dialog';
 import { AddUpdateNodeDialogComponent } from './add-update-node-dialog/add-update-node-dialog.component';
 import { selectMapEdit } from '../store/map-edit/map-edit.selectors';
-import { selectMapStyle } from '../store/map-style/map-style.selectors';
+import { selectMapPref } from '../store/map-style/map-style.selectors';
 import { ToastrService } from 'ngx-toastr';
 import { AddUpdatePGDialogComponent } from './add-update-pg-dialog/add-update-pg-dialog.component';
 import { AddUpdateInterfaceDialogComponent } from './add-update-interface-dialog/add-update-interface-dialog.component';
@@ -102,7 +102,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   isCustomizePG = true;
   deviceId = '';
   templateId = '';
-  selectedDefaultPref: any;
+  selectedMapPref: any;
   portGroups!: any[];
   gateways!: any[];
   newEdgeData: any;
@@ -125,7 +125,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   connectionId!: string;
   boxSelectedNodes = new Set();
   selectMap$ = new Subscription();
-  selectMapStyle$ = new Subscription();
+  selectMapPref$ = new Subscription();
   selectMapEdit$ = new Subscription();
   selectPortGroups$ = new Subscription();
   selectIcons$ = new Subscription();
@@ -188,8 +188,8 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       error: err => this.selectMapFeatureSubject.error(err),
       complete: () => this.selectMapFeatureSubject.complete()
     });
-    this.selectMapStyle$ = this.store.select(selectMapStyle).subscribe((selectedDefaultPref: any) => {
-      this.selectedDefaultPref = selectedDefaultPref;
+    this.selectMapPref$ = this.store.select(selectMapPref).subscribe((selectedMapPref: any) => {
+      this.selectedMapPref = selectedMapPref;
     });
     this.selectMapEdit$ = this.store.select(selectMapEdit).subscribe((mapEdit: any) => {
       if (mapEdit) {
@@ -260,7 +260,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.selectMap$.unsubscribe();
-    this.selectMapStyle$.unsubscribe();
+    this.selectMapPref$.unsubscribe();
     this.selectMapEdit$.unsubscribe();
     this.selectPortGroups$.unsubscribe();
     this.selectIcons$.unsubscribe();
@@ -738,7 +738,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ur.action("removeEdge", this.helpersService.removeEdge.bind(this), this.helpersService.restoreEdge.bind(this));
     this.ur.action("changeNodeSize", this.helpersService.changeNodeSize.bind(this.commonService), this.helpersService.restoreNodeSize.bind(this.commonService));
     this.ur.action("changTextColor", this.styleService.changTextColor.bind(this.commonService).bind(this.commonService), this.styleService.restoreTextColor.bind(this.commonService).bind(this.commonService));
-
     this.ur.action("changeTextSize", this.styleService.changeTextSize.bind(this.commonService).bind(this.commonService), this.styleService.restoreTextSize.bind(this.commonService).bind(this.commonService));
     this.ur.action("changePGColor", this.styleService.changePGColor.bind(this.commonService).bind(this.commonService), this.styleService.restorePGColor.bind(this.commonService).bind(this.commonService));
     this.ur.action("changePGSize", this.styleService.changePGSize.bind(this.commonService).bind(this.commonService), this.styleService.restorePGSize.bind(this.commonService).bind(this.commonService));
@@ -821,7 +820,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     const dialogData = {
       mode: 'add',
       collectionId: this.collectionId,
-      selectedDefaultPref: this.selectedDefaultPref,
+      selectedMapPref: this.selectedMapPref,
       cy: this.cy,
       genData,
       newNodeData,
@@ -875,7 +874,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     const dialogData = {
       mode: 'add',
       collectionId: this.collectionId,
-      selectedDefaultPref: this.selectedDefaultPref,
+      selectedMapPref: this.selectedMapPref,
       cy: this.cy,
       genData,
       newNodeData,
@@ -928,7 +927,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       collectionId: this.collectionId,
       portGroups: this.portGroups,
       gateways: this.gateways,
-      selectedDefaultPref: this.selectedDefaultPref,
+      selectedMapPref: this.selectedMapPref,
       cy: this.cy,
       genData,
       newEdgeData,
@@ -1004,8 +1003,8 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       category,
       direction: "both",
       curve_style: category == 'tunnel' ? 'bezier' : 'straight',
-      color: this.selectedDefaultPref.edge_color,
-      width: this.selectedDefaultPref.edge_width + "px",
+      color: this.selectedMapPref.edge_color,
+      width: this.selectedMapPref.edge_width + "px",
     }
     this.e = this.helpersService.addCYEdge(this.cy, this.newEdgeData)[0];
     if (category == "tunnel") {

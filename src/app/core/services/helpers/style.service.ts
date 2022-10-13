@@ -25,7 +25,7 @@ export class StyleService {
 
   changTextColor(data: any, textColor: any) {
     data.activeEles?.forEach((ele : any) => {
-      data.old_text_color = ele.data("text_color");
+      data.oldTextColor = ele.data("text_color");
       ele._private['data'] = {...ele._private['data']};
       if (ele.data("label") == "map_background") {
         data.newColor = "#ffffff";
@@ -37,23 +37,23 @@ export class StyleService {
           }
         }
       }
-      ele.data("text_color", data.newColor);
+      ele.data("text_color", data.newTextColor);
     })
-    textColor = this.helpers.fullColorHex(data?.newColor);
+    textColor = this.helpers.fullColorHex(data?.newTextColor);
     return data;
   }
 
   restoreTextColor(data: any, textColor: any) {
     data.activeEles?.forEach((ele: any) => {
-      ele.data("text_color", data.old_text_color);
+      ele.data("text_color", data.oldTextColor);
     });
-    textColor = this.helpers.fullColorHex(data?.old_text_color);
+    textColor = this.helpers.fullColorHex(data?.oldTextColor);
     return data
   }
 
   changeTextSize(data: any, textSize: any) {
     data.activeEles.forEach((ele: any) => {
-      data.old_text_size = ele.data("text_size");
+      data.oldTextSize = ele.data("text_size");
       ele.data("text_size", data.newTextSize);
       if (!ele.data('label')) {
         const d = ele.data();
@@ -68,17 +68,17 @@ export class StyleService {
 
   restoreTextSize(data: any, textSize: any) {
     data.activeEles.forEach((ele: any) => {
-      ele.data("text_size", data.old_text_size);
+      ele.data("text_size", data.oldTextSize);
     });
-    textSize = data.old_text_size <= 200 ? data.old_text_size : 200;
+    textSize = data.oldTextSize <= 200 ? data.oldTextSize : 200;
     return data;
   }
 
   changePGColor(data: any, pgColor: any) {
     data.activePGs?.forEach((ele: any) => {
-      data.old_pg_color = ele.data("color");
+      data.oldPGColor = ele.data("color");
       if (ele.data("elem_category") == "port_group") {
-        ele.data("color", data.newPgColor);
+        ele.data("color", data.newPGColor);
         const d = ele.data();
         if (!d.new) {
           d.updated = true;
@@ -86,26 +86,26 @@ export class StyleService {
       }
     })
 
-    pgColor = this.helpers.fullColorHex(data.newPgColor);
+    pgColor = this.helpers.fullColorHex(data.newPGColor);
     return data;
   }
 
   restorePGColor(data: any, pgColor: any) {
     data.activePGs?.forEach((ele: any) => {
       if (ele.data("elem_category") == "port_group") {
-        ele.data("color", data.old_pg_color);
+        ele.data("color", data.oldPGColor);
       }
     });
-    pgColor = this.helpers.fullColorHex(data.old_pg_color);
+    pgColor = this.helpers.fullColorHex(data.oldPGColor);
     return data;
   }
 
   changePGSize(data: any, pgSize: any) {
-    data.activePgs.forEach((ele: any) => {
-      data.old_pg_size = ele.data("width")
+    data.activePGs.forEach((ele: any) => {
+      data.oldPGSize = ele.data("width")
       if (ele.data("elem_category") == "port_group") {
-        ele.data("width", data.newPgSize);
-        ele.data("height", data.newPgSize);
+        ele.data("width", data.newPGSize);
+        ele.data("height", data.newPGSize);
         ele.style({ "background-fit": "cover" });
         const d = ele.data();
         if (!d.new) {
@@ -113,24 +113,24 @@ export class StyleService {
         }
       }
     })
-    pgSize = data.newPgSize <= 200 ? data.newPgSize : 200;
+    pgSize = data.newPGSize <= 200 ? data.newPGSize : 200;
     return data;
   }
 
   restorePGSize(data: any, pgSize: any) {
-    data.activePgs.forEach((ele: any) => {
+    data.activePGs.forEach((ele: any) => {
       if (ele.data("elem_category") == "port_group") {
-        ele.data("width", data.old_pg_size);
-        ele.data("height", data.old_pg_size);
+        ele.data("width", data.oldPGSize);
+        ele.data("height", data.oldPGSize);
       }
     })
-    pgSize = data.old_pg_size <= 200 ? data.old_pg_size : 200;
+    pgSize = data.oldPGSize <= 200 ? data.oldPGSize : 200;
     return data;
   }
 
   changeEdgeColor(data: any, edgeColor: any) {
     data.activeEdges.forEach((ele: any) => {
-      data.old_edge_color = ele.data("color")
+      data.oldEdgeColor = ele.data("color")
       ele.data("color", data.newEdgeColor);
       const d = ele.data();
       if (!d.new) {
@@ -143,15 +143,15 @@ export class StyleService {
 
   restoreEdgeColor(data: any, edgeColor: any) {
     data.activeEdges.forEach((ele: any) => {
-      ele.data("color", data.old_edge_color);
+      ele.data("color", data.oldEdgeColor);
     });
-    edgeColor = this.helpers.fullColorHex(data.old_edge_color);
+    edgeColor = this.helpers.fullColorHex(data.oldEdgeColor);
     return data;
   }
 
   changeEdgeSize(data: any, edgeSize: number) {
     data.activeEdges.forEach((ele: any) => {
-      data.old_edge_size = ele.data("width");
+      data.oldEdgeSize = ele.data("width");
       ele.data("width", data.newEdgeSize);
       const d = ele.data();
       if (!d.new) {
@@ -164,15 +164,15 @@ export class StyleService {
 
   restoreEdgeSize(data: any, edgeSize: number) {
     data.activeEdges.forEach((ele: any) => {
-      ele.data("width", data.old_edge_size);
+      ele.data("width", data.oldEdgeSize);
     });
-    edgeSize = data.old_edge_size <= 50 ? data.old_edge_size : 50;
+    edgeSize = data.oldEdgeSize <= 50 ? data.oldEdgeSize : 50;
     return data;
   }
 
   changeArrowScale(data: any, arrowSize: number) {
     data.activeEdges.forEach((ele: any) => {
-      data.old_arrow_scale = ele.data("arrow_scale");
+      data.oldArrowScale = ele.data("arrow_scale");
       ele.data("arrow_scale", data.newArrowScale);
       const d = ele.data();
       if (!d.new) {
@@ -185,15 +185,15 @@ export class StyleService {
 
   restoreArrowScale(data: any, arrowSize: number) {
     data.activeEdges.forEach((ele: any) => {
-      ele.data("arrow_scale", data.old_arrow_scale);
+      ele.data("arrow_scale", data.oldArrowScale);
     });
-    arrowSize = data.old_arrow_scale <= 200 ? data.old_arrow_scale : 200;
+    arrowSize = data.oldArrowScale <= 200 ? data.oldArrowScale : 200;
     return data;
   }
 
   changeDirection(data: any) {
     data.activeEdges.forEach((ele: any) => {
-      data.old_direction = ele.data("direction")
+      data.oldDirection = ele.data("direction")
       ele.data("direction", data.newDirection);
       const d = ele.data();
       if (!d.new) {
@@ -205,60 +205,60 @@ export class StyleService {
 
   restoreDirection(data: any) {
     data.activeEdges.forEach((ele: any) => {
-      ele.data("direction", data.old_direction);
+      ele.data("direction", data.oldDirection);
     })
     return data;
   }
 
   changeTextBGColor(data: any, textBGColor: any) {
     data.activeEles.forEach((ele: any) => {
-      data.old_text_bg_color = ele.data("text_bg_color");
+      data.oldTextBGColor = ele.data("text_bg_color");
       ele._private['data'] = {...ele._private['data']};
-      ele.data("text_bg_color", data.newColor);
+      ele.data("text_bg_color", data.newTextBGColor);
       const d = ele.data();
       if (!d.new) {
         d.updated = true;
       }
     });
 
-    textBGColor = this.helpers.fullColorHex(data.newColor);
+    textBGColor = this.helpers.fullColorHex(data.newTextBGColor);
     return data;
   }
 
   restoreTextBGColor(data: any, textBGColor: any) {
     data.activeEles.forEach((ele: any) => {
-      ele.data("text_bg_color", data.old_text_bg_color);
+      ele.data("text_bg_color", data.oldTextBGColor);
     });
 
-    textBGColor = this.helpers.fullColorHex(data.old_text_bg_color);
+    textBGColor = this.helpers.fullColorHex(data.oldTextBGColor);
     return data;
   }
 
   changeTextBGOpacity(data: any, textBGOpacity: any) {
     data.activeEles.forEach((ele: any) => {
-      data.old_text_bg_opacity = ele.data("text_bg_opacity");
-      ele.data("text_bg_opacity", data.newTextBgOpacity);
+      data.oldTextBGOpacity = ele.data("text_bg_opacity");
+      ele.data("text_bg_opacity", data.newTextBGOpacity);
       const d = ele.data();
       if (!d.new) {
         d.updated = true;
       }
     })
-    textBGOpacity = data.newTextBgOpacity;
+    textBGOpacity = data.newTextBGOpacity;
     return data;
   }
 
   restoreTextBGOpacity (data: any, textBGOpacity: any) {
     data.activeEles.forEach((ele: any) => {
-      ele.data("text_bg_opacity", data.old_text_bg_opacity);
+      ele.data("text_bg_opacity", data.oldTextBGOpacity);
     })
-    textBGOpacity = data.old_text_bg_opacity;
+    textBGOpacity = data.oldTextBGOpacity;
     return data;
   }
 
   changeTextVAlign(data: any) {
     data.activeEles.forEach((ele: any) => {
-      data.old_text_valign = ele.data("text_valign");
-      ele.data("text_valign", data.newTextValign);
+      data.oldTextVAlign = ele.data("text_valign");
+      ele.data("text_valign", data.newTextVAlign);
       const d = ele.data();
       if (!d.new) {
         d.updated = true;
@@ -269,15 +269,15 @@ export class StyleService {
 
   restoreTextVAlign(data: any) {
     data.activeEles.forEach((ele: any) => {
-      ele.data("text_valign", data.old_text_valign);
+      ele.data("text_valign", data.oldTextVAlign);
     });
     return data;
   }
 
   changeTextHAlign(data: any) {
     data.activeEles.forEach((ele: any) => {
-      data.old_text_halign = ele.data("text_halign");
-      ele.data("text_halign", data.newTextHalign);
+      data.oldTextHAlign = ele.data("text_halign");
+      ele.data("text_halign", data.newTextHAlign);
       const d = ele.data();
       if (!d.new) {
         d.updated = true;
@@ -288,100 +288,100 @@ export class StyleService {
 
   restoreTextHAlign(data: any){
     data.activeEles.forEach((ele: any) => {
-      ele.data("text_halign", data.old_text_halign);
+      ele.data("text_halign", data.oldTextHAlign);
     })
     return data;
   }
 
   changeGBOpacity(data: any, gbOpacity: any) {
-    data.activeGbs.forEach((ele: any) => {
-      data.old_gb_opacity = ele.data("group_opacity");
+    data.activeGBs.forEach((ele: any) => {
+      data.oldGBOpacity = ele.data("group_opacity");
       ele._private['data'] = {...ele._private['data']};
-      ele.data("group_opacity", data.newGbOpacity);
+      ele.data("group_opacity", data.newGBOpacity);
       const d = ele.data();
       if (!d.new) {
         d.updated = true;
       }
     })
-    gbOpacity = data.newGbOpacity;
+    gbOpacity = data.newGBOpacity;
     return data;
   }
 
   restoreGBOpacity(data: any, gbOpacity: any) {
-    data.activeGbs.forEach((ele: any) => {
-      ele.data("group_opacity", data.old_gb_opacity);
+    data.activeGBs.forEach((ele: any) => {
+      ele.data("group_opacity", data.oldGBOpacity);
     })
-    gbOpacity = data.old_gb_opacity;
+    gbOpacity = data.oldGBOpacity;
     return data;
   }
 
   changeGBColor(data: any, gbColor: any) {
-    data.activeGbs.forEach((ele: any) => {
-      data.old_gb_color = ele.data("color");
+    data.activeGBs.forEach((ele: any) => {
+      data.oldGBColor = ele.data("color");
       ele._private['data'] = {...ele._private['data']};
-      ele.data("color", data.newGbColor);
+      ele.data("color", data.newGBColor);
       const d = ele.data();
       if (!d.new) {
         d.updated = true;
       }
     });
 
-    gbColor = this.helpers.fullColorHex(data.newGbColor);
+    gbColor = this.helpers.fullColorHex(data.newGBColor);
     return data;
   }
 
   restoreGBColor(data: any, gbColor: any) {
-    data.activeGbs.forEach((ele: any) => {
-      ele.data("color", data.old_gb_color);
+    data.activeGBs.forEach((ele: any) => {
+      ele.data("color", data.oldGBColor);
     });
 
-    gbColor = this.helpers.fullColorHex(data.old_gb_color);
+    gbColor = this.helpers.fullColorHex(data.oldGBColor);
     return data;
   }
 
   changeGBBorderColor(data: any, gbBorderColor: any) {
-    data.activeGbs.forEach((ele: any) => {
-      data.old_gb_border_color = ele.data("border_color");
+    data.activeGBs.forEach((ele: any) => {
+      data.oldGBBorderColor = ele.data("border_color");
       ele._private['data'] = {...ele._private['data']};
-      ele.data("border_color", data.newGbBorderColor);
+      ele.data("border_color", data.newGBBorderColor);
       const d = ele.data();
       if (!d.new) {
         d.updated = true;
       }
     })
 
-    gbBorderColor = this.helpers.fullColorHex(data.newGbBorderColor);
+    gbBorderColor = this.helpers.fullColorHex(data.newGBBorderColor);
     return data;
   }
 
   restoreGBBorderColor(data: any, gbBorderColor: any) {
-    data.activeGbs.forEach((ele: any) => {
-      ele.data("border_color", data.old_gb_border_color);
+    data.activeGBs.forEach((ele: any) => {
+      ele.data("border_color", data.oldGBBorderColor);
     });
 
-    gbBorderColor = this.helpers.fullColorHex(data.old_gb_border_color);
+    gbBorderColor = this.helpers.fullColorHex(data.oldGBBorderColor);
     return data;
   }
 
   changeGBType(data: any, gbBorderTypeActivated: any) {
-    data.activeGbs.forEach((ele: any) => {
-      data.old_gb_border_type = ele.data("border_style");
+    data.activeGBs.forEach((ele: any) => {
+      data.oldGBBorderType = ele.data("border_style");
       ele._private['data'] = {...ele._private['data']};
-      ele.data("border_style", data.newGbBorderType);
+      ele.data("border_style", data.newGBBorderType);
       const d = ele.data();
       if (!d.new) {
         d.updated = true;
       }
     })
-    gbBorderTypeActivated = data.newGbBorderType;
+    gbBorderTypeActivated = data.newGBBorderType;
     return data;
   }
 
   restoreGBType(data: any, gbBorderTypeActivated: any) {
-    data.activeGbs.forEach((ele: any) => {
-      ele.data("border_style", data.old_gb_border_type);
+    data.activeGBs.forEach((ele: any) => {
+      ele.data("border_style", data.oldGBBorderType);
     });
-    gbBorderTypeActivated = data.old_gb_border_type;
+    gbBorderTypeActivated = data.oldGBBorderType;
     return data;
   }
 }

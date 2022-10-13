@@ -566,7 +566,7 @@ export class HelpersService {
     if (hexPatternFound != null) {
       return (rgbColor)
     }
-    else {
+    else if (rgbColor.match("rgb\\((\\d{1,},\\d{1,},\\d{1,})")) {
       const rgbArray = rgbColor.match("rgb\\((\\d{1,},\\d{1,},\\d{1,})"); // retrieves the RGB numbers into an array
       let rgb = rgbArray[1];
       rgb = rgb.split(","); // split the RGB color array
@@ -574,6 +574,8 @@ export class HelpersService {
       const green = this.rgbToHex(rgb[1]);
       const blue = this.rgbToHex(rgb[2]);
       return "#" + red + green + blue;
+    } else {
+      return rgbColor
     }
   }
 

@@ -6,10 +6,11 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
-import { MapPrefService } from 'src/app/map/tool-panel/tool-panel-style/services/map-pref/map-pref.service';
+import { MapPrefService } from 'src/app/core/services/map-pref/map-pref.service';
 import { retrievedMapPref } from 'src/app/store/map-style/map-style.actions';
 import { selectDefaultPreferences } from 'src/app/store/map/map.selectors';
 import { CommonService } from 'src/app/map/context-menu/cm-common-service/common.service';
+import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
 
 @Component({
   selector: 'app-tool-panel-style',
@@ -18,6 +19,7 @@ import { CommonService } from 'src/app/map/context-menu/cm-common-service/common
 })
 export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
   @Input() cy: any;
+  @Input() ur: any;
   @Input() config: any;
   @Input() activeNodes: any[] = [];
   @Input() activePGs: any[] = [];
@@ -39,6 +41,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
   textBGColor = '#000000';
   textBGOpacity = 0.0;
   selectDefaultPreferences$ = new Subscription();
+  selectMapPref$ = new Subscription();
   isHideNode: boolean = true;
   isHidePGs: boolean = true;
   isHideText: boolean = true;
@@ -48,6 +51,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
   hAlignSelect?: string;
   arrowActivated?: string;
   gbBorderTypeActivated?: string;
+  selectedMapPref: any;
 
   constructor(
     private domSanitizer: DomSanitizer,
@@ -69,7 +73,10 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
           this.store.dispatch(retrievedMapPref({ data: data.result }));
         });
       }
-    })
+    });
+    this.selectMapPref$ = this.store.select(selectMapPref).subscribe((selectedMapPref: any) => {
+      this.selectedMapPref = selectedMapPref;
+    });
   }
 
   ngDoCheck(): void {
@@ -96,7 +103,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
       this.edgeColor = data.color;
       this.edgeSize = this.removePx(data.width);
       this.arrowActivated = data.direction;
-      this.arrowSize = data.arrow_scale ? this.removePx(data.arrow_scale): 1;
+      this.arrowSize = data.arrow_scale ? this.removePx(data.arrow_scale) : 1;
       this._setPropertiesCommon(data);
     }
     if (this.activeGBs.length >= 1) {
@@ -117,7 +124,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
     this.hAlignSelect = data.text_halign;
   }
 
-  removePx(value: any){
+  removePx(value: any) {
     return value ? (typeof value === 'number' && !isNaN(value) ? value : value.replace('px', '')) : value;
   }
 
@@ -136,7 +143,41 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   applyMapPref() {
-    console.log(this.mapPrefCtr.value);
+    const activeEles = this.activeNodes.concat(this.activePGs, this.activeEdges, this.activeGBs);
+    const newTextColor = this.selectedMapPref.text_color;
+    const newTextSize = this.selectedMapPref.text_size + 'px';
+    const newTextBGColor = this.selectedMapPref.text_bg_color;
+    const newTextBGOpacity = this.selectedMapPref.text_bg_opacity;
+    const newTextHAlign = this.selectedMapPref.text_halign;
+    const newTextVAlign = this.selectedMapPref.text_valign;
+    const newIconSize = this.selectedMapPref.node_size + 'px';
+    const newPGSize = this.selectedMapPref.port_group_size + 'px';
+    const newEdgeSize = this.selectedMapPref.edge_width + 'px';
+    const newDirection = this.selectedMapPref.edge_arrow_direction;
+    const newArrowScale = this.selectedMapPref.edge_arrow_size + 'px';
+    const newPGColor = this.selectedMapPref.port_group_color;
+    const newEdgeColor = this.selectedMapPref.edge_color;
+    const newGBColor = this.selectedMapPref.group_box_color;
+    const newGBOpacity = this.selectedMapPref.group_box_opacity;
+    const newGBBorderType = this.selectedMapPref.group_box_border;
+    const newGBBorderColor = this.selectedMapPref.group_box_border_color;
+    this.ur.do("changTextColor", { activeEles, newTextColor });
+    this.ur.do("changeTextSize", { activeEles, newTextSize });
+    this.ur.do("changeTextBGColor", { activeEles, newTextBGColor });
+    this.ur.do("changeTextBGOpacity", { activeEles, newTextBGOpacity });
+    this.ur.do("changeTextHAlign", { activeEles, newTextHAlign });
+    this.ur.do("changeTextVAlign", { activeEles, newTextVAlign });
+    this.ur.do("changeNodeSize", { activeNodes: this.activeNodes, newIconSize });
+    this.ur.do("changePGSize", { activePGs: this.activePGs, newPGSize });
+    this.ur.do("changeEdgeSize", { activeEdges: this.activeEdges, newEdgeSize });
+    this.ur.do("changeDirection", { activeEdges: this.activeEdges, newDirection });
+    this.ur.do("changeArrowScale", { activeEdges: this.activeEdges, newArrowScale });
+    this.ur.do("changePGColor", { activePGs: this.activePGs, newPGColor });
+    this.ur.do("changeEdgeColor", { activeEdges: this.activeEdges, newEdgeColor });
+    this.ur.do("changeGBColor", { activeGBs: this.activeGBs, newGBColor });
+    this.ur.do("changeGBOpacity", { activeGBs: this.activeGBs, newGBOpacity });
+    this.ur.do("changeGBType", { activeGBs: this.activeGBs, newGBBorderType });
+    this.ur.do("changeGBBorderColor", { activeGBs: this.activeGBs, newGBBorderColor });
   }
 
   selectMapPref($event: MatAutocompleteSelectedEvent) {
@@ -181,10 +222,10 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
 
   setTextColor(color: string) {
     this.commonService.textColor(
-      color, 
-      this.activeNodes, 
-      this.activePGs, 
-      this.activeEdges, 
+      color,
+      this.activeNodes,
+      this.activePGs,
+      this.activeEdges,
       this.activeGBs,
       this.textColor
     );
@@ -202,9 +243,9 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
 
   setTextBGOpacity(opacity: any) {
     this.commonService.textBGOpacity(
-      opacity, 
+      opacity,
       this.activeNodes,
-      this.activeEdges, 
+      this.activeEdges,
       this.activePGs,
       this.textBGOpacity
     );
@@ -231,7 +272,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
 
 
   setPGSize(size: any) {
-    this.commonService.pgSize (
+    this.commonService.pgSize(
       size,
       this.activePGs,
       this.pgSize
@@ -255,8 +296,8 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   setArrowScale(size: any) {
-    this.commonService.arrowScale (
-      size, 
+    this.commonService.arrowScale(
+      size,
       this.activeEdges,
       this.arrowSize
     );
@@ -273,11 +314,10 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   setGBBorderColor(newGbBorderColor: string) {
-    // this.changeGBBorderColor({activeGbs: this.activeGBs, newGbBorderColor});
     this.commonService.gBBorderColor(
       newGbBorderColor,
-      this.activeGBs, 
+      this.activeGBs,
       this.gbBorderColor
-      );
+    );
   }
 }

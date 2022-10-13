@@ -61,7 +61,6 @@ export class CommonService {
   }
 
   textColor(color: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], textColor: any) {
-    // this.helpers.changTextColor(data, textColor);
     const hexPattern = '#d{0,}';
     const hexColor = color;
     const hexPatternFound = hexColor.match(hexPattern)
@@ -69,9 +68,9 @@ export class CommonService {
       const r = parseInt(hexColor.slice(1, 3), 16).toString();
       const g = parseInt(hexColor.slice(3, 5), 16).toString();
       const b = parseInt(hexColor.slice(5, 7), 16).toString();
-      const newColor = "rgb(" + r + ',' + g + ',' + b + ")";
+      const newTextColor = "rgb(" + r + ',' + g + ',' + b + ")";
       const activeEles = activeNodes.concat(activeEdges, activePGs, activeGBs);
-      this.ur?.do('changTextColor', { activeEles, newColor }, textColor);
+      this.ur?.do('changTextColor', { activeEles, newTextColor }, textColor);
     }
   }
 
@@ -82,14 +81,13 @@ export class CommonService {
   }
 
   pgColor(color: any, activePGs: any[], pgColor: any) {
-    const newPgColor = color;
-    // this.styleService.changePGColor({activePGs, newPgColor}, pgColor);
-    this.ur?.do('changePGColor', {activePGs, newPgColor}, pgColor);
+    const newPGColor = color;
+    this.ur?.do('changePGColor', {activePGs, newPGColor}, pgColor);
   }
 
-  pgSize(size: any, activePgs: any[], pgSize: any) {
-    const newPgSize = size.value;
-    this.ur?.do('changePGSize', {activePgs, newPgSize}, pgSize);
+  pgSize(size: any, activePGs: any[], pgSize: any) {
+    const newPGSize = size.value;
+    this.ur?.do('changePGSize', {activePGs, newPGSize}, pgSize);
   }
 
   edgeColor (color: any, activeEdges: any[], edgeColor: any) {
@@ -120,46 +118,44 @@ export class CommonService {
       const r = parseInt(hexColor.slice(1, 3), 16).toString();
       const g = parseInt(hexColor.slice(3, 5), 16).toString();
       const b = parseInt(hexColor.slice(5, 7), 16).toString();
-      const newColor = "rgb(" + r + ',' + g + ',' + b + ")";
+      const newTextBGColor = "rgb(" + r + ',' + g + ',' + b + ")";
       const activeEles = activeNodes.concat(activeEdges, activePGs, activeGBs);
-      this.ur?.do('changeTextBGColor', { activeEles, newColor }, textBGColor);
+      this.ur?.do('changeTextBGColor', { activeEles, newTextBGColor }, textBGColor);
     }
   }
 
   textBGOpacity(opacity: any, activeNodes: any[], activeEdges: any[], activePGs: any[], textBGOpacity: any) {
-    const newTextBgOpacity = opacity.value;
+    const newTextBGOpacity = opacity.value;
     const activeEles = activeNodes.concat(activeEdges, activePGs);
-    this.ur?.do('changeTextBGOpacity', {activeEles, newTextBgOpacity}, textBGOpacity);
+    this.ur?.do('changeTextBGOpacity', {activeEles, newTextBGOpacity}, textBGOpacity);
   }
 
   textVAlign(value: string, activeNodes: any[], activePGs: any[]) {
-    const newTextValign = value;
+    const newTextVAlign = value;
     const activeEles = activeNodes.concat(activePGs);
-    this.ur?.do('changeTextVAlign', {activeEles, newTextValign});
+    this.ur?.do('changeTextVAlign', {activeEles, newTextVAlign});
   }
 
   textHAlign(value: string, activeNodes: any[], activePGs: any[]) {
-    const newTextHalign = value;
+    const newTextHAlign = value;
     const activeEles = activeNodes.concat(activePGs);
-    this.ur?.do('changeTextHAlign', {activeEles, newTextHalign})
+    this.ur?.do('changeTextHAlign', {activeEles, newTextHAlign})
   }
 
-  gbOpacity(event: any, activeGbs: any[], gbOpacity: any){
-    const newGbOpacity = event.value;
-    this.ur?.do('changeGBOpacity', {activeGbs, newGbOpacity}, gbOpacity);
+  gbOpacity(event: any, activeGBs: any[], gbOpacity: any){
+    const newGBOpacity = event.value;
+    this.ur?.do('changeGBOpacity', {activeGBs, newGBOpacity}, gbOpacity);
   }
 
-  gBColor(newGbColor: any, activeGbs: any[], gbColor: any) {
-    // this.styleService.changeGBColor({activeGbs, newGbColor}, gbColor);
-    this.ur?.do('changeGBColor', {activeGbs, newGbColor}, gbColor);
+  gBColor(newGBColor: any, activeGBs: any[], gbColor: any) {
+    this.ur?.do('changeGBColor', {activeGBs, newGBColor}, gbColor);
   }
 
-  gBBorderColor(newGbBorderColor: any, activeGbs: any[], gbBorderColor: any) {
-    // this.styleService.changeGBBorderColor({activeGbs, newGbBorderColor}, gbBorderColor);
-    this.ur?.do('changeGBBorderColor', {activeGbs, newGbBorderColor}, gbBorderColor);
+  gBBorderColor(newGBBorderColor: any, activeGBs: any[], gbBorderColor: any) {
+    this.ur?.do('changeGBBorderColor', {activeGBs, newGBBorderColor}, gbBorderColor);
   }
 
-  gBType(newGbBorderType: any, activeGbs: any[], gbBorderTypeActivated: any) {
-    this.ur?.do('changeGBType', {activeGbs, newGbBorderType}, gbBorderTypeActivated);
+  gBType(newGBBorderType: any, activeGBs: any[], gbBorderTypeActivated: any) {
+    this.ur?.do('changeGBType', {activeGBs, newGBBorderType}, gbBorderTypeActivated);
   }
 }

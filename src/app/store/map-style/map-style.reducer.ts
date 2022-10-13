@@ -7,6 +7,6 @@ export const mapStyleReducer = createReducer(
   initialState,
   on(retrievedMapPref, (state, { data }) => ({
     ...state,
-    mapStyle: data,
+    mapPref: data,
   })),
 );

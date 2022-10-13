@@ -9,7 +9,7 @@ import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmat
 import { selectMapContextMenu } from 'src/app/store/map-context-menu/map-context-menu.selectors';
 import { retrievedMapEdit } from 'src/app/store/map-edit/map-edit.actions';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
-import { selectMapStyle } from 'src/app/store/map-style/map-style.selectors';
+import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
 import { CommonService } from 'src/app/map/context-menu/cm-common-service/common.service';
 
 @Component({
@@ -38,7 +38,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   updatedGroupBoxes: any[] = [];
   updatedMapBackgrounds: any[] = [];
   selectMapOption$ = new Subscription();
-  selectMapStyle$ = new Subscription();
+  selectMapPref$ = new Subscription();
   selectDefaultPreferences$ = new Subscription();
   selectMapContextMenu$ = new Subscription();
   isEdgeDirectionChecked!: boolean;
@@ -48,7 +48,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   isMapOverviewChecked!: boolean;
   gridSpacingSize!: string;
   groupCategoryId!: string;
-  selectedDefaultPrefId!: string;
+  selectedMapPrefId!: string;
   defaultPreferences: any;
 
   constructor(
@@ -70,8 +70,8 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         this.groupCategoryId = mapOption.groupCategoryId;
       }
     });
-    this.selectMapStyle$ = this.store.select(selectMapStyle).subscribe((selectedDefaultPref: any) => {
-      this.selectedDefaultPrefId = selectedDefaultPref?.id;
+    this.selectMapPref$ = this.store.select(selectMapPref).subscribe((selectedMapPref: any) => {
+      this.selectedMapPrefId = selectedMapPref?.id;
     });
     this.selectMapContextMenu$ = this.store.select(selectMapContextMenu).subscribe((mapContextMenu: any) => {
       if (mapContextMenu?.event == 'download') {
@@ -90,7 +90,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.selectMapOption$.unsubscribe();
-    this.selectMapStyle$.unsubscribe();
+    this.selectMapPref$.unsubscribe();
   }
 
   download() {
@@ -128,7 +128,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       groupbox_checkbox: this.isGroupBoxesChecked,
       display_map_overview_checkbox: this.isMapOverviewChecked,
       group_category: this.groupCategoryId,
-      default_map_pref_id: this.selectedDefaultPrefId,
+      default_map_pref_id: this.selectedMapPrefId,
       grid_settings: {
         enabled: this.isMapGridChecked,
         spacing: this.gridSpacingSize,

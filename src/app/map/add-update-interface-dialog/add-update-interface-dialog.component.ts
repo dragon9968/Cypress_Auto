@@ -119,14 +119,14 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
       netmask_id: this.data.genData.netmask_id,
       logical_map_position: this.data.newNodePosition,
       logical_map_style: (this.data.mode == 'add') ? {
-        "width": this.data.selectedDefaultPref.edge_width,
-        "color": this.data.selectedDefaultPref.edge_color,
-        "text_size": this.data.selectedDefaultPref.text_size,
-        "text_color": this.data.selectedDefaultPref.text_color,
-        "text_halign": this.data.selectedDefaultPref.text_halign,
-        "text_valign": this.data.selectedDefaultPref.text_valign,
-        "text_bg_color": this.data.selectedDefaultPref.text_bg_color,
-        "text_bg_opacity": this.data.selectedDefaultPref.text_bg_opacity,
+        "width": this.data.selectedMapPref.edge_width,
+        "color": this.data.selectedMapPref.edge_color,
+        "text_size": this.data.selectedMapPref.text_size,
+        "text_color": this.data.selectedMapPref.text_color,
+        "text_halign": this.data.selectedMapPref.text_halign,
+        "text_valign": this.data.selectedMapPref.text_valign,
+        "text_bg_color": this.data.selectedMapPref.text_bg_color,
+        "text_bg_opacity": this.data.selectedMapPref.text_bg_opacity,
       } : undefined,
     }
     this.interfaceService.add(jsonData).subscribe((respData: any) => {
