@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Stylesheet } from 'cytoscape';
 import { Subscription } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 import { selectGroupBoxes } from 'src/app/store/map/map.selectors';
 
@@ -19,7 +19,8 @@ export class HelpersService {
   zoomLimit = false;
   popper: any;
 
-  constructor(private store: Store) {
+  constructor(private store: Store,
+              private domSanitizer: DomSanitizer) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
         this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
@@ -426,7 +427,7 @@ export class HelpersService {
     const option = options?.filter((option: any) => option.id == id)[0];
     return option ? option : {};
   }
-  
+
   setAutoCompleteValue(control: any, options: any, id: string) {
     if (id) {
       control.setValue(this.getOptionById(options, id));
@@ -660,5 +661,9 @@ export class HelpersService {
     anchor.click();
     document.body.removeChild(anchor);
     window.URL.revokeObjectURL(anchor.href);
+  }
+
+  public setIconPath(url: string): SafeResourceUrl {
+    return this.domSanitizer.bypassSecurityTrustResourceUrl(url);
   }
 }

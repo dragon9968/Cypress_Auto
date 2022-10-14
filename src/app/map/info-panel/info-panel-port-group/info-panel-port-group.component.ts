@@ -1,8 +1,16 @@
+import { ToastrService } from "ngx-toastr";
+import { catchError } from "rxjs/operators";
+import { forkJoin, map, throwError } from "rxjs";
+import { MatDialog } from "@angular/material/dialog";
+import { MatIconRegistry } from "@angular/material/icon";
+import { ActivatedRoute, Params } from "@angular/router";
 import { Component, DoCheck, Input, OnInit } from '@angular/core';
 import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
-import { InfoPanelRenderComponent } from "../info-panel-render/info-panel-render.component";
+import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { PortGroupService } from "../../../core/services/portgroup/portgroup.service";
-import { forkJoin, map } from "rxjs";
+import { InfoPanelService } from "../../../core/services/helpers/info-panel.service";
+import { InfoPanelRenderComponent } from "../info-panel-render/info-panel-render.component";
+import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 
 @Component({
   selector: 'app-info-panel-port-group',
@@ -21,13 +29,28 @@ export class InfoPanelPortGroupComponent implements OnInit, DoCheck {
   private gridApi!: GridApi;
   private activePGOld?: string;
   rowsSelected: any[] = [];
+  rowsSelectedId: any[] = [];
+  isClickAction = false;
+  tabName = 'portGroup';
+  collectionId = '0';
 
   constructor(
-    private portGroupService: PortGroupService
+    private dialog: MatDialog,
+    private toastr: ToastrService,
+    private route: ActivatedRoute,
+    private iconRegistry: MatIconRegistry,
+    private helpers: HelpersService,
+    private portGroupService: PortGroupService,
+    private infoPanelService: InfoPanelService
   ) {
+    this.iconRegistry.addSvgIcon('randomize-subnet', this.helpers.setIconPath('/assets/icons/randomize-subnet.svg'));
   }
 
+
   ngOnInit(): void {
+    this.route.queryParams.subscribe((params: Params) => {
+      this.collectionId = params['collection_id'];
+    })
   }
 
   public gridOptions: GridOptions = {
@@ -123,6 +146,10 @@ export class InfoPanelPortGroupComponent implements OnInit, DoCheck {
       this.activePGOld = stringPGData;
       this._setPGInfoPanel(this.activePGs);
     }
+    if (this.activePGs.length == 0) {
+      this.rowsSelected = [];
+      this.rowsSelectedId = [];
+    }
   }
 
   onGridReady(params: GridReadyEvent) {
@@ -164,5 +191,117 @@ export class InfoPanelPortGroupComponent implements OnInit, DoCheck {
 
   selectedRows() {
     this.rowsSelected = this.gridApi.getSelectedRows();
+    this.rowsSelectedId = this.rowsSelected.map(ele => ele.id);
+  }
+
+  deletePortGroup() {
+    if (this.rowsSelected.length === 0) {
+      this.toastr.info('No row selected');
+    } else {
+      const dialogData = {
+        title: 'User confirmation needed',
+        message: 'Delete port_group(s) from this switch?',
+        submitButtonName: 'OK'
+      }
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '500px', data: dialogData});
+      dialogConfirm.afterClosed().subscribe(confirm => {
+        if (confirm) {
+          this.rowsSelectedId.map(pgId => {
+            this.infoPanelService.delete(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
+              this.deletedNodes, this.deletedInterfaces, this.tabName, pgId);
+          });
+        }
+      })
+    }
+  }
+
+  editPortGroup() {
+    if (this.rowsSelected.length === 0) {
+      this.toastr.info('No row selected');
+    } else {
+      if (this.rowsSelectedId.length === 1) {
+        this.infoPanelService.openEditInfoPanelForm(this.cy, this.activeNodes, this.activePGs, this.activeEdges,
+          this.tabName, this.rowsSelectedId[0])
+      } else {
+        this.infoPanelService.openEditInfoPanelForm(this.cy, this.activeNodes, this.activePGs, this.activeEdges,
+          this.tabName, undefined);
+      }
+    }
+  }
+
+  exportPortGroup(format: string) {
+    if (this.rowsSelected.length == 0) {
+      this.toastr.info('No row selected');
+    } else {
+      const jsonData = {
+        pks: this.rowsSelectedId,
+        format: format
+      }
+      let file = new Blob();
+      this.portGroupService.export(jsonData).pipe(
+        catchError((error: any) => {
+          this.toastr.error(error.message);
+          return throwError(error.message);
+        })
+      ).subscribe(response => {
+        if (format == 'csv') {
+          file = new Blob([response.data], {type: 'application/json'});
+        } else if (format == 'json') {
+          file = new Blob([response.data], {type: 'text/csv;charset=utf-8;'})
+        }
+        const fileName = response.filename;
+        this.helpers.downloadBlob(fileName, file);
+        this.toastr.success(response.message);
+      })
+    }
+  }
+
+  randomizeSubnet() {
+    if (this.rowsSelected.length == 0) {
+      this.toastr.info('No row selected');
+    } else {
+      const dialogData = {
+        title: 'User confirmation needed',
+        message: 'Generate a new randomize subnet for this port_group?',
+        submitButtonName: 'OK'
+      }
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '500px', data: dialogData});
+      dialogConfirm.afterClosed().subscribe(confirm => {
+        if (confirm) {
+          const jsonData = {
+            pks: this.rowsSelectedId,
+            collection_id: this.collectionId
+          }
+          this.portGroupService.randomizeSubnetBulk(jsonData).pipe(
+            catchError((error: any) => {
+              this.toastr.error(error.error.message);
+              return throwError(error.error.message);
+            })
+          ).subscribe(response => {
+            response.result.map((ele: any) => {
+              const element = this.cy.getElementById('pg-' + ele.id);
+              element.data('subnet', ele.subnet);
+              element.data('name', ele.name);
+            })
+            this.toastr.success(response.message);
+          })
+        }
+      })
+    }
+  }
+
+  validatePortGroup() {
+    if (this.rowsSelected.length == 0) {
+      this.toastr.info('No row selected');
+    } else {
+      this.portGroupService.validate({pks: this.rowsSelectedId}).pipe(
+        catchError((error: any) => {
+          this.toastr.error(error.error.message);
+          return throwError(error.error.message);
+        })
+      ).subscribe(response => {
+        this.toastr.success(response.message);
+      })
+    }
   }
 }

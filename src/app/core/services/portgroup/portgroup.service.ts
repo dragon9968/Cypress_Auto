@@ -51,4 +51,12 @@ export class PortGroupService {
   editBulk(data: any): Observable<any> {
     return this.http.put<any>(ApiPaths.PORTGROUP + 'bulk_edit', data);
   }
+
+  export(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.PORTGROUP_EXPORT, data);
+  }
+
+  randomizeSubnetBulk(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.PORTGROUP_RANDOMIZE_SUBNET_BULK, data);
+  }
 }

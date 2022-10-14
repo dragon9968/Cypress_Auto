@@ -1,3 +1,28 @@
+<button mat-button [matMenuTriggerFor]="actionMenu" (click)="isClickAction = !isClickAction">
+  Actions
+  <mat-icon *ngIf="isClickAction">keyboard_arrow_down</mat-icon>
+  <mat-icon *ngIf="!isClickAction">keyboard_arrow_up</mat-icon>
+</button>
+<mat-menu #actionMenu="matMenu" yPosition="below">
+  <button mat-menu-item  (click)="deletePortGroup()">
+    <mat-icon>delete_forever</mat-icon>Delete
+  </button>
+  <button mat-menu-item (click)="editPortGroup()">
+    <mat-icon>edit</mat-icon>Edit
+  </button>
+  <button mat-menu-item (click)="exportPortGroup('csv')">
+    <mat-icon svgIcon="export-csv"></mat-icon>Export as CSV
+  </button>
+  <button mat-menu-item (click)="exportPortGroup('json')">
+    <mat-icon svgIcon="export-json"></mat-icon>Export as JSON
+  </button>
+  <button mat-menu-item (click)="randomizeSubnet()">
+    <mat-icon svgIcon="randomize-subnet"></mat-icon>Randomize Subnet
+  </button>
+  <button mat-menu-item (click)="validatePortGroup()">
+    <mat-icon>check</mat-icon>Validate
+  </button>
+</mat-menu>
 <ag-grid-angular
   class="ag-theme-alpine info-panel-pg"
   [gridOptions]="gridOptions"
