@@ -841,7 +841,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       category: genData.category,
       device_id: genData.device_id,
       template_id: genData.template_id,
-      hardware_id: null,
+      hardware_id: genData.hardware_id,
       folder: genData.folder,
       role: genData.role,
       domain_id: genData.domain_id,
