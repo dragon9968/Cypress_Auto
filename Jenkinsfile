@@ -1,7 +1,7 @@
 pipeline {
     environment {
         CONTAINER_NAME = 'bc/range_frontend'
-        VERSION = '0.1.0'
+        VERSION = '0.13.0'
         APP_PORT = 4200
         HOST_PORT = 4200
     }
