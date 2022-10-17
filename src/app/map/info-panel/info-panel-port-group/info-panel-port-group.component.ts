@@ -84,54 +84,52 @@ export class InfoPanelPortGroupComponent implements OnInit, DoCheck {
         cellRenderer: InfoPanelRenderComponent,
         cellClass: 'pg-actions',
         cellRendererParams: {
-          tabName: 'portGroup',
+          tabName: this.tabName,
           getExternalParams: () => this
         }
       },
       {
         field: 'name',
-        suppressSizeToFit: true,
         minWidth: 100,
-        width: 300,
+        flex: 1,
         maxWidth: 200
       },
       {
         field: 'category',
-        suppressSizeToFit: true,
         minWidth: 100,
-        width: 300,
+        flex: 1,
         maxWidth: 200
       },
       {
         field: 'vlan',
         headerName: 'VLAN',
         minWidth: 100,
-        width: 150,
+        flex: 1,
         maxWidth: 200
       },
       {
         field: 'subnet_allocation',
         headerName: 'Subnet Allocation',
         minWidth: 100,
-        width: 300,
-        maxWidth: 200
+        flex: 1,
+        maxWidth: 250
       },
       {
         field: 'subnet',
         minWidth: 100,
-        width: 300,
+        flex: 1,
         maxWidth: 200
       },
       {
         field: 'domain',
         minWidth: 100,
-        width: 150,
+        flex: 1,
         maxWidth: 200
       },
       {
         field: 'interfaces',
         minWidth: 300,
-        width: 400,
+        flex: 1,
         cellRenderer: (param: any) => param.value,
         cellClass: 'row-interface',
         autoHeight: true
@@ -154,6 +152,7 @@ export class InfoPanelPortGroupComponent implements OnInit, DoCheck {
 
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
+    this.gridApi.sizeColumnsToFit();
   }
 
   private _setPGInfoPanel(activePGs: any[]) {

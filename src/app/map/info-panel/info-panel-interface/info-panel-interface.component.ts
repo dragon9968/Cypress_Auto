@@ -59,68 +59,66 @@ export class InfoPanelInterfaceComponent implements OnInit, DoCheck {
       },
       {
         field: 'order',
-        suppressSizeToFit: true,
         minWidth: 80,
-        width: 100,
+        flex: 1,
         maxWidth: 120
       },
       {
         field: 'name',
-        suppressSizeToFit: true,
-        minWidth: 200,
-        width: 250,
-        maxWidth: 270
+        minWidth: 100,
+        flex: 1,
+        maxWidth: 200
       },
       {
         field: 'description',
         minWidth: 100,
-        width: 150,
+        flex: 1,
         maxWidth: 200
       },
       {
         field: 'status',
         minWidth: 130,
-        width: 150,
+        flex: 1,
         maxWidth: 170
       },
       {
         field: 'category',
         minWidth: 100,
-        width: 150,
+        flex: 1,
         maxWidth: 200
       },
       {
         field: 'mac_address',
         headerName: 'Mac Address',
         minWidth: 100,
-        width: 150,
+        flex: 1,
         maxWidth: 200
       },
       {
         field: 'port_group',
         headerName: 'Port Group',
         minWidth: 100,
-        width: 200,
+        flex: 1,
         maxWidth: 250
       },
       {
         field: 'ip_allocation',
         headerName: 'IP Allocation',
         minWidth: 200,
-        width: 250,
+        flex: 1,
         maxWidth: 270
       },
       {
         field: 'ip',
         headerName: 'IP',
         minWidth: 200,
-        width: 250,
+        flex: 1,
         maxWidth: 270
       },
       {
         field: 'netmark',
         minWidth: 100,
-        width: 150,
+        flex: 1,
         maxWidth: 200
       }
     ]
@@ -145,6 +143,7 @@ export class InfoPanelInterfaceComponent implements OnInit, DoCheck {
 
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
+    this.gridApi.sizeColumnsToFit();
   }
 
   private _setEdgeInfoPanel(activeEdges: any[]) {

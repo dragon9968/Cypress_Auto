@@ -62,27 +62,29 @@ export class InfoPanelGroupComponent implements OnInit {
       {
         field: 'name',
         suppressSizeToFit: true,
-        minWidth: 400,
-        width: 500
+        minWidth: 100,
+        flex: 1,
+        maxWidth: 200,
       },
       {
         field: 'category',
         suppressSizeToFit: true,
-        minWidth: 400,
-        width: 500
+        minWidth: 100,
+        flex: 1,
+        maxWidth: 200,
       },
       {
         field: 'nodes',
         suppressSizeToFit: true,
         minWidth: 300,
-        width: 400
+        flex: 1,
       },
       {
         field: 'port_groups',
         headerName: 'Port Groups',
         suppressSizeToFit: true,
         minWidth: 300,
-        width: 400
+        flex: 1,
       }
     ]
   };
@@ -135,6 +137,7 @@ export class InfoPanelGroupComponent implements OnInit {
 
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
+    this.gridApi.sizeColumnsToFit();
   }
 
   selectedRows() {

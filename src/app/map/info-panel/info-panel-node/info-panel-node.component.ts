@@ -105,57 +105,56 @@ export class InfoPanelNodeComponent implements DoCheck {
       },
       {
         field: 'name',
-        suppressSizeToFit: true,
         minWidth: 100,
-        width: 150,
+        flex: 1,
         maxWidth: 200
       },
       {
         field: 'category',
         minWidth: 80,
-        width: 100,
+        flex: 1,
         maxWidth: 120
       },
       {
         field: 'role',
         minWidth: 80,
-        width: 100,
+        flex: 1,
         maxWidth: 120
       },
       {
         field: 'device',
         minWidth: 80,
-        width: 100,
+        flex: 1,
         maxWidth: 120
       },
       {
         field: 'template',
         minWidth: 90,
-        width: 110,
+        flex: 1,
         maxWidth: 120,
       },
       {
         field: 'hardware',
         minWidth: 90,
-        width: 110,
+        flex: 1,
         maxWidth: 120,
       },
       {
         field: 'folder',
         minWidth: 60,
-        width: 80,
+        flex: 1,
         maxWidth: 100,
       },
       {
         field: 'domain',
         minWidth: 80,
-        width: 100,
+        flex: 1,
         maxWidth: 120,
       },
       {
         field: 'interfaces',
         minWidth: 160,
-        width: 180,
+        flex: 1,
         cellRenderer: (param: any) => param.value,
         cellClass: 'row-interface',
         autoHeight: true
@@ -164,14 +163,14 @@ export class InfoPanelNodeComponent implements DoCheck {
         field: 'login_profile_show',
         headerName: 'Login Profile',
         minWidth: 100,
-        width: 120,
+        flex: 1,
         maxWidth: 140,
       },
       {
         field: 'configuration_show',
         headerName: 'Configuration',
         minWidth: 140,
-        width: 180,
+        flex: 1,
         maxWidth: 200,
         cellRenderer: (param: any) => param.value
       },
@@ -202,6 +201,7 @@ export class InfoPanelNodeComponent implements DoCheck {
 
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
+    this.gridApi.sizeColumnsToFit();
   }
 
   selectedRows() {

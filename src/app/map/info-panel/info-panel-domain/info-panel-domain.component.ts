@@ -74,19 +74,19 @@ export class InfoPanelDomainComponent implements OnInit {
         field: 'name',
         suppressSizeToFit: true,
         minWidth: 400,
-        width: 500
+        flex: 1,
       },
       {
         field: 'admin_user',
         suppressSizeToFit: true,
         minWidth: 400,
-        width: 500
+        flex: 1,
       },
       {
         field: 'admin_password',
         suppressSizeToFit: true,
         minWidth: 300,
-        width: 400
+        flex: 1,
       }
     ]
   };
@@ -120,6 +120,7 @@ export class InfoPanelDomainComponent implements OnInit {
 
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
+    this.gridApi.sizeColumnsToFit();
   }
 
   selectedRows() {
