@@ -33,9 +33,9 @@ export class CMActionsService {
           onClickFunction: ($event: any) => {
             const data = $event.target.data();
             this.nodeService.clone(data.node_id).pipe(
-              catchError((error: any) => {
-                this.toastr.error(error.message);
-                return throwError(() => error);
+              catchError((e: any) => {
+                this.toastr.error(e.error.message);
+                return throwError(() => e);
               })
             ).subscribe(clonedRes => {
               const id = clonedRes.result.id;
@@ -69,9 +69,9 @@ export class CMActionsService {
           onClickFunction: (_$event: any) => {
             const pks = activeNodes.map((ele: any) => ele.data('node_id'));
             this.nodeService.validate({ pks }).pipe(
-              catchError((error: any) => {
-                this.toastr.error(error.message);
-                return throwError(() => error);
+              catchError((e: any) => {
+                this.toastr.error(e.error.message);
+                return throwError(() => e);
               })
             ).subscribe(res => this.toastr.success(res.message));
           },
@@ -96,9 +96,9 @@ export class CMActionsService {
           onClickFunction: (event: any) => {
             const data = event.target.data();
             this.portGroupService.randomizeSubnet(data.pg_id, collectionId).pipe(
-              catchError((error: any) => {
-                this.toastr.error(error.message);
-                return throwError(() => error);
+              catchError((e: any) => {
+                this.toastr.error(e.error.message);
+                return throwError(() => e);
               })
             ).subscribe(respData => {
               const ele = cy.getElementById('pg-' + data.pg_id);
@@ -117,9 +117,9 @@ export class CMActionsService {
           onClickFunction: (event: any) => {
             const pks = activePGs.map((ele: any) => ele.data('pg_id'));
             this.portGroupService.validate({ pks }).pipe(
-              catchError((error: any) => {
-                this.toastr.error(error.message);
-                return throwError(() => error);
+              catchError((e: any) => {
+                this.toastr.error(e.error.message);
+                return throwError(() => e);
               })
             ).subscribe(respData => {
               this.toastr.success(respData.message);
@@ -155,9 +155,9 @@ export class CMActionsService {
           onClickFunction: (event: any) => {
             const data = event.target.data();
             this.interfaceService.randomizeIP(data.interface_id).pipe(
-              catchError((error: any) => {
-                this.toastr.error(error.message);
-                return throwError(() => error);
+              catchError((e: any) => {
+                this.toastr.error(e.error.message);
+                return throwError(() => e);
               })
             ).subscribe(respData => {
               const ele = cy.getElementById(data.interface_id);
@@ -178,9 +178,9 @@ export class CMActionsService {
           onClickFunction: (event: any) => {
             const pks = activeEdges.map((ele: any) => ele.data('interface_id'));
             this.interfaceService.validate({ pks }).pipe(
-              catchError((error: any) => {
-                this.toastr.error(error.message);
-                return throwError(() => error);
+              catchError((e: any) => {
+                this.toastr.error(e.error.message);
+                return throwError(() => e);
               })
             ).subscribe(respData => {
               this.toastr.success(respData.message);

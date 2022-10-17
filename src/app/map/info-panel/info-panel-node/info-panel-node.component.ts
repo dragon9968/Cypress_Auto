@@ -218,10 +218,11 @@ export class InfoPanelNodeComponent implements DoCheck {
         ids: ids
       }
       this.nodeService.cloneBulk(jsonData).pipe(
-        catchError((error: any) => {
-          this.toastr.error(error.message);
-          return throwError(() => error.message)
-        })).subscribe(response => {
+        catchError((e: any) => {
+          this.toastr.error(e.error.message);
+          return throwError(() => e);
+        })
+      ).subscribe(response => {
         const newNodeIds = response.result.map((ele: any) => ele.data.id);
         newNodeIds.map((id: any) => {
           this.nodeService.get(id).subscribe(nodeData => {
@@ -314,9 +315,9 @@ export class InfoPanelNodeComponent implements DoCheck {
     } else {
       const pks = this.rowsSelectedId;
       this.nodeService.validate({pks}).pipe(
-        catchError((err: any) => {
-          this.toastr.error(err.error.message);
-          return throwError(() => err.error.message);
+        catchError((e: any) => {
+          this.toastr.error(e.error.message);
+          return throwError(() => e);
         })
       ).subscribe(response => {
         this.toastr.success(response.message);

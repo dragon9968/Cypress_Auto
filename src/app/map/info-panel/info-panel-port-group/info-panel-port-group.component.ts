@@ -238,9 +238,9 @@ export class InfoPanelPortGroupComponent implements OnInit, DoCheck {
       }
       let file = new Blob();
       this.portGroupService.export(jsonData).pipe(
-        catchError((error: any) => {
-          this.toastr.error(error.message);
-          return throwError(error.message);
+        catchError((e: any) => {
+          this.toastr.error(e.error.message);
+          return throwError(() => e);
         })
       ).subscribe(response => {
         if (format == 'csv') {
@@ -272,9 +272,9 @@ export class InfoPanelPortGroupComponent implements OnInit, DoCheck {
             collection_id: this.collectionId
           }
           this.portGroupService.randomizeSubnetBulk(jsonData).pipe(
-            catchError((error: any) => {
-              this.toastr.error(error.error.message);
-              return throwError(error.error.message);
+            catchError((e: any) => {
+              this.toastr.error(e.error.message);
+              return throwError(() => e);
             })
           ).subscribe(response => {
             response.result.map((ele: any) => {
@@ -294,9 +294,9 @@ export class InfoPanelPortGroupComponent implements OnInit, DoCheck {
       this.toastr.info('No row selected');
     } else {
       this.portGroupService.validate({pks: this.rowsSelectedId}).pipe(
-        catchError((error: any) => {
-          this.toastr.error(error.error.message);
-          return throwError(error.error.message);
+        catchError((e: any) => {
+          this.toastr.error(e.error.message);
+          return throwError(() => e);
         })
       ).subscribe(response => {
         this.toastr.success(response.message);

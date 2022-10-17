@@ -213,9 +213,9 @@ export class InfoPanelDomainComponent implements OnInit {
         domain_id: this.rowsSelectedId
       }
       this.domainService.validate(jsonData).pipe(
-        catchError((error: any) => {
-          this.toastr.error(error.error.message)
-          return throwError(() => error.error.message);
+        catchError((e: any) => {
+          this.toastr.error(e.error.message);
+          return throwError(() => e);
         })
       ).subscribe(response => {
         this.toastr.success(response.message);

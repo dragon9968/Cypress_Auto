@@ -181,9 +181,9 @@ export class CMRemoteService {
   add_task(jobName: string, pks: string) {
     const jsonData = { job_name: jobName, pks };
     this.taskService.add(jsonData).pipe(
-      catchError((error: any) => {
-        this.toastr.error(error.message);
-        return throwError(() => error);
+      catchError((e: any) => {
+        this.toastr.error(e.error.message);
+        return throwError(() => e);
       })
     ).subscribe(respData => {
       this.toastr.success("Task added to the queue");
