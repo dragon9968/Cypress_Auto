@@ -1,0 +1,40 @@
+<mat-card class="login-profile-container">
+  <mat-card-title class="login-profile-title">Login Profles</mat-card-title>
+  <div class="sub-title">
+    <div class="left">
+      <button mat-raised-button color="primary" (click)="addLoginProfile()">
+        <mat-icon>add</mat-icon>
+      </button>
+      <button mat-button [matMenuTriggerFor]="actionMenu" class="actions">Actions
+        <mat-icon>keyboard_arrow_down</mat-icon>
+      </button>
+      <mat-menu #actionMenu="matMenu">
+        <button mat-menu-item (click)="exportCSV()"><mat-icon svgIcon="export-csv"></mat-icon>Export CSV</button>
+        <button mat-menu-item (click)="exportJson()"><mat-icon svgIcon="export-json"></mat-icon>Export JSON</button>
+      </mat-menu>
+    </div>
+    <div class="right">
+      <input 
+        matInput
+        class="search"
+        type="search"
+        [(ngModel)]="quickFilterValue"
+        placeholder="search"
+        (input)="onQuickFilterInput($event)"
+      >
+    </div>
+  </div>
+  <ag-grid-angular 
+          class="ag-theme-alpine login-profiles"
+          [pagination]="true"
+          [columnDefs]="columnDefs"
+          [defaultColDef]="defaultColDef"
+          [rowData]="rowData$ | async" 
+          [rowSelection]="'multiple'"
+          [suppressRowClickSelection]="true"
+          [animateRows]="true"
+          (gridReady)="onGridReady($event)"
+          (rowSelected)="selectedRows()"
+          >
+  </ag-grid-angular>
+</mat-card>

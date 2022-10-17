@@ -1,0 +1,42 @@
+<form [formGroup]="loginProfleEditForm" (ngSubmit)="data.mode === 'add' ? addLoginProfile() : updateLogin()">
+  <h1 mat-dialog-title>{{data.mode === 'add' ? 'Add Login Profile' : data.mode === 'update' ? 'Edit Login Profiles': 'Login Profile Detail'}}</h1>
+  <div mat-dialog-content>
+    <mat-form-field class="field">
+      <mat-label>Name</mat-label>
+      <input type="text" formControlName="name" matInput [readonly]="isViewMode">
+      <mat-error *ngIf="name?.errors?.required">Name is required*</mat-error>
+      <mat-error *ngIf="name?.errors?.minlength || name?.errors?.maxlength">Field must be between 3 and 50 characters long.</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Description</mat-label>
+      <input type="text" formControlName="description" matInput [readonly]="isViewMode">
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Username</mat-label>
+      <input type="text" formControlName="username" matInput [readonly]="isViewMode">
+      <mat-error *ngIf="username?.hasError('required')">Username is required*</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Password</mat-label>
+      <input type="text" formControlName="password" matInput [readonly]="isViewMode">
+      <mat-error *ngIf="username?.hasError('required')">Password is required*</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Category</mat-label>
+      <select matNativeControl formControlName="category" [readonly]="isViewMode">
+        <option value="local">local</option>
+        <option value="domain">domain</option>
+      </select>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Extra Args</mat-label>
+      <input type="text" formControlName="extraArgs" matInput [readonly]="isViewMode">
+    </mat-form-field>
+  </div>
+  <div mat-dialog-actions [align]="'end'" class="create-btn">
+      <button mat-raised-button color="warn"  type="button" (click)="onCancel()">{{data.mode === 'view' ? 'Close' : 'Cancel'}}</button>
+      <button *ngIf="data.mode !== 'view'" mat-raised-button color="primary" [disabled]="!loginProfleEditForm.valid">
+        {{ data.mode === 'add' ? 'Create' : 'Update' }}
+      </button>
+  </div>
+</form>

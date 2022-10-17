@@ -4,6 +4,7 @@ import { PermissionLevels } from '../core/enums/permission-levels.enum';
 import { PageNotFoundComponent } from '../core/page-not-found/page-not-found.component';
 import { DeviceTemplateComponent } from './device-template/device-template.component';
 import { HardwareComponent } from './hardware/hardware.component';
+import { LoginProfilesComponent } from './login-profiles/login-profiles.component';
 
 const routes: Routes = [
   {
@@ -23,6 +24,13 @@ const routes: Routes = [
       {
         path: 'device_template',
         component: DeviceTemplateComponent,
+        data: {
+          permissionLevel: PermissionLevels.USER,
+        }
+      },
+      {
+        path: 'login_profiles',
+        component: LoginProfilesComponent,
         data: {
           permissionLevel: PermissionLevels.USER,
         }
