@@ -145,10 +145,10 @@ export class AddUpdateGroupDialogComponent implements OnInit {
   addGroup() {
     const jsonData = {
       name: this.nameCtr?.value,
-      category: this.categoryCtr?.value.name,
+      category: this.categoryCtr?.value.id,
       description: this.descriptionCtr?.value,
       collection_id: this.data.genData.collection_id,
-      domain_id: +this.categoryIdCtr?.value
+      domain_id: this.categoryCtr?.value.id == 'domain' ? this.categoryIdCtr?.value.id : undefined
     }
     this.groupService.add(jsonData).subscribe(response => {
       this.toastr.success('Added Row');
@@ -162,10 +162,10 @@ export class AddUpdateGroupDialogComponent implements OnInit {
   updateGroup() {
     const jsonData = {
       name: this.nameCtr?.value,
-      category: this.categoryCtr?.value.name,
+      category: this.categoryCtr?.value.id,
       description: this.descriptionCtr?.value,
       collection_id: this.data.genData.collection_id,
-      domain_id: +this.categoryIdCtr?.value,
+      domain_id: this.categoryCtr?.value.id == 'domain' ? this.categoryIdCtr?.value.id : undefined,
       nodes: this.nodes.filter(ele => this.nodesCtr?.value.includes(ele.id)),
       port_groups: this.portGroups.filter(ele => this.portGroupsCtr?.value.includes(ele.id)),
       logical_map: {},
