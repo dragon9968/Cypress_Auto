@@ -35,40 +35,40 @@
         <div [hidden]="labelPosition === 'blank'" class="random-container">
           <mat-form-field appearance="outline">
                 <mat-label>Number of Enclaves</mat-label>
-                <input type="number" formControlName="enclave_number" matInput>
+                <input type="number" formControlName="enclave_number" (keypress)="numericOnly($event)" matInput>
                 <mat-error *ngIf="enclave_number?.hasError('min') || enclave_number?.hasError('max') || enclave_number?.errors?.required">Valid value is between 1 and 100</mat-error>
           </mat-form-field>
           <mat-form-field appearance="outline">
                 <mat-label>Clients</mat-label>
-                <input type="number" formControlName="enclave_clients" matInput>
-                <mat-error *ngIf="enclave_clients?.hasError('min') || enclave_clients?.hasError('max') || enclave_clients?.errors?.required">Valid value is between 1 and 100</mat-error>
+                <input type="number" formControlName="enclave_clients" (keypress)="numericOnly($event)" matInput>
+                <mat-error *ngIf="enclave_clients?.hasError('min') || enclave_clients?.hasError('max') || enclave_clients?.errors?.required">Valid value is between 0 and 100</mat-error>
           </mat-form-field>
           <mat-form-field appearance="outline">
                 <mat-label>Servers</mat-label>
-                <input type="text" formControlName="enclave_servers" matInput>
+                <input type="number" formControlName="enclave_servers" (keypress)="numericOnly($event)" matInput>
                 <mat-error *ngIf="enclave_servers?.hasError('min') || enclave_servers?.hasError('max') || enclave_servers?.errors?.required">Valid value is between 1 and 100</mat-error>
           </mat-form-field>
           <mat-form-field appearance="outline">
               <mat-label>Users</mat-label>
-              <input type="text" formControlName="enclave_users" matInput>
-              <mat-error *ngIf="enclave_users?.hasError('min') || enclave_users?.hasError('max') || enclave_users?.errors?.required">Valid value is between 1 and 100</mat-error>
+              <input type="number" formControlName="enclave_users" (keypress)="numericOnly($event)" matInput>
+              <mat-error *ngIf="enclave_users?.hasError('min') || enclave_users?.hasError('max') || enclave_users?.errors?.required">Valid value is between 0 and 100</mat-error>
           </mat-form-field>
         </div>
         <mat-form-field appearance="outline">
             <mat-label>Min VLAN</mat-label>
-            <input formControlName="vlan_min" type="number" matInput>
+            <input formControlName="vlan_min" type="number" (keypress)="numericOnly($event)" matInput>
             <mat-error *ngIf="vlan_min?.hasError('min') || vlan_min?.hasError('max') || vlan_min?.errors?.required">Valid value is between 1 and 4093</mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Max VLAN</mat-label>
-          <input formControlName="vlan_max" type="number" matInput>
+          <input formControlName="vlan_max" type="number" (keypress)="numericOnly($event)" matInput>
           <mat-error *ngIf="vlan_max?.hasError('min') || vlan_max?.hasError('max') || vlan_max?.errors?.required">Valid value is between 1 and 4094</mat-error>
         </mat-form-field>
+        <mat-card-actions [align]="'end'" class="create-btn">
+          <button mat-raised-button color="warn" (click)="cancelProject()">Cancel</button>
+          <button mat-raised-button color="primary" (click)="addProject()">Create</button>
+        </mat-card-actions>
       </form>
     </mat-card-content>
-      <mat-card-actions [align]="'end'" class="create-btn">
-        <button mat-raised-button color="primary" (click)="addProject()">Create</button>
-        <button mat-raised-button color="warn" (click)="cancelProject()">Cancel</button>
-      </mat-card-actions>
   </mat-card>
 </div>

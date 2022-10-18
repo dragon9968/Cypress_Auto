@@ -18,7 +18,7 @@ import { validateNameExist } from 'src/app/shared/validations/name-exist.validat
 export class AddProjectComponent implements OnInit {
   isSubmitBtnDisabled = false;
   labelPosition = 'blank';
-  projectForm: FormGroup;
+  projectForm!: FormGroup;
   routeSegments = RouteSegments;
   selectProjects$ = new Subscription();
   nameProject!: any[];
@@ -33,11 +33,15 @@ export class AddProjectComponent implements OnInit {
     this.selectProjects$ = this.store.select(selectProjects).subscribe(nameProject => {
       this.nameProject = nameProject;
     })
+
+  }
+
+  ngOnInit(): void {
     this.projectForm = this.formBuilder.group({
       name : ['', 
         [Validators.required, 
         Validators.minLength(3), 
-        Validators.maxLength(10), 
+        Validators.maxLength(50), 
         validateNameExist(() => this.nameProject, 'add', undefined)]],
       description: [''],
       target : ['VMWare vCenter'],
@@ -70,12 +74,9 @@ export class AddProjectComponent implements OnInit {
       vlan_max: [ 2100, 
         [Validators.min(1),
         Validators.max(4094),
-        Validators.required, 
+        Validators.required,
         ]]
     })
-  }
-
-  ngOnInit(): void {
     this.projectService.getProjectByStatus('active').subscribe(data => {
       this.store.dispatch(retrievedProjects({data: data.result}));
     })
@@ -92,16 +93,16 @@ export class AddProjectComponent implements OnInit {
     return this.projectForm.get('enclave_clients');
   }
   get enclave_servers() {
-    return this.projectForm.get('enclave_clients');
+    return this.projectForm.get('enclave_servers');
   }
   get enclave_users() {
-    return this.projectForm.get('enclave_clients');
+    return this.projectForm.get('enclave_users');
   }
   get vlan_min() {
-    return this.projectForm.get('enclave_clients');
+    return this.projectForm.get('vlan_min');
   }
   get vlan_max() {
-    return this.projectForm.get('enclave_clients');
+    return this.projectForm.get('vlan_max');
   }
 
   addProject() {
@@ -122,5 +123,13 @@ export class AddProjectComponent implements OnInit {
 
   cancelProject() {
     this.router.navigate([RouteSegments.PROJECTS]);
+  }
+
+  numericOnly(event: any): boolean { 
+    const charCode = (event.which) ? event.which : event.keyCode;
+    if (charCode == 101 || charCode == 69 || charCode == 45 || charCode == 43) {
+      return false;
+    }
+    return true;
   }
 }
