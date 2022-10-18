@@ -1,7 +1,7 @@
 import { Store } from "@ngrx/store";
 import { Subscription } from "rxjs";
 import { ToastrService } from "ngx-toastr";
-import { Injectable } from '@angular/core';
+import { Injectable, Input } from '@angular/core';
 import { MatDialog } from "@angular/material/dialog";
 import { HelpersService } from "./helpers.service";
 import { NodeService } from "../node/node.service";
@@ -26,7 +26,7 @@ import { selectDomainUsers } from "../../../store/domain-user/domain-user.select
   providedIn: 'root'
 })
 export class InfoPanelService {
-
+  @Input() ur: any;
   selectNode$ = new Subscription();
   selectMapOption$ = new Subscription();
   selectPortGroup$ = new Subscription();
@@ -73,7 +73,7 @@ export class InfoPanelService {
       if ('temp' in sourceData || 'temp' in targetData) {
         return
       } else {
-        this.helpers.removeEdge(edge, deletedInterfaces);
+        this.ur?.do('removeEdge', edge);
         const index = activeEdges.findIndex(ele => ele.data(idName) === id);
         activeEdges.splice(index, 1);
         // TODO: this.tool_panel.update_components();
@@ -92,12 +92,11 @@ export class InfoPanelService {
             i--;
           }
         }
-
-        this.helpers.removeNode(node, deletedNodes, deletedInterfaces);
+        this.ur?.do("removeNode", node)
         if (this.isGroupBoxesChecked) {
           cy.nodes().filter('[label="group_box"]').forEach((gb: any) => {
             if (gb.children().length == 0) {
-              this.helpers.removeNode(gb, deletedNodes, deletedInterfaces);
+              this.ur?.do("removeNode", gb)
             }
           });
         }

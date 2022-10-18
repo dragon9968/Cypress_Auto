@@ -56,6 +56,7 @@ import { retrievedServerConnect } from "../store/server-connect/server-connect.a
 import { ProjectService } from "../project/services/project.service";
 import { retrievedVMStatus } from "../store/project/project.actions";
 import { ICON_PATH } from '../shared/contants/icon-path.constant';
+import { InfoPanelService } from '../core/services/helpers/info-panel.service';
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -166,7 +167,8 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     private commonService: CommonService,
     private styleService: StyleService,
     private serverConnectService: ServerConnectService,
-    private projectService: ProjectService
+    private projectService: ProjectService,
+    private infoPanelService: InfoPanelService
   ) {
     navigator(cytoscape);
     gridGuide(cytoscape);
@@ -734,7 +736,10 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       stackSizeLimit: 20,
     });
     this.commonService.ur = this.ur;
-    this.ur.action("removeNode", this.helpersService.removeNode.bind(this), this.helpersService.restoreNode.bind(this.commonService));
+    this.infoPanelService.ur = this.ur;
+    this.helpersService.deletedInterfaces = this.deletedInterfaces;
+    this.helpersService.deletedNodes = this.deletedNodes;
+    this.ur.action("removeNode", this.helpersService.removeNode.bind(this), this.helpersService.restoreNode.bind(this));
     this.ur.action("removeEdge", this.helpersService.removeEdge.bind(this), this.helpersService.restoreEdge.bind(this));
     this.ur.action("changeNodeSize", this.helpersService.changeNodeSize.bind(this.commonService), this.helpersService.restoreNodeSize.bind(this.commonService));
     this.ur.action("changTextColor", this.styleService.changTextColor.bind(this.commonService).bind(this.commonService), this.styleService.restoreTextColor.bind(this.commonService).bind(this.commonService));

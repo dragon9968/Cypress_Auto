@@ -206,10 +206,10 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   setGBType(newGbBorderType: string) {
+    this.gbBorderTypeActivated = newGbBorderType
     this.commonService.gBType(
       newGbBorderType,
-      this.activeGBs,
-      this.gbBorderTypeActivated
+      this.activeGBs
     );
   }
 
@@ -221,20 +221,20 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   setTextColor(color: string) {
+    this.textColor = this.helpers.fullColorHex(color);
     this.commonService.textColor(
       color,
       this.activeNodes,
       this.activePGs,
       this.activeEdges,
-      this.activeGBs,
-      this.textColor
+      this.activeGBs
     );
   }
 
   setTextSize(size: any) {
+    this.textSize = size.value <= 200 ? size.value : 200;
     this.commonService.textSize(
       size,
-      this.textSize,
       this.activeNodes,
       this.activeEdges,
       this.activePGs
@@ -242,82 +242,84 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   setTextBGOpacity(opacity: any) {
+    this.textBGOpacity = opacity.value;
     this.commonService.textBGOpacity(
       opacity,
       this.activeNodes,
       this.activeEdges,
-      this.activePGs,
-      this.textBGOpacity
+      this.activePGs
     );
   }
 
   setTextBGColor(color: any) {
+    this.textBGColor = this.helpers.fullColorHex(color);
     this.commonService.textBGColor(
       color,
       this.activeNodes,
       this.activeEdges,
       this.activePGs,
-      this.activeGBs,
-      this.textBGColor
+      this.activeGBs
     );
   }
 
   setPGColor(color: string) {
+    this.pgColor = this.helpers.fullColorHex(color);
     this.commonService.pgColor(
       color,
-      this.activePGs,
-      this.pgColor
+      this.activePGs
     );
   }
 
 
   setPGSize(size: any) {
+    this.pgSize = size.value <= 200 ? size.value : 200;
     this.commonService.pgSize(
       size,
-      this.activePGs,
-      this.pgSize
+      this.activePGs
     );
   }
 
   setEdgeColor(color: string) {
+    this.edgeColor = this.helpers.fullColorHex(color);
     this.commonService.edgeColor(
       color,
-      this.activeEdges,
-      this.edgeColor
+      this.activeEdges
     );
   }
 
   setEdgeSize(size: any) {
+    this.edgeSize = size.value <= 50 ? size.value : 50;
     this.commonService.edgeSize(
       size,
       this.activeEdges,
-      this.edgeSize
     );
   }
 
   setArrowScale(size: any) {
+    this.arrowSize = size.value <= 200 ? size.value : 200;
     this.commonService.arrowScale(
       size,
-      this.activeEdges,
-      this.arrowSize
+      this.activeEdges
     );
   }
 
   setGBColor(newGbColor: string) {
+    this.gbColor = this.helpers.fullColorHex(newGbColor);
     this.commonService.gBColor(
-      newGbColor, this.activeGBs, this.gbColor
+      newGbColor, this.activeGBs
     );
   }
 
   setGBOpacity(event: any) {
-    this.commonService.gbOpacity(event, this.activeGBs, this.gbOpacity);
+    this.gbOpacity = event.value;
+    this.commonService.gbOpacity(event, this.activeGBs);
   }
 
   setGBBorderColor(newGbBorderColor: string) {
+    this.gbBorderColor = this.helpers.fullColorHex(newGbBorderColor);
     this.commonService.gBBorderColor(
       newGbBorderColor,
-      this.activeGBs,
-      this.gbBorderColor
+      this.activeGBs
     );
   }
 }

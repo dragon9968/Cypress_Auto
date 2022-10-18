@@ -23,7 +23,7 @@ export class StyleService {
     });
   }
 
-  changTextColor(data: any, textColor: any) {
+  changTextColor(data: any) {
     data.activeEles?.forEach((ele : any) => {
       data.oldTextColor = ele.data("text_color");
       ele._private['data'] = {...ele._private['data']};
@@ -39,7 +39,6 @@ export class StyleService {
       }
       ele.data("text_color", data.newTextColor);
     })
-    textColor = this.helpers.fullColorHex(data?.newTextColor);
     return data;
   }
 
@@ -51,7 +50,7 @@ export class StyleService {
     return data
   }
 
-  changeTextSize(data: any, textSize: any) {
+  changeTextSize(data: any) {
     data.activeEles.forEach((ele: any) => {
       data.oldTextSize = ele.data("text_size");
       ele.data("text_size", data.newTextSize);
@@ -62,7 +61,7 @@ export class StyleService {
         }
       }
     })
-    textSize = data.newTextSize <= 200 ? data.newTextSize : 200;
+
     return data;
   }
 
@@ -74,7 +73,7 @@ export class StyleService {
     return data;
   }
 
-  changePGColor(data: any, pgColor: any) {
+  changePGColor(data: any) {
     data.activePGs?.forEach((ele: any) => {
       data.oldPGColor = ele.data("color");
       if (ele.data("elem_category") == "port_group") {
@@ -85,8 +84,6 @@ export class StyleService {
         }
       }
     })
-
-    pgColor = this.helpers.fullColorHex(data.newPGColor);
     return data;
   }
 
@@ -100,7 +97,7 @@ export class StyleService {
     return data;
   }
 
-  changePGSize(data: any, pgSize: any) {
+  changePGSize(data: any) {
     data.activePGs.forEach((ele: any) => {
       data.oldPGSize = ele.data("width")
       if (ele.data("elem_category") == "port_group") {
@@ -113,7 +110,6 @@ export class StyleService {
         }
       }
     })
-    pgSize = data.newPGSize <= 200 ? data.newPGSize : 200;
     return data;
   }
 
@@ -128,7 +124,7 @@ export class StyleService {
     return data;
   }
 
-  changeEdgeColor(data: any, edgeColor: any) {
+  changeEdgeColor(data: any) {
     data.activeEdges.forEach((ele: any) => {
       data.oldEdgeColor = ele.data("color")
       ele.data("color", data.newEdgeColor);
@@ -137,7 +133,6 @@ export class StyleService {
         d.updated = true;
       }
     });
-    edgeColor = this.helpers.fullColorHex(data.newEdgeColor);
     return data;
   }
 
@@ -149,7 +144,7 @@ export class StyleService {
     return data;
   }
 
-  changeEdgeSize(data: any, edgeSize: number) {
+  changeEdgeSize(data: any) {
     data.activeEdges.forEach((ele: any) => {
       data.oldEdgeSize = ele.data("width");
       ele.data("width", data.newEdgeSize);
@@ -158,7 +153,6 @@ export class StyleService {
         d.updated = true;
       }
     })
-    edgeSize = data.newEdgeSize <= 50 ? data.newEdgeSize : 50;
     return data;
   }
 
@@ -170,7 +164,7 @@ export class StyleService {
     return data;
   }
 
-  changeArrowScale(data: any, arrowSize: number) {
+  changeArrowScale(data: any) {
     data.activeEdges.forEach((ele: any) => {
       data.oldArrowScale = ele.data("arrow_scale");
       ele.data("arrow_scale", data.newArrowScale);
@@ -179,7 +173,6 @@ export class StyleService {
         d.updated = true;
       }
     })
-    arrowSize = data.newArrowScale <= 200 ? data.newArrowScale : 200;
     return data;
   }
 
@@ -210,7 +203,7 @@ export class StyleService {
     return data;
   }
 
-  changeTextBGColor(data: any, textBGColor: any) {
+  changeTextBGColor(data: any) {
     data.activeEles.forEach((ele: any) => {
       data.oldTextBGColor = ele.data("text_bg_color");
       ele._private['data'] = {...ele._private['data']};
@@ -220,8 +213,6 @@ export class StyleService {
         d.updated = true;
       }
     });
-
-    textBGColor = this.helpers.fullColorHex(data.newTextBGColor);
     return data;
   }
 
@@ -234,7 +225,7 @@ export class StyleService {
     return data;
   }
 
-  changeTextBGOpacity(data: any, textBGOpacity: any) {
+  changeTextBGOpacity(data: any) {
     data.activeEles.forEach((ele: any) => {
       data.oldTextBGOpacity = ele.data("text_bg_opacity");
       ele.data("text_bg_opacity", data.newTextBGOpacity);
@@ -243,7 +234,6 @@ export class StyleService {
         d.updated = true;
       }
     })
-    textBGOpacity = data.newTextBGOpacity;
     return data;
   }
 
@@ -293,7 +283,7 @@ export class StyleService {
     return data;
   }
 
-  changeGBOpacity(data: any, gbOpacity: any) {
+  changeGBOpacity(data: any) {
     data.activeGBs.forEach((ele: any) => {
       data.oldGBOpacity = ele.data("group_opacity");
       ele._private['data'] = {...ele._private['data']};
@@ -303,7 +293,6 @@ export class StyleService {
         d.updated = true;
       }
     })
-    gbOpacity = data.newGBOpacity;
     return data;
   }
 
@@ -315,7 +304,7 @@ export class StyleService {
     return data;
   }
 
-  changeGBColor(data: any, gbColor: any) {
+  changeGBColor(data: any) {
     data.activeGBs.forEach((ele: any) => {
       data.oldGBColor = ele.data("color");
       ele._private['data'] = {...ele._private['data']};
@@ -326,7 +315,6 @@ export class StyleService {
       }
     });
 
-    gbColor = this.helpers.fullColorHex(data.newGBColor);
     return data;
   }
 
@@ -339,7 +327,7 @@ export class StyleService {
     return data;
   }
 
-  changeGBBorderColor(data: any, gbBorderColor: any) {
+  changeGBBorderColor(data: any) {
     data.activeGBs.forEach((ele: any) => {
       data.oldGBBorderColor = ele.data("border_color");
       ele._private['data'] = {...ele._private['data']};
@@ -350,7 +338,6 @@ export class StyleService {
       }
     })
 
-    gbBorderColor = this.helpers.fullColorHex(data.newGBBorderColor);
     return data;
   }
 
@@ -363,7 +350,7 @@ export class StyleService {
     return data;
   }
 
-  changeGBType(data: any, gbBorderTypeActivated: any) {
+  changeGBType(data: any) {
     data.activeGBs.forEach((ele: any) => {
       data.oldGBBorderType = ele.data("border_style");
       ele._private['data'] = {...ele._private['data']};
@@ -373,7 +360,6 @@ export class StyleService {
         d.updated = true;
       }
     })
-    gbBorderTypeActivated = data.newGBBorderType;
     return data;
   }
 

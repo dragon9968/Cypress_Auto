@@ -1,6 +1,6 @@
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
-import { Injectable } from '@angular/core';
+import { Injectable, Input } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 import { selectGroupBoxes } from 'src/app/store/map/map.selectors';
@@ -18,6 +18,8 @@ export class HelpersService {
   lastHeight = 0;
   zoomLimit = false;
   popper: any;
+  @Input() deletedInterfaces!: any[];
+  @Input() deletedNodes!: any[];
 
   constructor(private store: Store,
               private domSanitizer: DomSanitizer) {
@@ -434,24 +436,24 @@ export class HelpersService {
     }
   }
 
-  removeNode(node: any, deletedNodes: any[], deletedInterfaces: any[]) {
+  removeNode(node: any) {
     const data = node.data();
     if (!data.new) {
       data.deleted = true;
       if (data.elem_category == "port_group") {
-        deletedNodes?.push({
+        this.deletedNodes.push({
           'elem_category': data.elem_category,
           'label': data.label,
           'id': data.pg_id
         });
       } else if (data.elem_category == "node") {
-        deletedNodes?.push({
+        this.deletedNodes.push({
           'elem_category': data.elem_category,
           'label': data.label,
           'id': data.node_id
         });
       } else if (data.elem_category == "group") {
-        deletedNodes?.push({
+        this.deletedNodes.push({
           'elem_category': data.elem_category,
           'label': data.label,
           'id': data.group_id
@@ -462,7 +464,7 @@ export class HelpersService {
         const data = ele.data();
         if (data && !data.new) {
           data.deleted = true;
-          deletedInterfaces?.push({
+          this.deletedInterfaces.push({
             'name': data.id,
             'interface_id': data.interface_id
           });
@@ -473,21 +475,21 @@ export class HelpersService {
     return node.remove();
   }
 
-  restoreNode(_node: any, deletedNodes: any[], deletedInterfaces: any[]){
+  restoreNode(_node: any){
     var restored = _node.restore();
     var node = null;
-    restored.forEach(function (ele: any) {
+    restored.forEach((ele: any) => {
         var d = ele.data()
         if(ele.group() == 'nodes'){
             if (!d.new) {
                 d.deleted = false;
-                // delete deletedNodes[d.id];
+                this.deletedNodes.pop();
                 node = ele;
             }
         }else{
             if (!d.new) {
                 d.deleted = false;
-                // delete deletedInterfaces[d.id];
+                this.deletedInterfaces.pop();
             }
         }
     });
@@ -526,10 +528,10 @@ export class HelpersService {
     }
   }
 
-  removeEdge(edge: any, deletedInterfaces: any[]) {
+  removeEdge(edge: any) {
     const data = edge.data();
     if (data && !data.new) {
-      deletedInterfaces?.push({
+      this.deletedInterfaces.push({
         'name': data.id,
         'interface_id': data.interface_id
       });
@@ -538,12 +540,12 @@ export class HelpersService {
     return edge.remove();
   }
 
-  restoreEdge(edge: any, deletedInterfaces: any[]) {
+  restoreEdge(edge: any) {
     const edge_restore = edge.restore();
     const data = edge_restore.data();
     if (data && !data.new) {
       data.deleted = false;
-      // delete deletedInterfaces[data.id];
+      this.deletedInterfaces.pop();
     }
     return edge_restore;
   }
