@@ -112,20 +112,15 @@ export class InfoPanelService {
       });
   }
 
-  openEditInfoPanelForm(cy: any, activeNodes: any, activePGs: any, activeEdges: any, tabName: string, id: any) {
-    const activeNodesLength = activeNodes.length;
-    const activePGsLength = activePGs.length;
-    const activeEdgesLength = activeEdges.length;
-
-    if (activeNodesLength == 0 && activePGsLength == 0) {
-      if (activeEdgesLength > 1 && id == undefined) {
-        const edgeActiveIds = activeEdges.map((ele: any) => ele.data('interface_id'));
+  openEditInfoPanelForm(cy: any, tabName: string, id: any, ids: any[]) {
+    if (tabName == 'edge') {
+      if (ids.length > 0 && id == undefined) {
         const dialogData = {
-          genData: { ids: edgeActiveIds },
+          genData: { ids: ids },
           cy
         };
         this.dialog.open(InterfaceBulkEditDialogComponent, { width: '600px', data: dialogData});
-      } else if (activeEdgesLength == 1 || id) {
+      } else if (ids.length === 0 && id) {
         this.interfaceService.get(id).subscribe(interfaceData => {
           const dialogData = {
             mode: 'update',
@@ -135,15 +130,14 @@ export class InfoPanelService {
           this.dialog.open(AddUpdateInterfaceDialogComponent, {width: '600px', data: dialogData});
         });
       }
-    } else if (activeNodesLength == 0 && activeEdgesLength == 0) {
-      if (activePGsLength > 1 && id == undefined) {
-        const pgActiveIds = activePGs.map((ele: any) => ele.data('pg_id'));
+    } else if (tabName == 'portGroup') {
+      if (ids.length > 0 && id == undefined) {
         const dialogData = {
-          genData: { ids: pgActiveIds },
+          genData: { ids: ids },
           cy
         }
         this.dialog.open(PortGroupBulkEditDialogComponent, {width: '600px', data: dialogData});
-      } else if (activePGsLength == 1 || id) {
+      } else if (ids.length === 0 && id) {
         this.portGroupService.get(id).subscribe(pgData => {
           const dialogData = {
             mode: 'update',
@@ -153,15 +147,14 @@ export class InfoPanelService {
           this.dialog.open(AddUpdatePGDialogComponent, {width: '600px', data: dialogData});
         });
       }
-    } else if (activePGsLength == 0 && activeEdgesLength == 0) {
-      if (activeNodesLength > 1 && id == undefined) {
-        const nodeActiveIds = activeNodes.map((ele: any) => ele.data('node_id'));
+    } else if (tabName == 'node') {
+      if (ids.length > 0 && id == undefined) {
         const dialogData = {
-          genData: { ids: nodeActiveIds },
+          genData: { ids: ids },
           cy
         }
         this.dialog.open(NodeBulkEditDialogComponent, {width: '600px', data: dialogData});
-      } else if (activeNodesLength == 1 || id) {
+      } else if (ids.length === 0 && id) {
         this.nodeService.get(id).subscribe(nodeData => {
           const dialogData = {
             mode: 'update',
@@ -172,7 +165,7 @@ export class InfoPanelService {
         });
       }
     } else {
-      this.toastr.success("Cannot bulk edit for various of element types");
+      this.toastr.success("The info panel doesn't open yet");
     }
   }
 

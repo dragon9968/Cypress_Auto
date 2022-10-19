@@ -6,7 +6,7 @@ import { retrievedIsMapOpen, retrievedMap } from '../store/map/map.actions';
 import { environment } from 'src/environments/environment';
 import * as cytoscape from 'cytoscape';
 import { HelpersService } from '../core/services/helpers/helpers.service';
-import { selectMapFeature } from '../store/map/map.selectors';
+import { selectInterfaces, selectMapFeature } from '../store/map/map.selectors';
 import { retrievedIcons } from '../store/icon/icon.actions';
 import { retrievedDevices } from '../store/device/device.actions';
 import { retrievedTemplates } from '../store/template/template.actions';
@@ -57,6 +57,7 @@ import { ProjectService } from "../project/services/project.service";
 import { retrievedVMStatus } from "../store/project/project.actions";
 import { ICON_PATH } from '../shared/contants/icon-path.constant';
 import { InfoPanelService } from '../core/services/helpers/info-panel.service';
+import { retrievedInterfacesByIds } from "../store/interface/interface.actions";
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -92,6 +93,8 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   nodes: any;
   interfaces: any;
   groupBoxes: any;
+  icons!: any[];
+  domains!: any[];
   mapBackgrounds: any;
   mapProperties: any;
   defaultPreferences: any;
@@ -131,9 +134,8 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   selectPortGroups$ = new Subscription();
   selectIcons$ = new Subscription();
   selectDomains$ = new Subscription();
+  selectInterfaces$ = new Subscription();
   selectSearchText$ = new Subscription();
-  icons!: any[];
-  domains!: any[];
   selectMapFeatureSubject: Subject<MapState> = new ReplaySubject(1);
 
   constructor(
@@ -219,6 +221,14 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
         this.clearSearch();
       }
     });
+    this.selectInterfaces$ = this.store.select(selectInterfaces).subscribe(interfaces => {
+      if (interfaces) {
+        const interfaceIds = interfaces.map((ele: any) => ele.data.id);
+        this.interfaceService.getDataByPks({pks: interfaceIds}).subscribe(response => {
+          this.store.dispatch(retrievedInterfacesByIds({data: response.result}));
+        })
+      }
+    })
   }
 
   ngAfterViewInit(): void {

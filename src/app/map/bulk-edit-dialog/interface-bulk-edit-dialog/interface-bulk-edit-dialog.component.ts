@@ -1,5 +1,6 @@
 import { Store } from "@ngrx/store";
 import { ToastrService } from "ngx-toastr";
+import { ActivatedRoute } from "@angular/router";
 import { FormControl, FormGroup } from "@angular/forms";
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
@@ -9,6 +10,8 @@ import { ErrorMessages } from "../../../shared/enums/error-messages.enum";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { InterfaceService } from "../../../core/services/interface/interface.service";
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
+import { selectInterfaces } from "../../../store/map/map.selectors";
+import { retrievedInterfacesByIds } from "../../../store/interface/interface.actions";
 
 @Component({
   selector: 'app-interface-bulk-edit-dialog',
@@ -20,14 +23,17 @@ export class InterfaceBulkEditDialogComponent implements OnInit {
   DIRECTIONS = DIRECTIONS;
   STATUS = STATUS;
   errorMessages = ErrorMessages;
+  mapCategory = '';
+  collectionId = '0';
 
   constructor(
+    private route: ActivatedRoute,
     private store: Store,
     private toastr: ToastrService,
     public dialogRef: MatDialogRef<InterfaceBulkEditDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public helpers: HelpersService,
-    private interfaceService: InterfaceService
+    private interfaceService: InterfaceService,
   ) {
     this.interfaceBulkEditForm = new FormGroup({
       statusCtr: new FormControl(''),
@@ -56,6 +62,7 @@ export class InterfaceBulkEditDialogComponent implements OnInit {
   }
 
   updateInterfaceBulk() {
+    const ele = this.data.cy.getElementById(this.data.genData.id);
     const jsonData = {
       ids: this.data.genData.ids,
       status: this.statusCtr?.value.id,
@@ -67,6 +74,22 @@ export class InterfaceBulkEditDialogComponent implements OnInit {
       is_nat: this.isNatCtr?.value
     }
     this.interfaceService.editBulk(jsonData).subscribe(response => {
+      this.data.genData.ids.map((edgeId: any) => {
+        this.interfaceService.get(edgeId).subscribe(edgeData => {
+          const data = edgeData.result;
+          ele.data('name', data.name);
+          const ip_str = edgeData.result.ip ? edgeData.result.ip : "";
+          const ip = ip_str.split(".");
+          const last_octet = ip.length == 4 ? "." + ip[3] : "";
+          ele.data('ip_last_octet', last_octet);
+        });
+      });
+      this.store.select(selectInterfaces).subscribe(interfaces => {
+        const interfaceIds = interfaces.map((ele: any) => ele.data.id);
+        this.interfaceService.getDataByPks({pks: interfaceIds}).subscribe(response => {
+          this.store.dispatch(retrievedInterfacesByIds({data: response.result}));
+        })
+      })
       this.toastr.success(response.message);
       this.dialogRef.close();
     })

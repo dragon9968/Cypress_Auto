@@ -40,4 +40,12 @@ export class InterfaceService {
   editBulk(data: any): Observable<any> {
     return this.http.put<any>(ApiPaths.INTERFACE + 'bulk_edit', data);
   }
+
+  randomizeIpBulk(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.INTERFACE_RANDOMIZE_IP_BULK, data);
+  }
+
+  getDataByPks(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.INTERFACE_BY_PKS, data);
+  }
 }

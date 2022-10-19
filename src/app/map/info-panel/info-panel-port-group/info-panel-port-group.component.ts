@@ -219,11 +219,9 @@ export class InfoPanelPortGroupComponent implements OnInit, DoCheck {
       this.toastr.info('No row selected');
     } else {
       if (this.rowsSelectedId.length === 1) {
-        this.infoPanelService.openEditInfoPanelForm(this.cy, this.activeNodes, this.activePGs, this.activeEdges,
-          this.tabName, this.rowsSelectedId[0])
+        this.infoPanelService.openEditInfoPanelForm(this.cy, this.tabName, this.rowsSelectedId[0], [])
       } else {
-        this.infoPanelService.openEditInfoPanelForm(this.cy, this.activeNodes, this.activePGs, this.activeEdges,
-          this.tabName, undefined);
+        this.infoPanelService.openEditInfoPanelForm(this.cy, this.tabName, undefined, this.rowsSelectedId);
       }
     }
   }

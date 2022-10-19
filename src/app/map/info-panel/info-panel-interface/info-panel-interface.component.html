@@ -1,3 +1,23 @@
+<button class="btn-actions" mat-button [matMenuTriggerFor]="actionMenu" (click)="isClickAction = !isClickAction">
+  Actions
+  <mat-icon *ngIf="isClickAction">keyboard_arrow_down</mat-icon>
+  <mat-icon *ngIf="!isClickAction">keyboard_arrow_up</mat-icon>
+</button>
+<mat-menu #actionMenu="matMenu" yPosition="below">
+  <button mat-menu-item  (click)="deleteInterfaces()">
+    <mat-icon>delete_forever</mat-icon>Delete
+  </button>
+  <button mat-menu-item (click)="editInterfaces()">
+    <mat-icon>edit</mat-icon>Edit
+  </button>
+  <button mat-menu-item (click)="randomizeIp()">
+    <mat-icon svgIcon="randomize-subnet"></mat-icon>Randomize IP
+  </button>
+  <button mat-menu-item (click)="validateNode()">
+    <mat-icon>check</mat-icon>Validate
+  </button>
+</mat-menu>
+
 <ag-grid-angular
   class="ag-theme-alpine info-panel-interface"
   [gridOptions]="gridOptions"

@@ -10,6 +10,8 @@ import { InterfaceService } from 'src/app/core/services/interface/interface.serv
 import { selectPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
+import { selectInterfaces } from "../../store/map/map.selectors";
+import { retrievedInterfacesByIds } from "../../store/interface/interface.actions";
 
 @Component({
   selector: 'app-add-update-interface-dialog',
@@ -168,10 +170,17 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
       netmask_id: this.data.genData.netmask_id,
     }
     this.interfaceService.put(this.data.genData.id, jsonData).subscribe((respData: any) => {
+      ele.data('name', respData.result.name);
       const ip_str = respData.result.ip ? respData.result.ip : "";
       const ip = ip_str.split(".");
       const last_octet = ip.length == 4 ? "." + ip[3] : "";
       ele.data('ip_last_octet', last_octet);
+      this.store.select(selectInterfaces).subscribe(interfaces => {
+        const interfaceIds = interfaces.map((ele: any) => ele.data.id);
+        this.interfaceService.getDataByPks({pks: interfaceIds}).subscribe(response => {
+          this.store.dispatch(retrievedInterfacesByIds({data: response.result}));
+        })
+      })
       this.toastr.success('Edge details updated!');
       this.dialogRef.close();
     });

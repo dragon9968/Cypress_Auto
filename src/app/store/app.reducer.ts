@@ -17,6 +17,7 @@ import { ReducerKeys } from "./reducer-keys.enum";
 import { mapContextMenuReducer } from "./map-context-menu/map-context-menu.reducer";
 import { groupReducer } from "./group/group.reducer";
 import { serverConnect } from "./server-connect/server-connect.reducer";
+import { interfaceReducerByIds } from "./interface/interface.reducer";
 
 export const reducers = {
     [ReducerKeys.MAP]: mapReducer,
@@ -36,5 +37,6 @@ export const reducers = {
     [ReducerKeys.NODE]: nodeReducer,
     [ReducerKeys.DOMAIN_USER]: domainUserReducer,
     [ReducerKeys.GROUP]: groupReducer,
-    [ReducerKeys.SERVER_CONNECT]: serverConnect
+    [ReducerKeys.SERVER_CONNECT]: serverConnect,
+    [ReducerKeys.INTERFACE]: interfaceReducerByIds
 }
