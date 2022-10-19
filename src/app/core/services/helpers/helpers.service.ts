@@ -38,6 +38,10 @@ export class HelpersService {
     return option && option.name ? option.name : '';
   }
 
+  gatewayDisplay(option: any) {
+    return option ? option : '';
+  }
+
   templateDisplay(option: any) {
     return option && option.display_name ? option.display_name : '';
   }
@@ -428,6 +432,11 @@ export class HelpersService {
   getOptionById(options: any, id: string) {
     const option = options?.filter((option: any) => option.id == id)[0];
     return option ? option : {};
+  }
+
+  setOptionByGateway(control: any, options: any, gateway: string) {
+    const option = options?.filter((option: any) => option == gateway)[0];
+    control.setValue(option ? option : "");
   }
 
   setAutoCompleteValue(control: any, options: any, id: string) {

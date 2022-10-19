@@ -12,6 +12,8 @@ import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { selectInterfaces } from "../../store/map/map.selectors";
 import { retrievedInterfacesByIds } from "../../store/interface/interface.actions";
+import { selectInterfaceByIds } from "../../store/interface/interface.selectors";
+import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 
 @Component({
   selector: 'app-add-update-interface-dialog',
@@ -25,6 +27,9 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
   portGroups!: any[];
   isViewMode = false;
   selectPortGroups$ = new Subscription();
+  selectInterfaces$ = new Subscription();
+  gateways: any[] = [];
+  interfaces: any[] = [];
 
   constructor(
     private interfaceService: InterfaceService,
@@ -37,6 +42,13 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
     this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe((portGroups: any) => {
       this.portGroups = portGroups;
     });
+    this.selectInterfaces$ = this.store.select(selectInterfaceByIds).subscribe(interfaces => {
+      if (interfaces) {
+        this.interfaces = interfaces;
+        const interfaceList = interfaces.filter(ele => ele.port_group_id === this.data.genData.port_group_id && ele.configuration.is_gateway);
+        this.gateways = interfaceList.map(ele => ele.ip);
+      }
+    })
     this.isViewMode = this.data.mode == 'view';
     this.interfaceAddForm = new FormGroup({
       orderCtr: new FormControl('', Validators.required),
@@ -80,7 +92,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
     this.ipAllocationCtr?.setValue(this.data.genData.ip_allocation);
     this.ipCtr?.setValue(this.data.genData.ip);
     this.dnsServerCtr?.setValue(this.data.genData.dns_server);
-    this.helpers.setAutoCompleteValue(this.gatewayCtr, this.data.gateways, this.data.genData.gateway);
+    this.helpers.setOptionByGateway(this.gatewayCtr, this.gateways, this.data.genData.gateway);
     this.isGatewayCtr?.setValue(this.data.genData.is_gateway);
     this.isNatCtr?.setValue(this.data.genData.is_nat);
     this.disableItems(this.ipAllocationCtr?.value);
@@ -114,7 +126,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
       ip_allocation: this.ipAllocationCtr?.value,
       ip: this.ipCtr?.value,
       dns_server: this.dnsServerCtr?.value,
-      gateway: this.gatewayCtr?.value?.id,
+      gateway: this.gatewayCtr?.value,
       is_gateway: this.isGatewayCtr?.value,
       is_nat: this.isNatCtr?.value,
       node_id: this.data.genData.node_id,
@@ -163,7 +175,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
       ip_allocation: this.ipAllocationCtr?.value,
       ip: this.ipCtr?.value,
       dns_server: this.dnsServerCtr?.value,
-      gateway: this.gatewayCtr?.value?.id,
+      gateway: this.gatewayCtr?.value,
       is_gateway: this.isGatewayCtr?.value,
       is_nat: this.isNatCtr?.value,
       node_id: this.data.genData.node_id,
@@ -184,5 +196,11 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
       this.toastr.success('Edge details updated!');
       this.dialogRef.close();
     });
+  }
+
+  selectPortGroup($event: MatAutocompleteSelectedEvent) {
+    const interfaceList = this.interfaces.filter(ele => ele.port_group_id === $event.option.value.id && ele.configuration.is_gateway);
+    this.gateways = interfaceList.map(ele => ele.ip);
+    this.gatewayCtr?.setValue('');
   }
 }

@@ -43,7 +43,8 @@
       <mat-label>PortGroup</mat-label>
       <input matInput type="text" placeholder="Select a portgroup" formControlName="portGroupCtr"
         [matAutocomplete]="autoPortgroup" [readonly]="isViewMode">
-      <mat-autocomplete #autoPortgroup="matAutocomplete" [displayWith]="helpers.optionDisplay">
+      <mat-autocomplete #autoPortgroup="matAutocomplete" [displayWith]="helpers.optionDisplay"
+                        (optionSelected)="selectPortGroup($event)">
         <mat-option *ngFor="let option of portGroups" [value]="option">
           <div class="portgroup-option-text">
             <span class="option-text-items"><b>{{ option.name }}</b></span>
@@ -76,9 +77,9 @@
       <mat-label>Gateway</mat-label>
       <input matInput type="text" placeholder="Select or enter a gateway" formControlName="gatewayCtr"
         [matAutocomplete]="autoGateway" [readonly]="isViewMode">
-      <mat-autocomplete #autoGateway="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of data.gateways" [value]="option">
-          {{ option.name }}
+      <mat-autocomplete #autoGateway="matAutocomplete" [displayWith]="helpers.gatewayDisplay">
+        <mat-option *ngFor="let option of gateways" [value]="option">
+          {{ option }}
         </mat-option>
       </mat-autocomplete>
       <mat-error *ngIf="gatewayCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
