@@ -24,6 +24,8 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
+import { MatSelectModule } from '@angular/material/select';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 
 
 const materialModules = [
@@ -45,7 +47,9 @@ const materialModules = [
   MatTabsModule,
   MatExpansionModule,
   MatMenuModule,
-  MatAutocompleteModule
+  MatAutocompleteModule,
+  MatSelectModule,
+  NgxMatSelectSearchModule
 ];
 
 @NgModule({

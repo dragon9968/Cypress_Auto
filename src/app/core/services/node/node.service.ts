@@ -57,4 +57,8 @@ export class NodeService {
   export(format: string, data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.NODE_EXPORT + format, data);
   }
+
+  associate(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.ASSOCIATE, data);
+  }
 }

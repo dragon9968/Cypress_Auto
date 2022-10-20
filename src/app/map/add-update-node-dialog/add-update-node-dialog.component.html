@@ -1,5 +1,6 @@
 <form [formGroup]="nodeAddForm" (ngSubmit)="data.mode === 'add' ? addNode() : updateNode()">
-  <h1 mat-dialog-title>{{data.mode === 'add' ? 'Node Add' : data.mode === 'update' ? 'Node Edit Form' : 'Node form'}}</h1>
+  <h1 mat-dialog-title>{{data.mode === 'add' ? 'Node Add' : data.mode === 'update' ? 'Node Edit Form' : 'Node form'}}
+  </h1>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
@@ -118,13 +119,18 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Configurations</mat-label>
-      <input matInput type="text" placeholder="Select a config" formControlName="configTemplateCtr"
-        [matAutocomplete]="autoConfig" [readonly]="isViewMode">
-      <mat-autocomplete #autoConfig="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of configTemplates" [value]="option">
+      <mat-select [formControl]="configTemplateCtr" [multiple]="true">
+        <mat-option>
+          <ngx-mat-select-search
+            [formControl]="configTemplatesFilterCtrl"
+            placeholderLabel="Find configs..."
+            noEntriesFoundLabel="'No matching found'">
+          </ngx-mat-select-search>
+        </mat-option>
+        <mat-option *ngFor="let option of filteredConfigTemplates | async" [value]="option">
           {{ option.name }}
         </mat-option>
-      </mat-autocomplete>
+      </mat-select>
       <mat-error *ngIf="configTemplateCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
@@ -143,7 +149,8 @@
     <button mat-raised-button type="button" (click)="onCancel()">
       {{data.mode === 'view' ? 'Close' : 'Cancel'}}
     </button>
-    <button *ngIf="data.mode !== 'view'" mat-raised-button type="submit" color="primary" [disabled]="!nodeAddForm.valid">
+    <button *ngIf="data.mode !== 'view'" mat-raised-button type="submit" color="primary"
+      [disabled]="!nodeAddForm.valid">
       {{data.mode === 'add' ? 'Add' : 'Update'}}
     </button>
   </div>

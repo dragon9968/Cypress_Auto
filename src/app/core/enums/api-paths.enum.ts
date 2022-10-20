@@ -46,6 +46,7 @@ export enum ApiPaths {
   ADD_PROJECT = '/api/v1/project/add',
   NODE_CLONE = '/api/v1/node/clone_bulk',
   NODE_EXPORT = '/api/v1/node/export/',
+  ASSOCIATE = '/api/v1/node/associate',
   CLEAR_PARAMETERS = '/api/v1/server_connect/clear_parameters',
   CONNECTION_EXPORT = '/api/v1/server_connect/export',
   PING_TEST = '/api/v1/server_connect/ping_test',
