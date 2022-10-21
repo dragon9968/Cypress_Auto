@@ -5,6 +5,7 @@ import { PageNotFoundComponent } from '../core/page-not-found/page-not-found.com
 import { DeviceTemplateComponent } from './device-template/device-template.component';
 import { HardwareComponent } from './hardware/hardware.component';
 import { LoginProfilesComponent } from './login-profiles/login-profiles.component';
+import { DeviceCategoryComponent } from "./device-category/device-category.component";
 
 const routes: Routes = [
   {
@@ -19,6 +20,13 @@ const routes: Routes = [
         component: HardwareComponent,
         data: {
           permissionLevel: PermissionLevels.USER,
+        }
+      },
+      {
+        path: 'device_category',
+        component: DeviceCategoryComponent,
+        data: {
+          permissionLevel: PermissionLevels.USER
         }
       },
       {

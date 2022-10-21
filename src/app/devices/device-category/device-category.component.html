@@ -1,0 +1,16 @@
+<mat-card class="device-category">
+  <mat-card-title class="device-category__title">Device Category</mat-card-title>
+  <mat-card-actions class="device-category__action">
+    <button mat-raised-button color="primary" (click)="addDeviceCategory()">
+      <mat-icon>add</mat-icon>
+    </button>
+  </mat-card-actions>
+  <mat-card-content>
+    <ag-grid-angular
+      class="ag-theme-alpine device-category__ag"
+      [gridOptions]="gridOptions"
+      (gridReady)="onGridReady($event)"
+      [rowData]="rowData$ | async">
+    </ag-grid-angular>
+  </mat-card-content>
+</mat-card>

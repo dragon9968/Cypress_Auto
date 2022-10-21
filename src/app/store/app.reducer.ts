@@ -18,12 +18,14 @@ import { mapContextMenuReducer } from "./map-context-menu/map-context-menu.reduc
 import { groupReducer } from "./group/group.reducer";
 import { serverConnect } from "./server-connect/server-connect.reducer";
 import { interfaceReducerByIds } from "./interface/interface.reducer";
+import { deviceCategoryReducer } from "./device-category/device-category.reducer";
 
 export const reducers = {
     [ReducerKeys.MAP]: mapReducer,
     [ReducerKeys.PROJECT]: projectReducer,
     [ReducerKeys.ICON]: iconReducer,
     [ReducerKeys.DEVICE]: deviceReducer,
+    [ReducerKeys.DEVICE_CATEGORY]: deviceCategoryReducer,
     [ReducerKeys.TEMPLATE]: templateReducer,
     [ReducerKeys.HARDWARE]: hardwareReducer,
     [ReducerKeys.DOMAIN]: domainReducer,

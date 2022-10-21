@@ -7,6 +7,7 @@ export enum ApiPaths {
   PROJECTS = '/api/v1/project/',
   ICONS = '/api/v1/icon/',
   DEVICES = '/api/v1/device/',
+  DEVICE_CATEGORY = '/api/v1/device_category/',
   TEMPLATES = '/api/v1/template/',
   HARDWARES = '/api/v1/hardware/',
   DOMAINS = '/api/v1/domain/',

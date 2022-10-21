@@ -14,6 +14,7 @@ export enum RouteSegments {
   EDIT_PROJECT = 'projects/edit',
   EXPORT_IMPORT = 'projects/export-import',
   DEVICES_TEMPLATE = 'devices/device_template',
+  DEVICES_CATEGORY = 'devices/device_category',
   HARDWARE = 'devices/hardware',
   CONFIG_TEMPLATES = 'templates/config',
   NETWORK_TEMPLATES = 'templates/network',

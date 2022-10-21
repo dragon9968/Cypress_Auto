@@ -1,0 +1,16 @@
+<form [formGroup]="deviceCategoryForm" (ngSubmit)="data.mode === 'add' ? addDeviceCategory(): editDeviceCategory()">
+  <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Device Category' : 'Edit Device Category'}}</h1>
+  <mat-dialog-content>
+    <mat-form-field class="field">
+      <input type="text" matInput formControlName="nameCtr" placeholder="Name">
+      <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessage.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="nameCtr?.errors?.isExist">{{ errorMessage.DEVICE_CATEGORY_NAME_EXIST }}</mat-error>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions [align]="'end'">
+    <button mat-raised-button type="button" color="red" mat-dialog-close>Cancel</button>
+    <button mat-raised-button type="submit" color="primary" [disabled]="!deviceCategoryForm.valid">
+      {{ data.mode === 'add' ? 'Add' : 'Update' }}
+    </button>
+  </mat-dialog-actions>
+</form>
