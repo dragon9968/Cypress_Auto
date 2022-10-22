@@ -53,5 +53,6 @@ export enum ApiPaths {
   PING_TEST = '/api/v1/server_connect/ping_test',
   LOGIN_CHECK = '/api/v1/server_connect/login_check',
   LOGIN_PROFILE_EXPORT_CSV = '/api/v1/loginprofile/export_csv',
-  LOGIN_PROFILE_EXPORT_JSON = '/api/v1/loginprofile/export_json'
+  LOGIN_PROFILE_EXPORT_JSON = '/api/v1/loginprofile/export_json',
+  HARDWARE_EXPORT = '/api/v1/hardware/export/'
 }

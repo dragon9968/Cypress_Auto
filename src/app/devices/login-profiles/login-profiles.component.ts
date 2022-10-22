@@ -55,7 +55,10 @@ export class LoginProfilesComponent implements OnInit, OnDestroy {
     },
     { field: 'username'},
     { field: 'password'},
-    { field: 'extra_args'}
+    { 
+      headerName: 'Extra Args',
+      field: 'extra_args'
+    }
   ];
 
   constructor(

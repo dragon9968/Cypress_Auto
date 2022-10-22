@@ -95,7 +95,7 @@ export class AddEditConnectionProfilesComponent implements OnInit {
     }
   }
 
-  onCancle() {
+  onCancel() {
     this.router.navigate([RouteSegments.CONNECTION_PROFILES]);
   }
 
