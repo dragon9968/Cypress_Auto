@@ -216,6 +216,7 @@ export class HelpersService {
           "curve-style": "straight",
           "line-color": defaults.edge.color,
           "width": defaults.edge.size,
+          "zIndex": 999,
           "z-compound-depth": "bottom",
           "text-margin-x": 20,
           "text-margin-y": -20,
