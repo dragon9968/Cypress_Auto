@@ -10,10 +10,19 @@ $margin: 8px;
   align-items: center;
 }
 
-.option-text-items {
-  display: block;
-}
-
 .mat-option {
   height: 60px;
+}
+
+.login-profile {
+  margin: $margin 0;
+}
+
+.login-profile-options {
+  line-height: normal;
+}
+
+.option-text-items {
+  display: block;
+  padding: 2px 0;
 }

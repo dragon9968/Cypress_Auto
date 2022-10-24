@@ -1,11 +1,13 @@
 import { Store } from "@ngrx/store";
-import { Subscription } from "rxjs";
+import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
+import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { ReplaySubject, Subscription, throwError } from "rxjs";
+import { FormControl, FormGroup, UntypedFormControl } from "@angular/forms";
 import { ROLES } from "../../../shared/contants/roles.constant";
+import { ICON_PATH } from "src/app/shared/contants/icon-path.constant";
 import { ErrorMessages } from "../../../shared/enums/error-messages.enum";
 import { NodeService } from "../../../core/services/node/node.service";
 import { IconService } from "../../../core/services/icon/icon.service";
@@ -14,10 +16,9 @@ import { selectIcons } from "../../../store/icon/icon.selectors";
 import { selectDevices } from "../../../store/device/device.selectors";
 import { selectTemplates } from "../../../store/template/template.selectors";
 import { selectDomains } from "../../../store/domain/domain.selectors";
-import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
 import { selectConfigTemplates } from "../../../store/config-template/config-template.selectors";
 import { selectLoginProfiles } from "../../../store/login-profile/login-profile.selectors";
-import { ICON_PATH } from "src/app/shared/contants/icon-path.constant";
+import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
 
 @Component({
   selector: 'app-node-bulk-edit-dialog',
@@ -42,6 +43,9 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
   selectDomains$ = new Subscription();
   selectConfigTemplates$ = new Subscription();
   selectLoginProfiles$ = new Subscription();
+  configTemplateCtr = new UntypedFormControl();
+  configTemplatesFilterCtrl = new UntypedFormControl();
+  filteredConfigTemplates: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
 
   constructor(
     private store: Store,
@@ -73,7 +77,6 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
       domainCtr: new FormControl('', [autoCompleteValidator(this.domains)]),
       folderCtr: new FormControl(''),
       roleCtr: new FormControl('', [autoCompleteValidator(ROLES)]),
-      configTemplateCtr: new FormControl('', [autoCompleteValidator(this.configTemplates)]),
       loginProfileCtr: new FormControl('', [autoCompleteValidator(this.loginProfiles)]),
     })
   }
@@ -90,12 +93,13 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
 
   get roleCtr() { return this.nodeBulkEditForm.get('roleCtr'); }
 
-  get configTemplateCtr() { return this.nodeBulkEditForm.get('configTemplateCtr'); }
-
   get loginProfileCtr() { return this.nodeBulkEditForm.get('loginProfileCtr'); }
 
   ngOnInit(): void {
-
+    this.filteredConfigTemplates.next(this.configTemplates.slice());
+    this.configTemplatesFilterCtrl.valueChanges.subscribe(() => {
+      this.filterConfigTemplates();
+    });
   }
 
   ngOnDestroy(): void {
@@ -116,24 +120,33 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
       domain_id: this.domainCtr?.value.id,
       folder: this.folderCtr?.value,
       role: this.roleCtr?.value.id,
-      config_id: this.configTemplateCtr?.value.id,
-      login_profile: this.loginProfileCtr?.value.id
+      login_profile_id: this.loginProfileCtr?.value.id
     }
     this.nodeService.editBulk(jsonData).subscribe(response => {
       this.data.genData.ids.map((nodeId: any) => {
         const ele = this.data.cy.getElementById('node-' + nodeId);
         this.nodeService.get(nodeId).subscribe(nodeData => {
-            ele.data('groups', nodeData.result.groups);
-            if (jsonData.icon_id) {
-              this.iconService.get(jsonData.icon_id).subscribe(iconData => {
-                ele.data('icon', ICON_PATH + iconData.result.photo);
-              })
-            }
+          ele.data('groups', nodeData.result.groups);
+          if (jsonData.icon_id) {
+            this.iconService.get(jsonData.icon_id).subscribe(iconData => {
+              ele.data('icon', ICON_PATH + iconData.result.photo);
+            })
           }
-        )
-        this.helpers.reloadGroupBoxes(this.data.cy);
+          const configData = {
+            pk: nodeData.id,
+            config_ids: this.configTemplateCtr?.value.map((item: any) => item.id)
+          }
+          this.nodeService.associate(configData).pipe(
+            catchError((error: any) => {
+              this.toastr.error(error.message, 'Error')
+              return throwError(error.message)
+            })
+          ).subscribe(() => {
+            this.helpers.reloadGroupBoxes(this.data.cy);
+          })
+        })
       })
-      this.toastr.success(response.message);
+      this.toastr.success(response.message, 'Success');
       this.dialogRef.close();
     })
   }
@@ -145,5 +158,21 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
 
   onCancel() {
     this.dialogRef.close();
+  }
+
+  filterConfigTemplates() {
+    if (!this.configTemplates) {
+      return;
+    }
+    let search = this.configTemplatesFilterCtrl.value;
+    if (!search && search !== "") {
+      this.filteredConfigTemplates.next(this.configTemplates.slice());
+      return;
+    } else {
+      search = search.toLowerCase();
+    }
+    this.filteredConfigTemplates.next(
+      this.configTemplates.filter((configTemplate) => configTemplate.name.toLowerCase().indexOf(search) > -1)
+    );
   }
 }

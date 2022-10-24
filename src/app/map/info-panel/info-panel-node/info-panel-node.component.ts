@@ -162,17 +162,16 @@ export class InfoPanelNodeComponent implements DoCheck {
       {
         field: 'login_profile_show',
         headerName: 'Login Profile',
-        minWidth: 100,
+        minWidth: 150,
         flex: 1,
-        maxWidth: 140,
+        cellRenderer: (param: any) => param.value,
       },
       {
         field: 'configuration_show',
         headerName: 'Configuration',
-        minWidth: 140,
         flex: 1,
-        maxWidth: 200,
-        cellRenderer: (param: any) => param.value
+        cellRenderer: (param: any) => param.value,
+        autoHeight: true
       },
     ]
   };
