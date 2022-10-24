@@ -1,6 +1,7 @@
 import { Store } from "@ngrx/store";
 import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
+import { ActivatedRoute, Params } from "@angular/router";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
@@ -12,6 +13,7 @@ import { ErrorMessages } from "../../../shared/enums/error-messages.enum";
 import { NodeService } from "../../../core/services/node/node.service";
 import { IconService } from "../../../core/services/icon/icon.service";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
+import { retrievedNode } from "../../../store/node/node.actions";
 import { selectIcons } from "../../../store/icon/icon.selectors";
 import { selectDevices } from "../../../store/device/device.selectors";
 import { selectTemplates } from "../../../store/template/template.selectors";
@@ -37,6 +39,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
   configTemplates!: any[];
   loginProfiles!: any[]
   filteredTemplates!: any[];
+  collectionId = '0';
   selectIcons$ = new Subscription();
   selectDevices$ = new Subscription();
   selectTemplates$ = new Subscription();
@@ -50,6 +53,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
   constructor(
     private store: Store,
     private toastr: ToastrService,
+    private route: ActivatedRoute,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<NodeBulkEditDialogComponent>,
     public helpers: HelpersService,
@@ -96,6 +100,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
   get loginProfileCtr() { return this.nodeBulkEditForm.get('loginProfileCtr'); }
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe((params: Params) => this.collectionId = params['collection_id'])
     this.filteredConfigTemplates.next(this.configTemplates.slice());
     this.configTemplatesFilterCtrl.valueChanges.subscribe(() => {
       this.filterConfigTemplates();
@@ -132,17 +137,22 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
               ele.data('icon', ICON_PATH + iconData.result.photo);
             })
           }
-          const configData = {
-            pk: nodeData.id,
-            config_ids: this.configTemplateCtr?.value.map((item: any) => item.id)
-          }
-          this.nodeService.associate(configData).pipe(
-            catchError((error: any) => {
-              this.toastr.error(error.message, 'Error')
-              return throwError(error.message)
+          if (this.configTemplateCtr?.value) {
+            const configData = {
+              pk: nodeData.id,
+              config_ids: this.configTemplateCtr?.value.map((item: any) => item.id)
+            }
+            this.nodeService.associate(configData).pipe(
+              catchError((error: any) => {
+                this.toastr.error(error.message, 'Error')
+                return throwError(error.message)
+              })
+            ).subscribe(() => {
+              this.helpers.reloadGroupBoxes(this.data.cy);
             })
-          ).subscribe(() => {
-            this.helpers.reloadGroupBoxes(this.data.cy);
+          }
+          this.nodeService.getNodesByCollectionId(this.collectionId).subscribe(response => {
+            this.store.dispatch(retrievedNode({data: response.result}));
           })
         })
       })

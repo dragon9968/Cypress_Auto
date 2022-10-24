@@ -41,7 +41,7 @@ export class NodeService {
   getNodesByCollectionId(collectionId: string): Observable<any> {
     return this.http.get<any>(ApiPaths.NODE, {
       params: {
-        q: '(columns:!(id,collection_id,domain_id,name,hostname,category),filters:!((col:collection_id,opr:eq,value:' + collectionId +')),keys:!(list_columns),page:0,page_size:1000)'
+        q: '(filters:!((col:collection_id,opr:eq,value:' + collectionId +')),keys:!(list_columns),page:0,page_size:1000)'
       }
     })
   }

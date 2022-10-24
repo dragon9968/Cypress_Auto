@@ -20,6 +20,8 @@ import { selectConfigTemplates } from '../../store/config-template/config-templa
 import { selectLoginProfiles } from '../../store/login-profile/login-profile.selectors';
 import { IconService } from 'src/app/core/services/icon/icon.service';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
+import { retrievedNode } from "../../store/node/node.actions";
+import { ActivatedRoute } from "@angular/router";
 
 @Component({
   selector: 'app-add-update-node-dialog',
@@ -52,6 +54,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   filteredConfigTemplates: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
 
   constructor(
+    private route: ActivatedRoute,
     private nodeService: NodeService,
     private iconService: IconService,
     private toastr: ToastrService,
@@ -264,6 +267,9 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
           this.toastr.success('Node details updated!');
           this.dialogRef.close();
         });
+        this.nodeService.getNodesByCollectionId(this.data.genData.collection_id).subscribe(response => {
+          this.store.dispatch(retrievedNode({data: response.result}));
+        })
       });
     });
   }

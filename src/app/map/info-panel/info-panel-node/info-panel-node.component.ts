@@ -1,14 +1,18 @@
+import { MatDialog } from "@angular/material/dialog";
 import { catchError } from "rxjs/operators";
+import { DomSanitizer } from "@angular/platform-browser";
 import { ToastrService } from "ngx-toastr";
 import { MatIconRegistry } from "@angular/material/icon";
-import { forkJoin, map, throwError } from "rxjs";
+import { forkJoin, map, Subscription, throwError } from "rxjs";
 import { Component, DoCheck, Input } from '@angular/core';
-import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
-import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { NodeService } from "../../../core/services/node/node.service";
+import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { InfoPanelService } from "../../../core/services/helpers/info-panel.service";
 import { InfoPanelRenderComponent } from "../info-panel-render/info-panel-render.component";
+import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
+import { Store } from "@ngrx/store";
+import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
 
 @Component({
   selector: 'app-info-panel-node',
@@ -29,8 +33,9 @@ export class InfoPanelNodeComponent implements DoCheck {
   rowsSelected: any[] = [];
   rowsSelectedId: any[] = [];
   isClickAction: boolean = true;
-  isDisableDelete?: boolean = true;
   tabName = 'node';
+  nodes: any[] = [];
+  selectedNodes$ = new Subscription();
 
   private _setNodeInfoPanel(activeNodes: any[]) {
     if (activeNodes.length === 0) {
@@ -63,6 +68,13 @@ export class InfoPanelNodeComponent implements DoCheck {
       ).subscribe(rowData => {
         if (this.gridApi != null) {
           this.gridApi.setRowData(rowData);
+        }
+        if (this.rowsSelectedId.length > 0 && this.gridApi) {
+          this.gridApi.forEachNode(rowNode => {
+            if (this.rowsSelectedId.includes(rowNode.data.id)) {
+              rowNode.setSelected(true);
+            }
+          })
         }
       })
     }
@@ -156,7 +168,6 @@ export class InfoPanelNodeComponent implements DoCheck {
         minWidth: 160,
         flex: 1,
         cellRenderer: (param: any) => param.value,
-        cellClass: 'row-interface',
         autoHeight: true
       },
       {
@@ -177,6 +188,8 @@ export class InfoPanelNodeComponent implements DoCheck {
   };
 
   constructor(
+    private store: Store,
+    private dialog: MatDialog,
     private toastr: ToastrService,
     private domSanitizer: DomSanitizer,
     private nodeService: NodeService,
@@ -184,18 +197,27 @@ export class InfoPanelNodeComponent implements DoCheck {
     private helpers: HelpersService,
     iconRegistry: MatIconRegistry
   ) {
-    iconRegistry.addSvgIcon('export-csv', this._setPath('/assets/icons/export-csv.svg'));
-    iconRegistry.addSvgIcon('export-json', this._setPath('/assets/icons/export-json.svg'));
+    iconRegistry.addSvgIcon('export-csv', this.helpers.setIconPath('/assets/icons/export-csv.svg'));
+    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
+    this.selectedNodes$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => {
+      if (nodes) {
+        this.nodes = nodes;
+      }
+    });
   }
 
   ngDoCheck(): void {
-    const data = this.activeNodes.map(ele => ele.data());
+    if (this.activeNodes.length == 0) {
+      this.rowsSelected = [];
+      this.rowsSelectedId = [];
+    }
+    const activeNodeIds = this.activeNodes.map(ele => ele.data('node_id'));
+    const data = this.nodes.filter(ele => activeNodeIds.includes(ele.id));
     const stringNodeData = JSON.stringify(data);
     if (this.activeNodeOld !== stringNodeData) {
       this.activeNodeOld = stringNodeData;
       this._setNodeInfoPanel(this.activeNodes);
     }
-    this.isDisableDelete = this.activeNodes.length >= 1;
   }
 
   onGridReady(params: GridReadyEvent) {
@@ -263,11 +285,24 @@ export class InfoPanelNodeComponent implements DoCheck {
     if (this.rowsSelected.length === 0) {
       this.toastr.info('No row selected');
     } else {
-      this.rowsSelectedId.map(id => {
-        this.infoPanelService.delete(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
-          this.deletedNodes, this.deletedInterfaces, this.tabName, id);
+      const dialogData = {
+        title: 'User confirmation needed',
+        message: 'You sure you want to delete this item?',
+        submitButtonName: 'OK'
+      }
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
+      dialogConfirm.afterClosed().subscribe(confirm => {
+        if (confirm) {
+          if (this.rowsSelected.length === 0) {
+            this.toastr.info('No row selected');
+          } else {
+            this.rowsSelectedId.map(id => {
+              this.infoPanelService.delete(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
+                this.deletedNodes, this.deletedInterfaces, this.tabName, id);
+            })
+          }
+        }
       })
-      this._updateRowSelected();
     }
   }
 
@@ -280,7 +315,6 @@ export class InfoPanelNodeComponent implements DoCheck {
       } else {
         this.infoPanelService.openEditInfoPanelForm(this.cy, this.tabName, undefined, this.rowsSelectedId);
       }
-      this._updateRowSelected();
     }
   }
 
@@ -302,7 +336,6 @@ export class InfoPanelNodeComponent implements DoCheck {
         this.helpers.downloadBlob(fileName, file);
         this.toastr.success(`Exported node as ${format.toUpperCase()} file successfully`);
       })
-      this.gridApi.deselectAll();
     }
   }
 
@@ -319,16 +352,6 @@ export class InfoPanelNodeComponent implements DoCheck {
       ).subscribe(response => {
         this.toastr.success(response.message);
       });
-      this.gridApi.deselectAll();
     }
-  }
-
-  private _updateRowSelected() {
-    this.rowsSelected = [];
-    this.rowsSelectedId = [];
-  }
-
-  private _setPath(url: string): SafeResourceUrl {
-    return this.domSanitizer.bypassSecurityTrustResourceUrl(url);
   }
 }
