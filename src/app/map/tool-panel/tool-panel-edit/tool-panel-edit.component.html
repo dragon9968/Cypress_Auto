@@ -3,16 +3,16 @@
     <button mat-mini-fab class="node-action" color="primary" matTooltip="Delete" (click)="deleteNodes()">
       <mat-icon>delete</mat-icon>
     </button>
-    <button mat-mini-fab class="node-action" color="primary" matTooltip="Collapse">
+    <button mat-mini-fab class="node-action" color="primary" matTooltip="Collapse" (click)="collapse()">
       <mat-icon>unfold_less</mat-icon>
     </button>
-    <button mat-mini-fab class="node-action" color="primary" matTooltip="Expand">
+    <button mat-mini-fab class="node-action" color="primary" matTooltip="Expand" (click)="expand()">
       <mat-icon>unfold_more</mat-icon>
     </button>
-    <button mat-mini-fab class="node-action" color="primary" matTooltip="Increase Z-Index">
+    <button mat-mini-fab class="node-action" color="primary" matTooltip="Increase Z-Index" (click)="increaseZIndex()">
       <mat-icon>text_increase</mat-icon>
     </button>
-    <button mat-mini-fab class="node-action" color="primary" matTooltip="Decrease Z-Index">
+    <button mat-mini-fab class="node-action" color="primary" matTooltip="Decrease Z-Index" (click)="decreaseZIndex()">
       <mat-icon>text_decrease</mat-icon>
     </button>
     <button mat-mini-fab class="node-action" color="primary" matTooltip="Lock" (click)="lockNodes()">

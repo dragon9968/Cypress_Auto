@@ -1,30 +1,34 @@
 import { Injectable } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CMGroupBoxService {
 
-  constructor(private dialog: MatDialog) { }
+  constructor(private toastr: ToastrService) { }
 
-  getCollapseMenu() {
+  getCollapseMenu(cy: any, activeGBs: any[]) {
     return {
       id: "collapse_groupbox",
       content: "Collapse",
       selector: "node[label='group_box']",
-      onClickFunction: (event: any) => { },
+      onClickFunction: (event: any) => {
+        this.collapse(cy, activeGBs);
+      },
       hasTrailingDivider: true,
       disabled: false,
     }
   }
 
-  getExpandMenu() {
+  getExpandMenu(cy: any, activeGBs: any[]) {
     return {
       id: "expand_groupbox",
       content: "Expand",
       selector: "node[label='group_box']",
-      onClickFunction: (event: any) => { },
+      onClickFunction: (event: any) => {
+        this.expand(cy, activeGBs);
+      },
       hasTrailingDivider: true,
       disabled: false,
     }
@@ -37,9 +41,7 @@ export class CMGroupBoxService {
       selector: "node[label='group_box'], node[label='map_background']",
       onClickFunction: (event: any) => {
         const target = event.target;
-        if (target.data('zIndex') != 998) {
-          target.data('zIndex', target.data('zIndex') + 1)
-        }
+        this.moveUp(target);
       },
       hasTrailingDivider: true,
       disabled: false,
@@ -53,12 +55,52 @@ export class CMGroupBoxService {
       selector: "node[label='group_box'], node[label='map_background']",
       onClickFunction: (event: any) => {
         const target = event.target;
-        if (target.data('zIndex') != -998) {
-          target.data('zIndex', target.data('zIndex') - 1)
-        }
+        this.moveDown(target);
       },
       hasTrailingDivider: true,
       disabled: false,
+    }
+  }
+
+  collapse(cy: any, activeGBs: any[]) {
+    activeGBs.map((gb: any) => {
+      gb._private['data'] = { ...gb._private['data'] };
+      if (gb.data().collapsedChildren) {
+        this.toastr.warning("Already Collapsed")
+      } else {
+        cy.expandCollapse('get').collapseRecursively(gb, {});
+        gb.data('width', '90px')
+        gb.data('height', '90px')
+        gb.data('lastPos', gb.position())
+      }
+    });
+  }
+
+  expand(cy: any, activeGBs: any[]) {
+    activeGBs.map((gb: any) => {
+      gb._private['data'] = { ...gb._private['data'] };
+      if (!(gb.data().collapsedChildren)) {
+        this.toastr.warning("Already Expanded")
+      } else {
+        cy.expandCollapse('get').expandRecursively(gb, {});
+        gb.removeData('lastPos');
+        gb.removeData('width')
+        gb.removeData('height')
+      }
+    });
+  }
+
+  moveUp(target: any) {
+    target._private['data'] = { ...target._private['data'] };
+    if (target.data('zIndex') != 998) {
+      target.data('zIndex', target.data('zIndex') + 1)
+    }
+  }
+
+  moveDown(target: any) {
+    target._private['data'] = { ...target._private['data'] };
+    if (target.data('zIndex') != -998) {
+      target.data('zIndex', target.data('zIndex') - 1)
     }
   }
 }

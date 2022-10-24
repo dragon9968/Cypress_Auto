@@ -31,6 +31,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   @Input() activePGs: any[] = [];
   @Input() activeEdges: any[] = [];
   @Input() activeGBs: any[] = [];
+  @Input() activeMBs: any[] = [];
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterfaces: any[] = [];
   updatedNodes: any[] = [];

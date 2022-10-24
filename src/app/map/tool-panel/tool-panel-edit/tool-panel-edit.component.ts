@@ -9,10 +9,11 @@ import { selectDevices } from 'src/app/store/device/device.selectors';
 import { selectTemplates } from 'src/app/store/template/template.selectors';
 import { Subscription } from 'rxjs';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
-import { CMDeleteService } from '../../context-menu/cm-delete/cm-delete.service';
 import { CMLockUnlockService } from '../../context-menu/cm-lock-unlock/cm-lock-unlock.service';
 import { CommonService } from 'src/app/map/context-menu/cm-common-service/common.service';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
+import { CMGroupBoxService } from '../../context-menu/cm-groupbox/cm-groupbox.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-tool-panel-edit',
@@ -21,10 +22,12 @@ import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 })
 export class ToolPanelEditComponent implements OnDestroy {
   @Input() cy: any;
+  @Input() config: any;
   @Input() activeNodes: any[] = [];
   @Input() activePGs: any[] = [];
   @Input() activeEdges: any[] = [];
   @Input() activeGBs: any[] = [];
+  @Input() activeMBs: any[] = [];
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterfaces: any[] = [];
   @Input() isDisableAddNode = false;
@@ -48,10 +51,11 @@ export class ToolPanelEditComponent implements OnDestroy {
 
   constructor(
     private store: Store,
-    private cmDeleteService: CMDeleteService,
     private cmLockUnlockService: CMLockUnlockService,
     public helpers: HelpersService,
     private commonService: CommonService,
+    private cmGroupBoxService: CMGroupBoxService,
+    private toastr: ToastrService
   ) {
     this.selectDevices$ = this.store.select(selectDevices).subscribe((devices: any) => {
       this.devices = devices;
@@ -130,7 +134,6 @@ export class ToolPanelEditComponent implements OnDestroy {
       this.deletedNodes,
       this.deletedInterfaces,
     );
-    // this.update_components();
   }
 
   lockNodes() {
@@ -139,5 +142,42 @@ export class ToolPanelEditComponent implements OnDestroy {
 
   unlockNodes() {
     this.cmLockUnlockService.unlockNodes(this.activeNodes, this.activePGs);
+  }
+
+  collapse() {
+    this.cmGroupBoxService.collapse(this.cy, this.activeGBs);
+  }
+
+  expand() {
+    this.cmGroupBoxService.expand(this.cy, this.activeGBs);
+  }
+
+  increaseZIndex() {
+    this.activeGBs.concat(this.activeMBs).map(ele => {
+      this.cmGroupBoxService.moveUp(ele);
+    });
+  }
+
+  decreaseZIndex() {
+    this.activeGBs.concat(this.activeMBs).map(ele => {
+      ele._private['data'] = { ...ele._private['data'] };
+      const label = ele.data('label');
+      if (label == 'map_background') {
+        if (this.config.gb_exists) {
+          const g = ele.parent();
+          if (g.data('zIndex') == -998) {
+            this.toastr.warning('group box zIndex out of bounds');
+            return;
+          }
+          g.data('zIndex', g.data('zIndex') - 1);
+        }
+      } else {
+        if (ele.data('zIndex') == -998) {
+          this.toastr.warning('group box zIndex out of bounds');
+          return;
+        }
+      }
+      ele.data('zIndex', ele.data('zIndex') - 1);
+    });
   }
 }
