@@ -1,38 +1,29 @@
-<mat-accordion class="map-info-panel" hideToggle>
-  <mat-expansion-panel (opened)="isOpenInfoPanel = true" (closed)="isOpenInfoPanel = false">
-    <mat-expansion-panel-header>
-      <mat-panel-description style="justify-content: end;">
-        <mat-icon color="accent" *ngIf="isOpenInfoPanel">keyboard_double_arrow_down</mat-icon>
-        <mat-icon color="accent" *ngIf="!isOpenInfoPanel">keyboard_double_arrow_up</mat-icon>
-      </mat-panel-description>
-    </mat-expansion-panel-header>
-    <mat-tab-group>
-      <mat-tab label="Nodes">
-        <app-info-panel-node [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs" [activeEdges]="activeEdges"
-                             [activeGBs]="activeGBs" [deletedNodes]="deletedNodes"
-                             [deletedInterfaces]="deletedInterfaces">
-        </app-info-panel-node>
-      </mat-tab>
-      <mat-tab label="Port Groups">
-        <app-info-panel-port-group [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs"
-                                   [activeEdges]="activeEdges"
-                                   [activeGBs]="activeGBs" [deletedNodes]="deletedNodes"
-                                   [deletedInterfaces]="deletedInterfaces">
-        </app-info-panel-port-group>
-      </mat-tab>
-      <mat-tab label="Interfaces">
-        <app-info-panel-interface [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs"
-                                  [activeEdges]="activeEdges"
-                                  [activeGBs]="activeGBs" [deletedNodes]="deletedNodes"
-                                  [deletedInterfaces]="deletedInterfaces">
-        </app-info-panel-interface>
-      </mat-tab>
-      <mat-tab label="Domain">
-        <app-info-panel-domain></app-info-panel-domain>
-      </mat-tab>
-      <mat-tab label="Group">
-        <app-info-panel-group></app-info-panel-group>
-      </mat-tab>
-    </mat-tab-group>
-  </mat-expansion-panel>
-</mat-accordion>
+<div class="map-info-panel-wrapper" [ngStyle]="style" mwlResizable [validateResize]="validate" [enableGhostResize]="true"
+  [resizeSnapGrid]="{ left: 1, right: 1 }" (resizeEnd)="onResizeEnd($event)">
+  <mat-tab-group class="map-info-panel">
+    <mat-tab label="Nodes">
+      <app-info-panel-node [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs" [activeEdges]="activeEdges"
+        [activeGBs]="activeGBs" [deletedNodes]="deletedNodes" [deletedInterfaces]="deletedInterfaces">
+      </app-info-panel-node>
+    </mat-tab>
+    <mat-tab label="Port Groups">
+      <app-info-panel-port-group [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs"
+        [activeEdges]="activeEdges" [activeGBs]="activeGBs" [deletedNodes]="deletedNodes"
+        [deletedInterfaces]="deletedInterfaces">
+      </app-info-panel-port-group>
+    </mat-tab>
+    <mat-tab label="Interfaces">
+      <app-info-panel-interface [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs"
+        [activeEdges]="activeEdges" [activeGBs]="activeGBs" [deletedNodes]="deletedNodes"
+        [deletedInterfaces]="deletedInterfaces">
+      </app-info-panel-interface>
+    </mat-tab>
+    <mat-tab label="Domain">
+      <app-info-panel-domain></app-info-panel-domain>
+    </mat-tab>
+    <mat-tab label="Group">
+      <app-info-panel-group></app-info-panel-group>
+    </mat-tab>
+  </mat-tab-group>
+  <div class="resize-handle-top" mwlResizeHandle [resizeEdges]="{ top: true }"></div>
+</div>

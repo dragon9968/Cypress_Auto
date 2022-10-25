@@ -1,6 +1,26 @@
+mwlResizable {
+  box-sizing: border-box;
+}
+
+.map-info-panel-wrapper {
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  width: 100%;
+  height: 300px;
+  z-index: 999;
+  background-color: #ffffff;
+}
+
+.resize-handle-top {
+  position: absolute;
+  height: 4px;
+  width: 100%;
+  cursor: row-resize;
+  top: 0;
+  z-index: 999;
+}
+
 .map-info-panel {
-    position: absolute;
-    width: 100%;
-    bottom: 0;
-    z-index: 999;
+  width: 100%;
 }

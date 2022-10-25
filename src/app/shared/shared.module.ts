@@ -26,6 +26,7 @@ import { ColorPickerModule } from 'ngx-color-picker';
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 import { MatSelectModule } from '@angular/material/select';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+import { ResizableModule } from "angular-resizable-element";
 
 
 const materialModules = [
@@ -61,6 +62,7 @@ const materialModules = [
     AgGridModule,
     FormsModule,
     ColorPickerModule,
+    ResizableModule,
     ...materialModules
   ],
   exports: [
@@ -69,6 +71,7 @@ const materialModules = [
     FormsModule,
     AgGridModule,
     ColorPickerModule,
+    ResizableModule,
     ...materialModules,
     ConfirmationDialogComponent
   ],

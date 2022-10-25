@@ -1,11 +1,12 @@
-import {Component, OnInit, OnDestroy, Input} from '@angular/core';
+import {Component, Input} from '@angular/core';
+import { ResizeEvent } from 'angular-resizable-element';
 
 @Component({
   selector: 'app-info-panel',
   templateUrl: './info-panel.component.html',
   styleUrls: ['./info-panel.component.scss']
 })
-export class InfoPanelComponent implements OnInit, OnDestroy {
+export class InfoPanelComponent {
   isOpenInfoPanel = false;
 
   @Input() cy: any;
@@ -15,10 +16,29 @@ export class InfoPanelComponent implements OnInit, OnDestroy {
   @Input() activeGBs: any[] = [];
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterfaces: any[] = [];
+  style = {};
 
   constructor() {}
 
-  ngOnInit(): void {}
+  validate(event: ResizeEvent): boolean {
+    const MIN_DIMENSIONS_PX: number = 50;
+    if (
+      event.rectangle.width &&
+      event.rectangle.height &&
+      (event.rectangle.width < MIN_DIMENSIONS_PX ||
+        event.rectangle.height < MIN_DIMENSIONS_PX)
+    ) {
+      return false;
+    }
+    return true;
+  }
 
-  ngOnDestroy(): void {}
+  onResizeEnd(event: ResizeEvent): void {
+    this.style = {
+      position: 'fixed',
+      top: `${event.rectangle.top}px`,
+      height: `${event.rectangle.height}px`
+    };
+  }
+
 }
