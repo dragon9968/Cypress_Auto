@@ -15,3 +15,7 @@ sed -i "s/distver=\".*\"/distver=\"$distver\"/" $FILE
 FILE=build-image.sh
 echo "updating $FILE"
 sed -i "s/CONT_VERSION=\".*\"/CONT_VERSION=\"$distver\"/" $FILE
+
+FILE=package.json
+echo "updating $FILE"
+sed -i "s/\"version\": \".*\",/\"version\": \"$distver\",/" $FILE
