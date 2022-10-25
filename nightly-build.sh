@@ -24,5 +24,11 @@ echo "restart containers"
 echo
 #copy docker-compose file to target if doesn't exist
 [ ! -f $composefile ] && cp ./$targetCompose $composefile
+#archive the build artifacts to jenkins directory for reference later
+jenkinsArchive=$appdir/jenkins/frontend
+mkdir -p $jenkinsArchive
+cp ./$targetCompose $jenkinsArchive
+
+#bring containers up
 docker-compose -f $composefile up -d
 
