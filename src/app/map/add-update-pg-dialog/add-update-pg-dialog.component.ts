@@ -1,15 +1,18 @@
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatRadioChange } from '@angular/material/radio';
-import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
-import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
-import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
-import { ToastrService } from 'ngx-toastr';
-import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
 import { Store } from '@ngrx/store';
-import { selectDomains } from 'src/app/store/domain/domain.selectors';
 import { Subscription } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
+import { MatRadioChange } from '@angular/material/radio';
+import { HttpErrorResponse } from "@angular/common/http";
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
+import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
+import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
+import { selectDomains } from 'src/app/store/domain/domain.selectors';
+import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
+import { showErrorFromServer } from "../../shared/validations/error-server-response.validation";
+
 
 @Component({
   selector: 'app-add-update-pg-dialog',
@@ -22,14 +25,15 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
   selectDomains$ = new Subscription();
   domains!: any[];
   isViewMode = false;
+  errors: any[] = [];
 
   constructor(
-    private portGroupService: PortGroupService,
-    private toastr: ToastrService,
-    public dialogRef: MatDialogRef<AddUpdatePGDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    public helpers: HelpersService,
     private store: Store,
+    private toastr: ToastrService,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public dialogRef: MatDialogRef<AddUpdatePGDialogComponent>,
+    public helpers: HelpersService,
+    private portGroupService: PortGroupService,
   ) {
     this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
       this.domains = domains;
@@ -37,11 +41,17 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
     this.isViewMode = this.data.mode == 'view';
     this.pgAddForm = new FormGroup({
       nameCtr: new FormControl('', Validators.required),
-      vlanCtr: new FormControl('', Validators.required),
+      vlanCtr: new FormControl('', [
+        Validators.required,
+        Validators.pattern('^[0-9]*$'),
+        showErrorFromServer(() => this.errors)
+      ]),
       categoryCtr: new FormControl({ value: '', disabled: this.isViewMode }),
       domainCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.domains)]),
       subnetAllocationCtr: new FormControl({ value: '', disabled: this.isViewMode }),
-      subnetCtr: new FormControl(''),
+      subnetCtr: new FormControl('', [
+        Validators.required,
+        showErrorFromServer(() => this.errors)])
     });
   }
 
@@ -121,6 +131,25 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
         this.toastr.success('Port Group details added!');
       })
       this.dialogRef.close();
+    },
+      err => {
+        if (err instanceof HttpErrorResponse) {
+          const errorMessage = err.error.message;
+          if (err.status === 422) {
+            if (errorMessage.subnet) {
+              this.subnetCtr?.setErrors({
+                serverError: errorMessage.subnet
+              });
+              this.errors.push({'valueCtr': this.subnetCtr?.value, 'error': errorMessage.subnet});
+            }
+            if (errorMessage.vlan) {
+              this.vlanCtr?.setErrors({
+                serverError: errorMessage.vlan
+              });
+              this.errors.push({'valueCtr': this.vlanCtr?.value, 'error': errorMessage.vlan});
+            }
+          }
+        }
     });
   }
 
@@ -145,6 +174,25 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
         this.toastr.success('Port group details updated!');
         this.dialogRef.close();
       })
-    });
+    },
+      err => {
+      if (err instanceof HttpErrorResponse) {
+        const errorMessage = err.error.message;
+        if (err.status === 422) {
+          if (errorMessage.subnet) {
+            this.subnetCtr?.setErrors({
+              serverError: errorMessage.subnet
+            });
+            this.errors.push({'valueCtr': this.subnetCtr?.value, 'error': errorMessage.subnet});
+          }
+          if (errorMessage.vlan) {
+            this.vlanCtr?.setErrors({
+              serverError: errorMessage.vlan
+            });
+            this.errors.push({'valueCtr': this.vlanCtr?.value, 'error': errorMessage.vlan});
+          }
+        }
+      }
+    })
   }
 }
