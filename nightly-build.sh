@@ -28,6 +28,7 @@ echo
 jenkinsArchive=$appdir/jenkins/frontend
 mkdir -p $jenkinsArchive
 cp ./$targetCompose $jenkinsArchive
+cp make-dist.sh $jenkinsArchive
 
 #bring containers up
 docker-compose -f $composefile up -d
