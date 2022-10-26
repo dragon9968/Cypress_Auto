@@ -1,14 +1,14 @@
 #!/bin/bash
-if [ z "$1" ]; then
+if [ -z "$2" ]; then
     backenddist=""
 else
-    backendist="$1"
+    backenddist="$2"
 fi
 
 distver="0.0.2"
 
 Help() {
-    echo "Usage: $1 [test | cert] "
+    echo "Usage: $1 [test | cert] [backend_release_version] "
     echo "  -h help"
     echo "  test - Make a dev build, otherwise script will make prod build"
     echo "  cert - Make prod build with certificate support"
@@ -36,7 +36,7 @@ else
 fi
 
 echo "Tar docker containers to ./dist"
-docker save -o dist/range-frontend.tar bc/range_frontend:$distver
+docker save -o $distfolder/range-frontend.tar bc/range_frontend:$distver
 # TODO add switch here to specify which build
 if [ $devBuild == "test" ]; then
     echo "copying development docker-compose file."
