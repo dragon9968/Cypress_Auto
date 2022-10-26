@@ -1,6 +1,6 @@
 #!/bin/bash
 if [ -z "$2" ]; then
-    backenddist=""
+    backenddist="frontend"
 else
     backenddist="$2"
 fi
@@ -26,7 +26,8 @@ if [ $# -eq 1 ]; then
     fi
 fi
 
-distfolder="$HOME/dist/$backenddist"
+distbasefolder="$HOME/dist"
+distfolder="$distbasefolder/$backenddist"
 if [ -d "$distfolder" ] 
 then
     echo "Saving tar files to $distfolder" 
@@ -35,21 +36,25 @@ else
     mkdir $distfolder
 fi
 
-echo "Tar docker containers to ./dist"
+echo "Tar frontend containers to: $distfolder"
 docker save -o $distfolder/range-frontend.tar bc/range_frontend:$distver
 # TODO add switch here to specify which build
 if [ $devBuild == "test" ]; then
-    echo "copying development docker-compose file."
+    echo "copying frontend development docker-compose file."
     cp docker-compose-test.yml $distfolder/docker-compose-frontend.yml
 elif [ $devBuild == "cert" ]; then
-    echo "copying production docker-compose file."
+    echo "copying frontend production docker-compose file."
     cp docker-compose-cert.yml $distfolder/docker-compose-frontend.yml
 else
-    echo "copying production docker-compose file."
+    echo "copying frontend production docker-compose file."
     cp docker-compose-prod.yml $distfolder/docker-compose-frontend.yml
 fi
 
-# echo "creating dist tar: dist_$devBuild_$distver.tgz"
-# tar czf dist_$devBuild_$distver.tgz dist/
+echo "creating dist tar: $distbasefolder/dist_front_$devBuild_$distver.tgz"
+if [ "$backenddist" == "frontend" ]; then
+    cd $distbasefolder
+    tar czf dist_front_$devBuild_$distver.tgz $backenddist
+    cd - > /dev/null
+fi
 echo "finished"
 
