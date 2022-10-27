@@ -600,40 +600,6 @@ export class HelpersService {
     return hex;
   }
 
-  changeNodeSize(data: any) {
-    data.nodeSize = data.nodeSize <= 200 ? data.nodeSize : 200;
-    const newIconSize = data.nodeSize + "px";
-    data.activeNodes?.forEach((ele: any) => {
-      data.old_icon_size = ele.data("width")
-      if (ele.data("elem_category") != "port_group" && ele.data("label") != "map_background") {
-        ele.data("width", newIconSize);
-        ele.data("height", newIconSize);
-        const d = ele.data();
-        if (!d.new) {
-          d.updated = true;
-        }
-      }
-    })
-    return data;
-  }
-
-  restoreNodeSize(data: any) {
-    data.nodeSize = data.nodeSize <= 200 ? data.nodeSize : 200;
-    // const newIconSize = data.nodeSize + "px";
-    data.activeNodes.forEach((ele: any) => {
-      // data.old_icon_size = ele.data("width")
-      if (ele.data("elem_category") != "port_group" && ele.data("label") != "map_background") {
-        ele.data("width", data.old_icon_size);
-        ele.data("height", data.old_icon_size);
-        const d = ele.data();
-        if (!d.new) {
-          d.updated = true;
-        }
-      }
-    });
-    return data;
-  }
-
   private urlBase64Decode(str: string) {
     let output = str.replace(/-/g, '+').replace(/_/g, '/');
     switch (output.length % 4) {

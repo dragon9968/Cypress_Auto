@@ -23,14 +23,13 @@ export class CMDeleteService {
     });
   }
 
-  getMenu(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[],
-    deletedNodes: any[], deletedInterfaces: any[]) {
+  getMenu(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[]) {
     return {
       id: "delete",
       content: "Delete",
       selector: "node[label!='group_box'], edge",
       onClickFunction: (event: any) => {
-        this.commonService.delete(cy, activeNodes, activePGs, activeEdges, activeGBs, deletedNodes, deletedInterfaces);
+        this.commonService.delete(cy, activeNodes, activePGs, activeEdges, activeGBs);
       },
       hasTrailingDivider: true,
       disabled: false,

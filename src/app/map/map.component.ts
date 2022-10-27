@@ -224,8 +224,8 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectInterfaces$ = this.store.select(selectInterfaces).subscribe(interfaces => {
       if (interfaces) {
         const interfaceIds = interfaces.map((ele: any) => ele.data.id);
-        this.interfaceService.getDataByPks({pks: interfaceIds}).subscribe(response => {
-          this.store.dispatch(retrievedInterfacesByIds({data: response.result}));
+        this.interfaceService.getDataByPks({ pks: interfaceIds }).subscribe(response => {
+          this.store.dispatch(retrievedInterfacesByIds({ data: response.result }));
         })
       }
     })
@@ -263,7 +263,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
     this.loginProfileService.getAll().subscribe((data: any) => this.store.dispatch(retrievedLoginProfiles({ data: data.result })));
     this.portgroupService.getByCollectionId(this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedPortGroups({ data: data.result })));
-    this.serverConnectService.getAll().subscribe((data: any) => this.store.dispatch(retrievedServerConnect({data: data.result})))
+    this.serverConnectService.getAll().subscribe((data: any) => this.store.dispatch(retrievedServerConnect({ data: data.result })))
     this.projectService.get(+this.collectionId).subscribe((data: any) => {
       this.store.dispatch(retrievedVMStatus({ vmStatus: data.result.configuration.vm_status }))
     })
@@ -751,7 +751,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.helpersService.deletedNodes = this.deletedNodes;
     this.ur.action("removeNode", this.helpersService.removeNode.bind(this), this.helpersService.restoreNode.bind(this));
     this.ur.action("removeEdge", this.helpersService.removeEdge.bind(this), this.helpersService.restoreEdge.bind(this));
-    this.ur.action("changeNodeSize", this.helpersService.changeNodeSize.bind(this.commonService), this.helpersService.restoreNodeSize.bind(this.commonService));
+    this.ur.action("changeNodeSize", this.styleService.changeNodeSize.bind(this.commonService), this.styleService.restoreNodeSize.bind(this.commonService));
     this.ur.action("changTextColor", this.styleService.changTextColor.bind(this.commonService).bind(this.commonService), this.styleService.restoreTextColor.bind(this.commonService).bind(this.commonService));
     this.ur.action("changeTextSize", this.styleService.changeTextSize.bind(this.commonService).bind(this.commonService), this.styleService.restoreTextSize.bind(this.commonService).bind(this.commonService));
     this.ur.action("changePGColor", this.styleService.changePGColor.bind(this.commonService).bind(this.commonService), this.styleService.restorePGColor.bind(this.commonService).bind(this.commonService));
@@ -802,15 +802,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
         this.cmActionsService.getEdgeActionsMenu(this.cy, this.activeEdges),
         this.cmViewDetailsService.getMenu(),
         this.cmEditService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges),
-        this.cmDeleteService.getMenu(
-          this.cy,
-          this.activeNodes,
-          this.activePGs,
-          this.activeEdges,
-          this.activeGBs,
-          this.deletedNodes,
-          this.deletedInterfaces,
-        ),
+        this.cmDeleteService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs),
         this.cmGroupBoxService.getCollapseMenu(this.cy, this.activeGBs),
         this.cmGroupBoxService.getExpandMenu(this.cy, this.activeGBs),
         this.cmGroupBoxService.getMoveToFrontMenu(),

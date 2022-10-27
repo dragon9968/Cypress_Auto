@@ -131,8 +131,6 @@ export class ToolPanelEditComponent implements OnDestroy {
       this.activePGs,
       this.activeEdges,
       this.activeGBs,
-      this.deletedNodes,
-      this.deletedInterfaces,
     );
   }
 

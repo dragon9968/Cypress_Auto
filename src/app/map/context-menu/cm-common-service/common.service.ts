@@ -15,8 +15,6 @@ export class CommonService {
 
   constructor(
     private store: Store,
-    private helpers: HelpersService,
-    private styleService: StyleService,
   ) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
@@ -25,8 +23,7 @@ export class CommonService {
     });
   }
 
-  delete(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[],
-    deletedNodes: any[], deletedInterfaces: any[]) {
+  delete(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[]) {
     activeEdges.forEach((edge: any) => {
       const sourceData = cy.getElementById(edge.data('source')).data();
       const targetData = cy.getElementById(edge.data('target')).data();
@@ -35,7 +32,6 @@ export class CommonService {
       } else {
         this.ur?.do('removeEdge', edge);
         activeEdges.splice(0);
-        // this.tool_panel.update_components();
       }
     });
     activeNodes.concat(activePGs, activeGBs).forEach((node: any) => {
@@ -44,20 +40,18 @@ export class CommonService {
         cy.nodes().filter('[label="group_box"]').forEach((gb: any) => {
           if (gb.children().length == 0) {
             this.ur?.do('removeNode', gb)
-            // this.helpers.removeNode(gb);
           }
         });
       }
       activeNodes.splice(0);
       activePGs.splice(0);
       activeGBs.splice(0);
-      // this.tool_panel.update_components();
     });
   }
 
-  changeNode(activeNodes: any[], nodeSize: number) {
-    const data = this.ur?.do('changeNodeSize', { activeNodes, nodeSize });
-    activeNodes = data.activeNodes;
+  changeNodeSize(size: any, activeNodes: any[]) {
+    const newNodeSize = size.value;
+    this.ur?.do('changeNodeSize', { activeNodes, newNodeSize });
   }
 
   textColor(color: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[]) {

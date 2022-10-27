@@ -73,6 +73,35 @@ export class StyleService {
     return data;
   }
 
+  changeNodeSize(data: any) {
+    data.activeNodes?.forEach((ele: any) => {
+      data.oldNodeSize = ele.data("width")
+      if (ele.data("elem_category") != "port_group" && ele.data("label") != "map_background") {
+        ele.data("width", data.newNodeSize);
+        ele.data("height", data.newNodeSize);
+        const d = ele.data();
+        if (!d.new) {
+          d.updated = true;
+        }
+      }
+    })
+    return data;
+  }
+
+  restoreNodeSize(data: any) {
+    data.activeNodes.forEach((ele: any) => {
+      if (ele.data("elem_category") != "port_group" && ele.data("label") != "map_background") {
+        ele.data("width", data.oldNodeSize);
+        ele.data("height", data.oldNodeSize);
+        const d = ele.data();
+        if (!d.new) {
+          d.updated = true;
+        }
+      }
+    });
+    return data;
+  }
+
   changePGColor(data: any) {
     data.activePGs?.forEach((ele: any) => {
       data.oldPGColor = ele.data("color");

@@ -24,7 +24,7 @@
     <h4>Node</h4>
     <div class="tab-field">
         <label>Size</label>
-        <mat-slider class="slider" step="1" min="1" max="100" [(ngModel)]="nodeSize" (change)="setNodeSize()"></mat-slider>
+        <mat-slider class="slider" step="1" min="1" max="100" [(ngModel)]="nodeSize" (change)="setNodeSize($event)"></mat-slider>
         <label>{{ nodeSize }}px</label>
     </div>
 </section>

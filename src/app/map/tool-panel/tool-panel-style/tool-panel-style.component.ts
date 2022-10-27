@@ -150,7 +150,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
     const newTextBGOpacity = this.selectedMapPref.text_bg_opacity;
     const newTextHAlign = this.selectedMapPref.text_halign;
     const newTextVAlign = this.selectedMapPref.text_valign;
-    const newIconSize = this.selectedMapPref.node_size + 'px';
+    const newNodeSize = this.selectedMapPref.node_size + 'px';
     const newPGSize = this.selectedMapPref.port_group_size + 'px';
     const newEdgeSize = this.selectedMapPref.edge_width + 'px';
     const newDirection = this.selectedMapPref.edge_arrow_direction;
@@ -167,7 +167,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
     this.ur.do("changeTextBGOpacity", { activeEles, newTextBGOpacity });
     this.ur.do("changeTextHAlign", { activeEles, newTextHAlign });
     this.ur.do("changeTextVAlign", { activeEles, newTextVAlign });
-    this.ur.do("changeNodeSize", { activeNodes: this.activeNodes, newIconSize });
+    this.ur.do("changeNodeSize", { activeNodes: this.activeNodes, newNodeSize });
     this.ur.do("changePGSize", { activePGs: this.activePGs, newPGSize });
     this.ur.do("changeEdgeSize", { activeEdges: this.activeEdges, newEdgeSize });
     this.ur.do("changeDirection", { activeEdges: this.activeEdges, newDirection });
@@ -213,10 +213,11 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
     );
   }
 
-  setNodeSize() {
-    this.commonService.changeNode(
-      this.activeNodes,
-      this.nodeSize
+  setNodeSize(size: any) {
+    this.nodeSize = size.value <= 100 ? size.value : 100;
+    this.commonService.changeNodeSize(
+      size,
+      this.activeNodes
     );
   }
 
