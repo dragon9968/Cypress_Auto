@@ -48,4 +48,12 @@ export class InterfaceService {
   getDataByPks(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.INTERFACE_BY_PKS, data);
   }
+
+  getByNode(nodeId: any): Observable<any> {
+    return this.http.get<any>(ApiPaths.INTERFACE, {
+      params: {
+        q: `(filters:!((col:node_id,opr:eq,value:${nodeId})),page:0,page_size:1000)`
+      }
+    });
+  }
 }

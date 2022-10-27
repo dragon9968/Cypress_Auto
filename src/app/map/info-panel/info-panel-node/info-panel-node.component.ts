@@ -13,6 +13,8 @@ import { InfoPanelRenderComponent } from "../info-panel-render/info-panel-render
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { Store } from "@ngrx/store";
 import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
+import { ICON_PATH } from "../../../shared/contants/icon-path.constant";
+import { InterfaceService } from "../../../core/services/interface/interface.service";
 
 @Component({
   selector: 'app-info-panel-node',
@@ -192,10 +194,11 @@ export class InfoPanelNodeComponent implements DoCheck {
     private dialog: MatDialog,
     private toastr: ToastrService,
     private domSanitizer: DomSanitizer,
+    iconRegistry: MatIconRegistry,
     private nodeService: NodeService,
-    private infoPanelService: InfoPanelService,
     private helpers: HelpersService,
-    iconRegistry: MatIconRegistry
+    private infoPanelService: InfoPanelService,
+    private interfaceService: InterfaceService,
   ) {
     iconRegistry.addSvgIcon('export-csv', this.helpers.setIconPath('/assets/icons/export-csv.svg'));
     iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
@@ -234,49 +237,94 @@ export class InfoPanelNodeComponent implements DoCheck {
     if (this.rowsSelected.length === 0) {
       this.toastr.info('No row selected');
     } else {
-      const ids = this.rowsSelected.map(ele => ele.id);
-      const jsonData = {
-        ids: ids
+      const dialogData = {
+        title: 'User confirmation needed',
+        message: 'Clone this node?',
+        submitButtonName: 'OK'
       }
-      this.nodeService.cloneBulk(jsonData).pipe(
-        catchError((e: any) => {
-          this.toastr.error(e.error.message);
-          return throwError(() => e);
-        })
-      ).subscribe(response => {
-        const newNodeIds = response.result.map((ele: any) => ele.data.id);
-        newNodeIds.map((id: any) => {
-          this.nodeService.get(id).subscribe(nodeData => {
-            const cyData = nodeData.result;
-            const newNodePosition = {x: cyData.logical_map_position.x, y: cyData.logical_map_position.y};
-            const icon_src = '/static/img/uploads/' + cyData.icon.photo;
-            const newNodeData = {
-              "elem_category": "node",
-              "icon": icon_src,
-              "type": cyData.role,
-              "zIndex": 999,
-              "background-image": icon_src,
-              "background-opacity": 0,
-              "shape": "roundrectangle",
-              "text-opacity": 1
-            }
-            cyData.id = 'node-' + cyData.id;
-            cyData.node_id = cyData.id;
-            cyData.domain = cyData.domain.name;
-            cyData.height = cyData.logical_map_style.height;
-            cyData.width = cyData.logical_map_style.width;
-            cyData.text_color = cyData.logical_map_style.text_color;
-            cyData.text_size = cyData.logical_map_style.text_size;
-            cyData.groups = nodeData.result.groups;
-            this.helpers.addCYNode(this.cy, {
-              newNodeData: {...newNodeData, ...cyData},
-              newNodePosition: newNodePosition
-            });
-            this.helpers.reloadGroupBoxes(this.cy);
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
+      dialogConfirm.afterClosed().subscribe(confirm => {
+        if (confirm) {
+          const ids = this.rowsSelected.map(ele => ele.id);
+          const jsonData = {
+            ids: ids
+          }
+          this.nodeService.cloneBulk(jsonData).pipe(
+            catchError((e: any) => {
+              this.toastr.error(e.error.message);
+              return throwError(() => e);
+            })
+          ).subscribe(response => {
+            const newNodeIds = response.result.map((ele: any) => ele.data.id);
+            newNodeIds.map((id: any) => {
+              this.nodeService.get(id).subscribe(nodeData => {
+                const cyData = nodeData.result;
+                const newNodePosition = {x: cyData.logical_map_position.x, y: cyData.logical_map_position.y};
+                const icon_src = ICON_PATH + cyData.icon.photo;
+                const newNodeData = {
+                  "elem_category": "node",
+                  "icon": icon_src,
+                  "type": cyData.role,
+                  "zIndex": 999,
+                  "background-image": icon_src,
+                  "background-opacity": 0,
+                  "shape": "roundrectangle",
+                  "text-opacity": 1
+                }
+                cyData.id = 'node-' + nodeData.id;
+                cyData.node_id = nodeData.id;
+                cyData.domain = cyData.domain.name;
+                cyData.height = cyData.logical_map_style.height;
+                cyData.width = cyData.logical_map_style.width;
+                cyData.text_color = cyData.logical_map_style.text_color;
+                cyData.text_size = cyData.logical_map_style.text_size;
+                cyData.groups = nodeData.result.groups;
+                cyData.icon = icon_src;
+                this.helpers.addCYNode(this.cy, {
+                  newNodeData: {...newNodeData, ...cyData},
+                  newNodePosition: newNodePosition
+                });
+                this.helpers.reloadGroupBoxes(this.cy);
+
+                // Draw interface related to Nodes
+                this.interfaceService.getByNode(id).subscribe((respData: any) => {
+                  respData.result.map((edgeData: any) => {
+                    if (edgeData.category !== 'management') {
+                      const id = edgeData.id;
+                      const ip_str = edgeData.ip ? edgeData.ip : "";
+                      const ip = ip_str.split(".");
+                      const last_octet = ip.length == 4 ? "." + ip[3] : "";
+                      const cyData = edgeData;
+                      cyData.id = id;
+                      cyData.interface_id = id;
+                      cyData.ip_last_octet = last_octet;
+                      const logicalMapStyle = cyData.logical_map_style;
+                      cyData.width = logicalMapStyle.width;
+                      cyData.text_color = logicalMapStyle.text_color;
+                      cyData.text_size = logicalMapStyle.text_size;
+                      cyData.color = logicalMapStyle.color;
+                      const newEdgeData = {
+                        source: 'node-' + edgeData.node_id,
+                        target: 'pg-' + edgeData.port_group_id,
+                        id: 'new_edge_' + this.helpers.createUUID(),
+                        name: "",
+                        category: cyData.category,
+                        direction: cyData.direction,
+                        curve_style: cyData.category == 'tunnel' ? 'bezier' : 'straight',
+                        color: logicalMapStyle.color,
+                        width: logicalMapStyle.width,
+                      }
+                      this.helpers.addCYEdge(this.cy, {...newEdgeData, ...cyData});
+                    }
+                  })
+                });
+              })
+            })
+            response.result.map((ele: any) => {
+              this.toastr.success(`Cloned node ${ele.data.name}`, 'Success');
+            })
           })
-        })
-        const nameNodeStr = response.result.map((ele: any) => ele.data.name).join(', ');
-        this.toastr.success(`Cloned node ${nameNodeStr} successfully`);
+        }
       })
     }
   }
@@ -287,7 +335,7 @@ export class InfoPanelNodeComponent implements DoCheck {
     } else {
       const dialogData = {
         title: 'User confirmation needed',
-        message: 'You sure you want to delete this item?',
+        message: 'Delete node(s) from this project?',
         submitButtonName: 'OK'
       }
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});

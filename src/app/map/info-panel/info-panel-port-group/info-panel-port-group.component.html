@@ -1,4 +1,4 @@
-<button mat-button [matMenuTriggerFor]="actionMenu" (click)="isClickAction = !isClickAction">
+<button mat-button class="btn-actions" [matMenuTriggerFor]="actionMenu" (click)="isClickAction = !isClickAction">
   Actions
   <mat-icon *ngIf="isClickAction">keyboard_arrow_down</mat-icon>
   <mat-icon *ngIf="!isClickAction">keyboard_arrow_up</mat-icon>
