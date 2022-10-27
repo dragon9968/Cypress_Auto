@@ -1,0 +1,30 @@
+<form [formGroup]="iconForm" (ngSubmit)="data.mode === 'add' ? addIcon() : updateIcon()">
+  <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Icon' : data.mode === 'update' ? 'Edit Icon' : 'Show Icon'}}</h1>
+  <div mat-dialog-content>
+    <mat-form-field class="field" *ngIf="data.mode === 'view'">
+      <mat-label>Id</mat-label>
+      <input type="text" formControlName="id" matInput>
+    </mat-form-field>
+    <img *ngIf="data.mode === 'view'" [src]="ICON_PATH + url_default" width="90px" height="auto">
+    <mat-form-field class="field">
+      <mat-label>Name</mat-label>
+      <input type="text" formControlName="name" matInput>
+      <mat-error *ngIf="name?.errors?.required">Name is required*</mat-error>
+      <mat-error *ngIf="name?.errors?.isExist">Name already exists</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field" *ngIf="data.mode === 'view'">
+      <mat-label>Photo</mat-label>
+      <input type="text" formControlName="photo" matInput>
+    </mat-form-field>
+    <div class="photo">
+      <img *ngIf="data.mode === 'update'" [src]="ICON_PATH + url_default" width="90px" height="auto">
+      <input *ngIf="data.mode !== 'view'" type="file" name='file' accept="image/*" (change)="onFileSelected($event)">
+    </div>
+  </div>
+  <div mat-dialog-actions [align]="'end'" class="create-btn">
+    <button mat-raised-button color="warn"  type="button" (click)="onCancel()">{{data.mode === 'view' ? 'Close' : 'Cancel'}}</button>
+    <button *ngIf="data.mode !== 'view'" mat-raised-button color="primary" [disabled]="!iconForm.valid">
+     {{ data.mode === 'add' ? 'Create' : 'Update' }}
+    </button>
+  </div>
+</form>

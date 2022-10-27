@@ -1,4 +1,6 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { MatIconRegistry } from '@angular/material/icon';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
@@ -26,13 +28,20 @@ export class NavBarComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router,
     private store: Store,
+    private domSanitizer: DomSanitizer,
+    iconRegistry: MatIconRegistry,
   ) {
     this.selectIsMapOpen$ = this.store.select(selectIsMapOpen).subscribe((isMapOpen: boolean) => {
       this.isMapOpen = isMapOpen;
     });
+    iconRegistry.addSvgIcon('plant-tree-icon', this._setPath('/assets/icons/plant-tree-icon.svg'));
   }
 
   ngOnInit(): void { }
+
+  private _setPath(url: string): SafeResourceUrl {
+    return this.domSanitizer.bypassSecurityTrustResourceUrl(url);
+  }
 
   ngOnDestroy(): void {
     this.selectIsMapOpen$.unsubscribe();

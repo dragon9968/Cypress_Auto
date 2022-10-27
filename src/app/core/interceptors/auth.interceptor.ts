@@ -22,10 +22,16 @@ export class AuthInterceptor implements HttpInterceptor {
     req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    let authReq = req.clone({
-      url: !req.url.includes(ApiPaths.ASSETS) ? environment.apiBaseUrl + req.url : req.url,
-      headers: req.headers.set('Content-Type', 'application/json')
-    });
+    if (req.url == ApiPaths.ICONS_ADD || req.url == ApiPaths.ICONS_UPDATE) {
+      var authReq = req.clone({
+        url: !req.url.includes(ApiPaths.ASSETS) ? environment.apiBaseUrl + req.url : req.url,
+      });
+    }else {
+      var authReq = req.clone({
+        url: !req.url.includes(ApiPaths.ASSETS) ? environment.apiBaseUrl + req.url : req.url,
+        headers: req.headers.set('Content-Type', 'application/json')
+      });
+    }
     const access_token = this.authService.getAccessToken();
     const refreshToken = this.authService.getRefreshToken();
     if (authReq.url.includes(ApiPaths.REFRESH_TOKEN)) {

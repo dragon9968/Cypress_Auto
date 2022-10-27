@@ -44,6 +44,10 @@
             <mat-icon>groups</mat-icon>
             <span>Login Profiles</span>
         </button>
+        <button mat-menu-item [routerLink]="routeSegments.DEVICES + '/icon'">
+            <mat-icon svgIcon="plant-tree-icon"></mat-icon>
+            <span>Icon</span>
+        </button>
     </mat-menu>
     <a mat-button [matMenuTriggerFor]="templates" class="menu-btn">Templates</a>
     <mat-menu #templates="matMenu">

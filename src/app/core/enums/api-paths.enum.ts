@@ -6,6 +6,7 @@ export enum ApiPaths {
   GET_MAP_DATA = '/api/v1/map/get_data',
   PROJECTS = '/api/v1/project/',
   ICONS = '/api/v1/icon/',
+  ICONS_ADD = '/api/v1/icon/add_icon',
   DEVICES = '/api/v1/device/',
   DEVICE_CATEGORY = '/api/v1/device_category/',
   TEMPLATES = '/api/v1/template/',
@@ -54,5 +55,7 @@ export enum ApiPaths {
   LOGIN_CHECK = '/api/v1/server_connect/login_check',
   LOGIN_PROFILE_EXPORT_CSV = '/api/v1/loginprofile/export_csv',
   LOGIN_PROFILE_EXPORT_JSON = '/api/v1/loginprofile/export_json',
-  HARDWARE_EXPORT = '/api/v1/hardware/export/'
+  HARDWARE_EXPORT = '/api/v1/hardware/export/',
+  ICONS_UPDATE = '/api/v1/icon/update_icon/',
+  ICONS_EXPORT = '/api/v1/icon/export',
 }

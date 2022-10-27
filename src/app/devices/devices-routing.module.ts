@@ -6,6 +6,7 @@ import { DeviceTemplateComponent } from './device-template/device-template.compo
 import { HardwareComponent } from './hardware/hardware.component';
 import { LoginProfilesComponent } from './login-profiles/login-profiles.component';
 import { DeviceCategoryComponent } from "./device-category/device-category.component";
+import { IconGalleryComponent } from './icon-gallery/icon-gallery.component';
 
 const routes: Routes = [
   {
@@ -39,6 +40,13 @@ const routes: Routes = [
       {
         path: 'login_profiles',
         component: LoginProfilesComponent,
+        data: {
+          permissionLevel: PermissionLevels.USER,
+        }
+      },
+      {
+        path: 'icon',
+        component: IconGalleryComponent,
         data: {
           permissionLevel: PermissionLevels.USER,
         }

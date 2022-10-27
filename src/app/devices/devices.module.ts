@@ -11,6 +11,8 @@ import { AddEditHardwareDialogComponent } from './hardware/add-edit-hardware-dia
 import { DeviceCategoryComponent } from './device-category/device-category.component';
 import { DeviceCategoryRenderComponent } from './device-category/device-category-render/device-category-render.component';
 import { AddUpdateDeviceCategoryDialogComponent } from './device-category/add-update-device-category-dialog/add-update-device-category-dialog.component';
+import { IconGalleryComponent } from './icon-gallery/icon-gallery.component';
+import { AddEditIconDialogComponent } from './icon-gallery/add-edit-icon-dialog/add-edit-icon-dialog.component';
 
 
 @NgModule({
@@ -24,7 +26,9 @@ import { AddUpdateDeviceCategoryDialogComponent } from './device-category/add-up
     AddEditHardwareDialogComponent,
     DeviceCategoryComponent,
     DeviceCategoryRenderComponent,
-    AddUpdateDeviceCategoryDialogComponent
+    AddUpdateDeviceCategoryDialogComponent,
+    IconGalleryComponent,
+    AddEditIconDialogComponent
   ],
   imports: [
     SharedModule,

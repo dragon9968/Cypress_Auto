@@ -1,0 +1,51 @@
+<mat-card class="container">
+  <mat-card-title class="title">Icon List</mat-card-title>
+  <div class="sub-title">
+    <div class="left">
+      <button mat-raised-button color="primary" (click)="addIcon()">
+        <mat-icon>add</mat-icon>
+      </button>
+      <button mat-button [matMenuTriggerFor]="actionMenu" class="actions">Actions
+        <mat-icon>keyboard_arrow_down</mat-icon>
+      </button>
+      <mat-menu #actionMenu="matMenu">
+        <button mat-menu-item (click)="exportJson()"><mat-icon svgIcon="export-json"></mat-icon>Export as JSON</button>
+      </mat-menu>
+    </div>
+  </div>
+  <mat-card-content>
+    <div class="select-all">
+      <mat-checkbox color="primary" [(ngModel)]="checked" (change)="selectAll($event)"><strong>Select All</strong></mat-checkbox>
+    </div>
+    <mat-grid-list cols="4" rowHeight="1:1">
+      <mat-grid-tile *ngFor="let icons of listIcons;">
+        <mat-card class="icon-container">
+          <mat-checkbox class="checkbox-icons" color="primary" [checked]="checked" (change)="getId(icons, $event)"></mat-checkbox>
+          <mat-card-title>Icon</mat-card-title>
+          <mat-card-content>
+            <div style="position: relative" (click)="showIcon(icons, $event)">
+              <img [src]="ICON_PATH + icons.photo" width="80px" height="auto">
+            </div>
+          </mat-card-content>
+          <mat-card-footer>
+            <div class="name-footer">
+              <span><strong>Name</strong></span>
+              <span class="icon-name">{{ icons.name }}</span>
+              <div class="acction-icons">
+                <button mat-icon-button color="primary" (click)="showIcon(icons, $event)">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button mat-icon-button color="primary" (click)="updateIcon(icons, $event)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="primary" (click)="deleteIcon(icons, $event)">
+                  <mat-icon>delete</mat-icon>
+                </button> 
+              </div>
+            </div>
+          </mat-card-footer>
+        </mat-card>
+      </mat-grid-tile>
+    </mat-grid-list>
+  </mat-card-content>
+</mat-card>
