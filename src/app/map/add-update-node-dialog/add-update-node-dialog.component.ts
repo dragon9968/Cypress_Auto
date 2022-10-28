@@ -220,15 +220,16 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
         cyData.groups = respData.result.groups;
         cyData.icon = ICON_PATH + respData.result.icon.photo;
         this.helpers.addCYNode(this.data.cy, { newNodeData: { ...this.data.newNodeData, ...cyData }, newNodePosition: this.data.newNodePosition });
-        const configData = {
-          pk: respData.id,
-          config_ids: this.configTemplateCtr?.value.map((item: any) => item.id)
+        if (this.configTemplateCtr?.value) {
+          const configData = {
+            pk: respData.id,
+            config_ids: this.configTemplateCtr?.value.map((item: any) => item.id)
+          }
+          this.nodeService.associate(configData).subscribe(respData => { });
         }
-        this.nodeService.associate(configData).subscribe(respData => {
-          this.helpers.reloadGroupBoxes(this.data.cy);
-          this.toastr.success('Node details added!');
-          this.dialogRef.close();
-        });
+        this.helpers.reloadGroupBoxes(this.data.cy);
+        this.toastr.success('Node details added!');
+        this.dialogRef.close();
       });
     });
   }
@@ -258,17 +259,18 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
         this.iconService.get(jsonData.icon_id).subscribe(iconData => {
           ele.data('icon', ICON_PATH + iconData.result.photo);
         });
-        const configData = {
-          pk: this.data.genData.id,
-          config_ids: this.configTemplateCtr?.value.map((item: any) => item.id)
+        if (this.configTemplateCtr?.value) {
+          const configData = {
+            pk: this.data.genData.id,
+            config_ids: this.configTemplateCtr?.value?.map((item: any) => item.id)
+          }
+          this.nodeService.associate(configData).subscribe(respData => {});
         }
-        this.nodeService.associate(configData).subscribe(respData => {
-          this.helpers.reloadGroupBoxes(this.data.cy);
-          this.toastr.success('Node details updated!');
-          this.dialogRef.close();
-        });
+        this.helpers.reloadGroupBoxes(this.data.cy);
+        this.toastr.success('Node details updated!');
+        this.dialogRef.close();
         this.nodeService.getNodesByCollectionId(this.data.genData.collection_id).subscribe(response => {
-          this.store.dispatch(retrievedNode({data: response.result}));
+          this.store.dispatch(retrievedNode({ data: response.result }));
         })
       });
     });

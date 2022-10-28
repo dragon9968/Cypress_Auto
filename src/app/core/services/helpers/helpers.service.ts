@@ -447,6 +447,7 @@ export class HelpersService {
   }
 
   removeNode(node: any) {
+    node._private['data'] = {...node._private['data']};
     const data = node.data();
     if (!data.new) {
       data.deleted = true;
@@ -485,8 +486,9 @@ export class HelpersService {
     return node.remove();
   }
 
-  restoreNode(_node: any){
-    var restored = _node.restore();
+  restoreNode(node: any){
+    node._private['data'] = {...node._private['data']};
+    var restored = node.restore();
     var node = null;
     restored.forEach((ele: any) => {
         var d = ele.data()

@@ -118,10 +118,10 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
 
   private _setPropertiesCommon(data: any) {
     this.textColor = data.text_color;
-    this.textBGColor = data.text_bg_color;
-    this.textBGOpacity = data.text_bg_opacity;
-    this.vAlignSelect = data.text_valign;
-    this.hAlignSelect = data.text_halign;
+    this.textBGColor = data.text_bg_color ? data.text_bg_color : data.logical_map_style.text_bg_color;
+    this.textBGOpacity = data.text_bg_opacity != undefined ? data.text_bg_opacity : data.logical_map_style.text_bg_opacity;
+    this.vAlignSelect = data.text_valign ? data.text_valign : data.logical_map_style.text_valign;
+    this.hAlignSelect = data.text_halign ? data.text_halign : data.logical_map_style.text_halign;
   }
 
   removePx(value: any) {
