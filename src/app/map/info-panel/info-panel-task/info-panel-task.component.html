@@ -1,0 +1,25 @@
+<button mat-button class="btn-actions" [matMenuTriggerFor]="actionMenu" (click)="isClickAction = !isClickAction">
+  Actions
+  <mat-icon *ngIf="isClickAction">keyboard_arrow_down</mat-icon>
+  <mat-icon *ngIf="!isClickAction">keyboard_arrow_up</mat-icon>
+</button>
+
+<mat-menu #actionMenu="matMenu" yPosition="below">
+  <button mat-menu-item (click)="delete()">
+    <mat-icon>delete_forever</mat-icon>Delete
+  </button>
+  <button mat-menu-item (click)="rerun()">
+    <mat-icon>autorenew</mat-icon>Rerun
+  </button>
+  <button mat-menu-item (click)="revoke()">
+    <mat-icon>cancel</mat-icon>Revoke
+  </button>
+</mat-menu>
+
+<ag-grid-angular
+  class="ag-theme-alpine info-panel-task"
+  [gridOptions]="gridOptions"
+  (gridReady)="onGridReady($event)"
+  [rowData]="rowData$ | async"
+  (rowSelected)="selectedRows()">
+</ag-grid-angular>

@@ -18,5 +18,6 @@ export enum ReducerKeys {
     DOMAIN_USER = 'domainUser',
     GROUP = 'group',
     SERVER_CONNECT = 'serverConnect',
-    INTERFACE = 'interface'
+    INTERFACE = 'interface',
+    USER_TASK = 'userTask'
 }

@@ -1,7 +1,7 @@
 <button mat-icon-button color="primary" (click)="viewInfoPanel($event)">
   <mat-icon>visibility</mat-icon>
 </button>
-<button mat-icon-button color="primary" (click)="editInfoPanel()">
+<button [style.display]="tabName === 'userTask' ? 'none' : ''" mat-icon-button color="primary" (click)="editInfoPanel()">
   <mat-icon>edit</mat-icon>
 </button>
 <button mat-icon-button color="primary" (click)="deleteInfoPanel()">

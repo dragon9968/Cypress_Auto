@@ -27,7 +27,6 @@ export class InfoPanelDomainComponent implements OnInit {
 
   private gridApi!: GridApi;
   collectionId: string = '0';
-  name: string = '';
   selectDomains$ = new Subscription();
   rowsSelected: any[] = [];
   rowsSelectedId: any[] = [];
@@ -120,7 +119,6 @@ export class InfoPanelDomainComponent implements OnInit {
 
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
-    this.gridApi.sizeColumnsToFit();
   }
 
   selectedRows() {

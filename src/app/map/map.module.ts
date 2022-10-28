@@ -29,6 +29,8 @@ import { ToolPanelRemoteComponent } from './tool-panel/tool-panel-remote/tool-pa
 import { ServerConnectDialogComponent } from './tool-panel/tool-panel-remote/server-connect-dialog/server-connect-dialog.component';
 import { DomainBulkEditDialogComponent } from './bulk-edit-dialog/domain-bulk-edit-dialog/domain-bulk-edit-dialog.component';
 import { AddDomainUserDialogComponent } from './info-panel/info-panel-domain/add-domain-user-dialog/add-domain-user-dialog.component';
+import { InfoPanelTaskComponent } from './info-panel/info-panel-task/info-panel-task.component';
+import { ShowUserTaskDialogComponent } from './info-panel/info-panel-task/show-user-task-dialog/show-user-task-dialog.component';
 
 
 @NgModule({
@@ -59,7 +61,9 @@ import { AddDomainUserDialogComponent } from './info-panel/info-panel-domain/add
     ToolPanelRemoteComponent,
     ServerConnectDialogComponent,
     DomainBulkEditDialogComponent,
-    AddDomainUserDialogComponent
+    AddDomainUserDialogComponent,
+    InfoPanelTaskComponent,
+    ShowUserTaskDialogComponent
   ],
   imports: [
     MapRoutingModule,

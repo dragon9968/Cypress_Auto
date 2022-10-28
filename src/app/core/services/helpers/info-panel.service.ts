@@ -1,5 +1,5 @@
 import { Store } from "@ngrx/store";
-import { Subscription } from "rxjs";
+import { Subscription, throwError } from "rxjs";
 import { ToastrService } from "ngx-toastr";
 import { Injectable, Input } from '@angular/core';
 import { MatDialog } from "@angular/material/dialog";
@@ -8,6 +8,7 @@ import { NodeService } from "../node/node.service";
 import { InterfaceService } from "../interface/interface.service";
 import { PortGroupService } from "../portgroup/portgroup.service";
 import { DomainService } from "../domain/domain.service";
+import { UserTaskService } from "../user-task/user-task.service";
 import { DomainUserService } from "../domain-user/domain-user.service";
 import { AddUpdatePGDialogComponent } from "../../../map/add-update-pg-dialog/add-update-pg-dialog.component";
 import { AddUpdateNodeDialogComponent } from "../../../map/add-update-node-dialog/add-update-node-dialog.component";
@@ -20,6 +21,7 @@ import { selectPortGroups } from "../../../store/portgroup/portgroup.selectors";
 import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
 import { selectMapOption } from "../../../store/map-option/map-option.selectors";
 import { selectDomainUsers } from "../../../store/domain-user/domain-user.selectors";
+import { retrievedUserTasks } from "../../../store/user-task/user-task.actions";
 
 
 @Injectable({
@@ -45,6 +47,7 @@ export class InfoPanelService {
     private interfaceService: InterfaceService,
     private portGroupService: PortGroupService,
     private domainService: DomainService,
+    private userTaskService: UserTaskService,
     private domainUserService: DomainUserService
   ) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
@@ -210,4 +213,71 @@ export class InfoPanelService {
       })
     }
   }
+
+  deleteUserTask(userTaskId: number) {
+    this.userTaskService.delete(userTaskId).subscribe({
+      next: () => {
+        this.userTaskService.getAll().subscribe(data => {
+          this.store.dispatch(retrievedUserTasks({data: data.result}));
+        })
+        this.toastr.success('Deleted Row', 'Success');
+      },
+      error: error => {
+        this.toastr.error(error.error.message, 'Error');
+        throwError(error.message);
+      }
+    })
+  }
+
+  rerunTask(userTaskIds: any[]) {
+    this.userTaskService.rerunTask({pks: userTaskIds}).subscribe( {
+      next: value => {
+          this.userTaskService.getAll().subscribe(data => {
+            this.store.dispatch(retrievedUserTasks({data: data.result}));
+          })
+          value.result.map((message: string) => {
+            this.toastr.success(`Rerun task - ${message} `, 'Success');
+          })
+      },
+      error: err => {
+        this.toastr.error(err.error.message, 'Error');
+        throwError(err.message);
+      }
+    })
+  }
+
+  revokeTask(userTaskIds: any[]) {
+    this.userTaskService.revokeTask({pks: userTaskIds}).subscribe({
+      next: value => {
+        this.userTaskService.getAll().subscribe(data => {
+          this.store.dispatch(retrievedUserTasks({data: data.result}));
+        })
+        value.result.map((message: string) => {
+          this.toastr.success(`Revoke task - ${message} `, 'Success');
+        })
+      },
+      error: err => {
+        this.toastr.error('Revoke task failed', 'Error');
+        throwError(err.message);
+      }
+    })
+  }
+
+  postTask(userTaskIds: any[]) {
+    this.userTaskService.postTask({pks: userTaskIds}).subscribe({
+      next: value => {
+        this.userTaskService.getAll().subscribe(data => {
+          this.store.dispatch(retrievedUserTasks({data: data.result}));
+        })
+        value.result.map((message: string) => {
+          this.toastr.success(`Post task - ${message} `, 'Success');
+        })
+      },
+      error: err => {
+        this.toastr.error('Post task failed', 'Error');
+        throwError(err.message);
+      }
+    })
+  }
+
 }

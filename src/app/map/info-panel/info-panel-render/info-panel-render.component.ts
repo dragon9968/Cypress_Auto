@@ -1,32 +1,31 @@
 import { Store } from "@ngrx/store";
-import { Subscription } from "rxjs";
 import { MatDialog } from "@angular/material/dialog";
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Params } from "@angular/router";
-import { ICellRendererAngularComp } from "ag-grid-angular";
-import { ICellRendererParams } from "ag-grid-community";
+import { Subscription } from "rxjs";
 import { ToastrService } from "ngx-toastr";
-import { HelpersService } from "../../../core/services/helpers/helpers.service";
+import { Component, OnInit } from '@angular/core';
+import { ICellRendererParams } from "ag-grid-community";
+import { ICellRendererAngularComp } from "ag-grid-angular";
 import { NodeService } from "../../../core/services/node/node.service";
+import { GroupService } from "../../../core/services/group/group.service";
+import { DomainService } from "../../../core/services/domain/domain.service";
+import { HelpersService } from "../../../core/services/helpers/helpers.service";
+import { UserTaskService } from "../../../core/services/user-task/user-task.service";
 import { PortGroupService } from "../../../core/services/portgroup/portgroup.service";
 import { InterfaceService } from "../../../core/services/interface/interface.service";
-import { DomainUserService } from "../../../core/services/domain-user/domain-user.service";
-import { DomainService } from "../../../core/services/domain/domain.service";
-import { GroupService } from "../../../core/services/group/group.service";
 import { InfoPanelService } from "../../../core/services/helpers/info-panel.service";
+import { DomainUserService } from "../../../core/services/domain-user/domain-user.service";
 import { CMViewDetailsService } from "../../context-menu/cm-view-details/cm-view-details.service";
-import { AddUpdateNodeDialogComponent } from "../../add-update-node-dialog/add-update-node-dialog.component";
 import { AddUpdatePGDialogComponent } from "../../add-update-pg-dialog/add-update-pg-dialog.component";
+import { AddUpdateNodeDialogComponent } from "../../add-update-node-dialog/add-update-node-dialog.component";
 import { AddUpdateInterfaceDialogComponent } from "../../add-update-interface-dialog/add-update-interface-dialog.component";
 import { AddUpdateDomainDialogComponent } from "../../add-update-domain-dialog/add-update-domain-dialog.component";
 import { AddUpdateGroupDialogComponent } from "../../add-update-group-dialog/add-update-group-dialog.component";
+import { ShowUserTaskDialogComponent } from "../info-panel-task/show-user-task-dialog/show-user-task-dialog.component";
+import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { selectMapOption } from "../../../store/map-option/map-option.selectors";
 import { selectPortGroups } from "../../../store/portgroup/portgroup.selectors";
 import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
 import { selectDomainUsers } from "../../../store/domain-user/domain-user.selectors";
-import { retrievedPortGroups } from "../../../store/portgroup/portgroup.actions";
-import { retrievedNode } from "../../../store/node/node.actions";
-import { retrievedDomainUsers } from "../../../store/domain-user/domain-user.actions";
 import { retrievedGroups } from "../../../store/group/group.actions";
 
 @Component({
@@ -41,6 +40,7 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
   pg_id: any;
   domain_id: any;
   group_id: any;
+  userTaskId: any;
   collectionId: any;
   getExternalParams: (() => any) | any;
   selectMapOption$ = new Subscription();
@@ -55,7 +55,6 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
   domainUsers!: any[];
 
   constructor(
-    private route: ActivatedRoute,
     private store: Store,
     private dialog: MatDialog,
     private toastr: ToastrService,
@@ -67,7 +66,8 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
     private domainUserService: DomainUserService,
     private groupService: GroupService,
     private cmViewDetailsService: CMViewDetailsService,
-    private infoPanelService: InfoPanelService
+    private infoPanelService: InfoPanelService,
+    private userTaskService: UserTaskService
   ) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
@@ -80,18 +80,6 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
   }
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe((params: Params) => {
-      this.collectionId = params['collection_id'];
-    })
-    this.portGroupService.getByCollectionId(this.collectionId).subscribe(
-      (data: any) => this.store.dispatch(retrievedPortGroups({data: data.result}))
-    );
-    this.nodeService.getNodesByCollectionId(this.collectionId).subscribe(
-      (data: any) => this.store.dispatch(retrievedNode({data: data.result}))
-    );
-    this.selectDomainUser$ = this.domainUserService.getAll().subscribe(
-      data => this.store.dispatch(retrievedDomainUsers({data: data.result}))
-    );
   }
 
   agInit(params: ICellRendererParams): void {
@@ -121,6 +109,14 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
           genData: groupData.result
         };
         this.dialog.open(AddUpdateGroupDialogComponent, {width: '600px', data: dialogData});
+      })
+    } else if (this.userTaskId) {
+      this.userTaskService.getById(this.userTaskId).subscribe(userTaskData => {
+        const dialogData = {
+          mode: 'postTask',
+          genData: userTaskData.result
+        }
+        this.dialog.open(ShowUserTaskDialogComponent, {width: `${screen.width}px`, data: dialogData})
       })
     } else {
       this._setDataGetter(event);
@@ -188,6 +184,18 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
       this.groupService.get(this.group_id).subscribe(groupData => {
         this._deleteGroup(groupData.result);
       })
+    } else if (this.userTaskId){
+      const dialogData = {
+        title: 'User confirmation needed',
+        message: 'You sure you want to delete this item?',
+        submitButtonName: 'OK'
+      }
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
+      dialogConfirm.afterClosed().subscribe(confirm => {
+        if (confirm) {
+          this.infoPanelService.deleteUserTask(this.userTaskId);
+        }
+      })
     } else {
       this.infoPanelService.delete(params.cy, params.activeNodes, params.activePGs, params.activeEdges,
         params.activeGBs, params.deletedNodes, params.deletedInterfaces, this.tabName, this.id);
@@ -213,6 +221,8 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
       this.domain_id = this.id;
     } else if (this.tabName == 'group') {
       this.group_id = this.id;
+    } else if (this.tabName == 'userTask') {
+      this.userTaskId = this.id
     }
   }
 
