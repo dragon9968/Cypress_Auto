@@ -125,6 +125,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
     this.categoryCtr?.setValue(this.data.genData.category);
     this.disableItems(this.categoryCtr?.value);
     this.helpers.setAutoCompleteValue(this.deviceCtr, this.devices, this.data.genData.device_id);
+    this.filteredTemplates = this.templates.filter((template: any) => template.device_id == this.data.genData.device_id);
     this.helpers.setAutoCompleteValue(this.templateCtr, this.templates, this.data.genData.template_id);
     this.helpers.setAutoCompleteValue(this.hardwareCtr, this.hardwares, this.data.genData.hardware_id);
     this.folderCtr?.setValue(this.data.genData.folder);
