@@ -1,0 +1,295 @@
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Store } from '@ngrx/store';
+import { ToastrService } from 'ngx-toastr';
+import { Subscription } from 'rxjs';
+import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
+import { IconService } from 'src/app/core/services/icon/icon.service';
+import { MapPrefService } from 'src/app/core/services/map-pref/map-pref.service';
+import { retrievedIcons } from 'src/app/store/icon/icon.actions';
+import { selectIcons } from 'src/app/store/icon/icon.selectors';
+import { retrievedMapPref } from 'src/app/store/map-style/map-style.actions';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
+import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
+import { selectDefaultPreferences } from 'src/app/store/map/map.selectors';
+import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
+
+@Component({
+  selector: 'app-add-edit-mappref-dialog',
+  templateUrl: './add-edit-mappref-dialog.component.html',
+  styleUrls: ['./add-edit-mappref-dialog.component.scss']
+})
+export class AddEditMapprefDialogComponent implements OnInit, OnDestroy {
+  gbColorHtml!: SafeHtml;
+  gbDefaultHtml!: SafeHtml;
+  edgeDefaults!: SafeHtml;
+  nodeDefaults!: SafeHtml;
+  textDefaults!: SafeHtml;
+  isViewMode = false;
+  gbColor = '#000000';
+  groupBoxOpacity = 0.2;
+  gbBorderColor = '#000000';
+  pgColor = '#000000';
+  edgeColor = '#000000';
+  textColor = '#000000';
+  TextBG = '#000000';
+  mapPrefForm!: FormGroup;
+  selectIcons$ = new Subscription();
+  selectMapPref$ = new Subscription();
+  selectDefaultPreferences$ = new Subscription();
+  listDefaultMapPref: any[] = [];
+  listMapPref!: any[];
+  listIcons!: any[];
+  icon_default: any[] = [];
+  listDefaultIcons: any[] = [];
+  listGroupBoxBorder = [{value: 'solid', name: "Solid"}, 
+                        {value: 'dotted', name: "Dotted"},
+                        {value: 'dashed', name: "Dashed"}, 
+                        {value: 'double', name: "Double"}];
+  listTextHorizontalAlignment = [
+    {value: 'left', name: "Left"},
+    {value: 'center', name: "Center"}, 
+    {value: 'right', name: "Right"}
+  ];
+  listTextVerticalAlignment = [
+    {value: 'top', name: "Top"}, 
+    {value: 'center', name: "Center"}, 
+    {value: 'bottom', name: "Bottom"}
+  ];
+  listZoomSpeed = [0.10, 0.25, 0.50];
+  listEdgeArrowDirection = [
+    {value: 'both', name: "Both"}, 
+    {value: 'inbound', name: "Inbound"}, 
+    {value: 'outbound', name: "Outbound"}];
+  constructor(
+    private store: Store,
+    private iconService: IconService,
+    public helpers: HelpersService,
+    private toastr: ToastrService,
+    private mapPrefService: MapPrefService,
+    private sanitizer: DomSanitizer,
+    public dialogRef: MatDialogRef<AddEditMapprefDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+  ) {
+    this.selectMapPref$ = this.store.select(selectMapPref).subscribe((data: any) => {
+      this.listMapPref = data;
+      this.listDefaultMapPref = data.filter((el: any) => el.name === 'Default')
+    });
+    this.selectIcons$ = this.store.select(selectIcons).subscribe((data: any) => {
+      this.listIcons = data;
+    });
+    this.isViewMode = this.data.mode == 'view';
+    this.gbColor = this.listDefaultMapPref[0].group_box_color;
+    this.gbBorderColor = this.listDefaultMapPref[0].group_box_border_color;
+    this.pgColor = this.listDefaultMapPref[0].port_group_color;
+    this.edgeColor = this.listDefaultMapPref[0].edge_color;
+    this.textColor = this.listDefaultMapPref[0].text_color;
+    this.TextBG = this.listDefaultMapPref[0].text_bg_color;
+    this.mapPrefForm = new FormGroup({
+      name: new FormControl(
+        {value: '', disabled: false}, 
+        [Validators.required, validateNameExist(() => this.listMapPref, this.data.mode, this.data.genData.id)]),
+      gbOpacity: new FormControl({value: this.listDefaultMapPref[0].group_box_opacity, disabled: this.isViewMode}),
+      gbBorder: new FormControl({value: this.listDefaultMapPref[0].group_box_border, disabled: this.isViewMode}),
+      pgSizeCtr: new FormControl({value: this.listDefaultMapPref[0].port_group_size, disabled: this.isViewMode}),
+      edgeWidthCtr: new FormControl({value: this.listDefaultMapPref[0].edge_width, disabled: this.isViewMode}),
+      nodeSizeCtr: new FormControl({value: this.listDefaultMapPref[0].node_size, disabled: this.isViewMode}),
+      textSizeCtr: new FormControl({value: this.listDefaultMapPref[0].text_size, disabled: this.isViewMode}),
+      textHorizontalAlignmentCtr: new FormControl({value: this.listDefaultMapPref[0].text_halign, disabled: this.isViewMode}),
+      textVerticalAlignmentCtr: new FormControl({value: this.listDefaultMapPref[0].text_valign, disabled: this.isViewMode}),
+      textBgOpacityCtr: new FormControl({value: this.listDefaultMapPref[0].text_bg_opacity, disabled: this.isViewMode}),
+      mapGridCtr: new FormControl({value: false, disabled: this.isViewMode}),
+      snapToGridCtr: new FormControl({value: false, disabled: this.isViewMode}),
+      gridSpacingCtr: new FormControl({value: this.listDefaultMapPref[0].grid_spacing, disabled: this.isViewMode}),
+      zoomSpeedCtr: new FormControl({value: 0.1, disabled: this.isViewMode}),
+      defaultIconCtr: new FormControl({value: this.icon_default[0] , disabled: false}),
+      edgeArrowDirectionCtr: new FormControl({value: this.listDefaultMapPref[0].edge_arrow_direction, disabled: this.isViewMode}),
+      edgeArrowSizeCtr: new FormControl({value: this.listDefaultMapPref[0].edge_arrow_size, disabled: this.isViewMode}),
+    });
+    if ((data.mode === 'update')) {
+      this.listIcons = this.data.genIcon
+      const icon = this.listIcons.filter(i => i.name === this.data.genData.default_icon)
+      this.name?.setValue(this.data.genData.name);
+      this.gbColor = this.data.genData.group_box_color;
+      this.gbOpacity?.setValue(this.data.genData.group_box_opacity);
+      this.gbBorder?.setValue(this.data.genData.group_box_border);
+      this.gbBorderColor = this.data.genData.group_box_border_color;
+      this.pgColor = this.data.genData.port_group_color;
+      this.pgSizeCtr?.setValue(this.data.genData.port_group_size);
+      this.edgeColor = this.data.genData.edge_color;
+      this.edgeWidthCtr?.setValue(this.data.genData.edge_width);
+      this.nodeSizeCtr?.setValue(this.data.genData.node_size);
+      this.textSizeCtr?.setValue(this.data.genData.text_size);
+      this.textColor = this.data.genData.text_color;
+      this.textHorizontalAlignmentCtr?.setValue(this.data.genData.text_halign);
+      this.textVerticalAlignmentCtr?.setValue(this.data.genData.text_valign);
+      this.TextBG = this.data.genData.text_bg_color;
+      this.textBgOpacityCtr?.setValue(this.data.genData.text_bg_opacity);
+      this.zoomSpeedCtr?.setValue(this.data.genData.zoom_speed);
+      this.defaultIconCtr?.setValue(icon[0]);
+      this.edgeArrowDirectionCtr?.setValue(this.data.genData.edge_arrow_direction);
+      this.edgeArrowSizeCtr?.setValue(this.data.genData.edge_arrow_size);
+      this.mapGridCtr?.setValue(this.data.genData.grid_enabled);
+      this.snapToGridCtr?.setValue(this.data.genData.grid_snap);
+      this.gridSpacingCtr?.setValue(this.data.genData.grid_spacing);
+    }
+    else if (data.mode == 'view') {
+      this.name?.setValue(this.data.genData.name);
+      this.gbColorHtml = this.sanitizer.bypassSecurityTrustHtml(this.data.genData.group_box_defaults);
+      this.gbDefaultHtml = this.sanitizer.bypassSecurityTrustHtml(this.data.genData.port_group_defaults);
+      this.edgeDefaults = this.sanitizer.bypassSecurityTrustHtml(this.data.genData.edge_defaults);
+      this.nodeDefaults = this.sanitizer.bypassSecurityTrustHtml(this.data.genData.node_defaults);
+      this.textDefaults = this.sanitizer.bypassSecurityTrustHtml(this.data.genData.text_defaults);
+      this.zoomSpeedCtr?.setValue(this.data.genData.zoom_speed);
+      this.defaultIconCtr?.setValue(this.data.genData.default_icon);
+    }else {
+      this.defaultIconCtr?.setValue(this.data.genIcon[0]);
+    }
+   }
+  
+  get name() { return this.mapPrefForm.get('name');}
+  get gbColorCtr() { return this.mapPrefForm.get('gbColorCtr');}
+  get gbOpacity() { return this.mapPrefForm.get('gbOpacity');}
+  get gbBorder() { return this.mapPrefForm.get('gbBorder');}
+  get pgSizeCtr() {return this.mapPrefForm.get('pgSizeCtr');}
+  get edgeWidthCtr() {return this.mapPrefForm.get('edgeWidthCtr');}
+  get nodeSizeCtr() {return this.mapPrefForm.get('nodeSizeCtr');}
+  get textSizeCtr() {return this.mapPrefForm.get('textSizeCtr');}
+  get textHorizontalAlignmentCtr() {return this.mapPrefForm.get('textHorizontalAlignmentCtr');}
+  get textVerticalAlignmentCtr() { return this.mapPrefForm.get('textVerticalAlignmentCtr'); }
+  get textBgOpacityCtr() {return this.mapPrefForm.get('textBgOpacityCtr');}
+  get zoomSpeedCtr() {return this.mapPrefForm.get('zoomSpeedCtr');}
+  get defaultIconCtr() {return this.mapPrefForm.get('defaultIconCtr');}
+  get edgeArrowDirectionCtr() {return this.mapPrefForm.get('edgeArrowDirectionCtr')}
+  get edgeArrowSizeCtr() {return this.mapPrefForm.get('edgeArrowSizeCtr')}
+  get mapGridCtr() {return this.mapPrefForm.get('mapGridCtr')}
+  get snapToGridCtr() {return this.mapPrefForm.get('snapToGridCtr')}
+  get gridSpacingCtr() {return this.mapPrefForm.get('gridSpacingCtr')}
+
+  ngOnInit(): void {
+    this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPref({data: data.result})));
+    this.iconService.getAll().subscribe((data: any) => this.store.dispatch(retrievedIcons({data: data.result})));
+  }
+
+  ngOnDestroy(): void {
+    this.selectMapPref$.unsubscribe();
+    this.selectIcons$.unsubscribe();
+  }
+
+  onCancel() {
+    this.dialogRef.close();
+  }
+
+  addMapPref() {
+    const jsonData = {
+      name: this.name?.value,
+      preferences: {
+        group_box_color: this.gbColor,
+        group_box_opacity: this.gbOpacity?.value,
+        group_box_border: this.gbBorder?.value,
+        group_box_border_color: this.gbBorderColor,
+        port_group_color: this.pgColor,
+        port_group_size: this.pgSizeCtr?.value,
+        edge_color: this.edgeColor,
+        edge_width: this.edgeWidthCtr?.value,
+        node_size: this.nodeSizeCtr?.value,
+        text_size: this.textSizeCtr?.value,
+        text_color: this.textColor,
+        text_halign: this.textHorizontalAlignmentCtr?.value,
+        text_valign: this.textVerticalAlignmentCtr?.value,
+        text_bg_color: this.TextBG,
+        text_bg_opacity: this.textBgOpacityCtr?.value,
+        grid_enabled: this.mapGridCtr?.value,
+        grid_spacing: this.gridSpacingCtr?.value,
+        grid_snap: this.snapToGridCtr?.value,
+        zoom_speed: this.zoomSpeedCtr?.value,
+        default_icon: this.defaultIconCtr?.value.name,
+        edge_arrow_direction: this.edgeArrowDirectionCtr?.value,
+        edge_arrow_size: this.edgeArrowSizeCtr?.value,
+      },
+      
+    }
+    this.mapPrefService.add(jsonData).subscribe({
+      next:(rest) => {
+        this.toastr.success(`Added Preferences ${rest.result.name} successfully`)
+        this.dialogRef.close();
+        this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPref({data: data.result})));
+      },
+      error:(err) => {
+        this.toastr.error("Add Preferences error")
+      }
+    })
+  }
+
+  updateMapPref() {
+    const jsonData = {
+      name: this.name?.value,
+      preferences: {
+        group_box_color: this.gbColor,
+        group_box_opacity: this.gbOpacity?.value,
+        group_box_border: this.gbBorder?.value,
+        group_box_border_color: this.gbBorderColor,
+        port_group_color: this.pgColor,
+        port_group_size: this.pgSizeCtr?.value,
+        edge_color: this.edgeColor,
+        edge_width: this.edgeWidthCtr?.value,
+        node_size: this.nodeSizeCtr?.value,
+        text_size: this.textSizeCtr?.value,
+        text_color: this.textColor,
+        text_halign: this.textHorizontalAlignmentCtr?.value,
+        text_valign: this.textVerticalAlignmentCtr?.value,
+        text_bg_color: this.TextBG,
+        text_bg_opacity: this.textBgOpacityCtr?.value,
+        grid_enabled: this.mapGridCtr?.value,
+        grid_spacing: this.gridSpacingCtr?.value,
+        grid_snap: this.snapToGridCtr?.value,
+        zoom_speed: this.zoomSpeedCtr?.value,
+        default_icon: this.defaultIconCtr?.value.name,
+        edge_arrow_direction: this.edgeArrowDirectionCtr?.value,
+        edge_arrow_size: this.edgeArrowSizeCtr?.value,
+      },
+    }
+    this.mapPrefService.update(this.data.genData.id, jsonData).subscribe({
+      next:(rest) => {
+        this.toastr.success(`Updated Preferences ${rest.result.name} successfully`);
+        this.dialogRef.close();
+        this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPref({data: data.result})));
+      },
+      error:(err) => {
+        this.toastr.success(`Error while update Preferences`);
+        this.dialogRef.close();
+      }
+    })
+  }
+
+  setGbColor(event: any) {
+    this.gbColor = event;
+}
+  
+  setGroupBoxOpacity(event:any) {
+    this.groupBoxOpacity = event;
+  }
+
+  setGbBorderColor(event: any) {
+    this.gbBorderColor = event;
+  }
+
+  setPgColor(event: any) {
+    this.pgColor = event;
+  }
+
+  setEdgeColor (event: any) {
+    this.edgeColor = event;
+  }
+  
+  setTextColor(event: any) {
+    this.textColor = event;
+  }
+
+  setTextBG(event: any) {
+    this.TextBG = event;
+  }
+
+}

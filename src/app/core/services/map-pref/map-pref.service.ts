@@ -18,4 +18,19 @@ export class MapPrefService {
     return this.http.get<any>(ApiPaths.MAP_PREF + id);
   }
 
+  add(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.MAP_PREF, data)
+  }
+
+  update(id: string, data: any): Observable<any> {
+    return this.http.put<any>(ApiPaths.MAP_PREF + id, data);
+  }
+
+  delete(id: string): Observable<any> {
+    return this.http.delete<any>(ApiPaths.MAP_PREF + id)
+  }
+
+  export(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.MAP_PREF_EXPORT, data)
+  }
 }

@@ -43,7 +43,6 @@ export class ActionsRenderHardwareComponent implements ICellRendererAngularComp 
         data: dialogData
       });
     })
-
   }
 
   updateHardware() {

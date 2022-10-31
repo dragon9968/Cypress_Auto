@@ -62,4 +62,5 @@ export enum ApiPaths {
   HARDWARE_EXPORT = '/api/v1/hardware/export/',
   ICONS_UPDATE = '/api/v1/icon/update_icon/',
   ICONS_EXPORT = '/api/v1/icon/export',
+  MAP_PREF_EXPORT = '/api/v1/mappref/export'
 }

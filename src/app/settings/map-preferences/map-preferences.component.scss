@@ -1,0 +1,32 @@
+.map-pre-table {
+  height: calc(100vh - 220px);
+}
+.content {
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.mappre-title {
+  text-align: center;
+  font-weight: 600;
+  font-size: 28px;
+}
+
+.sub-title {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 20px;
+}
+
+.search {
+  width: 250px;
+  height: 100%;
+  border: 2px solid #a9a9a9;
+  border-radius: 5px;
+}
+
+.actions {
+  border: 1px solid #a9a9a9;
+  margin-left: 15px;
+}

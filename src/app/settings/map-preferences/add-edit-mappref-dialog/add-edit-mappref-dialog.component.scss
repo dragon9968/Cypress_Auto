@@ -1,0 +1,37 @@
+.field {
+  width: 100%;
+}
+
+.slider {
+  margin: 0;
+  padding: 0;
+}
+
+.color-picker {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  z-index: 1;
+  &.mat-mini-fab {
+    position: relative;
+  }
+}
+
+.tab-field {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  
+}
+
+.label {
+  width: 50%;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.checkbox {
+  padding-bottom: 20px;
+  display: flex;
+  align-items: center;
+}
+
