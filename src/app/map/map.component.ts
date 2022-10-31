@@ -58,6 +58,7 @@ import { retrievedVMStatus } from "../store/project/project.actions";
 import { ICON_PATH } from '../shared/contants/icon-path.constant';
 import { InfoPanelService } from '../core/services/helpers/info-panel.service';
 import { retrievedInterfacesByIds } from "../store/interface/interface.actions";
+import { retrievedMapSelection } from '../store/map-selection/map-selection.actions';
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -415,8 +416,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
     this._showContextMenu();
-    // this._tool_panel.update_components();
-    // this._info_panel.add_update_rows(dataList);
+    this.store.dispatch(retrievedMapSelection({ data: true }));
   }
 
   private _selectEdge($event: any) {
@@ -432,8 +432,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
     this._showContextMenu();
-    // this._tool_panel.update_components();
-    // this._info_panel.add_update_rows(dataList);
+    this.store.dispatch(retrievedMapSelection({ data: true }));
   }
 
   private _unselectNode($event: any) {
@@ -462,7 +461,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
         this.activeNodes.splice(index, 1);
       }
     }
-    // this._tool_panel.update_components();
   }
 
   private _unselectEdge($event: any) {
@@ -471,7 +469,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       const index = this.activeEdges.indexOf(t);
       this.activeEdges.splice(index, 1);
     }
-    // this._tool_panel.update_components();
   }
 
   private _boxStart(_$event: any) {
@@ -509,7 +506,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.isSelectedProcessed = true;
     this.isBoxSelecting = false;
-    // this._tool_panel.update_components();
     // this._info_panel.add_update_rows(dataList);
   }
 

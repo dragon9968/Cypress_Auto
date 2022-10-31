@@ -1,10 +1,9 @@
 import { MatDialog } from "@angular/material/dialog";
 import { catchError } from "rxjs/operators";
-import { DomSanitizer } from "@angular/platform-browser";
 import { ToastrService } from "ngx-toastr";
 import { MatIconRegistry } from "@angular/material/icon";
 import { forkJoin, map, Subscription, throwError } from "rxjs";
-import { Component, DoCheck, Input } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
 import { NodeService } from "../../../core/services/node/node.service";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
@@ -12,16 +11,17 @@ import { InfoPanelService } from "../../../core/services/helpers/info-panel.serv
 import { InfoPanelRenderComponent } from "../info-panel-render/info-panel-render.component";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { Store } from "@ngrx/store";
-import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
 import { ICON_PATH } from "../../../shared/contants/icon-path.constant";
 import { InterfaceService } from "../../../core/services/interface/interface.service";
+import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
+import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
 
 @Component({
   selector: 'app-info-panel-node',
   templateUrl: './info-panel-node.component.html',
   styleUrls: ['./info-panel-node.component.scss']
 })
-export class InfoPanelNodeComponent implements DoCheck {
+export class InfoPanelNodeComponent {
 
   @Input() cy: any;
   @Input() activeNodes: any[] = [];
@@ -31,16 +31,16 @@ export class InfoPanelNodeComponent implements DoCheck {
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterfaces: any[] = [];
   private gridApi!: GridApi;
-  private activeNodeOld?: string;
   rowsSelected: any[] = [];
   rowsSelectedId: any[] = [];
   isClickAction: boolean = true;
   tabName = 'node';
-  nodes: any[] = [];
-  selectedNodes$ = new Subscription();
+  selectIsSelectedNodes$ = new Subscription();
 
   private _setNodeInfoPanel(activeNodes: any[]) {
     if (activeNodes.length === 0) {
+      this.rowsSelected = [];
+      this.rowsSelectedId = [];
       if (this.gridApi != null) {
         this.gridApi.setRowData([]);
       }
@@ -78,7 +78,7 @@ export class InfoPanelNodeComponent implements DoCheck {
             }
           })
         }
-      })
+      });
     }
   }
 
@@ -193,7 +193,6 @@ export class InfoPanelNodeComponent implements DoCheck {
     private store: Store,
     private dialog: MatDialog,
     private toastr: ToastrService,
-    private domSanitizer: DomSanitizer,
     iconRegistry: MatIconRegistry,
     private nodeService: NodeService,
     private helpers: HelpersService,
@@ -202,25 +201,12 @@ export class InfoPanelNodeComponent implements DoCheck {
   ) {
     iconRegistry.addSvgIcon('export-csv', this.helpers.setIconPath('/assets/icons/export-csv.svg'));
     iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
-    this.selectedNodes$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => {
-      if (nodes) {
-        this.nodes = nodes;
+    this.selectIsSelectedNodes$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
+      if (mapSelection) {
+        this._setNodeInfoPanel(this.activeNodes);
+        this.store.dispatch(retrievedMapSelection({ data: false }));
       }
     });
-  }
-
-  ngDoCheck(): void {
-    if (this.activeNodes.length == 0) {
-      this.rowsSelected = [];
-      this.rowsSelectedId = [];
-    }
-    const activeNodeIds = this.activeNodes.map(ele => ele.data('node_id'));
-    const data = this.nodes.filter(ele => activeNodeIds.includes(ele.id));
-    const stringNodeData = JSON.stringify(data);
-    if (this.activeNodeOld !== stringNodeData) {
-      this.activeNodeOld = stringNodeData;
-      this._setNodeInfoPanel(this.activeNodes);
-    }
   }
 
   onGridReady(params: GridReadyEvent) {
@@ -259,7 +245,7 @@ export class InfoPanelNodeComponent implements DoCheck {
             newNodeIds.map((id: any) => {
               this.nodeService.get(id).subscribe(nodeData => {
                 const cyData = nodeData.result;
-                const newNodePosition = {x: cyData.logical_map_position.x, y: cyData.logical_map_position.y};
+                const newNodePosition = { x: cyData.logical_map_position.x, y: cyData.logical_map_position.y };
                 const icon_src = ICON_PATH + cyData.icon.photo;
                 const newNodeData = {
                   "elem_category": "node",
@@ -281,7 +267,7 @@ export class InfoPanelNodeComponent implements DoCheck {
                 cyData.groups = nodeData.result.groups;
                 cyData.icon = icon_src;
                 this.helpers.addCYNode(this.cy, {
-                  newNodeData: {...newNodeData, ...cyData},
+                  newNodeData: { ...newNodeData, ...cyData },
                   newNodePosition: newNodePosition
                 });
                 this.helpers.reloadGroupBoxes(this.cy);
@@ -314,7 +300,7 @@ export class InfoPanelNodeComponent implements DoCheck {
                         color: logicalMapStyle.color,
                         width: logicalMapStyle.width,
                       }
-                      this.helpers.addCYEdge(this.cy, {...newEdgeData, ...cyData});
+                      this.helpers.addCYEdge(this.cy, { ...newEdgeData, ...cyData });
                     }
                   })
                 });
@@ -338,7 +324,7 @@ export class InfoPanelNodeComponent implements DoCheck {
         message: 'Delete node(s) from this project?',
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '450px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
           if (this.rowsSelected.length === 0) {
@@ -377,9 +363,9 @@ export class InfoPanelNodeComponent implements DoCheck {
       let file = new Blob();
       this.nodeService.export(format, jsonData).subscribe(response => {
         if (format === 'json') {
-          file = new Blob([JSON.stringify(response, null, 4)], {type: 'application/json'});
+          file = new Blob([JSON.stringify(response, null, 4)], { type: 'application/json' });
         } else if (format === 'csv') {
-          file = new Blob([response], {type: 'text/csv;charset=utf-8;'});
+          file = new Blob([response], { type: 'text/csv;charset=utf-8;' });
         }
         this.helpers.downloadBlob(fileName, file);
         this.toastr.success(`Exported node as ${format.toUpperCase()} file successfully`);
@@ -392,7 +378,7 @@ export class InfoPanelNodeComponent implements DoCheck {
       this.toastr.info('No row selected');
     } else {
       const pks = this.rowsSelectedId;
-      this.nodeService.validate({pks}).pipe(
+      this.nodeService.validate({ pks }).pipe(
         catchError((e: any) => {
           this.toastr.error(e.error.message);
           return throwError(() => e);

@@ -19,5 +19,6 @@ export enum ReducerKeys {
     GROUP = 'group',
     SERVER_CONNECT = 'serverConnect',
     INTERFACE = 'interface',
-    USER_TASK = 'userTask'
+    USER_TASK = 'userTask',
+    MAP_SELECTION = 'mapSelection'
 }

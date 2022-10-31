@@ -4,23 +4,25 @@ import { catchError } from "rxjs/operators";
 import { MatDialog } from "@angular/material/dialog";
 import { MatIconRegistry } from "@angular/material/icon";
 import { forkJoin, map, Subscription, throwError } from "rxjs";
-import { Component, DoCheck, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { InfoPanelService } from "../../../core/services/helpers/info-panel.service";
 import { InterfaceService } from "../../../core/services/interface/interface.service";
 import { InfoPanelRenderComponent } from "../info-panel-render/info-panel-render.component";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
-import { selectInterfaceByIds } from "../../../store/interface/interface.selectors";
 import { selectInterfaces } from "../../../store/map/map.selectors";
 import { retrievedInterfacesByIds } from "../../../store/interface/interface.actions";
+import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
+import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
+import { selectInterfaceByIds } from "src/app/store/interface/interface.selectors";
 
 @Component({
   selector: 'app-info-panel-interface',
   templateUrl: './info-panel-interface.component.html',
   styleUrls: ['./info-panel-interface.component.scss']
 })
-export class InfoPanelInterfaceComponent implements OnInit, DoCheck {
+export class InfoPanelInterfaceComponent {
 
   @Input() cy: any;
   @Input() activeNodes: any[] = [];
@@ -30,14 +32,11 @@ export class InfoPanelInterfaceComponent implements OnInit, DoCheck {
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterfaces: any[] = [];
   private gridApi!: GridApi;
-  private activeEdgeOld?: string;
   rowsSelected: any[] = [];
   rowsSelectedId: any[] = [];
   isClickAction = false;
   tabName = 'edge';
-  edgesData: any[] = [];
-  interfaces: any[] = [];
-  selectInterfacesByIds$ = new Subscription();
+  selectIsSelectedNodes$ = new Subscription();
 
   public gridOptions: GridOptions = {
     headerHeight: 48,
@@ -151,28 +150,12 @@ export class InfoPanelInterfaceComponent implements OnInit, DoCheck {
     private infoPanelService: InfoPanelService
   ) {
     this.iconRegistry.addSvgIcon('randomize-subnet', this.helpers.setIconPath('/assets/icons/randomize-subnet.svg'));
-    this.selectInterfacesByIds$ = this.store.select(selectInterfaceByIds).subscribe(interfaces => {
-      if (interfaces) {
-        this.interfaces = interfaces;
+    this.selectIsSelectedNodes$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
+      if (mapSelection) {
+        this._setEdgeInfoPanel(this.activeEdges);
+        this.store.dispatch(retrievedMapSelection({ data: false }));
       }
     });
-  }
-
-  ngOnInit(): void {
-  }
-
-  ngDoCheck(): void {
-    const activeEdgesIds = this.activeEdges.map(ele => +ele.data('id'));
-    const data = this.interfaces.filter(ele => activeEdgesIds.includes(ele.id));
-    const stringEdgeData = JSON.stringify(data);
-    if (this.activeEdgeOld !== stringEdgeData) {
-      this.activeEdgeOld = stringEdgeData;
-      this._setEdgeInfoPanel(this.activeEdges);
-    }
-    if (this.activeEdges.length == 0) {
-      this.rowsSelected = [];
-      this.rowsSelectedId = [];
-    }
   }
 
   onGridReady(params: GridReadyEvent) {
@@ -182,6 +165,8 @@ export class InfoPanelInterfaceComponent implements OnInit, DoCheck {
 
   private _setEdgeInfoPanel(activeEdges: any[]) {
     if (this.activeEdges.length === 0) {
+      this.rowsSelected = [];
+      this.rowsSelectedId = [];
       if (this.gridApi != null) {
         this.gridApi.setRowData([]);
       }
@@ -218,7 +203,7 @@ export class InfoPanelInterfaceComponent implements OnInit, DoCheck {
             }
           })
         }
-      })
+      });
     }
   }
 

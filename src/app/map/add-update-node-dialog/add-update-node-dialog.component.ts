@@ -280,9 +280,6 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
         this.helpers.reloadGroupBoxes(this.data.cy);
         this.toastr.success('Node details updated!');
         this.dialogRef.close();
-        this.nodeService.getNodesByCollectionId(this.data.genData.collection_id).subscribe(response => {
-          this.store.dispatch(retrievedNode({ data: response.result }));
-        })
       });
     });
   }

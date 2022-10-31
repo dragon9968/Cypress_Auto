@@ -1,23 +1,26 @@
 import { ToastrService } from "ngx-toastr";
 import { catchError } from "rxjs/operators";
-import { forkJoin, map, throwError } from "rxjs";
+import { forkJoin, map, Subscription, throwError } from "rxjs";
 import { MatDialog } from "@angular/material/dialog";
 import { MatIconRegistry } from "@angular/material/icon";
 import { ActivatedRoute, Params } from "@angular/router";
-import { Component, DoCheck, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { PortGroupService } from "../../../core/services/portgroup/portgroup.service";
 import { InfoPanelService } from "../../../core/services/helpers/info-panel.service";
 import { InfoPanelRenderComponent } from "../info-panel-render/info-panel-render.component";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
+import { Store } from "@ngrx/store";
+import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
+import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 
 @Component({
   selector: 'app-info-panel-port-group',
   templateUrl: './info-panel-port-group.component.html',
   styleUrls: ['./info-panel-port-group.component.scss']
 })
-export class InfoPanelPortGroupComponent implements OnInit, DoCheck {
+export class InfoPanelPortGroupComponent implements OnInit {
 
   @Input() cy: any;
   @Input() activeNodes: any[] = [];
@@ -27,14 +30,15 @@ export class InfoPanelPortGroupComponent implements OnInit, DoCheck {
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterfaces: any[] = [];
   private gridApi!: GridApi;
-  private activePGOld?: string;
   rowsSelected: any[] = [];
   rowsSelectedId: any[] = [];
   isClickAction = false;
   tabName = 'portGroup';
   collectionId = '0';
+  selectIsSelectedNodes$ = new Subscription();
 
   constructor(
+    private store: Store,
     private dialog: MatDialog,
     private toastr: ToastrService,
     private route: ActivatedRoute,
@@ -44,6 +48,12 @@ export class InfoPanelPortGroupComponent implements OnInit, DoCheck {
     private infoPanelService: InfoPanelService
   ) {
     this.iconRegistry.addSvgIcon('randomize-subnet', this.helpers.setIconPath('/assets/icons/randomize-subnet.svg'));
+    this.selectIsSelectedNodes$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
+      if (mapSelection) {
+        this._setPGInfoPanel(this.activePGs);
+        this.store.dispatch(retrievedMapSelection({ data: false }));
+      }
+    });
   }
 
 
@@ -137,19 +147,6 @@ export class InfoPanelPortGroupComponent implements OnInit, DoCheck {
     ]
   };
 
-  ngDoCheck(): void {
-    const data = this.activePGs.map(ele => ele.data());
-    const stringPGData = JSON.stringify(data);
-    if (this.activePGOld !== stringPGData) {
-      this.activePGOld = stringPGData;
-      this._setPGInfoPanel(this.activePGs);
-    }
-    if (this.activePGs.length == 0) {
-      this.rowsSelected = [];
-      this.rowsSelectedId = [];
-    }
-  }
-
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
     this.gridApi.sizeColumnsToFit();
@@ -157,6 +154,8 @@ export class InfoPanelPortGroupComponent implements OnInit, DoCheck {
 
   private _setPGInfoPanel(activePGs: any[]) {
     if (activePGs.length === 0) {
+      this.rowsSelected = [];
+      this.rowsSelectedId = [];
       if (this.gridApi != null) {
         this.gridApi.setRowData([]);
       }
@@ -184,7 +183,7 @@ export class InfoPanelPortGroupComponent implements OnInit, DoCheck {
         if (this.gridApi != null) {
           this.gridApi.setRowData(rowData);
         }
-      })
+      });
     }
   }
 

@@ -20,6 +20,7 @@ import { serverConnect } from "./server-connect/server-connect.reducer";
 import { interfaceReducerByIds } from "./interface/interface.reducer";
 import { deviceCategoryReducer } from "./device-category/device-category.reducer";
 import { userTaskReducer } from "./user-task/user-task.reducer";
+import { mapSelectionReducer } from "./map-selection/map-selection.reducer";
 
 export const reducers = {
     [ReducerKeys.MAP]: mapReducer,
@@ -42,5 +43,6 @@ export const reducers = {
     [ReducerKeys.GROUP]: groupReducer,
     [ReducerKeys.SERVER_CONNECT]: serverConnect,
     [ReducerKeys.INTERFACE]: interfaceReducerByIds,
-    [ReducerKeys.USER_TASK]: userTaskReducer
+    [ReducerKeys.USER_TASK]: userTaskReducer,
+    [ReducerKeys.MAP_SELECTION]: mapSelectionReducer,
 }
