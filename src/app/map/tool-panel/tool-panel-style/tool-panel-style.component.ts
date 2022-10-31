@@ -35,11 +35,13 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
   pgSize = 20;
   gbColor = '#00DCFF';
   gbOpacity = 0.0;
+  gbOpacityLabel = 0;
   gbBorderColor = '#CCCCCC';
   textSize = 25;
   textColor = '#000000';
   textBGColor = '#000000';
   textBGOpacity = 0.0;
+  textBGOpacityLabel = 0;
   selectDefaultPreferences$ = new Subscription();
   selectMapPref$ = new Subscription();
   isHideNode: boolean = true;
@@ -244,6 +246,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
 
   setTextBGOpacity(opacity: any) {
     this.textBGOpacity = opacity.value;
+    this.textBGOpacityLabel = Math.round(opacity.value*100);
     this.commonService.textBGOpacity(
       opacity,
       this.activeNodes,
@@ -313,6 +316,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
 
   setGBOpacity(event: any) {
     this.gbOpacity = event.value;
+    this.gbOpacityLabel = Math.round(event.value*100);
     this.commonService.gbOpacity(event, this.activeGBs);
   }
 
