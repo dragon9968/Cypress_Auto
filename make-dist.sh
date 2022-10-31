@@ -50,8 +50,8 @@ else
     cp docker-compose-prod.yml $distfolder/docker-compose-frontend.yml
 fi
 
-echo "creating dist tar: $distbasefolder/dist_front_$devBuild_$distver.tgz"
 if [ "$backenddist" == "frontend" ]; then
+    echo "creating dist tar: $distbasefolder/dist_front_$devBuild_$distver.tgz"
     cd $distbasefolder
     tar czf dist_front_$devBuild_$distver.tgz $backenddist
     cd - > /dev/null
