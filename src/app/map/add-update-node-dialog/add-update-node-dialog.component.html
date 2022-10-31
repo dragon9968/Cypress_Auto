@@ -37,7 +37,7 @@
     <mat-form-field class="field">
       <mat-label>Device</mat-label>
       <input matInput type="text" placeholder="Select a device" formControlName="deviceCtr"
-        [matAutocomplete]="autoDevice" [readonly]="isViewMode">
+        [matAutocomplete]="autoDevice" [readonly]="isViewMode" (change)="changeDevice()">
       <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="helpers.optionDisplay"
         (optionSelected)="selectDevice($event)">
         <mat-option *ngFor="let option of devices" [value]="option">

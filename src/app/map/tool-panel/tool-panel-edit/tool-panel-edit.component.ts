@@ -76,15 +76,30 @@ export class ToolPanelEditComponent implements OnDestroy {
     ];
   }
 
+  ngOnInit(): void {
+    this.templateCtr.disable();
+  }
+
   ngOnDestroy(): void {
     this.selectDevices$.unsubscribe();
     this.selectTemplates$.unsubscribe();
     this.selectMapOption$.unsubscribe();
   }
 
+  changeDevice() {
+    this.filteredTemplates = this.templates.filter(template => template.device.name == this.deviceCtr.value);
+    this.templateCtr.setValue('');
+    if (this.filteredTemplates.length > 0) {
+      this.templateCtr.enable();
+    } else {
+      this.templateCtr.disable();
+    }
+  }
+
   selectDevice($event: MatAutocompleteSelectedEvent) {
     this.filteredTemplates = this.templates.filter(template => template.device_id == $event.option.value.id);
     this.templateCtr.setValue('');
+    this.templateCtr.enable();
   }
 
   addNode() {

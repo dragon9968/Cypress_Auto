@@ -169,6 +169,16 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
     this.disableItems($event.value);
   }
 
+  changeDevice() {
+    this.filteredTemplates = this.templates.filter(template => template.device.name == this.deviceCtr?.value);
+    this.templateCtr?.setValue('');
+    if (this.filteredTemplates.length > 0) {
+      this.templateCtr?.enable();
+    } else {
+      this.templateCtr?.disable();
+    }
+  }
+
   selectDevice($event: MatAutocompleteSelectedEvent) {
     this.filteredTemplates = this.templates.filter((template: any) => template.device_id == $event.option.value.id);
     this.templateCtr?.setValue('');
