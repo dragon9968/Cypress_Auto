@@ -21,6 +21,7 @@ import { selectDomains } from "../../../store/domain/domain.selectors";
 import { selectConfigTemplates } from "../../../store/config-template/config-template.selectors";
 import { selectLoginProfiles } from "../../../store/login-profile/login-profile.selectors";
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
+import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 
 @Component({
   selector: 'app-node-bulk-edit-dialog',
@@ -129,36 +130,26 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
     }
     this.nodeService.editBulk(jsonData).subscribe(response => {
       this.data.genData.ids.map((nodeId: any) => {
-        const ele = this.data.cy.getElementById('node-' + nodeId);
         this.nodeService.get(nodeId).subscribe(nodeData => {
+          const ele = this.data.cy.getElementById('node-' + nodeId);
           ele.data('groups', nodeData.result.groups);
-          if (jsonData.icon_id) {
-            this.iconService.get(jsonData.icon_id).subscribe(iconData => {
-              ele.data('icon', ICON_PATH + iconData.result.photo);
-            })
-          }
+          ele.data('icon', ICON_PATH + nodeData.result.icon.photo);
           if (this.configTemplateCtr?.value) {
             const configData = {
               pk: nodeData.id,
               config_ids: this.configTemplateCtr?.value.map((item: any) => item.id)
             }
-            this.nodeService.associate(configData).pipe(
-              catchError((error: any) => {
-                this.toastr.error(error.message, 'Error')
-                return throwError(error.message)
-              })
-            ).subscribe(() => {
-              this.helpers.reloadGroupBoxes(this.data.cy);
-            })
+            this.nodeService.associate(configData).subscribe(respData => {
+              this.store.dispatch(retrievedMapSelection({ data: true }));
+            });
           }
-          this.nodeService.getNodesByCollectionId(this.collectionId).subscribe(response => {
-            this.store.dispatch(retrievedNode({data: response.result}));
-          })
-        })
-      })
+        });
+      });
+      this.helpers.reloadGroupBoxes(this.data.cy);
       this.toastr.success(response.message, 'Success');
       this.dialogRef.close();
-    })
+      this.store.dispatch(retrievedMapSelection({ data: true }));
+    });
   }
 
   selectDevice($event: MatAutocompleteSelectedEvent) {

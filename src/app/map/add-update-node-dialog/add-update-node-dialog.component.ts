@@ -22,6 +22,7 @@ import { IconService } from 'src/app/core/services/icon/icon.service';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { retrievedNode } from "../../store/node/node.actions";
 import { ActivatedRoute } from "@angular/router";
+import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 
 @Component({
   selector: 'app-add-update-node-dialog',
@@ -267,15 +268,17 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
       this.nodeService.get(this.data.genData.id).subscribe(nodeData => {
         ele.data('name', nodeData.result.name);
         ele.data('groups', nodeData.result.groups);
-        this.iconService.get(jsonData.icon_id).subscribe(iconData => {
-          ele.data('icon', ICON_PATH + iconData.result.photo);
-        });
+        ele.data('icon', ICON_PATH + nodeData.result.icon.photo);
         if (this.configTemplateCtr?.value) {
           const configData = {
             pk: this.data.genData.id,
             config_ids: this.configTemplateCtr?.value?.map((item: any) => item.id)
           }
-          this.nodeService.associate(configData).subscribe(respData => {});
+          this.nodeService.associate(configData).subscribe(respData => {
+            this.store.dispatch(retrievedMapSelection({ data: true }));
+          });
+        } else {
+          this.store.dispatch(retrievedMapSelection({ data: true }));
         }
         this.helpers.reloadGroupBoxes(this.data.cy);
         this.toastr.success('Node details updated!');

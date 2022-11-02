@@ -12,6 +12,7 @@ import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.serv
 import { selectDomains } from 'src/app/store/domain/domain.selectors';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { showErrorFromServer } from "../../shared/validations/error-server-response.validation";
+import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 
 
 @Component({
@@ -173,6 +174,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
         this.helpers.reloadGroupBoxes(this.data.cy);
         this.toastr.success('Port group details updated!');
         this.dialogRef.close();
+        this.store.dispatch(retrievedMapSelection({ data: true }));
       })
     },
       err => {

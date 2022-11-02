@@ -12,6 +12,7 @@ import { InterfaceService } from "../../../core/services/interface/interface.ser
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
 import { selectInterfaces } from "../../../store/map/map.selectors";
 import { retrievedInterfacesByIds } from "../../../store/interface/interface.actions";
+import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 
 @Component({
   selector: 'app-interface-bulk-edit-dialog',
@@ -92,6 +93,7 @@ export class InterfaceBulkEditDialogComponent implements OnInit {
       })
       this.toastr.success(response.message);
       this.dialogRef.close();
+      this.store.dispatch(retrievedMapSelection({ data: true }));
     })
   }
 

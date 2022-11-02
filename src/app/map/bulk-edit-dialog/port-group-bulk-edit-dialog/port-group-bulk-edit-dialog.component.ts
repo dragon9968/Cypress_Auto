@@ -9,6 +9,7 @@ import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { PortGroupService } from "../../../core/services/portgroup/portgroup.service";
 import { selectDomains } from "../../../store/domain/domain.selectors";
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
+import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 
 @Component({
   selector: 'app-port-group-bulk-edit-dialog',
@@ -73,7 +74,8 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
       })
       this.helpers.reloadGroupBoxes(this.data.cy);
       this.toastr.success(response.message);
-      this.dialogRef.close()
+      this.dialogRef.close();
+      this.store.dispatch(retrievedMapSelection({ data: true }));
     })
   }
 

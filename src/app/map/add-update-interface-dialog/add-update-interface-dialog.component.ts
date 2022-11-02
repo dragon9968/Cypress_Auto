@@ -14,6 +14,7 @@ import { selectInterfaces } from "../../store/map/map.selectors";
 import { retrievedInterfacesByIds } from "../../store/interface/interface.actions";
 import { selectInterfaceByIds } from "../../store/interface/interface.selectors";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
+import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 
 @Component({
   selector: 'app-add-update-interface-dialog',
@@ -195,6 +196,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
       })
       this.toastr.success('Edge details updated!');
       this.dialogRef.close();
+      this.store.dispatch(retrievedMapSelection({ data: true }));
     });
   }
 
