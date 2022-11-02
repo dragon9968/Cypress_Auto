@@ -229,6 +229,10 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
         cyData.width = cyData.logical_map_style.width;
         cyData.text_color = cyData.logical_map_style.text_color;
         cyData.text_size = cyData.logical_map_style.text_size;
+        cyData.text_bg_color = cyData.logical_map_style.text_bg_color;
+        cyData.text_bg_opacity = cyData.logical_map_style.text_bg_opacity;
+        cyData.text_valign = cyData.logical_map_style.text_valign;
+        cyData.text_halign = cyData.logical_map_style.text_halign;
         cyData.groups = respData.result.groups;
         cyData.icon = ICON_PATH + respData.result.icon.photo;
         this.helpers.addCYNode(this.data.cy, { newNodeData: { ...this.data.newNodeData, ...cyData }, newNodePosition: this.data.newNodePosition });
