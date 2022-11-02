@@ -3,9 +3,10 @@ import { RemoteRoutingModule } from './remote-routing.module';
 import { ConnectComponent } from './connect/connect.component';
 import { ConnectionProfilesComponent } from './connection-profiles/connection-profiles.component';
 import { SharedModule } from '../shared/shared.module';
-import { ConnectionActionsRendererComponent } from './renderers/connection-actions-renderer.component';
 import { AddEditConnectionProfilesComponent } from './add-edit-connection-profiles/add-edit-connection-profiles.component';
 import { ShowConnectionProfilesComponent } from './show-connection-profiles/show-connection-profiles.component';
+import { ConnectionActionsRendererComponent } from './renderers/connection-actions/connection-actions-renderer.component';
+import { ConnectionStatusRendererComponent } from './renderers/connection-status/connection-status-renderer.component';
 
 
 @NgModule({
@@ -14,7 +15,8 @@ import { ShowConnectionProfilesComponent } from './show-connection-profiles/show
     ConnectionProfilesComponent,
     ConnectionActionsRendererComponent,
     AddEditConnectionProfilesComponent,
-    ShowConnectionProfilesComponent
+    ShowConnectionProfilesComponent,
+    ConnectionStatusRendererComponent
   ],
   imports: [
     SharedModule,

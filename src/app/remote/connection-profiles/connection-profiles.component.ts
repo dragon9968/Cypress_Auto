@@ -7,12 +7,13 @@ import { Observable, of, Subscription } from 'rxjs';
 import { ServerConnectService } from 'src/app/core/services/server-connect/server-connect.service';
 import { retrievedServerConnect } from 'src/app/store/server-connect/server-connect.actions';
 import { selectServerConnect } from 'src/app/store/server-connect/server-connect.selectors';
-import { ConnectionActionsRendererComponent } from '../renderers/connection-actions-renderer.component';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { ToastrService } from 'ngx-toastr';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
+import { ConnectionActionsRendererComponent } from '../renderers/connection-actions/connection-actions-renderer.component';
+import { ConnectionStatusRendererComponent } from '../renderers/connection-status/connection-status-renderer.component';
 
 @Component({
   selector: 'app-connection-profiles',
@@ -51,10 +52,8 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
     { field: 'category' },
     {
       headerName: 'Connection',
-      cellRenderer: (data: any) => {
-        return `<mat-icon class="mat-icon material-icons mat-icon-no-color" role="img" aria-hidden="true">
-          arrow_circle_down</mat-icon>`;
-      }
+      field: 'parameters.status',
+      cellRenderer: ConnectionStatusRendererComponent,
     },
     { 
       headerName: 'Server',
