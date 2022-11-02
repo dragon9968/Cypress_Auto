@@ -10,6 +10,7 @@ import { PortGroupService } from "../../../core/services/portgroup/portgroup.ser
 import { selectDomains } from "../../../store/domain/domain.selectors";
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
+import { showErrorFromServer } from "src/app/shared/validations/error-server-response.validation";
 
 @Component({
   selector: 'app-port-group-bulk-edit-dialog',
@@ -21,6 +22,7 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
   errorMessages = ErrorMessages;
   domains!: any[];
   selectDomains$ = new Subscription();
+  errors: any[] = [];
 
   constructor(
     private store: Store,
@@ -33,7 +35,11 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
     this.selectDomains$ = this.store.select(selectDomains).subscribe(domains => this.domains = domains);
     this.portGroupBulkEdit = new FormGroup({
       domainCtr: new FormControl('', [autoCompleteValidator(this.domains)]),
-      vlanCtr: new FormControl(''),
+      vlanCtr: new FormControl('', [
+        Validators.required,
+        Validators.pattern('^[0-9]*$'),
+        showErrorFromServer(() => this.errors)
+      ]),
       categoryCtr: new FormControl(''),
       subnetAllocationCtr: new FormControl(''),
     })

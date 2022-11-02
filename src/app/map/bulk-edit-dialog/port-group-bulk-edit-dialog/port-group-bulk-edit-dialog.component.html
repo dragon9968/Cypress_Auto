@@ -15,6 +15,10 @@
     <mat-form-field class="field">
       <mat-label>VLAN ID</mat-label>
       <input matInput formControlName="vlanCtr">
+      <mat-error *ngIf="vlanCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="vlanCtr?.errors?.pattern">{{ errorMessages.FIELD_IS_NUMBER }}</mat-error>
+      <mat-error *ngIf="vlanCtr?.errors?.serverError">{{ vlanCtr?.errors?.serverError }}</mat-error>
+      <mat-error *ngIf="vlanCtr?.errors?.errorServerExist">{{ vlanCtr?.errors?.errorServerExist }}</mat-error>
     </mat-form-field>
     <div class="category">
       <label class="category-label">Category</label>
