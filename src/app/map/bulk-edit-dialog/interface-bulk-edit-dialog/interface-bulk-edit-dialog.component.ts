@@ -48,7 +48,7 @@ export class InterfaceBulkEditDialogComponent implements OnInit {
   }
 
   get statusCtr() { return this.interfaceBulkEditForm.get('statusCtr'); }
-  get directionCtr() { return this.interfaceBulkEditForm.get('directionCtr'); }
+  get directionCtr() { return this.helpers.getAutoCompleteCtr(this.interfaceBulkEditForm.get('directionCtr'), this.DIRECTIONS); }
   get ipAllocationCtr() { return this.interfaceBulkEditForm.get('ipAllocationCtr'); }
   get dnsServerCtr() { return this.interfaceBulkEditForm.get('dnsServerCtr'); }
   get gatewayCtr() { return this.interfaceBulkEditForm.get('gatewayCtr'); }

@@ -1,5 +1,5 @@
 import { Component, Input, OnDestroy } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { Store } from '@ngrx/store';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
@@ -14,6 +14,7 @@ import { CommonService } from 'src/app/map/context-menu/cm-common-service/common
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { CMGroupBoxService } from '../../context-menu/cm-groupbox/cm-groupbox.service';
 import { ToastrService } from 'ngx-toastr';
+import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 
 @Component({
   selector: 'app-tool-panel-edit',
@@ -30,21 +31,19 @@ export class ToolPanelEditComponent implements OnDestroy {
   @Input() activeMBs: any[] = [];
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterfaces: any[] = [];
-  @Input() isDisableAddNode = false;
+  @Input() isDisableAddNode = true;
   @Input() isDisableAddPG = false;
   @Input() isDisableAddImage = false;
-  deviceCtr = new FormControl();
-  templateCtr = new FormControl();
+  nodeAddForm!: FormGroup;
   imageCtr = new FormControl();
-  isCustomizeNode = true;
   isCustomizePG = true;
-  images: any[];
   errorMessages = ErrorMessages;
   selectDevices$ = new Subscription();
   selectTemplates$ = new Subscription();
   selectMapOption$ = new Subscription();
   devices!: any[];
   templates!: any[];
+  images!: any[];
   filteredTemplates!: any[];
   isGroupBoxesChecked!: boolean;
   ICON_PATH = ICON_PATH;
@@ -58,11 +57,17 @@ export class ToolPanelEditComponent implements OnDestroy {
     private toastr: ToastrService
   ) {
     this.selectDevices$ = this.store.select(selectDevices).subscribe((devices: any) => {
-      this.devices = devices;
+      if (devices) {
+        this.devices = devices;
+        this.deviceCtr?.setValidators([autoCompleteValidator(this.devices)]);
+      }
     });
     this.selectTemplates$ = this.store.select(selectTemplates).subscribe((templates: any) => {
-      this.templates = templates;
-      this.filteredTemplates = templates;
+      if (templates) {
+        this.templates = templates;
+        this.filteredTemplates = templates;
+        this.templateCtr?.setValidators([autoCompleteValidator(this.templates, 'display_name')]);
+      }
     });
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
@@ -74,10 +79,19 @@ export class ToolPanelEditComponent implements OnDestroy {
       { id: "v2", name: "Name 2" },
       { id: "v3", name: "Name 3" },
     ];
+    this.nodeAddForm = new FormGroup({
+      deviceCtr: new FormControl(''),
+      templateCtr: new FormControl(''),
+      isCustomizeNodeCtr: new FormControl(true)
+    });
   }
 
+  get deviceCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('deviceCtr'), this.devices); }
+  get templateCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('templateCtr'), this.templates); }
+  get isCustomizeNodeCtr() { return this.nodeAddForm.get('isCustomizeNodeCtr'); }
+
   ngOnInit(): void {
-    this.templateCtr.disable();
+    this.templateCtr?.disable();
   }
 
   ngOnDestroy(): void {
@@ -86,33 +100,45 @@ export class ToolPanelEditComponent implements OnDestroy {
     this.selectMapOption$.unsubscribe();
   }
 
-  changeDevice() {
-    this.filteredTemplates = this.templates.filter(template => template.device.name == this.deviceCtr.value);
-    this.templateCtr.setValue('');
+
+
+  disableTemplate(deviceId: string) {
+    this.filteredTemplates = this.templates.filter(template => template.device.id == deviceId);
+    this.templateCtr?.setValue('');
+    this.isDisableAddNode = true;
     if (this.filteredTemplates.length > 0) {
-      this.templateCtr.enable();
+      this.templateCtr?.enable();
     } else {
-      this.templateCtr.disable();
+      this.templateCtr?.disable();
     }
+  }
+
+  changeDevice() {
+    this.disableTemplate(this.deviceCtr?.value.id);
   }
 
   selectDevice($event: MatAutocompleteSelectedEvent) {
-    this.filteredTemplates = this.templates.filter(template => template.device_id == $event.option.value.id);
-    this.templateCtr.setValue('');
-    this.templateCtr.enable();
+    this.disableTemplate($event.option.value.id);
+  }
+
+  changeTemplate() {
+    this.isDisableAddNode = false;
+  }
+
+  selectTemplate($event: MatAutocompleteSelectedEvent) {
+    this.isDisableAddNode = false;
   }
 
   addNode() {
-    if (this.deviceCtr.value && this.templateCtr.value) {
-      this.store.dispatch(retrievedMapEdit({
-        data: {
-          isAddNode: true,
-          deviceId: this.deviceCtr.value.id,
-          templateId: this.templateCtr.value.id,
-          isCustomizeNode: this.isCustomizeNode
-        }
-      }));
-    }
+    this.isDisableAddNode = true;
+    this.store.dispatch(retrievedMapEdit({
+      data: {
+        isAddNode: true,
+        deviceId: this.deviceCtr?.value.id,
+        templateId: this.templateCtr?.value.id,
+        isCustomizeNode: this.isCustomizeNodeCtr?.value
+      }
+    }));
   }
 
   addPublicPG() {

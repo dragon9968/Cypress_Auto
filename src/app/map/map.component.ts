@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { delay, ReplaySubject, Subject, Subscription } from 'rxjs';
@@ -78,12 +78,12 @@ const popper = require('cytoscape-popper');
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss']
 })
-export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
+export class MapComponent implements AfterViewInit, OnDestroy {
   cy: any;
   ur: any;
   isOpenToolPanel = true;
   isDisableCancel = true;
-  isDisableAddNode = false;
+  isDisableAddNode = true;
   isDisableAddPG = false;
   isDisableAddImage = false;
   isAddNode = false;
@@ -229,28 +229,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
           this.store.dispatch(retrievedInterfacesByIds({ data: response.result }));
         })
       }
-    })
-  }
-
-  ngAfterViewInit(): void {
-    this.selectMapFeatureSubject.pipe(delay(1)).subscribe((map: MapState) => {
-      if (map.mapProperties && map.defaultPreferences) {
-        this.nodes = map.nodes;
-        this.interfaces = map.interfaces;
-        this.groupBoxes = map.groupBoxes;
-        this.nodes = map.nodes;
-        this.mapBackgrounds = map.mapBackgrounds;
-        this.mapProperties = map.mapProperties;
-        this.defaultPreferences = map.defaultPreferences;
-        this._initCytoscape();
-        this._initMouseEvents();
-        this._initContextMenu();
-        this._initUndoRedo();
-      }
     });
-  }
-
-  ngOnInit(): void {
     this.route.queryParams.subscribe((params: Params) => {
       this.mapCategory = params['category'];
       this.collectionId = params['collection_id'];
@@ -269,6 +248,24 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       this.store.dispatch(retrievedVMStatus({ vmStatus: data.result.configuration.vm_status }))
     })
     this.store.dispatch(retrievedIsMapOpen({ data: true }));
+  }
+
+  ngAfterViewInit(): void {
+    this.selectMapFeatureSubject.pipe(delay(1)).subscribe((map: MapState) => {
+      if (map.mapProperties && map.defaultPreferences) {
+        this.nodes = map.nodes;
+        this.interfaces = map.interfaces;
+        this.groupBoxes = map.groupBoxes;
+        this.nodes = map.nodes;
+        this.mapBackgrounds = map.mapBackgrounds;
+        this.mapProperties = map.mapProperties;
+        this.defaultPreferences = map.defaultPreferences;
+        this._initCytoscape();
+        this._initMouseEvents();
+        this._initContextMenu();
+        this._initUndoRedo();
+      }
+    });
   }
 
   ngOnDestroy(): void {

@@ -13,8 +13,6 @@ import { retrievedMapPref } from 'src/app/store/map-style/map-style.actions';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
-import { selectDefaultPreferences } from 'src/app/store/map/map.selectors';
-import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 
 @Component({
   selector: 'app-add-edit-mappref-dialog',

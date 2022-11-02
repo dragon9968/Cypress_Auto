@@ -59,7 +59,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
   get nameCtr() { return this.pgAddForm.get('nameCtr'); }
   get vlanCtr() { return this.pgAddForm.get('vlanCtr'); }
   get categoryCtr() { return this.pgAddForm.get('categoryCtr'); }
-  get domainCtr() { return this.pgAddForm.get('domainCtr'); }
+  get domainCtr() { return this.helpers.getAutoCompleteCtr(this.pgAddForm.get('domainCtr'), this.domains); }
   get subnetAllocationCtr() { return this.pgAddForm.get('subnetAllocationCtr'); }
   get subnetCtr() { return this.pgAddForm.get('subnetCtr'); }
 

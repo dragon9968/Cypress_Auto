@@ -435,6 +435,11 @@ export class HelpersService {
     return option ? option : {};
   }
 
+  getOptionByName(options: any, name: string) {
+    const option = options?.filter((option: any) => option.name == name)[0];
+    return option ? option : {};
+  }
+
   setOptionByGateway(control: any, options: any, gateway: string) {
     const option = options?.filter((option: any) => option == gateway)[0];
     control.setValue(option ? option : "");
@@ -444,6 +449,16 @@ export class HelpersService {
     if (id) {
       control.setValue(this.getOptionById(options, id));
     }
+  }
+
+  getAutoCompleteCtr(control: any, options: any) {
+    if (typeof control?.value === 'string') {
+      const option = this.getOptionByName(options, control?.value);
+      if (option && option.id) {
+        control.setValue(option);
+      }
+    }
+    return control;
   }
 
   removeNode(node: any) {

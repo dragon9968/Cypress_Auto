@@ -18,10 +18,7 @@ import { selectHardwares } from '../../store/hardware/hardware.selectors';
 import { selectDomains } from '../../store/domain/domain.selectors';
 import { selectConfigTemplates } from '../../store/config-template/config-template.selectors';
 import { selectLoginProfiles } from '../../store/login-profile/login-profile.selectors';
-import { IconService } from 'src/app/core/services/icon/icon.service';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
-import { retrievedNode } from "../../store/node/node.actions";
-import { ActivatedRoute } from "@angular/router";
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 
 @Component({
@@ -55,9 +52,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   filteredConfigTemplates: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
 
   constructor(
-    private route: ActivatedRoute,
     private nodeService: NodeService,
-    private iconService: IconService,
     private toastr: ToastrService,
     public dialogRef: MatDialogRef<AddUpdateNodeDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -105,16 +100,16 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
 
   get nameCtr() { return this.nodeAddForm.get('nameCtr'); }
   get notesCtr() { return this.nodeAddForm.get('notesCtr'); }
-  get iconCtr() { return this.nodeAddForm.get('iconCtr'); }
+  get iconCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('iconCtr'), this.icons); }
   get categoryCtr() { return this.nodeAddForm.get('categoryCtr'); }
-  get deviceCtr() { return this.nodeAddForm.get('deviceCtr'); }
-  get templateCtr() { return this.nodeAddForm.get('templateCtr'); }
-  get hardwareCtr() { return this.nodeAddForm.get('hardwareCtr'); }
+  get deviceCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('deviceCtr'), this.devices); }
+  get templateCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('templateCtr'), this.templates); }
+  get hardwareCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('hardwareCtr'), this.hardwares); }
   get folderCtr() { return this.nodeAddForm.get('folderCtr'); }
-  get roleCtr() { return this.nodeAddForm.get('roleCtr'); }
-  get domainCtr() { return this.nodeAddForm.get('domainCtr'); }
+  get roleCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('roleCtr'), ROLES); }
+  get domainCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('domainCtr'), this.domains); }
   get hostnameCtr() { return this.nodeAddForm.get('hostnameCtr'); }
-  get loginProfileCtr() { return this.nodeAddForm.get('loginProfileCtr'); }
+  get loginProfileCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('loginProfileCtr'), this.loginProfiles); }
 
   ngOnInit(): void {
     if (this.isViewMode || this.data.mode == 'update') {
@@ -170,8 +165,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
     this.disableItems($event.value);
   }
 
-  changeDevice() {
-    this.filteredTemplates = this.templates.filter(template => template.device.name == this.deviceCtr?.value);
+  disableTemplate(deviceId: string) {
+    this.filteredTemplates = this.templates.filter(template => template.device.id == deviceId);
     this.templateCtr?.setValue('');
     if (this.filteredTemplates.length > 0) {
       this.templateCtr?.enable();
@@ -180,9 +175,12 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
     }
   }
 
+  changeDevice() {
+    this.disableTemplate(this.deviceCtr?.value.id);
+  }
+
   selectDevice($event: MatAutocompleteSelectedEvent) {
-    this.filteredTemplates = this.templates.filter((template: any) => template.device_id == $event.option.value.id);
-    this.templateCtr?.setValue('');
+    this.disableTemplate($event.option.value.id);
   }
 
   onCancel() {

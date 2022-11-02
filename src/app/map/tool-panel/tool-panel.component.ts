@@ -25,7 +25,7 @@ export class ToolPanelComponent implements OnDestroy {
   @Input() collectionId: any;
   @Input() mapCategory: any;
   @Input() isDisableCancel = true;
-  @Input() isDisableAddNode = false;
+  @Input() isDisableAddNode = true;
   @Input() isDisableAddPG = false;
   @Input() isDisableAddImage = false;
   @Input() activeNodes: any[] = [];

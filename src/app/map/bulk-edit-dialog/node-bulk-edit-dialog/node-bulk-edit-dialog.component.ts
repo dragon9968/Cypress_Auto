@@ -1,5 +1,4 @@
 import { Store } from "@ngrx/store";
-import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
 import { ActivatedRoute, Params } from "@angular/router";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
@@ -13,7 +12,6 @@ import { ErrorMessages } from "../../../shared/enums/error-messages.enum";
 import { NodeService } from "../../../core/services/node/node.service";
 import { IconService } from "../../../core/services/icon/icon.service";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
-import { retrievedNode } from "../../../store/node/node.actions";
 import { selectIcons } from "../../../store/icon/icon.selectors";
 import { selectDevices } from "../../../store/device/device.selectors";
 import { selectTemplates } from "../../../store/template/template.selectors";
@@ -86,19 +84,13 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
     })
   }
 
-  get iconCtr() { return this.nodeBulkEditForm.get('iconCtr'); }
-
-  get deviceCtr() { return this.nodeBulkEditForm.get('deviceCtr'); }
-
-  get templateCtr() { return this.nodeBulkEditForm.get('templateCtr'); }
-
-  get domainCtr() { return this.nodeBulkEditForm.get('domainCtr'); }
-
+  get iconCtr() { return this.helpers.getAutoCompleteCtr(this.nodeBulkEditForm.get('iconCtr'), this.icons); }
+  get deviceCtr() { return this.helpers.getAutoCompleteCtr(this.nodeBulkEditForm.get('deviceCtr'), this.devices); }
+  get templateCtr() { return this.helpers.getAutoCompleteCtr(this.nodeBulkEditForm.get('templateCtr'), this.templates); }
+  get domainCtr() { return this.helpers.getAutoCompleteCtr(this.nodeBulkEditForm.get('domainCtr'), this.domains); }
   get folderCtr() { return this.nodeBulkEditForm.get('folderCtr'); }
-
-  get roleCtr() { return this.nodeBulkEditForm.get('roleCtr'); }
-
-  get loginProfileCtr() { return this.nodeBulkEditForm.get('loginProfileCtr'); }
+  get roleCtr() { return this.helpers.getAutoCompleteCtr(this.nodeBulkEditForm.get('roleCtr'), ROLES); }
+  get loginProfileCtr() { return this.helpers.getAutoCompleteCtr(this.nodeBulkEditForm.get('loginProfileCtr'), this.loginProfiles); }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe((params: Params) => this.collectionId = params['collection_id'])

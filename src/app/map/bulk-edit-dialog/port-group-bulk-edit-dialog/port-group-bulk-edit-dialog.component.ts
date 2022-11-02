@@ -45,12 +45,9 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
     })
   }
 
-  get domainCtr() { return this.portGroupBulkEdit.get('domainCtr'); }
-
+  get domainCtr() { return this.helpers.getAutoCompleteCtr(this.portGroupBulkEdit.get('domainCtr'), this.domains); }
   get vlanCtr() { return this.portGroupBulkEdit.get('vlanCtr'); }
-
   get categoryCtr() { return this.portGroupBulkEdit.get('categoryCtr'); }
-
   get subnetAllocationCtr() { return this.portGroupBulkEdit.get('subnetAllocationCtr'); }
 
   ngOnInit(): void {

@@ -30,7 +30,7 @@ export class DeleteNodeSnapshotDialogComponent {
     });
   }
 
-  get nameCtr() { return this.deleteNodeSnapshotForm.get('nameCtr'); }
+  get nameCtr() { return this.helpers.getAutoCompleteCtr(this.deleteNodeSnapshotForm.get('nameCtr'), this.data.names); }
 
   onCancel() {
     this.dialogRef.close();
