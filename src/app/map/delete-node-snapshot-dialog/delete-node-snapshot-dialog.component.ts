@@ -1,11 +1,13 @@
+import { ToastrService } from 'ngx-toastr';
 import { Component, Inject } from '@angular/core';
+import { catchError, throwError } from 'rxjs';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
-import { ToastrService } from 'ngx-toastr';
-import { catchError, throwError } from 'rxjs';
 import { TaskService } from 'src/app/core/services/task/task.service';
+import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
+import { InfoPanelService } from "../../core/services/helpers/info-panel.service";
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
+
 
 @Component({
   selector: 'app-delete-node-snapshot-dialog',
@@ -21,6 +23,7 @@ export class DeleteNodeSnapshotDialogComponent {
     public dialogRef: MatDialogRef<DeleteNodeSnapshotDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public helpers: HelpersService,
+    private infoPanelService: InfoPanelService
   ) {
     this.deleteNodeSnapshotForm = new FormGroup({
       nameCtr: new FormControl('', [autoCompleteValidator(this.data.names)]),
@@ -46,6 +49,8 @@ export class DeleteNodeSnapshotDialogComponent {
       })
     ).subscribe(respData => {
       this.toastr.success("Task added to the queue");
+      this.infoPanelService.updateTaskList();
+      this.dialogRef.close();
     });
   }
 }

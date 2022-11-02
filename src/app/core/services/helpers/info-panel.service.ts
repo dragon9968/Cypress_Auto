@@ -280,4 +280,10 @@ export class InfoPanelService {
     })
   }
 
+  updateTaskList() {
+    this.userTaskService.getAll().subscribe(data => {
+      this.store.dispatch(retrievedUserTasks({data: data.result}));
+    })
+  }
+
 }

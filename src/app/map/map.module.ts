@@ -12,7 +12,7 @@ import { AddUpdatePGDialogComponent } from './add-update-pg-dialog/add-update-pg
 import { AddUpdateInterfaceDialogComponent } from './add-update-interface-dialog/add-update-interface-dialog.component';
 import { AddNodeDeployDialogComponent } from './add-node-deploy-dialog/add-node-deploy-dialog.component';
 import { CreateNodeSnapshotDialogComponent } from './create-node-snapshot-dialog/create-node-snapshot-dialog.component';
-import { DeleteNodeSnapshotDialogComponent } from './delete-node-snapshot-dialog copy/delete-node-snapshot-dialog.component';
+import { DeleteNodeSnapshotDialogComponent } from './delete-node-snapshot-dialog/delete-node-snapshot-dialog.component';
 import { InfoPanelNodeComponent } from './info-panel/info-panel-node/info-panel-node.component';
 import { InfoPanelPortGroupComponent } from './info-panel/info-panel-port-group/info-panel-port-group.component';
 import { InfoPanelInterfaceComponent } from './info-panel/info-panel-interface/info-panel-interface.component';

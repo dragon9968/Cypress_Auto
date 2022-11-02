@@ -5,7 +5,7 @@ import { catchError, of, throwError } from 'rxjs';
 import { TaskService } from 'src/app/core/services/task/task.service';
 import { AddNodeDeployDialogComponent } from 'src/app/map/add-node-deploy-dialog/add-node-deploy-dialog.component';
 import { CreateNodeSnapshotDialogComponent } from '../../create-node-snapshot-dialog/create-node-snapshot-dialog.component';
-import { DeleteNodeSnapshotDialogComponent } from '../../delete-node-snapshot-dialog copy/delete-node-snapshot-dialog.component';
+import { DeleteNodeSnapshotDialogComponent } from '../../delete-node-snapshot-dialog/delete-node-snapshot-dialog.component';
 
 @Injectable({
   providedIn: 'root'

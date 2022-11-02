@@ -4,7 +4,7 @@ import { ToastrService } from "ngx-toastr";
 import { MatIconRegistry } from "@angular/material/icon";
 import { Component, OnInit } from '@angular/core';
 import { Observable, of, Subscription } from "rxjs";
-import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
+import { ColumnApi, GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { UserTaskService } from "../../../core/services/user-task/user-task.service";
 import { InfoPanelService } from "../../../core/services/helpers/info-panel.service";
@@ -21,6 +21,7 @@ import { ConfirmationDialogComponent } from "../../../shared/components/confirma
 export class InfoPanelTaskComponent implements OnInit {
 
   private gridApi!: GridApi;
+  private gridColumnApi!: ColumnApi;
   selectUserTasks$ = new Subscription();
   rowsSelected: any[] = [];
   rowsSelectedId: any[] = [];
@@ -42,6 +43,7 @@ export class InfoPanelTaskComponent implements OnInit {
     suppressCellFocus: true,
     enableCellTextSelection: true,
     pagination: true,
+    paginationPageSize: 25,
     suppressRowClickSelection: true,
     animateRows: true,
     rowData: [],
@@ -56,7 +58,7 @@ export class InfoPanelTaskComponent implements OnInit {
         headerName: 'Actions',
         field: 'id',
         suppressSizeToFit: true,
-        width: 120,
+        width: 140,
         cellRenderer: InfoPanelRenderComponent,
         cellRendererParams: {
           tabName: this.tabName,
@@ -176,10 +178,19 @@ export class InfoPanelTaskComponent implements OnInit {
 
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
+    this.gridColumnApi = params.columnApi;
+    this.sortData()
   }
 
   selectedRows() {
     this.rowsSelected = this.gridApi.getSelectedRows();
     this.rowsSelectedId = this.rowsSelected.map(ele => ele.id);
+  }
+
+  sortData() {
+    this.gridColumnApi.applyColumnState({
+      state: [{colId: 'id', sort: 'desc'}],
+      defaultState: {sort: null}
+    })
   }
 }

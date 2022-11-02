@@ -1,10 +1,11 @@
+import { TaskService } from 'src/app/core/services/task/task.service';
+import { ToastrService } from 'ngx-toastr';
 import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { catchError, throwError } from 'rxjs';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
-import { ToastrService } from 'ngx-toastr';
-import { catchError, throwError } from 'rxjs';
-import { TaskService } from 'src/app/core/services/task/task.service';
+import { InfoPanelService } from "../../core/services/helpers/info-panel.service";
 
 @Component({
   selector: 'app-create-node-snapshot-dialog',
@@ -20,6 +21,7 @@ export class CreateNodeSnapshotDialogComponent {
     public dialogRef: MatDialogRef<CreateNodeSnapshotDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public helpers: HelpersService,
+    private infoPanelService: InfoPanelService
   ) {
     this.createNodeSnapshotForm = new FormGroup({
       nameCtr: new FormControl(''),
@@ -45,6 +47,8 @@ export class CreateNodeSnapshotDialogComponent {
       })
     ).subscribe(respData => {
       this.toastr.success("Task added to the queue");
+      this.infoPanelService.updateTaskList();
+      this.dialogRef.close();
     });
   }
 }
