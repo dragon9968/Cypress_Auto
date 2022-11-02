@@ -10,6 +10,8 @@ import { ErrorMessages } from "../../shared/enums/error-messages.enum";
 import { selectDomains } from "../../store/domain/domain.selectors";
 import { retrievedDomains } from "../../store/domain/domain.actions";
 import { validateNameExist } from "../../shared/validations/name-exist.validation";
+import { retrievedGroups } from "src/app/store/group/group.actions";
+import { GroupService } from "src/app/core/services/group/group.service";
 
 
 @Component({
@@ -29,6 +31,7 @@ export class AddUpdateDomainDialogComponent implements OnInit {
     private toastr: ToastrService,
     public helpers: HelpersService,
     private domainService: DomainService,
+    private groupService: GroupService,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<AddUpdateDomainDialogComponent>,
   ) {
@@ -41,8 +44,8 @@ export class AddUpdateDomainDialogComponent implements OnInit {
         value: '',
         disabled: this.isViewMode
       }, [Validators.required, validateNameExist(() => this.domains, this.data.mode, this.data.genData.id)]),
-      adminUserCtr: new FormControl({value: '', disabled: this.isViewMode}),
-      adminPasswordCtr: new FormControl({value: '', disabled: this.isViewMode})
+      adminUserCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      adminPasswordCtr: new FormControl({ value: '', disabled: this.isViewMode })
     })
   }
 
@@ -66,7 +69,8 @@ export class AddUpdateDomainDialogComponent implements OnInit {
     this.domainService.add(jsonData).subscribe(response => {
       this.toastr.success(`Added domain ${response.result.name}`);
       this.dialogRef.close();
-      this.domainService.getDomainByCollectionId(response.result.collection_id).subscribe((data: any) => this.store.dispatch(retrievedDomains({data: data.result})));
+      this.domainService.getDomainByCollectionId(response.result.collection_id).subscribe((data: any) => this.store.dispatch(retrievedDomains({ data: data.result })));
+      this.groupService.getGroupByCollectionId(this.data.genData.collection_id).subscribe(groupData => this.store.dispatch(retrievedGroups({ data: groupData.result })))
     })
   }
 
@@ -80,7 +84,7 @@ export class AddUpdateDomainDialogComponent implements OnInit {
       (response: any) => {
         this.toastr.success(`Updated domain ${response.result.name}`);
         this.dialogRef.close();
-        this.domainService.getDomainByCollectionId(response.result.collection).subscribe((data: any) => this.store.dispatch(retrievedDomains({data: data.result})));
+        this.domainService.getDomainByCollectionId(response.result.collection).subscribe((data: any) => this.store.dispatch(retrievedDomains({ data: data.result })));
       }
     )
   }
