@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
@@ -11,13 +11,14 @@ import { retrievedMapEdit } from 'src/app/store/map-edit/map-edit.actions';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
 import { CommonService } from 'src/app/map/context-menu/cm-common-service/common.service';
+import { retrievedMapContextMenu } from 'src/app/store/map-context-menu/map-context-menu.actions';
 
 @Component({
   selector: 'app-tool-panel',
   templateUrl: './tool-panel.component.html',
   styleUrls: ['./tool-panel.component.scss']
 })
-export class ToolPanelComponent implements OnInit, OnDestroy {
+export class ToolPanelComponent implements OnDestroy {
   @Input() cy: any;
   @Input() ur: any;
   @Input() config: any;
@@ -77,21 +78,24 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     this.selectMapContextMenu$ = this.store.select(selectMapContextMenu).subscribe((mapContextMenu: any) => {
       if (mapContextMenu?.event == 'download') {
         this.download();
+        this.store.dispatch(retrievedMapContextMenu({ data: { event: undefined } }));
       } else if (mapContextMenu?.event == 'save') {
         this.save();
+        this.store.dispatch(retrievedMapContextMenu({ data: { event: undefined } }));
       } else if (mapContextMenu?.event == 'undo') {
         this.undo();
+        this.store.dispatch(retrievedMapContextMenu({ data: { event: undefined } }));
       } else if (mapContextMenu?.event == 'redo') {
         this.redo();
-      }
+        this.store.dispatch(retrievedMapContextMenu({ data: { event: undefined } }));
+      }  
     });
   }
-
-  ngOnInit() { }
 
   ngOnDestroy() {
     this.selectMapOption$.unsubscribe();
     this.selectMapPref$.unsubscribe();
+    this.selectMapContextMenu$.unsubscribe();
   }
 
   download() {

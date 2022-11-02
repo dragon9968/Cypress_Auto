@@ -279,6 +279,9 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectIcons$.unsubscribe();
     this.selectDomains$.unsubscribe();
     this.selectSearchText$.unsubscribe();
+    this.cy.nodes().forEach((ele: any) => {
+      this.helpersService.removeBadge(ele);
+    });
     this.store.dispatch(retrievedIsMapOpen({ data: false }));
   }
 
@@ -506,7 +509,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.isSelectedProcessed = true;
     this.isBoxSelecting = false;
-    // this._info_panel.add_update_rows(dataList);
   }
 
   private _click($event: any) {
