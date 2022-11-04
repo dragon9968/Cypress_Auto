@@ -1,9 +1,7 @@
 import { Injectable, Input } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
-import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
-import { StyleService } from 'src/app/core/services/helpers/style.service';
 
 @Injectable({
   providedIn: 'root'

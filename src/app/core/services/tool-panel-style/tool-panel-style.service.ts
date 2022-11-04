@@ -7,7 +7,7 @@ import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 @Injectable({
   providedIn: 'root'
 })
-export class StyleService {
+export class ToolPanelStyleService {
   @Input() ur: any;
   isGroupBoxesChecked!: boolean;
   selectMapOption$ = new Subscription();

@@ -1,27 +1,30 @@
 import { Store } from "@ngrx/store";
-import { Subscription, throwError } from "rxjs";
+import { MatDialog } from "@angular/material/dialog";
 import { ToastrService } from "ngx-toastr";
 import { Injectable, Input } from '@angular/core';
-import { MatDialog } from "@angular/material/dialog";
-import { HelpersService } from "./helpers.service";
+import { Subscription, throwError } from "rxjs";
+import { MapService } from "../map/map.service";
 import { NodeService } from "../node/node.service";
-import { InterfaceService } from "../interface/interface.service";
-import { PortGroupService } from "../portgroup/portgroup.service";
 import { DomainService } from "../domain/domain.service";
+import { HelpersService } from "../helpers/helpers.service";
 import { UserTaskService } from "../user-task/user-task.service";
+import { PortGroupService } from "../portgroup/portgroup.service";
+import { InterfaceService } from "../interface/interface.service";
 import { DomainUserService } from "../domain-user/domain-user.service";
 import { AddUpdatePGDialogComponent } from "../../../map/add-update-pg-dialog/add-update-pg-dialog.component";
+import { NodeBulkEditDialogComponent } from "../../../map/bulk-edit-dialog/node-bulk-edit-dialog/node-bulk-edit-dialog.component";
 import { AddUpdateNodeDialogComponent } from "../../../map/add-update-node-dialog/add-update-node-dialog.component";
-import { AddUpdateInterfaceDialogComponent } from "../../../map/add-update-interface-dialog/add-update-interface-dialog.component";
 import { InterfaceBulkEditDialogComponent } from "../../../map/bulk-edit-dialog/interface-bulk-edit-dialog/interface-bulk-edit-dialog.component";
 import { PortGroupBulkEditDialogComponent } from "../../../map/bulk-edit-dialog/port-group-bulk-edit-dialog/port-group-bulk-edit-dialog.component";
-import { NodeBulkEditDialogComponent } from "../../../map/bulk-edit-dialog/node-bulk-edit-dialog/node-bulk-edit-dialog.component";
+import { AddUpdateInterfaceDialogComponent } from "../../../map/add-update-interface-dialog/add-update-interface-dialog.component";
 import { retrievedDomains } from "../../../store/domain/domain.actions";
-import { selectPortGroups } from "../../../store/portgroup/portgroup.selectors";
-import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
-import { selectMapOption } from "../../../store/map-option/map-option.selectors";
-import { selectDomainUsers } from "../../../store/domain-user/domain-user.selectors";
 import { retrievedUserTasks } from "../../../store/user-task/user-task.actions";
+import { selectVMStatus } from "../../../store/project/project.selectors";
+import { selectIsConnect } from "../../../store/server-connect/server-connect.selectors";
+import { selectMapOption } from "../../../store/map-option/map-option.selectors";
+import { selectPortGroups } from "../../../store/portgroup/portgroup.selectors";
+import { selectDomainUsers } from "../../../store/domain-user/domain-user.selectors";
+import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
 
 
 @Injectable({
@@ -29,19 +32,30 @@ import { retrievedUserTasks } from "../../../store/user-task/user-task.actions";
 })
 export class InfoPanelService {
   @Input() ur: any;
+  @Input() cy: any;
   selectNode$ = new Subscription();
   selectMapOption$ = new Subscription();
   selectPortGroup$ = new Subscription();
   selectDomainUser$ = new Subscription();
+  selectVMStatus$ = new Subscription();
+  selectIsConnect$ = new Subscription();
   nodes!: any[];
   portGroups!: any[];
   domainUsers!: any[];
+  vmStatus!: boolean;
   isGroupBoxesChecked!: boolean;
+  isConnect!: boolean;
+  statusColorLookup = {
+    off: '#FF0000', //red
+    on: '#008000', // green
+    unknown: '#FFFF00' // yellow
+  }
 
   constructor(
     private store: Store,
     private dialog: MatDialog,
     private toastr: ToastrService,
+    private mapService: MapService,
     private helpers: HelpersService,
     private nodeService: NodeService,
     private interfaceService: InterfaceService,
@@ -58,6 +72,8 @@ export class InfoPanelService {
     this.selectNode$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => this.nodes = nodes);
     this.selectPortGroup$ = this.store.select(selectPortGroups).subscribe(portGroups => this.portGroups = portGroups);
     this.selectDomainUser$ = this.store.select(selectDomainUsers).subscribe(domainUsers => this.domainUsers = domainUsers);
+    this.selectVMStatus$ = this.store.select(selectVMStatus).subscribe(vmStatus => this.vmStatus = vmStatus);
+    this.selectIsConnect$ = this.store.select(selectIsConnect).subscribe(isConnect => this.isConnect = isConnect);
   }
 
   delete(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[],
@@ -286,4 +302,54 @@ export class InfoPanelService {
     })
   }
 
+  delayedAlert(nodeName: string, nodeStatus: any) {
+    const ele = this.cy.nodes().filter(`[name='${nodeName}']`)[0];
+    if (!ele) {
+      return;
+    }
+    // set the VM Power and Status value in the tooltip
+    ele.style({'background-opacity': '1'});
+    ele.style({'border-width': '10px'});
+    ele.style({'border-opacity': '1'});
+    const d = nodeStatus;
+    if (d.state == "on" && d.status == "running") {
+      ele.data('color', this.statusColorLookup.on);
+      ele.style({'border-color': this.statusColorLookup.on});
+    } else if (d.state == "on" && d.status == "notRunning") {
+      ele.data("color", this.statusColorLookup.unknown);
+      ele.style({'border-color': this.statusColorLookup.unknown});
+    } else if (d.state == "off") {
+      ele.data('color', this.statusColorLookup.off);
+      ele.style({'border-color': this.statusColorLookup.off});
+    } else if (!(d.state == false)) {
+      ele.style({'background-opacity': '0'});
+      ele.style({'border-opacity': '0'});
+    } else {
+      ele.style({'background-opacity': '0'});
+      ele.style({'border-opacity': '0'});
+    }
+  }
+
+  removeVMStatusOnMap() {
+    const nodes = this.cy.nodes().filter('[icon]');
+    nodes.style('border-opacity', 0);
+    nodes.style('border-width', 0);
+    nodes.style('background-opacity', 0);
+  }
+
+  changeVMStatusOnMap(collectionId: number, connectionId: number) {
+    this.mapService.getVMStatus(collectionId, connectionId).subscribe(vmStatus => {
+      for (const [key, value] of Object.entries(vmStatus)) {
+        this.delayedAlert(key, value);
+      }
+    })
+  }
+
+  initVMStatus(collectionId: number, connectionId: number) {
+    if (this.isConnect && this.vmStatus) {
+      this.changeVMStatusOnMap(collectionId, connectionId);
+    } else {
+      this.removeVMStatusOnMap();
+    }
+  }
 }

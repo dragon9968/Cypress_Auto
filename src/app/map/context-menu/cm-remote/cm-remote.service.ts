@@ -6,6 +6,7 @@ import { TaskService } from 'src/app/core/services/task/task.service';
 import { AddNodeDeployDialogComponent } from 'src/app/map/add-node-deploy-dialog/add-node-deploy-dialog.component';
 import { CreateNodeSnapshotDialogComponent } from '../../create-node-snapshot-dialog/create-node-snapshot-dialog.component';
 import { DeleteNodeSnapshotDialogComponent } from '../../delete-node-snapshot-dialog/delete-node-snapshot-dialog.component';
+import { ServerConnectService } from "../../../core/services/server-connect/server-connect.service";
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +17,7 @@ export class CMRemoteService {
     private taskService: TaskService,
     private toastr: ToastrService,
     private dialog: MatDialog,
+    private serverConnectionService: ServerConnectService
   ) { }
 
   getMenu(activeNodes: any[]) {
@@ -179,7 +181,8 @@ export class CMRemoteService {
   }
 
   add_task(jobName: string, pks: string) {
-    const jsonData = { job_name: jobName, pks };
+    const connection = this.serverConnectionService.getConnection();
+    const jsonData = { job_name: jobName, pks, connection_id: connection?.id };
     this.taskService.add(jsonData).pipe(
       catchError((e: any) => {
         this.toastr.error(e.error.message);

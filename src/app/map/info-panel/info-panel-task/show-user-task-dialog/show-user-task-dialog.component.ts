@@ -3,7 +3,7 @@ import { FormGroup , FormControl} from "@angular/forms";
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { UserTaskService } from "../../../../core/services/user-task/user-task.service";
-import { InfoPanelService } from "../../../../core/services/helpers/info-panel.service";
+import { InfoPanelService } from "../../../../core/services/info-panel/info-panel.service";
 import { ConfirmationDialogComponent } from "../../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 
 @Component({

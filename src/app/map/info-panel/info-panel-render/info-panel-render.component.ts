@@ -12,7 +12,7 @@ import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { UserTaskService } from "../../../core/services/user-task/user-task.service";
 import { PortGroupService } from "../../../core/services/portgroup/portgroup.service";
 import { InterfaceService } from "../../../core/services/interface/interface.service";
-import { InfoPanelService } from "../../../core/services/helpers/info-panel.service";
+import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { DomainUserService } from "../../../core/services/domain-user/domain-user.service";
 import { CMViewDetailsService } from "../../context-menu/cm-view-details/cm-view-details.service";
 import { AddUpdatePGDialogComponent } from "../../add-update-pg-dialog/add-update-pg-dialog.component";

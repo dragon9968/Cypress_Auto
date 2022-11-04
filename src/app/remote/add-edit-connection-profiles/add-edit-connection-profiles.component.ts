@@ -7,7 +7,7 @@ import { Subscription } from 'rxjs';
 import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { ServerConnectService } from 'src/app/core/services/server-connect/server-connect.service';
 import { retrievedServerConnect } from 'src/app/store/server-connect/server-connect.actions';
-import { selectServerConnect } from 'src/app/store/server-connect/server-connect.selectors';
+import { selectServerConnects } from 'src/app/store/server-connect/server-connect.selectors';
 
 @Component({
   selector: 'app-add-edit-connection-profiles',
@@ -17,7 +17,7 @@ import { selectServerConnect } from 'src/app/store/server-connect/server-connect
 export class AddEditConnectionProfilesComponent implements OnInit {
   id: any;
   isViewMode: boolean = false;
-  connectionForm?: FormGroup; 
+  connectionForm?: FormGroup;
   selectServerConnect$ = new Subscription();
   listConnect!: any[];
   constructor(
@@ -28,13 +28,13 @@ export class AddEditConnectionProfilesComponent implements OnInit {
     private route: ActivatedRoute,
     private store: Store,
   ) {
-    this.selectServerConnect$ = this.store.select(selectServerConnect).subscribe((data: any) => {
+    this.selectServerConnect$ = this.store.select(selectServerConnects).subscribe((data: any) => {
       this.listConnect = data;
       this.id = this.route.snapshot.params['id'];
       this.isViewMode = !this.id;
       if (data) {
         if (!this.isViewMode) {
-          data = data.filter((obj: any)=>{if(obj.id==this.id){return obj}}); 
+          data = data.filter((obj: any)=>{if(obj.id==this.id){return obj}});
           this.name?.setValue(data[0].name);
           this.category?.setValue(data[0].category);
           if (data[0].parameters) {

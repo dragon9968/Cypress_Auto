@@ -17,8 +17,18 @@ $margin: 8px;
 
 .tab-label {
   margin-right: $margin;
+  width: 30%;
+  text-align: left;
+}
+
+.tab-connection-name {
+  width: 70%;
 }
 
 .connection-map-btn {
   width: 100%;
+}
+
+.hidden {
+  display: none;
 }

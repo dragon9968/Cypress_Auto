@@ -7,7 +7,7 @@ import { Observable, of, Subscription } from "rxjs";
 import { ColumnApi, GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { UserTaskService } from "../../../core/services/user-task/user-task.service";
-import { InfoPanelService } from "../../../core/services/helpers/info-panel.service";
+import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { selectUserTasks } from "../../../store/user-task/user-task.selectors";
 import { retrievedUserTasks } from "../../../store/user-task/user-task.actions";
 import { InfoPanelRenderComponent } from "../info-panel-render/info-panel-render.component";

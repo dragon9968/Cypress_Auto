@@ -50,15 +50,16 @@ import { SearchService } from '../core/services/search/search.service';
 import { MapService } from '../core/services/map/map.service';
 import { selectSearchText } from '../store/map-option/map-option.selectors';
 import { CommonService } from 'src/app/map/context-menu/cm-common-service/common.service';
-import { StyleService } from 'src/app/core/services/helpers/style.service';
+import { ToolPanelStyleService } from 'src/app/core/services/tool-panel-style/tool-panel-style.service';
 import { ServerConnectService } from "../core/services/server-connect/server-connect.service";
 import { retrievedServerConnect } from "../store/server-connect/server-connect.actions";
 import { ProjectService } from "../project/services/project.service";
 import { retrievedVMStatus } from "../store/project/project.actions";
 import { ICON_PATH } from '../shared/contants/icon-path.constant';
-import { InfoPanelService } from '../core/services/helpers/info-panel.service';
+import { InfoPanelService } from '../core/services/info-panel/info-panel.service';
 import { retrievedInterfacesByIds } from "../store/interface/interface.actions";
 import { retrievedMapSelection } from '../store/map-selection/map-selection.actions';
+import { selectIsConnect } from "../store/server-connect/server-connect.selectors";
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -127,7 +128,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   isBoxSelecting = false;
   isSearching = false;
   isSelectedProcessed = false;
-  connectionId!: string;
+  connectionId = 0;
+  vmStatus!: boolean;
   boxSelectedNodes = new Set();
   selectMap$ = new Subscription();
   selectMapPref$ = new Subscription();
@@ -137,6 +139,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   selectDomains$ = new Subscription();
   selectInterfaces$ = new Subscription();
   selectSearchText$ = new Subscription();
+  selectIsConnect$ = new Subscription();
   selectMapFeatureSubject: Subject<MapState> = new ReplaySubject(1);
 
   constructor(
@@ -168,7 +171,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     private cmMapService: CMMapService,
     private searchService: SearchService,
     private commonService: CommonService,
-    private styleService: StyleService,
+    private toolPanelStyleService: ToolPanelStyleService,
     private serverConnectService: ServerConnectService,
     private projectService: ProjectService,
     private infoPanelService: InfoPanelService
@@ -230,6 +233,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         })
       }
     });
+    this.selectIsConnect$ = this.store.select(selectIsConnect).subscribe(isConnect => {
+      if (isConnect !== undefined) {
+        const connection = this.serverConnectService.getConnection();
+        this.connectionId = connection ? connection?.id : 0;
+      }
+    })
     this.route.queryParams.subscribe((params: Params) => {
       this.mapCategory = params['category'];
       this.collectionId = params['collection_id'];
@@ -245,6 +254,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.portgroupService.getByCollectionId(this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedPortGroups({ data: data.result })));
     this.serverConnectService.getAll().subscribe((data: any) => this.store.dispatch(retrievedServerConnect({ data: data.result })))
     this.projectService.get(+this.collectionId).subscribe((data: any) => {
+      this.vmStatus = data.result.configuration.vm_status;
       this.store.dispatch(retrievedVMStatus({ vmStatus: data.result.configuration.vm_status }))
     })
     this.store.dispatch(retrievedIsMapOpen({ data: true }));
@@ -264,6 +274,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this._initMouseEvents();
         this._initContextMenu();
         this._initUndoRedo();
+        this.infoPanelService.initVMStatus(+this.collectionId, this.connectionId);
       }
     });
   }
@@ -742,27 +753,28 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     });
     this.commonService.ur = this.ur;
     this.infoPanelService.ur = this.ur;
+    this.infoPanelService.cy = this.cy;
     this.helpersService.deletedInterfaces = this.deletedInterfaces;
     this.helpersService.deletedNodes = this.deletedNodes;
     this.ur.action("removeNode", this.helpersService.removeNode.bind(this), this.helpersService.restoreNode.bind(this));
     this.ur.action("removeEdge", this.helpersService.removeEdge.bind(this), this.helpersService.restoreEdge.bind(this));
-    this.ur.action("changeNodeSize", this.styleService.changeNodeSize.bind(this.commonService), this.styleService.restoreNodeSize.bind(this.commonService));
-    this.ur.action("changTextColor", this.styleService.changTextColor.bind(this.commonService).bind(this.commonService), this.styleService.restoreTextColor.bind(this.commonService).bind(this.commonService));
-    this.ur.action("changeTextSize", this.styleService.changeTextSize.bind(this.commonService).bind(this.commonService), this.styleService.restoreTextSize.bind(this.commonService).bind(this.commonService));
-    this.ur.action("changePGColor", this.styleService.changePGColor.bind(this.commonService).bind(this.commonService), this.styleService.restorePGColor.bind(this.commonService).bind(this.commonService));
-    this.ur.action("changePGSize", this.styleService.changePGSize.bind(this.commonService).bind(this.commonService), this.styleService.restorePGSize.bind(this.commonService).bind(this.commonService));
-    this.ur.action("changeEdgeColor", this.styleService.changeEdgeColor.bind(this.commonService).bind(this.commonService), this.styleService.restoreEdgeColor.bind(this.commonService).bind(this.commonService));
-    this.ur.action("changeEdgeSize", this.styleService.changeEdgeSize.bind(this.commonService).bind(this.commonService), this.styleService.restoreEdgeSize.bind(this.commonService).bind(this.commonService));
-    this.ur.action("changeArrowScale", this.styleService.changeArrowScale.bind(this.commonService).bind(this.commonService), this.styleService.restoreArrowScale.bind(this.commonService).bind(this.commonService));
-    this.ur.action("changeDirection", this.styleService.changeDirection.bind(this.commonService).bind(this.commonService), this.styleService.restoreDirection.bind(this.commonService).bind(this.commonService));
-    this.ur.action("changeTextBGColor", this.styleService.changeTextBGColor.bind(this.commonService).bind(this.commonService), this.styleService.restoreTextBGColor.bind(this.commonService).bind(this.commonService));
-    this.ur.action("changeTextBGOpacity", this.styleService.changeTextBGOpacity.bind(this.commonService).bind(this.commonService), this.styleService.restoreTextBGOpacity.bind(this.commonService).bind(this.commonService));
-    this.ur.action("changeTextVAlign", this.styleService.changeTextVAlign.bind(this.commonService), this.styleService.restoreTextVAlign.bind(this.commonService));
-    this.ur.action("changeTextHAlign", this.styleService.changeTextHAlign.bind(this.commonService), this.styleService.restoreTextHAlign.bind(this.commonService));
-    this.ur.action("changeGBOpacity", this.styleService.changeGBOpacity.bind(this.commonService).bind(this.commonService), this.styleService.restoreGBOpacity.bind(this.commonService).bind(this.commonService));
-    this.ur.action("changeGBColor", this.styleService.changeGBColor.bind(this.commonService).bind(this.commonService), this.styleService.restoreGBColor.bind(this.commonService).bind(this.commonService));
-    this.ur.action("changeGBBorderColor", this.styleService.changeGBBorderColor.bind(this.commonService).bind(this.commonService), this.styleService.restoreGBBorderColor.bind(this.commonService).bind(this.commonService));
-    this.ur.action("changeGBType", this.styleService.changeGBType.bind(this.commonService).bind(this.commonService), this.styleService.restoreGBType.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changeNodeSize", this.toolPanelStyleService.changeNodeSize.bind(this.commonService), this.toolPanelStyleService.restoreNodeSize.bind(this.commonService));
+    this.ur.action("changTextColor", this.toolPanelStyleService.changTextColor.bind(this.commonService).bind(this.commonService), this.toolPanelStyleService.restoreTextColor.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changeTextSize", this.toolPanelStyleService.changeTextSize.bind(this.commonService).bind(this.commonService), this.toolPanelStyleService.restoreTextSize.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changePGColor", this.toolPanelStyleService.changePGColor.bind(this.commonService).bind(this.commonService), this.toolPanelStyleService.restorePGColor.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changePGSize", this.toolPanelStyleService.changePGSize.bind(this.commonService).bind(this.commonService), this.toolPanelStyleService.restorePGSize.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changeEdgeColor", this.toolPanelStyleService.changeEdgeColor.bind(this.commonService).bind(this.commonService), this.toolPanelStyleService.restoreEdgeColor.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changeEdgeSize", this.toolPanelStyleService.changeEdgeSize.bind(this.commonService).bind(this.commonService), this.toolPanelStyleService.restoreEdgeSize.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changeArrowScale", this.toolPanelStyleService.changeArrowScale.bind(this.commonService).bind(this.commonService), this.toolPanelStyleService.restoreArrowScale.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changeDirection", this.toolPanelStyleService.changeDirection.bind(this.commonService).bind(this.commonService), this.toolPanelStyleService.restoreDirection.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changeTextBGColor", this.toolPanelStyleService.changeTextBGColor.bind(this.commonService).bind(this.commonService), this.toolPanelStyleService.restoreTextBGColor.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changeTextBGOpacity", this.toolPanelStyleService.changeTextBGOpacity.bind(this.commonService).bind(this.commonService), this.toolPanelStyleService.restoreTextBGOpacity.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changeTextVAlign", this.toolPanelStyleService.changeTextVAlign.bind(this.commonService), this.toolPanelStyleService.restoreTextVAlign.bind(this.commonService));
+    this.ur.action("changeTextHAlign", this.toolPanelStyleService.changeTextHAlign.bind(this.commonService), this.toolPanelStyleService.restoreTextHAlign.bind(this.commonService));
+    this.ur.action("changeGBOpacity", this.toolPanelStyleService.changeGBOpacity.bind(this.commonService).bind(this.commonService), this.toolPanelStyleService.restoreGBOpacity.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changeGBColor", this.toolPanelStyleService.changeGBColor.bind(this.commonService).bind(this.commonService), this.toolPanelStyleService.restoreGBColor.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changeGBBorderColor", this.toolPanelStyleService.changeGBBorderColor.bind(this.commonService).bind(this.commonService), this.toolPanelStyleService.restoreGBBorderColor.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changeGBType", this.toolPanelStyleService.changeGBType.bind(this.commonService).bind(this.commonService), this.toolPanelStyleService.restoreGBType.bind(this.commonService).bind(this.commonService));
   }
 
   private _initMouseEvents() {
@@ -1072,7 +1084,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       contextMenu.showMenuItem('web_console');
       contextMenu.showMenuItem('go_to_table');
     }
-    if (this.connectionId) {
+    if (this.connectionId && this.connectionId !== 0) {
+      contextMenu.showMenuItem('node_remote');
+    } else {
       contextMenu.hideMenuItem('node_remote');
     }
   }

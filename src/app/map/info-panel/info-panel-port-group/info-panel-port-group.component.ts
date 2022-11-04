@@ -8,7 +8,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { PortGroupService } from "../../../core/services/portgroup/portgroup.service";
-import { InfoPanelService } from "../../../core/services/helpers/info-panel.service";
+import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { InfoPanelRenderComponent } from "../info-panel-render/info-panel-render.component";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { Store } from "@ngrx/store";

@@ -1,3 +1,4 @@
 export interface ServerConnectState {
-  serverConnects: any[]
+  serverConnects: any[],
+  isConnect: boolean
 }

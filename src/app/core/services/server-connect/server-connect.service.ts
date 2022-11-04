@@ -1,7 +1,9 @@
 import { Observable } from "rxjs";
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import { ApiPaths } from "../../enums/api-paths.enum";
+import { LocalStorageService } from "../../storage/local-storage/local-storage.service";
+import { LocalStorageKeys } from "../../storage/local-storage/local-storage-keys.enum";
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +11,8 @@ import { ApiPaths } from "../../enums/api-paths.enum";
 export class ServerConnectService {
 
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private localStorageService: LocalStorageService
   ) { }
 
   getAll(): Observable<any> {
@@ -27,7 +30,7 @@ export class ServerConnectService {
   put(id: number, data: any): Observable<any> {
     return this.http.put<any>(ApiPaths.SERVER_CONNECT + id, data);
   }
-  
+
   delete(id: number): Observable<any> {
     return this.http.delete<any>(ApiPaths.SERVER_CONNECT + id);
   }
@@ -46,5 +49,23 @@ export class ServerConnectService {
 
   loginCheck(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.LOGIN_CHECK, data)
+  }
+
+  connect(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.CONNECT_TO_SERVER, data);
+  }
+
+  getConnection(): any {
+    return JSON.parse(<any>this.localStorageService.getItem(LocalStorageKeys.CONNECTION));
+  }
+
+  disconnectServer(): any {
+    if (this.getConnection()) {
+      this.localStorageService.removeItem(LocalStorageKeys.CONNECTION);
+    }
+  }
+
+  updateConnection(connection: string) {
+    this.localStorageService.setItem(LocalStorageKeys.CONNECTION, connection);
   }
 }

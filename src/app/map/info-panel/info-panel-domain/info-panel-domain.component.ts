@@ -10,7 +10,7 @@ import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { DomainService } from "../../../core/services/domain/domain.service";
-import { InfoPanelService } from "../../../core/services/helpers/info-panel.service";
+import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { InfoPanelRenderComponent } from "../info-panel-render/info-panel-render.component";
 import { AddUpdateDomainDialogComponent } from "../../add-update-domain-dialog/add-update-domain-dialog.component";
 import { AddDomainUserDialogComponent } from "./add-domain-user-dialog/add-domain-user-dialog.component";

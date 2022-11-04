@@ -6,7 +6,7 @@ import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { Observable, of, Subscription } from 'rxjs';
 import { ServerConnectService } from 'src/app/core/services/server-connect/server-connect.service';
 import { retrievedServerConnect } from 'src/app/store/server-connect/server-connect.actions';
-import { selectServerConnect } from 'src/app/store/server-connect/server-connect.selectors';
+import { selectServerConnects } from 'src/app/store/server-connect/server-connect.selectors';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
@@ -55,7 +55,7 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
       field: 'parameters.status',
       cellRenderer: ConnectionStatusRendererComponent,
     },
-    { 
+    {
       headerName: 'Server',
       field: 'parameters.server',
     }
@@ -68,8 +68,8 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
     iconRegistry: MatIconRegistry,
     private domSanitizer: DomSanitizer,
     private helpers: HelpersService
-  ) { 
-    this.selectServerConnect$ = this.store.select(selectServerConnect).subscribe((data: any) => {
+  ) {
+    this.selectServerConnect$ = this.store.select(selectServerConnects).subscribe((data: any) => {
       this.rowData$ = of(data);
     })
     iconRegistry.addSvgIcon('export_json', this._setPath('/assets/icons/export_json.svg'));
@@ -154,7 +154,7 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
       });
     }
   }
-  
+
   private _setPath(url: string): SafeResourceUrl {
     return this.domSanitizer.bypassSecurityTrustResourceUrl(url);
   }

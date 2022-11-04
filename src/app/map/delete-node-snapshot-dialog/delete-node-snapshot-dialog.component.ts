@@ -5,7 +5,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { TaskService } from 'src/app/core/services/task/task.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
-import { InfoPanelService } from "../../core/services/helpers/info-panel.service";
+import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 
 
