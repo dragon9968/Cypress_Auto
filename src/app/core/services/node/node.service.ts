@@ -61,4 +61,8 @@ export class NodeService {
   associate(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.ASSOCIATE, data);
   }
+
+  getSnapshots(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.NODE_SNAPSHOTS, data);
+  }
 }

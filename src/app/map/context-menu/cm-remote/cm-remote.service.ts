@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, of, throwError } from 'rxjs';
 import { TaskService } from 'src/app/core/services/task/task.service';
+import { NodeService } from "../../../core/services/node/node.service";
 import { AddNodeDeployDialogComponent } from 'src/app/map/add-node-deploy-dialog/add-node-deploy-dialog.component';
 import { CreateNodeSnapshotDialogComponent } from '../../create-node-snapshot-dialog/create-node-snapshot-dialog.component';
 import { DeleteNodeSnapshotDialogComponent } from '../../delete-node-snapshot-dialog/delete-node-snapshot-dialog.component';
@@ -14,10 +15,11 @@ import { ServerConnectService } from "../../../core/services/server-connect/serv
 export class CMRemoteService {
 
   constructor(
-    private taskService: TaskService,
-    private toastr: ToastrService,
     private dialog: MatDialog,
-    private serverConnectionService: ServerConnectService
+    private toastr: ToastrService,
+    private taskService: TaskService,
+    private nodeService: NodeService,
+    private serverConnectionService: ServerConnectService,
   ) { }
 
   getMenu(activeNodes: any[]) {
@@ -147,11 +149,20 @@ export class CMRemoteService {
           content: "Delete",
           selector: "node[icon]",
           onClickFunction: (event: any) => {
-            const dialogData = {
-              activeNodes,
-              names: []
-            };
-            this.dialog.open(DeleteNodeSnapshotDialogComponent, { width: '600px', data: dialogData });
+            if (activeNodes.length >= 1) {
+              const pks = activeNodes.map(ele => ele.data('node_id'));
+              this.nodeService.getSnapshots({pks: pks}).subscribe({
+                next: response => {
+                  const dialogData = {
+                    activeNodes,
+                    names: response.result
+                  };
+                  this.dialog.open(DeleteNodeSnapshotDialogComponent, { width: '600px', data: dialogData });
+                  }
+              })
+            } else {
+              this.toastr.warning('Please select the node before deleting', 'Warning');
+            }
           },
           hasTrailingDivider: true,
           disabled: false,
@@ -182,7 +193,7 @@ export class CMRemoteService {
 
   add_task(jobName: string, pks: string) {
     const connection = this.serverConnectionService.getConnection();
-    const jsonData = { job_name: jobName, pks, connection_id: connection?.id };
+    const jsonData = { job_name: jobName, pks, connection_id: connection ? connection?.id : 0 };
     this.taskService.add(jsonData).pipe(
       catchError((e: any) => {
         this.toastr.error(e.error.message);

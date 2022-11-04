@@ -9,6 +9,7 @@
           {{ option.name }}
         </mat-option>
       </mat-autocomplete>
+      <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="nameCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
     </mat-form-field>
   </div>

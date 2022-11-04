@@ -1,11 +1,13 @@
 import { ToastrService } from 'ngx-toastr';
 import { Component, Inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ErrorMessages } from "../../shared/enums/error-messages.enum";
 import { TaskService } from 'src/app/core/services/task/task.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
+import { ServerConnectService } from "../../core/services/server-connect/server-connect.service";
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 
 
@@ -16,17 +18,19 @@ import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.
 })
 export class DeleteNodeSnapshotDialogComponent {
   deleteNodeSnapshotForm: FormGroup;
+  errorMessages = ErrorMessages;
 
   constructor(
-    private taskService: TaskService,
     private toastr: ToastrService,
-    public dialogRef: MatDialogRef<DeleteNodeSnapshotDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
+    public dialogRef: MatDialogRef<DeleteNodeSnapshotDialogComponent>,
     public helpers: HelpersService,
-    private infoPanelService: InfoPanelService
+    private taskService: TaskService,
+    private infoPanelService: InfoPanelService,
+    private serverConnectionService: ServerConnectService
   ) {
     this.deleteNodeSnapshotForm = new FormGroup({
-      nameCtr: new FormControl('', [autoCompleteValidator(this.data.names)]),
+      nameCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.data.names)]),
     });
   }
 
@@ -37,10 +41,12 @@ export class DeleteNodeSnapshotDialogComponent {
   }
 
   deleteSnapshot() {
+    const connection = this.serverConnectionService.getConnection();
     const jsonData = {
       job_name: 'delete_snapshot',
       pks: this.data.activeNodes.map((ele: any) => ele.data('node_id')).join(","),
-      snapshot_name: this.nameCtr?.value.id,
+      snapshot_name: this.nameCtr?.value?.name,
+      connection_id: connection ? connection.id : 0
     };
     this.taskService.add(jsonData).pipe(
       catchError((e: any) => {
