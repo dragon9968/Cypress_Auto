@@ -4,10 +4,11 @@ import { ToastrService } from 'ngx-toastr';
 import { catchError, of, throwError } from 'rxjs';
 import { TaskService } from 'src/app/core/services/task/task.service';
 import { NodeService } from "../../../core/services/node/node.service";
+import { ServerConnectService } from "../../../core/services/server-connect/server-connect.service";
 import { AddNodeDeployDialogComponent } from 'src/app/map/add-node-deploy-dialog/add-node-deploy-dialog.component';
 import { CreateNodeSnapshotDialogComponent } from '../../create-node-snapshot-dialog/create-node-snapshot-dialog.component';
 import { DeleteNodeSnapshotDialogComponent } from '../../delete-node-snapshot-dialog/delete-node-snapshot-dialog.component';
-import { ServerConnectService } from "../../../core/services/server-connect/server-connect.service";
+import { RevertNodeSnapshotDialogComponent } from "../../revert-node-snapshot-dialog/revert-node-snapshot-dialog.component";
 
 @Injectable({
   providedIn: 'root'
@@ -171,7 +172,22 @@ export class CMRemoteService {
           id: "snapshot_revert",
           content: "Revert",
           selector: "node[icon]",
-          onClickFunction: (event: any) => { },
+          onClickFunction: (event: any) => {
+            if (activeNodes.length >= 1) {
+              const pks = activeNodes.map(ele => ele.data('node_id'));
+              this.nodeService.getSnapshots({pks: pks}).subscribe({
+                next: response => {
+                  const dialogData = {
+                    activeNodes,
+                    names: response.result
+                  };
+                  this.dialog.open(RevertNodeSnapshotDialogComponent, { width: '600px', data: dialogData });
+                }
+              })
+            } else {
+              this.toastr.warning('Please select the node before reverting', 'Warning');
+            }
+          },
           hasTrailingDivider: true,
           disabled: false,
         },

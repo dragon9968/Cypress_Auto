@@ -31,6 +31,7 @@ import { DomainBulkEditDialogComponent } from './bulk-edit-dialog/domain-bulk-ed
 import { AddDomainUserDialogComponent } from './info-panel/info-panel-domain/add-domain-user-dialog/add-domain-user-dialog.component';
 import { InfoPanelTaskComponent } from './info-panel/info-panel-task/info-panel-task.component';
 import { ShowUserTaskDialogComponent } from './info-panel/info-panel-task/show-user-task-dialog/show-user-task-dialog.component';
+import { RevertNodeSnapshotDialogComponent } from './revert-node-snapshot-dialog/revert-node-snapshot-dialog.component';
 
 
 @NgModule({
@@ -63,7 +64,8 @@ import { ShowUserTaskDialogComponent } from './info-panel/info-panel-task/show-u
     DomainBulkEditDialogComponent,
     AddDomainUserDialogComponent,
     InfoPanelTaskComponent,
-    ShowUserTaskDialogComponent
+    ShowUserTaskDialogComponent,
+    RevertNodeSnapshotDialogComponent
   ],
   imports: [
     MapRoutingModule,
