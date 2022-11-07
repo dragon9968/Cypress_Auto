@@ -13,6 +13,8 @@ import { autoCompleteValidator } from "../../../shared/validations/auto-complete
 import { selectInterfaces } from "../../../store/map/map.selectors";
 import { retrievedInterfacesByIds } from "../../../store/interface/interface.actions";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
+import { selectInterfaceByIds } from "src/app/store/interface/interface.selectors";
+import { Subscription } from "rxjs";
 
 @Component({
   selector: 'app-interface-bulk-edit-dialog',
@@ -28,7 +30,6 @@ export class InterfaceBulkEditDialogComponent implements OnInit {
   collectionId = '0';
 
   constructor(
-    private route: ActivatedRoute,
     private store: Store,
     private toastr: ToastrService,
     public dialogRef: MatDialogRef<InterfaceBulkEditDialogComponent>,

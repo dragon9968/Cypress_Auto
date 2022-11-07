@@ -75,14 +75,7 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Gateway</mat-label>
-      <input matInput type="text" placeholder="Select or enter a gateway" formControlName="gatewayCtr"
-        [matAutocomplete]="autoGateway" [readonly]="isViewMode">
-      <mat-autocomplete #autoGateway="matAutocomplete" [displayWith]="helpers.gatewayDisplay">
-        <mat-option *ngFor="let option of gateways" [value]="option">
-          {{ option }}
-        </mat-option>
-      </mat-autocomplete>
-      <mat-error *ngIf="gatewayCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+      <input matInput type="text" formControlName="gatewayCtr" [readonly]="isViewMode">
     </mat-form-field>
     <div class="field">
       <mat-checkbox formControlName="isGatewayCtr" labelPosition="before">Is Gateway</mat-checkbox>

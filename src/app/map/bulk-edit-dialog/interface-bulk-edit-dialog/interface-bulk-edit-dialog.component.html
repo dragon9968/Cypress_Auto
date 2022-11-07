@@ -21,6 +21,7 @@
           {{ option.name }}
         </mat-option>
       </mat-autocomplete>
+      <mat-error *ngIf="directionCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
     </mat-form-field>
     <div class="ip-allocation">
       <label class="ip-allocation-label">IP Allocation</label>
@@ -36,13 +37,7 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Gateway</mat-label>
-      <input matInput type="text" placeholder="Select or enter a gateway" formControlName="gatewayCtr"
-             [matAutocomplete]="autoGateway">
-      <mat-autocomplete #autoGateway="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of data.gateways" [value]="option">
-          {{ option.name }}
-        </mat-option>
-      </mat-autocomplete>
+      <input matInput type="text" formControlName="gatewayCtr">
     </mat-form-field>
     <div class="field field-checkbox">
       <mat-checkbox formControlName="isGatewayCtr" labelPosition="before">Is Gateway</mat-checkbox>

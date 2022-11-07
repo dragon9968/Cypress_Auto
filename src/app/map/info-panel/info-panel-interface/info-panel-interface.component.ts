@@ -15,7 +15,6 @@ import { selectInterfaces } from "../../../store/map/map.selectors";
 import { retrievedInterfacesByIds } from "../../../store/interface/interface.actions";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
-import { selectInterfaceByIds } from "src/app/store/interface/interface.selectors";
 
 @Component({
   selector: 'app-info-panel-interface',

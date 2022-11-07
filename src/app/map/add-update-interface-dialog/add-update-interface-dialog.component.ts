@@ -15,6 +15,7 @@ import { retrievedInterfacesByIds } from "../../store/interface/interface.action
 import { selectInterfaceByIds } from "../../store/interface/interface.selectors";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
+import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 
 @Component({
   selector: 'app-add-update-interface-dialog',
@@ -46,8 +47,6 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
     this.selectInterfaces$ = this.store.select(selectInterfaceByIds).subscribe(interfaces => {
       if (interfaces) {
         this.interfaces = interfaces;
-        const interfaceList = interfaces.filter(ele => ele.port_group_id === this.data.genData.port_group_id && ele.configuration.is_gateway);
-        this.gateways = interfaceList.map(ele => ele.ip);
       }
     })
     this.isViewMode = this.data.mode == 'view';
@@ -56,9 +55,9 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
       nameCtr: new FormControl('', Validators.required),
       descriptionCtr: new FormControl('', Validators.required),
       categoryCtr: new FormControl({ value: '', disabled: this.isViewMode }),
-      directionCtr: new FormControl(''),
+      directionCtr: new FormControl('', [autoCompleteValidator(DIRECTIONS)]),
       macAddressCtr: new FormControl(''),
-      portGroupCtr: new FormControl('', Validators.required),
+      portGroupCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.portGroups)]),
       ipAllocationCtr: new FormControl({ value: '', disabled: this.isViewMode }),
       ipCtr: new FormControl('', Validators.required),
       dnsServerCtr: new FormControl(''),
@@ -72,13 +71,13 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
   get nameCtr() { return this.interfaceAddForm.get('nameCtr'); }
   get descriptionCtr() { return this.interfaceAddForm.get('descriptionCtr'); }
   get categoryCtr() { return this.interfaceAddForm.get('categoryCtr'); }
-  get directionCtr() { return this.interfaceAddForm.get('directionCtr'); }
+  get directionCtr() { return this.helpers.getAutoCompleteCtr(this.interfaceAddForm.get('directionCtr'), DIRECTIONS); }
   get macAddressCtr() { return this.interfaceAddForm.get('macAddressCtr'); }
-  get portGroupCtr() { return this.interfaceAddForm.get('portGroupCtr'); }
+  get portGroupCtr() { return this.helpers.getAutoCompleteCtr(this.interfaceAddForm.get('portGroupCtr'), this.portGroups); }
   get ipAllocationCtr() { return this.interfaceAddForm.get('ipAllocationCtr'); }
   get ipCtr() { return this.interfaceAddForm.get('ipCtr'); }
   get dnsServerCtr() { return this.interfaceAddForm.get('dnsServerCtr'); }
-  get gatewayCtr() { return this.interfaceAddForm.get('gatewayCtr'); }
+  get gatewayCtr() { return this.interfaceAddForm.get('gatewayCtr') }
   get isGatewayCtr() { return this.interfaceAddForm.get('isGatewayCtr'); }
   get isNatCtr() { return this.interfaceAddForm.get('isNatCtr'); }
 
@@ -93,7 +92,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
     this.ipAllocationCtr?.setValue(this.data.genData.ip_allocation);
     this.ipCtr?.setValue(this.data.genData.ip);
     this.dnsServerCtr?.setValue(this.data.genData.dns_server);
-    this.helpers.setOptionByGateway(this.gatewayCtr, this.gateways, this.data.genData.gateway);
+    this.gatewayCtr?.setValue(this.data.genData.gateway);
     this.isGatewayCtr?.setValue(this.data.genData.is_gateway);
     this.isNatCtr?.setValue(this.data.genData.is_nat);
     this.disableItems(this.ipAllocationCtr?.value);
