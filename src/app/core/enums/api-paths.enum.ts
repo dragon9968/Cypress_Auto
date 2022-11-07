@@ -64,5 +64,9 @@ export enum ApiPaths {
   HARDWARE_EXPORT = '/api/v1/hardware/export/',
   ICONS_UPDATE = '/api/v1/icon/update_icon/',
   ICONS_EXPORT = '/api/v1/icon/export',
-  MAP_PREF_EXPORT = '/api/v1/mappref/export'
+  MAP_PREF_EXPORT = '/api/v1/mappref/export',
+  ADD_CONFIG_TEMPLATES = '/api/v1/configtemplate/add_configuration',
+  GET_WINROLES = '/api/v1/configtemplate/get_winroles',
+  CONFIG_TEMPLATES_EXPORT = '/api/v1/configtemplate/export',
+  DELETE_CONFIG_TEMPLATES = '/api/v1/configtemplate/delete_configuration/',
 }

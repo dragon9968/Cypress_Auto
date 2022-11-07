@@ -1,0 +1,21 @@
+<form [formGroup]="configTemplateForm" (ngSubmit)="data.mode === 'add' ? addConfigTemplate() : updateConfigTemplate()">
+  <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Config Template' : data.mode === 'update' ? 'Edit Config Template' : 'Config Template Detail' }}</h1>
+  <div mat-dialog-content>
+    <mat-form-field class="field">
+      <mat-label>Name</mat-label>
+      <input type="text" formControlName="name" matInput>
+      <mat-error *ngIf="name?.errors?.required">Name is required*</mat-error>
+      <mat-error *ngIf="name?.errors?.minlength || name?.errors?.maxlength">Field must be between 3 and 50 characters long.</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Description</mat-label>
+      <input type="text" formControlName="description" matInput>
+    </mat-form-field>
+  </div>
+  <div mat-dialog-actions [align]="'end'" class="create-btn">
+    <button mat-raised-button color="warn"  type="button" (click)="onCancel()">{{data.mode === 'view' ? 'Close' : 'Cancel'}}</button>
+    <button *ngIf="data.mode !== 'view'" mat-raised-button color="primary" [disabled]="!configTemplateForm.valid">
+     {{ data.mode === 'add' ? 'Create' : 'Update' }}
+    </button>
+  </div>
+</form>

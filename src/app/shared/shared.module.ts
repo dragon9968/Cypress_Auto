@@ -28,6 +28,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { ResizableModule } from "angular-resizable-element";
+import {MatChipsModule} from '@angular/material/chips';
 
 
 const materialModules = [
@@ -52,7 +53,8 @@ const materialModules = [
   MatAutocompleteModule,
   MatSelectModule,
   NgxMatSelectSearchModule,
-  MatGridListModule
+  MatGridListModule,
+  MatChipsModule
 ];
 
 @NgModule({

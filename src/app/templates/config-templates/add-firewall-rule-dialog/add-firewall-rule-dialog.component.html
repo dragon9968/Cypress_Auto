@@ -1,0 +1,97 @@
+
+<form [formGroup]="firewallRuleForm" (ngSubmit)="addFirewallRule()">
+  <h1 mat-dialog-title>Add Firewall Rule</h1>
+  <div mat-dialog-content>
+    <mat-form-field class="field">
+      <mat-label>Category</mat-label>
+      <select matNativeControl formControlName="category" (change)="onCategoryChange($event.target.value)">
+        <option value="rule">Rule</option>
+        <option value="port_forward">Port Forward</option>
+      </select>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Name</mat-label>
+      <input type="text" formControlName="name" matInput  >
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>State</mat-label>
+      <select matNativeControl formControlName="state"  >
+        <option value="present">Present</option>
+        <option value="absent">Absent</option>
+      </select>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Action</mat-label>
+      <select matNativeControl formControlName="action"  >
+        <option value="pass">Pass</option>
+        <option value="block">Block</option>
+        <option value="reject">Reject</option>
+      </select>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Interface</mat-label>
+      <select matNativeControl formControlName="interface"  >
+        <option value="eth0">eth0</option>
+      </select>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Protocol</mat-label>
+      <select matNativeControl formControlName="protocol"  >
+        <option value="any">Any</option>
+        <option value="tcp">TCP</option>
+        <option value="udp">UDP</option>
+        <option value="tcp/udp">TCP/UDP</option>
+        <option value="icmp">ICMP</option>
+        <option value="igmp">IGMP</option>
+        <option value="ospf">OSPF</option>
+      </select>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Source</mat-label>
+      <input type="text" formControlName="source" matInput  >
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Source Port</mat-label>
+      <select matNativeControl formControlName="sourcePort" (change)="onChangeSourcePort($event.target.value)"  >
+        <option *ngFor="let option of PORT" [value]="option.id"> {{ option.name }}</option>
+      </select>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Source Custom Port</mat-label>
+      <input type="text" formControlName="sourceCustomPort" matInput  >
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Destination</mat-label>
+      <input type="text" formControlName="destination" matInput  >
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Destination Port</mat-label>
+      <select matNativeControl formControlName="destinationPort" (change)="onChangeDestinationPort($event.target.value)"  >
+        <option *ngFor="let option of PORT" [value]="option.id"> {{ option.name }}</option>
+      </select>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Dest Custom Port</mat-label>
+      <input type="text" formControlName="destCustomPort" matInput  >
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Target</mat-label>
+      <input type="text" formControlName="target" matInput  >
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Target Port</mat-label>
+      <select matNativeControl formControlName="targetPort" (change)="onChangeTargetPort($event.target.value)"  >
+        <option *ngFor="let option of PORT" [value]="option.id"> {{ option.name }}</option>
+      </select>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Target Custom Port</mat-label>
+      <input type="text" formControlName="targetCustomPort" matInput>
+    </mat-form-field>
+  </div>
+  <div mat-dialog-actions [align]="'end'" class="create-btn">
+      <button mat-raised-button color="warn"  type="button" (click)="onCancel()">Cancel</button>
+      <button mat-raised-button color="primary" [disabled]="!firewallRuleForm.valid">Add
+      </button>
+  </div>
+</form>

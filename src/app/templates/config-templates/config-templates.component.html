@@ -1,1 +1,40 @@
-<p>config-templates works!</p>
+<mat-card class="config-template-container">
+  <mat-card-title class="config-template-title">Configuration Templates</mat-card-title>
+  <div class="sub-title">
+    <div class="left">
+      <button mat-raised-button color="primary" (click)="addConfigTemplate()">
+        <mat-icon>add</mat-icon>
+      </button>
+      <button mat-button [matMenuTriggerFor]="actionMenu" class="actions">Actions
+        <mat-icon>keyboard_arrow_down</mat-icon>
+      </button>
+      <mat-menu #actionMenu="matMenu">
+        <button mat-menu-item (click)="exportJson()"><mat-icon svgIcon="export-json"></mat-icon>Export as JSON</button>
+      </mat-menu>
+    </div>
+    <div class="right">
+      <input 
+        matInput
+        class="search"
+        type="search"
+        [(ngModel)]="quickFilterValue"
+        placeholder="search"
+        (input)="onQuickFilterInput($event)"
+      >
+    </div>
+  </div>
+  <ag-grid-angular 
+    class="ag-theme-alpine configTemplate"
+    [pagination]="true"
+    [paginationPageSize]="25"
+    [columnDefs]="columnDefs"
+    [defaultColDef]="defaultColDef"
+    [rowData]="rowData$ | async" 
+    [rowSelection]="'multiple'"
+    [suppressRowClickSelection]="true"
+    [animateRows]="true"
+    (gridReady)="onGridReady($event)"
+    (rowSelected)="selectedRows()"
+  >
+  </ag-grid-angular>
+</mat-card>

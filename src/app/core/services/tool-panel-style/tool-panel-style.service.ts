@@ -42,11 +42,10 @@ export class ToolPanelStyleService {
     return data;
   }
 
-  restoreTextColor(data: any, textColor: any) {
+  restoreTextColor(data: any) {
     data.activeEles?.forEach((ele: any) => {
       ele.data("text_color", data.oldTextColor);
     });
-    textColor = this.helpers.fullColorHex(data?.oldTextColor);
     return data
   }
 
@@ -65,11 +64,10 @@ export class ToolPanelStyleService {
     return data;
   }
 
-  restoreTextSize(data: any, textSize: any) {
+  restoreTextSize(data: any) {
     data.activeEles.forEach((ele: any) => {
       ele.data("text_size", data.oldTextSize);
     });
-    textSize = data.oldTextSize <= 200 ? data.oldTextSize : 200;
     return data;
   }
 
@@ -116,13 +114,12 @@ export class ToolPanelStyleService {
     return data;
   }
 
-  restorePGColor(data: any, pgColor: any) {
+  restorePGColor(data: any) {
     data.activePGs?.forEach((ele: any) => {
       if (ele.data("elem_category") == "port_group") {
         ele.data("color", data.oldPGColor);
       }
     });
-    pgColor = this.helpers.fullColorHex(data.oldPGColor);
     return data;
   }
 
@@ -142,14 +139,13 @@ export class ToolPanelStyleService {
     return data;
   }
 
-  restorePGSize(data: any, pgSize: any) {
+  restorePGSize(data: any) {
     data.activePGs.forEach((ele: any) => {
       if (ele.data("elem_category") == "port_group") {
         ele.data("width", data.oldPGSize);
         ele.data("height", data.oldPGSize);
       }
     })
-    pgSize = data.oldPGSize <= 200 ? data.oldPGSize : 200;
     return data;
   }
 
@@ -165,11 +161,10 @@ export class ToolPanelStyleService {
     return data;
   }
 
-  restoreEdgeColor(data: any, edgeColor: any) {
+  restoreEdgeColor(data: any) {
     data.activeEdges.forEach((ele: any) => {
       ele.data("color", data.oldEdgeColor);
     });
-    edgeColor = this.helpers.fullColorHex(data.oldEdgeColor);
     return data;
   }
 
@@ -185,11 +180,10 @@ export class ToolPanelStyleService {
     return data;
   }
 
-  restoreEdgeSize(data: any, edgeSize: number) {
+  restoreEdgeSize(data: any) {
     data.activeEdges.forEach((ele: any) => {
       ele.data("width", data.oldEdgeSize);
     });
-    edgeSize = data.oldEdgeSize <= 50 ? data.oldEdgeSize : 50;
     return data;
   }
 
@@ -205,11 +199,10 @@ export class ToolPanelStyleService {
     return data;
   }
 
-  restoreArrowScale(data: any, arrowSize: number) {
+  restoreArrowScale(data: any) {
     data.activeEdges.forEach((ele: any) => {
       ele.data("arrow_scale", data.oldArrowScale);
     });
-    arrowSize = data.oldArrowScale <= 200 ? data.oldArrowScale : 200;
     return data;
   }
 
@@ -245,12 +238,11 @@ export class ToolPanelStyleService {
     return data;
   }
 
-  restoreTextBGColor(data: any, textBGColor: any) {
+  restoreTextBGColor(data: any) {
     data.activeEles.forEach((ele: any) => {
       ele.data("text_bg_color", data.oldTextBGColor);
     });
 
-    textBGColor = this.helpers.fullColorHex(data.oldTextBGColor);
     return data;
   }
 
@@ -266,11 +258,10 @@ export class ToolPanelStyleService {
     return data;
   }
 
-  restoreTextBGOpacity (data: any, textBGOpacity: any) {
+  restoreTextBGOpacity (data: any) {
     data.activeEles.forEach((ele: any) => {
       ele.data("text_bg_opacity", data.oldTextBGOpacity);
     })
-    textBGOpacity = data.oldTextBGOpacity;
     return data;
   }
 
@@ -325,11 +316,10 @@ export class ToolPanelStyleService {
     return data;
   }
 
-  restoreGBOpacity(data: any, gbOpacity: any) {
+  restoreGBOpacity(data: any) {
     data.activeGBs.forEach((ele: any) => {
       ele.data("group_opacity", data.oldGBOpacity);
     })
-    gbOpacity = data.oldGBOpacity;
     return data;
   }
 
@@ -347,12 +337,11 @@ export class ToolPanelStyleService {
     return data;
   }
 
-  restoreGBColor(data: any, gbColor: any) {
+  restoreGBColor(data: any) {
     data.activeGBs.forEach((ele: any) => {
       ele.data("color", data.oldGBColor);
     });
 
-    gbColor = this.helpers.fullColorHex(data.oldGBColor);
     return data;
   }
 
@@ -370,12 +359,11 @@ export class ToolPanelStyleService {
     return data;
   }
 
-  restoreGBBorderColor(data: any, gbBorderColor: any) {
+  restoreGBBorderColor(data: any) {
     data.activeGBs.forEach((ele: any) => {
       ele.data("border_color", data.oldGBBorderColor);
     });
 
-    gbBorderColor = this.helpers.fullColorHex(data.oldGBBorderColor);
     return data;
   }
 
@@ -392,11 +380,10 @@ export class ToolPanelStyleService {
     return data;
   }
 
-  restoreGBType(data: any, gbBorderTypeActivated: any) {
+  restoreGBType(data: any) {
     data.activeGBs.forEach((ele: any) => {
       ele.data("border_style", data.oldGBBorderType);
     });
-    gbBorderTypeActivated = data.oldGBBorderType;
     return data;
   }
 }
