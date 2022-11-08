@@ -17,6 +17,8 @@ import { retrievedGroups } from "../../store/group/group.actions";
 import { validateNameExist } from "../../shared/validations/name-exist.validation";
 import { CATEGORIES } from 'src/app/shared/contants/categories.constant';
 import { ROLES } from 'src/app/shared/contants/roles.constant';
+import { retrievedMap } from 'src/app/store/map/map.actions';
+import { MapService } from 'src/app/core/services/map/map.service';
 
 @Component({
   selector: 'app-add-update-group-dialog',
@@ -54,7 +56,8 @@ export class AddUpdateGroupDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<AddUpdateGroupDialogComponent>,
     public helpers: HelpersService,
-    private groupService: GroupService
+    private groupService: GroupService,
+    private mapService: MapService,
   ) {
     this.selectNodes$ = this.store.select(selectNodesByCollectionId).subscribe(nodeData => this.nodes = nodeData);
     this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe(pgData => this.portGroups = pgData);
@@ -65,14 +68,14 @@ export class AddUpdateGroupDialogComponent implements OnInit {
     this.isViewMode = this.data.mode == 'view';
     this.groupAddForm = new FormGroup({
       nameCtr: new FormControl(
-        {value: '', disabled: this.isViewMode},
+        { value: '', disabled: this.isViewMode },
         [Validators.required, validateNameExist(() => this.groups, this.data.mode, this.data.genData.id)]
       ),
-      categoryCtr: new FormControl({value: '', disabled: this.isViewMode}),
+      categoryCtr: new FormControl({ value: '', disabled: this.isViewMode }),
       categoryIdCtr: new FormControl(''),
       descriptionCtr: new FormControl(''),
-      nodesCtr: new FormControl({value: '', disabled: this.isViewMode}),
-      portGroupsCtr: new FormControl({value: '', disabled: this.isViewMode}),
+      nodesCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      portGroupsCtr: new FormControl({ value: '', disabled: this.isViewMode }),
     })
   }
 
@@ -147,14 +150,15 @@ export class AddUpdateGroupDialogComponent implements OnInit {
       name: this.nameCtr?.value,
       category: this.categoryCtr?.value.id,
       description: this.descriptionCtr?.value,
-      collection_id: this.data.genData.collection_id,
+      collection_id: this.data.collection_id,
       domain_id: this.categoryCtr?.value.id == 'domain' ? this.categoryIdCtr?.value.id : undefined
     }
     this.groupService.add(jsonData).subscribe(response => {
       this.toastr.success('Added Row');
-      this.groupService.getGroupByCollectionId(this.data.genData.collection_id).subscribe(
-        groupData => this.store.dispatch(retrievedGroups({data: groupData.result}))
+      this.groupService.getGroupByCollectionId(this.data.collection_id).subscribe(
+        groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
       )
+      this.mapService.getMapData(this.data.map_category, this.data.collection_id).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
       this.dialogRef.close();
     })
   }
@@ -164,8 +168,7 @@ export class AddUpdateGroupDialogComponent implements OnInit {
       name: this.nameCtr?.value,
       category: this.categoryCtr?.value.id,
       description: this.descriptionCtr?.value,
-      collection_id: this.data.genData.collection_id,
-      domain_id: this.categoryCtr?.value.id == 'domain' ? this.categoryIdCtr?.value.id : undefined,
+      collection_id: this.data.collection_id,
       nodes: this.nodes.filter(ele => this.nodesCtr?.value.includes(ele.id)),
       port_groups: this.portGroups.filter(ele => this.portGroupsCtr?.value.includes(ele.id)),
       logical_map: {},
@@ -173,9 +176,10 @@ export class AddUpdateGroupDialogComponent implements OnInit {
     }
     this.groupService.put(this.data.genData.id, jsonData).subscribe(response => {
       this.toastr.success(`Updated for the ${response.result} successfully`);
-      this.groupService.getGroupByCollectionId(this.data.genData.collection_id).subscribe(
-        groupData => this.store.dispatch(retrievedGroups({data: groupData.result}))
+      this.groupService.getGroupByCollectionId(this.data.collection_id).subscribe(
+        groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
       )
+      this.mapService.getMapData(this.data.map_category, this.data.collection_id).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
       this.dialogRef.close();
     })
   }
@@ -191,23 +195,6 @@ export class AddUpdateGroupDialogComponent implements OnInit {
       this.dataCategoryChild = this.domains;
     } else if (this.categoryName === 'device') {
       this.dataCategoryChild = this.devices;
-    }
-  }
-
-  updateNodeGroup(node: any) {
-    if (this.groups.length > 0) {
-      this.groups.map(ele => {
-        if (ele.category === 'domain') {
-          if (ele.domain_id === node.domain_id) {
-            const isExistNode = ele.nodes.some((data: any) => data.id === node.id);
-            if (!isExistNode) {
-              ele.nodes.append(node);
-            } else if (isExistNode) {
-              ele.nodes.remove(node);
-            }
-          }
-        }
-      })
     }
   }
 }

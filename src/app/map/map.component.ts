@@ -266,7 +266,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.nodes = map.nodes;
         this.interfaces = map.interfaces;
         this.groupBoxes = map.groupBoxes;
-        this.nodes = map.nodes;
         this.mapBackgrounds = map.mapBackgrounds;
         this.mapProperties = map.mapProperties;
         this.defaultPreferences = map.defaultPreferences;
@@ -308,7 +307,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   private _dragFreeOnNode($event: any) {
-    const data = $event.target.data();
+    const node = $event.target;
+    node._private['data'] = {...node._private['data']};
+    const data = node.data();
     if (data && data.category != 'bg_image') {
       if (data.new) {
         data.new = true;

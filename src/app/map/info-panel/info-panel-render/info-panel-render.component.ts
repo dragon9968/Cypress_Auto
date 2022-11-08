@@ -106,7 +106,9 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
       this.groupService.get(this.group_id).subscribe(groupData => {
         const dialogData = {
           mode: 'view',
-          genData: groupData.result
+          genData: groupData.result,
+          collection_id: groupData.result.collection_id,
+          map_category: 'logical'
         };
         this.dialog.open(AddUpdateGroupDialogComponent, {width: '600px', data: dialogData});
       })
@@ -165,7 +167,9 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
       this.groupService.get(this.group_id).subscribe(groupData => {
           const dialogData = {
             mode: 'update',
-            genData: groupData.result
+            genData: groupData.result,
+            collection_id: groupData.result.collection_id,
+            map_category: 'logical'
           };
           this.dialog.open(AddUpdateGroupDialogComponent, {width: '600px', data: dialogData});
         }

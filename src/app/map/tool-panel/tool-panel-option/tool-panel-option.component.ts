@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
@@ -6,14 +6,14 @@ import { Subscription } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { retrievedMapOption } from 'src/app/store/map-option/map-option.actions';
-import { selectGroupBoxes } from 'src/app/store/map/map.selectors';
+import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 
 @Component({
   selector: 'app-tool-panel-option',
   templateUrl: './tool-panel-option.component.html',
   styleUrls: ['./tool-panel-option.component.scss']
 })
-export class ToolPanelOptionComponent implements OnDestroy, OnChanges {
+export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
   @Input() cy: any;
   @Input() config: any;
   isEdgeDirectionChecked = false;
@@ -32,24 +32,32 @@ export class ToolPanelOptionComponent implements OnDestroy, OnChanges {
   ];
   nav: any;
   selectGroupBoxes$ = new Subscription();
+  selectMapOption$ = new Subscription();
   groupBoxes: any;
+  groupCategoryId!: string;
 
   constructor(
     private store: Store,
     private dialog: MatDialog,
     public helpers: HelpersService
-  ) { }
-
-  ngOnDestroy(): void {
-    this.selectGroupBoxes$.unsubscribe();
+  ) {
+    this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
+      if (mapOption) {
+        this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
+        this.groupCategoryId = mapOption.groupCategoryId;
+      }
+    });
   }
 
   ngOnChanges(valueChange: any) {
     if (valueChange.cy.currentValue && valueChange.config.currentValue) {
       this.isEdgeDirectionChecked = this.config.default_preferences.edge_direction_checkbox;
       this.isGroupBoxesChecked = this.config.default_preferences.groupbox_checkbox;
-      const groupCategory = this.groupCategories.filter(category => category.id == this.config.default_preferences.group_category)[0];
-      this.groupCategoryCtr.setValue(groupCategory ? groupCategory : this.groupCategories[0]);
+      if (!this.groupCategoryId) {
+        const groupCategory = this.groupCategories.filter(category => category.id == this.config.default_preferences.group_category)[0];
+        this.groupCategoryCtr.setValue(groupCategory ? groupCategory : this.groupCategories[0]);
+        this.groupCategoryId = this.groupCategories[0].id;
+      }
       this.isSnapToGridChecked = this.config.grid_settings.snap_to_grid;
       this.gridSpacingSize = this.config.grid_settings.spacing ? this.config.grid_settings.spacing.replace('px', '') : this.gridSpacingSize;
       if (this.config.grid_settings.enabled) {
@@ -69,16 +77,19 @@ export class ToolPanelOptionComponent implements OnDestroy, OnChanges {
           isSnapToGridChecked: this.isSnapToGridChecked,
           isMapOverviewChecked: this.isMapOverviewChecked,
           gridSpacingSize: this.gridSpacingSize,
-          groupCategoryId: groupCategory ? groupCategory.id : this.groupCategories[0].id
+          groupCategoryId: this.groupCategoryId
         }
       }));
-      this.selectGroupBoxes$ = this.store.select(selectGroupBoxes).subscribe((groupBoxes: any) => this.groupBoxes = groupBoxes);
       this.toggleEdgeDirection();
       this.toggleGroupBoxes();
       this.toggleMapGrid();
       this.toggleSnapToGrid();
       this.toggleMapOverview();
     }
+  }
+
+  ngOnDestroy(): void {
+    this.selectMapOption$.unsubscribe();
   }
 
   private _updateNodeStatus() {

@@ -18,6 +18,7 @@ import { AddUpdateGroupDialogComponent } from "../../add-update-group-dialog/add
 export class InfoPanelGroupComponent implements OnInit {
 
   private gridApi!: GridApi;
+  mapCategory = '';
   collectionId: string = '0';
   selectGroups$ = new Subscription();
   rowData$!: Observable<any[]>;
@@ -117,22 +118,23 @@ export class InfoPanelGroupComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe((params: Params) => {
-        this.collectionId = params['collection_id'];
-      }
+      this.mapCategory = params['category'];
+      this.collectionId = params['collection_id'];
+    }
     )
     this.selectGroups$ = this.groupService.getGroupByCollectionId(this.collectionId).subscribe(
-      groupData => this.store.dispatch(retrievedGroups({data: groupData.result}))
+      groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
     )
   }
 
   addGroup() {
     const dialogData = {
       mode: 'add',
-      genData: {
-        collection_id: this.collectionId
-      }
+      genData: {},
+      collection_id: this.collectionId,
+      map_category: this.mapCategory
     };
-    this.dialog.open(AddUpdateGroupDialogComponent, {width: '600px', data: dialogData});
+    this.dialog.open(AddUpdateGroupDialogComponent, { width: '600px', data: dialogData });
   }
 
   onGridReady(params: GridReadyEvent) {
