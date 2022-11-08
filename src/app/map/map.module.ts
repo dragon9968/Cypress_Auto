@@ -10,7 +10,7 @@ import { ToolPanelOptionComponent } from './tool-panel/tool-panel-option/tool-pa
 import { AddUpdateNodeDialogComponent } from './add-update-node-dialog/add-update-node-dialog.component';
 import { AddUpdatePGDialogComponent } from './add-update-pg-dialog/add-update-pg-dialog.component';
 import { AddUpdateInterfaceDialogComponent } from './add-update-interface-dialog/add-update-interface-dialog.component';
-import { AddNodeDeployDialogComponent } from './add-node-deploy-dialog/add-node-deploy-dialog.component';
+import { AddUpdateNodeDeployDialogComponent } from './add-update-node-deploy-dialog/add-update-node-deploy-dialog.component';
 import { CreateNodeSnapshotDialogComponent } from './create-node-snapshot-dialog/create-node-snapshot-dialog.component';
 import { DeleteNodeSnapshotDialogComponent } from './delete-node-snapshot-dialog/delete-node-snapshot-dialog.component';
 import { InfoPanelNodeComponent } from './info-panel/info-panel-node/info-panel-node.component';
@@ -45,7 +45,7 @@ import { RevertNodeSnapshotDialogComponent } from './revert-node-snapshot-dialog
     AddUpdateNodeDialogComponent,
     AddUpdatePGDialogComponent,
     AddUpdateInterfaceDialogComponent,
-    AddNodeDeployDialogComponent,
+    AddUpdateNodeDeployDialogComponent,
     CreateNodeSnapshotDialogComponent,
     DeleteNodeSnapshotDialogComponent,
     InfoPanelNodeComponent,

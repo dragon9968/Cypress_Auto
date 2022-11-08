@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AddNodeDeployDialogComponent } from './add-node-deploy-dialog.component';
+import { AddUpdateNodeDeployDialogComponent } from './add-update-node-deploy-dialog.component';
 
 describe('AddNodeDeployDialogComponent', () => {
-  let component: AddNodeDeployDialogComponent;
-  let fixture: ComponentFixture<AddNodeDeployDialogComponent>;
+  let component: AddUpdateNodeDeployDialogComponent;
+  let fixture: ComponentFixture<AddUpdateNodeDeployDialogComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AddNodeDeployDialogComponent ]
+      declarations: [ AddUpdateNodeDeployDialogComponent ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(AddNodeDeployDialogComponent);
+    fixture = TestBed.createComponent(AddUpdateNodeDeployDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

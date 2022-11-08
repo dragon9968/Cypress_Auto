@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-import { catchError, of, throwError } from 'rxjs';
+import { catchError, throwError } from 'rxjs';
 import { TaskService } from 'src/app/core/services/task/task.service';
 import { NodeService } from "../../../core/services/node/node.service";
+import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { ServerConnectService } from "../../../core/services/server-connect/server-connect.service";
-import { AddNodeDeployDialogComponent } from 'src/app/map/add-node-deploy-dialog/add-node-deploy-dialog.component';
+import { AddUpdateNodeDeployDialogComponent } from 'src/app/map/add-update-node-deploy-dialog/add-update-node-deploy-dialog.component';
 import { CreateNodeSnapshotDialogComponent } from '../../create-node-snapshot-dialog/create-node-snapshot-dialog.component';
 import { DeleteNodeSnapshotDialogComponent } from '../../delete-node-snapshot-dialog/delete-node-snapshot-dialog.component';
 import { RevertNodeSnapshotDialogComponent } from "../../revert-node-snapshot-dialog/revert-node-snapshot-dialog.component";
@@ -20,6 +21,7 @@ export class CMRemoteService {
     private toastr: ToastrService,
     private taskService: TaskService,
     private nodeService: NodeService,
+    private infoPanelService: InfoPanelService,
     private serverConnectionService: ServerConnectService,
   ) { }
 
@@ -97,9 +99,10 @@ export class CMRemoteService {
           selector: "node[icon]",
           onClickFunction: (event: any) => {
             const dialogData = {
+              jobName: 'deploy_node',
               activeNodes
             };
-            this.dialog.open(AddNodeDeployDialogComponent, { width: '600px', data: dialogData });
+            this.dialog.open(AddUpdateNodeDeployDialogComponent, { width: '600px', data: dialogData });
           },
           hasTrailingDivider: true,
           disabled: false,
@@ -120,7 +123,13 @@ export class CMRemoteService {
           id: "deploy_update",
           content: "Update",
           selector: "node[icon]",
-          onClickFunction: (event: any) => { },
+          onClickFunction: (event: any) => {
+            const dialogData = {
+              jobName: 'update_node',
+              activeNodes
+            };
+            this.dialog.open(AddUpdateNodeDeployDialogComponent, { width: '600px', data: dialogData });
+          },
           hasTrailingDivider: true,
           disabled: false,
         },
@@ -216,6 +225,7 @@ export class CMRemoteService {
         return throwError(() => e);
       })
     ).subscribe(respData => {
+      this.infoPanelService.updateTaskList();
       this.toastr.success("Task added to the queue");
     });
   }
