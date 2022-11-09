@@ -10,6 +10,7 @@ import { AddUpdateNodeDeployDialogComponent } from 'src/app/map/add-update-node-
 import { CreateNodeSnapshotDialogComponent } from '../../create-node-snapshot-dialog/create-node-snapshot-dialog.component';
 import { DeleteNodeSnapshotDialogComponent } from '../../delete-node-snapshot-dialog/delete-node-snapshot-dialog.component';
 import { RevertNodeSnapshotDialogComponent } from "../../revert-node-snapshot-dialog/revert-node-snapshot-dialog.component";
+import { DeleteNodeDeployDialogComponent } from "../../delete-node-deploy-dialog/delete-node-deploy-dialog.component";
 
 @Injectable({
   providedIn: 'root'
@@ -112,9 +113,10 @@ export class CMRemoteService {
           content: "Delete",
           selector: "node[icon]",
           onClickFunction: (event: any) => {
-            const target = event.target;
-            const data = target.data();
-            this.add_task('delete_node', data.node_id.toString());
+            const dialogData = {
+              activeNodes
+            };
+            this.dialog.open(DeleteNodeDeployDialogComponent, { width: '600px', data: dialogData });
           },
           hasTrailingDivider: true,
           disabled: false,
