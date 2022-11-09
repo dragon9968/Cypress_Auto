@@ -25,10 +25,10 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 import { MatSelectModule } from '@angular/material/select';
-import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { ResizableModule } from "angular-resizable-element";
-import {MatChipsModule} from '@angular/material/chips';
+import { MatChipsModule } from '@angular/material/chips';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 
 const materialModules = [
@@ -52,7 +52,6 @@ const materialModules = [
   MatMenuModule,
   MatAutocompleteModule,
   MatSelectModule,
-  NgxMatSelectSearchModule,
   MatGridListModule,
   MatChipsModule
 ];
@@ -67,6 +66,7 @@ const materialModules = [
     FormsModule,
     ColorPickerModule,
     ResizableModule,
+    NgSelectModule,
     ...materialModules
   ],
   exports: [
@@ -76,6 +76,7 @@ const materialModules = [
     AgGridModule,
     ColorPickerModule,
     ResizableModule,
+    NgSelectModule,
     ...materialModules,
     ConfirmationDialogComponent
   ],

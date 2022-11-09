@@ -21,7 +21,6 @@ import { InfoPanelDomainComponent } from './info-panel/info-panel-domain/info-pa
 import { AddUpdateDomainDialogComponent } from './add-update-domain-dialog/add-update-domain-dialog.component';
 import { InfoPanelGroupComponent } from './info-panel/info-panel-group/info-panel-group.component';
 import { AddUpdateGroupDialogComponent } from './add-update-group-dialog/add-update-group-dialog.component';
-import { NgSelectModule } from "@ng-select/ng-select";
 import { NodeBulkEditDialogComponent } from './bulk-edit-dialog/node-bulk-edit-dialog/node-bulk-edit-dialog.component';
 import { PortGroupBulkEditDialogComponent } from './bulk-edit-dialog/port-group-bulk-edit-dialog/port-group-bulk-edit-dialog.component';
 import { InterfaceBulkEditDialogComponent } from "./bulk-edit-dialog/interface-bulk-edit-dialog/interface-bulk-edit-dialog.component";
@@ -72,7 +71,6 @@ import { DeleteNodeDeployDialogComponent } from './delete-node-deploy-dialog/del
   imports: [
     MapRoutingModule,
     SharedModule,
-    NgSelectModule,
   ]
 })
 export class MapModule { }

@@ -117,29 +117,26 @@
       <input matInput formControlName="hostnameCtr" [readonly]="isViewMode">
       <mat-error *ngIf="hostnameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
-    <mat-form-field class="field">
-      <mat-label>Configurations</mat-label>
-      <mat-select [formControl]="configTemplateCtr" [multiple]="true">
-        <mat-option>
-          <ngx-mat-select-search
-            [formControl]="configTemplatesFilterCtrl"
-            placeholderLabel="Find configs..."
-            noEntriesFoundLabel="'No matching found'">
-          </ngx-mat-select-search>
-        </mat-option>
-        <mat-option *ngFor="let option of filteredConfigTemplates | async" [value]="option">
-          {{ option.name }}
-        </mat-option>
-      </mat-select>
-      <mat-error *ngIf="configTemplateCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
-    </mat-form-field>
+    <ng-select [readonly]="isViewMode" formControlName="configTemplateCtr" [items]="configTemplates"
+      [multiple]="true" bindLabel="name" bindValue="id" placeholder="Configurations">
+      <ng-template ng-option-tmp let-item="item" let-index="index">
+        <div class="configurations-option-text">
+          <span class="option-text-items"><b>{{ item.name }}</b></span>
+          <span class="option-text-items">{{ item.description }}</span>
+        </div>
+      </ng-template>
+    </ng-select>
     <mat-form-field class="field">
       <mat-label>Login Profile</mat-label>
       <input matInput type="text" placeholder="Assign a login profile" formControlName="loginProfileCtr"
         [matAutocomplete]="autoLoginProfile" [readonly]="isViewMode">
       <mat-autocomplete #autoLoginProfile="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of loginProfiles" [value]="option">
-          {{ option.name }}
+        <mat-option *ngFor="let option of loginProfiles" [value]="option" height="60">
+          <div class="login-profiles-option-text">
+            <span class="option-text-items"><b>{{ option.name }}</b></span>
+            <span class="option-text-items">Username: {{ option.username }}</span>
+            <span class="option-text-items">Password: {{ option.password }}</span>
+          </div>
         </mat-option>
       </mat-autocomplete>
       <mat-error *ngIf="loginProfileCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>

@@ -1,5 +1,5 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup, UntypedFormControl, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
 import { ROLES } from 'src/app/shared/contants/roles.constant';
@@ -10,7 +10,7 @@ import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { ToastrService } from 'ngx-toastr';
 import { NodeService } from 'src/app/core/services/node/node.service';
 import { Store } from '@ngrx/store';
-import { ReplaySubject, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { selectIcons } from '../../store/icon/icon.selectors';
 import { selectDevices } from '../../store/device/device.selectors';
 import { selectTemplates } from '../../store/template/template.selectors';
@@ -47,9 +47,6 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   selectConfigTemplates$ = new Subscription();
   selectLoginProfiles$ = new Subscription();
   isViewMode = false;
-  configTemplateCtr = new UntypedFormControl();
-  configTemplatesFilterCtrl = new UntypedFormControl();
-  filteredConfigTemplates: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
 
   constructor(
     private nodeService: NodeService,
@@ -94,6 +91,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
       roleCtr: new FormControl('', [Validators.required, autoCompleteValidator(ROLES)]),
       domainCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.domains)]),
       hostnameCtr: new FormControl('', Validators.required),
+      configTemplateCtr: new FormControl({ value: '', disabled: this.isViewMode }),
       loginProfileCtr: new FormControl('', [autoCompleteValidator(this.loginProfiles)]),
     });
   }
@@ -109,6 +107,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   get roleCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('roleCtr'), ROLES); }
   get domainCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('domainCtr'), this.domains); }
   get hostnameCtr() { return this.nodeAddForm.get('hostnameCtr'); }
+  get configTemplateCtr() { return this.nodeAddForm.get('configTemplateCtr'); }
   get loginProfileCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('loginProfileCtr'), this.loginProfiles); }
 
   ngOnInit(): void {
@@ -130,13 +129,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
     this.hostnameCtr?.setValue(this.data.genData.hostname);
     this.helpers.setAutoCompleteValue(this.loginProfileCtr, this.loginProfiles, this.data.genData.login_profile_id);
     if (this.data.genData.configs) {
-      const configsIds = this.data.genData.configs.map((item: any) => item.id)
-      this.configTemplateCtr.setValue(this.configTemplates.filter(item => configsIds.includes(item.id)));
+      this.configTemplateCtr?.setValue(this.data.genData.configs.map((item: any) => item.id));
     }
-    this.filteredConfigTemplates.next(this.configTemplates.slice());
-    this.configTemplatesFilterCtrl.valueChanges.subscribe(() => {
-      this.filterConfigTemplates();
-    });
   }
 
   ngOnDestroy(): void {
@@ -237,7 +231,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
         if (this.configTemplateCtr?.value) {
           const configData = {
             pk: respData.id,
-            config_ids: this.configTemplateCtr?.value.map((item: any) => item.id)
+            config_ids: this.configTemplateCtr?.value
           }
           this.nodeService.associate(configData).subscribe(respData => { });
         }
@@ -274,7 +268,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
         if (this.configTemplateCtr?.value) {
           const configData = {
             pk: this.data.genData.id,
-            config_ids: this.configTemplateCtr?.value?.map((item: any) => item.id)
+            config_ids: this.configTemplateCtr?.value
           }
           this.nodeService.associate(configData).subscribe(respData => {
             this.store.dispatch(retrievedMapSelection({ data: true }));
@@ -287,21 +281,5 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
         this.dialogRef.close();
       });
     });
-  }
-
-  filterConfigTemplates() {
-    if (!this.configTemplates) {
-      return;
-    }
-    let search = this.configTemplatesFilterCtrl.value;
-    if (!search) {
-      this.filteredConfigTemplates.next(this.configTemplates.slice());
-      return;
-    } else {
-      search = search.toLowerCase();
-    }
-    this.filteredConfigTemplates.next(
-      this.configTemplates.filter((configTemplate) => configTemplate.name.toLowerCase().indexOf(search) > -1)
-    );
   }
 }

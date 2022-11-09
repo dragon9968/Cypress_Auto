@@ -4,13 +4,12 @@ import { ActivatedRoute, Params } from "@angular/router";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { ReplaySubject, Subscription, throwError } from "rxjs";
-import { FormControl, FormGroup, UntypedFormControl } from "@angular/forms";
+import { Subscription } from "rxjs";
+import { FormControl, FormGroup } from "@angular/forms";
 import { ROLES } from "../../../shared/contants/roles.constant";
 import { ICON_PATH } from "src/app/shared/contants/icon-path.constant";
 import { ErrorMessages } from "../../../shared/enums/error-messages.enum";
 import { NodeService } from "../../../core/services/node/node.service";
-import { IconService } from "../../../core/services/icon/icon.service";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { selectIcons } from "../../../store/icon/icon.selectors";
 import { selectDevices } from "../../../store/device/device.selectors";
@@ -45,9 +44,6 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
   selectDomains$ = new Subscription();
   selectConfigTemplates$ = new Subscription();
   selectLoginProfiles$ = new Subscription();
-  configTemplateCtr = new UntypedFormControl();
-  configTemplatesFilterCtrl = new UntypedFormControl();
-  filteredConfigTemplates: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
 
   constructor(
     private store: Store,
@@ -57,7 +53,6 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
     public dialogRef: MatDialogRef<NodeBulkEditDialogComponent>,
     public helpers: HelpersService,
     private nodeService: NodeService,
-    private iconService: IconService,
   ) {
     this.selectIcons$ = this.store.select(selectIcons).subscribe(icons => this.icons = icons);
     this.selectDevices$ = this.store.select(selectDevices).subscribe(devices => this.devices = devices);
@@ -72,7 +67,6 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
     this.selectLoginProfiles$ = this.store.select(selectLoginProfiles).subscribe(
       loginProfiles => this.loginProfiles = loginProfiles
     );
-
     this.nodeBulkEditForm = new FormGroup({
       iconCtr: new FormControl('', [autoCompleteValidator(this.icons)]),
       deviceCtr: new FormControl('', [autoCompleteValidator(this.devices)]),
@@ -80,6 +74,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
       domainCtr: new FormControl('', [autoCompleteValidator(this.domains)]),
       folderCtr: new FormControl(''),
       roleCtr: new FormControl('', [autoCompleteValidator(ROLES)]),
+      configTemplateCtr: new FormControl(''),
       loginProfileCtr: new FormControl('', [autoCompleteValidator(this.loginProfiles)]),
     })
   }
@@ -90,14 +85,11 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
   get domainCtr() { return this.helpers.getAutoCompleteCtr(this.nodeBulkEditForm.get('domainCtr'), this.domains); }
   get folderCtr() { return this.nodeBulkEditForm.get('folderCtr'); }
   get roleCtr() { return this.helpers.getAutoCompleteCtr(this.nodeBulkEditForm.get('roleCtr'), ROLES); }
+  get configTemplateCtr() { return this.nodeBulkEditForm.get('configTemplateCtr'); }
   get loginProfileCtr() { return this.helpers.getAutoCompleteCtr(this.nodeBulkEditForm.get('loginProfileCtr'), this.loginProfiles); }
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe((params: Params) => this.collectionId = params['collection_id'])
-    this.filteredConfigTemplates.next(this.configTemplates.slice());
-    this.configTemplatesFilterCtrl.valueChanges.subscribe(() => {
-      this.filterConfigTemplates();
-    });
+    this.route.queryParams.subscribe((params: Params) => this.collectionId = params['collection_id']);
   }
 
   ngOnDestroy(): void {
@@ -129,7 +121,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
           if (this.configTemplateCtr?.value) {
             const configData = {
               pk: nodeData.id,
-              config_ids: this.configTemplateCtr?.value.map((item: any) => item.id)
+              config_ids: this.configTemplateCtr?.value
             }
             this.nodeService.associate(configData).subscribe(respData => {
               this.store.dispatch(retrievedMapSelection({ data: true }));
@@ -151,21 +143,5 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
 
   onCancel() {
     this.dialogRef.close();
-  }
-
-  filterConfigTemplates() {
-    if (!this.configTemplates) {
-      return;
-    }
-    let search = this.configTemplatesFilterCtrl.value;
-    if (!search && search !== "") {
-      this.filteredConfigTemplates.next(this.configTemplates.slice());
-      return;
-    } else {
-      search = search.toLowerCase();
-    }
-    this.filteredConfigTemplates.next(
-      this.configTemplates.filter((configTemplate) => configTemplate.name.toLowerCase().indexOf(search) > -1)
-    );
   }
 }
