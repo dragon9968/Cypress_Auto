@@ -89,7 +89,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
     this.isHideText = this.activeNodes.length + this.activePGs.length + this.activeEdges.length + this.activeGBs.length == 0;
     if (this.activeNodes.length >= 1) {
       const data = this.activeNodes[0].data();
-      this.nodeSize = data.height.replace('px', '');
+      this.nodeSize = data.height;
       this.textSize = this.removePx(data.text_size);
       this._setPropertiesCommon(data);
     }
