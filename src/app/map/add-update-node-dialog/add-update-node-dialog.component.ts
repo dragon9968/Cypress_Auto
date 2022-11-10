@@ -1,5 +1,5 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
 import { ROLES } from 'src/app/shared/contants/roles.constant';
@@ -10,7 +10,7 @@ import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { ToastrService } from 'ngx-toastr';
 import { NodeService } from 'src/app/core/services/node/node.service';
 import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs';
+import { catchError, Subscription, throwError } from 'rxjs';
 import { selectIcons } from '../../store/icon/icon.selectors';
 import { selectDevices } from '../../store/device/device.selectors';
 import { selectTemplates } from '../../store/template/template.selectors';
@@ -20,6 +20,16 @@ import { selectConfigTemplates } from '../../store/config-template/config-templa
 import { selectLoginProfiles } from '../../store/login-profile/login-profile.selectors';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
+import { selectNodesByCollectionId } from 'src/app/store/node/node.selectors';
+import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
+import { hostnameValidator } from 'src/app/shared/validations/hostname.validation';
+import { ErrorStateMatcher } from '@angular/material/core';
+
+class CrossFieldErrorMatcher implements ErrorStateMatcher {
+  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
+    return !!control?.dirty && (form?.errors?.['isNotMatchPattern'] || form?.errors?.['isNotMatchLength']);
+  }
+}
 
 @Component({
   selector: 'app-add-update-node-dialog',
@@ -28,6 +38,7 @@ import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection
 })
 export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   nodeAddForm: FormGroup;
+  errorMatcher = new CrossFieldErrorMatcher();
   ROLES = ROLES;
   ICON_PATH = ICON_PATH;
   filteredTemplates!: any[];
@@ -39,6 +50,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   domains!: any[];
   configTemplates!: any[];
   loginProfiles!: any[];
+  nodes!: any[];
   selectIcons$ = new Subscription();
   selectDevices$ = new Subscription();
   selectTemplates$ = new Subscription();
@@ -46,6 +58,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   selectDomains$ = new Subscription();
   selectConfigTemplates$ = new Subscription();
   selectLoginProfiles$ = new Subscription();
+  selectNodes$ = new Subscription();
   isViewMode = false;
 
   constructor(
@@ -78,9 +91,10 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
     this.selectLoginProfiles$ = this.store.select(selectLoginProfiles).subscribe((loginProfiles: any) => {
       this.loginProfiles = loginProfiles;
     });
+    this.selectNodes$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => this.nodes = nodes);
     this.isViewMode = this.data.mode == 'view';
     this.nodeAddForm = new FormGroup({
-      nameCtr: new FormControl('', Validators.required),
+      nameCtr: new FormControl('', [Validators.required, validateNameExist(() => this.nodes, this.data.mode, this.data.genData.id)]),
       notesCtr: new FormControl(''),
       iconCtr: new FormControl('', [autoCompleteValidator(this.icons)]),
       categoryCtr: new FormControl({ value: '', disabled: this.isViewMode }),
@@ -93,7 +107,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
       hostnameCtr: new FormControl('', Validators.required),
       configTemplateCtr: new FormControl({ value: '', disabled: this.isViewMode }),
       loginProfileCtr: new FormControl('', [autoCompleteValidator(this.loginProfiles)]),
-    });
+    }, { validators: hostnameValidator });
   }
 
   get nameCtr() { return this.nodeAddForm.get('nameCtr'); }
@@ -211,7 +225,12 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
         "background-fit": "contain"
       } : undefined,
     }
-    this.nodeService.add(jsonData).subscribe((respData: any) => {
+    this.nodeService.add(jsonData).pipe(
+      catchError((e: any) => {
+        this.toastr.error(e.error.message);
+        return throwError(() => e);
+      })
+    ).subscribe((respData: any) => {
       this.nodeService.get(respData.id).subscribe(respData => {
         const cyData = respData.result;
         cyData.id = 'node-' + respData.id;
@@ -260,7 +279,12 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
       collection_id: this.data.genData.collection_id,
       logical_map_position: ele.position(),
     }
-    this.nodeService.put(this.data.genData.id, jsonData).subscribe((_respData: any) => {
+    this.nodeService.put(this.data.genData.id, jsonData).pipe(
+      catchError((e: any) => {
+        this.toastr.error(e.error.message);
+        return throwError(() => e);
+      })
+    ).subscribe((_respData: any) => {
       this.nodeService.get(this.data.genData.id).subscribe(nodeData => {
         ele.data('name', nodeData.result.name);
         ele.data('groups', nodeData.result.groups);

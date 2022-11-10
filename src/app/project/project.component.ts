@@ -81,7 +81,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
       [RouteSegments.MAP],
       {
         queryParams: {
-          category: rows["category"],
+          category: 'logical',
           collection_id: rows["id"]
         }
       }
