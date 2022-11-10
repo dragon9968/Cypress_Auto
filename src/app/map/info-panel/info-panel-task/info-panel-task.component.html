@@ -16,10 +16,8 @@
   </button>
 </mat-menu>
 
-<ag-grid-angular
-  class="ag-theme-alpine info-panel-task"
-  [gridOptions]="gridOptions"
-  (gridReady)="onGridReady($event)"
-  [rowData]="rowData$ | async"
-  (rowSelected)="selectedRows()">
-</ag-grid-angular>
+<div class="ag-theme-alpine info-panel-task" [style.height]="gridHeight">
+  <ag-grid-angular style="width: 100%; height: 100%;" [gridOptions]="gridOptions" (gridReady)="onGridReady($event)"
+    [rowData]="rowData$ | async" (rowSelected)="selectedRows()">
+  </ag-grid-angular>
+</div>

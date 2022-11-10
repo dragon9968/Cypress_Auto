@@ -1,7 +1,7 @@
 import { Store } from "@ngrx/store";
 import { ToastrService } from "ngx-toastr";
 import { catchError } from "rxjs/operators";
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { MatDialog } from "@angular/material/dialog";
 import { ActivatedRoute, Params } from "@angular/router";
 import { MatIconRegistry } from "@angular/material/icon";
@@ -24,7 +24,7 @@ import { selectDomains } from "../../../store/domain/domain.selectors";
   styleUrls: ['./info-panel-domain.component.scss']
 })
 export class InfoPanelDomainComponent implements OnInit {
-
+  @Input() infoPanelheight = '300px';
   private gridApi!: GridApi;
   collectionId: string = '0';
   selectDomains$ = new Subscription();
@@ -108,6 +108,11 @@ export class InfoPanelDomainComponent implements OnInit {
         this.rowData$ = of(domains);
       }
     });
+  }
+
+  get gridHeight() {
+    const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
+    return infoPanelHeightNumber >= 300 ? (infoPanelHeightNumber-100) + 'px' : '200px';
   }
 
   ngOnInit(): void {

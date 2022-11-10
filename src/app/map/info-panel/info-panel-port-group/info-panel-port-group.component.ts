@@ -29,6 +29,7 @@ export class InfoPanelPortGroupComponent implements OnInit {
   @Input() activeGBs: any[] = [];
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterfaces: any[] = [];
+  @Input() infoPanelheight = '300px';
   private gridApi!: GridApi;
   rowsSelected: any[] = [];
   rowsSelectedId: any[] = [];
@@ -56,6 +57,10 @@ export class InfoPanelPortGroupComponent implements OnInit {
     });
   }
 
+  get gridHeight() {
+    const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
+    return infoPanelHeightNumber >= 300 ? (infoPanelHeightNumber-100) + 'px' : '200px';
+  }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe((params: Params) => {

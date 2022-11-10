@@ -7,7 +7,7 @@
   <button mat-menu-item (click)="cloneNodes()">
     <mat-icon>file_copy</mat-icon>Clone
   </button>
-  <button mat-menu-item  (click)="deleteNodes()">
+  <button mat-menu-item (click)="deleteNodes()">
     <mat-icon>delete_forever</mat-icon>Delete
   </button>
   <button mat-menu-item (click)="editNodes()">
@@ -24,9 +24,8 @@
   </button>
 </mat-menu>
 
-<ag-grid-angular
-  class="ag-theme-alpine info-panel-node"
-  [gridOptions]="gridOptions"
-  (gridReady)="onGridReady($event)"
-  (rowSelected)="selectedRows()">
-</ag-grid-angular>
+<div class="ag-theme-alpine info-panel-node" [style.height]="gridHeight">
+  <ag-grid-angular style="width: 100%; height: 100%;" [gridOptions]="gridOptions" (gridReady)="onGridReady($event)"
+    (rowSelected)="selectedRows()">
+  </ag-grid-angular>
+</div>

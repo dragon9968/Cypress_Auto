@@ -30,6 +30,7 @@ export class InfoPanelInterfaceComponent {
   @Input() activeGBs: any[] = [];
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterfaces: any[] = [];
+  @Input() infoPanelheight = '300px';
   private gridApi!: GridApi;
   rowsSelected: any[] = [];
   rowsSelectedId: any[] = [];
@@ -155,6 +156,11 @@ export class InfoPanelInterfaceComponent {
         this.store.dispatch(retrievedMapSelection({ data: false }));
       }
     });
+  }
+
+  get gridHeight() {
+    const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
+    return infoPanelHeightNumber >= 300 ? (infoPanelHeightNumber-100) + 'px' : '200px';
   }
 
   onGridReady(params: GridReadyEvent) {

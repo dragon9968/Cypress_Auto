@@ -2,7 +2,7 @@ import { Store } from "@ngrx/store";
 import { MatDialog } from "@angular/material/dialog";
 import { ToastrService } from "ngx-toastr";
 import { MatIconRegistry } from "@angular/material/icon";
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Observable, of, Subscription } from "rxjs";
 import { ColumnApi, GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
@@ -19,7 +19,7 @@ import { ConfirmationDialogComponent } from "../../../shared/components/confirma
   styleUrls: ['./info-panel-task.component.scss']
 })
 export class InfoPanelTaskComponent implements OnInit {
-
+  @Input() infoPanelheight = '300px';
   private gridApi!: GridApi;
   private gridColumnApi!: ColumnApi;
   selectUserTasks$ = new Subscription();
@@ -122,6 +122,11 @@ export class InfoPanelTaskComponent implements OnInit {
         this.rowData$ = of(userTasks);
       }
     })
+  }
+
+  get gridHeight() {
+    const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
+    return infoPanelHeightNumber >= 300 ? (infoPanelHeightNumber-100) + 'px' : '200px';
   }
 
   ngOnInit(): void {

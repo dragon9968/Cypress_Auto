@@ -27,7 +27,10 @@ export class InfoPanelComponent implements OnInit{
   @Input() deletedInterfaces: any[] = [];
   selectDomainUser$ = new Subscription();
   collectionId = '0';
-  style = {};
+  style: any = {
+    position: 'fixed',
+    height: '300px'
+  };
 
   constructor(
     private store: Store,

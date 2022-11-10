@@ -30,12 +30,18 @@ export class InfoPanelNodeComponent {
   @Input() activeGBs: any[] = [];
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterfaces: any[] = [];
+  @Input() infoPanelheight = '300px';
   private gridApi!: GridApi;
   rowsSelected: any[] = [];
   rowsSelectedId: any[] = [];
   isClickAction: boolean = true;
   tabName = 'node';
   selectIsSelectedNodes$ = new Subscription();
+
+  get gridHeight() {
+    const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
+    return infoPanelHeightNumber >= 300 ? (infoPanelHeightNumber-100) + 'px' : '200px';
+  }
 
   private _setNodeInfoPanel(activeNodes: any[]) {
     if (activeNodes.length === 0) {

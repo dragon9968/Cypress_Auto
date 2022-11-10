@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
 import { Observable, of, Subscription } from "rxjs";
 import { InfoPanelRenderComponent } from "../info-panel-render/info-panel-render.component";
@@ -16,7 +16,7 @@ import { AddUpdateGroupDialogComponent } from "../../add-update-group-dialog/add
   styleUrls: ['./info-panel-group.component.scss']
 })
 export class InfoPanelGroupComponent implements OnInit {
-
+  @Input() infoPanelheight = '300px';
   private gridApi!: GridApi;
   mapCategory = '';
   collectionId: string = '0';
@@ -114,6 +114,11 @@ export class InfoPanelGroupComponent implements OnInit {
         this.rowData$ = of(groupDataAg);
       }
     })
+  }
+
+  get gridHeight() {
+    const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
+    return infoPanelHeightNumber >= 300 ? (infoPanelHeightNumber-100) + 'px' : '200px';
   }
 
   ngOnInit(): void {

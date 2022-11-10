@@ -3,29 +3,29 @@
   <mat-tab-group class="map-info-panel">
     <mat-tab label="Nodes">
       <app-info-panel-node [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs" [activeEdges]="activeEdges"
-        [activeGBs]="activeGBs" [deletedNodes]="deletedNodes" [deletedInterfaces]="deletedInterfaces">
+        [activeGBs]="activeGBs" [deletedNodes]="deletedNodes" [deletedInterfaces]="deletedInterfaces" [infoPanelheight]="style.height">
       </app-info-panel-node>
     </mat-tab>
     <mat-tab label="Port Groups">
       <app-info-panel-port-group [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs"
         [activeEdges]="activeEdges" [activeGBs]="activeGBs" [deletedNodes]="deletedNodes"
-        [deletedInterfaces]="deletedInterfaces">
+        [deletedInterfaces]="deletedInterfaces" [infoPanelheight]="style.height">
       </app-info-panel-port-group>
     </mat-tab>
     <mat-tab label="Interfaces">
       <app-info-panel-interface [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs"
         [activeEdges]="activeEdges" [activeGBs]="activeGBs" [deletedNodes]="deletedNodes"
-        [deletedInterfaces]="deletedInterfaces">
+        [deletedInterfaces]="deletedInterfaces" [infoPanelheight]="style.height">
       </app-info-panel-interface>
     </mat-tab>
     <mat-tab label="Domain">
-      <app-info-panel-domain></app-info-panel-domain>
+      <app-info-panel-domain [infoPanelheight]="style.height"></app-info-panel-domain>
     </mat-tab>
     <mat-tab label="Group">
-      <app-info-panel-group></app-info-panel-group>
+      <app-info-panel-group [infoPanelheight]="style.height"></app-info-panel-group>
     </mat-tab>
     <mat-tab label="Task List">
-      <app-info-panel-task></app-info-panel-task>
+      <app-info-panel-task [infoPanelheight]="style.height"></app-info-panel-task>
     </mat-tab>
   </mat-tab-group>
   <div class="resize-handle-top" mwlResizeHandle [resizeEdges]="{ top: true }"></div>

@@ -4,7 +4,7 @@
   <mat-icon *ngIf="!isClickAction">keyboard_arrow_up</mat-icon>
 </button>
 <mat-menu #actionMenu="matMenu" yPosition="below">
-  <button mat-menu-item  (click)="deleteInterfaces()">
+  <button mat-menu-item (click)="deleteInterfaces()">
     <mat-icon>delete_forever</mat-icon>Delete
   </button>
   <button mat-menu-item (click)="editInterfaces()">
@@ -18,9 +18,8 @@
   </button>
 </mat-menu>
 
-<ag-grid-angular
-  class="ag-theme-alpine info-panel-interface"
-  [gridOptions]="gridOptions"
-  (gridReady)="onGridReady($event)"
-  (rowSelected)="selectedRows()">
-</ag-grid-angular>
+<div class="ag-theme-alpine info-panel-interface" [style.height]="gridHeight">
+  <ag-grid-angular style="width: 100%; height: 100%;" [gridOptions]="gridOptions" (gridReady)="onGridReady($event)"
+    (rowSelected)="selectedRows()">
+  </ag-grid-angular>
+</div>
