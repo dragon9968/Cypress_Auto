@@ -296,6 +296,18 @@ export class InfoPanelService {
     })
   }
 
+  refreshTask() {
+    this.userTaskService.refreshTask().subscribe({
+      next: response => {
+        this.toastr.success(response.message, 'Success');
+        this.updateTaskList();
+      },
+      error: err => {
+        this.toastr.error(err.error.message, 'Error');
+      }
+    })
+  }
+
   updateTaskList() {
     this.userTaskService.getAll().subscribe(data => {
       this.store.dispatch(retrievedUserTasks({data: data.result}));

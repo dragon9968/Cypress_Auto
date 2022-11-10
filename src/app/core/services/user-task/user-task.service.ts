@@ -35,4 +35,8 @@ export class UserTaskService {
   postTask(pks: any) {
     return this.httpClient.post<any>(ApiPaths.USER_TASK_POST_TASK, pks);
   }
+
+  refreshTask() {
+    return this.httpClient.get<any>(ApiPaths.USER_TASK_REFRESH_TASK);
+  }
 }

@@ -176,7 +176,18 @@ export class InfoPanelTaskComponent implements OnInit {
     const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
     dialogConfirm.afterClosed().subscribe(confirm => {
       if (confirm) {
-        this.infoPanelService.revokeTask(this.rowsSelectedId);
+        let taskPendingId: any[] = []
+        this.rowsSelected.map(task => {
+          if (task.task_state === 'PENDING') {
+            taskPendingId.push(task.id);
+          } else {
+            this.toastr.warning(`Task ${task.display_name} has state ${task.task_state} and can not be revoked!
+                                    <br /> Revoke only apply to the pending task`, 'Warning', { enableHtml: true});
+          }
+        })
+        if (taskPendingId.length !== 0) {
+          this.infoPanelService.revokeTask(taskPendingId);
+        }
       }
     });
   }
@@ -197,5 +208,9 @@ export class InfoPanelTaskComponent implements OnInit {
       state: [{colId: 'id', sort: 'desc'}],
       defaultState: {sort: null}
     })
+  }
+
+  refreshTask() {
+    this.infoPanelService.refreshTask();
   }
 }

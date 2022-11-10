@@ -3,6 +3,9 @@
   <mat-icon *ngIf="isClickAction">keyboard_arrow_down</mat-icon>
   <mat-icon *ngIf="!isClickAction">keyboard_arrow_up</mat-icon>
 </button>
+<button mat-button class="btn-refresh" color="primary" (click)="refreshTask()">
+  <mat-icon>sync</mat-icon>
+</button>
 
 <mat-menu #actionMenu="matMenu" yPosition="below">
   <button mat-menu-item (click)="delete()">
