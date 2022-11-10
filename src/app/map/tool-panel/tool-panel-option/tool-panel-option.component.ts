@@ -203,7 +203,9 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
   toggleSnapToGrid() {
     this.config.grid_on_options.snapToGridOnRelease = this.isSnapToGridChecked;
     this.config.grid_on_options.gridSpacing = this.gridSpacingSize;
-    this.cy.gridGuide(this.config.grid_on_options);
+    if (this.isMapGridChecked) {
+      this.cy.gridGuide(this.config.grid_on_options);
+    }
     if (this.isSnapToGridChecked) {
       this._updateNodeStatus();
     }
