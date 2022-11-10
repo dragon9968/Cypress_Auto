@@ -900,6 +900,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       if (this.isAddPublicPG) this.isAddPublicPG = false;
       if (this.isAddPrivatePG) this.isAddPrivatePG = false;
       this._enableMapEditButtons();
+      this.portgroupService.getByCollectionId(this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedPortGroups({ data: data.result })));
     });
   }
 
