@@ -185,8 +185,18 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
         this.infoPanelService.deleteDomain(domainData.result, this.collectionId);
       });
     } else if (this.group_id) {
-      this.groupService.get(this.group_id).subscribe(groupData => {
-        this._deleteGroup(groupData.result);
+      const dialogData = {
+        title: 'User confirmation needed',
+        message: 'You sure you want to delete this item?',
+        submitButtonName: 'OK'
+      }
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
+      dialogConfirm.afterClosed().subscribe(confirm => {
+        if (confirm) {
+          this.groupService.get(this.group_id).subscribe(groupData => {
+            this._deleteGroup(groupData.result);
+          })
+        }
       })
     } else if (this.userTaskId){
       const dialogData = {
