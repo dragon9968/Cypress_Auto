@@ -69,4 +69,8 @@ export enum ApiPaths {
   GET_WINROLES = '/api/v1/configtemplate/get_winroles',
   CONFIG_TEMPLATES_EXPORT = '/api/v1/configtemplate/export',
   DELETE_CONFIG_TEMPLATES = '/api/v1/configtemplate/delete_configuration/',
+  DEVICES_ADD = '/api/v1/device/add',
+  DEVICES_UPDATE = '/api/v1/device/update',
+  DEVICES_EXPORT = '/api/v1/device/export',
+  TEMPLATES_EXPORT = '/api/v1/template/export',
 }

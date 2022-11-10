@@ -46,10 +46,10 @@ export class ActionsRenderHardwareComponent implements ICellRendererAngularComp 
   }
 
   updateHardware() {
-    this.hardwareService.getById(this.id).subscribe(hardwareData => {
+    this.hardwareService.getById(this.id).subscribe(DeviceData => {
       const dialogData = {
         mode: 'update',
-        genData: hardwareData.result
+        genData: DeviceData.result
       }
       const dialogRef = this.dialog.open(AddEditHardwareDialogComponent, {
         autoFocus: false,

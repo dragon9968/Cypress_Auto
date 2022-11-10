@@ -13,4 +13,24 @@ export class DeviceService {
   getAll(): Observable<any> {
     return this.http.get<any>(ApiPaths.DEVICES);
   }
+
+  getById(id: string): Observable<any> {
+    return this.http.get<any>(ApiPaths.DEVICES + id);
+  }
+
+  add(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.DEVICES_ADD, data);
+  }
+
+  delete(id: string): Observable<any> {
+    return this.http.delete<any>(ApiPaths.DEVICES + id);
+  }
+
+  update(data: any): Observable<any> {
+    return this.http.put<any>(ApiPaths.DEVICES_UPDATE, data)
+  }
+
+  export(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.DEVICES_EXPORT, data)
+  }
 }

@@ -3,7 +3,7 @@
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Device</mat-label>
-      <mat-chip-list #chipList aria-label="Fruit selection">
+      <mat-chip-list #chipList aria-label="Role selection">
         <mat-chip
           *ngFor="let role of roleService"
           (removed)="remove(role)">

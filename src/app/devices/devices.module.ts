@@ -13,6 +13,10 @@ import { DeviceCategoryRenderComponent } from './device-category/device-category
 import { AddUpdateDeviceCategoryDialogComponent } from './device-category/add-update-device-category-dialog/add-update-device-category-dialog.component';
 import { IconGalleryComponent } from './icon-gallery/icon-gallery.component';
 import { AddEditIconDialogComponent } from './icon-gallery/add-edit-icon-dialog/add-edit-icon-dialog.component';
+import { AddEditDeviceDialogComponent } from './device-template/add-edit-device-dialog/add-edit-device-dialog.component';
+import { ActionRenderDeviceComponent } from './device-template/action-render-device/action-render-device.component';
+import { AddEditTemplateDialogComponent } from './device-template/add-edit-template-dialog/add-edit-template-dialog.component';
+import { ActionRenderTemplateComponent } from './device-template/action-render-template/action-render-template.component';
 
 
 @NgModule({
@@ -28,7 +32,11 @@ import { AddEditIconDialogComponent } from './icon-gallery/add-edit-icon-dialog/
     DeviceCategoryRenderComponent,
     AddUpdateDeviceCategoryDialogComponent,
     IconGalleryComponent,
-    AddEditIconDialogComponent
+    AddEditIconDialogComponent,
+    AddEditDeviceDialogComponent,
+    ActionRenderDeviceComponent,
+    AddEditTemplateDialogComponent,
+    ActionRenderTemplateComponent
   ],
   imports: [
     SharedModule,

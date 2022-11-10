@@ -1,1 +1,86 @@
-<p>device-template works!</p>
+<h1>Devices/Template Table</h1>
+<div class="devices-template-container">
+  <mat-card class="devices-container" [class.large]="large" [class.small]="!large">
+    <mat-card-title class="title">Devices Table</mat-card-title>
+    <div class="sub-title">
+      <div class="left">
+        <button mat-raised-button color="primary" (click)="addDevices()">
+          <mat-icon>add</mat-icon>
+        </button>
+        <button mat-button [matMenuTriggerFor]="actionMenu" class="actions">Actions
+          <mat-icon>keyboard_arrow_down</mat-icon>
+        </button>
+        <mat-menu #actionMenu="matMenu">
+          <button mat-menu-item (click)="exportDevice()"><mat-icon svgIcon="export-json"></mat-icon>Export as JSON</button>
+        </mat-menu>
+      </div>
+      <div class="right">
+        <input 
+          matInput
+          class="search"
+          type="search"
+          [(ngModel)]="quickFilterValueDevices"
+          placeholder="search"
+          (input)="onQuickFilterInputDevices($event)"
+        >
+      </div>
+    </div>
+    <ag-grid-angular #agGrid1
+      class="ag-theme-alpine devices-template"
+      [pagination]="true"
+      [paginationPageSize]="25"
+      [columnDefs]="columnDefsDevices"
+      [defaultColDef]="defaultColDef"
+      [rowData]="rowDataDevices$ | async" 
+      [rowSelection]="'multiple'"
+      [animateRows]="true"
+      (gridReady)="onGridReady($event)"
+      (selectionChanged)="onSelectionChanged()"
+      (rowSelected)="selectedRowsDevice()"
+      >
+      </ag-grid-angular>
+  </mat-card>
+  <div class="template-container" [hidden]="isHiddenTable">
+  <mat-card>
+    <mat-card-title class="title">Template Table</mat-card-title>
+    <div class="sub-title">
+      <div class="left">
+        <button mat-raised-button color="primary" [disabled]="isDisableTemplate" (click)="addTemplate()">
+          <mat-icon>add</mat-icon>
+        </button>
+        <button mat-button [matMenuTriggerFor]="actionMenu"  [disabled]="isDisableTemplate" class="actions">Actions
+          <mat-icon>keyboard_arrow_down</mat-icon>
+        </button>
+        <mat-menu #actionMenu="matMenu">
+          <button mat-menu-item (click)="exportTemplate()"><mat-icon svgIcon="export-json"></mat-icon>Export as JSON</button>
+        </mat-menu>
+      </div>
+      <div class="right">
+        <input 
+          matInput
+          class="search"
+          type="search"
+          [(ngModel)]="quickFilterValueTemplates"
+          placeholder="search"
+          (input)="onQuickFilterInputTemplate($event)"
+        >
+      </div>
+    </div>
+    <ag-grid-angular #agGrid2
+      class="ag-theme-alpine devices-template"
+      [pagination]="true"
+      [paginationPageSize]="25"
+      [columnDefs]="columnDefsTemplate"
+      [defaultColDef]="defaultColDef"
+      [rowData]="rowDataTemplate$ | async" 
+      [rowSelection]="'multiple'"
+      [suppressRowClickSelection]="true"
+      [animateRows]="true"
+      (gridReady)="onGridReady2($event)"
+      (rowSelected)="selectedRows()"
+      >
+      </ag-grid-angular>
+  </mat-card>
+</div>
+</div>
+
