@@ -1,9 +1,10 @@
 import { Store } from "@ngrx/store";
+import { takeUntil } from "rxjs/operators";
 import { MatDialog } from "@angular/material/dialog";
 import { ToastrService } from "ngx-toastr";
 import { MatIconRegistry } from "@angular/material/icon";
-import { Component, Input, OnInit } from '@angular/core';
-import { Observable, of, Subscription } from "rxjs";
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { interval, Observable, of, Subject, Subscription } from "rxjs";
 import { ColumnApi, GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { UserTaskService } from "../../../core/services/user-task/user-task.service";
@@ -18,7 +19,7 @@ import { ConfirmationDialogComponent } from "../../../shared/components/confirma
   templateUrl: './info-panel-task.component.html',
   styleUrls: ['./info-panel-task.component.scss']
 })
-export class InfoPanelTaskComponent implements OnInit {
+export class InfoPanelTaskComponent implements OnInit, OnDestroy {
   @Input() infoPanelheight = '300px';
   private gridApi!: GridApi;
   private gridColumnApi!: ColumnApi;
@@ -29,6 +30,7 @@ export class InfoPanelTaskComponent implements OnInit {
   rowData$!: Observable<any>;
   isClickAction = false;
   tabName = 'userTask';
+  destroy$: Subject<boolean> = new Subject<boolean>();
 
   public gridOptions: GridOptions = {
     headerHeight: 48,
@@ -130,9 +132,16 @@ export class InfoPanelTaskComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.userTaskService.getAll().subscribe(data => {
+    this.userTaskService.getAll().pipe(takeUntil(this.destroy$)).subscribe(data => {
       this.store.dispatch(retrievedUserTasks({data: data.result}));
     })
+    this.refreshTaskListByInterval()
+  }
+
+
+  ngOnDestroy(): void {
+    this.destroy$.next(true);
+    this.destroy$.unsubscribe();
   }
 
   delete() {
@@ -212,5 +221,15 @@ export class InfoPanelTaskComponent implements OnInit {
 
   refreshTask() {
     this.infoPanelService.refreshTask();
+  }
+
+  refreshTaskListByInterval() {
+    interval(30000).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.userTaskService.getAll().subscribe(response => {
+        this.store.dispatch(retrievedUserTasks({data: response.result}));
+      })
+    })
   }
 }
