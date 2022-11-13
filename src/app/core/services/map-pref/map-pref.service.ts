@@ -22,7 +22,7 @@ export class MapPrefService {
     return this.http.post<any>(ApiPaths.MAP_PREF, data)
   }
 
-  update(id: string, data: any): Observable<any> {
+  put(id: string, data: any): Observable<any> {
     return this.http.put<any>(ApiPaths.MAP_PREF + id, data);
   }
 

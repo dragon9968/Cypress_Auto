@@ -12,23 +12,23 @@ export class DeviceCategoryService {
     private http: HttpClient
   ) { }
 
-  getAllDeviceCategory(): Observable<any> {
+  getAll(): Observable<any> {
     return this.http.get<any>(ApiPaths.DEVICE_CATEGORY)
   }
 
-  addDeviceCategory(data: any): Observable<any> {
+  add(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.DEVICE_CATEGORY, data);
   }
 
-  getDeviceCategoryById(id: number): Observable<any> {
+  get(id: number): Observable<any> {
     return this.http.get<any>(ApiPaths.DEVICE_CATEGORY + id);
   }
 
-  editDeviceCategory(id: number,data: any): Observable<any> {
+  put(id: number,data: any): Observable<any> {
     return this.http.put<any>(ApiPaths.DEVICE_CATEGORY + id, data);
   }
 
-  deleteDeviceCategory(id: number): Observable<any> {
+  delete(id: number): Observable<any> {
     return this.http.delete<any>(ApiPaths.DEVICE_CATEGORY + id);
   }
 }

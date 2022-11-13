@@ -104,7 +104,7 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
       icon_id: this.icon?.value.id,
       login_profile_id: this.loginProfile?.value.id
     }
-    this.templateService.update(this.data.genData.id, jsonData).subscribe({
+    this.templateService.put(this.data.genData.id, jsonData).subscribe({
       next: (rest) => {
         this.toastr.success(`Update Template successfully`)
         this.dialogRef.close();

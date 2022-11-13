@@ -19,7 +19,7 @@ export class ServerConnectService {
     return this.http.get<any>(ApiPaths.SERVER_CONNECT);
   }
 
-  getById(id: number): Observable<any> {
+  get(id: number): Observable<any> {
     return this.http.get<any>(ApiPaths.SERVER_CONNECT + id);
   }
 

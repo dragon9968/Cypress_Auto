@@ -249,7 +249,7 @@ export class AddEditMapprefDialogComponent implements OnInit, OnDestroy {
         edge_arrow_size: this.edgeArrowSizeCtr?.value,
       },
     }
-    this.mapPrefService.update(this.data.genData.id, jsonData).subscribe({
+    this.mapPrefService.put(this.data.genData.id, jsonData).subscribe({
       next:(rest) => {
         this.toastr.success(`Updated Preferences ${rest.result.name} successfully`);
         this.dialogRef.close();

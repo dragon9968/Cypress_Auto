@@ -145,7 +145,7 @@ export class AddEditHardwareDialogComponent implements OnInit {
         serial_number: this.serialNumber?.value,
         asset_tag: this.assetTag?.value
       };
-      this.hardwareService.update(this.data.genData.id, jsonData).subscribe({
+      this.hardwareService.put(this.data.genData.id, jsonData).subscribe({
         next: (rest) =>{
           this.toastr.success(`Update Hardware successfully`);
           this.dialogRef.close();

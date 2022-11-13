@@ -36,7 +36,7 @@ export class ActionsRendersConfigTemplateComponent implements ICellRendererAngul
   }
   
   updateConfigTemplate() {
-    this.configTemplateService.getById(this.id).subscribe(configTemplateData => {
+    this.configTemplateService.get(this.id).subscribe(configTemplateData => {
       const dialogData = {
         mode: 'update',
         genData: configTemplateData.result
@@ -71,7 +71,7 @@ export class ActionsRendersConfigTemplateComponent implements ICellRendererAngul
   }
 
   addRouter() {
-    this.configTemplateService.getById(this.id).subscribe(configTemplateData => {
+    this.configTemplateService.get(this.id).subscribe(configTemplateData => {
       const dialogData = {
         mode: 'update',
         genData: configTemplateData.result
@@ -85,7 +85,7 @@ export class ActionsRendersConfigTemplateComponent implements ICellRendererAngul
   }
 
   addFirewallRule() {
-    this.configTemplateService.getById(this.id).subscribe(configTemplateData => {
+    this.configTemplateService.get(this.id).subscribe(configTemplateData => {
       const dialogData = {
         mode: 'update',
         genData: configTemplateData.result
@@ -99,7 +99,7 @@ export class ActionsRendersConfigTemplateComponent implements ICellRendererAngul
   }
 
   openDomainMembership() {
-    this.configTemplateService.getById(this.id).subscribe(configTemplateData => {
+    this.configTemplateService.get(this.id).subscribe(configTemplateData => {
       const dialogData = {
         mode: 'update',
         genData: configTemplateData.result
@@ -113,7 +113,7 @@ export class ActionsRendersConfigTemplateComponent implements ICellRendererAngul
   }
 
   openRoleService() {
-    this.configTemplateService.getById(this.id).subscribe(configTemplateData => {
+    this.configTemplateService.get(this.id).subscribe(configTemplateData => {
       const dialogData = {
         mode: 'update',
         genData: configTemplateData.result
@@ -127,7 +127,7 @@ export class ActionsRendersConfigTemplateComponent implements ICellRendererAngul
   }
 
   openConfigTemplate() {
-    this.configTemplateService.getById(this.id).subscribe(configTemplateData => {
+    this.configTemplateService.get(this.id).subscribe(configTemplateData => {
       const dialogData = {
         mode: 'update',
         genData: configTemplateData.result

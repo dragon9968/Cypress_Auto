@@ -68,7 +68,7 @@ export class DeviceCategoryRenderComponent implements OnInit, ICellRendererAngul
     dialogRefConfirm.afterClosed().subscribe(confirm => {
       if (confirm) {
         const deviceCategory = this.deviceCategories.find(ele => ele.id === this.id);
-        this.deviceCategoryService.deleteDeviceCategory(this.id).pipe(
+        this.deviceCategoryService.delete(this.id).pipe(
           catchError((response: any) => {
             if (response.status === 400) {
               const message = response.error.message.split(':')[1].split('.');
@@ -82,7 +82,7 @@ export class DeviceCategoryRenderComponent implements OnInit, ICellRendererAngul
           })
         ).subscribe(response => {
           this.toastr.success(`Deleted device category ${ deviceCategory.name }`, 'Success');
-          this.deviceCategoryService.getAllDeviceCategory().subscribe(response => {
+          this.deviceCategoryService.getAll().subscribe(response => {
             this.store.dispatch(retrievedDeviceCategories({data: response.result}));
           });
         })

@@ -107,7 +107,7 @@ export class AddEditIconDialogComponent implements OnInit {
       }
       
       formData.append('name', this.name?.value);
-      this.iconService.update(this.data.genData.id, formData).subscribe({
+      this.iconService.put(this.data.genData.id, formData).subscribe({
         next:(rest) => {
           this.toastr.success(`Update Icon successfully`);
           this.dialogRef.close();

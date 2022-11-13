@@ -73,7 +73,7 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
    get icon() { return this.helpers.getAutoCompleteCtr(this.deviceForm.get('icon'), this.listIcon); }
 
   ngOnInit(): void {
-    this.deviceCategoryService.getAllDeviceCategory().subscribe(deviceCategories => {
+    this.deviceCategoryService.getAll().subscribe(deviceCategories => {
       this.store.dispatch(retrievedDeviceCategories({data: deviceCategories.result}));
     })
     this.iconService.getAll().subscribe(data => {
@@ -121,7 +121,7 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
       icon_id: this.icon?.value.id,
       category: categoryAdd,
     }
-    this.deviceService.update(jsonData).subscribe({
+    this.deviceService.put(jsonData).subscribe({
       next: (rest) => {
         this.toastr.success(`Update Device successfully`)
         this.dialogRef.close();

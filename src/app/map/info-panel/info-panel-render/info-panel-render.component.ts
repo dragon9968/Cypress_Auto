@@ -113,7 +113,7 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
         this.dialog.open(AddUpdateGroupDialogComponent, {width: '600px', data: dialogData});
       })
     } else if (this.userTaskId) {
-      this.userTaskService.getById(this.userTaskId).subscribe(userTaskData => {
+      this.userTaskService.get(this.userTaskId).subscribe(userTaskData => {
         const dialogData = {
           mode: 'postTask',
           genData: userTaskData.result

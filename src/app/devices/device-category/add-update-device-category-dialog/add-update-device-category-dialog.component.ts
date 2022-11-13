@@ -55,14 +55,14 @@ export class AddUpdateDeviceCategoryDialogComponent implements OnInit, OnDestroy
     const jsonData = {
       name: this.nameCtr?.value
     }
-    this.deviceCategoryService.addDeviceCategory(jsonData).pipe(
+    this.deviceCategoryService.add(jsonData).pipe(
       catchError((error: any) => {
         this.toastr.error(`Add device category failed!`);
         return throwError(error.messages);
       })
     ).subscribe(response => {
       this.toastr.success(`Added device category ${response.result.name} successfully`, 'Success');
-      this.deviceCategoryService.getAllDeviceCategory().subscribe(response => {
+      this.deviceCategoryService.getAll().subscribe(response => {
         this.store.dispatch(retrievedDeviceCategories({data: response.result}));
       });
       this.dialogRef.close();
@@ -73,14 +73,14 @@ export class AddUpdateDeviceCategoryDialogComponent implements OnInit, OnDestroy
     const jsonData = {
       name: this.nameCtr?.value
     }
-    this.deviceCategoryService.editDeviceCategory(this.data.genData.id, jsonData).pipe(
+    this.deviceCategoryService.put(this.data.genData.id, jsonData).pipe(
       catchError((error: any) => {
         this.toastr.error(`Edit device category failed due to ${error.messages}`, 'Error');
         return throwError(error.messages);
       })
     ).subscribe(response => {
       this.toastr.success(`Changed device category name from ${this.data.genData.name} to ${response.result.name}`, 'Success');
-      this.deviceCategoryService.getAllDeviceCategory().subscribe(response => {
+      this.deviceCategoryService.getAll().subscribe(response => {
         this.store.dispatch(retrievedDeviceCategories({data: response.result}));
       });
       this.dialogRef.close();

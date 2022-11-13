@@ -48,10 +48,10 @@
         <button mat-raised-button color="primary" [disabled]="isDisableTemplate" (click)="addTemplate()">
           <mat-icon>add</mat-icon>
         </button>
-        <button mat-button [matMenuTriggerFor]="actionMenu"  [disabled]="isDisableTemplate" class="actions">Actions
+        <button mat-button [matMenuTriggerFor]="actionMenuTemplate"  [disabled]="isDisableTemplate" class="actions">Actions
           <mat-icon>keyboard_arrow_down</mat-icon>
         </button>
-        <mat-menu #actionMenu="matMenu">
+        <mat-menu #actionMenuTemplate="matMenu">
           <button mat-menu-item (click)="exportTemplate()"><mat-icon svgIcon="export-json"></mat-icon>Export as JSON</button>
         </mat-menu>
       </div>

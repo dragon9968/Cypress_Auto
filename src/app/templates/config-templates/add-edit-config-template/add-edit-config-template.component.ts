@@ -68,7 +68,7 @@ export class AddEditConfigTemplateComponent implements OnInit {
         name: this.name?.value,
         description: this.description?.value,
       };
-      this.configTemplateService.update(this.data.genData.id, jsonData).subscribe({
+      this.configTemplateService.put(this.data.genData.id, jsonData).subscribe({
         next: (rest) =>{
           this.toastr.success(`Update Configuration Template successfully`);
           this.dialogRef.close();

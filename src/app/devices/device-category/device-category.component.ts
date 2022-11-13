@@ -64,7 +64,7 @@ export class DeviceCategoryComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.deviceCategoryService.getAllDeviceCategory().subscribe(deviceCategories => {
+    this.deviceCategoryService.getAll().subscribe(deviceCategories => {
       this.store.dispatch(retrievedDeviceCategories({data: deviceCategories.result}));
     })
   }

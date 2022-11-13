@@ -14,7 +14,7 @@ export class DeviceService {
     return this.http.get<any>(ApiPaths.DEVICES);
   }
 
-  getById(id: string): Observable<any> {
+  get(id: string): Observable<any> {
     return this.http.get<any>(ApiPaths.DEVICES + id);
   }
 
@@ -26,7 +26,7 @@ export class DeviceService {
     return this.http.delete<any>(ApiPaths.DEVICES + id);
   }
 
-  update(data: any): Observable<any> {
+  put(data: any): Observable<any> {
     return this.http.put<any>(ApiPaths.DEVICES_UPDATE, data)
   }
 

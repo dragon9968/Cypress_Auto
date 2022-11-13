@@ -18,7 +18,7 @@ export class TemplateService {
     return this.http.post<any>(ApiPaths.TEMPLATES, data)
   }
 
-  getById(id: string): Observable<any> {
+  get(id: string): Observable<any> {
     return this.http.get<any>(ApiPaths.TEMPLATES + id)
   }
 
@@ -26,7 +26,7 @@ export class TemplateService {
     return this.http.delete<any>(ApiPaths.TEMPLATES + id)
   }
 
-  update(id: string, data: any): Observable<any> {
+  put(id: string, data: any): Observable<any> {
     return this.http.put<any>(ApiPaths.TEMPLATES + id, data)
   }
 

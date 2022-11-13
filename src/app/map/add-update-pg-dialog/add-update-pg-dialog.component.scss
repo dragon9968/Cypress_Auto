@@ -10,6 +10,7 @@ $margin: 8px;
     align-items: center;
     margin: $margin 0;
     display: flex;
+    padding-bottom: 12px;
 }
 
 .category-group {
@@ -20,6 +21,7 @@ $margin: 8px;
 
 .category-label {
     width: 200px;
+    font-family: 'Roboto', sans-serif;
 }
 
 .category-items {
@@ -40,5 +42,5 @@ $margin: 8px;
 }
 
 .mat-option {
-    height: 60px;
+    height: 35px;
 }

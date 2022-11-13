@@ -18,7 +18,7 @@ export class ConfigTemplateService {
     });
   }
 
-  getById(id: string): Observable<any> {
+  get(id: string): Observable<any> {
     return this.http.get<any>(ApiPaths.CONFIG_TEMPLATES + id)
   }
 
@@ -26,7 +26,7 @@ export class ConfigTemplateService {
     return this.http.post<any>(ApiPaths.CONFIG_TEMPLATES, data);
   }
 
-  update(id: string, data: any): Observable<any> {
+  put(id: string, data: any): Observable<any> {
     return this.http.put<any>(ApiPaths.CONFIG_TEMPLATES + id, data);
   }
 

@@ -14,7 +14,7 @@ export class HardwareService {
     return this.http.get<any>(ApiPaths.HARDWARES);
   }
 
-  getById(id: string): Observable<any> {
+  get(id: string): Observable<any> {
     return this.http.get<any>(ApiPaths.HARDWARES + id);
   }
 
@@ -26,7 +26,7 @@ export class HardwareService {
     return this.http.delete<any>(ApiPaths.HARDWARES + id);
   }
 
-  update(id: string, data: any): Observable<any> {
+  put(id: string, data: any): Observable<any> {
     return this.http.put<any>(ApiPaths.HARDWARES + id, data);
   }
 

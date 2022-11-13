@@ -34,7 +34,7 @@ export class ActionRenderDeviceComponent implements ICellRendererAngularComp {
 
 
   updateDevice() {
-    this.deviceService.getById(this.id).subscribe(deviceData => {
+    this.deviceService.get(this.id).subscribe(deviceData => {
       const dialogData = {
         mode: 'update',
         genData: deviceData.result

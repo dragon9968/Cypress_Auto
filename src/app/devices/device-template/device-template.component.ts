@@ -286,21 +286,21 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
       this.deviceService.export(this.rowSelectedDeviceId).subscribe(response => {
       file = new Blob([JSON.stringify(response, null, 4)], {type: 'application/json'});
       this.helpers.downloadBlob('Devices-Export.json', file);
+      this.toastr.success(`Exported Devices as ${'json'.toUpperCase()} file successfully`);
+      })
+    }
+  }
+
+  exportTemplate() {
+    if (this.rowsSelectedId.length == 0) {
+      this.toastr.info('No row selected');
+    }else {
+      let file = new Blob();
+      this.templateService.export(this.rowsSelectedId).subscribe(response => {
+      file = new Blob([JSON.stringify(response, null, 4)], {type: 'application/json'});
+      this.helpers.downloadBlob('Templates-Export.json', file);
       this.toastr.success(`Exported Templates as ${'json'.toUpperCase()} file successfully`);
         })
       }
-    }
-
-    exportTemplate() {
-      if (this.rowsSelectedId.length == 0) {
-        this.toastr.info('No row selected');
-      }else {
-        let file = new Blob();
-        this.templateService.export(this.rowsSelectedId).subscribe(response => {
-        file = new Blob([JSON.stringify(response, null, 4)], {type: 'application/json'});
-        this.helpers.downloadBlob('Templates-Export.json', file);
-        this.toastr.success(`Exported Templates as ${'json'.toUpperCase()} file successfully`);
-          })
-        }
-      }
-}
+    } 
+  } 

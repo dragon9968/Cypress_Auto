@@ -22,7 +22,7 @@ export class IconService {
     return this.http.post<any>(ApiPaths.ICONS_ADD, data);
   }
 
-  update(id: string, data: any): Observable<any> {
+  put(id: string, data: any): Observable<any> {
     return this.http.put<any>(ApiPaths.ICONS_UPDATE + id, data)
   }
 

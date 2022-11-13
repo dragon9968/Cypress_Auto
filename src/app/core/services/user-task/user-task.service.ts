@@ -16,8 +16,8 @@ export class UserTaskService {
     return this.httpClient.get<any>(ApiPaths.USER_TASK);
   }
 
-  getById(userTaskId: any) {
-    return this.httpClient.get<any>(ApiPaths.USER_TASK + userTaskId);
+  get(id: any) {
+    return this.httpClient.get<any>(ApiPaths.USER_TASK + id);
   }
 
   delete(userTaskId: number) {

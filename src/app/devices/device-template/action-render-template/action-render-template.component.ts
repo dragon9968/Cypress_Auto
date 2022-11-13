@@ -33,7 +33,7 @@ export class ActionRenderTemplateComponent implements ICellRendererAngularComp {
   }
 
   updateTemplate() {
-    this.templateService.getById(this.id_template).subscribe(templateData => {
+    this.templateService.get(this.id_template).subscribe(templateData => {
       const dialogData = {
         mode: 'update',
         genData: templateData.result,
