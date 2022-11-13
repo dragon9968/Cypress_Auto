@@ -29,6 +29,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { ResizableModule } from "angular-resizable-element";
 import { MatChipsModule } from '@angular/material/chips';
 import { NgSelectModule } from '@ng-select/ng-select';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 
 const materialModules = [
@@ -53,7 +54,8 @@ const materialModules = [
   MatAutocompleteModule,
   MatSelectModule,
   MatGridListModule,
-  MatChipsModule
+  MatChipsModule,
+  MatProgressSpinnerModule
 ];
 
 @NgModule({

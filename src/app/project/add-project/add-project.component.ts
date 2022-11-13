@@ -22,6 +22,7 @@ export class AddProjectComponent implements OnInit {
   routeSegments = RouteSegments;
   selectProjects$ = new Subscription();
   nameProject!: any[];
+  isLoading = false;
 
   constructor(
     private store: Store,
@@ -107,15 +108,16 @@ export class AddProjectComponent implements OnInit {
 
   addProject() {
     if (this.projectForm.valid) {
+      this.isLoading = true;
       this.projectService.addProject(this.projectForm.value).subscribe({
         next:(rest) => {
           this.toastr.success(`Created Project ${rest.result.name} successfully`);
-          setTimeout(() => {
-            this.router.navigate([RouteSegments.PROJECTS]);
-          }, 1000);
+          this.router.navigate([RouteSegments.PROJECTS]);
+          this.isLoading = false;
         },
         error:(err) => {
-          this.toastr.error(`Error while add project ${err.result.name}`);
+          this.toastr.error(`Error while add project`);
+          this.isLoading = false;
         }
       });
     }

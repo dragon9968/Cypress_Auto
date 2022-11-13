@@ -46,3 +46,7 @@ ul {
 	padding-top: 225px;
 	bottom: 48px;
 }
+
+ag-grid-angular .ag-cell-focus, .ag-cell {
+  border: none !important;
+}
