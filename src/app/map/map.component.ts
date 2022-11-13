@@ -1062,7 +1062,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       contextMenu.hideMenuItem('go_to_table');
     } else if (activeNodesLength >= 2 && activePGsLength == 0 && activeEdgesLength == 0) {
       contextMenu.hideMenuItem('node_add');
-      contextMenu.hideMenuItem('clone_node');
       contextMenu.hideMenuItem('view_details');
       contextMenu.hideMenuItem('go_to_table');
       contextMenu.hideMenuItem('web_console');

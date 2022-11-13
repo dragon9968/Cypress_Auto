@@ -11,10 +11,9 @@ import { InfoPanelService } from "../../../core/services/info-panel/info-panel.s
 import { InfoPanelRenderComponent } from "../info-panel-render/info-panel-render.component";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { Store } from "@ngrx/store";
-import { ICON_PATH } from "../../../shared/contants/icon-path.constant";
-import { InterfaceService } from "../../../core/services/interface/interface.service";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
+import { CMActionsService } from "../../context-menu/cm-actions/cm-actions.service";
 
 @Component({
   selector: 'app-info-panel-node',
@@ -203,7 +202,7 @@ export class InfoPanelNodeComponent {
     private nodeService: NodeService,
     private helpers: HelpersService,
     private infoPanelService: InfoPanelService,
-    private interfaceService: InterfaceService,
+    private cmActionsService: CMActionsService,
   ) {
     iconRegistry.addSvgIcon('export-csv', this.helpers.setIconPath('/assets/icons/export-csv.svg'));
     iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
@@ -238,84 +237,7 @@ export class InfoPanelNodeComponent {
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
           const ids = this.rowsSelected.map(ele => ele.id);
-          const jsonData = {
-            ids: ids
-          }
-          this.nodeService.cloneBulk(jsonData).pipe(
-            catchError((e: any) => {
-              this.toastr.error(e.error.message);
-              return throwError(() => e);
-            })
-          ).subscribe(response => {
-            const newNodeIds = response.result.map((ele: any) => ele.data.id);
-            newNodeIds.map((id: any) => {
-              this.nodeService.get(id).subscribe(nodeData => {
-                const cyData = nodeData.result;
-                const newNodePosition = { x: cyData.logical_map_position.x, y: cyData.logical_map_position.y };
-                const icon_src = ICON_PATH + cyData.icon.photo;
-                const newNodeData = {
-                  "elem_category": "node",
-                  "icon": icon_src,
-                  "type": cyData.role,
-                  "zIndex": 999,
-                  "background-image": icon_src,
-                  "background-opacity": 0,
-                  "shape": "roundrectangle",
-                  "text-opacity": 1
-                }
-                cyData.id = 'node-' + nodeData.id;
-                cyData.node_id = nodeData.id;
-                cyData.domain = cyData.domain.name;
-                cyData.height = cyData.logical_map_style.height;
-                cyData.width = cyData.logical_map_style.width;
-                cyData.text_color = cyData.logical_map_style.text_color;
-                cyData.text_size = cyData.logical_map_style.text_size;
-                cyData.groups = nodeData.result.groups;
-                cyData.icon = icon_src;
-                this.helpers.addCYNode(this.cy, {
-                  newNodeData: { ...newNodeData, ...cyData },
-                  newNodePosition: newNodePosition
-                });
-                this.helpers.reloadGroupBoxes(this.cy);
-
-                // Draw interface related to Nodes
-                this.interfaceService.getByNode(id).subscribe((respData: any) => {
-                  respData.result.map((edgeData: any) => {
-                    if (edgeData.category !== 'management') {
-                      const id = edgeData.id;
-                      const ip_str = edgeData.ip ? edgeData.ip : "";
-                      const ip = ip_str.split(".");
-                      const last_octet = ip.length == 4 ? "." + ip[3] : "";
-                      const cyData = edgeData;
-                      cyData.id = id;
-                      cyData.interface_id = id;
-                      cyData.ip_last_octet = last_octet;
-                      const logicalMapStyle = cyData.logical_map_style;
-                      cyData.width = logicalMapStyle.width;
-                      cyData.text_color = logicalMapStyle.text_color;
-                      cyData.text_size = logicalMapStyle.text_size;
-                      cyData.color = logicalMapStyle.color;
-                      const newEdgeData = {
-                        source: 'node-' + edgeData.node_id,
-                        target: 'pg-' + edgeData.port_group_id,
-                        id: 'new_edge_' + this.helpers.createUUID(),
-                        name: "",
-                        category: cyData.category,
-                        direction: cyData.direction,
-                        curve_style: cyData.category == 'tunnel' ? 'bezier' : 'straight',
-                        color: logicalMapStyle.color,
-                        width: logicalMapStyle.width,
-                      }
-                      this.helpers.addCYEdge(this.cy, { ...newEdgeData, ...cyData });
-                    }
-                  })
-                });
-              })
-            })
-            response.result.map((ele: any) => {
-              this.toastr.success(`Cloned node ${ele.data.name}`, 'Success');
-            })
-          })
+          this.cmActionsService.cloneNodes(this.cy, ids);
         }
       })
     }
