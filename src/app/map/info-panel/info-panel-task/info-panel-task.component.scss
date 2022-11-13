@@ -10,3 +10,7 @@
 .btn-refresh {
   margin-left: 8px;
 }
+
+::ng-deep .ag-header-cell-label {
+  justify-content: center;
+}

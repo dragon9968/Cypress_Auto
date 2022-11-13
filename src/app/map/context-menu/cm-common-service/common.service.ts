@@ -2,6 +2,7 @@ import { Injectable, Input } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
+import { retrievedMapSelection } from "../../../store/map-selection/map-selection.actions";
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +23,7 @@ export class CommonService {
   }
 
   delete(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[]) {
-    activeEdges.forEach((edge: any) => {
+    [...activeEdges].forEach((edge: any) => {
       const sourceData = cy.getElementById(edge.data('source')).data();
       const targetData = cy.getElementById(edge.data('target')).data();
       if ('temp' in sourceData || 'temp' in targetData) {
@@ -45,6 +46,7 @@ export class CommonService {
       activePGs.splice(0);
       activeGBs.splice(0);
     });
+    this.store.dispatch(retrievedMapSelection({data: true}));
   }
 
   changeNodeSize(size: any, activeNodes: any[]) {

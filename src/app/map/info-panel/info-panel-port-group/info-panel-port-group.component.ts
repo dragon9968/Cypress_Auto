@@ -213,6 +213,8 @@ export class InfoPanelPortGroupComponent implements OnInit {
             this.infoPanelService.delete(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
               this.deletedNodes, this.deletedInterfaces, this.tabName, pgId);
           });
+          this.gridApi.deselectAll();
+          this.store.dispatch(retrievedMapSelection({data: true}));
         }
       })
     }

@@ -5,6 +5,7 @@ import { Injectable, Input } from '@angular/core';
 import { Subscription, throwError } from "rxjs";
 import { MapService } from "../map/map.service";
 import { NodeService } from "../node/node.service";
+import { GroupService } from "../group/group.service";
 import { DomainService } from "../domain/domain.service";
 import { HelpersService } from "../helpers/helpers.service";
 import { UserTaskService } from "../user-task/user-task.service";
@@ -25,6 +26,7 @@ import { selectMapOption } from "../../../store/map-option/map-option.selectors"
 import { selectPortGroups } from "../../../store/portgroup/portgroup.selectors";
 import { selectDomainUsers } from "../../../store/domain-user/domain-user.selectors";
 import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
+import { retrievedGroups } from "../../../store/group/group.actions";
 
 
 @Injectable({
@@ -60,6 +62,7 @@ export class InfoPanelService {
     private nodeService: NodeService,
     private interfaceService: InterfaceService,
     private portGroupService: PortGroupService,
+    private groupService: GroupService,
     private domainService: DomainService,
     private userTaskService: UserTaskService,
     private domainUserService: DomainUserService
@@ -228,6 +231,13 @@ export class InfoPanelService {
         );
       })
     }
+  }
+
+  deleteGroup(group: any, collectionId: any) {
+    this.groupService.delete(group.id).subscribe(response => this.toastr.success('Deleted Row'));
+    this.groupService.getGroupByCollectionId(collectionId).subscribe(data => {
+      this.store.dispatch(retrievedGroups({data: data.result}));
+    })
   }
 
   deleteUserTask(userTaskId: number) {

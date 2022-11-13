@@ -26,7 +26,7 @@ import { selectMapOption } from "../../../store/map-option/map-option.selectors"
 import { selectPortGroups } from "../../../store/portgroup/portgroup.selectors";
 import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
 import { selectDomainUsers } from "../../../store/domain-user/domain-user.selectors";
-import { retrievedGroups } from "../../../store/group/group.actions";
+import { retrievedMapSelection } from "../../../store/map-selection/map-selection.actions";
 
 @Component({
   selector: 'app-info-panel-render',
@@ -86,6 +86,7 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
     this.getExternalParams = (params as any).getExternalParams;
     this.tabName = (params as any).tabName;
     this.id = params.value;
+    this.collectionId = this.getExternalParams().collectionId;
   }
 
   refresh(params: ICellRendererParams): boolean {
@@ -180,40 +181,31 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
   deleteInfoPanel() {
     this._setDataBasedOnTab();
     const params = this.getExternalParams();
-    if (this.domain_id) {
-      this.domainService.get(this.domain_id).subscribe(domainData => {
-        this.infoPanelService.deleteDomain(domainData.result, this.collectionId);
-      });
-    } else if (this.group_id) {
-      const dialogData = {
-        title: 'User confirmation needed',
-        message: 'You sure you want to delete this item?',
-        submitButtonName: 'OK'
-      }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
-      dialogConfirm.afterClosed().subscribe(confirm => {
-        if (confirm) {
-          this.groupService.get(this.group_id).subscribe(groupData => {
-            this._deleteGroup(groupData.result);
-          })
-        }
-      })
-    } else if (this.userTaskId){
-      const dialogData = {
-        title: 'User confirmation needed',
-        message: 'You sure you want to delete this item?',
-        submitButtonName: 'OK'
-      }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
-      dialogConfirm.afterClosed().subscribe(confirm => {
-        if (confirm) {
-          this.infoPanelService.deleteUserTask(this.userTaskId);
-        }
-      })
-    } else {
-      this.infoPanelService.delete(params.cy, params.activeNodes, params.activePGs, params.activeEdges,
-        params.activeGBs, params.deletedNodes, params.deletedInterfaces, this.tabName, this.id);
+    const dialogData = {
+      title: 'User confirmation needed',
+      message: 'You sure you want to delete this item?',
+      submitButtonName: 'OK'
     }
+    const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
+    dialogConfirm.afterClosed().subscribe(confirm => {
+      if (confirm) {
+        if (this.domain_id) {
+          this.domainService.get(this.domain_id).subscribe(domainData => {
+            this.infoPanelService.deleteDomain(domainData.result, this.collectionId);
+          });
+        } else if (this.group_id) {
+          this.groupService.get(this.group_id).subscribe(groupData => {
+            this.infoPanelService.deleteGroup(groupData.result, this.collectionId);
+          })
+        } else if (this.userTaskId) {
+          this.infoPanelService.deleteUserTask(this.userTaskId);
+        } else {
+          this.infoPanelService.delete(params.cy, params.activeNodes, params.activePGs, params.activeEdges,
+            params.activeGBs, params.deletedNodes, params.deletedInterfaces, this.tabName, this.id);
+        }
+        this.store.dispatch(retrievedMapSelection({ data: true }));
+      }
+    })
   }
 
   private _setDataGetter(event: any) {
@@ -240,10 +232,4 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
     }
   }
 
-  private _deleteGroup(group: any) {
-    this.groupService.delete(group.id).subscribe(response => this.toastr.success('Deleted Row'));
-    this.groupService.getGroupByCollectionId(this.collectionId).subscribe(data => {
-      this.store.dispatch(retrievedGroups({data: data.result}));
-    })
-  }
 }

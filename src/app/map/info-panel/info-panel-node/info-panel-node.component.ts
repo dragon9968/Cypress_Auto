@@ -262,6 +262,8 @@ export class InfoPanelNodeComponent {
               this.infoPanelService.delete(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
                 this.deletedNodes, this.deletedInterfaces, this.tabName, id);
             })
+            this.gridApi.deselectAll();
+            this.store.dispatch(retrievedMapSelection({data: true}));
           }
         }
       })

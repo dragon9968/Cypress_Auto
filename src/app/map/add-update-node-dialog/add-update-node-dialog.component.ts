@@ -126,7 +126,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.isViewMode || this.data.mode == 'update') {
-      this.helpers.setAutoCompleteValue(this.iconCtr, this.icons, this.data.genData.icon.id);
+      this.helpers.setAutoCompleteValue(this.iconCtr, this.icons, this.data.genData.icon?.id);
     } else {
       this.helpers.setAutoCompleteValue(this.iconCtr, this.icons, this.data.genData.icon_id);
     }

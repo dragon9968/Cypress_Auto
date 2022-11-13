@@ -234,6 +234,7 @@ export class InfoPanelInterfaceComponent {
               this.deletedNodes, this.deletedInterfaces, this.tabName, edgeId);
           })
           this.gridApi.deselectAll();
+          this.store.dispatch(retrievedMapSelection({data: true}));
         }
       })
     }
