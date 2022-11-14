@@ -7,5 +7,5 @@ export const retrievedProjects = createAction(
 
 export const retrievedVMStatus = createAction(
   'retrievedVMStatus',
-  props<{ vmStatus: boolean }>()
+  props<{ vmStatus: any }>()
 );

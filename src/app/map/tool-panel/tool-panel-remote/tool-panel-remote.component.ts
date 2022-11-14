@@ -49,7 +49,7 @@ export class ToolPanelRemoteComponent implements OnInit {
       }
     })
     this.selectVMStatus$ = this.store.select(selectVMStatus).subscribe(vmStatusChecked => {
-      if (this.isConnect && vmStatusChecked) {
+      if (this.isConnect && vmStatusChecked !== undefined) {
         this.vmStatusChecked = vmStatusChecked;
       }
     })
@@ -115,6 +115,7 @@ export class ToolPanelRemoteComponent implements OnInit {
     this.vmStatusChecked = false;
     this.infoPanelService.removeVMStatusOnMap();
     this.store.dispatch(retrievedIsConnect({data: false}));
+    this.store.dispatch(retrievedVMStatus({vmStatus: undefined}));
     this.toastr.info(`Disconnected to ${this.connection.name} server!`);
   }
 

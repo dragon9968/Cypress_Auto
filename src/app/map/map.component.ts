@@ -258,8 +258,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.serverConnectService.getAll().subscribe((data: any) => this.store.dispatch(retrievedServerConnect({ data: data.result })));
     this.mapImageService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapImages({ data: data.result })));
     this.projectService.get(+this.collectionId).subscribe((data: any) => {
-      this.vmStatus = data.result.configuration.vm_status;
-      this.store.dispatch(retrievedVMStatus({ vmStatus: data.result.configuration.vm_status }))
+      if (this.connectionId !== 0) {
+        this.vmStatus = data.result.configuration.vm_status;
+        this.store.dispatch(retrievedVMStatus({ vmStatus: data.result.configuration.vm_status }));
+      }
     })
     this.store.dispatch(retrievedIsMapOpen({ data: true }));
   }
