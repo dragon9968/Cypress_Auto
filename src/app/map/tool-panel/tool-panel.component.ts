@@ -12,6 +12,8 @@ import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
 import { CommonService } from 'src/app/map/context-menu/cm-common-service/common.service';
 import { retrievedMapContextMenu } from 'src/app/store/map-context-menu/map-context-menu.actions';
+import { retrievedMap } from 'src/app/store/map/map.actions';
+import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 
 @Component({
   selector: 'app-tool-panel',
@@ -169,7 +171,12 @@ export class ToolPanelComponent implements OnDestroy {
   }
 
   refresh() {
-    console.log('refreshMap');
+    this.mapService.getMapData(this.mapCategory, this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
+    this.activeNodes.splice(0);
+    this.activePGs.splice(0);
+    this.activeEdges.splice(0);
+    this.activeGBs.splice(0);
+    this.store.dispatch(retrievedMapSelection({ data: true }));
   }
 
   undo() {
