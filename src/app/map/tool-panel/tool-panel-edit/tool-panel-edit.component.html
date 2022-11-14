@@ -93,10 +93,11 @@
   <h4>Images</h4>
   <mat-form-field class="tab-select-field">
     <mat-label>Image</mat-label>
-    <input matInput type="text" placeholder="Select Image" [formControl]="imageCtr" [matAutocomplete]="autoImage">
+    <input matInput type="text" placeholder="Select Image" [formControl]="mapImageCtr" [matAutocomplete]="autoImage">
     <mat-autocomplete #autoImage="matAutocomplete" [displayWith]="helpers.optionDisplay">
-      <mat-option *ngFor="let option of images" [value]="option"> {{ option.name }} </mat-option>
+      <mat-option *ngFor="let option of mapImages" [value]="option"> {{ option.name }} </mat-option>
     </mat-autocomplete>
+    <mat-error *ngIf="mapImageCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
   </mat-form-field>
   <div class="tab-field">
     <button mat-raised-button color="primary" class="add-image-btn" matTooltip="Add" (click)="addImage()"

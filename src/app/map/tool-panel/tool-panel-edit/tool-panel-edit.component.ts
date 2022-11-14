@@ -15,6 +15,8 @@ import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { CMGroupBoxService } from '../../context-menu/cm-groupbox/cm-groupbox.service';
 import { ToastrService } from 'ngx-toastr';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
+import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
+import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
 
 @Component({
   selector: 'app-tool-panel-edit',
@@ -35,18 +37,20 @@ export class ToolPanelEditComponent implements OnDestroy {
   @Input() isDisableAddPG = false;
   @Input() isDisableAddImage = false;
   nodeAddForm!: FormGroup;
-  imageCtr = new FormControl();
   isCustomizePG = true;
   errorMessages = ErrorMessages;
   selectDevices$ = new Subscription();
   selectTemplates$ = new Subscription();
+  selectMapImages$ = new Subscription();
   selectMapOption$ = new Subscription();
+  selectMapPref$ = new Subscription();
   devices!: any[];
   templates!: any[];
-  images!: any[];
+  mapImages!: any[];
   filteredTemplates!: any[];
   isGroupBoxesChecked!: boolean;
   ICON_PATH = ICON_PATH;
+  selectedMapPref: any;
 
   constructor(
     private store: Store,
@@ -69,25 +73,31 @@ export class ToolPanelEditComponent implements OnDestroy {
         this.templateCtr?.setValidators([autoCompleteValidator(this.templates, 'display_name')]);
       }
     });
+    this.selectMapImages$ = this.store.select(selectMapImages).subscribe((mapImages: any) => {
+      if (mapImages) {
+        this.mapImages = mapImages;
+        this.mapImageCtr?.setValidators([autoCompleteValidator(this.mapImages)]);
+      }
+    });
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
         this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
       }
     });
-    this.images = [
-      { id: "v1", name: "Name 1" },
-      { id: "v2", name: "Name 2" },
-      { id: "v3", name: "Name 3" },
-    ];
+    this.selectMapPref$ = this.store.select(selectMapPref).subscribe((selectedMapPref: any) => {
+      this.selectedMapPref = selectedMapPref;
+    });
     this.nodeAddForm = new FormGroup({
       deviceCtr: new FormControl(''),
       templateCtr: new FormControl(''),
+      mapImageCtr: new FormControl(''),
       isCustomizeNodeCtr: new FormControl(true)
     });
   }
 
   get deviceCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('deviceCtr'), this.devices); }
   get templateCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('templateCtr'), this.templates); }
+  get mapImageCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('mapImageCtr'), this.mapImages); }
   get isCustomizeNodeCtr() { return this.nodeAddForm.get('isCustomizeNodeCtr'); }
 
   ngOnInit(): void {
@@ -162,7 +172,54 @@ export class ToolPanelEditComponent implements OnDestroy {
   }
 
   addImage() {
-    console.log(this.imageCtr.value);
+    const mapImage = this.mapImages.filter(image => image.id === this.mapImageCtr.value.id)[0];
+    const background = new Image();
+    background.src = ICON_PATH + mapImage.photo;
+    background.addEventListener("load", this.loadMapImage.bind(this, background));
+  }
+
+  loadMapImage(bg: any) {
+    if (this.config.gb_exists) {
+      if (!(this.cy.getElementById('default.test'))) {
+        const gb = {
+          data: Object.assign({
+            id: 'default.test',
+            domain_id: this.config.default_domain_id,
+            label: "group_box"
+          }, {
+            "group_color": this.helpers.fullColorHex(this.selectedMapPref.group_box_color),
+            "group_opacity": this.selectedMapPref.group_box_opacity,
+            "border-width": "4",
+            "text-valign": "top",
+            "zIndex": 997
+          }),
+          position: {
+            x: 0,
+            y: 0
+          },
+          group: "nodes",
+          removed: false,
+          selected: false,
+        };
+        this.cy.add(gb);
+      }
+    }
+    this.cy.add({
+      group: "nodes",
+      data: {
+        "label": "map_background",
+        "elem_category": "bg_image",
+        "new": true,
+        "updated": false,
+        "deleted": false,
+        "src": bg.src,
+        "zIndex": 998,
+        "width": bg.width,
+        "height": bg.height,
+        "locked": false
+      },
+      position: { x: 0, y: 0 }
+    })[0];
   }
 
   deleteNodes() {

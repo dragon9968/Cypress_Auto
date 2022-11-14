@@ -60,6 +60,8 @@ import { InfoPanelService } from '../core/services/info-panel/info-panel.service
 import { retrievedInterfacesByIds } from "../store/interface/interface.actions";
 import { retrievedMapSelection } from '../store/map-selection/map-selection.actions';
 import { selectIsConnect } from "../store/server-connect/server-connect.selectors";
+import { MapImageService } from '../core/services/map-image/map-image.service';
+import { retrievedMapImages } from '../store/map-image/map-image.actions';
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -174,7 +176,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     private toolPanelStyleService: ToolPanelStyleService,
     private serverConnectService: ServerConnectService,
     private projectService: ProjectService,
-    private infoPanelService: InfoPanelService
+    private infoPanelService: InfoPanelService,
+    private mapImageService: MapImageService
   ) {
     navigator(cytoscape);
     gridGuide(cytoscape);
@@ -252,7 +255,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
     this.loginProfileService.getAll().subscribe((data: any) => this.store.dispatch(retrievedLoginProfiles({ data: data.result })));
     this.portgroupService.getByCollectionId(this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedPortGroups({ data: data.result })));
-    this.serverConnectService.getAll().subscribe((data: any) => this.store.dispatch(retrievedServerConnect({ data: data.result })))
+    this.serverConnectService.getAll().subscribe((data: any) => this.store.dispatch(retrievedServerConnect({ data: data.result })));
+    this.mapImageService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapImages({ data: data.result })));
     this.projectService.get(+this.collectionId).subscribe((data: any) => {
       this.vmStatus = data.result.configuration.vm_status;
       this.store.dispatch(retrievedVMStatus({ vmStatus: data.result.configuration.vm_status }))

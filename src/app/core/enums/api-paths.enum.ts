@@ -74,4 +74,5 @@ export enum ApiPaths {
   DEVICES_UPDATE = '/api/v1/device/update',
   DEVICES_EXPORT = '/api/v1/device/export',
   TEMPLATES_EXPORT = '/api/v1/template/export',
+  MAP_IMAGE = '/api/v1/mapimage/',
 }

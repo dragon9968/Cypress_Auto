@@ -20,5 +20,6 @@ export enum ReducerKeys {
     SERVER_CONNECT = 'serverConnect',
     INTERFACE = 'interface',
     USER_TASK = 'userTask',
-    MAP_SELECTION = 'mapSelection'
+    MAP_SELECTION = 'mapSelection',
+    MAP_IMAGE = 'mapImage'
 }
