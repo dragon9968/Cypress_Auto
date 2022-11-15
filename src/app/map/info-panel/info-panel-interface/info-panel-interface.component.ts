@@ -192,7 +192,7 @@ export class InfoPanelInterfaceComponent {
                 port_group: result.port_group.name,
                 ip_allocation: result.ip_allocation,
                 ip: result.ip,
-                netmask: result.netmask.mask
+                netmask: result.netmask?.mask
               }
             })
           )
