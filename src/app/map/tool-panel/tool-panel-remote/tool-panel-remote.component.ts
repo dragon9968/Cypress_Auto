@@ -1,9 +1,9 @@
 import { Store } from "@ngrx/store";
 import { MatDialog } from "@angular/material/dialog";
-import { Subscription } from "rxjs";
+import { interval, Subject, Subscription, takeUntil } from "rxjs";
 import { ToastrService } from "ngx-toastr";
 import { ActivatedRoute, Params } from "@angular/router";
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { MapService } from "../../../core/services/map/map.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { ServerConnectService } from "../../../core/services/server-connect/server-connect.service";
@@ -18,7 +18,7 @@ import { selectIsConnect } from "../../../store/server-connect/server-connect.se
   templateUrl: './tool-panel-remote.component.html',
   styleUrls: ['./tool-panel-remote.component.scss']
 })
-export class ToolPanelRemoteComponent implements OnInit {
+export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
 
   @Input() cy: any;
   vmStatusChecked = false;
@@ -26,6 +26,7 @@ export class ToolPanelRemoteComponent implements OnInit {
   selectIsConnect$ = new Subscription();
   collectionId!: any;
   isConnect = false;
+  destroy$: Subject<boolean> = new Subject<boolean>();
 
   connection = {
     name: 'Test Connection',
@@ -63,11 +64,21 @@ export class ToolPanelRemoteComponent implements OnInit {
     if (connection) {
       this.connection = connection;
       if (this.connection && this.connection.id !== 0) {
+        this.infoPanelService.changeVMStatusOnMap(this.collectionId, this.connection.id);
+        interval(30000).pipe(
+          takeUntil(this.destroy$)
+        ).subscribe(() => {
+          this.infoPanelService.changeVMStatusOnMap(this.collectionId, this.connection.id);
+        });
         this.store.dispatch(retrievedIsConnect({data: true}));
       }
     }
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next(true);
+    this.destroy$.unsubscribe();
+  }
 
   toggleVMStatus($event: any) {
     this.store.dispatch(retrievedVMStatus({vmStatus: $event.checked}));

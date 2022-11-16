@@ -143,6 +143,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   selectSearchText$ = new Subscription();
   selectIsConnect$ = new Subscription();
   selectMapFeatureSubject: Subject<MapState> = new ReplaySubject(1);
+  destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(
     private route: ActivatedRoute,
@@ -279,7 +280,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this._initMouseEvents();
         this._initContextMenu();
         this._initUndoRedo();
-        this.infoPanelService.initVMStatus(+this.collectionId, this.connectionId);
       }
     });
   }
@@ -296,6 +296,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.helpersService.removeBadge(ele);
     });
     this.store.dispatch(retrievedIsMapOpen({ data: false }));
+    this.destroy$.next(true);
+    this.destroy$.unsubscribe();
   }
 
   private _disableMapEditButtons() {
@@ -314,7 +316,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   private _dragFreeOnNode($event: any) {
     const node = $event.target;
-    node._private['data'] = {...node._private['data']};
+    node._private['data'] = { ...node._private['data'] };
     const data = node.data();
     if (data && data.category != 'bg_image') {
       if (data.new) {
