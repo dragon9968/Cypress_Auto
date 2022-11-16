@@ -16,12 +16,20 @@ export class DomainUserService {
     return this.http.get<any>(ApiPaths.DOMAIN_USER);
   }
 
+  get(id: any): Observable<any> {
+    return this.http.get<any>(ApiPaths.DOMAIN_USER + id);
+  }
+
   getDomainUserByDomainId(domainId: string): Observable<any> {
     return this.http.get<any>(ApiPaths.DOMAIN_USER, {
       params: {
-        q: '(columns:!(username,firstname,lastname,domain_id,configuration),filters:!((col:domain_id,opr:eq,value:' + domainId + ')),keys:!(list_columns),page:0,page_size:1000)'
+        q: '(filters:!((col:domain_id,opr:eq,value:' + domainId + ')),keys:!(list_columns),page:0,page_size:1000)'
       }
     });
+  }
+
+  put(id: any, data: any): Observable<any> {
+    return this.http.put<any>(ApiPaths.DOMAIN_USER + id, data);
   }
 
   delete(domainUserId: string): Observable<any> {

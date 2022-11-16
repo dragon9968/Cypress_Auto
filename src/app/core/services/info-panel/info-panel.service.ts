@@ -27,6 +27,7 @@ import { selectPortGroups } from "../../../store/portgroup/portgroup.selectors";
 import { selectDomainUsers } from "../../../store/domain-user/domain-user.selectors";
 import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
 import { retrievedGroups } from "../../../store/group/group.actions";
+import { retrievedIsChangeDomainUsers } from "../../../store/domain-user-change/domain-user-change.actions";
 
 
 @Injectable({
@@ -237,6 +238,21 @@ export class InfoPanelService {
     this.groupService.delete(group.id).subscribe(response => this.toastr.success('Deleted Row'));
     this.groupService.getGroupByCollectionId(collectionId).subscribe(data => {
       this.store.dispatch(retrievedGroups({data: data.result}));
+    })
+  }
+
+  deleteDomainUser(id: any) {
+    this.domainUserService.get(id).subscribe(data => {
+      this.domainUserService.delete(id).subscribe({
+        next: () => {
+          this.store.dispatch(retrievedIsChangeDomainUsers({isChangeDomainUsers: true}));
+          this.toastr.success(`Deleted domain user ${data.result.username}`, 'Success');
+        },
+        error: err => {
+          this.toastr.error('Delete domain user failed', 'Error');
+          throwError(() => err)
+        }
+      })
     })
   }
 

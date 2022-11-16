@@ -1,8 +1,11 @@
-<button mat-icon-button color="primary" (click)="viewInfoPanel($event)">
+<button mat-icon-button [style.display]="tabName === 'domainUser' ? 'none' : ''" color="primary" (click)="viewInfoPanel($event)">
   <mat-icon>visibility</mat-icon>
 </button>
-<button [style.display]="tabName === 'userTask' ? 'none' : ''" mat-icon-button color="primary" (click)="editInfoPanel()">
+<button mat-icon-button [style.display]="tabName === 'userTask' ? 'none' : ''" color="primary" (click)="editInfoPanel()">
   <mat-icon>edit</mat-icon>
+</button>
+<button mat-icon-button [style.display]="tabName === 'domain' ? '' : 'none'" color="primary" (click)="openDomainUsers()">
+  <mat-icon>supervisor_account</mat-icon>
 </button>
 <button mat-icon-button color="primary" (click)="deleteInfoPanel()">
   <mat-icon>delete</mat-icon>

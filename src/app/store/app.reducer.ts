@@ -22,6 +22,7 @@ import { deviceCategoryReducer } from "./device-category/device-category.reducer
 import { userTaskReducer } from "./user-task/user-task.reducer";
 import { mapSelectionReducer } from "./map-selection/map-selection.reducer";
 import { mapImagesReducer } from "./map-image/map-image.reducer";
+import { isChangeDomainUserReducer } from "./domain-user-change/domain-user-change.reducer";
 
 export const reducers = {
     [ReducerKeys.MAP]: mapReducer,
@@ -47,4 +48,5 @@ export const reducers = {
     [ReducerKeys.USER_TASK]: userTaskReducer,
     [ReducerKeys.MAP_SELECTION]: mapSelectionReducer,
     [ReducerKeys.MAP_IMAGE]: mapImagesReducer,
+    [ReducerKeys.DOMAIN_USER_CHANGE]: isChangeDomainUserReducer
 }

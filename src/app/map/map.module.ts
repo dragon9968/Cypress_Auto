@@ -32,6 +32,8 @@ import { InfoPanelTaskComponent } from './info-panel/info-panel-task/info-panel-
 import { ShowUserTaskDialogComponent } from './info-panel/info-panel-task/show-user-task-dialog/show-user-task-dialog.component';
 import { RevertNodeSnapshotDialogComponent } from './revert-node-snapshot-dialog/revert-node-snapshot-dialog.component';
 import { DeleteNodeDeployDialogComponent } from './delete-node-deploy-dialog/delete-node-deploy-dialog.component';
+import { DomainUserDialogComponent } from './info-panel/info-panel-domain/domain-user-dialog/domain-user-dialog.component';
+import { UpdateDomainUserDialogComponent } from './info-panel/info-panel-domain/update-domain-user-dialog/update-domain-user-dialog.component';
 
 
 @NgModule({
@@ -66,7 +68,9 @@ import { DeleteNodeDeployDialogComponent } from './delete-node-deploy-dialog/del
     InfoPanelTaskComponent,
     ShowUserTaskDialogComponent,
     RevertNodeSnapshotDialogComponent,
-    DeleteNodeDeployDialogComponent
+    DeleteNodeDeployDialogComponent,
+    DomainUserDialogComponent,
+    UpdateDomainUserDialogComponent
   ],
   imports: [
     MapRoutingModule,

@@ -9,6 +9,7 @@ import { DomainUserService } from "../../core/services/domain-user/domain-user.s
 import { retrievedNode } from "../../store/node/node.actions";
 import { retrievedPortGroups } from "../../store/portgroup/portgroup.actions";
 import { retrievedDomainUsers } from "../../store/domain-user/domain-user.actions";
+import { retrievedIsChangeDomainUsers } from "../../store/domain-user-change/domain-user-change.actions";
 
 @Component({
   selector: 'app-info-panel',
@@ -74,6 +75,7 @@ export class InfoPanelComponent implements OnInit{
     this.selectDomainUser$ = this.domainUserService.getAll().subscribe(
       data => this.store.dispatch(retrievedDomainUsers({data: data.result}))
     );
+    this.store.dispatch(retrievedIsChangeDomainUsers({isChangeDomainUsers: false}));
   }
 
 }

@@ -7,7 +7,6 @@ import { ActivatedRoute, Params } from "@angular/router";
 import { MatIconRegistry } from "@angular/material/icon";
 import { Observable, of, Subscription, throwError } from "rxjs";
 import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
-import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { DomainService } from "../../../core/services/domain/domain.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
@@ -61,7 +60,7 @@ export class InfoPanelDomainComponent implements OnInit {
         headerName: 'Actions',
         field: 'id',
         suppressSizeToFit: true,
-        width: 160,
+        width: 200,
         cellRenderer: InfoPanelRenderComponent,
         cellClass: 'domain-actions',
         cellRendererParams: {
@@ -76,12 +75,14 @@ export class InfoPanelDomainComponent implements OnInit {
         flex: 1,
       },
       {
+        headerName: 'Admin User',
         field: 'admin_user',
         suppressSizeToFit: true,
         minWidth: 400,
         flex: 1,
       },
       {
+        headerName: 'Admin Password',
         field: 'admin_password',
         suppressSizeToFit: true,
         minWidth: 300,
@@ -96,12 +97,11 @@ export class InfoPanelDomainComponent implements OnInit {
     private dialog: MatDialog,
     private toastr: ToastrService,
     private iconRegister: MatIconRegistry,
-    private domSanitizer: DomSanitizer,
     private helpers: HelpersService,
     private domainService: DomainService,
     private infoPanelService: InfoPanelService
   ) {
-    iconRegister.addSvgIcon('add-user', this._setPath('/assets/icons/add-user.svg'))
+    iconRegister.addSvgIcon('add-user', this.helpers.setIconPath('/assets/icons/add-user.svg'))
     this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
       if (domains) {
         this.domains = domains;
@@ -227,7 +227,4 @@ export class InfoPanelDomainComponent implements OnInit {
     }
   }
 
-  private _setPath(url: string): SafeResourceUrl {
-    return this.domSanitizer.bypassSecurityTrustResourceUrl(url);
-  }
 }

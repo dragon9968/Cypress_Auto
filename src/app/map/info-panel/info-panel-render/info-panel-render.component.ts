@@ -1,6 +1,5 @@
 import { Store } from "@ngrx/store";
 import { MatDialog } from "@angular/material/dialog";
-import { Subscription } from "rxjs";
 import { ToastrService } from "ngx-toastr";
 import { Component, OnInit } from '@angular/core';
 import { ICellRendererParams } from "ag-grid-community";
@@ -22,11 +21,9 @@ import { AddUpdateDomainDialogComponent } from "../../add-update-domain-dialog/a
 import { AddUpdateGroupDialogComponent } from "../../add-update-group-dialog/add-update-group-dialog.component";
 import { ShowUserTaskDialogComponent } from "../info-panel-task/show-user-task-dialog/show-user-task-dialog.component";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
-import { selectMapOption } from "../../../store/map-option/map-option.selectors";
-import { selectPortGroups } from "../../../store/portgroup/portgroup.selectors";
-import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
-import { selectDomainUsers } from "../../../store/domain-user/domain-user.selectors";
 import { retrievedMapSelection } from "../../../store/map-selection/map-selection.actions";
+import { DomainUserDialogComponent } from "../info-panel-domain/domain-user-dialog/domain-user-dialog.component";
+import { UpdateDomainUserDialogComponent } from "../info-panel-domain/update-domain-user-dialog/update-domain-user-dialog.component";
 
 @Component({
   selector: 'app-info-panel-render',
@@ -35,24 +32,16 @@ import { retrievedMapSelection } from "../../../store/map-selection/map-selectio
 })
 export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnInit {
   id: any;
-  node_id: any;
-  interface_id: any;
-  pg_id: any;
-  domain_id: any;
-  group_id: any;
+  nodeId: any;
+  interfaceId: any;
+  pgId: any;
+  domainId: any;
+  groupId: any;
   userTaskId: any;
+  domainUserId: any;
   collectionId: any;
   getExternalParams: (() => any) | any;
-  selectMapOption$ = new Subscription();
-  selectPortGroups$ = new Subscription();
-  selectNode$ = new Subscription();
-  selectDomainUser$ = new Subscription();
-  isGroupBoxesChecked!: boolean;
   tabName!: string;
-  portGroups!: any[];
-  nodes!: any[];
-  domain!: any;
-  domainUsers!: any[];
 
   constructor(
     private store: Store,
@@ -69,14 +58,6 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
     private infoPanelService: InfoPanelService,
     private userTaskService: UserTaskService
   ) {
-    this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
-      if (mapOption) {
-        this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
-      }
-    });
-    this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe((portGroups: any) => this.portGroups = portGroups);
-    this.selectNode$ = this.store.select(selectNodesByCollectionId).subscribe((nodeData: any) => this.nodes = nodeData);
-    this.selectDomainUser$ = this.store.select(selectDomainUsers).subscribe(domainUserData => this.domainUsers = domainUserData);
   }
 
   ngOnInit(): void {
@@ -95,16 +76,16 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
 
   viewInfoPanel(event: any) {
     this._setDataBasedOnTab();
-    if (this.domain_id) {
-      this.domainService.get(this.domain_id).subscribe(domainData => {
+    if (this.domainId) {
+      this.domainService.get(this.domainId).subscribe(domainData => {
         const dialogData = {
           mode: 'view',
           genData: domainData.result
         };
         this.dialog.open(AddUpdateDomainDialogComponent, {width: '600px', data: dialogData});
       })
-    } else if (this.group_id) {
-      this.groupService.get(this.group_id).subscribe(groupData => {
+    } else if (this.groupId) {
+      this.groupService.get(this.groupId).subscribe(groupData => {
         const dialogData = {
           mode: 'view',
           genData: groupData.result,
@@ -129,8 +110,8 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
 
   editInfoPanel() {
     this._setDataBasedOnTab();
-    if (this.pg_id) {
-      this.portGroupService.get(this.pg_id).subscribe(pgData => {
+    if (this.pgId) {
+      this.portGroupService.get(this.pgId).subscribe(pgData => {
         const dialogData = {
           mode: 'update',
           genData: pgData.result,
@@ -138,8 +119,8 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
         }
         this.dialog.open(AddUpdatePGDialogComponent, {width: '600px', data: dialogData});
       });
-    } else if (this.node_id) {
-      this.nodeService.get(this.node_id).subscribe(nodeData => {
+    } else if (this.nodeId) {
+      this.nodeService.get(this.nodeId).subscribe(nodeData => {
         const dialogData = {
           mode: 'update',
           genData: nodeData.result,
@@ -147,8 +128,8 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
         }
         this.dialog.open(AddUpdateNodeDialogComponent, {width: '600px', data: dialogData});
       });
-    } else if (this.interface_id) {
-      this.interfaceService.get(this.interface_id).subscribe(interfaceData => {
+    } else if (this.interfaceId) {
+      this.interfaceService.get(this.interfaceId).subscribe(interfaceData => {
         const dialogData = {
           mode: 'update',
           genData: interfaceData.result,
@@ -156,16 +137,16 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
         }
         this.dialog.open(AddUpdateInterfaceDialogComponent, {width: '600px', data: dialogData});
       })
-    } else if (this.domain_id) {
-      this.domainService.get(this.domain_id).subscribe(domainData => {
+    } else if (this.domainId) {
+      this.domainService.get(this.domainId).subscribe(domainData => {
         const dialogData = {
           mode: 'update',
           genData: domainData.result
         };
         this.dialog.open(AddUpdateDomainDialogComponent, {width: '600px', data: dialogData});
       })
-    } else if (this.group_id) {
-      this.groupService.get(this.group_id).subscribe(groupData => {
+    } else if (this.groupId) {
+      this.groupService.get(this.groupId).subscribe(groupData => {
           const dialogData = {
             mode: 'update',
             genData: groupData.result,
@@ -175,6 +156,17 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
           this.dialog.open(AddUpdateGroupDialogComponent, {width: '600px', data: dialogData});
         }
       )
+    } else if (this.domainUserId) {
+        this.domainUserService.get(this.domainUserId).subscribe(domainUserData => {
+          this.domainService.get(domainUserData.result.domain_id).subscribe(domainData => {
+            const dialogData = {
+              genData: domainUserData.result,
+              domain: domainData.result
+            };
+            this.dialog.open(UpdateDomainUserDialogComponent, {width: '600px', height: `${screen.height*.6}px`, data: dialogData});
+          }
+        )
+      })
     }
   }
 
@@ -189,16 +181,18 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
     const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
     dialogConfirm.afterClosed().subscribe(confirm => {
       if (confirm) {
-        if (this.domain_id) {
-          this.domainService.get(this.domain_id).subscribe(domainData => {
+        if (this.domainId) {
+          this.domainService.get(this.domainId).subscribe(domainData => {
             this.infoPanelService.deleteDomain(domainData.result, this.collectionId);
           });
-        } else if (this.group_id) {
-          this.groupService.get(this.group_id).subscribe(groupData => {
+        } else if (this.groupId) {
+          this.groupService.get(this.groupId).subscribe(groupData => {
             this.infoPanelService.deleteGroup(groupData.result, this.collectionId);
           })
         } else if (this.userTaskId) {
           this.infoPanelService.deleteUserTask(this.userTaskId);
+        } else if (this.domainUserId) {
+          this.infoPanelService.deleteDomainUser(this.domainUserId);
         } else {
           this.infoPanelService.delete(params.cy, params.activeNodes, params.activePGs, params.activeEdges,
             params.activeGBs, params.deletedNodes, params.deletedInterfaces, this.tabName, this.id);
@@ -210,26 +204,41 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
 
   private _setDataGetter(event: any) {
     event.target.data = () => ({
-      node_id: this.node_id,
-      interface_id: this.interface_id,
-      pg_id: this.pg_id
+      node_id: this.nodeId,
+      interface_id: this.interfaceId,
+      pg_id: this.pgId
     });
   }
 
   private _setDataBasedOnTab() {
     if (this.tabName == 'node') {
-      this.node_id = this.id;
+      this.nodeId = this.id;
     } else if (this.tabName == 'portGroup') {
-      this.pg_id = this.id;
+      this.pgId = this.id;
     } else if (this.tabName == 'edge') {
-      this.interface_id = this.id;
+      this.interfaceId = this.id;
     } else if (this.tabName == 'domain') {
-      this.domain_id = this.id;
+      this.domainId = this.id;
     } else if (this.tabName == 'group') {
-      this.group_id = this.id;
+      this.groupId = this.id;
     } else if (this.tabName == 'userTask') {
       this.userTaskId = this.id
+    } else if (this.tabName == 'domainUser') {
+      this.domainUserId = this.id
     }
   }
 
+  openDomainUsers() {
+    this._setDataBasedOnTab();
+    this.domainService.get(this.domainId).subscribe( domainResponse => {
+      this.domainUserService.getDomainUserByDomainId(this.domainId).subscribe(data => {
+        const dialogData = {
+          genData: data.result,
+          domain: domainResponse.result
+        }
+        this.dialog.open(DomainUserDialogComponent,
+          {width: `${screen.width}px`, height: `${screen.height*.7}px`, data: dialogData});
+      })
+    })
+  }
 }
