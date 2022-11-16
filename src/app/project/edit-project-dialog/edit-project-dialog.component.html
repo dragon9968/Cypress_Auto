@@ -1,0 +1,49 @@
+<form [formGroup]="editProjectForm">
+    <h1 mat-dialog-title>Edit Project</h1>
+    <mat-form-field class="fields">
+        <mat-label>Name</mat-label>
+        <input type="text" formControlName="nameCtr" matInput required>
+        <mat-error *ngIf="nameCtr?.errors?.required">Name is required*</mat-error>
+        <mat-error *ngIf="nameCtr?.errors?.minlength || nameCtr?.errors?.maxlength">Field must be between 3 and 50 characters long.</mat-error>
+    </mat-form-field>
+    <mat-form-field class="fields">
+        <mat-label>Description</mat-label>
+        <input formControlName="descriptionCtr" type="text" matInput>
+    </mat-form-field>
+    <mat-form-field class="fields">
+        <mat-label>Min VLAN</mat-label>
+        <input formControlName="minVlanCtr" type="number" (keypress)="numericOnly($event)" matInput>
+        <mat-error *ngIf="minVlanCtr?.hasError('min') || minVlanCtr?.hasError('max') || minVlanCtr?.errors?.required">Valid value is between 1 and 4093</mat-error>
+    </mat-form-field>
+    <mat-form-field class="fields">
+        <mat-label>Max VLAN</mat-label>
+        <input formControlName="maxVlanCtr" type="number" (keypress)="numericOnly($event)" matInput>
+        <mat-error *ngIf="maxVlanCtr?.hasError('min') || maxVlanCtr?.hasError('max') || maxVlanCtr?.errors?.required">Valid value is between 1 and 4094</mat-error>
+    </mat-form-field>
+    <mat-form-field class="fields">
+        <mat-label>Shared</mat-label>
+        <mat-chip-list #chipList aria-label="Shared selection">
+            <mat-chip *ngFor="let option of listShared" (removed)="remove(option)">
+                {{ option.first_name }} {{ option.last_name }}
+                <button matChipRemove>
+            <mat-icon>cancel</mat-icon>
+          </button>
+            </mat-chip>
+            <input matInput type="text" placeholder="Select Value" [formControl]="sharedCtr" [matAutocomplete]="autoOption" [matChipInputFor]="chipList">
+        </mat-chip-list>
+        <mat-autocomplete #autoOption="matAutocomplete" [displayWith]="helpers.optionDisplay" (optionSelected)="selectShared($event)">
+            <mat-option *ngFor="let option of listUser" [value]="option">
+                <span>{{ option.first_name }} {{ option.last_name }}</span>
+            </mat-option>
+        </mat-autocomplete>
+    </mat-form-field>
+
+    <mat-card-actions [align]="'end'" class="create-btn">
+        <button mat-raised-button color="warn" (click)="cancelProject()">Cancel</button>
+        <button mat-raised-button color="primary" (click)="updateProject()">Update</button>
+    </mat-card-actions>
+</form>
+
+<div *ngIf="isLoading" class="loading">
+    <mat-spinner></mat-spinner>
+</div>

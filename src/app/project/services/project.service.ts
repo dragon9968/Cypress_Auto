@@ -2,13 +2,18 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiPaths } from 'src/app/core/enums/api-paths.enum';
+import { LocalStorageKeys } from 'src/app/core/storage/local-storage/local-storage-keys.enum';
+import { LocalStorageService } from 'src/app/core/storage/local-storage/local-storage.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProjectService {
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private localStorageService: LocalStorageService
+    ) { }
 
   getAll(): Observable<any> {
     return this.http.get<any>(ApiPaths.PROJECTS);
@@ -26,8 +31,29 @@ export class ProjectService {
     return this.http.get<any>(ApiPaths.PROJECTS + id);
   }
 
-  addProject(data: any) {
+  add(data: any) {
     return this.http.post<any>(ApiPaths.ADD_PROJECT, data);
   }
 
+  put(id: string, data: any) {
+    return this.http.put<any>(ApiPaths.PROJECTS + id, data);
+  }
+
+  associate(data: any) {
+    return this.http.post<any>(ApiPaths.ASSOCIATE_PROJECT, data);
+  }
+
+  openProject(collection_id: string) {
+    this.localStorageService.setItem(LocalStorageKeys.COLLECTION_ID, collection_id);
+  }
+
+  getCollectionId(): any {
+    return JSON.parse(<any>this.localStorageService.getItem(LocalStorageKeys.COLLECTION_ID));
+  }
+
+  closeProject(): any {
+    if (this.getCollectionId()) {
+      this.localStorageService.removeItem(LocalStorageKeys.COLLECTION_ID);
+    }
+  }
 }

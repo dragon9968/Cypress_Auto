@@ -86,6 +86,11 @@ export class AddProjectComponent implements OnInit {
   get name() {
     return this.projectForm.get('name');
   }
+
+  get description() { return this.projectForm.get('description');}
+  get target() { return this.projectForm.get('target');}
+  get option() { return this.projectForm.get('option');}
+
   get enclave_number() {
     return this.projectForm.get('enclave_number');
   }
@@ -108,8 +113,21 @@ export class AddProjectComponent implements OnInit {
 
   addProject() {
     if (this.projectForm.valid) {
+      const jsonData = {
+        name: this.name?.value,
+        description: this.description?.value,
+        target: this.target?.value,
+        option: this.option?.value,
+        enclave_number: this.enclave_number?.value,
+        enclave_clients: this.enclave_clients?.value,
+        enclave_servers: this.enclave_servers?.value,
+        enclave_users: this.enclave_users?.value,
+        vlan_min: this.vlan_min?.value,
+        vlan_max: this.vlan_max?.value,
+
+      }
       this.isLoading = true;
-      this.projectService.addProject(this.projectForm.value).subscribe({
+      this.projectService.add(jsonData).subscribe({
         next:(rest) => {
           this.toastr.success(`Created Project ${rest.result.name} successfully`);
           this.router.navigate([RouteSegments.PROJECTS]);

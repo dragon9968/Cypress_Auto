@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { ICellRendererParams } from 'ag-grid-community';
-import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
+import { EditProjectDialogComponent } from '../edit-project-dialog/edit-project-dialog.component';
+import { ProjectService } from '../services/project.service';
 
 @Component({
   selector: 'app-project-actions-cell',
@@ -13,7 +15,10 @@ export class ProjectActionsRendererComponent implements ICellRendererAngularComp
   id: any;
   category: any;
 
-  constructor(private router: Router) { }
+  constructor(private router: Router,
+    private dialog: MatDialog,
+    private projectService: ProjectService
+    ) { }
 
   agInit(params: ICellRendererParams): void {
     this.id = params.value;
@@ -24,15 +29,7 @@ export class ProjectActionsRendererComponent implements ICellRendererAngularComp
     return false;
   }
 
-  openProject() {
-    this.router.navigate(
-      [RouteSegments.MAP],
-      {
-        queryParams: {
-          category: this.category,
-          collection_id: this.id
-        }
-      }
-    );
+  deleteProject() {
   }
+
 }

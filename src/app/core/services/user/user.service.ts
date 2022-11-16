@@ -10,6 +10,10 @@ export class UserService {
 
   constructor(private http: HttpClient) { }
 
+  getAll(): Observable<any> {
+    return this.http.get<any>(ApiPaths.USER);
+  }
+
   get(id: string): Observable<any> {
     return this.http.get<any>(ApiPaths.USER + id);
   }

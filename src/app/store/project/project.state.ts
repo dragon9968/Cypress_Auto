@@ -1,4 +1,5 @@
 export interface ProjectState {
   projects: any[],
-  vmStatus: any
+  vmStatus: any,
+  isOpen: boolean
 }

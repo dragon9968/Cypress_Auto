@@ -1,13 +1,15 @@
-import { Component, OnInit, Input, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, of, Subscription } from 'rxjs';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
-import { selectProjects } from '../store/project/project.selectors';
-import { retrievedProjects } from '../store/project/project.actions';
+import { selectIsOpen, selectProjects } from '../store/project/project.selectors';
+import { retrievedIsOpen, retrievedProjects } from '../store/project/project.actions';
 import { ProjectService } from './services/project.service';
 import { Router } from '@angular/router';
 import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
+import { UserService } from '../core/services/user/user.service';
+import { retrievedUserTasks } from '../store/user-task/user-task.actions';
 
 @Component({
   selector: 'app-project',
@@ -32,18 +34,18 @@ export class ProjectComponent implements OnInit, OnDestroy {
       headerName: 'No.',
       field: 'id',
       suppressSizeToFit: true,
-      width: 67,
+      width: 60,
       cellClass: 'project-actions'
     },
     { field: 'name'},
     { field: 'description' },
-    { field: 'lock' },
     { field: 'status' },
     { field: 'category' }
   ];
 
   constructor(
     private projectService: ProjectService,
+    private userService: UserService,
     private store: Store,
     private router: Router,
   ) {
@@ -55,6 +57,9 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.projectService.getProjectByStatus(this.status).subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
+    this.userService.getAll().subscribe(data => {
+      this.store.dispatch(retrievedUserTasks({data: data.result}));
+    })
   }
 
   ngOnDestroy(): void {
@@ -77,6 +82,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   openMapProject() {
     var rows = this.gridApi.getSelectedRows()[0];
+    this.projectService.openProject(rows["id"]);
+    this.store.dispatch(retrievedIsOpen({data: true}));
     this.router.navigate(
       [RouteSegments.MAP],
       {

@@ -1,87 +1,54 @@
 .project-container {
-  max-width: 50%;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 25px;
-  margin-bottom: 15px;
-  border: 2px solid #A9A9A9;
+    max-width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    border: 2px solid #A9A9A9;
 }
 
 .project-title {
-  text-align: center;
-  font-weight: 600;
-  font-size: 28px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 28px;
 }
 
 mat-form-field {
-  display: block;
-  width: 70%;
-  margin-left: auto;
-  margin-right: auto;
+    display: block;
+    width: 70%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 label {
-  font-size: 16px;
+    font-size: 16px;
 }
 
 .section-option {
-  max-width: 40%;
-  display: flex;
-  align-content: center;
-  height: 60px;
-  padding: 20px 0 0 10px;
+    max-width: 40%;
+    display: flex;
+    align-content: center;
+    height: 60px;
+    padding: 20px 0 0 10px;
 }
 
 .margin-button {
-  margin: 0 40px;
-  padding-bottom: 10px;
-  font-size: 14px;
+    margin: 0 40px;
+    padding-bottom: 10px;
+    font-size: 14px;
 }
 
 .form-option {
-  width: 70%;
-  margin-left: auto;
-  margin-right: auto;
-  border: 1px solid rgba(0,0,0,.12);
-  margin-bottom: 1.34375em;
-  border-radius: 5px;
+    width: 70%;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid rgba(0, 0, 0, .12);
+    margin-bottom: 1.34375em;
+    border-radius: 5px;
 }
 
 .create-btn {
-  width: 70%;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.loading {
-  position: fixed;
-  z-index: 999;
-  height: 2em;
-  width: 2em;
-  overflow: show;
-  margin: auto;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-}
-
-/* Transparent Overlay */
-.loading:before {
-  content: '';
-  display: block;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.3);
-}
-
-.loading:not(:required) {
-  font: 0/0 a;
-  color: transparent;
-  text-shadow: none;
-  background-color: transparent;
-  border: 0;
+    width: 70%;
+    margin-left: auto;
+    margin-right: auto;
 }

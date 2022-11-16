@@ -9,3 +9,8 @@ export const retrievedVMStatus = createAction(
   'retrievedVMStatus',
   props<{ vmStatus: any }>()
 );
+
+export const retrievedIsOpen = createAction(
+  'retrievedIsOpen',
+  props<{ data: any }>()
+);

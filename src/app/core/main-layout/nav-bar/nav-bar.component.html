@@ -13,7 +13,7 @@
             <mat-icon>folder_open</mat-icon>
             <span>Open</span>
         </button>
-        <button mat-menu-item [routerLink]="routeSegments.EDIT_PROJECT">
+        <button mat-menu-item [disabled]="!isOpen" (click)="editProject()">
             <mat-icon>edit</mat-icon>
             <span>Edit</span>
         </button>
