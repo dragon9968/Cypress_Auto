@@ -17,7 +17,6 @@ export class HelpersService {
   lastWidth = 0;
   lastHeight = 0;
   zoomLimit = false;
-  popper: any;
   @Input() deletedInterfaces!: any[];
   @Input() deletedNodes!: any[];
 
@@ -516,7 +515,7 @@ export class HelpersService {
 
   addBadge(cy: any, ele: any) {
     this.removeBadge(ele);
-    this.popper = ele.popper({
+    const popper = ele.popper({
       content: () => {
         const badge = document.createElement('div');
         badge.id = `popper-${ele.id()}`;
@@ -530,11 +529,11 @@ export class HelpersService {
       }
     });
     ele.on('position', () => {
-      this.popper.update();
+      popper.update();
     });
 
-    cy.on('pan zoom resize', () => {
-      this.popper.update();
+    ele.cy().on('pan zoom resize', () => {
+      popper.update();
     });
   }
 
