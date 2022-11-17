@@ -318,4 +318,10 @@ export class InfoPanelNodeComponent {
       });
     }
   }
+
+  clearTable() {
+    this.rowsSelected = [];
+    this.rowsSelectedId = [];
+    this.gridApi.setRowData([]);
+  }
 }

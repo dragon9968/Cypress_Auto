@@ -23,6 +23,7 @@
     <mat-icon>check</mat-icon>Validate
   </button>
 </mat-menu>
+<button mat-button class="btn-clear-table" type="button" (click)="clearTable()">Clear Table</button>
 
 <div class="ag-theme-alpine info-panel-node" [style.height]="gridHeight">
   <ag-grid-angular style="width: 100%; height: 100%;" [gridOptions]="gridOptions" (gridReady)="onGridReady($event)"

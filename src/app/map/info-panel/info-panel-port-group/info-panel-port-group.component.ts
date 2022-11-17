@@ -307,4 +307,10 @@ export class InfoPanelPortGroupComponent implements OnInit {
       })
     }
   }
+
+  clearTable() {
+    this.rowsSelected = [];
+    this.rowsSelectedId = [];
+    this.gridApi.setRowData([]);
+  }
 }

@@ -132,7 +132,7 @@ export class InfoPanelInterfaceComponent {
         maxWidth: 270
       },
       {
-        field: 'netmark',
+        field: 'netmask',
         minWidth: 100,
         flex: 1,
         maxWidth: 200
@@ -307,5 +307,11 @@ export class InfoPanelInterfaceComponent {
         this.toastr.success(response.message);
       })
     }
+  }
+
+  clearTable() {
+    this.rowsSelected = [];
+    this.rowsSelectedId = [];
+    this.gridApi.setRowData([]);
   }
 }
