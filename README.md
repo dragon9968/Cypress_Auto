@@ -1,4 +1,4 @@
-# Keromatsu Angular
+# Cyber Range Orchestrator (C.R.O) Angular
 
 #### Setup Angular #####
 
