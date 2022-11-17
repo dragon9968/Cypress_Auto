@@ -254,7 +254,7 @@ export class InfoPanelPortGroupComponent implements OnInit {
         }
         const fileName = response.filename;
         this.helpers.downloadBlob(fileName, file);
-        this.toastr.success(response.message);
+        this.toastr.success(`Export port group as ${format.toUpperCase()} file successfully`);
       })
     }
   }

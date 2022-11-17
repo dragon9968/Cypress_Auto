@@ -10,3 +10,7 @@
 .device-category__ag {
   height: calc(100vh - 220px);
 }
+
+::ng-deep .ag-header-cell-label {
+  justify-content: center;
+}

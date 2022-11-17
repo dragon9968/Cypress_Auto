@@ -145,60 +145,72 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
   }
 
   delete() {
-    const item = this.rowsSelectedId.length === 1 ? 'this' : 'those';
-    const dialogData = {
-      title: 'User confirmation needed',
-      message: `You sure you want to delete ${item}?`,
-      submitButtonName: 'OK'
-    }
-    const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
-    dialogConfirm.afterClosed().subscribe(confirm => {
-      if (confirm) {
-        this.rowsSelectedId.map(userTaskId => {
-          this.infoPanelService.deleteUserTask(userTaskId);
-        })
+    if (this.rowsSelectedId.length === 0) {
+      this.toastr.info('No row selected');
+    } else {
+      const item = this.rowsSelectedId.length === 1 ? 'this' : 'those';
+      const dialogData = {
+        title: 'User confirmation needed',
+        message: `You sure you want to delete ${item}?`,
+        submitButtonName: 'OK'
       }
-    })
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
+      dialogConfirm.afterClosed().subscribe(confirm => {
+        if (confirm) {
+          this.rowsSelectedId.map(userTaskId => {
+            this.infoPanelService.deleteUserTask(userTaskId);
+          })
+        }
+      })
+    }
   }
 
   rerun() {
-    const item = this.rowsSelectedId.length === 0 ? 'this' : 'those';
-    const dialogData = {
-      title: 'User confirmation needed',
-      message: `Rerun ${item} task?`,
-      submitButtonName: 'OK'
-    }
-    const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
-    dialogConfirm.afterClosed().subscribe(confirm => {
-      if (confirm) {
-        this.infoPanelService.rerunTask(this.rowsSelectedId);
+    if (this.rowsSelectedId.length === 0) {
+      this.toastr.info('No row selected');
+    } else {
+      const item = this.rowsSelectedId.length === 0 ? 'this' : 'those';
+      const dialogData = {
+        title: 'User confirmation needed',
+        message: `Rerun ${item} task?`,
+        submitButtonName: 'OK'
       }
-    });
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
+      dialogConfirm.afterClosed().subscribe(confirm => {
+        if (confirm) {
+          this.infoPanelService.rerunTask(this.rowsSelectedId);
+        }
+      });
+    }
   }
 
   revoke() {
-    const dialogData = {
-      title: 'User confirmation needed',
-      message: 'Revoke pending task?',
-      submitButtonName: 'OK'
-    }
-    const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
-    dialogConfirm.afterClosed().subscribe(confirm => {
-      if (confirm) {
-        let taskPendingId: any[] = []
-        this.rowsSelected.map(task => {
-          if (task.task_state === 'PENDING') {
-            taskPendingId.push(task.id);
-          } else {
-            this.toastr.warning(`Task ${task.display_name} has state ${task.task_state} and can not be revoked!
-                                    <br /> Revoke only apply to the pending task`, 'Warning', { enableHtml: true});
-          }
-        })
-        if (taskPendingId.length !== 0) {
-          this.infoPanelService.revokeTask(taskPendingId);
-        }
+    if (this.rowsSelectedId.length === 0) {
+      this.toastr.info('No row selected');
+    } else {
+      const dialogData = {
+        title: 'User confirmation needed',
+        message: 'Revoke pending task?',
+        submitButtonName: 'OK'
       }
-    });
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
+      dialogConfirm.afterClosed().subscribe(confirm => {
+        if (confirm) {
+          let taskPendingId: any[] = []
+          this.rowsSelected.map(task => {
+            if (task.task_state === 'PENDING') {
+              taskPendingId.push(task.id);
+            } else {
+              this.toastr.warning(`Task ${task.display_name} has state ${task.task_state} and can not be revoked!
+                                    <br /> Revoke only apply to the pending task`, 'Warning', { enableHtml: true});
+            }
+          })
+          if (taskPendingId.length !== 0) {
+            this.infoPanelService.revokeTask(taskPendingId);
+          }
+        }
+      });
+    }
   }
 
   onGridReady(params: GridReadyEvent) {
