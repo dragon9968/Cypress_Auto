@@ -163,7 +163,7 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
               genData: domainUserData.result,
               domain: domainData.result
             };
-            this.dialog.open(UpdateDomainUserDialogComponent, {width: '600px', height: `${screen.height*.6}px`, data: dialogData});
+            this.dialog.open(UpdateDomainUserDialogComponent, {width: '600px', data: dialogData});
           }
         )
       })

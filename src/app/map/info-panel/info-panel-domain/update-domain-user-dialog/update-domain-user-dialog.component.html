@@ -34,6 +34,7 @@
     <mat-form-field class="field">
       <mat-label>UPN</mat-label>
       <input type="text" matInput formControlName="upnCtr" placeholder="UPN">
+      <mat-error *ngIf="upnCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Email</mat-label>
@@ -54,7 +55,6 @@
     <mat-form-field class="field">
       <mat-label>Postal Code</mat-label>
       <input type="number" matInput formControlName="postalCodeCtr" placeholder="Postal Code">
-      <mat-error *ngIf="postalCodeCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="postalCodeCtr?.errors?.pattern">{{ errorMessages.FIELD_IS_NUMBER }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">

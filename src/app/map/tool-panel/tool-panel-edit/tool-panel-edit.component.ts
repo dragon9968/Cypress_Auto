@@ -60,6 +60,13 @@ export class ToolPanelEditComponent implements OnDestroy {
     private cmGroupBoxService: CMGroupBoxService,
     private toastr: ToastrService
   ) {
+    this.nodeAddForm = new FormGroup({
+      deviceCtr: new FormControl(''),
+      templateCtr: new FormControl(''),
+      mapImageCtr: new FormControl(''),
+      isCustomizeNodeCtr: new FormControl(true)
+    });
+
     this.selectDevices$ = this.store.select(selectDevices).subscribe((devices: any) => {
       if (devices) {
         this.devices = devices;
@@ -86,12 +93,6 @@ export class ToolPanelEditComponent implements OnDestroy {
     });
     this.selectMapPref$ = this.store.select(selectMapPref).subscribe((selectedMapPref: any) => {
       this.selectedMapPref = selectedMapPref;
-    });
-    this.nodeAddForm = new FormGroup({
-      deviceCtr: new FormControl(''),
-      templateCtr: new FormControl(''),
-      mapImageCtr: new FormControl(''),
-      isCustomizeNodeCtr: new FormControl(true)
     });
   }
 

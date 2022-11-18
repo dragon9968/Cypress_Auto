@@ -168,7 +168,7 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
       firstname: ele.firstname,
       lastname: ele.lastname,
       username: ele.username,
-      password: ele.configuration?.password,
+      password: ele.configuration?.password ? ele.configuration?.password : 'P@ssw0rd123',
       company: ele.configuration?.company,
       upn: ele.configuration?.upn ? ele.configuration?.upn : `${ele.username}@${this.data.domain.name}`,
       email: ele.configuration?.email,

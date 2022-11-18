@@ -51,12 +51,12 @@ export class UpdateDomainUserDialogComponent implements OnInit, OnDestroy {
         Validators.required, validateNameExist(() => this.domainUsers, 'update', this.data.genData.id, 'username')]),
       passwordCtr: new FormControl(''),
       companyCtr: new FormControl(''),
-      upnCtr: new FormControl(''),
+      upnCtr: new FormControl('', [Validators.required]),
       emailCtr: new FormControl(''),
       streetAddressCtr: new FormControl(''),
       cityCtr: new FormControl(''),
       stateProvinceCtr: new FormControl(''),
-      postalCodeCtr: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
+      postalCodeCtr: new FormControl('', [Validators.pattern('^[0-9]*$')]),
       countryCtr: new FormControl('')
     })
   }
