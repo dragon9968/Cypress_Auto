@@ -57,12 +57,10 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
     },
     { 
       field: 'name',
-      suppressSizeToFit: true,
-      maxWidth: 100
+      flex: 1,
     },
     { 
       headerName: 'Group Box Defaults',
-      suppressSizeToFit: true,
       field: 'group_box_defaults',
       cellRenderer: (param: any) => param.value,
       autoHeight: true,
@@ -70,7 +68,6 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
     },
     { 
       headerName: 'Group Group Defaults',
-      suppressSizeToFit: true,
       field: 'port_group_defaults',
       cellRenderer: (param: any) => param.value,
       autoHeight: true,
@@ -78,7 +75,6 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
     },
     { 
       headerName: 'Edge Defaults',
-      suppressSizeToFit: true,
       field: 'edge_defaults',
       cellRenderer: (param: any) => param.value,
       autoHeight: true,
@@ -86,7 +82,6 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
     },
     { 
       headerName: 'Node Defaults',
-      suppressSizeToFit: true,
       field: 'node_defaults',
       cellRenderer: (param: any) => param.value,
       autoHeight: true,
@@ -94,7 +89,6 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
     },
     { 
       headerName: 'Text Defaults',
-      suppressSizeToFit: true,
       field: 'text_defaults',
       cellRenderer: (param: any) => param.value,
       autoHeight: true,
@@ -102,7 +96,6 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
     },
     { 
       headerName: 'Zoom Speed',
-      suppressSizeToFit: true,
       field: 'zoom_speed',
       cellRenderer: (param: any) => param.value,
       autoHeight: true,
@@ -110,7 +103,6 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
     },
     { 
       headerName: 'Icon Img Thumbnail',
-      suppressSizeToFit: true,
       field: 'icon_img_thumbnail',
       cellRenderer: function(param: any) {
         const img = `<img src="${ICON_PATH}${param.value}" alt="Photo" height="40" width="40">`
