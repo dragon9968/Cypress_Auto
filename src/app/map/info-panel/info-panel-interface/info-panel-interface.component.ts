@@ -4,7 +4,7 @@ import { catchError } from "rxjs/operators";
 import { MatDialog } from "@angular/material/dialog";
 import { MatIconRegistry } from "@angular/material/icon";
 import { forkJoin, map, Subscription, throwError } from "rxjs";
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnDestroy } from '@angular/core';
 import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
@@ -15,13 +15,14 @@ import { selectInterfaces } from "../../../store/map/map.selectors";
 import { retrievedInterfacesByIds } from "../../../store/interface/interface.actions";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
+import { selectMapEdit } from "src/app/store/map-edit/map-edit.selectors";
 
 @Component({
   selector: 'app-info-panel-interface',
   templateUrl: './info-panel-interface.component.html',
   styleUrls: ['./info-panel-interface.component.scss']
 })
-export class InfoPanelInterfaceComponent {
+export class InfoPanelInterfaceComponent implements OnDestroy {
 
   @Input() cy: any;
   @Input() activeNodes: any[] = [];
@@ -36,7 +37,8 @@ export class InfoPanelInterfaceComponent {
   rowsSelectedId: any[] = [];
   isClickAction = false;
   tabName = 'edge';
-  selectIsSelectedNodes$ = new Subscription();
+  selectMapSelection$ = new Subscription();
+  selectMapEdit$ = new Subscription();
 
   public gridOptions: GridOptions = {
     headerHeight: 48,
@@ -150,10 +152,15 @@ export class InfoPanelInterfaceComponent {
     private infoPanelService: InfoPanelService
   ) {
     this.iconRegistry.addSvgIcon('randomize-subnet', this.helpers.setIconPath('/assets/icons/randomize-subnet.svg'));
-    this.selectIsSelectedNodes$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
+    this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
       if (mapSelection) {
         this._setEdgeInfoPanel(this.activeEdges);
         this.store.dispatch(retrievedMapSelection({ data: false }));
+      }
+    });
+    this.selectMapEdit$ = this.store.select(selectMapEdit).subscribe(mapEdit => {
+      if (mapEdit?.interfaceEditedData?.length > 0) {
+        this.gridApi.setRowData(mapEdit.interfaceEditedData);
       }
     });
   }
@@ -161,6 +168,11 @@ export class InfoPanelInterfaceComponent {
   get gridHeight() {
     const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
     return infoPanelHeightNumber >= 300 ? (infoPanelHeightNumber-100) + 'px' : '200px';
+  }
+
+  ngOnDestroy(): void {
+    this.selectMapSelection$.unsubscribe();
+    this.selectMapEdit$.unsubscribe();
   }
 
   onGridReady(params: GridReadyEvent) {

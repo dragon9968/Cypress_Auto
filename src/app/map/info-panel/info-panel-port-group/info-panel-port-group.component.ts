@@ -4,7 +4,7 @@ import { forkJoin, map, Subscription, throwError } from "rxjs";
 import { MatDialog } from "@angular/material/dialog";
 import { MatIconRegistry } from "@angular/material/icon";
 import { ActivatedRoute, Params } from "@angular/router";
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { PortGroupService } from "../../../core/services/portgroup/portgroup.service";
@@ -14,13 +14,14 @@ import { ConfirmationDialogComponent } from "../../../shared/components/confirma
 import { Store } from "@ngrx/store";
 import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
+import { selectMapEdit } from "src/app/store/map-edit/map-edit.selectors";
 
 @Component({
   selector: 'app-info-panel-port-group',
   templateUrl: './info-panel-port-group.component.html',
   styleUrls: ['./info-panel-port-group.component.scss']
 })
-export class InfoPanelPortGroupComponent implements OnInit {
+export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
 
   @Input() cy: any;
   @Input() activeNodes: any[] = [];
@@ -36,7 +37,8 @@ export class InfoPanelPortGroupComponent implements OnInit {
   isClickAction = false;
   tabName = 'portGroup';
   collectionId = '0';
-  selectIsSelectedNodes$ = new Subscription();
+  selectMapSelection$ = new Subscription();
+  selectMapEdit$ = new Subscription();
 
   constructor(
     private store: Store,
@@ -49,10 +51,15 @@ export class InfoPanelPortGroupComponent implements OnInit {
     private infoPanelService: InfoPanelService
   ) {
     this.iconRegistry.addSvgIcon('randomize-subnet', this.helpers.setIconPath('/assets/icons/randomize-subnet.svg'));
-    this.selectIsSelectedNodes$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
+    this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
       if (mapSelection) {
         this._setPGInfoPanel(this.activePGs);
         this.store.dispatch(retrievedMapSelection({ data: false }));
+      }
+    });
+    this.selectMapEdit$ = this.store.select(selectMapEdit).subscribe(mapEdit => {
+      if (mapEdit?.pgEditedData?.length > 0) {
+        this.gridApi.setRowData(mapEdit.pgEditedData);
       }
     });
   }
@@ -66,6 +73,11 @@ export class InfoPanelPortGroupComponent implements OnInit {
     this.route.queryParams.subscribe((params: Params) => {
       this.collectionId = params['collection_id'];
     })
+  }
+
+  ngOnDestroy(): void {
+    this.selectMapSelection$.unsubscribe();
+    this.selectMapEdit$.unsubscribe();
   }
 
   public gridOptions: GridOptions = {

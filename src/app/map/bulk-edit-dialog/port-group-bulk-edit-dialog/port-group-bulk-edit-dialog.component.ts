@@ -1,5 +1,5 @@
 import { Store } from "@ngrx/store";
-import { Subscription } from "rxjs";
+import { forkJoin, map, Subscription } from "rxjs";
 import { ToastrService } from "ngx-toastr";
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from "@angular/forms";
@@ -11,6 +11,7 @@ import { selectDomains } from "../../../store/domain/domain.selectors";
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { showErrorFromServer } from "src/app/shared/validations/error-server-response.validation";
+import { retrievedMapEdit } from "src/app/store/map-edit/map-edit.actions";
 
 @Component({
   selector: 'app-port-group-bulk-edit-dialog',
@@ -36,7 +37,6 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
     this.portGroupBulkEdit = new FormGroup({
       domainCtr: new FormControl('', [autoCompleteValidator(this.domains)]),
       vlanCtr: new FormControl('', [
-        Validators.required,
         Validators.pattern('^[0-9]*$'),
         showErrorFromServer(() => this.errors)
       ]),
@@ -65,21 +65,35 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
       category: this.categoryCtr?.value,
       subnet_allocation: this.subnetAllocationCtr?.value
     }
-    this.portGroupService.editBulk(jsonData).subscribe(response => {
-      this.data.genData.ids.map((portGroupId: any) => {
-        this.portGroupService.get(portGroupId).subscribe(pgData => {
+    this.portGroupService.editBulk(jsonData).subscribe((response: any) => {
+      const pgEditedData: any[] = [];
+      return forkJoin(this.data.genData.ids.map((portGroupId: any) => {
+        return this.portGroupService.get(portGroupId).pipe(map(pgData => {
           const ele = this.data.cy.getElementById('pg-' + portGroupId);
-          ele.data('subnet_allocation', pgData.result.subnet_allocation);
-          ele.data('group', pgData.result.groups);
-          ele.data('domain', this.domainCtr?.value.id);
-          ele.data('vlan', this.vlanCtr?.value);
-        })
-      })
-      this.helpers.reloadGroupBoxes(this.data.cy);
-      this.toastr.success(response.message);
-      this.dialogRef.close();
-      this.store.dispatch(retrievedMapSelection({ data: true }));
-    })
+          const result = pgData.result;
+          ele.data('subnet_allocation', result.subnet_allocation);
+          ele.data('group', result.groups);
+          ele.data('domain', result.domain.id);
+          ele.data('vlan', result.vlan);
+          pgEditedData.push({
+            id: result.id,
+            name: result.name,
+            category: result.category,
+            vlan: result.vlan,
+            subnet_allocation: result.subnet_allocation,
+            subnet: result.subnet,
+            domain: result.domain.name,
+            interfaces: result.interfaces
+          });
+        }));
+      }))
+        .subscribe(() => {
+          this.store.dispatch(retrievedMapEdit({ data: { pgEditedData } }));
+          this.helpers.reloadGroupBoxes(this.data.cy);
+          this.dialogRef.close();
+          this.toastr.success(response.message);
+        });
+    });
   }
 
   onCancel() {

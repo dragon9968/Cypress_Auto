@@ -4,7 +4,7 @@ import { ActivatedRoute, Params } from "@angular/router";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from "rxjs";
+import { forkJoin, map, Subscription } from "rxjs";
 import { FormControl, FormGroup } from "@angular/forms";
 import { ROLES } from "../../../shared/contants/roles.constant";
 import { ICON_PATH } from "src/app/shared/contants/icon-path.constant";
@@ -19,6 +19,7 @@ import { selectConfigTemplates } from "../../../store/config-template/config-tem
 import { selectLoginProfiles } from "../../../store/login-profile/login-profile.selectors";
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
+import { retrievedMapEdit } from "src/app/store/map-edit/map-edit.actions";
 
 @Component({
   selector: 'app-node-bulk-edit-dialog',
@@ -113,11 +114,27 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
       login_profile_id: this.loginProfileCtr?.value.id
     }
     this.nodeService.editBulk(jsonData).subscribe(response => {
-      this.data.genData.ids.map((nodeId: any) => {
-        this.nodeService.get(nodeId).subscribe(nodeData => {
+      const nodeEditedData: any[] = [];
+      return forkJoin(this.data.genData.ids.map((nodeId: any) => {
+        return this.nodeService.get(nodeId).pipe(map(nodeData => {
           const ele = this.data.cy.getElementById('node-' + nodeId);
-          ele.data('groups', nodeData.result.groups);
-          ele.data('icon', ICON_PATH + nodeData.result.icon.photo);
+          const result = nodeData.result;
+          ele.data('groups', result.groups);
+          ele.data('icon', ICON_PATH + result.icon.photo);
+          nodeEditedData.push({
+            id: result.id,
+            name: result.name,
+            category: result.category,
+            role: result.role,
+            device: result.device.name,
+            template: result.template.display_name,
+            hardware: result.hardware?.serial_number,
+            folder: result.folder,
+            domain: result.domain.name,
+            interfaces: result.interfaces,
+            configuration_show: result.configuration_show,
+            login_profile_show: result.login_profile_show,
+          });
           if (this.configTemplateCtr?.value) {
             const configData = {
               pk: nodeData.id,
@@ -127,12 +144,14 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
               this.store.dispatch(retrievedMapSelection({ data: true }));
             });
           }
+        }));
+      }))
+        .subscribe(() => {
+          this.helpers.reloadGroupBoxes(this.data.cy);
+          this.store.dispatch(retrievedMapEdit({ data: { nodeEditedData } }));
+          this.dialogRef.close();
+          this.toastr.success(response.message, 'Success');
         });
-      });
-      this.helpers.reloadGroupBoxes(this.data.cy);
-      this.toastr.success(response.message, 'Success');
-      this.dialogRef.close();
-      this.store.dispatch(retrievedMapSelection({ data: true }));
     });
   }
 

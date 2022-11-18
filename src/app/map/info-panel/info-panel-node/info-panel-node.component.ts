@@ -3,7 +3,7 @@ import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
 import { MatIconRegistry } from "@angular/material/icon";
 import { forkJoin, map, Subscription, throwError } from "rxjs";
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnDestroy } from '@angular/core';
 import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
 import { NodeService } from "../../../core/services/node/node.service";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
@@ -14,14 +14,14 @@ import { Store } from "@ngrx/store";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
 import { CMActionsService } from "../../context-menu/cm-actions/cm-actions.service";
+import { selectMapEdit } from "src/app/store/map-edit/map-edit.selectors";
 
 @Component({
   selector: 'app-info-panel-node',
   templateUrl: './info-panel-node.component.html',
   styleUrls: ['./info-panel-node.component.scss']
 })
-export class InfoPanelNodeComponent {
-
+export class InfoPanelNodeComponent implements OnDestroy {
   @Input() cy: any;
   @Input() activeNodes: any[] = [];
   @Input() activePGs: any[] = [];
@@ -35,7 +35,8 @@ export class InfoPanelNodeComponent {
   rowsSelectedId: any[] = [];
   isClickAction: boolean = true;
   tabName = 'node';
-  selectIsSelectedNodes$ = new Subscription();
+  selectMapSelection$ = new Subscription();
+  selectMapEdit$ = new Subscription();
 
   get gridHeight() {
     const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
@@ -206,12 +207,22 @@ export class InfoPanelNodeComponent {
   ) {
     iconRegistry.addSvgIcon('export-csv', this.helpers.setIconPath('/assets/icons/export-csv.svg'));
     iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
-    this.selectIsSelectedNodes$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
+    this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
       if (mapSelection) {
         this._setNodeInfoPanel(this.activeNodes);
         this.store.dispatch(retrievedMapSelection({ data: false }));
       }
     });
+    this.selectMapEdit$ = this.store.select(selectMapEdit).subscribe(mapEdit => {
+      if (mapEdit?.nodeEditedData?.length > 0) {
+        this.gridApi.setRowData(mapEdit.nodeEditedData);
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.selectMapSelection$.unsubscribe();
+    this.selectMapEdit$.unsubscribe();
   }
 
   onGridReady(params: GridReadyEvent) {
