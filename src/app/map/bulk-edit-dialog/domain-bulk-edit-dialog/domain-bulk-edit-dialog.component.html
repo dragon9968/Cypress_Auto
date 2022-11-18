@@ -10,7 +10,7 @@
       <input type="text" matInput placeholder="Admin Password" formControlName="adminPasswordCtr">
     </mat-form-field>
   </div>
-  <div mat-dialog-actions align="'end'">
+  <div mat-dialog-actions [align]="'end'">
     <button type="button" mat-raised-button (click)="onCancel()">Cancel</button>
     <button type="submit" mat-raised-button color="primary" [disabled]="!domainBulkEditForm.valid && adminUserCtr?.value">
       Update

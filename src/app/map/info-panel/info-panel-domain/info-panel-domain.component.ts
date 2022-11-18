@@ -1,11 +1,11 @@
 import { Store } from "@ngrx/store";
-import { ToastrService } from "ngx-toastr";
-import { catchError } from "rxjs/operators";
-import { Component, Input, OnInit } from '@angular/core';
 import { MatDialog } from "@angular/material/dialog";
-import { ActivatedRoute, Params } from "@angular/router";
+import { catchError } from "rxjs/operators";
+import { ToastrService } from "ngx-toastr";
 import { MatIconRegistry } from "@angular/material/icon";
-import { Observable, of, Subscription, throwError } from "rxjs";
+import { ActivatedRoute, Params } from "@angular/router";
+import { Subscription, throwError } from "rxjs";
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { DomainService } from "../../../core/services/domain/domain.service";
@@ -22,7 +22,7 @@ import { selectDomains } from "../../../store/domain/domain.selectors";
   templateUrl: './info-panel-domain.component.html',
   styleUrls: ['./info-panel-domain.component.scss']
 })
-export class InfoPanelDomainComponent implements OnInit {
+export class InfoPanelDomainComponent implements OnInit, OnDestroy {
   @Input() infoPanelheight = '300px';
   private gridApi!: GridApi;
   collectionId: string = '0';
@@ -30,7 +30,6 @@ export class InfoPanelDomainComponent implements OnInit {
   rowsSelected: any[] = [];
   rowsSelectedId: any[] = [];
   domains!: any;
-  rowData$!: Observable<any[]>;
   isClickAction = false;
 
   public gridOptions: GridOptions = {
@@ -105,9 +104,14 @@ export class InfoPanelDomainComponent implements OnInit {
     this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
       if (domains) {
         this.domains = domains;
-        this.rowData$ = of(domains);
+        this.gridApi.setRowData(domains);
+        this.updateRowDomainInfoPanel();
       }
     });
+  }
+
+  ngOnDestroy(): void {
+   this.selectDomains$.unsubscribe();
   }
 
   get gridHeight() {
@@ -152,7 +156,6 @@ export class InfoPanelDomainComponent implements OnInit {
         genData: { domainId: this.rowsSelectedId }
       }
       this.dialog.open(AddDomainUserDialogComponent, {width: '600px', data: dialogData});
-      this.gridApi.deselectAll();
     }
   }
 
@@ -183,6 +186,8 @@ export class InfoPanelDomainComponent implements OnInit {
     this.rowsSelected.map(domain => {
       this.infoPanelService.deleteDomain(domain, this.collectionId);
     })
+    this.rowsSelected = [];
+    this.rowsSelectedId = [];
   }
 
   exportDomain(format: string) {
@@ -204,7 +209,6 @@ export class InfoPanelDomainComponent implements OnInit {
         this.helpers.downloadBlob(fileName, file);
         this.toastr.success(`Export domains as ${format.toUpperCase()} successfully`);
       })
-      this.gridApi.deselectAll();
     }
   }
 
@@ -223,7 +227,16 @@ export class InfoPanelDomainComponent implements OnInit {
       ).subscribe(response => {
         this.toastr.success(response.message);
       })
-      this.gridApi.deselectAll();
+    }
+  }
+
+  updateRowDomainInfoPanel() {
+    if (this.rowsSelectedId.length > 0 && this.gridApi) {
+      this.gridApi.forEachNode(rowNode => {
+        if (this.rowsSelectedId.includes(rowNode.data.id)) {
+          rowNode.setSelected(true);
+        }
+      })
     }
   }
 

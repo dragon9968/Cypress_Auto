@@ -226,10 +226,10 @@ export class InfoPanelService {
           })
         });
       this.domainService.delete(domain.id).subscribe(response => {
-        this.toastr.success(`Deleted domain ${domainName}`);
         this.domainService.getDomainByCollectionId(collectionId).subscribe(
           (data: any) => this.store.dispatch(retrievedDomains({data: data.result}))
         );
+        this.toastr.success(`Deleted domain ${domainName}`);
       })
     }
   }

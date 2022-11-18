@@ -67,10 +67,10 @@ export class AddUpdateDomainDialogComponent implements OnInit {
       admin_password: this.adminPasswordCtr?.value
     }
     this.domainService.add(jsonData).subscribe(response => {
-      this.toastr.success(`Added domain ${response.result.name}`);
-      this.dialogRef.close();
       this.domainService.getDomainByCollectionId(response.result.collection_id).subscribe((data: any) => this.store.dispatch(retrievedDomains({ data: data.result })));
       this.groupService.getGroupByCollectionId(this.data.genData.collection_id).subscribe(groupData => this.store.dispatch(retrievedGroups({ data: groupData.result })))
+      this.toastr.success(`Added domain ${response.result.name}`);
+      this.dialogRef.close();
     })
   }
 
@@ -82,9 +82,11 @@ export class AddUpdateDomainDialogComponent implements OnInit {
     }
     this.domainService.put(this.data.genData.id, jsonData).subscribe(
       (response: any) => {
+        this.domainService.getDomainByCollectionId(response.result.collection).subscribe(
+          (data: any) => this.store.dispatch(retrievedDomains({ data: data.result }))
+        );
         this.toastr.success(`Updated domain ${response.result.name}`);
         this.dialogRef.close();
-        this.domainService.getDomainByCollectionId(response.result.collection).subscribe((data: any) => this.store.dispatch(retrievedDomains({ data: data.result })));
       }
     )
   }
