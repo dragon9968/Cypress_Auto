@@ -17,6 +17,10 @@
             <mat-icon>edit</mat-icon>
             <span>Edit</span>
         </button>
+        <button mat-menu-item [disabled]="!isOpen" (click)="deleteProject()">
+            <mat-icon>delete</mat-icon>
+            <span>Delete</span>
+        </button>
         <button mat-menu-item [routerLink]="routeSegments.EXPORT_IMPORT">
             <mat-icon>download</mat-icon>
             <span>Export/Import</span>

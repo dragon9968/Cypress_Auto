@@ -9,13 +9,13 @@ import { EditProjectDialogComponent } from 'src/app/project/edit-project-dialog/
 import { ProjectService } from 'src/app/project/services/project.service';
 import { retrievedSearchText } from 'src/app/store/map-option/map-option.actions';
 import { selectIsMapOpen, selectMapFeature } from 'src/app/store/map/map.selectors';
-import { MapState } from 'src/app/store/map/map.state';
 import { PermissionLevels } from '../../enums/permission-levels.enum';
 import { RouteSegments } from '../../enums/route-segments.enum';
 import { AuthService } from '../../services/auth/auth.service';
-import { Injectable, EventEmitter } from '@angular/core';
 import { selectIsOpen } from 'src/app/store/project/project.selectors';
 import { retrievedIsOpen } from 'src/app/store/project/project.actions';
+import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-nav-bar',
@@ -35,6 +35,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private projectService: ProjectService,
+    private toastr: ToastrService,
     private dialog: MatDialog,
     private router: Router,
     private store: Store,
@@ -101,5 +102,33 @@ export class NavBarComponent implements OnInit, OnDestroy {
         data: dialogData
       });
     })
+  }
+
+  deleteProject() {
+    const dialogData = {
+      title: 'User confirmation needed',
+      message: 'Project will be moved to trash. Are you sure?',
+      submitButtonName: 'Delete'
+    }
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
+    dialogRef.afterClosed().subscribe(result => {
+      const jsonData = {
+        pk: this.projectService.getCollectionId(),
+        status: 'delete'
+      }
+      if (result) {
+        this.projectService.deleteProject(jsonData).subscribe({
+          next: (rest) => {
+            this.toastr.success(`Delete Project successfully`);
+            this.projectService.closeProject();
+            this.store.dispatch(retrievedIsOpen({data: false}));
+            this.router.navigate([RouteSegments.PROJECTS]);
+          },
+          error: (error) => {
+            this.toastr.error(`Error while delete Project`);
+          }
+        })
+      }
+    });
   }
 }

@@ -39,6 +39,10 @@ export class ProjectService {
     return this.http.put<any>(ApiPaths.PROJECTS + id, data);
   }
 
+  deleteProject(data: any) {
+    return this.http.post<any>(ApiPaths.DELETE_RESTORE_PROJECT, data);
+  }
+
   associate(data: any) {
     return this.http.post<any>(ApiPaths.ASSOCIATE_PROJECT, data);
   }
