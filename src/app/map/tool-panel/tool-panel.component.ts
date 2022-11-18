@@ -90,7 +90,7 @@ export class ToolPanelComponent implements OnDestroy {
       } else if (mapContextMenu?.event == 'redo') {
         this.redo();
         this.store.dispatch(retrievedMapContextMenu({ data: { event: undefined } }));
-      }  
+      }
     });
   }
 
@@ -171,12 +171,21 @@ export class ToolPanelComponent implements OnDestroy {
   }
 
   refresh() {
-    this.mapService.getMapData(this.mapCategory, this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
-    this.activeNodes.splice(0);
-    this.activePGs.splice(0);
-    this.activeEdges.splice(0);
-    this.activeGBs.splice(0);
-    this.store.dispatch(retrievedMapSelection({ data: true }));
+    const dialogData = {
+      title: 'User confirmation needed',
+      message: 'Are you sure you want to refresh?'
+    }
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.mapService.getMapData(this.mapCategory, this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
+        this.activeNodes.splice(0);
+        this.activePGs.splice(0);
+        this.activeEdges.splice(0);
+        this.activeGBs.splice(0);
+        this.store.dispatch(retrievedMapSelection({ data: true }));
+      }
+    });
   }
 
   undo() {
