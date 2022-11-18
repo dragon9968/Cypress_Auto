@@ -18,6 +18,10 @@ export class NodeService {
     });
   }
 
+  getAll(): Observable<any> {
+    return this.http.get<any>(ApiPaths.NODE);
+  }
+
   get(id: string): Observable<any> {
     return this.http.get<any>(ApiPaths.NODE + id);
   }

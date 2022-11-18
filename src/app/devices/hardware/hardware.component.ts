@@ -1,12 +1,11 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconRegistry } from '@angular/material/icon';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Store } from '@ngrx/store';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, of, Subscription } from 'rxjs';
+import { forkJoin, Observable, of, Subscription, throwError } from 'rxjs';
 import { HardwareService } from 'src/app/core/services/hardware/hardware.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
@@ -14,6 +13,7 @@ import { retrievedHardwares } from 'src/app/store/hardware/hardware.actions';
 import { selectHardwares } from 'src/app/store/hardware/hardware.selectors';
 import { ActionsRenderHardwareComponent } from './actions-render-hardware/actions-render-hardware.component';
 import { AddEditHardwareDialogComponent } from './add-edit-hardware-dialog/add-edit-hardware-dialog.component';
+import { NodeService } from "../../core/services/node/node.service";
 
 @Component({
   selector: 'app-hardware',
@@ -28,6 +28,7 @@ export class HardwareComponent implements OnInit, OnDestroy {
   rowData$! : Observable<any[]>;
   private gridApi!: GridApi;
   selectHardwares$ = new Subscription();
+  isLoading = false;
   defaultColDef: ColDef = {
     sortable: true,
     resizable: true
@@ -48,33 +49,32 @@ export class HardwareComponent implements OnInit, OnDestroy {
       cellClass: 'hardware-actions'
     },
     { field: 'device.name'},
-    { 
+    {
       headerName: 'Template Name',
       field: 'template.display_name',
       suppressSizeToFit: true,
     },
-    { 
+    {
       headerName: 'Serial Number',
       field: 'serial_number'},
-    { 
+    {
       headerName: 'Asset Tag',
       field: 'asset_tag'}
   ];
   constructor(
     private store: Store,
-    private hardwareService: HardwareService,
     private dialog: MatDialog,
     private toastr: ToastrService,
-    private helpers: HelpersService,
-    private domSanitizer: DomSanitizer,
     iconRegistry: MatIconRegistry,
-    
+    private helpers: HelpersService,
+    private nodeService: NodeService,
+    private hardwareService: HardwareService,
   ) {
     this.selectHardwares$ = this.store.select(selectHardwares).subscribe((data: any) => {
       this.rowData$ = of(data);
     });
-    iconRegistry.addSvgIcon('export-csv', this._setPath('/assets/icons/export-csv.svg'));
-    iconRegistry.addSvgIcon('export-json', this._setPath('/assets/icons/export-json.svg'));
+    iconRegistry.addSvgIcon('export-csv', this.helpers.setIconPath('/assets/icons/export-csv.svg'));
+    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
    }
 
   ngOnInit(): void {
@@ -97,10 +97,6 @@ export class HardwareComponent implements OnInit, OnDestroy {
 
   onQuickFilterInput(event: any) {
     this.gridApi.setQuickFilter(event.target.value);
-  }
-
-  private _setPath(url: string): SafeResourceUrl {
-    return this.domSanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
   addHardware() {
@@ -129,7 +125,7 @@ export class HardwareComponent implements OnInit, OnDestroy {
       this.hardwareService.export(format, this.rowsSelectedId).subscribe(response => {
         if (format === 'json') {
           file = new Blob([JSON.stringify(response, null, 4)], {type: 'application/json'});
-        } 
+        }
         else if (format === 'csv') {
           file = new Blob([response], {type: 'text/csv;charset=utf-8;'});
         }
@@ -145,24 +141,44 @@ export class HardwareComponent implements OnInit, OnDestroy {
     }else {
       const dialogData = {
         title: 'User confirmation needed',
-        message: 'You sure you want to delete this item?'
+        message: 'You sure you want to delete this item?',
+        submitButtonName: 'OK'
       }
       const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
-          for (var ids in this.rowsSelectedId) {
-            this.hardwareService.delete(this.rowsSelectedId[ids]).subscribe({
-              next: (rest) =>{
-                this.toastr.success(`delete Hardware successfully`);
-                this.hardwareService.getAll().subscribe((data: any) => this.store.dispatch(retrievedHardwares({data: data.result})));
-              },
-              error:(err) => {
-                this.toastr.error(`Error while delete Hardware`);
+          this.isLoading = true;
+          this.nodeService.getAll().subscribe(data => {
+            const nodes = data.result;
+            const hardwareIds: any[] = [];
+            this.rowsSelected.map(ele => {
+              const isAssociateHardware = nodes.some((node: any) => node.hardware_id === ele.id);
+              if (isAssociateHardware) {
+                this.toastr.error(`There are nodes still associate with ${ele.template?.display_name} (${ele.serial_number}) hardware device.
+                                            Please remove the association before deleting.`, 'Error');
+              } else {
+                hardwareIds.push(ele.id);
               }
-            });
-          }
+            })
+            forkJoin(hardwareIds.map(id => {
+              return this.hardwareService.delete(id);
+            })).subscribe({
+                next: () => {
+                  this.hardwareService.getAll().subscribe(
+                    data => this.store.dispatch(retrievedHardwares({data: data.result}))
+                  );
+                  this.isLoading = false;
+                  this.toastr.success('Deleted hardware successfully', 'Success');
+                },
+                error: err => {
+                  this.isLoading = false;
+                  throwError(() => err);
+                  this.toastr.error('Delete hardware failed!', 'Error');
+                }
+              })
+          })
         }
-      }) 
+      })
     }
   }
 }

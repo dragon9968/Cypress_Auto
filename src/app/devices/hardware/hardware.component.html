@@ -15,7 +15,7 @@
       </mat-menu>
     </div>
     <div class="right">
-      <input 
+      <input
         matInput
         class="search"
         type="search"
@@ -25,13 +25,13 @@
       >
     </div>
   </div>
-  <ag-grid-angular 
+  <ag-grid-angular
   class="ag-theme-alpine hardware"
   [pagination]="true"
   [paginationPageSize]="25"
   [columnDefs]="columnDefs"
   [defaultColDef]="defaultColDef"
-  [rowData]="rowData$ | async" 
+  [rowData]="rowData$ | async"
   [rowSelection]="'multiple'"
   [suppressRowClickSelection]="true"
   [animateRows]="true"
@@ -41,3 +41,7 @@
   </ag-grid-angular>
 
 </mat-card>
+
+<div *ngIf="isLoading" class="loading">
+  <mat-spinner></mat-spinner>
+</div>

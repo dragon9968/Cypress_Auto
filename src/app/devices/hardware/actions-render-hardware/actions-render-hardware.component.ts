@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -9,6 +9,7 @@ import { HardwareService } from 'src/app/core/services/hardware/hardware.service
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { retrievedHardwares } from 'src/app/store/hardware/hardware.actions';
 import { AddEditHardwareDialogComponent } from '../add-edit-hardware-dialog/add-edit-hardware-dialog.component';
+import { NodeService } from "../../../core/services/node/node.service";
 
 @Component({
   selector: 'app-actions-render-hardware',
@@ -17,11 +18,13 @@ import { AddEditHardwareDialogComponent } from '../add-edit-hardware-dialog/add-
 })
 export class ActionsRenderHardwareComponent implements ICellRendererAngularComp {
   id: any;
+  isLoading = false;
   constructor (
     private dialog: MatDialog,
     private toastr: ToastrService,
     private router: Router,
     private store: Store,
+    private nodeService: NodeService,
     private hardwareService: HardwareService,
   ) { }
 
@@ -62,19 +65,32 @@ export class ActionsRenderHardwareComponent implements ICellRendererAngularComp 
   deleteHardware() {
     const dialogData = {
       title: 'User confirmation needed',
-      message: 'You sure you want to delete this item?'
+      message: 'You sure you want to delete this item?',
+      submitButtonName: 'OK'
     }
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.hardwareService.delete(this.id).subscribe({
-          next: (rest) => {
-            this.hardwareService.getAll().subscribe((data: any) => this.store.dispatch(retrievedHardwares({data: data.result})));
-            this.toastr.success(`Delete Hardware successfully`);
-          },
-          error: (error) => {
-            this.toastr.error(`Error while delete Hardware`);
+        this.isLoading = true;
+        this.nodeService.getAll().subscribe(data => {
+          const nodes = data.result;
+          const isAssociateHardware = nodes.some((ele: any) => ele.hardware_id === this.id);
+          if (isAssociateHardware) {
+            this.toastr.error('There are nodes still associate with this hardware device. ' +
+                              'Please remove the association before deleting.', 'Error');
+            this.isLoading = false;
+          } else {
+            this.hardwareService.delete(this.id).subscribe({
+              next: (rest) => {
+                this.hardwareService.getAll().subscribe((data: any) => this.store.dispatch(retrievedHardwares({data: data.result})));
+                this.toastr.success(`Delete Hardware successfully`);
+              },
+              error: (error) => {
+                this.toastr.error(`Error while delete Hardware`);
+              }
+            })
           }
+          this.isLoading = false;
         })
       }
     });
