@@ -49,6 +49,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
       this.isOpen = isOpen
     });
     iconRegistry.addSvgIcon('plant-tree-icon', this._setPath('/assets/icons/plant-tree-icon.svg'));
+    iconRegistry.addSvgIcon('icons8-trash-can', this._setPath('/assets/icons/icons8-trash-can.svg'));
   }
 
   ngOnInit(): void { 
@@ -117,7 +118,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
         status: 'delete'
       }
       if (result) {
-        this.projectService.deleteProject(jsonData).subscribe({
+        this.projectService.deleteOrRecoverProject(jsonData).subscribe({
           next: (rest) => {
             this.toastr.success(`Delete Project successfully`);
             this.projectService.closeProject();

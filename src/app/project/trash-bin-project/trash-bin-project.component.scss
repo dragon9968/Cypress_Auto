@@ -1,0 +1,45 @@
+.project-table {
+  height: calc(100vh - 200px);
+  text-align: center !important;
+}
+
+.content {
+  max-width: 70%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 16px;
+  border: 1px solid #dfdcdc;
+}
+
+.title {
+  text-align: center;
+  font-weight: 600;
+  font-size: 28px;
+}
+
+.open-btn {
+  padding-right: 8px;
+}
+
+::ng-deep .ag-header-cell-label {
+  justify-content: center !important;
+}
+
+.sub-title {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 20px;
+}
+
+.search {
+  width: 250px;
+  height: 100%;
+  border: 2px solid #a9a9a9;
+  border-radius: 5px;
+}
+
+.actions {
+  border: 1px solid #a9a9a9;
+  margin-left: 15px;
+}
+

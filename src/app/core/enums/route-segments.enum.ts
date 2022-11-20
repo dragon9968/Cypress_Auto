@@ -11,7 +11,7 @@ export enum RouteSegments {
   MAP = 'map',
   USER_PROFILE = 'user-profile',
   ADD_PROJECT = 'projects/add',
-  EDIT_PROJECT = 'projects/edit',
+  TRASH_PROJECT = 'projects/trash',
   EXPORT_IMPORT = 'projects/export-import',
   DEVICES_TEMPLATE = 'devices/device_template',
   DEVICES_CATEGORY = 'devices/device_category',
