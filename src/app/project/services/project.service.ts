@@ -31,11 +31,11 @@ export class ProjectService {
     return this.http.get<any>(ApiPaths.PROJECTS + id);
   }
 
-  add(data: any) {
+  add(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.ADD_PROJECT, data);
   }
 
-  put(id: string, data: any) {
+  put(id: string, data: any): Observable<any> {
     return this.http.put<any>(ApiPaths.PROJECTS + id, data);
   }
 
@@ -63,5 +63,9 @@ export class ProjectService {
     if (this.getCollectionId()) {
       this.localStorageService.removeItem(LocalStorageKeys.COLLECTION_ID);
     }
+  }
+
+  export(data: any): Observable<any>  {
+    return this.http.post<any>(ApiPaths.EXPORT_PROJECT, data);
   }
 }

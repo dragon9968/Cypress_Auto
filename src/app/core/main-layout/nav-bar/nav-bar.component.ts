@@ -16,6 +16,7 @@ import { selectIsOpen } from 'src/app/store/project/project.selectors';
 import { retrievedIsOpen } from 'src/app/store/project/project.actions';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ToastrService } from 'ngx-toastr';
+import { ExportProjectDialogComponent } from 'src/app/project/export-project-dialog/export-project-dialog.component';
 
 @Component({
   selector: 'app-nav-bar',
@@ -130,6 +131,18 @@ export class NavBarComponent implements OnInit, OnDestroy {
           }
         })
       }
+    });
+  }
+
+  exportProject() {
+    const collectionId = this.projectService.getCollectionId()
+    const dialogData = {
+      pk: collectionId
+    }
+    const dialogRef = this.dialog.open(ExportProjectDialogComponent, {
+      autoFocus: false,
+      width: '450px',
+      data: dialogData
     });
   }
 }

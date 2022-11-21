@@ -6,6 +6,7 @@ import { ProjectActionsRendererComponent } from './renderers/project-actions-ren
 import { AddProjectComponent } from './add-project/add-project.component';
 import { ExportImportProjectComponent } from './export-import-project/export-import-project.component';
 import { EditProjectDialogComponent } from './edit-project-dialog/edit-project-dialog.component';
+import { ExportProjectDialogComponent } from './export-project-dialog/export-project-dialog.component';
 import { TrashBinProjectComponent } from './trash-bin-project/trash-bin-project.component';
 
 
@@ -16,6 +17,7 @@ import { TrashBinProjectComponent } from './trash-bin-project/trash-bin-project.
     ProjectActionsRendererComponent,
     ExportImportProjectComponent,
     EditProjectDialogComponent,
+    ExportProjectDialogComponent,
     TrashBinProjectComponent
   ],
   imports: [

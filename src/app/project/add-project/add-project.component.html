@@ -65,7 +65,7 @@
           <mat-error *ngIf="vlan_max?.hasError('min') || vlan_max?.hasError('max') || vlan_max?.errors?.required">Valid value is between 1 and 4094</mat-error>
         </mat-form-field>
         <mat-card-actions [align]="'end'" class="create-btn">
-          <button mat-raised-button color="warn" (click)="cancelProject()">Cancel</button>
+          <button mat-raised-button (click)="cancelProject()">Cancel</button>
           <button mat-raised-button color="primary" [disabled]="!projectForm.valid" (click)="addProject()">Create</button>
         </mat-card-actions>
       </form>

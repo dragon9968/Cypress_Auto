@@ -43,7 +43,7 @@
     </mat-form-field>
   </div>
   <div mat-dialog-actions [align]="'end'" class="create-btn">
-    <button mat-raised-button color="warn"  type="button" (click)="onCancel()">{{data.mode === 'view' ? 'Close' : 'Cancel'}}</button>
+    <button mat-raised-button type="button" (click)="onCancel()">{{data.mode === 'view' ? 'Close' : 'Cancel'}}</button>
     <button *ngIf="data.mode !== 'view'" mat-raised-button color="primary" [disabled]="!hardwareForm.valid">
      {{ data.mode === 'add' ? 'Create' : 'Update' }}
     </button>
