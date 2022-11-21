@@ -74,9 +74,9 @@ export class AddEditIconDialogComponent implements OnInit {
       formData.append('name', this.name?.value)
       this.iconService.add(formData).subscribe({
           next:(rest) => {
-            this.toastr.success(`Added Icon successfully`);
             this.dialogRef.close();
             this.iconService.getAll().subscribe((data: any) => this.store.dispatch(retrievedIcons({data: data.result})));
+            this.toastr.success(`Added Icon successfully`);
           },
           error:(err) => {
             this.toastr.error(`Error while Add Icon`);
@@ -105,13 +105,13 @@ export class AddEditIconDialogComponent implements OnInit {
       }else {
         formData.append('file', 'false');
       }
-      
+
       formData.append('name', this.name?.value);
       this.iconService.put(this.data.genData.id, formData).subscribe({
         next:(rest) => {
-          this.toastr.success(`Update Icon successfully`);
           this.dialogRef.close();
           this.iconService.getAll().subscribe((data: any) => this.store.dispatch(retrievedIcons({data: data.result})));
+          this.toastr.success(`Update Icon successfully`);
         },
         error:(err) => {
           this.toastr.error(`Error while Update Icon`);

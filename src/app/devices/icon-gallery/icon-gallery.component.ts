@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconRegistry } from '@angular/material/icon';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
@@ -31,13 +30,12 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
     private iconService: IconService,
     private helpers: HelpersService,
     private dialog: MatDialog,
-    private domSanitizer: DomSanitizer,
     iconRegistry: MatIconRegistry,
   ) {
     this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
       this.listIcons = icons;
     });
-    iconRegistry.addSvgIcon('export-json', this._setPath('/assets/icons/export-json.svg'));
+    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
    }
 
   ngOnInit(): void {
@@ -46,10 +44,6 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.selectIcons$.unsubscribe();
-  }
-
-  private _setPath(url: string): SafeResourceUrl {
-    return this.domSanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
   getId(obj: any, e: any) {
@@ -65,7 +59,7 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
       this.listIcons.forEach(element => {
         this.selectedIcon.push(element.id);
       })
-      
+
     }else {
       this.selectedIcon.splice(0, this.selectedIcon.length);
     }
@@ -87,8 +81,8 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
     });
   }
 
-  updateIcon(event: any) {
-    this.id = event.id;
+  updateIcon(icon: any) {
+    this.id = icon.id;
     this.iconService.get(this.id).subscribe(iconData => {
       const dialogData = {
         mode: 'update',
@@ -103,8 +97,8 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
   }
 
 
-  deleteIcon(event: any) {
-    this.id = event.id;
+  deleteIcon(icon: any) {
+    this.id = icon.id;
     if (this.id) {
       const dialogData = {
         title: 'User confirmation needed',
@@ -115,8 +109,8 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
         if (result) {
           this.iconService.delete(this.id).subscribe({
             next: (rest) => {
-              this.toastr.success(`Delete successfully`);
               this.iconService.getAll().subscribe((data: any) => this.store.dispatch(retrievedIcons({data: data.result})));
+              this.toastr.success(`Delete successfully`);
             },
             error: (error) => {
               this.toastr.error(`Error while delete Icon`);
@@ -135,14 +129,14 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
       this.iconService.export(this.selectedIcon).subscribe(response => {
         file = new Blob([JSON.stringify(response, null, 4)], {type: 'application/json'});
         this.helpers.downloadBlob('Icon.json', file);
-        this.toastr.success(`Exported Icon as ${'json'.toUpperCase()} file successfully`);
         this.iconService.getAll().subscribe((data: any) => this.store.dispatch(retrievedIcons({data: data.result})));
+        this.toastr.success(`Exported Icon as ${'json'.toUpperCase()} file successfully`);
       })
     }
   }
 
-  showIcon(e: any) {
-    this.id = e.id;
+  showIcon(icon: any) {
+    this.id = icon.id;
     this.iconService.get(this.id).subscribe(iconData => {
       const dialogData = {
         mode: 'view',

@@ -18,29 +18,29 @@
       <mat-checkbox color="primary" [(ngModel)]="checked" (change)="selectAll($event)"><strong>Select All</strong></mat-checkbox>
     </div>
     <mat-grid-list cols="4" rowHeight="1:1">
-      <mat-grid-tile *ngFor="let icons of listIcons;">
+      <mat-grid-tile *ngFor="let icon of listIcons;">
         <mat-card class="icon-container">
-          <mat-checkbox class="checkbox-icons" color="primary" [checked]="checked" (change)="getId(icons, $event)"></mat-checkbox>
+          <mat-checkbox class="checkbox-icons" color="primary" [checked]="checked" (change)="getId(icon, $event)"></mat-checkbox>
           <mat-card-title>Icon</mat-card-title>
           <mat-card-content>
-            <div style="position: relative" (click)="showIcon(icons, $event)">
-              <img [src]="ICON_PATH + icons.photo" width="80px" height="auto">
+            <div style="position: relative" (click)="showIcon(icon)">
+              <img [src]="ICON_PATH + icon.photo" width="80px" height="auto" alt="Photo">
             </div>
           </mat-card-content>
           <mat-card-footer>
             <div class="name-footer">
               <span><strong>Name</strong></span>
-              <span class="icon-name">{{ icons.name }}</span>
+              <span class="icon-name">{{ icon.name }}</span>
               <div class="acction-icons">
-                <button mat-icon-button color="primary" (click)="showIcon(icons, $event)">
+                <button mat-icon-button color="primary" (click)="showIcon(icon)">
                   <mat-icon>visibility</mat-icon>
                 </button>
-                <button mat-icon-button color="primary" (click)="updateIcon(icons, $event)">
+                <button mat-icon-button color="primary" (click)="updateIcon(icon)">
                   <mat-icon>edit</mat-icon>
                 </button>
-                <button mat-icon-button color="primary" (click)="deleteIcon(icons, $event)">
+                <button mat-icon-button color="primary" (click)="deleteIcon(icon)">
                   <mat-icon>delete</mat-icon>
-                </button> 
+                </button>
               </div>
             </div>
           </mat-card-footer>
