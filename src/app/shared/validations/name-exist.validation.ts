@@ -7,7 +7,7 @@ export function validateNameExist(getData: () => any[], mode: string, id: any, d
       return null;
     }
     let data: any[] = [...getData()];
-    if (mode === 'update') {
+    if (mode === 'update' || mode === 'view') {
       const index = data.findIndex(ele => ele.id === id);
       data.splice(index, 1);
     }

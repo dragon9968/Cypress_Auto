@@ -172,7 +172,7 @@ export class HardwareComponent implements OnInit, OnDestroy {
                     data => this.store.dispatch(retrievedHardwares({data: data.result}))
                   );
                   this.isLoading = false;
-                  this.toastr.success('Deleted hardware successfully', 'Success');
+                  this.toastr.success('Deleted hardware(s) successfully', 'Success');
                 },
                 error: err => {
                   this.isLoading = false;

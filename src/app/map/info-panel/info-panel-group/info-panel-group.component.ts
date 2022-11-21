@@ -38,6 +38,7 @@ export class InfoPanelGroupComponent implements OnInit {
     suppressCellFocus: true,
     enableCellTextSelection: true,
     pagination: true,
+    paginationPageSize: 25,
     suppressRowClickSelection: true,
     animateRows: true,
     rowData: [],

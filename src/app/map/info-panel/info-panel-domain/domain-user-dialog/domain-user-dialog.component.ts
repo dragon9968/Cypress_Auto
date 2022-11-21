@@ -35,6 +35,7 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
     suppressCellFocus: true,
     enableCellTextSelection: true,
     pagination: true,
+    paginationPageSize: 25,
     suppressRowClickSelection: true,
     animateRows: true,
     rowData: [],

@@ -1,4 +1,4 @@
-<button mat-icon-button [style.display]="tabName === 'domainUser' ? 'none' : ''" color="primary" (click)="viewInfoPanel($event)">
+<button mat-icon-button [style.display]="tabName === 'domainUser' ? 'none' : ''" color="primary" (click)="viewInfoPanel()">
   <mat-icon>visibility</mat-icon>
 </button>
 <button mat-icon-button [style.display]="tabName === 'userTask' ? 'none' : ''" color="primary" (click)="editInfoPanel()">
@@ -10,3 +10,7 @@
 <button mat-icon-button color="primary" (click)="deleteInfoPanel()">
   <mat-icon>delete</mat-icon>
 </button>
+
+<div *ngIf="isLoading" class="loading">
+  <mat-spinner></mat-spinner>
+</div>

@@ -83,7 +83,7 @@ export class ActionsRenderHardwareComponent implements ICellRendererAngularComp 
             this.hardwareService.delete(this.id).subscribe({
               next: (rest) => {
                 this.hardwareService.getAll().subscribe((data: any) => this.store.dispatch(retrievedHardwares({data: data.result})));
-                this.toastr.success(`Delete Hardware successfully`);
+                this.toastr.success(`Deleted hardware successfully`, 'Success');
               },
               error: (error) => {
                 this.toastr.error(`Error while delete Hardware`);
