@@ -46,7 +46,8 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
       suppressSizeToFit: true,
       width: 200,
       cellRenderer: ConnectionActionsRendererComponent,
-      cellClass: 'connection-actions'
+      cellClass: 'connection-actions',
+      sortable: false
     },
     { field: 'name'},
     { field: 'category' },
@@ -54,6 +55,7 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
       headerName: 'Connection',
       field: 'parameters.status',
       cellRenderer: ConnectionStatusRendererComponent,
+      sortable: false
     },
     {
       headerName: 'Server',

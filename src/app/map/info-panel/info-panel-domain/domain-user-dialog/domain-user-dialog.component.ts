@@ -49,7 +49,8 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
         cellRendererParams: {
           tabName: 'domainUser',
           getExternalParams: () => this
-        }
+        },
+        sortable: false
       },
       {
         headerName: 'First Name',

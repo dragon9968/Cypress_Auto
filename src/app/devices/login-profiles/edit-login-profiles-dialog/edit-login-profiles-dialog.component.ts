@@ -12,7 +12,7 @@ import { retrievedLoginProfiles } from 'src/app/store/login-profile/login-profil
   styleUrls: ['./edit-login-profiles-dialog.component.scss']
 })
 export class EditLoginProfilesDialogComponent implements OnInit {
-  loginProfleEditForm!: FormGroup;
+  loginProfileEditForm!: FormGroup;
   isViewMode = false;
   constructor(
     private loginProfileService: LoginProfileService,
@@ -23,16 +23,16 @@ export class EditLoginProfilesDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {}
 
-  get name() { return this.loginProfleEditForm.get('name')};
-  get description() { return this.loginProfleEditForm.get('description')};
-  get username() { return this.loginProfleEditForm.get('username')};
-  get password() { return this.loginProfleEditForm.get('password')};
-  get category() { return this.loginProfleEditForm.get('category')};
-  get extraArgs() { return this.loginProfleEditForm.get('extraArgs')};
+  get name() { return this.loginProfileEditForm.get('name')};
+  get description() { return this.loginProfileEditForm.get('description')};
+  get username() { return this.loginProfileEditForm.get('username')};
+  get password() { return this.loginProfileEditForm.get('password')};
+  get category() { return this.loginProfileEditForm.get('category')};
+  get extraArgs() { return this.loginProfileEditForm.get('extraArgs')};
 
   ngOnInit(): void {
     this.isViewMode = this.data.mode == 'view';
-    this.loginProfleEditForm = this.formBuilder.group({
+    this.loginProfileEditForm = this.formBuilder.group({
       name: [{value: '', disabled: this.isViewMode },[Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
       description: [{value: '', disabled: this.isViewMode }],
       username : [{value: '', disabled: this.isViewMode }, Validators.required],
@@ -55,7 +55,7 @@ export class EditLoginProfilesDialogComponent implements OnInit {
   }
 
   addLoginProfile() {
-    if (this.loginProfleEditForm.valid) {
+    if (this.loginProfileEditForm.valid) {
       const jsonData = {
         name: this.name?.value,
         description: this.description?.value,
@@ -78,7 +78,7 @@ export class EditLoginProfilesDialogComponent implements OnInit {
   }
 
   updateLogin() {
-    if (this.loginProfleEditForm.valid) {
+    if (this.loginProfileEditForm.valid) {
       const jsonData = {
         name: this.name?.value,
         description: this.description?.value,

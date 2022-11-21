@@ -12,10 +12,7 @@ import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { retrievedConfigTemplates } from 'src/app/store/config-template/config-template.actions';
 import { selectConfigTemplates } from 'src/app/store/config-template/config-template.selectors';
 import { ActionsRendersConfigTemplateComponent } from './actions-renders-config-template/actions-renders-config-template.component';
-import { AddDomainMembershipDialogComponent } from './add-domain-membership-dialog/add-domain-membership-dialog.component';
 import { AddEditConfigTemplateComponent } from './add-edit-config-template/add-edit-config-template.component';
-import { AddFirewallRuleDialogComponent } from './add-firewall-rule-dialog/add-firewall-rule-dialog.component';
-import { AddRouteDialogComponent } from './add-route-dialog/add-route-dialog.component';
 
 @Component({
   selector: 'app-config-templates',
@@ -48,12 +45,13 @@ export class ConfigTemplatesComponent implements OnInit {
       suppressSizeToFit: true,
       width: 200,
       cellRenderer: ActionsRendersConfigTemplateComponent,
-      cellClass: 'config-template-actions'
+      cellClass: 'config-template-actions',
+      sortable: false
     },
     { field: 'name',
     },
     { field: 'description'},
-    { 
+    {
       headerName: 'Join Domain',
       field: 'configuration.join_domain',
       cellRenderer: (param: any) => param.value
@@ -69,14 +67,14 @@ export class ConfigTemplatesComponent implements OnInit {
             html_str += item_html;
           }
           html_str += "</div>"
-        
+
           return html_str;
         }else {
-          return 
+          return
         }
       },
     },
-    { 
+    {
       headerName: 'Roles & Services',
       suppressSizeToFit: true,
       autoHeight: true,
@@ -91,11 +89,11 @@ export class ConfigTemplatesComponent implements OnInit {
           console.log(html_str)
           return html_str;
         }else {
-          return 
+          return
         }
       }
     },
-    { 
+    {
       headerName: 'Static Routes',
       field: 'configuration.static_routes',
       suppressSizeToFit: true,
@@ -109,10 +107,10 @@ export class ConfigTemplatesComponent implements OnInit {
             html_str += item_html;
           }
           html_str += "</div>"
-         
+
           return html_str;
         }else {
-          return 
+          return
         }
       },
     },
@@ -125,7 +123,7 @@ export class ConfigTemplatesComponent implements OnInit {
     private helpers: HelpersService,
     private domSanitizer: DomSanitizer,
     iconRegistry: MatIconRegistry,
-    
+
   ) {
     this.selectConfigTemplates$ = this.store.select(selectConfigTemplates).subscribe((data: any) => {
       this.rowData$ = of(data);
@@ -174,7 +172,7 @@ export class ConfigTemplatesComponent implements OnInit {
       data: dialogData
     });
   }
-  
+
   exportJson() {
     if (this.rowsSelectedId.length == 0) {
       this.toastr.info('No row selected');

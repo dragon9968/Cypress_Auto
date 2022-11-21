@@ -113,7 +113,8 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
         cellRendererParams: {
           tabName: this.tabName,
           getExternalParams: () => this
-        }
+        },
+        sortable: false
       },
       {
         field: 'name',

@@ -58,7 +58,8 @@ export class InfoPanelGroupComponent implements OnInit {
         cellRendererParams: {
           tabName: 'group',
           getExternalParams: () => this
-        }
+        },
+        sortable: false
       },
       {
         field: 'name',

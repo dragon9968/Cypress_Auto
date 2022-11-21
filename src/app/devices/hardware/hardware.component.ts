@@ -46,9 +46,13 @@ export class HardwareComponent implements OnInit, OnDestroy {
       suppressSizeToFit: true,
       width: 160,
       cellRenderer: ActionsRenderHardwareComponent,
-      cellClass: 'hardware-actions'
+      cellClass: 'hardware-actions',
+      sortable: false
     },
-    { field: 'device.name'},
+    {
+      field: 'device.name',
+      sort: 'asc',
+    },
     {
       headerName: 'Template Name',
       field: 'template.display_name',

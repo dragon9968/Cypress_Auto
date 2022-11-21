@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconRegistry } from '@angular/material/icon';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Store } from '@ngrx/store';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
@@ -67,13 +66,15 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
       suppressSizeToFit: true,
       width: 90,
       cellRenderer: ActionRenderDeviceComponent,
-      cellClass: 'devices-actions'
+      cellClass: 'devices-actions',
+      sortable: false
     },
-    { field: 'name',
+    {
+      field: 'name',
       suppressSizeToFit: true,
       flex: 1,
     },
-    { 
+    {
       field: 'category.0.name',
       headerName: 'Category',
       suppressSizeToFit: true,
@@ -89,6 +90,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
       },
       autoHeight: true,
       flex: 1,
+      sortable: false
     }
   ];
 
@@ -106,9 +108,10 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
       flex: 1,
       width: 90,
       cellRenderer: ActionRenderTemplateComponent,
-      cellClass: 'template-actions'
+      cellClass: 'template-actions',
+      sortable: false
     },
-    { 
+    {
       headerName: 'Display Name',
       field: 'display_name',
       suppressSizeToFit: true,
@@ -116,11 +119,11 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
     },
     { field: 'name',
       suppressSizeToFit: true,
-      flex: 1, 
+      flex: 1,
     },
     { field: 'category',
       suppressSizeToFit: true,
-      flex: 1, 
+      flex: 1,
     },
     {
       headerName: 'Icon',
@@ -132,8 +135,9 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
       autoHeight: true,
       suppressSizeToFit: true,
       flex: 1,
+      sortable: false
     },
-    { 
+    {
       headerName: 'Login',
       field: 'login_profile',
       autoHeight: true,
@@ -144,7 +148,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
           let html_str = `<div>Username:${param.value.username}</div><div>Password:${param.value.password}</div>`;
           return html_str;
         }else {
-          return 
+          return
         }
       },
     },
@@ -157,7 +161,6 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
     private iconService: IconService,
     private loginProfileService: LoginProfileService,
     private dialog: MatDialog,
-    private domSanitizer: DomSanitizer,
     iconRegistry: MatIconRegistry,
     private helpers: HelpersService,
   ) {
@@ -168,7 +171,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
       this.rowDataTemplate$ = of(templateData);
     });
 
-    iconRegistry.addSvgIcon('export-json', this._setPath('/assets/icons/export-json.svg'));
+    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
    }
 
   ngOnInit(): void {
@@ -180,10 +183,6 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
     this.loginProfileService.getAll().subscribe(data => {
       this.store.dispatch(retrievedLoginProfiles({data: data.result}));
     })
-  }
-
-  private _setPath(url: string): SafeResourceUrl {
-    return this.domSanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
   ngOnDestroy(): void {
@@ -262,7 +261,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
     const dialogData = {
       mode: 'add',
       genData: {
-        deviceId: this.id[0].id, 
+        deviceId: this.id[0].id,
         displayName:  '',
         name: '',
         category:  'vm',
@@ -302,5 +301,5 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
       this.toastr.success(`Exported Templates as ${'json'.toUpperCase()} file successfully`);
         })
       }
-    } 
-  } 
+    }
+  }

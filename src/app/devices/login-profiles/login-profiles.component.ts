@@ -1,6 +1,5 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Store } from '@ngrx/store';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
@@ -46,16 +45,17 @@ export class LoginProfilesComponent implements OnInit, OnDestroy {
       suppressSizeToFit: true,
       width: 160,
       cellRenderer: ActionsRenderComponent,
-      cellClass: 'login-profiles-actions'
+      cellClass: 'login-profiles-actions',
+      sortable: false
     },
     { field: 'name'},
-    { 
+    {
       field: 'description',
       suppressSizeToFit: true,
     },
     { field: 'username'},
     { field: 'password'},
-    { 
+    {
       headerName: 'Extra Args',
       field: 'extra_args'
     }
@@ -65,16 +65,15 @@ export class LoginProfilesComponent implements OnInit, OnDestroy {
     private loginProfileService: LoginProfileService,
     private store: Store,
     private toastr: ToastrService,
-    private domSanitizer: DomSanitizer,
     private helpers: HelpersService,
     iconRegistry: MatIconRegistry,
     private dialog: MatDialog,
-  ) { 
+  ) {
     this.selectLoginProfiles$ = this.store.select(selectLoginProfiles).subscribe((data: any) => {
       this.rowData$ = of(data);
     });
-    iconRegistry.addSvgIcon('export-csv', this._setPath('/assets/icons/export-csv.svg'));
-    iconRegistry.addSvgIcon('export-json', this._setPath('/assets/icons/export-json.svg'));
+    iconRegistry.addSvgIcon('export-csv', this.helpers.setIconPath('/assets/icons/export-csv.svg'));
+    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
   }
 
   ngOnDestroy(): void {
@@ -97,10 +96,6 @@ export class LoginProfilesComponent implements OnInit, OnDestroy {
 
   onQuickFilterInput(event: any) {
     this.gridApi.setQuickFilter(event.target.value);
-  }
-
-  private _setPath(url: string): SafeResourceUrl {
-    return this.domSanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
   exportCSV() {
@@ -140,7 +135,7 @@ export class LoginProfilesComponent implements OnInit, OnDestroy {
         username:  '',
         password: '',
         category:  'local',
-        extra_args: '',  
+        extra_args: '',
       }
     }
     const dialogRef = this.dialog.open(EditLoginProfilesDialogComponent, {

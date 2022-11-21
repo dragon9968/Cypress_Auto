@@ -121,7 +121,8 @@ export class InfoPanelNodeComponent implements OnDestroy {
         cellRendererParams: {
           tabName: this.tabName,
           getExternalParams: () => this
-        }
+        },
+        sortable: false
       },
       {
         field: 'name',

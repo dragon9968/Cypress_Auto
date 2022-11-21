@@ -65,7 +65,8 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
         cellRendererParams: {
           tabName: 'domain',
           getExternalParams: () => this
-        }
+        },
+        sortable: false
       },
       {
         field: 'name',

@@ -43,7 +43,8 @@ export class DeviceCategoryComponent implements OnInit, OnDestroy {
         field: 'id',
         suppressSizeToFit: true,
         width: 120,
-        cellRenderer: DeviceCategoryRenderComponent
+        cellRenderer: DeviceCategoryRenderComponent,
+        sortable: false
       },
       {
         field: 'name',

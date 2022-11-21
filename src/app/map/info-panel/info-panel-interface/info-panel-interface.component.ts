@@ -73,7 +73,8 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
         cellRendererParams: {
           tabName: this.tabName,
           getExternalParams: () => this
-        }
+        },
+        sortable: false
       },
       {
         field: 'order',

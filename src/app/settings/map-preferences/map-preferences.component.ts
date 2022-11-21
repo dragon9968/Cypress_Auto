@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconRegistry } from '@angular/material/icon';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Store } from '@ngrx/store';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
@@ -53,55 +52,61 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
       suppressSizeToFit: true,
       width: 160,
       cellRenderer: ActionsRenderMappreComponent,
-      cellClass: 'map-preferences-actions'
+      cellClass: 'map-preferences-actions',
+      sortable: false
     },
-    { 
+    {
       field: 'name',
       flex: 1,
     },
-    { 
+    {
       headerName: 'Group Box Defaults',
       field: 'group_box_defaults',
       cellRenderer: (param: any) => param.value,
       autoHeight: true,
       flex: 1,
+      sortable: false
     },
-    { 
-      headerName: 'Group Group Defaults',
+    {
+      headerName: 'Port Group Defaults',
       field: 'port_group_defaults',
       cellRenderer: (param: any) => param.value,
       autoHeight: true,
       flex: 1,
+      sortable: false
     },
-    { 
+    {
       headerName: 'Edge Defaults',
       field: 'edge_defaults',
       cellRenderer: (param: any) => param.value,
       autoHeight: true,
       flex: 1,
+      sortable: false
     },
-    { 
+    {
       headerName: 'Node Defaults',
       field: 'node_defaults',
       cellRenderer: (param: any) => param.value,
       autoHeight: true,
       flex: 1,
+      sortable: false
     },
-    { 
+    {
       headerName: 'Text Defaults',
       field: 'text_defaults',
       cellRenderer: (param: any) => param.value,
       autoHeight: true,
       flex: 1,
+      sortable: false
     },
-    { 
+    {
       headerName: 'Zoom Speed',
       field: 'zoom_speed',
       cellRenderer: (param: any) => param.value,
       autoHeight: true,
       flex: 1,
     },
-    { 
+    {
       headerName: 'Icon Img Thumbnail',
       field: 'icon_img_thumbnail',
       cellRenderer: function(param: any) {
@@ -110,26 +115,26 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
       },
       autoHeight: true,
       flex: 1,
+      sortable: false
     },
   ];
   constructor(
     private store: Store,
     private dialog: MatDialog,
     private mapPrefService: MapPrefService,
-    private domSanitizer: DomSanitizer,
     iconRegistry: MatIconRegistry,
     private toastr: ToastrService,
     private helpers: HelpersService,
     private iconService: IconService
-  ) { 
+  ) {
     this.selectMapPref$ = this.store.select(selectMapPref).subscribe((data: any) => {
       this.rowData$ = of(data);
     });
     this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
       this.listIcons = icons;
     });
-    iconRegistry.addSvgIcon('export-csv', this._setPath('/assets/icons/export-csv.svg'));
-    iconRegistry.addSvgIcon('export-json', this._setPath('/assets/icons/export-json.svg'));
+    iconRegistry.addSvgIcon('export-csv', this.helpers.setIconPath('/assets/icons/export-csv.svg'));
+    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
   }
 
   ngOnDestroy(): void {
@@ -149,10 +154,6 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
 
   onQuickFilterInput(event: any) {
     this.gridApi.setQuickFilter(event.target.value);
-  }
-
-  private _setPath(url: string): SafeResourceUrl {
-    return this.domSanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
   selectedRows() {
