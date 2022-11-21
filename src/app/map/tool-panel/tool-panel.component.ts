@@ -173,7 +173,7 @@ export class ToolPanelComponent implements OnDestroy {
   refresh() {
     const dialogData = {
       title: 'User confirmation needed',
-      message: 'Are you sure you want to refresh?'
+      message: 'Are you sure you want to refresh? Changes have not been saved.'
     }
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
     dialogRef.afterClosed().subscribe(result => {
