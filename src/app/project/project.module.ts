@@ -4,10 +4,10 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { ProjectRoutingModule } from './project-routing.module';
 import { ProjectActionsRendererComponent } from './renderers/project-actions-renderer.component';
 import { AddProjectComponent } from './add-project/add-project.component';
-import { ExportImportProjectComponent } from './export-import-project/export-import-project.component';
 import { EditProjectDialogComponent } from './edit-project-dialog/edit-project-dialog.component';
 import { ExportProjectDialogComponent } from './export-project-dialog/export-project-dialog.component';
 import { TrashBinProjectComponent } from './trash-bin-project/trash-bin-project.component';
+import { ImportProjectDialogComponent } from './import-project-dialog/import-project-dialog.component';
 
 
 @NgModule({
@@ -15,10 +15,10 @@ import { TrashBinProjectComponent } from './trash-bin-project/trash-bin-project.
     ProjectComponent,
     AddProjectComponent,
     ProjectActionsRendererComponent,
-    ExportImportProjectComponent,
     EditProjectDialogComponent,
     ExportProjectDialogComponent,
-    TrashBinProjectComponent
+    TrashBinProjectComponent,
+    ImportProjectDialogComponent
   ],
   imports: [
     ProjectRoutingModule,

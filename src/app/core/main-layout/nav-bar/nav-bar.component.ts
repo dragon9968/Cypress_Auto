@@ -17,6 +17,7 @@ import { retrievedIsOpen } from 'src/app/store/project/project.actions';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ToastrService } from 'ngx-toastr';
 import { ExportProjectDialogComponent } from 'src/app/project/export-project-dialog/export-project-dialog.component';
+import { ImportProjectDialogComponent } from 'src/app/project/import-project-dialog/import-project-dialog.component';
 
 @Component({
   selector: 'app-nav-bar',
@@ -143,6 +144,13 @@ export class NavBarComponent implements OnInit, OnDestroy {
       autoFocus: false,
       width: '450px',
       data: dialogData
+    });
+  }
+
+  importProject() {
+    const dialogRef = this.dialog.open(ImportProjectDialogComponent, {
+      autoFocus: false,
+      width: '450px',
     });
   }
 }

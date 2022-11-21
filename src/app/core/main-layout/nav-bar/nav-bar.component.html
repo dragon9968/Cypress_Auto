@@ -29,8 +29,8 @@
             <mat-icon>download</mat-icon>
             <span>Export</span>
         </button>
-        <button mat-menu-item>
-            <mat-icon>download</mat-icon>
+        <button mat-menu-item (click)="importProject()">
+            <mat-icon>add_circle_outline</mat-icon>
             <span>Import</span>
         </button>
         <button mat-menu-item (click)="closeProject()">

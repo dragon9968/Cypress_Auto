@@ -65,7 +65,11 @@ export class ProjectService {
     }
   }
 
-  export(data: any): Observable<any>  {
+  exportProject(data: any): Observable<any>  {
     return this.http.post<any>(ApiPaths.EXPORT_PROJECT, data);
+  }
+
+  importProject(data: any) {
+    return this.http.post<any>(ApiPaths.IMPORT_PROJECT, data);
   }
 }

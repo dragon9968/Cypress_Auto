@@ -44,7 +44,7 @@ export class ExportProjectDialogComponent implements OnInit {
     var fileName = this.fileNameCtr?.value
     fileName = fileName.replace(/\s+/g, "_");
     const fullFileName = `${fileName}-Export.json` 
-    this.projectService.export(jsonData).subscribe(response => {
+    this.projectService.exportProject(jsonData).subscribe(response => {
       file = new Blob([JSON.stringify(response, null, 4)], {type: 'application/json'});
       this.helpers.downloadBlob(fullFileName, file);
       this.toastr.success(`Exported project as ${'json'.toUpperCase()} file successfully`);
