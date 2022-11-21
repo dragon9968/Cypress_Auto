@@ -1,10 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { ICellRendererParams } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
-import { IconService } from 'src/app/core/services/icon/icon.service';
 import { MapPrefService } from 'src/app/core/services/map-pref/map-pref.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { retrievedMapPref } from 'src/app/store/map-style/map-style.actions';
@@ -17,19 +16,14 @@ import { AddEditMapprefDialogComponent } from '../add-edit-mappref-dialog/add-ed
 })
 export class ActionsRenderMappreComponent implements ICellRendererAngularComp {
   id: any;
-  listIcons!: any;
+
   constructor(
     private mapPrefService: MapPrefService,
-    private iconService: IconService,
     private dialog: MatDialog,
     private store: Store,
     private toastr: ToastrService,
-  ) { 
-    this.iconService.getAll().subscribe(data => {
-      this.listIcons = data
-    })
-  }
-  
+  ) { }
+
   refresh(params: ICellRendererParams): boolean {
     return false;
   }
@@ -56,7 +50,6 @@ export class ActionsRenderMappreComponent implements ICellRendererAngularComp {
       const dialogData = {
         mode: 'update',
         genData: mapPrefData.result,
-        genIcon: this.listIcons.result,
       }
       const dialogRef = this.dialog.open(AddEditMapprefDialogComponent, {
         autoFocus: false,

@@ -1,13 +1,11 @@
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
-import { IconService } from 'src/app/core/services/icon/icon.service';
 import { MapPrefService } from 'src/app/core/services/map-pref/map-pref.service';
-import { retrievedIcons } from 'src/app/store/icon/icon.actions';
 import { selectIcons } from 'src/app/store/icon/icon.selectors';
 import { retrievedMapPref } from 'src/app/store/map-style/map-style.actions';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -19,7 +17,7 @@ import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
   templateUrl: './add-edit-mappref-dialog.component.html',
   styleUrls: ['./add-edit-mappref-dialog.component.scss']
 })
-export class AddEditMapprefDialogComponent implements OnInit, OnDestroy {
+export class AddEditMapprefDialogComponent {
   gbColorHtml!: SafeHtml;
   gbDefaultHtml!: SafeHtml;
   edgeDefaults!: SafeHtml;
@@ -42,28 +40,27 @@ export class AddEditMapprefDialogComponent implements OnInit, OnDestroy {
   listIcons!: any[];
   icon_default: any[] = [];
   listDefaultIcons: any[] = [];
-  listGroupBoxBorder = [{value: 'solid', name: "Solid"}, 
-                        {value: 'dotted', name: "Dotted"},
-                        {value: 'dashed', name: "Dashed"}, 
-                        {value: 'double', name: "Double"}];
+  listGroupBoxBorder = [{ value: 'solid', name: "Solid" },
+  { value: 'dotted', name: "Dotted" },
+  { value: 'dashed', name: "Dashed" },
+  { value: 'double', name: "Double" }];
   listTextHorizontalAlignment = [
-    {value: 'left', name: "Left"},
-    {value: 'center', name: "Center"}, 
-    {value: 'right', name: "Right"}
+    { value: 'left', name: "Left" },
+    { value: 'center', name: "Center" },
+    { value: 'right', name: "Right" }
   ];
   listTextVerticalAlignment = [
-    {value: 'top', name: "Top"}, 
-    {value: 'center', name: "Center"}, 
-    {value: 'bottom', name: "Bottom"}
+    { value: 'top', name: "Top" },
+    { value: 'center', name: "Center" },
+    { value: 'bottom', name: "Bottom" }
   ];
   listZoomSpeed = [0.10, 0.25, 0.50];
   listEdgeArrowDirection = [
-    {value: 'both', name: "Both"}, 
-    {value: 'inbound', name: "Inbound"}, 
-    {value: 'outbound', name: "Outbound"}];
+    { value: 'both', name: "Both" },
+    { value: 'inbound', name: "Inbound" },
+    { value: 'outbound', name: "Outbound" }];
   constructor(
     private store: Store,
-    private iconService: IconService,
     public helpers: HelpersService,
     private toastr: ToastrService,
     private mapPrefService: MapPrefService,
@@ -87,27 +84,26 @@ export class AddEditMapprefDialogComponent implements OnInit, OnDestroy {
     this.TextBG = this.listDefaultMapPref[0].text_bg_color;
     this.mapPrefForm = new FormGroup({
       name: new FormControl(
-        {value: '', disabled: false}, 
+        { value: '', disabled: false },
         [Validators.required, validateNameExist(() => this.listMapPref, this.data.mode, this.data.genData.id)]),
-      gbOpacity: new FormControl({value: this.listDefaultMapPref[0].group_box_opacity, disabled: this.isViewMode}),
-      gbBorder: new FormControl({value: this.listDefaultMapPref[0].group_box_border, disabled: this.isViewMode}),
-      pgSizeCtr: new FormControl({value: this.listDefaultMapPref[0].port_group_size, disabled: this.isViewMode}),
-      edgeWidthCtr: new FormControl({value: this.listDefaultMapPref[0].edge_width, disabled: this.isViewMode}),
-      nodeSizeCtr: new FormControl({value: this.listDefaultMapPref[0].node_size, disabled: this.isViewMode}),
-      textSizeCtr: new FormControl({value: this.listDefaultMapPref[0].text_size, disabled: this.isViewMode}),
-      textHorizontalAlignmentCtr: new FormControl({value: this.listDefaultMapPref[0].text_halign, disabled: this.isViewMode}),
-      textVerticalAlignmentCtr: new FormControl({value: this.listDefaultMapPref[0].text_valign, disabled: this.isViewMode}),
-      textBgOpacityCtr: new FormControl({value: this.listDefaultMapPref[0].text_bg_opacity, disabled: this.isViewMode}),
-      mapGridCtr: new FormControl({value: false, disabled: this.isViewMode}),
-      snapToGridCtr: new FormControl({value: false, disabled: this.isViewMode}),
-      gridSpacingCtr: new FormControl({value: this.listDefaultMapPref[0].grid_spacing, disabled: this.isViewMode}),
-      zoomSpeedCtr: new FormControl({value: 0.1, disabled: this.isViewMode}),
-      defaultIconCtr: new FormControl({value: this.icon_default[0] , disabled: false}),
-      edgeArrowDirectionCtr: new FormControl({value: this.listDefaultMapPref[0].edge_arrow_direction, disabled: this.isViewMode}),
-      edgeArrowSizeCtr: new FormControl({value: this.listDefaultMapPref[0].edge_arrow_size, disabled: this.isViewMode}),
+      gbOpacity: new FormControl({ value: this.listDefaultMapPref[0].group_box_opacity, disabled: this.isViewMode }),
+      gbBorder: new FormControl({ value: this.listDefaultMapPref[0].group_box_border, disabled: this.isViewMode }),
+      pgSizeCtr: new FormControl({ value: this.listDefaultMapPref[0].port_group_size, disabled: this.isViewMode }),
+      edgeWidthCtr: new FormControl({ value: this.listDefaultMapPref[0].edge_width, disabled: this.isViewMode }),
+      nodeSizeCtr: new FormControl({ value: this.listDefaultMapPref[0].node_size, disabled: this.isViewMode }),
+      textSizeCtr: new FormControl({ value: this.listDefaultMapPref[0].text_size, disabled: this.isViewMode }),
+      textHorizontalAlignmentCtr: new FormControl({ value: this.listDefaultMapPref[0].text_halign, disabled: this.isViewMode }),
+      textVerticalAlignmentCtr: new FormControl({ value: this.listDefaultMapPref[0].text_valign, disabled: this.isViewMode }),
+      textBgOpacityCtr: new FormControl({ value: this.listDefaultMapPref[0].text_bg_opacity, disabled: this.isViewMode }),
+      mapGridCtr: new FormControl({ value: false, disabled: this.isViewMode }),
+      snapToGridCtr: new FormControl({ value: false, disabled: this.isViewMode }),
+      gridSpacingCtr: new FormControl({ value: this.listDefaultMapPref[0].grid_spacing, disabled: this.isViewMode }),
+      zoomSpeedCtr: new FormControl({ value: 0.1, disabled: this.isViewMode }),
+      defaultIconCtr: new FormControl({ value: this.icon_default[0], disabled: false }),
+      edgeArrowDirectionCtr: new FormControl({ value: this.listDefaultMapPref[0].edge_arrow_direction, disabled: this.isViewMode }),
+      edgeArrowSizeCtr: new FormControl({ value: this.listDefaultMapPref[0].edge_arrow_size, disabled: this.isViewMode }),
     });
     if ((data.mode === 'update')) {
-      this.listIcons = this.data.genIcon
       const icon = this.listIcons.filter(i => i.name === this.data.genData.default_icon)
       this.name?.setValue(this.data.genData.name);
       this.gbColor = this.data.genData.group_box_color;
@@ -142,39 +138,29 @@ export class AddEditMapprefDialogComponent implements OnInit, OnDestroy {
       this.textDefaults = this.sanitizer.bypassSecurityTrustHtml(this.data.genData.text_defaults);
       this.zoomSpeedCtr?.setValue(this.data.genData.zoom_speed);
       this.defaultIconCtr?.setValue(this.data.genData.default_icon);
-    }else {
+    } else {
       this.defaultIconCtr?.setValue(this.data.genIcon[0]);
     }
-   }
-  
-  get name() { return this.mapPrefForm.get('name');}
-  get gbColorCtr() { return this.mapPrefForm.get('gbColorCtr');}
-  get gbOpacity() { return this.mapPrefForm.get('gbOpacity');}
-  get gbBorder() { return this.mapPrefForm.get('gbBorder');}
-  get pgSizeCtr() {return this.mapPrefForm.get('pgSizeCtr');}
-  get edgeWidthCtr() {return this.mapPrefForm.get('edgeWidthCtr');}
-  get nodeSizeCtr() {return this.mapPrefForm.get('nodeSizeCtr');}
-  get textSizeCtr() {return this.mapPrefForm.get('textSizeCtr');}
-  get textHorizontalAlignmentCtr() {return this.mapPrefForm.get('textHorizontalAlignmentCtr');}
+  }
+
+  get name() { return this.mapPrefForm.get('name'); }
+  get gbColorCtr() { return this.mapPrefForm.get('gbColorCtr'); }
+  get gbOpacity() { return this.mapPrefForm.get('gbOpacity'); }
+  get gbBorder() { return this.mapPrefForm.get('gbBorder'); }
+  get pgSizeCtr() { return this.mapPrefForm.get('pgSizeCtr'); }
+  get edgeWidthCtr() { return this.mapPrefForm.get('edgeWidthCtr'); }
+  get nodeSizeCtr() { return this.mapPrefForm.get('nodeSizeCtr'); }
+  get textSizeCtr() { return this.mapPrefForm.get('textSizeCtr'); }
+  get textHorizontalAlignmentCtr() { return this.mapPrefForm.get('textHorizontalAlignmentCtr'); }
   get textVerticalAlignmentCtr() { return this.mapPrefForm.get('textVerticalAlignmentCtr'); }
-  get textBgOpacityCtr() {return this.mapPrefForm.get('textBgOpacityCtr');}
-  get zoomSpeedCtr() {return this.mapPrefForm.get('zoomSpeedCtr');}
-  get defaultIconCtr() {return this.mapPrefForm.get('defaultIconCtr');}
-  get edgeArrowDirectionCtr() {return this.mapPrefForm.get('edgeArrowDirectionCtr')}
-  get edgeArrowSizeCtr() {return this.mapPrefForm.get('edgeArrowSizeCtr')}
-  get mapGridCtr() {return this.mapPrefForm.get('mapGridCtr')}
-  get snapToGridCtr() {return this.mapPrefForm.get('snapToGridCtr')}
-  get gridSpacingCtr() {return this.mapPrefForm.get('gridSpacingCtr')}
-
-  ngOnInit(): void {
-    this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPref({data: data.result})));
-    this.iconService.getAll().subscribe((data: any) => this.store.dispatch(retrievedIcons({data: data.result})));
-  }
-
-  ngOnDestroy(): void {
-    this.selectMapPref$.unsubscribe();
-    this.selectIcons$.unsubscribe();
-  }
+  get textBgOpacityCtr() { return this.mapPrefForm.get('textBgOpacityCtr'); }
+  get zoomSpeedCtr() { return this.mapPrefForm.get('zoomSpeedCtr'); }
+  get defaultIconCtr() { return this.mapPrefForm.get('defaultIconCtr'); }
+  get edgeArrowDirectionCtr() { return this.mapPrefForm.get('edgeArrowDirectionCtr') }
+  get edgeArrowSizeCtr() { return this.mapPrefForm.get('edgeArrowSizeCtr') }
+  get mapGridCtr() { return this.mapPrefForm.get('mapGridCtr') }
+  get snapToGridCtr() { return this.mapPrefForm.get('snapToGridCtr') }
+  get gridSpacingCtr() { return this.mapPrefForm.get('gridSpacingCtr') }
 
   onCancel() {
     this.dialogRef.close();
@@ -207,15 +193,15 @@ export class AddEditMapprefDialogComponent implements OnInit, OnDestroy {
         edge_arrow_direction: this.edgeArrowDirectionCtr?.value,
         edge_arrow_size: this.edgeArrowSizeCtr?.value,
       },
-      
+
     }
     this.mapPrefService.add(jsonData).subscribe({
-      next:(rest) => {
+      next: (rest) => {
         this.toastr.success(`Added Preferences ${rest.result.name} successfully`)
         this.dialogRef.close();
-        this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPref({data: data.result})));
+        this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPref({ data: data.result })));
       },
-      error:(err) => {
+      error: (err) => {
         this.toastr.error("Add Preferences error")
       }
     })
@@ -250,12 +236,12 @@ export class AddEditMapprefDialogComponent implements OnInit, OnDestroy {
       },
     }
     this.mapPrefService.put(this.data.genData.id, jsonData).subscribe({
-      next:(rest) => {
+      next: (rest) => {
         this.toastr.success(`Updated Preferences ${rest.result.name} successfully`);
         this.dialogRef.close();
-        this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPref({data: data.result})));
+        this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPref({ data: data.result })));
       },
-      error:(err) => {
+      error: (err) => {
         this.toastr.success(`Error while update Preferences`);
         this.dialogRef.close();
       }
@@ -264,9 +250,9 @@ export class AddEditMapprefDialogComponent implements OnInit, OnDestroy {
 
   setGbColor(event: any) {
     this.gbColor = event;
-}
-  
-  setGroupBoxOpacity(event:any) {
+  }
+
+  setGroupBoxOpacity(event: any) {
     this.groupBoxOpacity = event;
   }
 
@@ -278,10 +264,10 @@ export class AddEditMapprefDialogComponent implements OnInit, OnDestroy {
     this.pgColor = event;
   }
 
-  setEdgeColor (event: any) {
+  setEdgeColor(event: any) {
     this.edgeColor = event;
   }
-  
+
   setTextColor(event: any) {
     this.textColor = event;
   }
