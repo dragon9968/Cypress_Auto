@@ -58,6 +58,7 @@ export enum ApiPaths {
   ASSOCIATE_PROJECT = '/api/v1/project/associate',
   EXPORT_PROJECT = '/api/v1/project/export',
   IMPORT_PROJECT = '/api/v1/project/import',
+  CLONE_PROJECT = '/api/v1/project/clone',
   NODE_CLONE = '/api/v1/node/clone_bulk',
   NODE_EXPORT = '/api/v1/node/export/',
   ASSOCIATE = '/api/v1/node/associate',

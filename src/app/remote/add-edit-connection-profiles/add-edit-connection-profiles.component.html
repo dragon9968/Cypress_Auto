@@ -10,10 +10,10 @@
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Category</mat-label>
-          <select matNativeControl formControlName="category">
-            <option value="vmware_vcenter">VMWare vCenter</option>
-            <option value="datasource">Datasource</option>
-          </select>
+          <mat-select formControlName="category">
+            <mat-option value="vmware_vcenter">VMWare vCenter</mat-option>
+            <mat-option value="datasource">Datasource</mat-option>
+          </mat-select>
           <mat-error *ngIf="category?.errors?.required">Category is required*</mat-error>
         </mat-form-field>
         <div class="hint">
@@ -44,10 +44,10 @@
         </div>
         <mat-form-field appearance="outline">
           <mat-label>Switch Type</mat-label>
-          <select matNativeControl formControlName="switchType" >
-            <option value="vswitch">vSwitch</option>
-            <option value="dvswitch">dvSwitch</option>
-          </select>
+          <mat-select formControlName="switchType" >
+            <mat-option value="vswitch">vSwitch</mat-option>
+            <mat-option value="dvswitch">dvSwitch</mat-option>
+          </mat-select>
         </mat-form-field>
         <div class="hint">
           <mat-form-field appearance="outline">

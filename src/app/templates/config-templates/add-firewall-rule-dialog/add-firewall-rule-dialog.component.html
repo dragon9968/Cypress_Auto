@@ -4,10 +4,10 @@
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Category</mat-label>
-      <select matNativeControl formControlName="category" (change)="onCategoryChange($event.target.value)">
-        <option value="rule">Rule</option>
-        <option value="port_forward">Port Forward</option>
-      </select>
+      <mat-select formControlName="category" (change)="onCategoryChange($event.target.value)">
+        <mat-option value="rule">Rule</mat-option>
+        <mat-option value="port_forward">Port Forward</mat-option>
+      </mat-select>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
@@ -15,36 +15,36 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>State</mat-label>
-      <select matNativeControl formControlName="state"  >
-        <option value="present">Present</option>
-        <option value="absent">Absent</option>
-      </select>
+      <mat-select formControlName="state"  >
+        <mat-option value="present">Present</mat-option>
+        <mat-option value="absent">Absent</mat-option>
+      </mat-select>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Action</mat-label>
-      <select matNativeControl formControlName="action"  >
-        <option value="pass">Pass</option>
-        <option value="block">Block</option>
-        <option value="reject">Reject</option>
-      </select>
+      <mat-select formControlName="action"  >
+        <mat-option value="pass">Pass</mat-option>
+        <mat-option value="block">Block</mat-option>
+        <mat-option value="reject">Reject</mat-option>
+      </mat-select>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Interface</mat-label>
-      <select matNativeControl formControlName="interface"  >
-        <option value="eth0">eth0</option>
-      </select>
+      <mat-select formControlName="interface"  >
+        <mat-option value="eth0">eth0</mat-option>
+      </mat-select>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Protocol</mat-label>
-      <select matNativeControl formControlName="protocol"  >
-        <option value="any">Any</option>
-        <option value="tcp">TCP</option>
-        <option value="udp">UDP</option>
-        <option value="tcp/udp">TCP/UDP</option>
-        <option value="icmp">ICMP</option>
-        <option value="igmp">IGMP</option>
-        <option value="ospf">OSPF</option>
-      </select>
+      <mat-select formControlName="protocol"  >
+        <mat-option value="any">Any</mat-option>
+        <mat-option value="tcp">TCP</mat-option>
+        <mat-option value="udp">UDP</mat-option>
+        <mat-option value="tcp/udp">TCP/UDP</mat-option>
+        <mat-option value="icmp">ICMP</mat-option>
+        <mat-option value="igmp">IGMP</mat-option>
+        <mat-option value="ospf">OSPF</mat-option>
+      </mat-select>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Source</mat-label>
@@ -52,9 +52,9 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Source Port</mat-label>
-      <select matNativeControl formControlName="sourcePort" (change)="onChangeSourcePort($event.target.value)"  >
-        <option *ngFor="let option of PORT" [value]="option.id"> {{ option.name }}</option>
-      </select>
+      <mat-select formControlName="sourcePort" (change)="onChangeSourcePort($event.target.value)"  >
+        <mat-option *ngFor="let option of PORT" [value]="option.id"> {{ option.name }}</mat-option>
+      </mat-select>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Source Custom Port</mat-label>
@@ -66,9 +66,9 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Destination Port</mat-label>
-      <select matNativeControl formControlName="destinationPort" (change)="onChangeDestinationPort($event.target.value)"  >
-        <option *ngFor="let option of PORT" [value]="option.id"> {{ option.name }}</option>
-      </select>
+      <mat-select formControlName="destinationPort" (change)="onChangeDestinationPort($event.target.value)"  >
+        <mat-option *ngFor="let option of PORT" [value]="option.id"> {{ option.name }}</mat-option>
+      </mat-select>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Dest Custom Port</mat-label>
@@ -80,9 +80,9 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Target Port</mat-label>
-      <select matNativeControl formControlName="targetPort" (change)="onChangeTargetPort($event.target.value)"  >
-        <option *ngFor="let option of PORT" [value]="option.id"> {{ option.name }}</option>
-      </select>
+      <mat-select formControlName="targetPort" (change)="onChangeTargetPort($event.target.value)"  >
+        <mat-option *ngFor="let option of PORT" [value]="option.id"> {{ option.name }}</mat-option>
+      </mat-select>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Target Custom Port</mat-label>

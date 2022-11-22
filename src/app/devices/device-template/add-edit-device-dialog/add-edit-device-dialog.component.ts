@@ -39,16 +39,11 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
     public helpers: HelpersService,
     private toastr: ToastrService,
     private deviceService: DeviceService,
-    private deviceCategoryService: DeviceCategoryService,
-    private iconService: IconService,
     public dialogRef: MatDialogRef<AddEditDeviceDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
     this.selectDeviceCategories$ = this.store.select(selectDeviceCategories).subscribe(data => {
       this.listDeviceCategory = data;
-    })
-    this.selectIcons$ = this.store.select(selectIcons).subscribe(icons => {
-      this.listIcon = icons;
     })
     this.selectIcons$ = this.store.select(selectIcons).subscribe(icons => {
       this.listIcon = icons;
@@ -73,13 +68,6 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
    get icon() { return this.helpers.getAutoCompleteCtr(this.deviceForm.get('icon'), this.listIcon); }
 
   ngOnInit(): void {
-    this.deviceCategoryService.getAll().subscribe(deviceCategories => {
-      this.store.dispatch(retrievedDeviceCategories({data: deviceCategories.result}));
-    })
-    this.iconService.getAll().subscribe(data => {
-      this.store.dispatch(retrievedIcons({data: data.result}));
-    })
-
     if (this.data.mode == 'update') {
       this.helpers.setAutoCompleteValue(this.icon, this.listIcon, this.data.genData.icon.id);
       this.data.genData.category.forEach((el: any) => {

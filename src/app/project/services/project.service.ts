@@ -72,4 +72,8 @@ export class ProjectService {
   importProject(data: any) {
     return this.http.post<any>(ApiPaths.IMPORT_PROJECT, data);
   }
+
+  cloneProject(data: any): Observable<any>  {
+    return this.http.post<any>(ApiPaths.CLONE_PROJECT, data);
+  }
 }

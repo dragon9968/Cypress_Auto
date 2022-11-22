@@ -49,9 +49,9 @@
     </div>
     <mat-form-field class="field">
       <mat-label>Group Box Border</mat-label>
-      <select matNativeControl formControlName="gbBorder">
-        <option *ngFor="let option of listGroupBoxBorder" [value]="option.value">{{ option.name }}</option>
-      </select>
+      <mat-select formControlName="gbBorder">
+        <mat-option *ngFor="let option of listGroupBoxBorder" [value]="option.value">{{ option.name }}</mat-option>
+      </mat-select>
     </mat-form-field>
     <div class="tab-field">
       <label class="label" for="groupBoxBorderColor">Group Box Border Color </label>
@@ -101,15 +101,15 @@
     </div>
     <mat-form-field class="field">
       <mat-label>Text Horizontal Alignment</mat-label>
-      <select matNativeControl formControlName="textHorizontalAlignmentCtr">
-        <option *ngFor="let option of listTextHorizontalAlignment" [value]="option.value">{{ option.name }}</option>
-      </select>
+      <mat-select formControlName="textHorizontalAlignmentCtr">
+        <mat-option *ngFor="let option of listTextHorizontalAlignment" [value]="option.value">{{ option.name }}</mat-option>
+      </mat-select>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Text Vertical Alignment</mat-label>
-      <select matNativeControl formControlName="textVerticalAlignmentCtr">
-        <option *ngFor="let option of listTextVerticalAlignment" [value]="option.value">{{ option.name }}</option>
-      </select>
+      <mat-select formControlName="textVerticalAlignmentCtr">
+        <mat-option *ngFor="let option of listTextVerticalAlignment" [value]="option.value">{{ option.name }}</mat-option>
+      </mat-select>
     </mat-form-field>
     <div class="tab-field">
       <label class="label" for="TextBG">Text Background </label>
@@ -136,9 +136,9 @@
     </div>
     <mat-form-field class="field">
       <mat-label>Zoom Speed </mat-label>
-      <select matNativeControl formControlName="zoomSpeedCtr">
-        <option *ngFor="let option of listZoomSpeed" [value]=option>{{ option }}</option>
-      </select>
+      <mat-select formControlName="zoomSpeedCtr">
+        <mat-option *ngFor="let option of listZoomSpeed" [value]=option>{{ option }}</mat-option>
+      </mat-select>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Default Icon</mat-label>
@@ -151,9 +151,9 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Edge Arrow Direction</mat-label>
-      <select matNativeControl formControlName="edgeArrowDirectionCtr">
-        <option *ngFor="let option of listEdgeArrowDirection" [value]="option.value">{{ option.name }}</option>
-      </select>
+      <mat-select formControlName="edgeArrowDirectionCtr">
+        <mat-option *ngFor="let option of listEdgeArrowDirection" [value]="option.value">{{ option.name }}</mat-option>
+      </mat-select>
     </mat-form-field>
     <div class="tab-field">
       <label class="label">Edge Arrow Size</label>

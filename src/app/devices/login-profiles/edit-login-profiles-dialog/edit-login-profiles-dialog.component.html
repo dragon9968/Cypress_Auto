@@ -23,10 +23,10 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Category</mat-label>
-      <select matNativeControl formControlName="category" [readonly]="isViewMode">
-        <option value="local">local</option>
-        <option value="domain">domain</option>
-      </select>
+      <mat-select formControlName="category">
+        <mat-option value="local">local</mat-option>
+        <mat-option value="domain">domain</mat-option>
+      </mat-select>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Extra Args</mat-label>

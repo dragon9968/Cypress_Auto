@@ -13,7 +13,7 @@ import { PermissionLevels } from '../../enums/permission-levels.enum';
 import { RouteSegments } from '../../enums/route-segments.enum';
 import { AuthService } from '../../services/auth/auth.service';
 import { selectIsOpen } from 'src/app/store/project/project.selectors';
-import { retrievedIsOpen } from 'src/app/store/project/project.actions';
+import { retrievedIsOpen, retrievedProjects } from 'src/app/store/project/project.actions';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ToastrService } from 'ngx-toastr';
 import { ExportProjectDialogComponent } from 'src/app/project/export-project-dialog/export-project-dialog.component';
@@ -32,6 +32,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   searchText = '';
   isMapOpen = false;
   isOpen!: boolean;
+  isLoading = false;
   selectIsMapOpen$ = new Subscription();
 
   constructor(
@@ -151,6 +152,35 @@ export class NavBarComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(ImportProjectDialogComponent, {
       autoFocus: false,
       width: '450px',
+    });
+  }
+
+  cloneProject() {
+    const dialogData = {
+      title: 'User confirmation needed',
+      message: 'Clone this project?',
+      submitButtonName: 'OK'
+    }
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
+    dialogRef.afterClosed().subscribe(result => {
+      const jsonData = {
+        pk: this.projectService.getCollectionId(),
+      }
+      if (result) {
+        this.isLoading = true;
+        this.projectService.cloneProject(jsonData).subscribe({
+          next: (rest) => {
+            this.toastr.success(`Clone Project successfully`);
+            this.projectService.getProjectByStatus('active').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
+            this.router.navigate([RouteSegments.PROJECTS]);
+            this.isLoading = false;
+          },
+          error: (error) => {
+            this.toastr.error(`Error while Clone Project`);
+            this.isLoading = false;
+          }
+        })
+      }
     });
   }
 }

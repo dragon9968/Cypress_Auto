@@ -33,6 +33,10 @@
             <mat-icon>add_circle_outline</mat-icon>
             <span>Import</span>
         </button>
+        <button mat-menu-item [disabled]="!isOpen" (click)="cloneProject()">
+            <mat-icon>file_copy</mat-icon>
+            <span>Clone</span>
+        </button>
         <button mat-menu-item (click)="closeProject()">
             <mat-icon>folder_delete</mat-icon>
             <span>Close</span>
@@ -130,3 +134,7 @@
         </button>
     </mat-menu>
 </mat-toolbar>
+
+<div *ngIf="isLoading" class="loading">
+    <mat-spinner></mat-spinner>
+  </div>

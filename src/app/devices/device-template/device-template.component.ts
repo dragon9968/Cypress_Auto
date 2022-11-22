@@ -6,12 +6,14 @@ import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, of, Subscription } from 'rxjs';
+import { DeviceCategoryService } from 'src/app/core/services/device-category/device-category.service';
 import { DeviceService } from 'src/app/core/services/device/device.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { IconService } from 'src/app/core/services/icon/icon.service';
 import { LoginProfileService } from 'src/app/core/services/login-profile/login-profile.service';
 import { TemplateService } from 'src/app/core/services/template/template.service';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
+import { retrievedDeviceCategories } from 'src/app/store/device-category/device-category.actions';
 import { retrievedDevices } from 'src/app/store/device/device.actions';
 import { selectDevices } from 'src/app/store/device/device.selectors';
 import { retrievedIcons } from 'src/app/store/icon/icon.actions';
@@ -160,6 +162,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
     private store: Store,
     private toastr: ToastrService,
     private deviceService: DeviceService,
+    private deviceCategoryService: DeviceCategoryService,
     private templateService: TemplateService,
     private iconService: IconService,
     private loginProfileService: LoginProfileService,
@@ -190,6 +193,9 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
     })
     this.loginProfileService.getAll().subscribe(data => {
       this.store.dispatch(retrievedLoginProfiles({data: data.result}));
+    })
+    this.deviceCategoryService.getAll().subscribe(deviceCategories => {
+      this.store.dispatch(retrievedDeviceCategories({data: deviceCategories.result}));
     })
   }
 
