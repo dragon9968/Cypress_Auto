@@ -15,7 +15,6 @@ import { retrievedConfigTemplates } from 'src/app/store/config-template/config-t
 })
 export class ShowConfigTemplateDialogComponent implements OnInit {
   configForm!: FormGroup;
-  isShowConfig = true;
   isViewMode = false;
   configurationHtml!: SafeHtml; 
   staticRoles: any[] = [];
@@ -45,19 +44,16 @@ export class ShowConfigTemplateDialogComponent implements OnInit {
       this.description?.setValue(this.data.genData.description);
       const config = this.data.genData.configuration
       if (config){
-        if (config.static_routes) {
-          this.isShowConfig = false;
+        if (config.static_routes.length > 0) {
           Object.values(config.static_routes).forEach(val => {
             this.staticRoles.push(val)
           });
         }
         if (config.join_domain) {
-          this.isShowConfig = false;
           this.joinDomain = this.data.genData.configuration.join_domain
           this.OuPath = this.data.genData.configuration.ou_path
         }
-        if (config.firewall_rule) {
-          this.isShowConfig = false;
+        if (config.firewall_rule.length > 0) {
           Object.values(config.firewall_rule).forEach((val: any) => {
             if (val.category === "rule") {
               this.fileWallRule.push(val)
@@ -66,8 +62,7 @@ export class ShowConfigTemplateDialogComponent implements OnInit {
             }
           });
         }
-        if (config.role_services) {
-          this.isShowConfig = false;
+        if (config.role_services.length > 0) {
           Object.values(config.role_services).forEach((val: any) => {
             this.rolesOrServices.push(val);
           });
@@ -96,7 +91,6 @@ export class ShowConfigTemplateDialogComponent implements OnInit {
 
   edit(i: any, event: any) {
     var id = event.currentTarget.id;
-    console.log(i)
     const dialogData = {
       title: 'User confirmation needed',
       message: 'You sure you want to delete this item?'

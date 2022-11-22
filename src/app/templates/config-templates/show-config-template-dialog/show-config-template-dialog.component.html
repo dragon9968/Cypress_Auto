@@ -13,7 +13,7 @@
       <mat-label>Description</mat-label>
       <input type="text" formControlName="description" matInput >
     </mat-form-field>
-    <div [hidden]="isShowConfig">
+    <div [hidden]="data.genData.configuration.static_routes.length == 0">
       <h3><strong><u>Static Routes</u></strong></h3>
       <ul>
         <li *ngFor="let value of staticRoles; let i = index">
@@ -22,20 +22,20 @@
         </li>
       </ul>
     </div>
-    <div [hidden]="isShowConfig">
+    <div [hidden]="!data.genData.configuration.join_domain">
       <h3><strong><u>Domain Membership</u></strong></h3>
       <ul>
         <li>
           Join domain:<b>{{joinDomain}}</b>
-          <button id="domain_membership" mat-icon-button color="warn" id="static_route" (click)="edit(0, $event)"><mat-icon>delete</mat-icon></button>
+          <button id="domain_membership" mat-icon-button color="warn" (click)="edit(0, $event)"><mat-icon>delete</mat-icon></button>
         </li>
         <li>
           OU Path - <b>{{OuPath}}</b>
-          <button id="domain_membership"  mat-icon-button color="warn" (click)="edit(1, $event)"><mat-icon>delete</mat-icon></button>
+          <button id="ou_path"  mat-icon-button color="warn" (click)="edit(0, $event)"><mat-icon>delete</mat-icon></button>
         </li>
       </ul>
     </div>
-    <div [hidden]="isShowConfig" class="firewall">
+    <div [hidden]="data.genData.configuration.firewall_rule.length == 0" class="firewall">
       <h3><strong><u>Firewall Rules</u></strong></h3>
       <ul>
         <li *ngFor="let value of fileWallRule; let i=index">
@@ -55,7 +55,7 @@
         </li>
       </ul>
     </div>
-    <div [hidden]="isShowConfig" class="roles-or-services">
+    <div [hidden]="data.genData.configuration.role_services.length == 0" class="roles-or-services">
       <h3><strong><u>Roles & Services</u></strong></h3>
       <ul>
         <li *ngFor="let value of rolesOrServices; let i = index">{{ value }}
