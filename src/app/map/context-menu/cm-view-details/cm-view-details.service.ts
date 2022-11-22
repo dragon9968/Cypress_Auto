@@ -40,7 +40,7 @@ export class CMViewDetailsService {
           mode: 'view',
           genData: interfaceData.result,
         }
-        this.dialog.open(AddUpdateInterfaceDialogComponent, {width: '600px', data: dialogData});
+        this.dialog.open(AddUpdateInterfaceDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
       });
     } else if (data.pg_id) {
       this.portGroupService.get(data.pg_id).subscribe(pgData => {
@@ -48,7 +48,7 @@ export class CMViewDetailsService {
           mode: 'view',
           genData: pgData.result,
         }
-        this.dialog.open(AddUpdatePGDialogComponent, {width: '600px', data: dialogData});
+        this.dialog.open(AddUpdatePGDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
       });
     } else if (data.node_id) {
       this.nodeService.get(data.node_id).subscribe(nodeData => {
@@ -56,7 +56,7 @@ export class CMViewDetailsService {
           mode: 'view',
           genData: nodeData.result,
         }
-        this.dialog.open(AddUpdateNodeDialogComponent, {width: '600px', data: dialogData});
+        this.dialog.open(AddUpdateNodeDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
       });
     }
   }

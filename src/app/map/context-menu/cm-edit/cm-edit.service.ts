@@ -51,7 +51,7 @@ export class CMEditService {
           genData: { ids: edgeActiveIds },
           cy
         };
-        this.dialog.open(InterfaceBulkEditDialogComponent, { width: '600px', data: dialogData});
+        this.dialog.open(InterfaceBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData});
       } else if (activeEdgesLength == 1) {
         if (data.interface_id) {
           this.interfaceService.get(data.interface_id).subscribe(interfaceData => {
@@ -60,7 +60,7 @@ export class CMEditService {
               genData: interfaceData.result,
               cy
             }
-            this.dialog.open(AddUpdateInterfaceDialogComponent, {width: '600px', data: dialogData});
+            this.dialog.open(AddUpdateInterfaceDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
           });
         }
       }
@@ -72,7 +72,7 @@ export class CMEditService {
           genData: { ids: pgActiveIds },
           cy
         }
-        this.dialog.open(PortGroupBulkEditDialogComponent, {width: '600px', data: dialogData});
+        this.dialog.open(PortGroupBulkEditDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
       } else if (activePGsLength == 1) {
         if (data.pg_id) {
           this.portGroupService.get(data.pg_id).subscribe(pgData => {
@@ -81,7 +81,7 @@ export class CMEditService {
               genData: pgData.result,
               cy
             }
-            this.dialog.open(AddUpdatePGDialogComponent, {width: '600px', data: dialogData});
+            this.dialog.open(AddUpdatePGDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
           });
         }
       }
@@ -93,7 +93,7 @@ export class CMEditService {
           genData: { ids: nodeActiveIds },
           cy
         }
-        this.dialog.open(NodeBulkEditDialogComponent, {width: '600px', data: dialogData});
+        this.dialog.open(NodeBulkEditDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
       } else if (activeNodesLength == 1) {
         if (data.node_id) {
           this.nodeService.get(data.node_id).subscribe(nodeData => {
@@ -102,7 +102,7 @@ export class CMEditService {
               genData: nodeData.result,
               cy
             }
-            this.dialog.open(AddUpdateNodeDialogComponent, {width: '600px', data: dialogData});
+            this.dialog.open(AddUpdateNodeDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
           });
         }
       }

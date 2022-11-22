@@ -18,13 +18,13 @@ import { AddUpdateNodeDialogComponent } from "../../../map/add-update-node-dialo
 import { InterfaceBulkEditDialogComponent } from "../../../map/bulk-edit-dialog/interface-bulk-edit-dialog/interface-bulk-edit-dialog.component";
 import { PortGroupBulkEditDialogComponent } from "../../../map/bulk-edit-dialog/port-group-bulk-edit-dialog/port-group-bulk-edit-dialog.component";
 import { AddUpdateInterfaceDialogComponent } from "../../../map/add-update-interface-dialog/add-update-interface-dialog.component";
-import { retrievedDomains } from "../../../store/domain/domain.actions";
-import { retrievedUserTasks } from "../../../store/user-task/user-task.actions";
 import { selectVMStatus } from "../../../store/project/project.selectors";
 import { selectIsConnect } from "../../../store/server-connect/server-connect.selectors";
 import { selectMapOption } from "../../../store/map-option/map-option.selectors";
+import { retrievedDomains } from "../../../store/domain/domain.actions";
 import { selectPortGroups } from "../../../store/portgroup/portgroup.selectors";
 import { selectDomainUsers } from "../../../store/domain-user/domain-user.selectors";
+import { retrievedUserTasks } from "../../../store/user-task/user-task.actions";
 import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
 import { retrievedGroups } from "../../../store/group/group.actions";
 import { retrievedIsChangeDomainUsers } from "../../../store/domain-user-change/domain-user-change.actions";
@@ -142,7 +142,7 @@ export class InfoPanelService {
           genData: { ids: ids },
           cy
         };
-        this.dialog.open(InterfaceBulkEditDialogComponent, { width: '600px', data: dialogData});
+        this.dialog.open(InterfaceBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData});
       } else if (ids.length === 0 && id) {
         this.interfaceService.get(id).subscribe(interfaceData => {
           const dialogData = {
@@ -150,7 +150,7 @@ export class InfoPanelService {
             genData: interfaceData.result,
             cy
           }
-          this.dialog.open(AddUpdateInterfaceDialogComponent, {width: '600px', data: dialogData});
+          this.dialog.open(AddUpdateInterfaceDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
         });
       }
     } else if (tabName == 'portGroup') {
@@ -159,7 +159,7 @@ export class InfoPanelService {
           genData: { ids: ids },
           cy
         }
-        this.dialog.open(PortGroupBulkEditDialogComponent, {width: '600px', data: dialogData});
+        this.dialog.open(PortGroupBulkEditDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
       } else if (ids.length === 0 && id) {
         this.portGroupService.get(id).subscribe(pgData => {
           const dialogData = {
@@ -167,7 +167,7 @@ export class InfoPanelService {
             genData: pgData.result,
             cy
           }
-          this.dialog.open(AddUpdatePGDialogComponent, {width: '600px', data: dialogData});
+          this.dialog.open(AddUpdatePGDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
         });
       }
     } else if (tabName == 'node') {
@@ -176,7 +176,7 @@ export class InfoPanelService {
           genData: { ids: ids },
           cy
         }
-        this.dialog.open(NodeBulkEditDialogComponent, {width: '600px', data: dialogData});
+        this.dialog.open(NodeBulkEditDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
       } else if (ids.length === 0 && id) {
         this.nodeService.get(id).subscribe(nodeData => {
           const dialogData = {
@@ -184,7 +184,7 @@ export class InfoPanelService {
             genData: nodeData.result,
             cy
           }
-          this.dialog.open(AddUpdateNodeDialogComponent, {width: '600px', data: dialogData});
+          this.dialog.open(AddUpdateNodeDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
         });
       }
     } else {

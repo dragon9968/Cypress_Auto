@@ -171,7 +171,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
           mode: 'update',
           genData: domainData.result
         };
-        this.dialog.open(AddUpdateDomainDialogComponent, {width: '600px', data: dialogData});
+        this.dialog.open(AddUpdateDomainDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
       })
     } else {
       const dialogData = {
@@ -180,7 +180,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
           collectionId: this.collectionId
         }
       }
-      this.dialog.open(DomainBulkEditDialogComponent, { width: '600px', data: dialogData });
+      this.dialog.open(DomainBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
     }
   }
 

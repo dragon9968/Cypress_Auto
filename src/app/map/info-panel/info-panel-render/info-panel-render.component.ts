@@ -14,16 +14,16 @@ import { InterfaceService } from "../../../core/services/interface/interface.ser
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { DomainUserService } from "../../../core/services/domain-user/domain-user.service";
 import { CMViewDetailsService } from "../../context-menu/cm-view-details/cm-view-details.service";
+import { DomainUserDialogComponent } from "../info-panel-domain/domain-user-dialog/domain-user-dialog.component";
 import { AddUpdatePGDialogComponent } from "../../add-update-pg-dialog/add-update-pg-dialog.component";
-import { AddUpdateNodeDialogComponent } from "../../add-update-node-dialog/add-update-node-dialog.component";
-import { AddUpdateInterfaceDialogComponent } from "../../add-update-interface-dialog/add-update-interface-dialog.component";
-import { AddUpdateDomainDialogComponent } from "../../add-update-domain-dialog/add-update-domain-dialog.component";
-import { AddUpdateGroupDialogComponent } from "../../add-update-group-dialog/add-update-group-dialog.component";
 import { ShowUserTaskDialogComponent } from "../info-panel-task/show-user-task-dialog/show-user-task-dialog.component";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
-import { retrievedMapSelection } from "../../../store/map-selection/map-selection.actions";
-import { DomainUserDialogComponent } from "../info-panel-domain/domain-user-dialog/domain-user-dialog.component";
+import { AddUpdateNodeDialogComponent } from "../../add-update-node-dialog/add-update-node-dialog.component";
+import { AddUpdateGroupDialogComponent } from "../../add-update-group-dialog/add-update-group-dialog.component";
+import { AddUpdateDomainDialogComponent } from "../../add-update-domain-dialog/add-update-domain-dialog.component";
 import { UpdateDomainUserDialogComponent } from "../info-panel-domain/update-domain-user-dialog/update-domain-user-dialog.component";
+import { AddUpdateInterfaceDialogComponent } from "../../add-update-interface-dialog/add-update-interface-dialog.component";
+import { retrievedMapSelection } from "../../../store/map-selection/map-selection.actions";
 
 @Component({
   selector: 'app-info-panel-render',
@@ -84,7 +84,7 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
           mode: 'view',
           genData: domainData.result
         };
-        this.dialog.open(AddUpdateDomainDialogComponent, {width: '600px', data: dialogData});
+        this.dialog.open(AddUpdateDomainDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
         this.isLoading = false;
       })
     } else if (this.groupId) {
@@ -95,7 +95,7 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
           collection_id: groupData.result.collection_id,
           map_category: 'logical'
         };
-        this.dialog.open(AddUpdateGroupDialogComponent, {width: '600px', data: dialogData});
+        this.dialog.open(AddUpdateGroupDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
         this.isLoading = false;
       })
     } else if (this.userTaskId) {
@@ -104,7 +104,7 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
           mode: 'postTask',
           genData: userTaskData.result
         }
-        this.dialog.open(ShowUserTaskDialogComponent, {width: `${screen.width}px`, data: dialogData});
+        this.dialog.open(ShowUserTaskDialogComponent, {width: `${screen.width}px`, autoFocus: false, data: dialogData})
         this.isLoading = false;
       })
     } else if (this.interfaceId) {
@@ -147,7 +147,7 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
           genData: pgData.result,
           cy: this.getExternalParams().cy
         }
-        this.dialog.open(AddUpdatePGDialogComponent, {width: '600px', data: dialogData});
+        this.dialog.open(AddUpdatePGDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
         this.isLoading = false;
       });
     } else if (this.nodeId) {
@@ -157,7 +157,7 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
           genData: nodeData.result,
           cy: this.getExternalParams().cy
         }
-        this.dialog.open(AddUpdateNodeDialogComponent, {width: '600px', data: dialogData});
+        this.dialog.open(AddUpdateNodeDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
         this.isLoading = false;
       });
     } else if (this.interfaceId) {
@@ -167,7 +167,7 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
           genData: interfaceData.result,
           cy: this.getExternalParams().cy
         }
-        this.dialog.open(AddUpdateInterfaceDialogComponent, {width: '600px', data: dialogData});
+        this.dialog.open(AddUpdateInterfaceDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
         this.isLoading = false;
       })
     } else if (this.domainId) {
@@ -176,7 +176,7 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
           mode: 'update',
           genData: domainData.result
         };
-        this.dialog.open(AddUpdateDomainDialogComponent, {width: '600px', data: dialogData});
+        this.dialog.open(AddUpdateDomainDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
         this.isLoading = false;
       })
     } else if (this.groupId) {
@@ -187,8 +187,8 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
             collection_id: groupData.result.collection_id,
             map_category: 'logical'
           };
-          this.dialog.open(AddUpdateGroupDialogComponent, {width: '600px', data: dialogData});
-        this.isLoading = false;
+          this.dialog.open(AddUpdateGroupDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
+          this.isLoading = false;
         }
       )
     } else if (this.domainUserId) {
@@ -198,7 +198,7 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
               genData: domainUserData.result,
               domain: domainData.result
             };
-            this.dialog.open(UpdateDomainUserDialogComponent, {width: '600px', data: dialogData});
+            this.dialog.open(UpdateDomainUserDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
             this.isLoading = false;
           }
         )
