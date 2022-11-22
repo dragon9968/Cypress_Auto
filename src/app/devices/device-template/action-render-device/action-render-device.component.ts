@@ -1,14 +1,15 @@
-import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { ICellRendererAngularComp } from 'ag-grid-angular';
-import { ICellRendererParams } from 'ag-grid-community';
+import { Router } from '@angular/router';
+import { Component } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
+import { ICellRendererParams } from 'ag-grid-community';
+import { ICellRendererAngularComp } from 'ag-grid-angular';
+import { retrievedDevices } from 'src/app/store/device/device.actions';
 import { DeviceService } from 'src/app/core/services/device/device.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
-import { retrievedDevices } from 'src/app/store/device/device.actions';
 import { AddEditDeviceDialogComponent } from '../add-edit-device-dialog/add-edit-device-dialog.component';
+import { retrievedIsDeviceChange } from "../../../store/device-change/device-change.actions";
 
 @Component({
   selector: 'app-action-render-device',
@@ -50,7 +51,8 @@ export class ActionRenderDeviceComponent implements ICellRendererAngularComp {
   deleteDevice() {
     const dialogData = {
       title: 'User confirmation needed',
-      message: 'You sure you want to delete this item?'
+      message: 'You sure you want to delete this item?',
+      submitButtonName: 'OK'
     }
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
     dialogRef.afterClosed().subscribe(result => {
@@ -58,10 +60,11 @@ export class ActionRenderDeviceComponent implements ICellRendererAngularComp {
         this.deviceService.delete(this.id).subscribe({
           next: (rest) => {
             this.deviceService.getAll().subscribe((data: any) => this.store.dispatch(retrievedDevices({data: data.result})));
-            this.toastr.success(`Delete Device successfully`);
+            this.store.dispatch(retrievedIsDeviceChange({data: true}));
+            this.toastr.success('Deleted device successfully', 'Success');
           },
           error: (error) => {
-            this.toastr.error(`Error while delete Device`);
+            this.toastr.error('Delete device failed', 'Error');
           }
         })
       }

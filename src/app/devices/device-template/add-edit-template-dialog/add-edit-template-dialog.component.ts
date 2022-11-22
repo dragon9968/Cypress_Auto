@@ -1,17 +1,13 @@
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
-import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
-import { IconService } from 'src/app/core/services/icon/icon.service';
-import { LoginProfileService } from 'src/app/core/services/login-profile/login-profile.service';
 import { TemplateService } from 'src/app/core/services/template/template.service';
-import { retrievedIcons } from 'src/app/store/icon/icon.actions';
 import { selectIcons } from 'src/app/store/icon/icon.selectors';
 import { selectLoginProfiles } from 'src/app/store/login-profile/login-profile.selectors';
-import { retrievedLoginProfiles } from 'src/app/store/login-profile/login-profile.actions';
 
 @Component({
   selector: 'app-add-edit-template-dialog',
@@ -30,11 +26,9 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
     public helpers: HelpersService,
     private toastr: ToastrService,
     private templateService: TemplateService,
-    private iconService: IconService,
-    private loginProfileService: LoginProfileService,
     public dialogRef: MatDialogRef<AddEditTemplateDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-  ) { 
+  ) {
     this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
       this.listIcon = icons;
     })
@@ -44,7 +38,7 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
 
     this.templateForm = new FormGroup({
       displayName: new FormControl({value: '', disabled: false}),
-      name: new FormControl({value: '', disabled: false}, [Validators.required, Validators.minLength(3), 
+      name: new FormControl({value: '', disabled: false}, [Validators.required, Validators.minLength(3),
         Validators.maxLength(50)]),
       category: new FormControl(['vm']),
       icon: new FormControl(''),
@@ -54,6 +48,7 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
   }
   ngOnDestroy(): void {
     this.selectIcons$.unsubscribe();
+    this.selectLoginProfiles$.unsubscribe();
   }
 
   get displayName() {return this.templateForm.get('displayName')}
@@ -86,11 +81,11 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
     }
     this.templateService.add(jsonData).subscribe({
       next: (rest) => {
-        this.toastr.success(`Add Template successfully`)
+        this.toastr.success('Added template successfully', 'Success')
         this.dialogRef.close();
       },
       error: (err) => {
-        this.toastr.error(`Error while add Template`);
+        this.toastr.error('Add template failed', 'Error');
       }
     });
   }
@@ -106,11 +101,11 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
     }
     this.templateService.put(this.data.genData.id, jsonData).subscribe({
       next: (rest) => {
-        this.toastr.success(`Update Template successfully`)
+        this.toastr.success(`Updated template successfully`, 'Success')
         this.dialogRef.close();
       },
       error: (err) => {
-        this.toastr.error(`Error while update Template`);
+        this.toastr.error(`Update template failed`, 'Error');
       }
     });
   }

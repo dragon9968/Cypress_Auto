@@ -3,6 +3,7 @@ export enum ReducerKeys {
     PROJECT = 'project',
     ICON = 'icon',
     DEVICE = 'device',
+    DEVICE_CHANGE = 'deviceChange',
     DEVICE_CATEGORY = 'deviceCategory',
     TEMPLATE = 'template',
     HARDWARE = 'hardware',

@@ -13,23 +13,23 @@
       </mat-menu>
     </div>
     <div class="right">
-      <input 
+      <input
         matInput
         class="search"
         type="search"
         [(ngModel)]="quickFilterValue"
-        placeholder="search"
+        placeholder="Search..."
         (input)="onQuickFilterInput($event)"
       >
     </div>
   </div>
-  <ag-grid-angular 
+  <ag-grid-angular
     class="ag-theme-alpine configTemplate"
     [pagination]="true"
     [paginationPageSize]="25"
     [columnDefs]="columnDefs"
     [defaultColDef]="defaultColDef"
-    [rowData]="rowData$ | async" 
+    [rowData]="rowData$ | async"
     [rowSelection]="'multiple'"
     [suppressRowClickSelection]="true"
     [animateRows]="true"

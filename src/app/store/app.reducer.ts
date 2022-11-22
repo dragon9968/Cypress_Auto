@@ -23,12 +23,14 @@ import { userTaskReducer } from "./user-task/user-task.reducer";
 import { mapSelectionReducer } from "./map-selection/map-selection.reducer";
 import { mapImagesReducer } from "./map-image/map-image.reducer";
 import { isChangeDomainUserReducer } from "./domain-user-change/domain-user-change.reducer";
+import { deviceChangeReducer } from "./device-change/device-change.reducer";
 
 export const reducers = {
     [ReducerKeys.MAP]: mapReducer,
     [ReducerKeys.PROJECT]: projectReducer,
     [ReducerKeys.ICON]: iconReducer,
     [ReducerKeys.DEVICE]: deviceReducer,
+    [ReducerKeys.DEVICE_CHANGE]: deviceChangeReducer,
     [ReducerKeys.DEVICE_CATEGORY]: deviceCategoryReducer,
     [ReducerKeys.TEMPLATE]: templateReducer,
     [ReducerKeys.HARDWARE]: hardwareReducer,

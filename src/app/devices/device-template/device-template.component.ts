@@ -22,6 +22,8 @@ import { ActionRenderDeviceComponent } from './action-render-device/action-rende
 import { ActionRenderTemplateComponent } from './action-render-template/action-render-template.component';
 import { AddEditDeviceDialogComponent } from './add-edit-device-dialog/add-edit-device-dialog.component';
 import { AddEditTemplateDialogComponent } from './add-edit-template-dialog/add-edit-template-dialog.component';
+import { selectIsDeviceChange } from "../../store/device-change/device-change.selectors";
+import { retrievedIsDeviceChange } from "../../store/device-change/device-change.actions";
 
 @Component({
   selector: 'app-device-template',
@@ -40,6 +42,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
   rowsSelectedId: any[] = [];
   selectDevices$ = new Subscription();
   selectTemplates$ = new Subscription();
+  selectIsDeviceChange$ = new Subscription();
   rowDataDevices$! : Observable<any[]>;
   rowDataTemplate$! : Observable<any[]>;
   id!: any;
@@ -49,6 +52,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
   isHiddenTable = true
   ICON_PATH = ICON_PATH;
   large: boolean = true;
+  templateDevices: any[] = [];
   defaultColDef: ColDef = {
     sortable: true,
     resizable: true
@@ -87,8 +91,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
       field: 'icon.photo',
       suppressSizeToFit: true,
       cellRenderer: function(param: any) {
-        const img = `<img src="${ICON_PATH}${param.value}" alt="Photo" height="25" width="25">`
-        return img
+        return `<img src="${ICON_PATH}${param.value}" alt="Photo" height="25" width="25">`
       },
       autoHeight: true,
       flex: 1,
@@ -108,7 +111,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
       field: 'id',
       suppressSizeToFit: true,
       flex: 1,
-      width: 90,
+      maxWidth: 90,
       cellRenderer: ActionRenderTemplateComponent,
       cellClass: 'template-actions',
       sortable: false
@@ -131,8 +134,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
       headerName: 'Icon',
       field: 'icon.photo',
       cellRenderer: function(param: any) {
-        const img = `<img src="${ICON_PATH}${param.value}" alt="Photo" height="25" width="25">`
-        return img
+        return `<img src="${ICON_PATH}${param.value}" alt="Photo" height="25" width="25">`
       },
       autoHeight: true,
       suppressSizeToFit: true,
@@ -146,10 +148,9 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
       suppressSizeToFit: true,
       flex: 1,
       cellRenderer: function(param: any) {
-        if (param.value){
-          let html_str = `<div>Username:${param.value.username}</div><div>Password:${param.value.password}</div>`;
-          return html_str;
-        }else {
+        if (param.value) {
+          return `<div>Username:${param.value.username}</div><div>Password:${param.value.password}</div>`;
+        } else {
           return
         }
       },
@@ -172,13 +173,18 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
     this.selectTemplates$ = this.store.select(selectTemplates).subscribe((templateData: any) => {
       this.rowDataTemplate$ = of(templateData);
     });
+    this.selectIsDeviceChange$ = this.store.select(selectIsDeviceChange).subscribe(isDeviceChange => {
+      if (isDeviceChange) {
+        this.closeTemplateTable();
+        this.store.dispatch(retrievedIsDeviceChange({data: false}));
+      }
+    })
 
     iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
    }
 
   ngOnInit(): void {
     this.deviceService.getAll().subscribe((data: any) => this.store.dispatch(retrievedDevices({data: data.result})));
-    this.templateService.getAll().subscribe(data => this.store.dispatch(retrievedTemplates({ data: null})))
     this.iconService.getAll().subscribe(data => {
       this.store.dispatch(retrievedIcons({data: data.result}));
     })
@@ -190,6 +196,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.selectDevices$.unsubscribe();
     this.selectTemplates$.unsubscribe();
+    this.selectIsDeviceChange$.unsubscribe();
   }
 
   onGridReady(params: GridReadyEvent) {
@@ -211,8 +218,8 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
         let template = data.result.filter((val: any) => val.device_id === this.deviceId)
         this.store.dispatch(retrievedTemplates({ data: template }))
       })
-    }else {
-      this.templateService.getAll().subscribe((data: any)  => { this.store.dispatch(retrievedTemplates({ data: null }))})
+    } else {
+      this.store.dispatch(retrievedTemplates({ data: null }));
       this.isDisableTemplate = true;
     }
   }
@@ -229,7 +236,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
     if (this.rowSelectedDeviceId.length == 0 ) {
       this.isHiddenTable = true;
       this.large = true;
-    }else {
+    } else {
       this.isHiddenTable = false;
       this.large = false;
     }
@@ -304,4 +311,11 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
         })
       }
     }
+
+  closeTemplateTable() {
+    this.isDisableTemplate = true;
+    this.large = true;
+    this.isHiddenTable = true;
+    this.gridApi.deselectAll();
   }
+}

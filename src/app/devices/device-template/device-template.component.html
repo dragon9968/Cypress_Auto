@@ -15,12 +15,12 @@
         </mat-menu>
       </div>
       <div class="right">
-        <input 
+        <input
           matInput
           class="search"
           type="search"
           [(ngModel)]="quickFilterValueDevices"
-          placeholder="search"
+          placeholder="Search..."
           (input)="onQuickFilterInputDevices($event)"
         >
       </div>
@@ -31,7 +31,7 @@
       [paginationPageSize]="25"
       [columnDefs]="columnDefsDevices"
       [defaultColDef]="defaultColDef"
-      [rowData]="rowDataDevices$ | async" 
+      [rowData]="rowDataDevices$ | async"
       [rowSelection]="'multiple'"
       [animateRows]="true"
       (gridReady)="onGridReady($event)"
@@ -56,12 +56,12 @@
         </mat-menu>
       </div>
       <div class="right">
-        <input 
+        <input
           matInput
           class="search"
           type="search"
           [(ngModel)]="quickFilterValueTemplates"
-          placeholder="search"
+          placeholder="Search..."
           (input)="onQuickFilterInputTemplate($event)"
         >
       </div>
@@ -72,7 +72,7 @@
       [paginationPageSize]="25"
       [columnDefs]="columnDefsTemplate"
       [defaultColDef]="defaultColDef"
-      [rowData]="rowDataTemplate$ | async" 
+      [rowData]="rowDataTemplate$ | async"
       [rowSelection]="'multiple'"
       [suppressRowClickSelection]="true"
       [animateRows]="true"
@@ -80,6 +80,9 @@
       (rowSelected)="selectedRows()"
       >
       </ag-grid-angular>
+      <mat-card-actions align="end">
+        <button mat-raised-button type="button" (click)="closeTemplateTable()">Close</button>
+      </mat-card-actions>
   </mat-card>
 </div>
 </div>
