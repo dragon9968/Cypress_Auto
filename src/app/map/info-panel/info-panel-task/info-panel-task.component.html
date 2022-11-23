@@ -3,7 +3,7 @@
   <mat-icon *ngIf="isClickAction">keyboard_arrow_down</mat-icon>
   <mat-icon *ngIf="!isClickAction">keyboard_arrow_up</mat-icon>
 </button>
-<button mat-button class="btn-refresh" color="primary" (click)="refreshTask()">
+<button mat-button mat-mini-fab class="btn-refresh" color="primary" matTooltip="Refresh table" (click)="refreshTask()">
   <mat-icon>sync</mat-icon>
 </button>
 

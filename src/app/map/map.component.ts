@@ -1151,15 +1151,17 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   clearSearch() {
-    this.cy.nodes().forEach((ele: any) => {
-      if (ele.data('label') != 'group_box') {
+    if (this.cy) {
+      this.cy.nodes().forEach((ele: any) => {
+        if (ele.data('label') != 'group_box') {
+          ele.style('opacity', 1.0);
+          ele.unselect();
+        }
+      })
+      this.cy.edges().forEach((ele: any) => {
         ele.style('opacity', 1.0);
         ele.unselect();
-      }
-    })
-    this.cy.edges().forEach((ele: any) => {
-      ele.style('opacity', 1.0);
-      ele.unselect();
-    })
+      })
+    }
   }
 }

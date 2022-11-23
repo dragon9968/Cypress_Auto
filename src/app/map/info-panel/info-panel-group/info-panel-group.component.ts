@@ -46,7 +46,6 @@ export class InfoPanelGroupComponent implements OnInit {
       {
         headerCheckboxSelection: true,
         checkboxSelection: true,
-        suppressSizeToFit: true,
         width: 52,
       },
       {
@@ -64,28 +63,22 @@ export class InfoPanelGroupComponent implements OnInit {
       },
       {
         field: 'name',
-        suppressSizeToFit: true,
         minWidth: 100,
         flex: 1,
-        maxWidth: 200,
       },
       {
         field: 'category',
-        suppressSizeToFit: true,
         minWidth: 100,
         flex: 1,
-        maxWidth: 200,
       },
       {
         field: 'nodes',
-        suppressSizeToFit: true,
         minWidth: 300,
         flex: 1,
       },
       {
         field: 'port_groups',
         headerName: 'Port Groups',
-        suppressSizeToFit: true,
         minWidth: 300,
         flex: 1,
       }
@@ -141,7 +134,7 @@ export class InfoPanelGroupComponent implements OnInit {
       collection_id: this.collectionId,
       map_category: this.mapCategory
     };
-    this.dialog.open(AddUpdateGroupDialogComponent, { width: '600px', data: dialogData });
+    this.dialog.open(AddUpdateGroupDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
   }
 
   onGridReady(params: GridReadyEvent) {

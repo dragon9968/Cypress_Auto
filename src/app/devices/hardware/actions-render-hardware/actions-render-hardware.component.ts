@@ -10,6 +10,8 @@ import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmat
 import { retrievedHardwares } from 'src/app/store/hardware/hardware.actions';
 import { AddEditHardwareDialogComponent } from '../add-edit-hardware-dialog/add-edit-hardware-dialog.component';
 import { NodeService } from "../../../core/services/node/node.service";
+import { catchError } from "rxjs/operators";
+import { throwError } from "rxjs";
 
 @Component({
   selector: 'app-actions-render-hardware',
@@ -71,26 +73,18 @@ export class ActionsRenderHardwareComponent implements ICellRendererAngularComp 
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.isLoading = true;
-        this.nodeService.getAll().subscribe(data => {
-          const nodes = data.result;
-          const isAssociateHardware = nodes.some((ele: any) => ele.hardware_id === this.id);
-          if (isAssociateHardware) {
-            this.toastr.error('There are nodes still associate with this hardware device. ' +
-                              'Please remove the association before deleting.', 'Error');
-            this.isLoading = false;
-          } else {
-            this.hardwareService.delete(this.id).subscribe({
-              next: (rest) => {
-                this.hardwareService.getAll().subscribe((data: any) => this.store.dispatch(retrievedHardwares({data: data.result})));
-                this.toastr.success(`Deleted hardware successfully`, 'Success');
-              },
-              error: (error) => {
-                this.toastr.error(`Error while delete Hardware`);
-              }
-            })
-          }
-          this.isLoading = false;
+        this.hardwareService.delete(this.id).pipe(
+          catchError((response: any) => {
+            if (response.status == 400) {
+              this.toastr.error(response.error.message.split(':')[1], 'Error');
+            } else {
+              this.toastr.error('Delete hardware failed', 'Error');
+            }
+            return throwError(response.error);
+          })
+        ).subscribe(() => {
+          this.hardwareService.getAll().subscribe((data: any) => this.store.dispatch(retrievedHardwares({data: data.result})));
+          this.toastr.success(`Deleted hardware successfully`, 'Success');
         })
       }
     });

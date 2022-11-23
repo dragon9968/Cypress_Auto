@@ -5,10 +5,8 @@ import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { DeviceService } from 'src/app/core/services/device/device.service';
 import { selectDevices } from 'src/app/store/device/device.selectors';
-import { retrievedDevices } from 'src/app/store/device/device.actions';
 import { selectTemplates } from 'src/app/store/template/template.selectors';
 import { TemplateService } from 'src/app/core/services/template/template.service';
-import { retrievedTemplates } from 'src/app/store/template/template.actions';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
@@ -17,6 +15,7 @@ import { ToastrService } from 'ngx-toastr';
 import { retrievedHardwares } from 'src/app/store/hardware/hardware.actions';
 import { selectHardwares } from 'src/app/store/hardware/hardware.selectors';
 import { validateNameExist } from "../../../shared/validations/name-exist.validation";
+import { ErrorMessages } from "../../../shared/enums/error-messages.enum";
 
 @Component({
   selector: 'app-add-edit-hardware-dialog',
@@ -27,6 +26,7 @@ export class AddEditHardwareDialogComponent implements OnInit {
   isDisable = true;
   isViewMode = false;
   selected: any;
+  errorMessages = ErrorMessages;
   hardwareForm!: FormGroup;
   selectDevices$ = new Subscription();
   selectTemplates$ = new Subscription();

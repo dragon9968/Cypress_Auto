@@ -70,38 +70,29 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
       {
         headerName: 'Display Name',
         field: 'display_name',
-        suppressSizeToFit: true,
         minWidth: 300,
-        maxWidth: 500,
         flex: 1
       },
       {
         headerName: 'User ID',
         field: 'appuser_id',
-        suppressSizeToFit: true,
         minWidth: 70,
-        maxWidth: 100,
         flex: 1
       },
       {
         headerName: 'Task ID',
         field: 'task_id',
-        suppressSizeToFit: true,
-        maxWidth: 350,
         flex: 1
       },
       {
         headerName: 'State',
         field: 'task_state',
-        suppressSizeToFit: true,
         minWidth: 100,
-        maxWidth: 150,
         flex: 1
       },
       {
         headerName:'Start Time',
         field: 'start_time',
-        suppressSizeToFit: true,
         cellRenderer: (startTime: any) => startTime.value ? startTime.value.replace('T', ' ') : null,
         minWidth: 200,
         flex: 1
@@ -118,7 +109,7 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
     private userTaskService: UserTaskService,
     private infoPanelService: InfoPanelService
   ) {
-    this.selectUserTasks$ = this.store.select(selectUserTasks).subscribe(userTasks => {
+    this.selectUserTasks$ = this.store.select(selectUserTasks).pipe(takeUntil(this.destroy$)).subscribe(userTasks => {
       if (userTasks) {
         this.userTasks = userTasks;
         this.rowData$ = of(userTasks);

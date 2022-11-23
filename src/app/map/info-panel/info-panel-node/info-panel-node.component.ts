@@ -109,7 +109,6 @@ export class InfoPanelNodeComponent implements OnDestroy {
       {
         headerCheckboxSelection: true,
         checkboxSelection: true,
-        suppressSizeToFit: true,
         width: 52,
       },
       {
@@ -129,49 +128,41 @@ export class InfoPanelNodeComponent implements OnDestroy {
         field: 'name',
         minWidth: 100,
         flex: 1,
-        maxWidth: 200
       },
       {
         field: 'category',
         minWidth: 80,
         flex: 1,
-        maxWidth: 120
       },
       {
         field: 'role',
         minWidth: 80,
         flex: 1,
-        maxWidth: 120
       },
       {
         field: 'device',
         minWidth: 80,
         flex: 1,
-        maxWidth: 120
       },
       {
         field: 'template',
         minWidth: 90,
         flex: 1,
-        maxWidth: 120,
       },
       {
         field: 'hardware',
         minWidth: 90,
         flex: 1,
-        maxWidth: 120,
       },
       {
         field: 'folder',
         minWidth: 60,
         flex: 1,
-        maxWidth: 100,
       },
       {
         field: 'domain',
         minWidth: 80,
         flex: 1,
-        maxWidth: 120,
       },
       {
         field: 'interfaces',

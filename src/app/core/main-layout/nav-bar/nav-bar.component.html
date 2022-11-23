@@ -110,11 +110,11 @@
         </button>
     </mat-menu>
     <mat-form-field *ngIf="isMapOpen" floatLabel="never" class="search-bar">
-        <input matInput #searchbar [(ngModel)]="searchText">
-        <button mat-button mat-icon-button (click)="close()" matSuffix>
+        <input matInput #searchbar [(ngModel)]="searchText" placeholder="Search Map" (keyup.enter)="search()">
+        <button *ngIf="searchText" mat-button mat-icon-button class="btn-clear-search-text" (click)="close()" matSuffix>
             <mat-icon>close</mat-icon>
         </button>
-        <button mat-icon-button (click)="search()" matSuffix>
+        <button mat-icon-button class="btn-search" (click)="search()" matSuffix>
             <mat-icon>search</mat-icon>
         </button>
     </mat-form-field>

@@ -1,10 +1,10 @@
 import { Store } from "@ngrx/store";
 import { MatDialog } from "@angular/material/dialog";
-import { catchError, takeUntil } from "rxjs/operators";
+import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ICellRendererParams } from "ag-grid-community";
-import { Subject, Subscription, throwError } from "rxjs";
+import { Subscription, throwError } from "rxjs";
 import { ICellRendererAngularComp } from "ag-grid-angular";
 import { selectDeviceCategories } from "../../../store/device-category/device-category.selectors";
 import { retrievedDeviceCategories } from "../../../store/device-category/device-category.actions";

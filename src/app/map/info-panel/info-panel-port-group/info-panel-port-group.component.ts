@@ -101,7 +101,6 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
       {
         headerCheckboxSelection: true,
         checkboxSelection: true,
-        suppressSizeToFit: true,
         width: 52,
       },
       {
@@ -121,39 +120,33 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
         field: 'name',
         minWidth: 100,
         flex: 1,
-        maxWidth: 200
       },
       {
         field: 'category',
         minWidth: 100,
         flex: 1,
-        maxWidth: 200
       },
       {
         field: 'vlan',
         headerName: 'VLAN',
         minWidth: 100,
         flex: 1,
-        maxWidth: 200
       },
       {
         field: 'subnet_allocation',
         headerName: 'Subnet Allocation',
         minWidth: 100,
         flex: 1,
-        maxWidth: 250
       },
       {
         field: 'subnet',
         minWidth: 100,
         flex: 1,
-        maxWidth: 200
       },
       {
         field: 'domain',
         minWidth: 100,
         flex: 1,
-        maxWidth: 200
       },
       {
         field: 'interfaces',

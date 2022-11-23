@@ -4,7 +4,7 @@ import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
 import { MatIconRegistry } from "@angular/material/icon";
 import { ActivatedRoute, Params } from "@angular/router";
-import { Subscription, throwError } from "rxjs";
+import { Observable, of, Subscription, throwError } from "rxjs";
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
@@ -16,6 +16,7 @@ import { AddDomainUserDialogComponent } from "./add-domain-user-dialog/add-domai
 import { DomainBulkEditDialogComponent } from "../../bulk-edit-dialog/domain-bulk-edit-dialog/domain-bulk-edit-dialog.component";
 import { retrievedDomains } from "../../../store/domain/domain.actions";
 import { selectDomains } from "../../../store/domain/domain.selectors";
+import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 
 @Component({
   selector: 'app-info-panel-domain',
@@ -31,7 +32,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
   rowsSelectedId: any[] = [];
   domains!: any;
   isClickAction = false;
-
+  rowData$!: Observable<any[]>;
   public gridOptions: GridOptions = {
     headerHeight: 48,
     defaultColDef: {
@@ -53,7 +54,6 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
       {
         headerCheckboxSelection: true,
         checkboxSelection: true,
-        suppressSizeToFit: true,
         width: 52,
       },
       {
@@ -71,21 +71,18 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
       },
       {
         field: 'name',
-        suppressSizeToFit: true,
         minWidth: 400,
         flex: 1,
       },
       {
         headerName: 'Admin User',
         field: 'admin_user',
-        suppressSizeToFit: true,
         minWidth: 400,
         flex: 1,
       },
       {
         headerName: 'Admin Password',
         field: 'admin_password',
-        suppressSizeToFit: true,
         minWidth: 300,
         flex: 1,
       }
@@ -106,7 +103,11 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
     this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
       if (domains) {
         this.domains = domains;
-        this.gridApi.setRowData(domains);
+        if (this.gridApi) {
+          this.gridApi.setRowData(domains);
+        } else {
+          this.rowData$ = of(domains);
+        }
         this.updateRowDomainInfoPanel();
       }
     });
@@ -147,7 +148,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
         admin_password: ''
       }
     };
-    this.dialog.open(AddUpdateDomainDialogComponent, {width: '600px', data: dialogData});
+    this.dialog.open(AddUpdateDomainDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
   }
 
   addDomainUser() {
@@ -185,11 +186,26 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
   }
 
   deleteDomain() {
-    this.rowsSelected.map(domain => {
-      this.infoPanelService.deleteDomain(domain, this.collectionId);
-    })
-    this.rowsSelected = [];
-    this.rowsSelectedId = [];
+    if (this.rowsSelectedId.length === 0) {
+      this.toastr.info('No row selected');
+    } else {
+      const dialogData = {
+        title: 'User confirmation needed',
+        message: 'You sure you want to delete this item?',
+        submitButtonName: 'OK'
+      }
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
+      dialogConfirm.afterClosed().subscribe(confirm => {
+        if (confirm) {
+          this.rowsSelected.map(domain => {
+            this.infoPanelService.deleteDomain(domain, this.collectionId);
+          })
+          this.rowsSelected = [];
+          this.rowsSelectedId = [];
+          this.gridApi.deselectAll();
+        }
+      })
+    }
   }
 
   exportDomain(format: string) {

@@ -14,6 +14,11 @@ import { selectHardwares } from 'src/app/store/hardware/hardware.selectors';
 import { ActionsRenderHardwareComponent } from './actions-render-hardware/actions-render-hardware.component';
 import { AddEditHardwareDialogComponent } from './add-edit-hardware-dialog/add-edit-hardware-dialog.component';
 import { NodeService } from "../../core/services/node/node.service";
+import { catchError } from "rxjs/operators";
+import { DeviceService } from "../../core/services/device/device.service";
+import { TemplateService } from "../../core/services/template/template.service";
+import { retrievedDevices } from "../../store/device/device.actions";
+import { retrievedTemplates } from "../../store/template/template.actions";
 
 @Component({
   selector: 'app-hardware',
@@ -28,7 +33,6 @@ export class HardwareComponent implements OnInit, OnDestroy {
   rowData$! : Observable<any[]>;
   private gridApi!: GridApi;
   selectHardwares$ = new Subscription();
-  isLoading = false;
   defaultColDef: ColDef = {
     sortable: true,
     resizable: true
@@ -72,6 +76,8 @@ export class HardwareComponent implements OnInit, OnDestroy {
     iconRegistry: MatIconRegistry,
     private helpers: HelpersService,
     private nodeService: NodeService,
+    private deviceService: DeviceService,
+    private templateService: TemplateService,
     private hardwareService: HardwareService,
   ) {
     this.selectHardwares$ = this.store.select(selectHardwares).subscribe((data: any) => {
@@ -82,6 +88,8 @@ export class HardwareComponent implements OnInit, OnDestroy {
    }
 
   ngOnInit(): void {
+    this.deviceService.getAll().subscribe(data => this.store.dispatch(retrievedDevices({data: data.result})))
+    this.templateService.getAll().subscribe(data => this.store.dispatch(retrievedTemplates({data: data.result})))
     this.hardwareService.getAll().subscribe((data: any) => this.store.dispatch(retrievedHardwares({data: data.result})));
   }
 
@@ -151,35 +159,22 @@ export class HardwareComponent implements OnInit, OnDestroy {
       const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
-          this.isLoading = true;
-          this.nodeService.getAll().subscribe(data => {
-            const nodes = data.result;
-            const hardwareIds: any[] = [];
-            this.rowsSelected.map(ele => {
-              const isAssociateHardware = nodes.some((node: any) => node.hardware_id === ele.id);
-              if (isAssociateHardware) {
-                this.toastr.error(`There are nodes still associate with ${ele.template?.display_name} (${ele.serial_number}) hardware device.
-                                            Please remove the association before deleting.`, 'Error');
-              } else {
-                hardwareIds.push(ele.id);
-              }
-            })
-            forkJoin(hardwareIds.map(id => {
-              return this.hardwareService.delete(id);
-            })).subscribe({
-                next: () => {
-                  this.hardwareService.getAll().subscribe(
-                    data => this.store.dispatch(retrievedHardwares({data: data.result}))
-                  );
-                  this.isLoading = false;
-                  this.toastr.success('Deleted hardware(s) successfully', 'Success');
-                },
-                error: err => {
-                  this.isLoading = false;
-                  throwError(() => err);
-                  this.toastr.error('Delete hardware failed!', 'Error');
+          forkJoin(this.rowsSelectedId.map(id => {
+            return this.hardwareService.delete(id).pipe(
+              catchError((response: any) => {
+                if (response.status == 400) {
+                  this.toastr.error(response.error.message.split(':')[1], 'Error');
+                } else {
+                  this.toastr.error('Delete hardware failed', 'Error');
                 }
+                return throwError(response.error);
               })
+            );
+          })).subscribe(() => {
+            this.toastr.success('Deleted hardware(s) successfully', 'Success');
+            this.hardwareService.getAll().subscribe(
+              data => this.store.dispatch(retrievedHardwares({data: data.result}))
+            );
           })
         }
       })

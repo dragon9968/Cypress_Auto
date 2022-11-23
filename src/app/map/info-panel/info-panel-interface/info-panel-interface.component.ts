@@ -61,7 +61,6 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
       {
         headerCheckboxSelection: true,
         checkboxSelection: true,
-        suppressSizeToFit: true,
         width: 52,
       },
       {
@@ -81,65 +80,55 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
         field: 'order',
         minWidth: 80,
         flex: 1,
-        maxWidth: 120
       },
       {
         field: 'name',
         minWidth: 100,
         flex: 1,
-        maxWidth: 200
       },
       {
         field: 'description',
         minWidth: 100,
         flex: 1,
-        maxWidth: 200
       },
       {
         field: 'status',
         minWidth: 130,
         flex: 1,
-        maxWidth: 170
       },
       {
         field: 'category',
         minWidth: 100,
         flex: 1,
-        maxWidth: 200
       },
       {
         field: 'mac_address',
         headerName: 'Mac Address',
         minWidth: 100,
         flex: 1,
-        maxWidth: 200
       },
       {
         field: 'port_group',
         headerName: 'Port Group',
         minWidth: 100,
         flex: 1,
-        maxWidth: 250
       },
       {
         field: 'ip_allocation',
         headerName: 'IP Allocation',
         minWidth: 200,
         flex: 1,
-        maxWidth: 270
       },
       {
         field: 'ip',
         headerName: 'IP',
         minWidth: 200,
         flex: 1,
-        maxWidth: 270
       },
       {
         field: 'netmask',
         minWidth: 100,
         flex: 1,
-        maxWidth: 200
       }
     ]
   };

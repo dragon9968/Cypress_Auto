@@ -1,5 +1,5 @@
-<button mat-button class="add-group" color="primary" (click)="addGroup()">
-  <mat-icon>add_box</mat-icon>
+<button mat-button mat-mini-fab class="add-group" color="primary" matTooltip="Add new group" (click)="addGroup()">
+  <mat-icon>add</mat-icon>
 </button>
 <div class="ag-theme-alpine info-panel-group" [style.height]="gridHeight">
   <ag-grid-angular style="width: 100%; height: 100%;" [gridOptions]="gridOptions"

@@ -1,14 +1,13 @@
 import { Component, ElementRef, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconRegistry } from '@angular/material/icon';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs';
+import { interval, Subject, Subscription } from 'rxjs';
 import { EditProjectDialogComponent } from 'src/app/project/edit-project-dialog/edit-project-dialog.component';
 import { ProjectService } from 'src/app/project/services/project.service';
 import { retrievedSearchText } from 'src/app/store/map-option/map-option.actions';
-import { selectIsMapOpen, selectMapFeature } from 'src/app/store/map/map.selectors';
+import { selectIsMapOpen } from 'src/app/store/map/map.selectors';
 import { PermissionLevels } from '../../enums/permission-levels.enum';
 import { RouteSegments } from '../../enums/route-segments.enum';
 import { AuthService } from '../../services/auth/auth.service';
@@ -18,6 +17,8 @@ import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmat
 import { ToastrService } from 'ngx-toastr';
 import { ExportProjectDialogComponent } from 'src/app/project/export-project-dialog/export-project-dialog.component';
 import { ImportProjectDialogComponent } from 'src/app/project/import-project-dialog/import-project-dialog.component';
+import { HelpersService } from "../../services/helpers/helpers.service";
+import { takeUntil } from "rxjs/operators";
 
 @Component({
   selector: 'app-nav-bar',
@@ -34,6 +35,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   isOpen!: boolean;
   isLoading = false;
   selectIsMapOpen$ = new Subscription();
+  destroy$: Subject<boolean> = new Subject<boolean>();
 
   constructor(
     private authService: AuthService,
@@ -42,31 +44,33 @@ export class NavBarComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private router: Router,
     private store: Store,
-    private domSanitizer: DomSanitizer,
+    private helpersService: HelpersService,
     iconRegistry: MatIconRegistry,
   ) {
     this.selectIsMapOpen$ = this.store.select(selectIsMapOpen).subscribe((isMapOpen: boolean) => {
       this.isMapOpen = isMapOpen;
+      if (isMapOpen) {
+        this.searchByInterval();
+      }
     });
     this.selectIsOpen$ = this.store.select(selectIsOpen).subscribe(isOpen => {
       this.isOpen = isOpen
     });
-    iconRegistry.addSvgIcon('plant-tree-icon', this._setPath('/assets/icons/plant-tree-icon.svg'));
-    iconRegistry.addSvgIcon('icons8-trash-can', this._setPath('/assets/icons/icons8-trash-can.svg'));
+    iconRegistry.addSvgIcon('plant-tree-icon', this.helpersService.setIconPath('/assets/icons/plant-tree-icon.svg'));
+    iconRegistry.addSvgIcon('icons8-trash-can', this.helpersService.setIconPath('/assets/icons/icons8-trash-can.svg'));
   }
 
-  ngOnInit(): void { 
+  ngOnInit(): void {
     if (this.projectService.getCollectionId()) {
       this.store.dispatch(retrievedIsOpen({data: true}));
     }
   }
 
-  private _setPath(url: string): SafeResourceUrl {
-    return this.domSanitizer.bypassSecurityTrustResourceUrl(url);
-  }
-
   ngOnDestroy(): void {
     this.selectIsMapOpen$.unsubscribe();
+    this.selectIsOpen$.unsubscribe();
+    this.destroy$.next(true);
+    this.destroy$.unsubscribe();
   }
 
   logout() {
@@ -182,5 +186,16 @@ export class NavBarComponent implements OnInit, OnDestroy {
         })
       }
     });
+  }
+
+  searchByInterval() {
+    interval(3000).pipe(takeUntil(this.destroy$)).subscribe(() => {
+      if (this.isMapOpen) {
+        this.search();
+      } else {
+        this.close();
+        this.destroy$.next(true);
+      }
+    })
   }
 }
