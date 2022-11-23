@@ -29,7 +29,6 @@ export class InfoPanelComponent implements OnInit{
   selectDomainUser$ = new Subscription();
   collectionId = '0';
   style: any = {
-    position: 'fixed',
     height: '300px'
   };
 

@@ -521,7 +521,7 @@ export class HelpersService {
         badge.id = `popper-${ele.id()}`;
         badge.innerHTML = `<img src="assets/icons/lock.png" width="10" height="10">`
         badge.setAttribute("style", "z-index:1;");
-        document.body.appendChild(badge);
+        document.getElementById('cy')?.appendChild(badge);
         return badge;
       },
       popper: {
