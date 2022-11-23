@@ -44,7 +44,7 @@ export class ShowConfigTemplateDialogComponent implements OnInit {
       this.description?.setValue(this.data.genData.description);
       const config = this.data.genData.configuration
       if (config){
-        if (config.static_routes.length > 0) {
+        if (config.static_routes?.length > 0) {
           Object.values(config.static_routes).forEach(val => {
             this.staticRoles.push(val)
           });
@@ -53,7 +53,7 @@ export class ShowConfigTemplateDialogComponent implements OnInit {
           this.joinDomain = this.data.genData.configuration.join_domain
           this.OuPath = this.data.genData.configuration.ou_path
         }
-        if (config.firewall_rule.length > 0) {
+        if (config.firewall_rule?.length > 0) {
           Object.values(config.firewall_rule).forEach((val: any) => {
             if (val.category === "rule") {
               this.fileWallRule.push(val)
@@ -62,7 +62,7 @@ export class ShowConfigTemplateDialogComponent implements OnInit {
             }
           });
         }
-        if (config.role_services.length > 0) {
+        if (config.role_services?.length > 0) {
           Object.values(config.role_services).forEach((val: any) => {
             this.rolesOrServices.push(val);
           });
