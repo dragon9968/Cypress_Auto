@@ -1,12 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { ICellRendererParams } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { LoginProfileService } from 'src/app/core/services/login-profile/login-profile.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
+import { retrievedLoginProfiles } from 'src/app/store/login-profile/login-profile.actions';
 import { EditLoginProfilesDialogComponent } from '../edit-login-profiles-dialog/edit-login-profiles-dialog.component';
 
 @Component({
@@ -20,7 +22,7 @@ export class ActionsRenderComponent implements ICellRendererAngularComp {
     private loginProfileService: LoginProfileService,
     private dialog: MatDialog,
     private toastr: ToastrService,
-    private router: Router,
+    private store: Store,
   ) { }
 
   refresh(params: ICellRendererParams): boolean {
@@ -67,13 +69,13 @@ export class ActionsRenderComponent implements ICellRendererAngularComp {
       if (result) {
         this.loginProfileService.delete(this.id).subscribe({
           next: (rest) => {
-            this.router.navigate([RouteSegments.DEVICES + "/login_profiles"]).then(() => {
-              window.location.reload();
-            });
-            this.toastr.success(`Delete name ${rest.result.name} successfully`);
+            this.toastr.success('Deleted Row successfully');
+            this.loginProfileService.getAll().subscribe((data: any) => this.store.dispatch(retrievedLoginProfiles({data: data.result})));
           },
           error: (error) => {
-            this.toastr.error(`Error while delete connection ${error.result.name}`);
+            if (error.status == 422) {
+              this.toastr.warning('Associated data exists, please delete them first');
+            }
           }
         })
       }
