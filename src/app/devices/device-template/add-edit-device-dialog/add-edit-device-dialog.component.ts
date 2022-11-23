@@ -14,6 +14,7 @@ import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 import { retrievedDeviceCategories } from 'src/app/store/device-category/device-category.actions';
 import { selectDeviceCategories } from 'src/app/store/device-category/device-category.selectors';
+import { retrievedDevices } from 'src/app/store/device/device.actions';
 import { selectDevices } from 'src/app/store/device/device.selectors';
 import { retrievedIcons } from 'src/app/store/icon/icon.actions';
 import { selectIcons } from 'src/app/store/icon/icon.selectors';
@@ -92,8 +93,9 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
     }
     this.deviceService.add(jsonData).subscribe({
       next: (rest) => {
-        this.toastr.success(`Add Device successfully`)
         this.dialogRef.close();
+        this.toastr.success(`Add Device successfully`)
+        this.deviceService.getAll().subscribe((data: any) => this.store.dispatch(retrievedDevices({data: data.result})));
       },
       error: (err) => {
         this.toastr.error(`Error while add Device`);
