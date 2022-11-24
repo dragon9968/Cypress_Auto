@@ -79,7 +79,7 @@ export class AddEditIconDialogComponent implements OnInit {
             this.toastr.success(`Added Icon successfully`);
           },
           error:(err) => {
-            this.toastr.error(`Error while Add Icon`);
+            this.toastr.error(err.error.message);
           }
         })
     }
@@ -102,7 +102,7 @@ export class AddEditIconDialogComponent implements OnInit {
       if (this.selectedFile) {
         formData.append('update', 'true');
         formData.append('file', this.selectedFile);
-      }else {
+      } else {
         formData.append('file', 'false');
       }
 

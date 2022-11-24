@@ -22,11 +22,11 @@ export class AuthInterceptor implements HttpInterceptor {
     req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    if (req.url == ApiPaths.ICONS_ADD || req.url == ApiPaths.ICONS_UPDATE || req.url == ApiPaths.IMPORT_PROJECT) {
+    if (req.url == ApiPaths.ICONS_ADD || req.url.includes(ApiPaths.ICONS_UPDATE) || req.url == ApiPaths.IMPORT_PROJECT) {
       var authReq = req.clone({
         url: !req.url.includes(ApiPaths.ASSETS) ? environment.apiBaseUrl + req.url : req.url,
       });
-    }else {
+    } else {
       var authReq = req.clone({
         url: !req.url.includes(ApiPaths.ASSETS) ? environment.apiBaseUrl + req.url : req.url,
         headers: req.headers.set('Content-Type', 'application/json')
