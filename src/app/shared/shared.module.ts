@@ -30,6 +30,7 @@ import { ResizableModule } from "angular-resizable-element";
 import { MatChipsModule } from '@angular/material/chips';
 import { NgSelectModule } from '@ng-select/ng-select';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { SpinnerComponent } from './components/spinner/spinner.component';
 
 
 const materialModules = [
@@ -59,7 +60,7 @@ const materialModules = [
 ];
 
 @NgModule({
-  declarations: [ConfirmationDialogComponent],
+  declarations: [ConfirmationDialogComponent, SpinnerComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -80,7 +81,8 @@ const materialModules = [
     ResizableModule,
     NgSelectModule,
     ...materialModules,
-    ConfirmationDialogComponent
+    ConfirmationDialogComponent,
+    SpinnerComponent
   ],
 })
 export class SharedModule {}

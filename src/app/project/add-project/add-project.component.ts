@@ -22,7 +22,6 @@ export class AddProjectComponent implements OnInit {
   routeSegments = RouteSegments;
   selectProjects$ = new Subscription();
   nameProject!: any[];
-  isLoading = false;
 
   constructor(
     private store: Store,
@@ -126,16 +125,13 @@ export class AddProjectComponent implements OnInit {
         vlan_max: this.vlan_max?.value,
 
       }
-      this.isLoading = true;
       this.projectService.add(jsonData).subscribe({
         next:(rest) => {
           this.toastr.success(`Created Project ${rest.result.name} successfully`);
           this.router.navigate([RouteSegments.PROJECTS]);
-          this.isLoading = false;
         },
         error:(err) => {
           this.toastr.error(`Error while add project`);
-          this.isLoading = false;
         }
       });
     }

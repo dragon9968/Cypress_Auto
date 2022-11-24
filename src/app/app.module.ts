@@ -7,11 +7,12 @@ import { SharedModule } from './shared/shared.module';
 import { StoreModule } from '@ngrx/store';
 import { reducers } from './store/app.reducer'
 import { LoginComponent } from './login/login.component';
-import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { ToastrModule } from 'ngx-toastr';
 import { CoreModule } from './core/core.module';
+import { AuthInterceptor } from './core/interceptors/auth/auth.interceptor';
+import { LoadingInterceptor } from './core/interceptors/loading/loading.interceptor';
 
 
 @NgModule({
@@ -35,6 +36,11 @@ import { CoreModule } from './core/core.module';
       useClass: AuthInterceptor,
       multi: true,
     },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: LoadingInterceptor,
+      multi: true
+    }
   ],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
