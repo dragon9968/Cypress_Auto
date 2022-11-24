@@ -35,18 +35,18 @@
           class="search"
           type="search"
           [(ngModel)]="quickFilterValue"
-          placeholder="search..."
+          placeholder="Search..."
           (input)="onQuickFilterInput($event)"
           />
     </div>
   </div>
   <mat-card-content>
-    <ag-grid-angular 
+    <ag-grid-angular
         class="ag-theme-alpine connection-table"
         [pagination]="true"
         [columnDefs]="columnDefs"
         [defaultColDef]="defaultColDef"
-        [rowData]="rowData$ | async" 
+        [rowData]="rowData$ | async"
         [rowSelection]="'multiple'"
         [suppressRowClickSelection]="true"
         [animateRows]="true"

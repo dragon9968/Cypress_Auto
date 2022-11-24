@@ -86,7 +86,7 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
     }
     if (this.rowsSelectedId.length == 0) {
       this.toastr.info('No row selected');
-    }else {
+    } else {
       const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
       dialogRef.afterClosed().subscribe(result => {
         const jsonData = {
@@ -98,6 +98,7 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
             next: (rest) => {
               this.toastr.success(`Recover Project successfully`);
               this.projectService.getProjectByStatus(this.status).subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
+              this.clearRowSelected();
             },
             error: (error) => {
               this.toastr.error(`Error while Recover Project`);
@@ -108,11 +109,11 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
     }
   }
 
-  permanentDeteleProject() {
+  permanentDeleteProject() {
     const dialogData = {
       title: 'User confirmation needed',
       message: 'Project will be permanently deleted. Are you sure?',
-      submitButtonName: 'delete'
+      submitButtonName: 'Delete'
     }
     if (this.rowsSelectedId.length == 0) {
       this.toastr.info('No row selected');
@@ -129,6 +130,7 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
               this.toastr.success(`Permanent delete Project successfully`);
               this.projectService.getProjectByStatus(this.status).subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
               this.isLoading = false;
+              this.clearRowSelected();
             },
             error: (error) => {
               this.toastr.error(`Error while Permanent delete Project`);
@@ -140,4 +142,9 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
     }
   }
 
+  clearRowSelected() {
+    this.rowsSelected = [];
+    this.rowsSelectedId = [];
+    this.gridApi.deselectAll();
+  }
 }

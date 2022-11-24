@@ -47,12 +47,15 @@ label {
   border-radius: 5px;
 }
 
-.create-btn {
-  width: 70%;
-  margin-left: auto;
-  margin-right: auto;
-}
-
 .hint {
   margin-bottom: 15px;
+}
+
+.field {
+  width: 100%;
+  align-items: center;
+}
+
+.info-group, .connect-parameters-group, .login-credential-group {
+  margin-bottom: 8px;
 }

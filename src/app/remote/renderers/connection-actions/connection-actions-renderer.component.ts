@@ -1,3 +1,4 @@
+import { Store } from "@ngrx/store";
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
@@ -7,6 +8,7 @@ import { ToastrService } from 'ngx-toastr';
 import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { ServerConnectService } from 'src/app/core/services/server-connect/server-connect.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
+import { retrievedServerConnect } from "../../../store/server-connect/server-connect.actions";
 
 @Component({
   selector: 'app-connection-actions-renderer',
@@ -16,6 +18,7 @@ import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmat
 export class ConnectionActionsRendererComponent implements ICellRendererAngularComp {
   id: any;
   constructor(
+    private store: Store,
     private router: Router,
     private serverConnectService: ServerConnectService,
     private dialog: MatDialog,
@@ -40,16 +43,15 @@ export class ConnectionActionsRendererComponent implements ICellRendererAngularC
   deleteConnection() {
     const dialogData = {
       title: 'User confirmation needed',
-      message: 'You sure you want to delete this item?'
+      message: 'You sure you want to delete this item?',
+      submitButtonName: 'OK'
     }
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '600px', data: dialogData });
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '450px', data: dialogData });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.serverConnectService.delete(this.id).subscribe({
           next:(rest) => {
-            this.router.navigate([RouteSegments.CONNECTION_PROFILES]).then(() => {
-              window.location.reload();
-            });
+            this.serverConnectService.getAll().subscribe((data: any) => this.store.dispatch(retrievedServerConnect({data: data.result})));
             this.toastr.success(`Deleted connection ${rest.result.name} successfully`);
           },
           error:(err) => {

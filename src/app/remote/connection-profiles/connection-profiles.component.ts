@@ -7,7 +7,6 @@ import { Observable, of, Subscription } from 'rxjs';
 import { ServerConnectService } from 'src/app/core/services/server-connect/server-connect.service';
 import { retrievedServerConnect } from 'src/app/store/server-connect/server-connect.actions';
 import { selectServerConnects } from 'src/app/store/server-connect/server-connect.selectors';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { ToastrService } from 'ngx-toastr';
@@ -68,13 +67,12 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
     private toastr: ToastrService,
     private router: Router,
     iconRegistry: MatIconRegistry,
-    private domSanitizer: DomSanitizer,
     private helpers: HelpersService
   ) {
     this.selectServerConnect$ = this.store.select(selectServerConnects).subscribe((data: any) => {
       this.rowData$ = of(data);
     })
-    iconRegistry.addSvgIcon('export_json', this._setPath('/assets/icons/export_json.svg'));
+    iconRegistry.addSvgIcon('export_json', this.helpers.setIconPath('/assets/icons/export_json.svg'));
   }
 
   ngOnInit(): void {
@@ -155,10 +153,6 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
         }
       });
     }
-  }
-
-  private _setPath(url: string): SafeResourceUrl {
-    return this.domSanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
   onQuickFilterInput(e: any) {

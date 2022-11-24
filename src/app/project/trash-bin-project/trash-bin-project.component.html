@@ -7,18 +7,18 @@
       </button>
       <mat-menu #actionMenu="matMenu">
         <button mat-menu-item (click)="recoverProject()"><mat-icon>restore_from_trash</mat-icon>Recover</button>
-        <button mat-menu-item (click)="permanentDeteleProject()"><mat-icon>delete_forever</mat-icon>Permanent Delete</button>
+        <button mat-menu-item (click)="permanentDeleteProject()"><mat-icon>delete_forever</mat-icon>Permanent Delete</button>
       </mat-menu>
     </div>
   </div>
-  <ag-grid-angular 
-    class="ag-theme-alpine project-table" 
-    [pagination]="true" 
-    [paginationPageSize]="25" 
-    [columnDefs]="columnDefs" 
-    [defaultColDef]="defaultColDef" 
-    [rowData]="rowData$ | async" 
-    rowSelection="multiple" 
+  <ag-grid-angular
+    class="ag-theme-alpine project-table"
+    [pagination]="true"
+    [paginationPageSize]="25"
+    [columnDefs]="columnDefs"
+    [defaultColDef]="defaultColDef"
+    [rowData]="rowData$ | async"
+    rowSelection="multiple"
     [animateRows]="true"
     (gridReady)="onGridReady($event)"
     (rowSelected)="selectedRows()" >

@@ -34,6 +34,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   isMapOpen = false;
   isOpen!: boolean;
   isLoading = false;
+  status = 'active';
   selectIsMapOpen$ = new Subscription();
   destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -130,6 +131,9 @@ export class NavBarComponent implements OnInit, OnDestroy {
             this.toastr.success(`Delete Project successfully`);
             this.projectService.closeProject();
             this.store.dispatch(retrievedIsOpen({data: false}));
+            this.projectService.getProjectByStatus(this.status).subscribe(
+              (data: any) => this.store.dispatch(retrievedProjects({ data: data.result }))
+            );
             this.router.navigate([RouteSegments.PROJECTS]);
           },
           error: (error) => {
