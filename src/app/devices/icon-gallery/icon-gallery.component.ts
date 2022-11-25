@@ -124,12 +124,11 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
   exportJson() {
     if (this.selectedIcon.length == 0) {
       this.toastr.info('No row selected');
-    }else {
+    } else {
       let file = new Blob();
       this.iconService.export(this.selectedIcon).subscribe(response => {
         file = new Blob([JSON.stringify(response, null, 4)], {type: 'application/json'});
         this.helpers.downloadBlob('Icon.json', file);
-        this.iconService.getAll().subscribe((data: any) => this.store.dispatch(retrievedIcons({data: data.result})));
         this.toastr.success(`Exported Icon as ${'json'.toUpperCase()} file successfully`);
       })
     }
