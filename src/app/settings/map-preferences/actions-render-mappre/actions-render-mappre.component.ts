@@ -6,7 +6,7 @@ import { ICellRendererParams } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { MapPrefService } from 'src/app/core/services/map-pref/map-pref.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
-import { retrievedMapPref } from 'src/app/store/map-style/map-style.actions';
+import { retrievedMapPrefs } from 'src/app/store/map-pref/map-pref.actions';
 import { AddEditMapprefDialogComponent } from '../add-edit-mappref-dialog/add-edit-mappref-dialog.component';
 
 @Component({
@@ -72,7 +72,7 @@ export class ActionsRenderMappreComponent implements ICellRendererAngularComp {
         }else {
           this.mapPrefService.delete(this.id).subscribe({
             next: (rest) => {
-              this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPref({data: data.result})));
+              this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPrefs({data: data.result})));
               this.toastr.success(`Delete Preferences successfully`);
             },
             error: (error) => {

@@ -11,8 +11,8 @@ import { ipInNetworkValidator } from 'src/app/shared/validations/ip-innetwork.va
 import { ipValidator } from 'src/app/shared/validations/ip.validation';
 import { retrievedAppPref } from 'src/app/store/app-pref/app-pref.actions';
 import { selectAppPref } from 'src/app/store/app-pref/app-pref.selectors';
-import { retrievedMapPref } from 'src/app/store/map-style/map-style.actions';
-import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
+import { retrievedMapPrefs } from 'src/app/store/map-pref/map-pref.actions';
+import { selectMapPrefs } from 'src/app/store/map-pref/map-pref.selectors';
 
 @Component({
   selector: 'app-app-preferences',
@@ -21,7 +21,7 @@ import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
 })
 export class AppPreferencesComponent implements OnInit, OnDestroy {
   appPrefForm!: FormGroup;
-  selectMapPref$ = new Subscription();
+  selectMapPrefs$ = new Subscription();
   selectAppPref$ = new Subscription();
   errorMessages = ErrorMessages;
   listMapPref!: any[];
@@ -34,7 +34,7 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
     public dialogRef: MatDialogRef<AppPreferencesComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) { 
-    this.selectMapPref$ = this.store.select(selectMapPref).subscribe((data: any) => {
+    this.selectMapPrefs$ = this.store.select(selectMapPrefs).subscribe((data: any) => {
       this.listMapPref = data;
     });
     this.selectAppPref$ = this.store.select(selectAppPref).subscribe((appPref: any) => {
@@ -73,11 +73,11 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
   
 
   ngOnInit(): void {
-    this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPref({data: data.result})));
+    this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPrefs({data: data.result})));
   }
 
   ngOnDestroy(): void {
-    this.selectMapPref$.unsubscribe();
+    this.selectMapPrefs$.unsubscribe();
     this.selectAppPref$.unsubscribe();
   }
 

@@ -12,8 +12,8 @@ import { MapPrefService } from 'src/app/core/services/map-pref/map-pref.service'
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { retrievedIcons } from 'src/app/store/icon/icon.actions';
 import { selectIcons } from 'src/app/store/icon/icon.selectors';
-import { retrievedMapPref } from 'src/app/store/map-style/map-style.actions';
-import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
+import { retrievedMapPrefs } from 'src/app/store/map-pref/map-pref.actions';
+import { selectMapPrefs } from 'src/app/store/map-pref/map-pref.selectors';
 import { ActionsRenderMappreComponent } from './actions-render-mappre/actions-render-mappre.component';
 import { AddEditMapprefDialogComponent } from './add-edit-mappref-dialog/add-edit-mappref-dialog.component';
 
@@ -30,7 +30,7 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
   ICON_PATH = ICON_PATH;
   rowData$! : Observable<any[]>;
   private gridApi!: GridApi;
-  selectMapPref$ = new Subscription();
+  selectMapPrefs$ = new Subscription();
   selectIcons$ = new Subscription();
   listIcons!: any[];
   icon_default: any[] = [];
@@ -128,7 +128,7 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
     private helpers: HelpersService,
     private iconService: IconService
   ) {
-    this.selectMapPref$ = this.store.select(selectMapPref).subscribe((data: any) => {
+    this.selectMapPrefs$ = this.store.select(selectMapPrefs).subscribe((data: any) => {
       this.rowData$ = of(data);
     });
     this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
@@ -139,12 +139,12 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.selectMapPref$.unsubscribe();
+    this.selectMapPrefs$.unsubscribe();
     this.selectIcons$.unsubscribe();
   }
 
   ngOnInit(): void {
-    this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPref({data: data.result})));
+    this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPrefs({data: data.result})));
     this.iconService.getAll().subscribe((data: any) => this.store.dispatch(retrievedIcons({data: data.result})));
   }
 

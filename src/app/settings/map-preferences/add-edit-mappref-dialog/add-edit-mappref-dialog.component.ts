@@ -7,10 +7,10 @@ import { Subscription } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { MapPrefService } from 'src/app/core/services/map-pref/map-pref.service';
 import { selectIcons } from 'src/app/store/icon/icon.selectors';
-import { retrievedMapPref } from 'src/app/store/map-style/map-style.actions';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
-import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
+import { retrievedMapPrefs } from 'src/app/store/map-pref/map-pref.actions';
+import { selectMapPrefs } from 'src/app/store/map-pref/map-pref.selectors';
 
 @Component({
   selector: 'app-add-edit-mappref-dialog',
@@ -33,7 +33,7 @@ export class AddEditMapprefDialogComponent {
   TextBG = '#000000';
   mapPrefForm!: FormGroup;
   selectIcons$ = new Subscription();
-  selectMapPref$ = new Subscription();
+  selectMapPrefs$ = new Subscription();
   selectDefaultPreferences$ = new Subscription();
   listDefaultMapPref: any[] = [];
   listMapPref!: any[];
@@ -68,7 +68,7 @@ export class AddEditMapprefDialogComponent {
     public dialogRef: MatDialogRef<AddEditMapprefDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
-    this.selectMapPref$ = this.store.select(selectMapPref).subscribe((data: any) => {
+    this.selectMapPrefs$ = this.store.select(selectMapPrefs).subscribe((data: any) => {
       this.listMapPref = data;
       this.listDefaultMapPref = data.filter((el: any) => el.name === 'Default')
     });
@@ -199,7 +199,7 @@ export class AddEditMapprefDialogComponent {
       next: (rest) => {
         this.toastr.success(`Added Preferences ${rest.result.name} successfully`)
         this.dialogRef.close();
-        this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPref({ data: data.result })));
+        this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPrefs({ data: data.result })));
       },
       error: (err) => {
         this.toastr.error("Add Preferences error")
@@ -239,7 +239,7 @@ export class AddEditMapprefDialogComponent {
       next: (rest) => {
         this.toastr.success(`Updated Preferences ${rest.result.name} successfully`);
         this.dialogRef.close();
-        this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPref({ data: data.result })));
+        this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPrefs({ data: data.result })));
       },
       error: (err) => {
         this.toastr.success(`Error while update Preferences`);
