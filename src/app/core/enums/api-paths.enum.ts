@@ -25,6 +25,7 @@ export enum ApiPaths {
   PORTGROUP = '/api/v1/portgroup/',
   PORTGROUP_EXPORT  = '/api/v1/portgroup/export',
   MAP_PREF = '/api/v1/mappref/',
+  APP_PREF = '/api/v1/apppref/',
   GEN_NODE_DATA = '/api/v1/node/gen_data',
   GEN_PG_DATA = '/api/v1/portgroup/gen_data',
   INTERFACE = '/api/v1/interface/',

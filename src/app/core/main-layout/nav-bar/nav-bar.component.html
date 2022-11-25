@@ -89,7 +89,7 @@
     </mat-menu>
     <a mat-button [matMenuTriggerFor]="settings" class="menu-btn">Settings</a>
     <mat-menu #settings="matMenu">
-        <button mat-menu-item [routerLink]="routeSegments.APP_PREFERENCES">
+        <button mat-menu-item (click)="openAppPref()">
             <mat-icon>settings</mat-icon>
             <span>App Preferences</span>
         </button>

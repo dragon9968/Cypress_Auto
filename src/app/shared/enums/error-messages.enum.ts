@@ -9,5 +9,7 @@ export enum ErrorMessages {
   RANGE_LENGTH = 'Field must be between 2 and 20 characters long.',
   MIN_NUMBER = 'The number of users is a number greater than one',
   DEVICE_CATEGORY_NAME_EXIST = 'Device category name already exists, please enter a different name',
-  NODE_NAME_EXIST = 'Node name already exists, please enter a different name'
+  NODE_NAME_EXIST = 'Node name already exists, please enter a different name',
+  FIELD_IS_IP = 'Expected 4 octets and only decimal digits permitted. Invalid IP Address',
+  IP_IN_NETWORK = 'IP Address not cointained in network',
 }

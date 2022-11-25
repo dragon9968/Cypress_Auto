@@ -19,6 +19,8 @@ import { ExportProjectDialogComponent } from 'src/app/project/export-project-dia
 import { ImportProjectDialogComponent } from 'src/app/project/import-project-dialog/import-project-dialog.component';
 import { HelpersService } from "../../services/helpers/helpers.service";
 import { takeUntil } from "rxjs/operators";
+import { AppPreferencesComponent } from 'src/app/settings/app-preferences/app-preferences.component';
+import { AppPrefService } from '../../services/app-pref/app-pref.service';
 
 @Component({
   selector: 'app-nav-bar',
@@ -46,6 +48,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
     private router: Router,
     private store: Store,
     private helpersService: HelpersService,
+    private appPrefService: AppPrefService,
     iconRegistry: MatIconRegistry,
   ) {
     this.selectIsMapOpen$ = this.store.select(selectIsMapOpen).subscribe((isMapOpen: boolean) => {
@@ -200,6 +203,20 @@ export class NavBarComponent implements OnInit, OnDestroy {
         this.close();
         this.destroy$.next(true);
       }
+    })
+  }
+
+  openAppPref() {
+    this.appPrefService.get('2').subscribe(data => {
+      const dialogData = {
+        mode: 'update',
+        genData: data.result
+      }
+      const dialogRef = this.dialog.open(AppPreferencesComponent, {
+        autoFocus: false,
+        width: '600px',
+        data: dialogData
+      });
     })
   }
 }

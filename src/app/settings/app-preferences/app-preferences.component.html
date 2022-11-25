@@ -1,1 +1,94 @@
-<p>app-preferences works!</p>
+<form [formGroup]="appPrefForm" (ngSubmit)="editAppPref()">
+  <h1 mat-dialog-title>Edit App Preference</h1>
+  <div mat-dialog-content>
+    <section>
+      <div class="sub-title">Miscellaneous</div>
+    </section>
+    <mat-divider></mat-divider>
+    <section>
+      <mat-form-field class="field">
+        <mat-label>Session Timeout (m)</mat-label>
+        <input type="number" matInput formControlName="sessionTimeoutCtr" (keypress)="numericOnly($event)">
+        <mat-hint>Set the time before the current session expires</mat-hint>
+        <mat-error *ngIf="sessionTimeoutCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      </mat-form-field>
+    </section>
+    <section>
+      <div class="sub-title">Map</div>
+    </section>
+    <mat-divider></mat-divider>
+    <section>
+      <mat-form-field class="field">
+        <mat-label>Map Preferences</mat-label>
+        <mat-select formControlName="mapPrefCtr">
+          <mat-option *ngFor="let option of listMapPref" [value]="option.name">{{ option.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </section>
+    <section>
+      <div class="sub-title">Public Network</div>
+    </section>
+    <mat-divider></mat-divider>
+    <section>
+      <mat-form-field class="field">
+        <mat-label>Public Network</mat-label>
+        <input type="text" matInput formControlName="publicNetworkCtr">
+        <mat-hint>Set default network space for public network</mat-hint>
+        <mat-error *ngIf="publicNetworkCtr?.errors?.isNotMatchPattern">{{ errorMessages.FIELD_IS_IP }}</mat-error>
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>Public Network Reserved IPs</mat-label>
+        <input type="text" matInput formControlName="publicNetworkIPsCtr">
+        <mat-error *ngIf="publicNetworkIPsCtr?.errors?.isNotMatch">{{ errorMessages.IP_IN_NETWORK }}</mat-error>
+        <mat-error *ngIf="publicNetworkIPsCtr?.errors?.isNotMatchPattern">{{ errorMessages.FIELD_IS_IP }}</mat-error>
+      </mat-form-field>
+    </section>
+    <section>
+      <div class="sub-title">Private Network</div>
+    </section>
+    <mat-divider></mat-divider>
+    <section>
+      <mat-form-field class="field">
+        <mat-label>Private Network</mat-label>
+        <input type="text" matInput formControlName="privateNetworkCtr">
+        <mat-hint>Set default network space for private network</mat-hint>
+        <mat-error *ngIf="privateNetworkCtr?.errors?.isNotMatchPattern">{{ errorMessages.FIELD_IS_IP }}</mat-error>
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>Private Network Reserved IPs</mat-label>
+        <input type="text" matInput formControlName="privateNetworkIPsCtr">
+        <mat-error *ngIf="privateNetworkIPsCtr?.errors?.isNotMatch">{{ errorMessages.IP_IN_NETWORK }}</mat-error>
+        <mat-error *ngIf="privateNetworkIPsCtr?.errors?.isNotMatchPattern">{{ errorMessages.FIELD_IS_IP }}</mat-error>
+      </mat-form-field>
+    </section>
+    <section>
+      <div class="sub-title">Management Network</div>
+    </section>
+    <mat-divider></mat-divider>
+    <section>
+      <mat-form-field class="field">
+        <mat-label>Management Network</mat-label>
+        <input type="text" matInput formControlName="managementNetworkCtr">
+        <mat-hint>Set default network space for management network</mat-hint>
+        <mat-error *ngIf="managementNetworkCtr?.errors?.isNotMatchPattern">{{ errorMessages.FIELD_IS_IP }}</mat-error>
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>Management Network Reserved IPs</mat-label>
+        <input type="text" matInput formControlName="managementNetworkIPsCtr">
+        <mat-error *ngIf="managementNetworkIPsCtr?.errors?.isNotMatch">{{ errorMessages.IP_IN_NETWORK }}</mat-error>
+        <mat-error *ngIf="managementNetworkIPsCtr?.errors?.isNotMatchPattern">{{ errorMessages.FIELD_IS_IP }}</mat-error>
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>DHCP Server</mat-label>
+        <input type="text" matInput formControlName="dhcpServerCtr">
+        <mat-hint>DHCP lease file path</mat-hint>
+      </mat-form-field>
+    </section>
+  </div>
+  <div mat-dialog-actions [align]="'end'" class="create-btn">
+    <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+    <button mat-raised-button color="primary" [disabled]="!appPrefForm.valid">
+      Save
+    </button>
+  </div>
+</form>
