@@ -46,7 +46,8 @@ export class ConfigTemplatesComponent implements OnInit {
       width: 200,
       cellRenderer: ActionsRendersConfigTemplateComponent,
       cellClass: 'config-template-actions',
-      sortable: false
+      sortable: false,
+      getQuickFilterText: () => ''
     },
     { field: 'name',
     },

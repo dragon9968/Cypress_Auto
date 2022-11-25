@@ -51,7 +51,8 @@ export class HardwareComponent implements OnInit, OnDestroy {
       width: 160,
       cellRenderer: ActionsRenderHardwareComponent,
       cellClass: 'hardware-actions',
-      sortable: false
+      sortable: false,
+      getQuickFilterText: () => ''
     },
     {
       field: 'device.name',

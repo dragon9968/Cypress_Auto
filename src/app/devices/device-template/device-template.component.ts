@@ -73,7 +73,8 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
       width: 90,
       cellRenderer: ActionRenderDeviceComponent,
       cellClass: 'devices-actions',
-      sortable: false
+      sortable: false,
+      getQuickFilterText: () => ''
     },
     { field: 'name',
       suppressSizeToFit: true,
@@ -97,7 +98,8 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
       },
       autoHeight: true,
       flex: 1,
-      sortable: false
+      sortable: false,
+      getQuickFilterText: () => ''
     }
   ];
 
@@ -116,7 +118,8 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
       maxWidth: 90,
       cellRenderer: ActionRenderTemplateComponent,
       cellClass: 'template-actions',
-      sortable: false
+      sortable: false,
+      getQuickFilterText: () => ''
     },
     {
       headerName: 'Display Name',
@@ -141,7 +144,8 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
       autoHeight: true,
       suppressSizeToFit: true,
       flex: 1,
-      sortable: false
+      sortable: false,
+      getQuickFilterText: () => ''
     },
     {
       headerName: 'Login',

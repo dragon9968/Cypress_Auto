@@ -53,7 +53,8 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
       width: 160,
       cellRenderer: ActionsRenderMappreComponent,
       cellClass: 'map-preferences-actions',
-      sortable: false
+      sortable: false,
+      getQuickFilterText: () => ''
     },
     {
       field: 'name',
