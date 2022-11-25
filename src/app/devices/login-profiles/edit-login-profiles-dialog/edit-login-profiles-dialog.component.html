@@ -30,7 +30,18 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Extra Args</mat-label>
-      <input type="text" formControlName="extraArgs" matInput [readonly]="isViewMode">
+      <mat-chip-list #chipList>
+        <mat-chip *ngFor="let value of listExtraArgs" [selectable]="selectable"
+                 [removable]="removable" (removed)="remove(value)">
+          {{value}}
+          <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+        </mat-chip>
+        <input placeholder=""
+               [matChipInputFor]="chipList"
+               [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+               [matChipInputAddOnBlur]="addOnBlur"
+               (matChipInputTokenEnd)="addExtraArgs($event)">
+      </mat-chip-list>
     </mat-form-field>
   </div>
   <div mat-dialog-actions [align]="'end'" class="create-btn">

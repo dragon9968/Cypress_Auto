@@ -57,7 +57,21 @@ export class LoginProfilesComponent implements OnInit, OnDestroy {
     { field: 'password'},
     {
       headerName: 'Extra Args',
-      field: 'extra_args'
+      field: 'extra_args',
+      cellRenderer: function(param: any) {
+        if (param.value.length > 0){
+          let html_str = "<div>["
+          for(let i in param.value) {
+            let item_html = `'${param.value[i]}',`;
+            html_str += item_html;
+          }
+          html_str = html_str.slice(0, html_str.lastIndexOf(','))
+          html_str += "]</div>"
+          return html_str;
+        }else {
+          return "<div>[]</div>"
+        }
+      }
     }
   ];
 

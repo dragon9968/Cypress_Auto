@@ -1,5 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
+import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatChipInputEvent } from '@angular/material/chips';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
@@ -14,6 +16,13 @@ import { retrievedLoginProfiles } from 'src/app/store/login-profile/login-profil
 export class EditLoginProfilesDialogComponent implements OnInit {
   loginProfileEditForm!: FormGroup;
   isViewMode = false;
+  listExtraArgs: any[] = [];
+  visible = true;
+  selectable = true;
+  removable = true;
+  addOnBlur = true;
+  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
+
   constructor(
     private loginProfileService: LoginProfileService,
     private formBuilder: FormBuilder,
@@ -40,18 +49,41 @@ export class EditLoginProfilesDialogComponent implements OnInit {
       category: [{value: 'local', disabled: this.isViewMode }],
       extraArgs: [{value: '', disabled: this.isViewMode }],
     });
-    if (this.data) {
+    if (this.data.mode == 'update') {
       this.name?.setValue(this.data.genData.name);
       this.description?.setValue(this.data.genData.description);
       this.username?.setValue(this.data.genData.username);
       this.password?.setValue(this.data.genData.password);
       this.category?.setValue(this.data.genData.category);
-      this.extraArgs?.setValue(this.data.genData.extraArgs);
+      this.data.genData.extra_args.forEach((el : any) => {
+        this.listExtraArgs.push(el);
+      });
     }
   }
 
   onCancel() {
     this.dialogRef.close();
+  }
+
+  addExtraArgs(event: MatChipInputEvent): void {
+    const input = event.input;
+    const value = event.value;
+    if ((value || '').trim()) {
+      if (this.listExtraArgs.indexOf(value.trim()) == -1) {
+        this.listExtraArgs.push(value.trim());
+      };
+    }
+    if (input) {
+      input.value = '';
+    }
+  }
+
+  remove(fruit: any): void {
+    const index = this.listExtraArgs.indexOf(fruit);
+
+    if (index >= 0) {
+      this.listExtraArgs.splice(index, 1);
+    }
   }
 
   addLoginProfile() {
@@ -62,7 +94,7 @@ export class EditLoginProfilesDialogComponent implements OnInit {
         username: this.username?.value,
         password: this.password?.value,
         category: this.category?.value,
-        extra_args: this.extraArgs?.value
+        extra_args: this.listExtraArgs
       }
       this.loginProfileService.add(jsonData).subscribe({
         next:(rest) => {
@@ -85,10 +117,10 @@ export class EditLoginProfilesDialogComponent implements OnInit {
         username: this.username?.value,
         password: this.password?.value,
         category: this.category?.value,
-        extra_args: this.extraArgs?.value
+        extra_args: this.listExtraArgs
       }
       this.loginProfileService.put(this.data.genData.id, jsonData).subscribe(response => {
-        this.toastr.success(`Updated Login Profile ${response.result.name}`);
+        this.toastr.success(`Updated Login Profile ${response.result.name} successfully`);
         this.dialogRef.close();
         this.loginProfileService.getAll().subscribe((data: any) => this.store.dispatch(retrievedLoginProfiles({data: data.result})));
       })

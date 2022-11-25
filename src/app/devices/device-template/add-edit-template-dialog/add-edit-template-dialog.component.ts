@@ -8,6 +8,8 @@ import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { TemplateService } from 'src/app/core/services/template/template.service';
 import { selectIcons } from 'src/app/store/icon/icon.selectors';
 import { selectLoginProfiles } from 'src/app/store/login-profile/login-profile.selectors';
+import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
+import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 
 @Component({
   selector: 'app-add-edit-template-dialog',
@@ -16,6 +18,7 @@ import { selectLoginProfiles } from 'src/app/store/login-profile/login-profile.s
 })
 export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
   templateForm!: FormGroup;
+  errorMessages = ErrorMessages;
   selectIcons$ = new Subscription();
   selectLoginProfiles$ = new Subscription();
   listIcon!: any[];
@@ -41,8 +44,8 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
       name: new FormControl({value: '', disabled: false}, [Validators.required, Validators.minLength(3),
         Validators.maxLength(50)]),
       category: new FormControl(['vm']),
-      icon: new FormControl(''),
-      loginProfile: new FormControl({value: '', disabled: false}),
+      icon: new FormControl('', [autoCompleteValidator(this.listIcon)]),
+      loginProfile: new FormControl({value: '', disabled: false}, [autoCompleteValidator(this.listLoginProfiles)]),
       defaultConfigFile: new FormControl({value: '', disabled: false}),
     })
   }

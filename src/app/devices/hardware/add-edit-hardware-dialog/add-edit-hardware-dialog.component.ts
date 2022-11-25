@@ -16,6 +16,7 @@ import { retrievedHardwares } from 'src/app/store/hardware/hardware.actions';
 import { selectHardwares } from 'src/app/store/hardware/hardware.selectors';
 import { validateNameExist } from "../../../shared/validations/name-exist.validation";
 import { ErrorMessages } from "../../../shared/enums/error-messages.enum";
+import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 
 @Component({
   selector: 'app-add-edit-hardware-dialog',
@@ -59,21 +60,19 @@ export class AddEditHardwareDialogComponent implements OnInit {
     );
     this.isViewMode = this.data.mode == 'view';
     this.hardwareForm = new FormGroup({
-      device: new FormControl({value: '', disabled: this.isViewMode}),
-      template: new FormControl({value: '', disabled: this.isViewMode}),
+      device: new FormControl({value: '', disabled: this.isViewMode}, [autoCompleteValidator(this.listDevices)]),
+      template: new FormControl({value: '', disabled: this.isViewMode}, [autoCompleteValidator(this.filteredTemplates)]),
       serialNumber: new FormControl({value: '', disabled: this.isViewMode},
         [Validators.required, validateNameExist(() => this.hardwares, this.data.mode, this.data.genData.id, 'serial_number')]),
       assetTag: new FormControl({value: '', disabled: this.isViewMode})
     });
-    if (this.data) {
-      this.device?.setValue(this.data.genData.device);
-      this.template?.setValue(this.data.genData.template);
-      this.serialNumber?.setValue(this.data.genData.serial_number);
-      this.assetTag?.setValue(this.data.genData.asset_tag);
-    }
   }
 
   ngOnInit(): void {
+    this.helpers.setAutoCompleteValue(this.device, this.listDevices, this.data.genData.device.id);
+    this.helpers.setAutoCompleteValue(this.template, this.filteredTemplates, this.data.genData.template.id);
+    this.serialNumber?.setValue(this.data.genData.serial_number);
+    this.assetTag?.setValue(this.data.genData.asset_tag);
   }
 
   ngOnDestroy(): void {
@@ -82,8 +81,8 @@ export class AddEditHardwareDialogComponent implements OnInit {
     this.selectHardwares$.unsubscribe();
   }
 
-  get device() { return this.hardwareForm.get('device')};
-  get template() { return this.hardwareForm.get('template')};
+  get device() { return this.helpers.getAutoCompleteCtr(this.hardwareForm.get('device'), this.listDevices); }
+  get template() { return this.helpers.getAutoCompleteCtr(this.hardwareForm.get('template'), this.filteredTemplates); }
   get serialNumber() { return this.hardwareForm.get('serialNumber')};
   get assetTag() { return this.hardwareForm.get('assetTag')};
 
