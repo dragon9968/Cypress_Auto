@@ -42,7 +42,6 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
   collectionId: any;
   getExternalParams: (() => any) | any;
   tabName!: string;
-  isLoading = false;
 
   constructor(
     private store: Store,
@@ -77,7 +76,6 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
 
   viewInfoPanel() {
     this._setDataBasedOnTab();
-    this.isLoading = true;
     if (this.domainId) {
       this.domainService.get(this.domainId).subscribe(domainData => {
         const dialogData = {
@@ -85,7 +83,6 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
           genData: domainData.result
         };
         this.dialog.open(AddUpdateDomainDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
-        this.isLoading = false;
       })
     } else if (this.groupId) {
       this.groupService.get(this.groupId).subscribe(groupData => {
@@ -96,7 +93,6 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
           map_category: 'logical'
         };
         this.dialog.open(AddUpdateGroupDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
-        this.isLoading = false;
       })
     } else if (this.userTaskId) {
       this.userTaskService.get(this.userTaskId).subscribe(userTaskData => {
@@ -105,7 +101,6 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
           genData: userTaskData.result
         }
         this.dialog.open(ShowUserTaskDialogComponent, {width: `${screen.width}px`, autoFocus: false, data: dialogData})
-        this.isLoading = false;
       })
     } else if (this.interfaceId) {
       this.interfaceService.get(this.interfaceId).subscribe(interfaceData => {
@@ -114,7 +109,6 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
           genData: interfaceData.result,
         }
         this.dialog.open(AddUpdateInterfaceDialogComponent, {width: '600px', data: dialogData});
-        this.isLoading = false;
       });
     } else if (this.pgId) {
       this.portGroupService.get(this.pgId).subscribe(pgData => {
@@ -123,7 +117,6 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
           genData: pgData.result,
         }
         this.dialog.open(AddUpdatePGDialogComponent, {width: '600px', data: dialogData});
-        this.isLoading = false;
       });
     } else if (this.nodeId) {
       this.nodeService.get(this.nodeId).subscribe(nodeData => {
@@ -132,14 +125,12 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
           genData: nodeData.result,
         }
         this.dialog.open(AddUpdateNodeDialogComponent, {width: '600px', data: dialogData});
-        this.isLoading = false;
       });
     }
   }
 
   editInfoPanel() {
     this._setDataBasedOnTab();
-    this.isLoading = true;
     if (this.pgId) {
       this.portGroupService.get(this.pgId).subscribe(pgData => {
         const dialogData = {
@@ -148,7 +139,6 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
           cy: this.getExternalParams().cy
         }
         this.dialog.open(AddUpdatePGDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
-        this.isLoading = false;
       });
     } else if (this.nodeId) {
       this.nodeService.get(this.nodeId).subscribe(nodeData => {
@@ -158,7 +148,6 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
           cy: this.getExternalParams().cy
         }
         this.dialog.open(AddUpdateNodeDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
-        this.isLoading = false;
       });
     } else if (this.interfaceId) {
       this.interfaceService.get(this.interfaceId).subscribe(interfaceData => {
@@ -168,7 +157,6 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
           cy: this.getExternalParams().cy
         }
         this.dialog.open(AddUpdateInterfaceDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
-        this.isLoading = false;
       })
     } else if (this.domainId) {
       this.domainService.get(this.domainId).subscribe(domainData => {
@@ -177,7 +165,6 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
           genData: domainData.result
         };
         this.dialog.open(AddUpdateDomainDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
-        this.isLoading = false;
       })
     } else if (this.groupId) {
       this.groupService.get(this.groupId).subscribe(groupData => {
@@ -188,7 +175,6 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
             map_category: 'logical'
           };
           this.dialog.open(AddUpdateGroupDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
-          this.isLoading = false;
         }
       )
     } else if (this.domainUserId) {
@@ -199,7 +185,6 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
               domain: domainData.result
             };
             this.dialog.open(UpdateDomainUserDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
-            this.isLoading = false;
           }
         )
       })
@@ -258,7 +243,6 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
 
   openDomainUsers() {
     this._setDataBasedOnTab();
-    this.isLoading = true;
     this.domainService.get(this.domainId).subscribe( domainResponse => {
       this.domainUserService.getDomainUserByDomainId(this.domainId).subscribe(data => {
         const dialogData = {
@@ -267,7 +251,6 @@ export class InfoPanelRenderComponent implements ICellRendererAngularComp, OnIni
         }
         this.dialog.open(DomainUserDialogComponent,
           {width: `${screen.width}px`, height: `${screen.height*.7}px`, data: dialogData});
-        this.isLoading = false;
       })
     })
   }

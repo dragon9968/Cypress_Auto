@@ -40,8 +40,8 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
   deviceId!: string;
   quickFilterValueDevices = '';
   quickFilterValueTemplates = '';
-  rowsSelected: any[] = [];
-  rowsSelectedId: any[] = [];
+  rowsSelectedTemplate: any[] = [];
+  rowsSelectedTemplateId: any[] = [];
   selectDevices$ = new Subscription();
   selectTemplates$ = new Subscription();
   selectIsDeviceChange$ = new Subscription();
@@ -175,10 +175,24 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
     private helpers: HelpersService,
   ) {
     this.selectDevices$ = this.store.select(selectDevices).subscribe((devicesData: any) => {
-      this.rowDataDevices$ = of(devicesData);
+      if (devicesData) {
+        if (this.agGrid1) {
+          this.agGrid1.api.setRowData(devicesData);
+        } else {
+          this.rowDataDevices$ = of(devicesData);
+        }
+        this.updateRowDevice();
+      }
     });
     this.selectTemplates$ = this.store.select(selectTemplates).subscribe((templateData: any) => {
-      this.rowDataTemplate$ = of(templateData);
+      if (templateData) {
+        if (this.agGrid2) {
+          this.agGrid2.api.setRowData(templateData);
+        } else {
+          this.rowDataTemplate$ = of(templateData);
+        }
+        this.updateRowDeviceTemplate();
+      }
     });
     this.selectIsDeviceChange$ = this.store.select(selectIsDeviceChange).subscribe(isDeviceChange => {
       if (isDeviceChange) {
@@ -235,8 +249,8 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
   }
 
   selectedRows() {
-    this.rowsSelected = this.agGrid2.api.getSelectedRows();
-    this.rowsSelectedId = this.rowsSelected.map(ele => ele.id);
+    this.rowsSelectedTemplate = this.agGrid2.api.getSelectedRows();
+    this.rowsSelectedTemplateId = this.rowsSelectedTemplate.map(ele => ele.id);
   }
 
   selectedRowsDevice () {
@@ -310,11 +324,11 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
   }
 
   exportTemplate() {
-    if (this.rowsSelectedId.length == 0) {
+    if (this.rowsSelectedTemplateId.length == 0) {
       this.toastr.info('No row selected');
-    }else {
+    } else {
       let file = new Blob();
-      this.templateService.export(this.rowsSelectedId).subscribe(response => {
+      this.templateService.export(this.rowsSelectedTemplateId).subscribe(response => {
       file = new Blob([JSON.stringify(response, null, 4)], {type: 'application/json'});
       this.helpers.downloadBlob('Templates-Export.json', file);
       this.toastr.success(`Exported Templates as ${'json'.toUpperCase()} file successfully`);
@@ -326,6 +340,26 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
     this.isDisableTemplate = true;
     this.large = true;
     this.isHiddenTable = true;
-    this.gridApi.deselectAll();
+    this.agGrid1.api.deselectAll();
+  }
+
+  updateRowDevice() {
+    if (this.rowSelectedDeviceId.length > 0 && this.agGrid1) {
+      this.agGrid1.api.forEachNode(rowNode => {
+        if (this.rowSelectedDeviceId.includes(rowNode.data.id)) {
+          rowNode.setSelected(true);
+        }
+      })
+    }
+  }
+
+  updateRowDeviceTemplate() {
+    if (this.rowsSelectedTemplateId.length > 0 && this.agGrid2) {
+      this.agGrid2.api.forEachNode(rowNode => {
+        if (this.rowsSelectedTemplateId.includes(rowNode.data.id)) {
+          rowNode.setSelected(true);
+        }
+      })
+    }
   }
 }

@@ -5,18 +5,13 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
-import { DeviceCategoryService } from 'src/app/core/services/device-category/device-category.service';
 import { DeviceService } from 'src/app/core/services/device/device.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
-import { IconService } from 'src/app/core/services/icon/icon.service';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
-import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
-import { retrievedDeviceCategories } from 'src/app/store/device-category/device-category.actions';
 import { selectDeviceCategories } from 'src/app/store/device-category/device-category.selectors';
 import { retrievedDevices } from 'src/app/store/device/device.actions';
 import { selectDevices } from 'src/app/store/device/device.selectors';
-import { retrievedIcons } from 'src/app/store/icon/icon.actions';
 import { selectIcons } from 'src/app/store/icon/icon.selectors';
 
 @Component({
@@ -63,7 +58,7 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
       this.name?.setValue(this.data.genData.name);
     }
    }
-  
+
    get name() {return this.deviceForm.get('name')}
    get category() {return this.deviceForm.get('category')}
    get icon() { return this.helpers.getAutoCompleteCtr(this.deviceForm.get('icon'), this.listIcon); }
@@ -113,6 +108,7 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
     }
     this.deviceService.put(jsonData).subscribe({
       next: (rest) => {
+        this.deviceService.getAll().subscribe((data: any) => this.store.dispatch(retrievedDevices({data: data.result})));
         this.toastr.success(`Update Device successfully`)
         this.dialogRef.close();
       },
@@ -142,5 +138,5 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
       this.listDeviceCategory = this.listDeviceCategory.filter(value => value.id != val.id)
     });
   }
-  
+
 }

@@ -8,6 +8,7 @@ import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { TemplateService } from 'src/app/core/services/template/template.service';
 import { selectIcons } from 'src/app/store/icon/icon.selectors';
 import { selectLoginProfiles } from 'src/app/store/login-profile/login-profile.selectors';
+import { retrievedTemplates } from "../../../store/template/template.actions";
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 
@@ -84,6 +85,10 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
     }
     this.templateService.add(jsonData).subscribe({
       next: (rest) => {
+        this.templateService.getAll().subscribe((data: any)  => {
+          let templateData = data.result.filter((val: any) => val.device_id === this.data.genData.deviceId);
+          this.store.dispatch(retrievedTemplates({ data: templateData }));
+        })
         this.toastr.success('Added template successfully', 'Success')
         this.dialogRef.close();
       },
@@ -104,6 +109,10 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
     }
     this.templateService.put(this.data.genData.id, jsonData).subscribe({
       next: (rest) => {
+        this.templateService.getAll().subscribe((data: any)  => {
+          let templateData = data.result.filter((val: any) => val.device_id === this.data.deviceId);
+          this.store.dispatch(retrievedTemplates({ data: templateData }));
+        })
         this.toastr.success(`Updated template successfully`, 'Success')
         this.dialogRef.close();
       },

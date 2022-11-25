@@ -8,7 +8,6 @@ import { ServerConnectService } from 'src/app/core/services/server-connect/serve
 import { retrievedServerConnect } from 'src/app/store/server-connect/server-connect.actions';
 import { selectServerConnects } from 'src/app/store/server-connect/server-connect.selectors';
 import { Router } from '@angular/router';
-import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { ToastrService } from 'ngx-toastr';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { ConnectionActionsRendererComponent } from '../renderers/connection-actions/connection-actions-renderer.component';
@@ -70,7 +69,12 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
     private helpers: HelpersService
   ) {
     this.selectServerConnect$ = this.store.select(selectServerConnects).subscribe((data: any) => {
-      this.rowData$ = of(data);
+      if (this.gridApi) {
+        this.gridApi.setRowData(data)
+      } else {
+        this.rowData$ = of(data);
+      }
+      this.updateRowConnectionProfile();
     })
     iconRegistry.addSvgIcon('export_json', this.helpers.setIconPath('/assets/icons/export_json.svg'));
   }
@@ -96,13 +100,17 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
   clearParameters() {
     if (this.rowsSelectedId.length == 0) {
       this.toastr.info('No row selected');
-    }else {
+    } else {
       this.serverConnectService.clearParameters(this.rowsSelectedId).subscribe({
-        next:(rest) => {
-          this.router.navigate([RouteSegments.CONNECTION_PROFILES]).then(() => {
-            window.location.reload();
-          });
+        next: (rest) => {
+          this.toastr.success('Cleared parameter(s) successfully', 'Success');
+          this.serverConnectService.getAll().subscribe(
+            (data: any) => this.store.dispatch(retrievedServerConnect({data: data.result}))
+          );
         },
+        error: err => {
+          this.toastr.error('Clear parameter(s) failed', 'Error');
+        }
       })
     }
   }
@@ -110,14 +118,13 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
   exportJson() {
     if (this.rowsSelectedId.length == 0) {
       this.toastr.info('No row selected');
-    }else {
+    } else {
       let file = new Blob();
       this.serverConnectService.exportJson(this.rowsSelectedId).subscribe(response => {
         file = new Blob([JSON.stringify(response, null, 4)], {type: 'application/json'});
         this.helpers.downloadBlob('Connection-Export.json', file);
         this.toastr.success(`Exported connection as ${'json'.toUpperCase()} file successfully`);
       })
-      this.gridApi.deselectAll();
     }
   }
 
@@ -129,10 +136,9 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
         if (response) {
           if (response.status_msg == "success") {
             this.toastr.success(response.message);
-          }else {
+          } else {
             this.toastr.error(response.message);
           }
-          this.gridApi.deselectAll();
         }
       });
     }
@@ -141,15 +147,14 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
   loginCheck() {
     if (this.rowsSelectedId.length == 0) {
       this.toastr.info('No row selected');
-    }else {
+    } else {
       this.serverConnectService.loginCheck(this.rowsSelectedId).subscribe(response => {
         if (response) {
           if (response.status_msg == "success") {
             this.toastr.success(response.message);
-          }else {
+          } else {
             this.toastr.error(response.message);
           }
-          this.gridApi.deselectAll();
         }
       });
     }
@@ -157,5 +162,15 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
 
   onQuickFilterInput(e: any) {
     this.gridApi.setQuickFilter(e.target.value);
+  }
+
+  updateRowConnectionProfile() {
+    if (this.rowsSelectedId.length > 0 && this.gridApi) {
+      this.gridApi.forEachNode(rowNode => {
+        if (this.rowsSelectedId.includes(rowNode.data.id)) {
+          rowNode.setSelected(true);
+        }
+      })
+    }
   }
 }
