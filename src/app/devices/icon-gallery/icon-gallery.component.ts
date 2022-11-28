@@ -11,6 +11,7 @@ import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { retrievedIcons } from 'src/app/store/icon/icon.actions';
 import { selectIcons } from 'src/app/store/icon/icon.selectors';
 import { AddEditIconDialogComponent } from './add-edit-icon-dialog/add-edit-icon-dialog.component';
+import { PageEvent } from "@angular/material/paginator";
 
 @Component({
   selector: 'app-icon-gallery',
@@ -24,6 +25,10 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
   selectIcons$ = new Subscription();
   listIcons!: any[];
   ICON_PATH = ICON_PATH;
+  pageIndex = 0;
+  pageSize = 25;
+  totalSize = 0;
+  activePageDataChunk: any[] = [];
   constructor(
     private store: Store,
     private toastr: ToastrService,
@@ -33,7 +38,12 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
     iconRegistry: MatIconRegistry,
   ) {
     this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
-      this.listIcons = icons;
+      if (icons) {
+        this.listIcons = icons;
+        this.totalSize = this.listIcons.length;
+        this.activePageDataChunk = this.listIcons.slice(0, this.pageSize);
+      }
+
     });
     iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
    }
@@ -60,7 +70,7 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
         this.selectedIcon.push(element.id);
       })
 
-    }else {
+    } else {
       this.selectedIcon.splice(0, this.selectedIcon.length);
     }
   }
@@ -147,5 +157,11 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
         data: dialogData
       });
     });
+  }
+
+  onPageChanged(event: PageEvent) {
+    const firstCut = event.pageIndex * event.pageSize;
+    const secondCut = firstCut + event.pageSize;
+    this.activePageDataChunk = this.listIcons.slice(firstCut, secondCut);
   }
 }

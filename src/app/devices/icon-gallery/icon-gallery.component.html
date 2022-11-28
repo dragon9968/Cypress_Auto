@@ -18,7 +18,7 @@
       <mat-checkbox color="primary" [(ngModel)]="checked" (change)="selectAll($event)"><strong>Select All</strong></mat-checkbox>
     </div>
     <mat-grid-list cols="4" rowHeight="1:1">
-      <mat-grid-tile *ngFor="let icon of listIcons;">
+      <mat-grid-tile *ngFor="let icon of activePageDataChunk">
         <mat-card class="icon-container">
           <mat-checkbox class="checkbox-icons" color="primary" [checked]="checked" (change)="getId(icon, $event)"></mat-checkbox>
           <mat-card-title>Icon</mat-card-title>
@@ -47,5 +47,13 @@
         </mat-card>
       </mat-grid-tile>
     </mat-grid-list>
+    <mat-paginator
+                [length]="totalSize"
+                [pageIndex]="pageIndex"
+                [pageSize]="pageSize"
+                [pageSizeOptions]="[5, 10, 25, 50, 100]"
+                aria-label="Select page"
+                (page)="onPageChanged($event)">
+    </mat-paginator>
   </mat-card-content>
 </mat-card>

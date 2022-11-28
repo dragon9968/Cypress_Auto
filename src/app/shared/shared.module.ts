@@ -31,6 +31,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SpinnerComponent } from './components/spinner/spinner.component';
+import { MatPaginatorModule } from "@angular/material/paginator";
 
 
 const materialModules = [
@@ -56,7 +57,8 @@ const materialModules = [
   MatSelectModule,
   MatGridListModule,
   MatChipsModule,
-  MatProgressSpinnerModule
+  MatProgressSpinnerModule,
+  MatPaginatorModule
 ];
 
 @NgModule({
