@@ -98,7 +98,7 @@ export class AddEditMapprefDialogComponent {
       mapGridCtr: new FormControl({ value: false, disabled: this.isViewMode }),
       snapToGridCtr: new FormControl({ value: false, disabled: this.isViewMode }),
       gridSpacingCtr: new FormControl({ value: this.listDefaultMapPref[0].grid_spacing, disabled: this.isViewMode }),
-      zoomSpeedCtr: new FormControl({ value: 0.1, disabled: this.isViewMode }),
+      zoomSpeedCtr: new FormControl({ value: 0.1, disabled: false }),
       defaultIconCtr: new FormControl({ value: this.icon_default[0], disabled: false }),
       edgeArrowDirectionCtr: new FormControl({ value: this.listDefaultMapPref[0].edge_arrow_direction, disabled: this.isViewMode }),
       edgeArrowSizeCtr: new FormControl({ value: this.listDefaultMapPref[0].edge_arrow_size, disabled: this.isViewMode }),

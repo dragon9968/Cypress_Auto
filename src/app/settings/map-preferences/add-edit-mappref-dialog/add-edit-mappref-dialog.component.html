@@ -26,6 +26,10 @@
       <div [innerHTML]="textDefaults"></div>
     </div>
     <mat-form-field class="field">
+      <mat-label>Zoom Speed </mat-label>
+      <input type="text" formControlName="zoomSpeedCtr" matInput [readonly]="isViewMode">
+    </mat-form-field>
+    <mat-form-field class="field">
       <mat-label>None</mat-label>
       <input type="text" formControlName="defaultIconCtr" matInput [readonly]="isViewMode">
     </mat-form-field>
