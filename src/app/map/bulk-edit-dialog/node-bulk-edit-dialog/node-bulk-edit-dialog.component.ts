@@ -149,6 +149,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
         .subscribe(() => {
           this.helpers.reloadGroupBoxes(this.data.cy);
           this.store.dispatch(retrievedMapEdit({ data: { nodeEditedData } }));
+          this.store.dispatch(retrievedMapSelection({ data: true }));
           this.dialogRef.close();
           this.toastr.success(response.message, 'Success');
         });

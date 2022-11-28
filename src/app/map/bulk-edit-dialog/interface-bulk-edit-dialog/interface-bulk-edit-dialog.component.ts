@@ -110,6 +110,7 @@ export class InterfaceBulkEditDialogComponent implements OnDestroy {
             this.store.dispatch(retrievedInterfacesByIds({ data: response.result }));
           })
           this.store.dispatch(retrievedMapEdit({ data: { interfaceEditedData } }));
+          this.store.dispatch(retrievedMapSelection({ data: true }));
           this.dialogRef.close();
           this.toastr.success(response.message);
         });

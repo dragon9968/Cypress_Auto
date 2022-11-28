@@ -223,32 +223,6 @@ export class ToolPanelEditComponent implements OnDestroy {
     })[0];
   }
 
-  deleteNodes() {
-    this.commonService.delete(
-      this.cy,
-      this.activeNodes,
-      this.activePGs,
-      this.activeEdges,
-      this.activeGBs,
-    );
-  }
-
-  lockNodes() {
-    this.cmLockUnlockService.lockNodes(this.cy, this.activeNodes, this.activePGs);
-  }
-
-  unlockNodes() {
-    this.cmLockUnlockService.unlockNodes(this.activeNodes, this.activePGs);
-  }
-
-  collapse() {
-    this.cmGroupBoxService.collapse(this.cy, this.activeGBs);
-  }
-
-  expand() {
-    this.cmGroupBoxService.expand(this.cy, this.activeGBs);
-  }
-
   increaseZIndex() {
     this.activeGBs.concat(this.activeMBs).map(ele => {
       this.cmGroupBoxService.moveUp(ele);

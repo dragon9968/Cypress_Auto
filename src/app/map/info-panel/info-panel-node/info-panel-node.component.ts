@@ -77,13 +77,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
         if (this.gridApi != null) {
           this.gridApi.setRowData(rowData);
         }
-        if (this.rowsSelectedId.length > 0 && this.gridApi) {
-          this.gridApi.forEachNode(rowNode => {
-            if (this.rowsSelectedId.includes(rowNode.data.id)) {
-              rowNode.setSelected(true);
-            }
-          })
-        }
+        this.setRowActive();
       });
     }
   }
@@ -232,9 +226,10 @@ export class InfoPanelNodeComponent implements OnDestroy {
     if (this.rowsSelected.length === 0) {
       this.toastr.info('No row selected');
     } else {
+      const message = this.rowsSelected.length === 1 ? 'Clone this node?' : 'Clone those nodes?';
       const dialogData = {
         title: 'User confirmation needed',
-        message: 'Clone this node?',
+        message: message,
         submitButtonName: 'OK'
       }
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
@@ -327,5 +322,16 @@ export class InfoPanelNodeComponent implements OnDestroy {
     this.rowsSelected = [];
     this.rowsSelectedId = [];
     this.gridApi.setRowData([]);
+  }
+
+  setRowActive() {
+    if (this.activeNodes.length > 0 && this.gridApi) {
+      this.gridApi.forEachNode(rowNode => {
+        const activeNodeIds = this.activeNodes.map(ele => ele.data('node_id'));
+        if (activeNodeIds.includes(rowNode.data.id)) {
+          rowNode.setSelected(true);
+        }
+      })
+    }
   }
 }

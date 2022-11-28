@@ -195,6 +195,7 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
         if (this.gridApi != null) {
           this.gridApi.setRowData(rowData);
         }
+        this.setRowActive();
       });
     }
   }
@@ -288,6 +289,7 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
               return throwError(() => e);
             })
           ).subscribe(response => {
+            this.store.dispatch(retrievedMapSelection({data: true}));
             response.result.map((ele: any) => {
               const element = this.cy.getElementById('pg-' + ele.id);
               element.data('subnet', ele.subnet);
@@ -319,5 +321,16 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
     this.rowsSelected = [];
     this.rowsSelectedId = [];
     this.gridApi.setRowData([]);
+  }
+
+  setRowActive() {
+    if (this.activePGs.length > 0 && this.gridApi) {
+      this.gridApi.forEachNode(rowNode => {
+        const activePGIds = this.activePGs.map(ele => ele.data('pg_id'));
+        if (activePGIds.includes(rowNode.data.id)) {
+          rowNode.setSelected(true);
+        }
+      })
+    }
   }
 }

@@ -88,6 +88,7 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
         }));
       }))
         .subscribe(() => {
+          this.store.dispatch(retrievedMapSelection({data: true}));
           this.store.dispatch(retrievedMapEdit({ data: { pgEditedData } }));
           this.helpers.reloadGroupBoxes(this.data.cy);
           this.dialogRef.close();

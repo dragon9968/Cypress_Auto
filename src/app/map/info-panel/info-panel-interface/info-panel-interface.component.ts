@@ -204,13 +204,7 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
         if (this.gridApi != null) {
           this.gridApi.setRowData(rowData);
         }
-        if (this.rowsSelectedId.length > 0 && this.gridApi) {
-          this.gridApi.forEachNode(rowNode => {
-            if (this.rowsSelectedId.includes(rowNode.data.id)) {
-              rowNode.setSelected(true);
-            }
-          })
-        }
+        this.setRowActive();
       });
     }
   }
@@ -285,6 +279,7 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
             response.message.map((message: string) => {
               this.toastr.success(message);
             });
+            this.store.dispatch(retrievedMapSelection({data: true}));
             this.store.select(selectInterfaces).subscribe(interfaces => {
               const interfaceIds = interfaces.map((ele: any) => ele.data.id);
               this.interfaceService.getDataByPks({pks: interfaceIds}).subscribe(response => {
@@ -316,5 +311,16 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
     this.rowsSelected = [];
     this.rowsSelectedId = [];
     this.gridApi.setRowData([]);
+  }
+
+  setRowActive() {
+    if (this.activeEdges.length > 0 && this.gridApi) {
+      this.gridApi.forEachNode(rowNode => {
+        const activeEdgeIds = this.activeEdges.map(ele => ele.data('interface_id'));
+        if (activeEdgeIds.includes(rowNode.data.id)) {
+          rowNode.setSelected(true);
+        }
+      })
+    }
   }
 }
