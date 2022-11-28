@@ -9,7 +9,6 @@ import { MapPrefService } from 'src/app/core/services/map-pref/map-pref.service'
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { ipInNetworkValidator } from 'src/app/shared/validations/ip-innetwork.validation';
 import { ipValidator } from 'src/app/shared/validations/ip.validation';
-import { retrievedAppPref } from 'src/app/store/app-pref/app-pref.actions';
 import { selectAppPref } from 'src/app/store/app-pref/app-pref.selectors';
 import { retrievedMapPrefs } from 'src/app/store/map-pref/map-pref.actions';
 import { selectMapPrefs } from 'src/app/store/map-pref/map-pref.selectors';
@@ -53,11 +52,14 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
     });
 
     if (this.data) {
-      this.sessionTimeoutCtr?.setValue(this.data.genData.preferences.session_timeout)
-      this.mapPrefCtr?.setValue(this.data.genData.preferences.map_preferences)
-      this.publicNetworkCtr?.setValue(this.data.genData.preferences.public_network)
-      this.privateNetworkCtr?.setValue(this.data.genData.preferences.network)
-      this.managementNetworkCtr?.setValue(this.data.genData.preferences.management_network)
+      this.sessionTimeoutCtr?.setValue(this.data.genData.preferences.session_timeout);
+      this.mapPrefCtr?.setValue(this.data.genData.preferences.map_preferences);
+      this.publicNetworkCtr?.setValue(this.data.genData.preferences.public_network);
+      this.publicNetworkIPsCtr?.setValue(this.data.genData.preferences.reserved_ip.map((i: any) => i.ip).join(','));
+      this.privateNetworkCtr?.setValue(this.data.genData.preferences.network);
+      this.privateNetworkIPsCtr?.setValue(this.data.genData.preferences.private_reserved_ip.map((i: any) => i.ip).join(','));
+      this.managementNetworkCtr?.setValue(this.data.genData.preferences.management_network);
+      this.managementNetworkIPsCtr?.setValue(this.data.genData.preferences.management_reserved_ip.map((i: any) => i.ip).join(','));
     }
   }
 
@@ -103,20 +105,19 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
       session_timeout: this.sessionTimeoutCtr?.value,
       map_preferences: this.mapPrefCtr?.value,
       public_network: this.publicNetworkCtr?.value,
-      public_reserved_ip: this.processForm(this.publicNetworkIPsCtr?.value.trim()),
+      public_reserved_ip: this.processForm(this.publicNetworkIPsCtr?.value),
       private_network: this.privateNetworkCtr?.value,
-      private_reserved_ip: this.processForm(this.privateNetworkIPsCtr?.value.trim()),
+      private_reserved_ip: this.processForm(this.privateNetworkIPsCtr?.value),
       management_network: this.managementNetworkCtr?.value,
-      management_reserved_ip: this.processForm(this.managementNetworkIPsCtr?.value.trim()),
+      management_reserved_ip: this.processForm(this.managementNetworkIPsCtr?.value),
       management_dhcp_lease: this.dhcpServerCtr?.value,
     }
     this.appPrefService.put(this.data.genData.id, jsonData).pipe(
       catchError((error: any) => {
         this.toastr.error(`Edit App Preferences failed due to ${error.messages}`, 'Error');
-        return throwError(error.messages);
+        return throwError(() => error.messages);
       })
     ).subscribe(response => {
-      this.appPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedAppPref({data: data.result})));
       this.toastr.success(`Changed App Preferences`, 'Success');
       this.dialogRef.close();
     });
