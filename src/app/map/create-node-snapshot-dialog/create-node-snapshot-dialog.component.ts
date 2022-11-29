@@ -6,6 +6,7 @@ import { catchError, throwError } from 'rxjs';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
+import { ServerConnectService } from "../../core/services/server-connect/server-connect.service";
 
 @Component({
   selector: 'app-create-node-snapshot-dialog',
@@ -18,6 +19,7 @@ export class CreateNodeSnapshotDialogComponent {
   constructor(
     private taskService: TaskService,
     private toastr: ToastrService,
+    private serverConnectionService: ServerConnectService,
     public dialogRef: MatDialogRef<CreateNodeSnapshotDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public helpers: HelpersService,
@@ -35,9 +37,11 @@ export class CreateNodeSnapshotDialogComponent {
   }
 
   create() {
+    const connection = this.serverConnectionService.getConnection();
     const jsonData = {
       job_name: 'create_snapshot',
       pks: this.data.activeNodes.map((ele: any) => ele.data('node_id')).join(","),
+      connection_id: connection ? connection.id : 0,
       snapshot_name: this.nameCtr?.value,
     };
     this.taskService.add(jsonData).pipe(

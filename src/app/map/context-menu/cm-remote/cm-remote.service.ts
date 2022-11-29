@@ -11,6 +11,7 @@ import { CreateNodeSnapshotDialogComponent } from '../../create-node-snapshot-di
 import { DeleteNodeSnapshotDialogComponent } from '../../delete-node-snapshot-dialog/delete-node-snapshot-dialog.component';
 import { RevertNodeSnapshotDialogComponent } from "../../revert-node-snapshot-dialog/revert-node-snapshot-dialog.component";
 import { DeleteNodeDeployDialogComponent } from "../../delete-node-deploy-dialog/delete-node-deploy-dialog.component";
+import { ProjectService } from 'src/app/project/services/project.service';
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +25,7 @@ export class CMRemoteService {
     private nodeService: NodeService,
     private infoPanelService: InfoPanelService,
     private serverConnectionService: ServerConnectService,
+    private projectService: ProjectService
   ) { }
 
   getMenu(activeNodes: any[]) {
@@ -162,8 +164,10 @@ export class CMRemoteService {
           selector: "node[icon]",
           onClickFunction: (event: any) => {
             if (activeNodes.length >= 1) {
+              const collectionId = this.projectService.getCollectionId()
+              const connection = this.serverConnectionService.getConnection();
               const pks = activeNodes.map(ele => ele.data('node_id'));
-              this.nodeService.getSnapshots({pks: pks}).subscribe({
+              this.nodeService.getSnapshots({pks: pks, collection_id: collectionId, connection_id: connection ? connection?.id : 0}).subscribe({
                 next: response => {
                   const dialogData = {
                     activeNodes,
@@ -185,8 +189,10 @@ export class CMRemoteService {
           selector: "node[icon]",
           onClickFunction: (event: any) => {
             if (activeNodes.length >= 1) {
+              const collectionId = this.projectService.getCollectionId()
+              const connection = this.serverConnectionService.getConnection();
               const pks = activeNodes.map(ele => ele.data('node_id'));
-              this.nodeService.getSnapshots({pks: pks}).subscribe({
+              this.nodeService.getSnapshots({pks: pks, collection_id: collectionId, connection_id: connection ? connection?.id : 0}).subscribe({
                 next: response => {
                   const dialogData = {
                     activeNodes,
