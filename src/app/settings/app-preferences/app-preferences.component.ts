@@ -60,6 +60,7 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
       this.privateNetworkIPsCtr?.setValue(this.data.genData.preferences.private_reserved_ip.map((i: any) => i.ip).join(','));
       this.managementNetworkCtr?.setValue(this.data.genData.preferences.management_network);
       this.managementNetworkIPsCtr?.setValue(this.data.genData.preferences.management_reserved_ip.map((i: any) => i.ip).join(','));
+      this.dhcpServerCtr?.setValue(this.data.genData.preferences.management_dhcp_lease);
     }
   }
 
