@@ -104,12 +104,32 @@ export class ShowConfigTemplateDialogComponent implements OnInit {
         }
         this.configTemplateService.deleteConfiguration(this.data.genData.id, jsonData).subscribe({
           next: (rest) => {
-            this.toastr.success(`Delete Configuration Template successfully`);
+            if (jsonData.category == "static_route") {
+              this.toastr.success("Delete Static Routes successfully");
+            } else if (jsonData.category == "domain_membership" || jsonData.category == "ou_path") {
+              this.toastr.success("Delete Domain Membership successfully");
+            } else if (jsonData.category == "firewall_rule") {
+              this.toastr.success("Delete Firewall Rules successfully");
+            } else if (jsonData.category == "role_services") {
+              this.toastr.success("Delete Roles & Services successfully");
+            } else {
+              this.toastr.success("Delete Configuration Template successfully");
+            }
             this.dialogRef.close();
             this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
           },
           error: (error) => {
-            this.toastr.error(`Error while delete Configuration Template`);
+            if (jsonData.category == "static_route") {
+              this.toastr.success("Error while deleting Static Routes");
+            } else if (jsonData.category == "domain_membership" || jsonData.category == "ou_path") {
+              this.toastr.success("Error while deleting Domain Membership");
+            } else if (jsonData.category == "firewall_rule") {
+              this.toastr.success("Error while deleting Firewall Rules");
+            } else if (jsonData.category == "role_services") {
+              this.toastr.success("Error while deleting Roles & Services");
+            } else {
+              this.toastr.success("Error while deleting Configuration Template");
+            }
           }
         })
       }
