@@ -1,6 +1,15 @@
-<button mat-button mat-mini-fab class="add-group" color="primary" matTooltip="Add new group" (click)="addGroup()">
-  <mat-icon>add</mat-icon>
-</button>
+<div class="btn-actions-group">
+  <button mat-button mat-mini-fab class="btn-action-item" color="primary" matTooltip="Add new group" (click)="addGroup()">
+    <mat-icon>add</mat-icon>
+  </button>
+  <button mat-button mat-mini-fab class="btn-action-item" color="primary" matTooltip="Edit" (click)="editGroup()">
+    <mat-icon>edit</mat-icon>
+  </button>
+  <button mat-button mat-mini-fab class="btn-action-item" color="primary" matTooltip="Delete" (click)="deleteGroup()">
+    <mat-icon>delete</mat-icon>
+  </button>
+</div>
+
 <div class="ag-theme-alpine info-panel-group" [style.height]="gridHeight">
   <ag-grid-angular style="width: 100%; height: 100%;" [gridOptions]="gridOptions"
     (gridReady)="onGridReady($event)" [rowData]="rowData$ | async" (rowSelected)="selectedRows()">

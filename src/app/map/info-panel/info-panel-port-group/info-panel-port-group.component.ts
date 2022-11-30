@@ -1,20 +1,19 @@
-import { ToastrService } from "ngx-toastr";
-import { catchError } from "rxjs/operators";
-import { forkJoin, map, Subscription, throwError } from "rxjs";
+import { Store } from "@ngrx/store";
 import { MatDialog } from "@angular/material/dialog";
+import { catchError } from "rxjs/operators";
+import { ToastrService } from "ngx-toastr";
 import { MatIconRegistry } from "@angular/material/icon";
 import { ActivatedRoute, Params } from "@angular/router";
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
+import { forkJoin, map, Subscription, throwError } from "rxjs";
+import { GridApi, GridOptions, GridReadyEvent, RowDoubleClickedEvent } from "ag-grid-community";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { PortGroupService } from "../../../core/services/portgroup/portgroup.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
-import { InfoPanelRenderComponent } from "../info-panel-render/info-panel-render.component";
-import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
-import { Store } from "@ngrx/store";
 import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { selectMapEdit } from "src/app/store/map-edit/map-edit.selectors";
+import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 
 @Component({
   selector: 'app-info-panel-port-group',
@@ -89,6 +88,7 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
       filter: true
     },
     rowSelection: 'multiple',
+    onRowDoubleClicked: this.onRowDoubleClicked.bind(this),
     suppressRowDeselection: true,
     suppressCellFocus: true,
     enableCellTextSelection: true,
@@ -104,17 +104,8 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
         width: 52,
       },
       {
-        headerName: 'Actions',
         field: 'id',
-        suppressSizeToFit: true,
-        width: 160,
-        cellRenderer: InfoPanelRenderComponent,
-        cellClass: 'pg-actions',
-        cellRendererParams: {
-          tabName: this.tabName,
-          getExternalParams: () => this
-        },
-        sortable: false
+        hide: true
       },
       {
         field: 'name',
@@ -162,6 +153,10 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
     this.gridApi.sizeColumnsToFit();
+  }
+
+  onRowDoubleClicked(row: RowDoubleClickedEvent) {
+    this.infoPanelService.viewInfoPanel(this.tabName, row.data.id);
   }
 
   private _setPGInfoPanel(activePGs: any[]) {
@@ -218,10 +213,10 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
           this.rowsSelectedId.map(pgId => {
-            this.infoPanelService.delete(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
+            this.infoPanelService.deleteInfoPanelAssociateMap(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
               this.deletedNodes, this.deletedInterfaces, this.tabName, pgId);
           });
-          this.gridApi.deselectAll();
+          this.clearTable();
           this.store.dispatch(retrievedMapSelection({data: true}));
         }
       })
@@ -271,9 +266,11 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
     if (this.rowsSelected.length == 0) {
       this.toastr.info('No row selected');
     } else {
+      const item = this.rowsSelectedId.length === 1 ? 'this' : 'those';
+      const sSuffix = this.rowsSelectedId.length === 1 ? '' : 's';
       const dialogData = {
         title: 'User confirmation needed',
-        message: 'Generate a new randomize subnet for this port_group?',
+        message: `Generate a new randomize subnet for ${item} port_group${sSuffix}?`,
         submitButtonName: 'OK'
       }
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '500px', data: dialogData});

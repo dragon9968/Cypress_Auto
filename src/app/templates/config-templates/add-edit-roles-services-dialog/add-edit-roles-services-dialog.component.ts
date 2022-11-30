@@ -25,7 +25,7 @@ export class AddEditRolesServicesDialogComponent implements OnInit {
     private store: Store,
     public dialogRef: MatDialogRef<AddEditRolesServicesDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-  ) { 
+  ) {
     this.roleServicesForm = new FormGroup({
       roles: new FormControl('')
     })
@@ -46,7 +46,6 @@ export class AddEditRolesServicesDialogComponent implements OnInit {
 
   addRoleServices() {
     this.roleServiceKey = this.roleService.map(ele => ele.role);
-    console.log(this.roleServiceKey)
     const jsonData = {
       config_type: "role_services",
       config_id: this.data.genData.id,

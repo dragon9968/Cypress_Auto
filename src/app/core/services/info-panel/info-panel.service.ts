@@ -7,6 +7,7 @@ import { MapService } from "../map/map.service";
 import { NodeService } from "../node/node.service";
 import { GroupService } from "../group/group.service";
 import { DomainService } from "../domain/domain.service";
+import { ProjectService } from "../../../project/services/project.service";
 import { HelpersService } from "../helpers/helpers.service";
 import { UserTaskService } from "../user-task/user-task.service";
 import { PortGroupService } from "../portgroup/portgroup.service";
@@ -28,6 +29,10 @@ import { retrievedUserTasks } from "../../../store/user-task/user-task.actions";
 import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
 import { retrievedGroups } from "../../../store/group/group.actions";
 import { retrievedIsChangeDomainUsers } from "../../../store/domain-user-change/domain-user-change.actions";
+import { ShowUserTaskDialogComponent } from "../../../map/info-panel/info-panel-task/show-user-task-dialog/show-user-task-dialog.component";
+import { AddUpdateGroupDialogComponent } from "../../../map/add-update-group-dialog/add-update-group-dialog.component";
+import { AddUpdateDomainDialogComponent } from "../../../map/add-update-domain-dialog/add-update-domain-dialog.component";
+import { UpdateDomainUserDialogComponent } from "../../../map/info-panel/info-panel-domain/update-domain-user-dialog/update-domain-user-dialog.component";
 
 
 @Injectable({
@@ -66,7 +71,8 @@ export class InfoPanelService {
     private groupService: GroupService,
     private domainService: DomainService,
     private userTaskService: UserTaskService,
-    private domainUserService: DomainUserService
+    private projectService: ProjectService,
+    private domainUserService: DomainUserService,
   ) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
@@ -80,8 +86,167 @@ export class InfoPanelService {
     this.selectIsConnect$ = this.store.select(selectIsConnect).subscribe(isConnect => this.isConnect = isConnect);
   }
 
-  delete(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[],
-         deletedNodes: any[], deletedInterfaces: any[], tabName: string, id: any) {
+  viewInfoPanel(tabName: string, id: any) {
+    switch (tabName) {
+      case 'domain':
+        this.domainService.get(id).subscribe(domainData => {
+          const dialogData = {
+            mode: 'view',
+            genData: domainData.result
+          };
+          this.dialog.open(AddUpdateDomainDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
+        });
+        break;
+      case 'group':
+        this.groupService.get(id).subscribe(groupData => {
+          const dialogData = {
+            mode: 'view',
+            genData: groupData.result,
+            collection_id: groupData.result.collection_id,
+            map_category: 'logical'
+          };
+          this.dialog.open(AddUpdateGroupDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
+        });
+        break;
+      case 'userTask':
+        this.userTaskService.get(id).subscribe(userTaskData => {
+          const dialogData = {
+            mode: 'postTask',
+            genData: userTaskData.result
+          };
+          this.dialog.open(ShowUserTaskDialogComponent, {width: `${screen.width}px`, autoFocus: false, data: dialogData});
+        });
+        break;
+      case 'edge':
+        this.interfaceService.get(id).subscribe(interfaceData => {
+          const dialogData = {
+            mode: 'view',
+            genData: interfaceData.result,
+          };
+          this.dialog.open(AddUpdateInterfaceDialogComponent, {width: '600px', data: dialogData});
+        });
+        break;
+      case 'portGroup':
+        this.portGroupService.get(id).subscribe(pgData => {
+          const dialogData = {
+            mode: 'view',
+            genData: pgData.result,
+          };
+          this.dialog.open(AddUpdatePGDialogComponent, {width: '600px', data: dialogData});
+        });
+        break;
+      case 'node':
+        this.nodeService.get(id).subscribe(nodeData => {
+          const dialogData = {
+            mode: 'view',
+            genData: nodeData.result,
+          }
+          this.dialog.open(AddUpdateNodeDialogComponent, {width: '600px', data: dialogData});
+        });
+        break;
+      case 'domainUser':
+        this.domainUserService.get(id).subscribe(domainUserData => {
+          this.domainService.get(domainUserData.result.domain_id).subscribe(domainData => {
+              const dialogData = {
+                genData: domainUserData.result,
+                domain: domainData.result,
+                mode: 'view'
+              };
+              this.dialog.open(UpdateDomainUserDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
+            }
+          )
+        });
+        break;
+      default:
+        this.toastr.warning('Please select an item before opening', 'Warning');
+    }
+  }
+
+  openEditInfoPanelForm(cy: any, tabName: string, id: any, ids: any[] = []) {
+    switch (tabName) {
+      case 'edge':
+        if (ids.length > 0 && id == undefined) {
+          const dialogData = {
+            genData: { ids: ids },
+            cy
+          };
+          this.dialog.open(InterfaceBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData});
+        } else if (ids.length === 0 && id) {
+          this.interfaceService.get(id).subscribe(interfaceData => {
+            const dialogData = {
+              mode: 'update',
+              genData: interfaceData.result,
+              cy
+            }
+            this.dialog.open(AddUpdateInterfaceDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
+          });
+        }
+        break;
+      case 'portGroup':
+        if (ids.length > 0 && id == undefined) {
+          const dialogData = {
+            genData: { ids: ids },
+            cy
+          }
+          this.dialog.open(PortGroupBulkEditDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
+        } else if (ids.length === 0 && id) {
+          this.portGroupService.get(id).subscribe(pgData => {
+            const dialogData = {
+              mode: 'update',
+              genData: pgData.result,
+              cy
+            }
+            this.dialog.open(AddUpdatePGDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
+          });
+        }
+        break;
+      case 'node':
+        if (ids.length > 0 && id == undefined) {
+          const dialogData = {
+            genData: { ids: ids },
+            cy
+          }
+          this.dialog.open(NodeBulkEditDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
+        } else if (ids.length === 0 && id) {
+          this.nodeService.get(id).subscribe(nodeData => {
+            const dialogData = {
+              mode: 'update',
+              genData: nodeData.result,
+              cy
+            }
+            this.dialog.open(AddUpdateNodeDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
+          });
+        }
+        break;
+      case 'group':
+        this.groupService.get(id).subscribe(groupData => {
+            const dialogData = {
+              mode: 'update',
+              genData: groupData.result,
+              collection_id: groupData.result.collection_id,
+              map_category: 'logical'
+            };
+            this.dialog.open(AddUpdateGroupDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
+          })
+        break;
+      case 'domainUser':
+        this.domainUserService.get(id).subscribe(domainUserData => {
+          this.domainService.get(domainUserData.result.domain_id).subscribe(domainData => {
+              const dialogData = {
+                genData: domainUserData.result,
+                domain: domainData.result,
+                mode: 'update'
+              };
+              this.dialog.open(UpdateDomainUserDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
+          })})
+        break;
+      default:
+        this.toastr.info('The info panel doesn\'t open yet');
+    }
+  }
+
+  deleteInfoPanelAssociateMap(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[],
+                              deletedNodes: any[], deletedInterfaces: any[], tabName: string, id: any) {
     let idName = '';
     if (tabName == 'node') {
       idName = 'node_id';
@@ -135,63 +300,6 @@ export class InfoPanelService {
       });
   }
 
-  openEditInfoPanelForm(cy: any, tabName: string, id: any, ids: any[]) {
-    if (tabName == 'edge') {
-      if (ids.length > 0 && id == undefined) {
-        const dialogData = {
-          genData: { ids: ids },
-          cy
-        };
-        this.dialog.open(InterfaceBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData});
-      } else if (ids.length === 0 && id) {
-        this.interfaceService.get(id).subscribe(interfaceData => {
-          const dialogData = {
-            mode: 'update',
-            genData: interfaceData.result,
-            cy
-          }
-          this.dialog.open(AddUpdateInterfaceDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
-        });
-      }
-    } else if (tabName == 'portGroup') {
-      if (ids.length > 0 && id == undefined) {
-        const dialogData = {
-          genData: { ids: ids },
-          cy
-        }
-        this.dialog.open(PortGroupBulkEditDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
-      } else if (ids.length === 0 && id) {
-        this.portGroupService.get(id).subscribe(pgData => {
-          const dialogData = {
-            mode: 'update',
-            genData: pgData.result,
-            cy
-          }
-          this.dialog.open(AddUpdatePGDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
-        });
-      }
-    } else if (tabName == 'node') {
-      if (ids.length > 0 && id == undefined) {
-        const dialogData = {
-          genData: { ids: ids },
-          cy
-        }
-        this.dialog.open(NodeBulkEditDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
-      } else if (ids.length === 0 && id) {
-        this.nodeService.get(id).subscribe(nodeData => {
-          const dialogData = {
-            mode: 'update',
-            genData: nodeData.result,
-            cy
-          }
-          this.dialog.open(AddUpdateNodeDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
-        });
-      }
-    } else {
-      this.toastr.success("The info panel doesn't open yet");
-    }
-  }
-
   getEdgesConnectingToNode(node: any) {
     const interfacesDeleted: any[] = [];
     node.connectedEdges().forEach((ele: any) => {
@@ -207,38 +315,86 @@ export class InfoPanelService {
     return interfacesDeleted.map(ele => ele.interface_id);
   }
 
-  deleteDomain(domain: any, collectionId: any) {
-    const isDomainInNode = this.nodes.some(ele => ele.domain_id === domain.id);
-    const isDomainInPG = this.portGroups.some(ele => ele.domain_id === domain.id);
-    const domainName = domain.name;
-    if (isDomainInNode && isDomainInPG) {
-      this.toastr.error(`Port groups and nodes are still associated with domain ${domainName}`);
-    } else if (isDomainInNode) {
-      this.toastr.error(`Nodes are still associated with this domain ${domainName}`);
-    } else if (isDomainInPG) {
-      this.toastr.error(`Port groups are still associated with domain ${domainName}`)
+  deleteInfoPanelNotAssociateMap(tabName: string, ids: any[] = []) {
+    if (ids.length > 0) {
+      switch (tabName) {
+        case 'domain':
+          ids.map(id => this.deleteDomain(id));
+          break;
+        case 'group':
+          ids.map(id => this.deleteGroup(id));
+          break;
+        case 'domainUser':
+          ids.map(id => this.deleteDomainUser(id));
+          break;
+        case 'userTask':
+          ids.map(id => this.deleteUserTask(id));
+          break;
+        default:
+          this.toastr.warning('Please open the table info before deleting', 'Warning');
+      }
     } else {
-      this.domainUsers
-        .filter(ele => ele.domain_id === domain.id)
-        .map(ele => {
-          return this.domainUserService.delete(ele.id).subscribe(response => {
-            this.toastr.success(`Deleted domain user ${ele.username}`);
-          })
-        });
-      this.domainService.delete(domain.id).subscribe(response => {
-        this.domainService.getDomainByCollectionId(collectionId).subscribe(
-          (data: any) => this.store.dispatch(retrievedDomains({data: data.result}))
-        );
-        this.toastr.success(`Deleted domain ${domainName}`);
-      })
+      this.toastr.warning('Please select the item before deleting', 'Warning');
     }
   }
 
-  deleteGroup(group: any, collectionId: any) {
-    this.groupService.delete(group.id).subscribe(response => this.toastr.success('Deleted Row'));
-    this.groupService.getGroupByCollectionId(collectionId).subscribe(data => {
-      this.store.dispatch(retrievedGroups({data: data.result}));
-    })
+  deleteDomain(id: any) {
+    this.domainService.get(id).subscribe(domainData => {
+      const domain = domainData.result;
+      const isDomainInNode = this.nodes.some(ele => ele.domain_id === domain.id);
+      const isDomainInPG = this.portGroups.some(ele => ele.domain_id === domain.id);
+      const domainName = domain.name;
+      if (isDomainInNode && isDomainInPG) {
+        this.toastr.error(`Port groups and nodes are still associated with domain ${domainName}`);
+      } else if (isDomainInNode) {
+        this.toastr.error(`Nodes are still associated with this domain ${domainName}`);
+      } else if (isDomainInPG) {
+        this.toastr.error(`Port groups are still associated with domain ${domainName}`)
+      } else {
+        this.domainUsers
+          .filter(ele => ele.domain_id === domain.id)
+          .map(ele => {
+            return this.domainUserService.delete(ele.id).subscribe({
+              next: () => {
+                this.toastr.success(`Deleted domain user ${ele.username}`, 'Success');
+              },
+              error: err => {
+                this.toastr.error('Delete domain user failed', 'Error');
+                throwError(() => err.message);
+              }
+            })
+          });
+        this.domainService.delete(domain.id).subscribe({
+          next: () => {
+            const collectionId = this.projectService.getCollectionId();
+            this.domainService.getDomainByCollectionId(collectionId).subscribe(
+              (data: any) => this.store.dispatch(retrievedDomains({data: data.result}))
+            );
+            this.toastr.success(`Deleted domain ${domainName}`);
+          },
+          error: err => {
+            this.toastr.error(`Delete domain ${domainName} failed`, 'Error');
+            throwError(() => err.message);
+          }
+        })
+      }
+    });
+  }
+
+  deleteGroup(id: any) {
+    this.groupService.delete(id).subscribe({
+      next: () => {
+        const collectionId = this.projectService.getCollectionId();
+        this.groupService.getGroupByCollectionId(collectionId).subscribe(data => {
+         this.store.dispatch(retrievedGroups({data: data.result}));
+        })
+        this.toastr.success('Deleted Row', 'Success');
+      },
+      error: err => {
+        this.toastr.error('Delete group failed', 'Error');
+        throwError(() => err.message);
+      }
+    });
   }
 
   deleteDomainUser(id: any) {
@@ -250,7 +406,7 @@ export class InfoPanelService {
         },
         error: err => {
           this.toastr.error('Delete domain user failed', 'Error');
-          throwError(() => err)
+          throwError(() => err.message);
         }
       })
     })
@@ -266,7 +422,7 @@ export class InfoPanelService {
       },
       error: error => {
         this.toastr.error(error.error.message, 'Error');
-        throwError(error.message);
+        throwError(() => error.message);
       }
     })
   }
@@ -283,7 +439,7 @@ export class InfoPanelService {
       },
       error: err => {
         this.toastr.error(err.error.message, 'Error');
-        throwError(err.message);
+        throwError(() => err.message);
       }
     })
   }
@@ -300,7 +456,7 @@ export class InfoPanelService {
       },
       error: err => {
         this.toastr.error('Revoke task failed', 'Error');
-        throwError(err.message);
+        throwError(() => err.message);
       }
     })
   }
@@ -317,7 +473,7 @@ export class InfoPanelService {
       },
       error: err => {
         this.toastr.error('Post task failed', 'Error');
-        throwError(err.message);
+        throwError(() => err.message);
       }
     })
   }
@@ -330,6 +486,7 @@ export class InfoPanelService {
       },
       error: err => {
         this.toastr.error(err.error.message, 'Error');
+        throwError(() => err.message);
       }
     })
   }

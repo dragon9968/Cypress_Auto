@@ -76,7 +76,7 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
       }
       this.updateRowConnectionProfile();
     })
-    iconRegistry.addSvgIcon('export_json', this.helpers.setIconPath('/assets/icons/export_json.svg'));
+    iconRegistry.addSvgIcon('export_json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
   }
 
   ngOnInit(): void {

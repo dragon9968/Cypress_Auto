@@ -5,13 +5,12 @@ import { ToastrService } from "ngx-toastr";
 import { MatIconRegistry } from "@angular/material/icon";
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { interval, Observable, of, Subject, Subscription } from "rxjs";
-import { ColumnApi, GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
+import { ColumnApi, GridApi, GridOptions, GridReadyEvent, RowDoubleClickedEvent } from "ag-grid-community";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { UserTaskService } from "../../../core/services/user-task/user-task.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { selectUserTasks } from "../../../store/user-task/user-task.selectors";
 import { retrievedUserTasks } from "../../../store/user-task/user-task.actions";
-import { InfoPanelRenderComponent } from "../info-panel-render/info-panel-render.component";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 
 @Component({
@@ -41,6 +40,7 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
       filter: true
     },
     rowSelection: 'multiple',
+    onRowDoubleClicked: this.onRowDoubleClicked.bind(this),
     suppressRowDeselection: true,
     suppressCellFocus: true,
     enableCellTextSelection: true,
@@ -57,15 +57,8 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
         width: 52
       },
       {
-        headerName: 'Actions',
         field: 'id',
-        suppressSizeToFit: true,
-        width: 140,
-        cellRenderer: InfoPanelRenderComponent,
-        cellRendererParams: {
-          tabName: this.tabName,
-          getExternalParams: () => this
-        }
+        hide: true
       },
       {
         headerName: 'Display Name',
@@ -112,7 +105,12 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
     this.selectUserTasks$ = this.store.select(selectUserTasks).pipe(takeUntil(this.destroy$)).subscribe(userTasks => {
       if (userTasks) {
         this.userTasks = userTasks;
-        this.rowData$ = of(userTasks);
+        if (this.gridApi) {
+          this.gridApi.setRowData(userTasks);
+        } else {
+          this.rowData$ = of(userTasks);
+        }
+        this.setRowActive();
       }
     })
   }
@@ -142,15 +140,14 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
       const item = this.rowsSelectedId.length === 1 ? 'this' : 'those';
       const dialogData = {
         title: 'User confirmation needed',
-        message: `You sure you want to delete ${item}?`,
+        message: `Are you sure you want to delete ${item}?`,
         submitButtonName: 'OK'
       }
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
-          this.rowsSelectedId.map(userTaskId => {
-            this.infoPanelService.deleteUserTask(userTaskId);
-          })
+          this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.rowsSelectedId);
+          this.clearRowSelected();
         }
       })
     }
@@ -160,10 +157,10 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
     if (this.rowsSelectedId.length === 0) {
       this.toastr.info('No row selected');
     } else {
-      const item = this.rowsSelectedId.length === 0 ? 'this' : 'those';
+      const message = this.rowsSelectedId.length === 1 ? 'Rerun this task?' : 'Rerun those tasks?';
       const dialogData = {
         title: 'User confirmation needed',
-        message: `Rerun ${item} task?`,
+        message: message,
         submitButtonName: 'OK'
       }
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
@@ -207,7 +204,11 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
-    this.sortData()
+    this.sortData();
+  }
+
+  onRowDoubleClicked(row: RowDoubleClickedEvent) {
+    this.infoPanelService.viewInfoPanel(this.tabName, row.data.id);
   }
 
   selectedRows() {
@@ -234,5 +235,21 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
         this.store.dispatch(retrievedUserTasks({data: response.result}));
       })
     })
+  }
+
+  setRowActive() {
+    if (this.rowsSelectedId.length > 0 && this.gridApi) {
+      this.gridApi.forEachNode(row => {
+        if (this.rowsSelectedId.includes(row.data.id)) {
+          row.setSelected(true);
+        }
+      })
+    }
+  }
+
+  clearRowSelected() {
+    this.rowsSelectedId = [];
+    this.rowsSelected = [];
+    this.gridApi.deselectAll();
   }
 }

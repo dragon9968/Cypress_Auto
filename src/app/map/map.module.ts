@@ -16,7 +16,6 @@ import { DeleteNodeSnapshotDialogComponent } from './delete-node-snapshot-dialog
 import { InfoPanelNodeComponent } from './info-panel/info-panel-node/info-panel-node.component';
 import { InfoPanelPortGroupComponent } from './info-panel/info-panel-port-group/info-panel-port-group.component';
 import { InfoPanelInterfaceComponent } from './info-panel/info-panel-interface/info-panel-interface.component';
-import { InfoPanelRenderComponent } from './info-panel/info-panel-render/info-panel-render.component';
 import { InfoPanelDomainComponent } from './info-panel/info-panel-domain/info-panel-domain.component';
 import { AddUpdateDomainDialogComponent } from './add-update-domain-dialog/add-update-domain-dialog.component';
 import { InfoPanelGroupComponent } from './info-panel/info-panel-group/info-panel-group.component';
@@ -53,7 +52,6 @@ import { UpdateDomainUserDialogComponent } from './info-panel/info-panel-domain/
     InfoPanelNodeComponent,
     InfoPanelPortGroupComponent,
     InfoPanelInterfaceComponent,
-    InfoPanelRenderComponent,
     InfoPanelDomainComponent,
     AddUpdateDomainDialogComponent,
     InfoPanelGroupComponent,

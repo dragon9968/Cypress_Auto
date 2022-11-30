@@ -1,23 +1,17 @@
-<button mat-button class="btn-actions" [matMenuTriggerFor]="actionMenu" (click)="isClickAction = !isClickAction">
-  Actions
-  <mat-icon *ngIf="isClickAction">keyboard_arrow_down</mat-icon>
-  <mat-icon *ngIf="!isClickAction">keyboard_arrow_up</mat-icon>
-</button>
-<button mat-button mat-mini-fab class="btn-refresh" color="primary" matTooltip="Refresh table" (click)="refreshTask()">
-  <mat-icon>sync</mat-icon>
-</button>
-
-<mat-menu #actionMenu="matMenu" yPosition="below">
-  <button mat-menu-item (click)="delete()">
-    <mat-icon>delete_forever</mat-icon>Delete
+<div class="btn-actions-group">
+ <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="delete()">
+    <mat-icon>delete_forever</mat-icon>
   </button>
-  <button mat-menu-item (click)="rerun()">
-    <mat-icon>autorenew</mat-icon>Rerun
+ <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Rerun" (click)="rerun()">
+    <mat-icon>replay</mat-icon>
   </button>
-  <button mat-menu-item (click)="revoke()">
-    <mat-icon>cancel</mat-icon>Revoke
+ <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Revoke" (click)="revoke()">
+    <mat-icon>cancel</mat-icon>
   </button>
-</mat-menu>
+  <button mat-button mat-mini-fab class="btn-refresh" color="primary" matTooltip="Refresh table" (click)="refreshTask()">
+    <mat-icon>autorenew</mat-icon>
+  </button>
+</div>
 
 <div class="ag-theme-alpine info-panel-task" [style.height]="gridHeight">
   <ag-grid-angular style="width: 100%; height: 100%;" [gridOptions]="gridOptions" (gridReady)="onGridReady($event)"

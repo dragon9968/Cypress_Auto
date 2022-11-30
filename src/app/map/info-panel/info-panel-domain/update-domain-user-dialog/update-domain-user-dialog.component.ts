@@ -1,9 +1,9 @@
 import { Store } from "@ngrx/store";
 import { ToastrService } from "ngx-toastr";
 import { Subscription, throwError } from "rxjs";
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { FormGroup, Validators, FormControl } from "@angular/forms";
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ErrorMessages } from "../../../../shared/enums/error-messages.enum";
 import { DomainUserService } from "../../../../core/services/domain-user/domain-user.service";
 import { validateNameExist } from "../../../../shared/validations/name-exist.validation";
@@ -20,6 +20,7 @@ export class UpdateDomainUserDialogComponent implements OnInit, OnDestroy {
   errorMessages = ErrorMessages;
   selectDomainUsers$ = new Subscription();
   domainUsers: any[] = [];
+  isViewMode = false;
 
   constructor(
     private store: Store,
@@ -28,6 +29,7 @@ export class UpdateDomainUserDialogComponent implements OnInit, OnDestroy {
     private dialogRef: MatDialogRef<UpdateDomainUserDialogComponent>,
     private domainUserService: DomainUserService
   ) {
+    this.isViewMode = this.data.mode == 'view';
     this.selectDomainUsers$ = this.store.select(selectDomainUsers).subscribe(domainUsers => {
         if (domainUsers) {
           this.domainUsers = domainUsers

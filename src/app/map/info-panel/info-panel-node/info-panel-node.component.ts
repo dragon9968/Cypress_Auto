@@ -1,20 +1,19 @@
+import { Store } from "@ngrx/store";
 import { MatDialog } from "@angular/material/dialog";
 import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
 import { MatIconRegistry } from "@angular/material/icon";
-import { forkJoin, map, Subscription, throwError } from "rxjs";
 import { Component, Input, OnDestroy } from '@angular/core';
-import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
+import { forkJoin, map, Subscription, throwError } from "rxjs";
+import { GridApi, GridOptions, GridReadyEvent, RowDoubleClickedEvent } from "ag-grid-community";
 import { NodeService } from "../../../core/services/node/node.service";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
-import { InfoPanelRenderComponent } from "../info-panel-render/info-panel-render.component";
-import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
-import { Store } from "@ngrx/store";
+import { CMActionsService } from "../../context-menu/cm-actions/cm-actions.service";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
-import { CMActionsService } from "../../context-menu/cm-actions/cm-actions.service";
 import { selectMapEdit } from "src/app/store/map-edit/map-edit.selectors";
+import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 
 @Component({
   selector: 'app-info-panel-node',
@@ -91,6 +90,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
       filter: true
     },
     rowSelection: 'multiple',
+    onRowDoubleClicked: this.onRowDoubleClicked.bind(this),
     suppressRowDeselection: true,
     suppressCellFocus: true,
     enableCellTextSelection: true,
@@ -106,17 +106,8 @@ export class InfoPanelNodeComponent implements OnDestroy {
         width: 52,
       },
       {
-        headerName: 'Actions',
         field: 'id',
-        suppressSizeToFit: true,
-        width: 160,
-        cellRenderer: InfoPanelRenderComponent,
-        cellClass: 'node-actions',
-        cellRendererParams: {
-          tabName: this.tabName,
-          getExternalParams: () => this
-        },
-        sortable: false
+        hide: true
       },
       {
         field: 'name',
@@ -192,8 +183,8 @@ export class InfoPanelNodeComponent implements OnDestroy {
     private infoPanelService: InfoPanelService,
     private cmActionsService: CMActionsService,
   ) {
-    iconRegistry.addSvgIcon('export-csv', this.helpers.setIconPath('/assets/icons/export-csv.svg'));
-    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
+    iconRegistry.addSvgIcon('export-csv', this.helpers.setIconPath('/assets/icons/export-csv-info-panel.svg'));
+    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json-info-panel.svg'));
     this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
       if (mapSelection) {
         this._setNodeInfoPanel(this.activeNodes);
@@ -220,6 +211,10 @@ export class InfoPanelNodeComponent implements OnDestroy {
   selectedRows() {
     this.rowsSelected = this.gridApi.getSelectedRows();
     this.rowsSelectedId = this.rowsSelected.map(ele => ele.id);
+  }
+
+  onRowDoubleClicked(row: RowDoubleClickedEvent) {
+    this.infoPanelService.viewInfoPanel(this.tabName, row.data.id);
   }
 
   cloneNodes() {
@@ -258,10 +253,10 @@ export class InfoPanelNodeComponent implements OnDestroy {
             this.toastr.info('No row selected');
           } else {
             this.rowsSelectedId.map(id => {
-              this.infoPanelService.delete(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
+              this.infoPanelService.deleteInfoPanelAssociateMap(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
                 this.deletedNodes, this.deletedInterfaces, this.tabName, id);
             })
-            this.gridApi.deselectAll();
+            this.clearTable();
             this.store.dispatch(retrievedMapSelection({data: true}));
           }
         }

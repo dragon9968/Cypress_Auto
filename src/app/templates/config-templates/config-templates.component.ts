@@ -87,7 +87,6 @@ export class ConfigTemplatesComponent implements OnInit {
             let item_html = `<div>${param.value[i]}</div>`;
             html_str += item_html;
           }
-          console.log(html_str)
           return html_str;
         }else {
           return

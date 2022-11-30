@@ -1,13 +1,16 @@
+$margin: 8px;
+
 .info-panel-group {
-  &.group-actions {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+  text-align: center;
 }
 
-.add-group {
-  margin: 8px;
+.btn-actions-group {
+  padding: 0 5px 0 10px;
+  margin: $margin 0;
+}
+
+.btn-action-item {
+  margin-right: $margin;
 }
 
 ::ng-deep .ag-header-cell-label {

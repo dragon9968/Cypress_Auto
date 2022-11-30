@@ -1,5 +1,5 @@
 <form [formGroup]="domainAddForm" (ngSubmit)="data.mode === 'add' ? addDomain() : updateDomain()">
-  <h1 mat-dialog-title>{{data.mode === 'add' ? 'Domain Add' : data.mode === 'update' ? 'Domain Edit': 'Domain View'}}</h1>
+  <h1 mat-dialog-title>{{data.mode === 'add' ? 'Domain Add' : data.mode === 'update' ? 'Domain Edit': 'Domain Info'}}</h1>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>

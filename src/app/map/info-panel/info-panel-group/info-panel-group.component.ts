@@ -1,14 +1,16 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
-import { Observable, of, Subscription } from "rxjs";
-import { InfoPanelRenderComponent } from "../info-panel-render/info-panel-render.component";
 import { Store } from "@ngrx/store";
-import { ActivatedRoute, Params } from "@angular/router";
 import { MatDialog } from "@angular/material/dialog";
+import { ToastrService } from "ngx-toastr";
+import { ActivatedRoute, Params } from "@angular/router";
+import { Component, Input, OnInit } from '@angular/core';
+import { Observable, of, Subscription } from "rxjs";
+import { GridApi, GridOptions, GridReadyEvent, RowDoubleClickedEvent } from "ag-grid-community";
 import { GroupService } from "../../../core/services/group/group.service";
+import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { retrievedGroups } from "../../../store/group/group.actions";
 import { selectGroups } from "../../../store/group/group.selectors";
 import { AddUpdateGroupDialogComponent } from "../../add-update-group-dialog/add-update-group-dialog.component";
+import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 
 @Component({
   selector: 'app-info-panel-group',
@@ -23,7 +25,9 @@ export class InfoPanelGroupComponent implements OnInit {
   selectGroups$ = new Subscription();
   rowData$!: Observable<any[]>;
   rowsSelected!: any[];
+  rowsSelectedId: any[] = [];
   groups!: any[];
+  tabName = 'group';
 
   public gridOptions: GridOptions = {
     headerHeight: 48,
@@ -34,6 +38,7 @@ export class InfoPanelGroupComponent implements OnInit {
       filter: true
     },
     rowSelection: 'multiple',
+    onRowDoubleClicked: this.onRowDoubleClicked.bind(this),
     suppressRowDeselection: true,
     suppressCellFocus: true,
     enableCellTextSelection: true,
@@ -49,17 +54,8 @@ export class InfoPanelGroupComponent implements OnInit {
         width: 52,
       },
       {
-        headerName: 'Actions',
         field: 'id',
-        suppressSizeToFit: true,
-        width: 160,
-        cellRenderer: InfoPanelRenderComponent,
-        cellClass: 'group-actions',
-        cellRendererParams: {
-          tabName: 'group',
-          getExternalParams: () => this
-        },
-        sortable: false
+        hide: true
       },
       {
         field: 'name',
@@ -89,7 +85,9 @@ export class InfoPanelGroupComponent implements OnInit {
     private store: Store,
     private route: ActivatedRoute,
     private dialog: MatDialog,
-    private groupService: GroupService
+    private toastr: ToastrService,
+    private groupService: GroupService,
+    private infoPanelService: InfoPanelService
   ) {
     this.selectGroups$ = this.store.select(selectGroups).subscribe(groupData => {
       if (groupData) {
@@ -106,7 +104,12 @@ export class InfoPanelGroupComponent implements OnInit {
             port_groups: '[' + ele.port_groups?.map((pgData: any) => pgData.name).join(', ') + ']'
           }
         })
-        this.rowData$ = of(groupDataAg);
+        if (this.gridApi) {
+          this.gridApi.setRowData(groupDataAg);
+        } else {
+          this.rowData$ = of(groupDataAg);
+        }
+        this.setRowActive();
       }
     })
   }
@@ -142,7 +145,60 @@ export class InfoPanelGroupComponent implements OnInit {
     this.gridApi.sizeColumnsToFit();
   }
 
+  onRowDoubleClicked(row: RowDoubleClickedEvent) {
+    this.infoPanelService.viewInfoPanel(this.tabName, row.data.id);
+  }
+
   selectedRows() {
     this.rowsSelected = this.gridApi.getSelectedRows();
+    this.rowsSelectedId = this.rowsSelected.map(ele => ele.id);
+  }
+
+  editGroup() {
+    if (this.rowsSelectedId.length === 0) {
+      this.toastr.info('No row selected');
+    } else if (this.rowsSelectedId.length === 1) {
+      this.infoPanelService.openEditInfoPanelForm(undefined, this.tabName, this.rowsSelectedId[0], []);
+    } else {
+      this.toastr.info('Bulk edits do not apply to the Group.<br>Please select only one Group',
+                          'Info', {enableHtml: true});
+    }
+  }
+
+  deleteGroup() {
+    if (this.rowsSelectedId.length === 0) {
+      this.toastr.info('No row selected');
+    } else {
+      const item = this.rowsSelectedId.length === 1 ? 'this' : 'those';
+      const dialogData = {
+        title: 'User confirmation needed',
+        message: `Are you sure you want to delete ${item}?`,
+        submitButtonName: 'OK'
+      }
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
+      dialogConfirm.afterClosed().subscribe(confirm => {
+        if (confirm) {
+          this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.rowsSelectedId);
+          this.clearRowSelected();
+        }
+      })
+
+    }
+  }
+
+  setRowActive() {
+    if (this.rowsSelectedId.length > 0 && this.gridApi) {
+      this.gridApi.forEachNode(rowNode => {
+        if (this.rowsSelectedId.includes(rowNode.data.id)) {
+          rowNode.setSelected(true);
+        }
+      })
+    }
+  }
+
+  clearRowSelected() {
+    this.rowsSelected = [];
+    this.rowsSelectedId = [];
+    this.gridApi.deselectAll();
   }
 }

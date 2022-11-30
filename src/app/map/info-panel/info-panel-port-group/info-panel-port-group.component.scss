@@ -1,21 +1,16 @@
+$margin: 8px;
+
 .info-panel-pg {
-  &.pg-actions {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+  text-align: center;
 }
 
-.btn-actions {
-  border: 1px solid #ccc;
+.btn-actions-group {
   padding: 0 5px 0 10px;
-  margin: 8px 0;
+  margin: $margin 0;
 }
 
-.btn-clear-table {
-  padding: 0 10px;
-  margin: 8px 0 8px 8px;
-  border: 1px solid #ccc;
+.btn-action-item {
+  margin-right: $margin;
 }
 
 ::ng-deep .ag-header-cell-label {

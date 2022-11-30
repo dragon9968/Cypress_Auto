@@ -1,29 +1,26 @@
-<button mat-button class="btn-actions" [matMenuTriggerFor]="actionMenu" (click)="isClickAction = !isClickAction">
-  Actions
-  <mat-icon *ngIf="isClickAction">keyboard_arrow_down</mat-icon>
-  <mat-icon *ngIf="!isClickAction">keyboard_arrow_up</mat-icon>
-</button>
-<mat-menu #actionMenu="matMenu" yPosition="below">
-  <button mat-menu-item (click)="cloneNodes()">
-    <mat-icon>file_copy</mat-icon>Clone
+<div class="btn-actions-group">
+  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Clone" (click)="cloneNodes()">
+    <mat-icon>file_copy</mat-icon>
   </button>
-  <button mat-menu-item (click)="deleteNodes()">
-    <mat-icon>delete_forever</mat-icon>Delete
+  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteNodes()">
+    <mat-icon>delete_forever</mat-icon>
   </button>
-  <button mat-menu-item (click)="editNodes()">
-    <mat-icon>edit</mat-icon>Edit
+  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Edit" (click)="editNodes()">
+    <mat-icon>edit</mat-icon>
   </button>
-  <button mat-menu-item (click)="exportNodes('csv')">
-    <mat-icon svgIcon="export-csv"></mat-icon>Export as CSV
+  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Export as CSV" (click)="exportNodes('csv')">
+    <mat-icon svgIcon="export-csv"></mat-icon>
   </button>
-  <button mat-menu-item (click)="exportNodes('json')">
-    <mat-icon svgIcon="export-json"></mat-icon>Export as JSON
+  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Export as JSON" (click)="exportNodes('json')">
+    <mat-icon svgIcon="export-json"></mat-icon>
   </button>
-  <button mat-menu-item (click)="validateNode()">
-    <mat-icon>check</mat-icon>Validate
+  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Validate" (click)="validateNode()">
+    <mat-icon>check</mat-icon>
   </button>
-</mat-menu>
-<button mat-button class="btn-clear-table" type="button" (click)="clearTable()">Clear Table</button>
+  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Clear Table" (click)="clearTable()">
+    <mat-icon>clear</mat-icon>
+  </button>
+</div>
 
 <div class="ag-theme-alpine info-panel-node" [style.height]="gridHeight">
   <ag-grid-angular style="width: 100%; height: 100%;" [gridOptions]="gridOptions" (gridReady)="onGridReady($event)"

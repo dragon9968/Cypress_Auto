@@ -4,18 +4,19 @@ import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
 import { MatIconRegistry } from "@angular/material/icon";
 import { ActivatedRoute, Params } from "@angular/router";
-import { Observable, of, Subscription, throwError } from "rxjs";
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
-import { HelpersService } from "../../../core/services/helpers/helpers.service";
+import { Observable, of, Subscription, throwError } from "rxjs";
+import { GridApi, GridOptions, GridReadyEvent, RowDoubleClickedEvent } from "ag-grid-community";
 import { DomainService } from "../../../core/services/domain/domain.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
-import { InfoPanelRenderComponent } from "../info-panel-render/info-panel-render.component";
+import { DomainUserService } from "../../../core/services/domain-user/domain-user.service";
+import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { AddUpdateDomainDialogComponent } from "../../add-update-domain-dialog/add-update-domain-dialog.component";
 import { AddDomainUserDialogComponent } from "./add-domain-user-dialog/add-domain-user-dialog.component";
 import { DomainBulkEditDialogComponent } from "../../bulk-edit-dialog/domain-bulk-edit-dialog/domain-bulk-edit-dialog.component";
 import { retrievedDomains } from "../../../store/domain/domain.actions";
 import { selectDomains } from "../../../store/domain/domain.selectors";
+import { DomainUserDialogComponent } from "./domain-user-dialog/domain-user-dialog.component";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 
 @Component({
@@ -33,6 +34,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
   domains!: any;
   isClickAction = false;
   rowData$!: Observable<any[]>;
+  tabName = 'domain';
   public gridOptions: GridOptions = {
     headerHeight: 48,
     defaultColDef: {
@@ -42,6 +44,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
       filter: true
     },
     rowSelection: 'multiple',
+    onRowDoubleClicked: this.onRowDoubleClicked.bind(this),
     suppressRowDeselection: true,
     suppressCellFocus: true,
     enableCellTextSelection: true,
@@ -57,17 +60,8 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
         width: 52,
       },
       {
-        headerName: 'Actions',
         field: 'id',
-        suppressSizeToFit: true,
-        width: 200,
-        cellRenderer: InfoPanelRenderComponent,
-        cellClass: 'domain-actions',
-        cellRendererParams: {
-          tabName: 'domain',
-          getExternalParams: () => this
-        },
-        sortable: false
+        hide: true
       },
       {
         field: 'name',
@@ -97,7 +91,8 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
     private iconRegister: MatIconRegistry,
     private helpers: HelpersService,
     private domainService: DomainService,
-    private infoPanelService: InfoPanelService
+    private infoPanelService: InfoPanelService,
+    private domainUserService: DomainUserService
   ) {
     iconRegister.addSvgIcon('add-user', this.helpers.setIconPath('/assets/icons/add-user.svg'))
     this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
@@ -131,6 +126,10 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
 
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
+  }
+
+  onRowDoubleClicked(row: RowDoubleClickedEvent) {
+    this.infoPanelService.viewInfoPanel(this.tabName, row.data.id);
   }
 
   selectedRows() {
@@ -189,22 +188,20 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
     if (this.rowsSelectedId.length === 0) {
       this.toastr.info('No row selected');
     } else {
+      const item = this.rowsSelectedId.length === 1 ? 'this' : 'those';
       const dialogData = {
         title: 'User confirmation needed',
-        message: 'You sure you want to delete this item?',
+        message: `Are you sure you want to delete ${item}?`,
         submitButtonName: 'OK'
       }
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
-          this.rowsSelected.map(domain => {
-            this.infoPanelService.deleteDomain(domain, this.collectionId);
-          })
-          this.rowsSelected = [];
-          this.rowsSelectedId = [];
-          this.gridApi.deselectAll();
+          this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.rowsSelectedId);
+          this.clearRowSelected();
         }
       })
+
     }
   }
 
@@ -258,4 +255,26 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
     }
   }
 
+  openDomainUsers() {
+    if (this.rowsSelectedId.length === 1) {
+      this.domainService.get(this.rowsSelectedId[0]).subscribe( domainResponse => {
+        this.domainUserService.getDomainUserByDomainId(this.rowsSelectedId[0]).subscribe(data => {
+          const dialogData = {
+            genData: data.result,
+            domain: domainResponse.result
+          }
+          this.dialog.open(DomainUserDialogComponent,
+            {width: `${screen.width}px`, height: `${screen.height*.85}px`, data: dialogData});
+        })
+      })
+    } else {
+      this.toastr.info('Please select only one domain to open the domain user list!', 'Info');
+    }
+  }
+
+  clearRowSelected() {
+    this.rowsSelected = [];
+    this.rowsSelectedId = [];
+    this.gridApi.deselectAll();
+  }
 }

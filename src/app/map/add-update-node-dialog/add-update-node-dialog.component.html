@@ -1,5 +1,5 @@
 <form [formGroup]="nodeAddForm" (ngSubmit)="data.mode === 'add' ? addNode() : updateNode()">
-  <h1 mat-dialog-title>{{data.mode === 'add' ? 'Node Add' : data.mode === 'update' ? 'Node Edit Form' : 'Node form'}}
+  <h1 mat-dialog-title>{{data.mode === 'add' ? 'Node Add' : data.mode === 'update' ? 'Node Edit Form' : 'Node Info'}}
   </h1>
   <div mat-dialog-content>
     <mat-form-field class="field">
@@ -75,7 +75,7 @@
       <mat-autocomplete #autoHardware="matAutocomplete" [displayWith]="helpers.hardwareDisplay">
         <mat-option *ngFor="let option of hardwares" [value]="option" style="height: 60px !important;">
           <div class="hardware-option-text">
-            <span class="option-text-items"><b>{{ option.device.name }} {{ option.template.name }}</b></span>
+            <span class="option-text-items"><b>{{ option.device?.name }} {{ option.template?.name }}</b></span>
             <span class="option-text-items">Serial #: {{ option.serial_number }}</span>
             <span class="option-text-items">Asset Tag: {{ option.asset_tag }}</span>
           </div>

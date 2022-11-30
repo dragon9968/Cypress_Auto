@@ -1,21 +1,21 @@
 import { Store } from "@ngrx/store";
-import { ToastrService } from "ngx-toastr";
-import { catchError } from "rxjs/operators";
 import { MatDialog } from "@angular/material/dialog";
+import { catchError } from "rxjs/operators";
+import { ToastrService } from "ngx-toastr";
 import { MatIconRegistry } from "@angular/material/icon";
-import { forkJoin, map, Subscription, throwError } from "rxjs";
 import { Component, Input, OnDestroy } from '@angular/core';
-import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
+import { forkJoin, map, Subscription, throwError } from "rxjs";
+import { GridApi, GridOptions, GridReadyEvent, RowDoubleClickedEvent } from "ag-grid-community";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { InterfaceService } from "../../../core/services/interface/interface.service";
-import { InfoPanelRenderComponent } from "../info-panel-render/info-panel-render.component";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
-import { selectInterfaces } from "../../../store/map/map.selectors";
 import { retrievedInterfacesByIds } from "../../../store/interface/interface.actions";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
+import { selectInterfaces } from "../../../store/map/map.selectors";
 import { selectMapEdit } from "src/app/store/map-edit/map-edit.selectors";
+
 
 @Component({
   selector: 'app-info-panel-interface',
@@ -49,6 +49,7 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
       filter: true
     },
     rowSelection: 'multiple',
+    onRowDoubleClicked: this.onRowDoubleClicked.bind(this),
     suppressRowDeselection: true,
     suppressCellFocus: true,
     enableCellTextSelection: true,
@@ -64,17 +65,8 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
         width: 52,
       },
       {
-        headerName: 'Actions',
         field: 'id',
-        suppressSizeToFit: true,
-        width: 160,
-        cellRenderer: InfoPanelRenderComponent,
-        cellClass: 'interface-actions',
-        cellRendererParams: {
-          tabName: this.tabName,
-          getExternalParams: () => this
-        },
-        sortable: false
+        hide: true
       },
       {
         field: 'order',
@@ -171,6 +163,10 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
     this.gridApi.sizeColumnsToFit();
   }
 
+  onRowDoubleClicked(row: RowDoubleClickedEvent) {
+    this.infoPanelService.viewInfoPanel(this.tabName, row.data.id);
+  }
+
   private _setEdgeInfoPanel(activeEdges: any[]) {
     if (this.activeEdges.length === 0) {
       this.rowsSelected = [];
@@ -227,10 +223,10 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
           this.rowsSelectedId.map(edgeId => {
-            this.infoPanelService.delete(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
+            this.infoPanelService.deleteInfoPanelAssociateMap(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
               this.deletedNodes, this.deletedInterfaces, this.tabName, edgeId);
           })
-          this.gridApi.deselectAll();
+          this.clearTable();
           this.store.dispatch(retrievedMapSelection({data: true}));
         }
       })

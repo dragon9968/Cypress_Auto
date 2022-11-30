@@ -154,7 +154,7 @@ export class HardwareComponent implements OnInit, OnDestroy {
     }else {
       const dialogData = {
         title: 'User confirmation needed',
-        message: 'You sure you want to delete this item?',
+        message: 'Are you sure you want to delete this item?',
         submitButtonName: 'OK'
       }
       const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });

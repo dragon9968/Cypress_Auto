@@ -1,19 +1,19 @@
 <form [formGroup]="updateDomainUserForm" (ngSubmit)="updateDomainUser()">
-  <h1 mat-dialog-title>Edit Domain User</h1>
+  <h1 mat-dialog-title>{{ isViewMode ? 'Domain User Info' : 'Domain User Edit'}}</h1>
   <mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Username</mat-label>
-      <input type="text" matInput formControlName="usernameCtr" placeholder="Username">
+      <input type="text" matInput formControlName="usernameCtr" placeholder="Username" [readonly]="isViewMode">
       <mat-error *ngIf="usernameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="usernameCtr?.errors?.isExist">{{ errorMessages.DOMAIN_USER_USERNAME_EXIST }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Password</mat-label>
-      <input type="text" matInput formControlName="passwordCtr" placeholder="Password">
+      <input type="text" matInput formControlName="passwordCtr" placeholder="Password" [readonly]="isViewMode">
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Firstname</mat-label>
-      <input type="text" matInput formControlName="firstnameCtr" placeholder="Firstname">
+      <input type="text" matInput formControlName="firstnameCtr" placeholder="Firstname" [readonly]="isViewMode">
       <mat-error *ngIf="firstnameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="firstnameCtr?.errors?.minlength">{{ errorMessages.RANGE_LENGTH }}</mat-error>
       <mat-error *ngIf="firstnameCtr?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH }}</mat-error>
@@ -21,7 +21,7 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Lastname</mat-label>
-      <input type="text" matInput formControlName="lastnameCtr" placeholder="Lastname">
+      <input type="text" matInput formControlName="lastnameCtr" placeholder="Lastname" [readonly]="isViewMode">
       <mat-error *ngIf="lastnameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="lastnameCtr?.errors?.minlength">{{ errorMessages.RANGE_LENGTH }}</mat-error>
       <mat-error *ngIf="lastnameCtr?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH }}</mat-error>
@@ -29,24 +29,24 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Company</mat-label>
-      <input type="text" matInput formControlName="companyCtr" placeholder="Company">
+      <input type="text" matInput formControlName="companyCtr" placeholder="Company" [readonly]="isViewMode">
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>UPN</mat-label>
-      <input type="text" matInput formControlName="upnCtr" placeholder="UPN">
+      <input type="text" matInput formControlName="upnCtr" placeholder="UPN" [readonly]="isViewMode">
       <mat-error *ngIf="upnCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Email</mat-label>
-      <input type="email" matInput formControlName="emailCtr" placeholder="Email">
+      <input type="email" matInput formControlName="emailCtr" placeholder="Email" [readonly]="isViewMode">
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Street Address</mat-label>
-      <input type="text" matInput formControlName="streetAddressCtr" placeholder="Street Address">
+      <input type="text" matInput formControlName="streetAddressCtr" placeholder="Street Address" [readonly]="isViewMode">
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>City</mat-label>
-      <input type="text" matInput formControlName="cityCtr" placeholder="City">
+      <input type="text" matInput formControlName="cityCtr" placeholder="City" [readonly]="isViewMode">
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>State Province</mat-label>
@@ -54,16 +54,16 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Postal Code</mat-label>
-      <input type="number" matInput formControlName="postalCodeCtr" placeholder="Postal Code">
+      <input type="number" matInput formControlName="postalCodeCtr" placeholder="Postal Code" [readonly]="isViewMode">
       <mat-error *ngIf="postalCodeCtr?.errors?.pattern">{{ errorMessages.FIELD_IS_NUMBER }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Country</mat-label>
-      <input type="text" matInput formControlName="countryCtr" placeholder="Country">
+      <input type="text" matInput formControlName="countryCtr" placeholder="Country" [readonly]="isViewMode">
     </mat-form-field>
   </mat-dialog-content>
   <mat-dialog-actions [align]="'end'">
-    <button mat-raised-button type="button" mat-dialog-close>Cancel</button>
-    <button mat-raised-button type="submit" color="primary" [disabled]="updateDomainUserForm.invalid">Update</button>
+    <button mat-raised-button type="button" mat-dialog-close>{{ isViewMode ? 'Close' : 'Cancel'}}</button>
+    <button *ngIf="!isViewMode" mat-raised-button type="submit" color="primary" [disabled]="updateDomainUserForm.invalid">Update</button>
   </mat-dialog-actions>
 </form>

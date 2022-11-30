@@ -1,5 +1,5 @@
 <form [formGroup]="groupAddForm" (ngSubmit)="data.mode === 'add' ? addGroup() : updateGroup()">
-  <h1 mat-dialog-title>{{data.mode === 'add' ? 'Group Add' : data.mode === 'update' ? 'Group Edit' : 'Group View'}}</h1>
+  <h1 mat-dialog-title>{{data.mode === 'add' ? 'Group Add' : data.mode === 'update' ? 'Group Edit' : 'Group Info'}}</h1>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>

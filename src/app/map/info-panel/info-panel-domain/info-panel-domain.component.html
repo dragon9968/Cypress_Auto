@@ -1,31 +1,29 @@
-<button mat-button class="btn-actions" [matMenuTriggerFor]="actionMenu" (click)="isClickAction = !isClickAction">
-  Actions
-  <mat-icon *ngIf="isClickAction">keyboard_arrow_down</mat-icon>
-  <mat-icon *ngIf="!isClickAction">keyboard_arrow_up</mat-icon>
-</button>
-<mat-menu #actionMenu="matMenu" yPosition="below">
-  <button mat-menu-item (click)="addDomainUser()">
-    <mat-icon svgIcon="add-user"></mat-icon>Create Users
+<div class="btn-actions-group">
+  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Add new domain" (click)="addDomain()">
+    <mat-icon>add</mat-icon>
   </button>
-  <button mat-menu-item (click)="editDomain()">
-    <mat-icon>edit</mat-icon>Edit
+  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Create Users" (click)="addDomainUser()">
+    <mat-icon svgIcon="add-user"></mat-icon>
   </button>
-  <button mat-menu-item (click)="deleteDomain()">
-    <mat-icon>delete_forever</mat-icon>Delete
+  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="View domain user" (click)="openDomainUsers()">
+    <mat-icon>supervisor_account</mat-icon>
   </button>
-  <button mat-menu-item (click)="exportDomain('csv')">
-    <mat-icon svgIcon="export-csv"></mat-icon>Export as CSV
+  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Edit" (click)="editDomain()">
+    <mat-icon>edit</mat-icon>
   </button>
-  <button mat-menu-item (click)="exportDomain('json')">
-    <mat-icon svgIcon="export-json"></mat-icon>Export as JSON
+  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteDomain()">
+    <mat-icon>delete_forever</mat-icon>
   </button>
-  <button mat-menu-item (click)="validateDomain()">
-    <mat-icon>check</mat-icon>Validate
+  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Export as CSV" (click)="exportDomain('csv')">
+    <mat-icon svgIcon="export-csv"></mat-icon>
   </button>
-</mat-menu>
-<button mat-button mat-mini-fab class="add-domain" color="primary" matTooltip="Add new domain" (click)="addDomain()">
-  <mat-icon>add</mat-icon>
-</button>
+  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Export as JSON" (click)="exportDomain('json')">
+    <mat-icon svgIcon="export-json"></mat-icon>
+  </button>
+  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Validate" (click)="validateDomain()">
+    <mat-icon>check</mat-icon>
+  </button>
+</div>
 <div class="ag-theme-alpine info-panel-domain" [style.height]="gridHeight">
   <ag-grid-angular style="width: 100%; height: 100%;" [gridOptions]="gridOptions" (gridReady)="onGridReady($event)"
                    [rowData]="rowData$ | async" (rowSelected)="selectedRows()">

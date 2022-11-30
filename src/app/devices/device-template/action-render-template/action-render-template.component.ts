@@ -50,7 +50,7 @@ export class ActionRenderTemplateComponent implements ICellRendererAngularComp {
   deleteTemplate() {
     const dialogData = {
       title: 'User confirmation needed',
-      message: 'You sure you want to delete this item?'
+      message: 'Are you sure you want to delete this item?'
     }
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
     dialogRef.afterClosed().subscribe(result => {
