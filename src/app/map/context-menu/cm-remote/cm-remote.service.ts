@@ -226,7 +226,7 @@ export class CMRemoteService {
 
   add_task(jobName: string, pks: string) {
     const connection = this.serverConnectionService.getConnection();
-    const jsonData = { job_name: jobName, pks, connection_id: connection ? connection?.id : 0 };
+    const jsonData = { job_name: jobName, category: 'node', pks, connection_id: connection ? connection?.id : 0 };
     this.taskService.add(jsonData).pipe(
       catchError((e: any) => {
         this.toastr.error(e.error.message);
