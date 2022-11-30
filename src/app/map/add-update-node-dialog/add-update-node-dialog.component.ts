@@ -102,6 +102,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
       templateCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.templates, 'display_name')]),
       hardwareCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.hardwares)]),
       folderCtr: new FormControl('', Validators.required),
+      parentFolderCtr: new FormControl(''),
       roleCtr: new FormControl('', [Validators.required, autoCompleteValidator(ROLES)]),
       domainCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.domains)]),
       hostnameCtr: new FormControl('', Validators.required),
@@ -118,6 +119,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   get templateCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('templateCtr'), this.templates); }
   get hardwareCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('hardwareCtr'), this.hardwares); }
   get folderCtr() { return this.nodeAddForm.get('folderCtr'); }
+  get parentFolderCtr() { return this.nodeAddForm.get('parentFolderCtr'); }
   get roleCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('roleCtr'), ROLES); }
   get domainCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('domainCtr'), this.domains); }
   get hostnameCtr() { return this.nodeAddForm.get('hostnameCtr'); }
@@ -138,6 +140,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
     this.helpers.setAutoCompleteValue(this.templateCtr, this.templates, this.data.genData.template_id);
     this.helpers.setAutoCompleteValue(this.hardwareCtr, this.hardwares, this.data.genData.hardware_id);
     this.folderCtr?.setValue(this.data.genData.folder);
+    this.parentFolderCtr?.setValue(this.data.genData.parent_folder);
     this.helpers.setAutoCompleteValue(this.roleCtr, ROLES, this.data.genData.role);
     this.helpers.setAutoCompleteValue(this.domainCtr, this.domains, this.data.genData.domain_id);
     this.hostnameCtr?.setValue(this.data.genData.hostname);
@@ -205,6 +208,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
       template_id: this.templateCtr?.value.id,
       hardware_id: this.hardwareCtr?.value ? this.hardwareCtr?.value.id : undefined,
       folder: this.folderCtr?.value,
+      parent_folder: this.parentFolderCtr?.value,
       role: this.roleCtr?.value.id,
       domain_id: this.domainCtr?.value.id,
       hostname: this.hostnameCtr?.value,
@@ -272,6 +276,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
       template_id: this.templateCtr?.value.id,
       hardware_id: this.hardwareCtr?.value ? this.hardwareCtr?.value.id : undefined,
       folder: this.folderCtr?.value,
+      parent_folder: this.parentFolderCtr?.value,
       role: this.roleCtr?.value.id,
       domain_id: this.domainCtr?.value.id,
       hostname: this.hostnameCtr?.value,

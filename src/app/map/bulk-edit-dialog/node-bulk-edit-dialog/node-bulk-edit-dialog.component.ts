@@ -1,25 +1,25 @@
 import { Store } from "@ngrx/store";
 import { ToastrService } from "ngx-toastr";
+import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute, Params } from "@angular/router";
+import { forkJoin, map, Subscription } from "rxjs";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { forkJoin, map, Subscription } from "rxjs";
-import { FormControl, FormGroup } from "@angular/forms";
 import { ROLES } from "../../../shared/contants/roles.constant";
 import { ICON_PATH } from "src/app/shared/contants/icon-path.constant";
 import { ErrorMessages } from "../../../shared/enums/error-messages.enum";
 import { NodeService } from "../../../core/services/node/node.service";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { selectIcons } from "../../../store/icon/icon.selectors";
+import { selectDomains } from "../../../store/domain/domain.selectors";
 import { selectDevices } from "../../../store/device/device.selectors";
 import { selectTemplates } from "../../../store/template/template.selectors";
-import { selectDomains } from "../../../store/domain/domain.selectors";
-import { selectConfigTemplates } from "../../../store/config-template/config-template.selectors";
 import { selectLoginProfiles } from "../../../store/login-profile/login-profile.selectors";
-import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
+import { selectConfigTemplates } from "../../../store/config-template/config-template.selectors";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { retrievedMapEdit } from "src/app/store/map-edit/map-edit.actions";
+import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
 
 @Component({
   selector: 'app-node-bulk-edit-dialog',
@@ -74,6 +74,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
       templateCtr: new FormControl('', [autoCompleteValidator(this.templates, 'display_name')]),
       domainCtr: new FormControl('', [autoCompleteValidator(this.domains)]),
       folderCtr: new FormControl(''),
+      parentFolderCtr: new FormControl(''),
       roleCtr: new FormControl('', [autoCompleteValidator(ROLES)]),
       configTemplateCtr: new FormControl(''),
       loginProfileCtr: new FormControl('', [autoCompleteValidator(this.loginProfiles)]),
@@ -85,6 +86,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
   get templateCtr() { return this.helpers.getAutoCompleteCtr(this.nodeBulkEditForm.get('templateCtr'), this.templates); }
   get domainCtr() { return this.helpers.getAutoCompleteCtr(this.nodeBulkEditForm.get('domainCtr'), this.domains); }
   get folderCtr() { return this.nodeBulkEditForm.get('folderCtr'); }
+  get parentFolderCtr() { return this.nodeBulkEditForm.get('parentFolderCtr'); }
   get roleCtr() { return this.helpers.getAutoCompleteCtr(this.nodeBulkEditForm.get('roleCtr'), ROLES); }
   get configTemplateCtr() { return this.nodeBulkEditForm.get('configTemplateCtr'); }
   get loginProfileCtr() { return this.helpers.getAutoCompleteCtr(this.nodeBulkEditForm.get('loginProfileCtr'), this.loginProfiles); }
@@ -110,6 +112,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
       template_id: this.templateCtr?.value.id,
       domain_id: this.domainCtr?.value.id,
       folder: this.folderCtr?.value,
+      parent_folder: this.parentFolderCtr?.value,
       role: this.roleCtr?.value.id,
       login_profile_id: this.loginProfileCtr?.value.id
     }

@@ -59,6 +59,10 @@
       <input matInput formControlName="folderCtr">
     </mat-form-field>
     <mat-form-field class="field">
+      <mat-label>Parent Folder</mat-label>
+      <input matInput formControlName="parentFolderCtr">
+    </mat-form-field>
+    <mat-form-field class="field">
       <mat-label>Role</mat-label>
       <input matInput type="text" placeholder="Select a role" formControlName="roleCtr" [matAutocomplete]="autoRole">
       <mat-autocomplete #autoRole="matAutocomplete" [displayWith]="helpers.optionDisplay">
