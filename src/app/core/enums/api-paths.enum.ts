@@ -50,6 +50,7 @@ export enum ApiPaths {
   GROUP = '/api/v1/group/',
   UPDATE_GROUP = '/api/v1/group/update',
   SERVER_CONNECT = '/api/v1/server_connect/',
+  ADD_UPDATE_SERVER_CONNECT_FILE = '/api/v1/server_connect/update_file',
   CONNECT_TO_SERVER = '/api/v1/server_connect/connection',
   VM_STATUS = '/api/v1/map/vm_status',
   SAVE_VM_STATUS = '/api/v1/map/save_vm_status',

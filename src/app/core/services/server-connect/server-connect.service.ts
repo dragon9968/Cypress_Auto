@@ -27,6 +27,10 @@ export class ServerConnectService {
     return this.http.post<any>(ApiPaths.SERVER_CONNECT, data);
   }
 
+  updateFile(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.ADD_UPDATE_SERVER_CONNECT_FILE, data);
+  }
+
   put(id: number, data: any): Observable<any> {
     return this.http.put<any>(ApiPaths.SERVER_CONNECT + id, data);
   }

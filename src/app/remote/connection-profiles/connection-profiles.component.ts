@@ -12,6 +12,8 @@ import { ToastrService } from 'ngx-toastr';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { ConnectionActionsRendererComponent } from '../renderers/connection-actions/connection-actions-renderer.component';
 import { ConnectionStatusRendererComponent } from '../renderers/connection-status/connection-status-renderer.component';
+import { MatDialog } from '@angular/material/dialog';
+import { AddEditConnectionProfilesComponent } from './add-edit-connection-profiles/add-edit-connection-profiles.component';
 
 @Component({
   selector: 'app-connection-profiles',
@@ -66,7 +68,8 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
     private toastr: ToastrService,
     private router: Router,
     iconRegistry: MatIconRegistry,
-    private helpers: HelpersService
+    private helpers: HelpersService,
+    private dialog: MatDialog,
   ) {
     this.selectServerConnect$ = this.store.select(selectServerConnects).subscribe((data: any) => {
       if (this.gridApi) {
@@ -172,5 +175,32 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
         }
       })
     }
+  }
+
+  
+  addConnection() {
+    const dialogData = {
+      mode: 'add',
+      genData: {
+        name: '',
+        category: 'vmware_vcenter',
+        parameters: {
+          server: '',
+          datacenter: '',
+          cluster: '',
+          datastore: '',
+          switch: '',
+          switch_type: 'vswitch',
+          management_network: '',
+          username: '',
+          password: ''
+        }
+      }
+    }
+    const dialogRef = this.dialog.open(AddEditConnectionProfilesComponent, {
+      autoFocus: false,
+      width: '600px',
+      data: dialogData
+    });
   }
 }

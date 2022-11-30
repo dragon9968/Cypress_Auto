@@ -4,8 +4,6 @@ import { PermissionLevels } from '../core/enums/permission-levels.enum';
 import { PageNotFoundComponent } from '../core/page-not-found/page-not-found.component';
 import { ConnectComponent } from './connect/connect.component';
 import { ConnectionProfilesComponent } from './connection-profiles/connection-profiles.component';
-import { AddEditConnectionProfilesComponent } from './add-edit-connection-profiles/add-edit-connection-profiles.component';
-import { ShowConnectionProfilesComponent } from './show-connection-profiles/show-connection-profiles.component';
 
 const routes: Routes = [
   {
@@ -25,27 +23,6 @@ const routes: Routes = [
       {
         path: 'connection-profiles',
         component: ConnectionProfilesComponent,
-        data: {
-          permissionLevel: PermissionLevels.USER,
-        }
-      },
-      {
-        path: 'connection-profiles/show/:id',
-        component: ShowConnectionProfilesComponent,
-        data: {
-          permissionLevel: PermissionLevels.USER,
-        }
-      },
-      {
-        path: 'connection-profiles/add',
-        component: AddEditConnectionProfilesComponent,
-        data: {
-          permissionLevel: PermissionLevels.USER,
-        }
-      },
-      {
-        path: 'connection-profiles/edit/:id',
-        component: AddEditConnectionProfilesComponent,
         data: {
           permissionLevel: PermissionLevels.USER,
         }

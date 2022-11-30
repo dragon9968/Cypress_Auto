@@ -5,10 +5,10 @@ import { Router } from '@angular/router';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { ICellRendererParams } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
-import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { ServerConnectService } from 'src/app/core/services/server-connect/server-connect.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { retrievedServerConnect } from "../../../store/server-connect/server-connect.actions";
+import { AddEditConnectionProfilesComponent } from "../../connection-profiles/add-edit-connection-profiles/add-edit-connection-profiles.component";
 
 @Component({
   selector: 'app-connection-actions-renderer',
@@ -26,18 +26,38 @@ export class ConnectionActionsRendererComponent implements ICellRendererAngularC
   ) { }
 
   agInit(params: ICellRendererParams): void {
-    this.id= params.value;
+    this.id = params.value;
   }
 
   refresh(params: ICellRendererParams): boolean {
     return false;
   }
-  getId () {
-    this.router.navigateByUrl(RouteSegments.REMOTE + "/connection-profiles/show/" + this.id);
+
+  openConnect () {
+    this.serverConnectService.get(this.id).subscribe(data => {
+      const dialogData = {
+        mode: 'view',
+        genData: data.result
+      }
+      const dialogRef = this.dialog.open(AddEditConnectionProfilesComponent, {
+        width: '600px',
+        data: dialogData
+      });
+    })
   }
 
   getUpdate() {
-    this.router.navigateByUrl(RouteSegments.REMOTE + "/connection-profiles/edit/" + this.id);
+    this.serverConnectService.get(this.id).subscribe(data => {
+      const dialogData = {
+        mode: 'update',
+        genData: data.result
+      }
+      const dialogRef = this.dialog.open(AddEditConnectionProfilesComponent, {
+        autoFocus: false,
+        width: '600px',
+        data: dialogData
+      });
+    })
   }
 
   deleteConnection() {

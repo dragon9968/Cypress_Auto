@@ -1,4 +1,4 @@
-.show-connection-container {
+.connection-container {
   max-width: 50%;
   margin-left: auto;
   margin-right: auto;
@@ -7,7 +7,7 @@
   border: 2px solid #A9A9A9;
 }
 
-.show-connection-title {
+.connection-title {
   text-align: center;
   font-weight: 600;
   font-size: 28px;
@@ -47,11 +47,59 @@ label {
   border-radius: 5px;
 }
 
+.hint {
+  margin-bottom: 15px;
+}
+
 .field {
   width: 100%;
   align-items: center;
 }
 
-.info-group, .connection-parameters-group, .login-credential-group {
+.info-group, .connect-parameters-group, .login-credential-group {
   margin-bottom: 8px;
+}
+
+.sub-title{
+  padding-top: 10px;
+  padding-bottom: 5px;
+  padding-left: 10px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 20px;
+  color: #6C757D;
+}
+
+mat-divider{
+  padding-bottom: 10px;
+}
+
+.cert-file {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Roboto', sans-serif;
+  padding-bottom: 15px;
+}
+
+.show_file {
+  max-width: 200px;
+  border: 1px solid #a9a9a9;
+  padding: 3px;
+  border-radius: 3px;
+}
+
+.delete_file {
+  padding-left: 10px;
+}
+
+.label-cert-file {
+  flex: 1;
+}
+
+.input-cert-file {
+  flex: 2;
+  padding-bottom: 5px;
+}
+
+.file {
+  padding-top: 5px;
 }

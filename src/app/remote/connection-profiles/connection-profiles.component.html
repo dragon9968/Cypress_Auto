@@ -2,7 +2,7 @@
   <mat-card-title class="connection-title">Connection List</mat-card-title>
   <div class="sub-title">
     <div class="left">
-    <button mat-raised-button color="primary" [routerLink]="'add'">
+    <button mat-raised-button color="primary" (click)="addConnection()">
       <mat-icon>add</mat-icon>
     </button>
     <button class="btn-menu"mat-raised-button [matMenuTriggerFor]="actionMenu" (click)="isClickAction = !isClickAction">
