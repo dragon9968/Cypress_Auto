@@ -2,6 +2,7 @@
   <h1 mat-dialog-title>Import Project</h1>
   <div mat-dialog-content class="import-file">
     <input formControlName="fileCtr" type="file" name='file' (change)="onFileSelected($event)">
+    <mat-error *ngIf="fileCtr?.hasError('isNotJsonFile')">The imported file is invalid</mat-error>
     <label for="file">Import a project from a JSON file</label>
   </div>
   <div mat-dialog-actions [align]="'end'" class="create-btn">
@@ -11,7 +12,3 @@
     </button>
   </div>
 </form>
-
-<div *ngIf="isLoading" class="loading">
-  <mat-spinner></mat-spinner>
-</div>
