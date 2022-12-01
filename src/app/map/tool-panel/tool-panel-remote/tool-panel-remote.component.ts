@@ -63,16 +63,18 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
     const connection = this.serverConnectionService.getConnection();
     if (connection) {
       this.connection = connection;
-      if (this.connection && this.connection.id !== 0) {
+      if (this.connection && this.connection.id !== 0 && this.vmStatusChecked) {
         this.infoPanelService.changeVMStatusOnMap(this.collectionId, this.connection.id);
-        interval(30000).pipe(
-          takeUntil(this.destroy$)
-        ).subscribe(() => {
-          this.infoPanelService.changeVMStatusOnMap(this.collectionId, this.connection.id);
-        });
-        this.store.dispatch(retrievedIsConnect({data: true}));
+        this.store.dispatch(retrievedIsConnect({ data: true }));
       }
     }
+    interval(30000).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      if (this.connection && this.connection.id !== 0 && this.vmStatusChecked) {
+        this.infoPanelService.changeVMStatusOnMap(this.collectionId, this.connection.id);
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -81,7 +83,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
   }
 
   toggleVMStatus($event: any) {
-    this.store.dispatch(retrievedVMStatus({vmStatus: $event.checked}));
+    this.store.dispatch(retrievedVMStatus({ vmStatus: $event.checked }));
     const jsonData = {
       project_id: this.collectionId,
       connection_id: this.connection.id,
@@ -95,8 +97,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
           this.toastr.error('Save VM status failed', 'Failed');
           this.vmStatusChecked = !$event.checked;
         }
-      }
-      )
+      })
     } else {
       this.mapService.saveVMStatus(jsonData, 'off').subscribe({
         next: response => {
@@ -114,7 +115,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
     const dialogData = {
       genData: this.connection
     }
-    this.dialog.open(ServerConnectDialogComponent, {width: '600px', data: dialogData});
+    this.dialog.open(ServerConnectDialogComponent, { width: '600px', data: dialogData });
   }
 
   disconnectServer() {
@@ -125,8 +126,8 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
     }
     this.vmStatusChecked = false;
     this.infoPanelService.removeVMStatusOnMap();
-    this.store.dispatch(retrievedIsConnect({data: false}));
-    this.store.dispatch(retrievedVMStatus({vmStatus: undefined}));
+    this.store.dispatch(retrievedIsConnect({ data: false }));
+    this.store.dispatch(retrievedVMStatus({ vmStatus: undefined }));
     this.toastr.info(`Disconnected to ${this.connection.name} server!`);
   }
 
