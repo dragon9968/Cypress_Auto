@@ -18,41 +18,41 @@ export class CMAddService {
       hasTrailingDivider: true,
       disabled: false,
     }
-    const addConfigFile = {
-      id: "add_config_file",
-      content: "Add Config File",
-      onClickFunction: (event: any) => { },
-      hasTrailingDivider: true,
-      disabled: false,
-    }
-    const addFWRule = {
-      id: "add_fw_rule",
-      content: "Add FW Rule",
-      onClickFunction: (event: any) => { },
-      hasTrailingDivider: true,
-      disabled: false,
-    }
-    const addRouteNode = {
-      id: "add_route_node",
-      content: "Add Route",
-      onClickFunction: (event: any) => { },
-      hasTrailingDivider: true,
-      disabled: false,
-    }
-    const addRolesService = {
-      id: "add_roles_service",
-      content: "Add Roles & Service",
-      onClickFunction: (event: any) => { },
-      hasTrailingDivider: true,
-      disabled: false,
-    }
-    const addDomainMembership = {
-      id: "add_domain_membership",
-      content: "Add Domain Membership",
-      onClickFunction: (event: any) => { },
-      hasTrailingDivider: true,
-      disabled: false,
-    }
+    // const addConfigFile = {
+    //   id: "add_config_file",
+    //   content: "Add Config File",
+    //   onClickFunction: (event: any) => { },
+    //   hasTrailingDivider: true,
+    //   disabled: false,
+    // }
+    // const addFWRule = {
+    //   id: "add_fw_rule",
+    //   content: "Add FW Rule",
+    //   onClickFunction: (event: any) => { },
+    //   hasTrailingDivider: true,
+    //   disabled: false,
+    // }
+    // const addRouteNode = {
+    //   id: "add_route_node",
+    //   content: "Add Route",
+    //   onClickFunction: (event: any) => { },
+    //   hasTrailingDivider: true,
+    //   disabled: false,
+    // }
+    // const addRolesService = {
+    //   id: "add_roles_service",
+    //   content: "Add Roles & Service",
+    //   onClickFunction: (event: any) => { },
+    //   hasTrailingDivider: true,
+    //   disabled: false,
+    // }
+    // const addDomainMembership = {
+    //   id: "add_domain_membership",
+    //   content: "Add Domain Membership",
+    //   onClickFunction: (event: any) => { },
+    //   hasTrailingDivider: true,
+    //   disabled: false,
+    // }
     return {
       id: "node_add",
       content: "Add",
@@ -60,11 +60,11 @@ export class CMAddService {
       hasTrailingDivider: false,
       submenu: [
         addInterface,
-        addConfigFile,
-        addFWRule,
-        addRouteNode,
-        addRolesService,
-        addDomainMembership
+        // addConfigFile,
+        // addFWRule,
+        // addRouteNode,
+        // addRolesService,
+        // addDomainMembership
       ]
     }
   }

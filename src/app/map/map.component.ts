@@ -39,7 +39,6 @@ import { CMDeleteService } from './context-menu/cm-delete/cm-delete.service';
 import { CMEditService } from './context-menu/cm-edit/cm-edit.service';
 import { CMGroupBoxService } from './context-menu/cm-groupbox/cm-groupbox.service';
 import { CMLockUnlockService } from './context-menu/cm-lock-unlock/cm-lock-unlock.service';
-import { CMGoToTableService } from './context-menu/cm-go-to-table/cm-go-to-table.service';
 import { CMRemoteService } from './context-menu/cm-remote/cm-remote.service';
 import { CMMapService } from './context-menu/cm-map/cm-map.service';
 import { IconService } from '../core/services/icon/icon.service';
@@ -170,7 +169,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     private cmGroupBoxService: CMGroupBoxService,
     private cmLockUnlockService: CMLockUnlockService,
     private cmRemoteService: CMRemoteService,
-    private cmGoToTableService: CMGoToTableService,
     private cmMapService: CMMapService,
     private searchService: SearchService,
     private commonService: CommonService,
@@ -799,6 +797,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.cy.on("boxselect", this._boxSelect.bind(this));
     this.cy.on("box", this._boxCheck.bind(this));
     this.cy.on("click", this._click.bind(this));
+    this.cy.on("cxttap", "node", this._showContextMenu.bind(this));
+    this.cy.on("cxttap", "edge", this._showContextMenu.bind(this));
     this.cy.on("nodeediting.resizeend", this._nodeEditing.bind(this));
     this.cy.on('cdnddrop', this._cdndDrop.bind(this));
     this.cy.on("noderesize.resizeend", (_e: any, _type: any) => {
@@ -810,23 +810,23 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private _initContextMenu() {
     this.cy.contextMenus({
       menuItems: [
+        this.cmGroupBoxService.getMoveToFrontMenu(),
+        this.cmGroupBoxService.getMoveToBackMenu(),
         this.cmAddService.getNodeAddMenu(this.queueEdge.bind(this)),
         this.cmAddService.getPortGroupAddMenu(this.queueEdge.bind(this)),
         this.cmAddService.getEdgeAddMenu(),
         this.cmActionsService.getNodeActionsMenu(this.cy, this.activeNodes),
         this.cmActionsService.getPortGroupActionsMenu(this.cy, this.collectionId, this.activePGs),
         this.cmActionsService.getEdgeActionsMenu(this.cy, this.activeEdges),
+        this.cmRemoteService.getNodeRemoteMenu(this.activeNodes),
+        this.cmRemoteService.getPortGroupRemoteMenu(this.activePGs),
         this.cmViewDetailsService.getMenu(),
         this.cmEditService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges),
         this.cmDeleteService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs),
-        this.cmGroupBoxService.getCollapseMenu(this.cy, this.activeGBs),
-        this.cmGroupBoxService.getExpandMenu(this.cy, this.activeGBs),
-        this.cmGroupBoxService.getMoveToFrontMenu(),
-        this.cmGroupBoxService.getMoveToBackMenu(),
         this.cmLockUnlockService.getLockMenu(this.cy, this.activeNodes, this.activePGs),
         this.cmLockUnlockService.getUnlockMenu(this.activeNodes, this.activePGs),
-        this.cmRemoteService.getMenu(this.activeNodes),
-        this.cmGoToTableService.getMenu(),
+        this.cmGroupBoxService.getCollapseMenu(this.cy, this.activeGBs),
+        this.cmGroupBoxService.getExpandMenu(this.cy, this.activeGBs),
         this.cmMapService.getSaveChangesMenu(),
         this.cmMapService.getUndoMenu(),
         this.cmMapService.getRedoMenu(),
@@ -1056,47 +1056,70 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     const activeNodesLength = this.activeNodes.length;
     const activePGsLength = this.activePGs.length;
     const activeEdgesLength = this.activeEdges.length;
-    if (activeNodesLength > 0 && activePGsLength > 0 ||
-      activeNodesLength > 0 && activeEdgesLength > 0 ||
-      activePGsLength > 0 && activeEdgesLength > 0) {
-      contextMenu.hideMenuItem('node_add');
-      contextMenu.hideMenuItem('pg_add');
-      contextMenu.hideMenuItem('node_actions');
-      contextMenu.hideMenuItem('pg_actions');
-      contextMenu.hideMenuItem('edge_actions');
-      contextMenu.hideMenuItem('view_details');
-      contextMenu.hideMenuItem('edit');
-      contextMenu.hideMenuItem('node_remote');
-      contextMenu.hideMenuItem('go_to_table');
+    contextMenu.hideMenuItem('node_add');
+    contextMenu.hideMenuItem('pg_add');
+    contextMenu.hideMenuItem('edge_add');
+    contextMenu.hideMenuItem('node_actions');
+    contextMenu.hideMenuItem('pg_actions');
+    contextMenu.hideMenuItem('edge_actions');
+    contextMenu.hideMenuItem('view_details');
+    contextMenu.hideMenuItem('edit');
+    contextMenu.hideMenuItem('delete');
+    contextMenu.hideMenuItem('lock_node');
+    contextMenu.hideMenuItem('unlock_node');
+    contextMenu.hideMenuItem('node_remote');
+    contextMenu.hideMenuItem('pg_remote');
+   if (activeNodesLength > 0 && activePGsLength > 0 || activeNodesLength > 0 && activeEdgesLength > 0 || activePGsLength > 0 && activeEdgesLength > 0) {
+      contextMenu.showMenuItem('delete');
+      contextMenu.showMenuItem('lock_node');
+      contextMenu.showMenuItem('unlock_node');
     } else if (activeNodesLength >= 2 && activePGsLength == 0 && activeEdgesLength == 0) {
-      contextMenu.hideMenuItem('node_add');
-      contextMenu.hideMenuItem('view_details');
-      contextMenu.hideMenuItem('go_to_table');
+      contextMenu.showMenuItem('node_actions');
+      contextMenu.showMenuItem('edit');
+      contextMenu.showMenuItem('delete');
+      contextMenu.showMenuItem('lock_node');
+      contextMenu.showMenuItem('unlock_node');
+      contextMenu.showMenuItem('node_remote');
       contextMenu.hideMenuItem('web_console');
     } else if (activePGsLength >= 2 && activeNodesLength == 0 && activeEdgesLength == 0) {
-      contextMenu.hideMenuItem('pg_add');
-      contextMenu.hideMenuItem('view_details');
-      contextMenu.hideMenuItem('go_to_table');
-    } else if (activeEdgesLength >= 2 && activeNodesLength == 0 && activePGsLength == 0) {
-      contextMenu.hideMenuItem('view_details');
-      contextMenu.hideMenuItem('go_to_table');
-    } else {
-      contextMenu.showMenuItem('node_add');
-      contextMenu.showMenuItem('pg_add');
-      contextMenu.hideMenuItem('edge_add');
-      contextMenu.showMenuItem('node_actions');
       contextMenu.showMenuItem('pg_actions');
+      contextMenu.showMenuItem('edit');
+      contextMenu.showMenuItem('delete');
+      contextMenu.showMenuItem('lock_node');
+      contextMenu.showMenuItem('unlock_node');
+      contextMenu.showMenuItem('pg_remote');
+    } else if (activeEdgesLength >= 2 && activeNodesLength == 0 && activePGsLength == 0) {
+      contextMenu.showMenuItem('edge_actions');
+      contextMenu.showMenuItem('edit');
+      contextMenu.showMenuItem('delete');
+    } else if (activeNodesLength == 1) {
+      contextMenu.showMenuItem('node_add');
+      contextMenu.showMenuItem('node_actions');
+      contextMenu.showMenuItem('view_details');
+      contextMenu.showMenuItem('edit');
+      contextMenu.showMenuItem('delete');
+      contextMenu.showMenuItem('lock_node');
+      contextMenu.showMenuItem('unlock_node');
+      contextMenu.showMenuItem('node_remote');
+      contextMenu.showMenuItem('web_console');
+    } else if (activePGsLength == 1) {
+      contextMenu.showMenuItem('pg_add');
+      contextMenu.showMenuItem('pg_actions');
+      contextMenu.showMenuItem('view_details');
+      contextMenu.showMenuItem('edit');
+      contextMenu.showMenuItem('delete');
+      contextMenu.showMenuItem('lock_node');
+      contextMenu.showMenuItem('unlock_node');
+      contextMenu.showMenuItem('pg_remote');
+    } else if (activeEdgesLength == 1) {
       contextMenu.showMenuItem('edge_actions');
       contextMenu.showMenuItem('view_details');
       contextMenu.showMenuItem('edit');
-      contextMenu.showMenuItem('node_remote');
-      contextMenu.showMenuItem('web_console');
-      contextMenu.showMenuItem('go_to_table');
+      contextMenu.showMenuItem('delete');
     }
-    if (this.connectionId && this.connectionId !== 0) {
-      contextMenu.showMenuItem('node_remote');
-    } else {
+    if (!this.connectionId || this.connectionId == 0) {
       contextMenu.hideMenuItem('node_remote');
+      contextMenu.hideMenuItem('pg_remote');
     }
   }
 

@@ -114,14 +114,14 @@ export class CMActionsService {
       selector: "edge",
       hasTrailingDivider: true,
       submenu: [
-        {
-          id: "add_edge_config",
-          content: "Add Configuration",
-          selector: "edge",
-          onClickFunction: (event: any) => { },
-          hasTrailingDivider: true,
-          disabled: true,
-        },
+        // {
+        //   id: "add_edge_config",
+        //   content: "Add Configuration",
+        //   selector: "edge",
+        //   onClickFunction: (event: any) => { },
+        //   hasTrailingDivider: true,
+        //   disabled: true,
+        // },
         {
           id: "randomize_edge_ip",
           content: "Randomize IP",

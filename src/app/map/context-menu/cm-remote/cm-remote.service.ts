@@ -28,7 +28,7 @@ export class CMRemoteService {
     private projectService: ProjectService
   ) { }
 
-  getMenu(activeNodes: any[]) {
+  getNodeRemoteMenu(activeNodes: any[]) {
     const webConsole = {
       id: "web_console",
       content: "Web Console",
@@ -59,7 +59,7 @@ export class CMRemoteService {
           onClickFunction: (event: any) => {
             const target = event.target;
             const data = target.data();
-            this.add_task('power_on_node', data.node_id.toString());
+            this.add_task('node', 'power_on_node', data.node_id.toString());
           },
           hasTrailingDivider: true,
           disabled: false,
@@ -71,7 +71,7 @@ export class CMRemoteService {
           onClickFunction: (event: any) => {
             const target = event.target;
             const data = target.data();
-            this.add_task('power_off_node', data.node_id.toString());
+            this.add_task('node', 'power_off_node', data.node_id.toString());
           },
           hasTrailingDivider: true,
           disabled: false,
@@ -83,7 +83,7 @@ export class CMRemoteService {
           onClickFunction: (event: any) => {
             const target = event.target;
             const data = target.data();
-            this.add_task('restart_node', data.node_id.toString());
+            this.add_task('node', 'restart_node', data.node_id.toString());
           },
           hasTrailingDivider: true,
           disabled: false,
@@ -217,16 +217,61 @@ export class CMRemoteService {
       hasTrailingDivider: true,
       submenu: [
         webConsole,
-        power,
         deploy,
+        power,
         snapshot
       ]
     }
   }
 
-  add_task(jobName: string, pks: string) {
+  getPortGroupRemoteMenu(activePGs: any[]) {
+    const deploy = {
+      id: "deploy",
+      content: "Deploy",
+      selector: "node[icon]",
+      hasTrailingDivider: true,
+      submenu: [
+        {
+          id: "deploy_new",
+          content: "New",
+          selector: "node[elem_category='port_group']",
+          onClickFunction: (event: any) => { },
+          hasTrailingDivider: true,
+          disabled: false,
+        },
+        {
+          id: "deploy_delete",
+          content: "Delete",
+          selector: "node[elem_category='port_group']",
+          onClickFunction: (event: any) => { },
+          hasTrailingDivider: true,
+          disabled: false,
+        },
+        {
+          id: "deploy_update",
+          content: "Update",
+          selector: "node[elem_category='port_group']",
+          onClickFunction: (event: any) => { },
+          hasTrailingDivider: true,
+          disabled: false,
+        },
+      ]
+    }
+    
+    return {
+      id: "pg_remote",
+      content: "Remote",
+      selector: "node[elem_category='port_group']",
+      hasTrailingDivider: true,
+      submenu: [
+        deploy,
+      ]
+    }
+  }
+
+  add_task(category: string, jobName: string, pks: string) {
     const connection = this.serverConnectionService.getConnection();
-    const jsonData = { job_name: jobName, category: 'node', pks, connection_id: connection ? connection?.id : 0 };
+    const jsonData = { job_name: jobName, category, pks, connection_id: connection ? connection?.id : 0 };
     this.taskService.add(jsonData).pipe(
       catchError((e: any) => {
         this.toastr.error(e.error.message);
