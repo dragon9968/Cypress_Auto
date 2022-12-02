@@ -41,17 +41,18 @@ export class RevertNodeSnapshotDialogComponent {
     const connection = this.serverConnectionService.getConnection();
     const jsonData = {
       job_name: 'revert_snapshot',
+      category: 'node',
       pks: this.data.activeNodes.map((ele: any) => ele.data('node_id')).join(','),
       snapshot_name: this.nameCtr?.value?.name,
       connection_id: connection ? connection?.id : 0
     }
     this.taskService.add(jsonData).pipe(
       catchError(err => {
-        this.toastr.error(err.error.message);
+        this.toastr.error(err.error.message, 'Error');
         return throwError(() => err);
       })
     ).subscribe(() => {
-      this.toastr.success('Task added to the queue');
+      this.toastr.success('Task added to the queue', 'Success');
       this.infoPanelService.updateTaskList();
       this.dialogRef.close();
     })

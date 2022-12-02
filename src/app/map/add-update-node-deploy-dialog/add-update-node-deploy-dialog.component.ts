@@ -69,7 +69,7 @@ export class AddUpdateNodeDeployDialogComponent {
     ).subscribe(respData => {
       this.infoPanelService.updateTaskList();
       this.dialogRef.close();
-      this.toastr.success("Task added to the queue");
+      this.toastr.success("Task added to the queue", 'Success');
     });
   }
 }

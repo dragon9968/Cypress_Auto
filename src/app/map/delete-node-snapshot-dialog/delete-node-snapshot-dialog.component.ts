@@ -44,17 +44,18 @@ export class DeleteNodeSnapshotDialogComponent {
     const connection = this.serverConnectionService.getConnection();
     const jsonData = {
       job_name: 'delete_snapshot',
+      category: 'node',
       pks: this.data.activeNodes.map((ele: any) => ele.data('node_id')).join(","),
       snapshot_name: this.nameCtr?.value?.name,
       connection_id: connection ? connection.id : 0
     };
     this.taskService.add(jsonData).pipe(
       catchError((e: any) => {
-        this.toastr.error(e.error.message);
+        this.toastr.error(e.error.message, 'Error');
         return throwError(() => e);
       })
     ).subscribe(respData => {
-      this.toastr.success("Task added to the queue");
+      this.toastr.success('Task added to the queue', 'Success');
       this.infoPanelService.updateTaskList();
       this.dialogRef.close();
     });

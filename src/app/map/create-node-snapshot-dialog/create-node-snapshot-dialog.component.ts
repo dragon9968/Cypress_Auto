@@ -40,6 +40,7 @@ export class CreateNodeSnapshotDialogComponent {
     const connection = this.serverConnectionService.getConnection();
     const jsonData = {
       job_name: 'create_snapshot',
+      category: 'node',
       pks: this.data.activeNodes.map((ele: any) => ele.data('node_id')).join(","),
       connection_id: connection ? connection.id : 0,
       snapshot_name: this.nameCtr?.value,

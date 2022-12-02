@@ -33,6 +33,8 @@ import { RevertNodeSnapshotDialogComponent } from './revert-node-snapshot-dialog
 import { DeleteNodeDeployDialogComponent } from './delete-node-deploy-dialog/delete-node-deploy-dialog.component';
 import { DomainUserDialogComponent } from './info-panel/info-panel-domain/domain-user-dialog/domain-user-dialog.component';
 import { UpdateDomainUserDialogComponent } from './info-panel/info-panel-domain/update-domain-user-dialog/update-domain-user-dialog.component';
+import { AddDeletePGDeployDialogComponent } from './add-delete-pg-deploy-dialog/add-delete-pg-deploy-dialog.component';
+import { UpdateFactsNodeDialogComponent } from './update-facts-node-dialog/update-facts-node-dialog.component';
 
 
 @NgModule({
@@ -68,7 +70,9 @@ import { UpdateDomainUserDialogComponent } from './info-panel/info-panel-domain/
     RevertNodeSnapshotDialogComponent,
     DeleteNodeDeployDialogComponent,
     DomainUserDialogComponent,
-    UpdateDomainUserDialogComponent
+    UpdateDomainUserDialogComponent,
+    AddDeletePGDeployDialogComponent,
+    UpdateFactsNodeDialogComponent
   ],
   imports: [
     MapRoutingModule,

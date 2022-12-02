@@ -12,6 +12,8 @@ import { DeleteNodeSnapshotDialogComponent } from '../../delete-node-snapshot-di
 import { RevertNodeSnapshotDialogComponent } from "../../revert-node-snapshot-dialog/revert-node-snapshot-dialog.component";
 import { DeleteNodeDeployDialogComponent } from "../../delete-node-deploy-dialog/delete-node-deploy-dialog.component";
 import { ProjectService } from 'src/app/project/services/project.service';
+import { AddDeletePGDeployDialogComponent } from "../../add-delete-pg-deploy-dialog/add-delete-pg-deploy-dialog.component";
+import { UpdateFactsNodeDialogComponent } from "../../update-facts-node-dialog/update-facts-node-dialog.component";
 
 @Injectable({
   providedIn: 'root'
@@ -174,7 +176,7 @@ export class CMRemoteService {
                     names: response.result
                   };
                   this.dialog.open(DeleteNodeSnapshotDialogComponent, { width: '600px', data: dialogData });
-                  }
+                }
               })
             } else {
               this.toastr.warning('Please select the node before deleting', 'Warning');
@@ -210,6 +212,19 @@ export class CMRemoteService {
         },
       ]
     }
+    const updateFacts = {
+      id: "update_facts",
+      content: "Update Facts",
+      selector: "node[icon]",
+      onClickFunction: (event: any) => {
+        const dialogData = {
+          activeNodes
+        };
+        this.dialog.open(UpdateFactsNodeDialogComponent, { width: '600px', data: dialogData });
+      },
+      hasTrailingDivider: true,
+      disabled: false,
+    }
     return {
       id: "node_remote",
       content: "Remote",
@@ -219,31 +234,46 @@ export class CMRemoteService {
         webConsole,
         deploy,
         power,
-        snapshot
+        snapshot,
+        updateFacts
       ]
     }
   }
 
   getPortGroupRemoteMenu(activePGs: any[]) {
     const deploy = {
-      id: "deploy",
+      id: "deploy_pg",
       content: "Deploy",
       selector: "node[icon]",
       hasTrailingDivider: true,
       submenu: [
         {
-          id: "deploy_new",
+          id: "deploy_new_pg",
           content: "New",
           selector: "node[elem_category='port_group']",
-          onClickFunction: (event: any) => { },
+          onClickFunction: (event: any) => {
+            const dialogData = {
+              jobName: 'create_pg',
+              activePGs,
+              message: 'Deploy this port group?'
+            };
+            this.dialog.open(AddDeletePGDeployDialogComponent, { width: '450px', data: dialogData });
+          },
           hasTrailingDivider: true,
           disabled: false,
         },
         {
-          id: "deploy_delete",
+          id: "deploy_delete_pg",
           content: "Delete",
           selector: "node[elem_category='port_group']",
-          onClickFunction: (event: any) => { },
+          onClickFunction: (event: any) => {
+            const dialogData = {
+              jobName: 'delete_pg',
+              activePGs,
+              message: 'Delete port group(s)?'
+            };
+            this.dialog.open(AddDeletePGDeployDialogComponent, { width: '450px', data: dialogData });
+          },
           hasTrailingDivider: true,
           disabled: false,
         },
@@ -257,7 +287,7 @@ export class CMRemoteService {
         },
       ]
     }
-    
+
     return {
       id: "pg_remote",
       content: "Remote",
@@ -279,7 +309,7 @@ export class CMRemoteService {
       })
     ).subscribe(respData => {
       this.infoPanelService.updateTaskList();
-      this.toastr.success("Task added to the queue");
+      this.toastr.success("Task added to the queue", "Success");
     });
   }
 }
