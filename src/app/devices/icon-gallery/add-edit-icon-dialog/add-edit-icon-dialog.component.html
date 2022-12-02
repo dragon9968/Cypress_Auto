@@ -20,7 +20,12 @@
       <input type="text" formControlName="photo" matInput>
     </mat-form-field>
     <div class="photo">
-      <img *ngIf="data.mode === 'update'" [src]="ICON_PATH + url_default" width="90px" height="auto">
+      <div [hidden]="isHiddenDeleteButton">
+        <div class="show-photo">
+          <img [src]="ICON_PATH + url_default" width="90px" height="auto">
+          <mat-checkbox class="delete-file" (change)="onSelectChangeDelete($event)">Delete</mat-checkbox>
+        </div>
+      </div>
       <input *ngIf="data.mode !== 'view'" type="file" name='file' accept="image/*" (change)="onFileSelected($event)">
     </div>
   </div>

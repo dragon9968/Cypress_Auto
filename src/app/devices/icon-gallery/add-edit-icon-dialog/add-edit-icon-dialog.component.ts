@@ -17,6 +17,8 @@ import { selectIcons } from 'src/app/store/icon/icon.selectors';
 })
 export class AddEditIconDialogComponent implements OnInit {
   isViewMode = false;
+  isChecked = false;
+  isHiddenDeleteButton = false;
   selectedFile: any = null;
   iconForm!: FormGroup;
   ICON_PATH = ICON_PATH;
@@ -54,17 +56,27 @@ export class AddEditIconDialogComponent implements OnInit {
     }
   }
 
-  get id() {
-    return this.iconForm.get('id');
-  }
-  get name() {
-    return this.iconForm.get('name');
-  }
-  get photo() {
-    return this.iconForm.get('photo');
-  }
+  get id() { return this.iconForm.get('id'); }
+  get name() { return this.iconForm.get('name'); }
+  get photo() { return this.iconForm.get('photo'); }
 
   ngOnInit(): void {
+    this.isHiddenDeleteButton = true;
+    if (this.data.mode === 'update') {
+        if (this.data.genData.photo) {
+          this.isHiddenDeleteButton = false;
+        } else {
+          this.isHiddenDeleteButton = true;
+        }
+    }
+  }
+
+  onSelectChangeDelete(event: any) {
+    if (event.checked) {
+      this.isChecked = true;
+    } else {
+      this.isChecked = false;
+    }
   }
 
   addIcon() {
@@ -99,14 +111,14 @@ export class AddEditIconDialogComponent implements OnInit {
   updateIcon() {
     if (this.iconForm.valid) {
       const formData = new FormData();
-      if (this.selectedFile) {
-        formData.append('update', 'true');
-        formData.append('file', this.selectedFile);
-      } else {
-        formData.append('file', 'false');
-      }
-
+      formData.append('file', this.selectedFile);
       formData.append('name', this.name?.value);
+      if (this.isChecked) {
+        formData.append('checked', 'true');
+      }
+      else {
+        formData.append('checked', 'false');
+      }
       this.iconService.put(this.data.genData.id, formData).subscribe({
         next:(rest) => {
           this.dialogRef.close();
