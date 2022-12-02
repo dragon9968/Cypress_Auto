@@ -11,6 +11,8 @@ import { retrievedMapPref } from 'src/app/store/map-style/map-style.actions';
 import { selectDefaultPreferences } from 'src/app/store/map/map.selectors';
 import { CommonService } from 'src/app/map/context-menu/cm-common-service/common.service';
 import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
+import { ToastrService } from 'ngx-toastr';
+import { CMGroupBoxService } from '../../context-menu/cm-groupbox/cm-groupbox.service';
 
 @Component({
   selector: 'app-tool-panel-style',
@@ -25,6 +27,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
   @Input() activePGs: any[] = [];
   @Input() activeEdges: any[] = [];
   @Input() activeGBs: any[] = [];
+  @Input() activeMBs: any[] = [];
   mapPrefCtr = new FormControl();
   mapPrefs!: any[];
   nodeSize = 70;
@@ -62,6 +65,8 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
     public helpers: HelpersService,
     private commonService: CommonService,
     iconRegistry: MatIconRegistry,
+    private toastr: ToastrService,
+    private cmGroupBoxService: CMGroupBoxService,
   ) {
     iconRegistry.addSvgIcon('dashed', this.setPath('/assets/icons/dashed.svg'));
     iconRegistry.addSvgIcon('double', this.setPath('/assets/icons/double.svg'));
@@ -326,5 +331,34 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
       newGbBorderColor,
       this.activeGBs
     );
+  }
+
+  increaseZIndex() {
+    this.activeGBs.concat(this.activeMBs).map(ele => {
+      this.cmGroupBoxService.moveUp(ele);
+    });
+  }
+
+  decreaseZIndex() {
+    this.activeGBs.concat(this.activeMBs).map(ele => {
+      ele._private['data'] = { ...ele._private['data'] };
+      const label = ele.data('label');
+      if (label == 'map_background') {
+        if (this.config.gb_exists) {
+          const g = ele.parent();
+          if (g.data('zIndex') == -998) {
+            this.toastr.warning('group box zIndex out of bounds');
+            return;
+          }
+          g.data('zIndex', g.data('zIndex') - 1);
+        }
+      } else {
+        if (ele.data('zIndex') == -998) {
+          this.toastr.warning('group box zIndex out of bounds');
+          return;
+        }
+      }
+      ele.data('zIndex', ele.data('zIndex') - 1);
+    });
   }
 }

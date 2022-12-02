@@ -1,15 +1,4 @@
 <section class="tab-section">
-  <div class="tab-field node-actions">
-    <button mat-mini-fab class="node-action" color="primary" matTooltip="Increase Z-Index" (click)="increaseZIndex()">
-      <mat-icon>text_increase</mat-icon>
-    </button>
-    <button mat-mini-fab class="node-action" color="primary" matTooltip="Decrease Z-Index" (click)="decreaseZIndex()">
-      <mat-icon>text_decrease</mat-icon>
-    </button>
-  </div>
-</section>
-<mat-divider></mat-divider>
-<section class="tab-section">
   <h4>Node</h4>
   <form [formGroup]="nodeAddForm" (ngSubmit)="addNode()">
     <mat-form-field class="tab-select-field">

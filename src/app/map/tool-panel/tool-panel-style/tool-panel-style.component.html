@@ -19,6 +19,19 @@
     </div>
 </section>
 
+<section class="tab-section" [hidden]="isHideNode && isHidePGs && isHideEdge && isHideGBs">
+    <mat-divider></mat-divider>
+    <h4>Z-Index</h4>
+    <div class="tab-field z-index">
+      <button mat-mini-fab class="z-index-btn" color="primary" matTooltip="Increase Z-Index" (click)="increaseZIndex()">
+        <mat-icon>text_increase</mat-icon>
+      </button>
+      <button mat-mini-fab class="z-index-btn" color="primary" matTooltip="Decrease Z-Index" (click)="decreaseZIndex()">
+        <mat-icon>text_decrease</mat-icon>
+      </button>
+    </div>
+  </section>
+
 <section class="tab-section" [hidden]="isHideNode">
     <mat-divider></mat-divider>
     <h4>Node</h4>

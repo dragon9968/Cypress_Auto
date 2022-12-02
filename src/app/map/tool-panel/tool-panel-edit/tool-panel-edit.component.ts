@@ -9,11 +9,7 @@ import { selectDevices } from 'src/app/store/device/device.selectors';
 import { selectTemplates } from 'src/app/store/template/template.selectors';
 import { Subscription } from 'rxjs';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
-import { CMLockUnlockService } from '../../context-menu/cm-lock-unlock/cm-lock-unlock.service';
-import { CommonService } from 'src/app/map/context-menu/cm-common-service/common.service';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
-import { CMGroupBoxService } from '../../context-menu/cm-groupbox/cm-groupbox.service';
-import { ToastrService } from 'ngx-toastr';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
 import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
@@ -54,11 +50,7 @@ export class ToolPanelEditComponent implements OnDestroy {
 
   constructor(
     private store: Store,
-    private cmLockUnlockService: CMLockUnlockService,
     public helpers: HelpersService,
-    private commonService: CommonService,
-    private cmGroupBoxService: CMGroupBoxService,
-    private toastr: ToastrService
   ) {
     this.nodeAddForm = new FormGroup({
       deviceCtr: new FormControl(''),
@@ -221,34 +213,5 @@ export class ToolPanelEditComponent implements OnDestroy {
       },
       position: { x: 0, y: 0 }
     })[0];
-  }
-
-  increaseZIndex() {
-    this.activeGBs.concat(this.activeMBs).map(ele => {
-      this.cmGroupBoxService.moveUp(ele);
-    });
-  }
-
-  decreaseZIndex() {
-    this.activeGBs.concat(this.activeMBs).map(ele => {
-      ele._private['data'] = { ...ele._private['data'] };
-      const label = ele.data('label');
-      if (label == 'map_background') {
-        if (this.config.gb_exists) {
-          const g = ele.parent();
-          if (g.data('zIndex') == -998) {
-            this.toastr.warning('group box zIndex out of bounds');
-            return;
-          }
-          g.data('zIndex', g.data('zIndex') - 1);
-        }
-      } else {
-        if (ele.data('zIndex') == -998) {
-          this.toastr.warning('group box zIndex out of bounds');
-          return;
-        }
-      }
-      ele.data('zIndex', ele.data('zIndex') - 1);
-    });
   }
 }
