@@ -21,6 +21,8 @@ import { HelpersService } from "../../services/helpers/helpers.service";
 import { takeUntil } from "rxjs/operators";
 import { AppPreferencesComponent } from 'src/app/settings/app-preferences/app-preferences.component';
 import { AppPrefService } from '../../services/app-pref/app-pref.service';
+import { MapPrefService } from '../../services/map-pref/map-pref.service';
+import { retrievedMapPrefs } from 'src/app/store/map-pref/map-pref.actions';
 
 @Component({
   selector: 'app-nav-bar',
@@ -43,6 +45,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private projectService: ProjectService,
+    private mapPrefService: MapPrefService,
     private toastr: ToastrService,
     private dialog: MatDialog,
     private router: Router,
@@ -214,6 +217,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
         mode: 'update',
         genData: data.result
       }
+      this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPrefs({data: data.result})));
       const dialogRef = this.dialog.open(AppPreferencesComponent, {
         autoFocus: false,
         width: '600px',

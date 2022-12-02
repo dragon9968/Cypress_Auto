@@ -8,7 +8,7 @@ import { AppPrefService } from 'src/app/core/services/app-pref/app-pref.service'
 import { MapPrefService } from 'src/app/core/services/map-pref/map-pref.service';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { ipInNetworkValidator } from 'src/app/shared/validations/ip-innetwork.validation';
-import { ipValidator } from 'src/app/shared/validations/ip.validation';
+import { ipSubnetValidation } from 'src/app/shared/validations/ip-subnet.validation';
 import { selectAppPref } from 'src/app/store/app-pref/app-pref.selectors';
 import { retrievedMapPrefs } from 'src/app/store/map-pref/map-pref.actions';
 import { selectMapPrefs } from 'src/app/store/map-pref/map-pref.selectors';
@@ -42,12 +42,12 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
     this.appPrefForm = new FormGroup({
       sessionTimeoutCtr: new FormControl('', [Validators.required]),
       mapPrefCtr: new FormControl(''),
-      publicNetworkCtr: new FormControl('', [ipValidator(true)]),
-      publicNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.preferences.public_network), ipValidator(false)]),
-      privateNetworkCtr: new FormControl('', [ipValidator(true)]),
-      privateNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.preferences.network), ipValidator(false)]),
-      managementNetworkCtr: new FormControl('', [ipValidator(true)]),
-      managementNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.preferences.management_network), ipValidator(false)]),
+      publicNetworkCtr: new FormControl('', [ipSubnetValidation(true)]),
+      publicNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.preferences.public_network), ipSubnetValidation(false)]),
+      privateNetworkCtr: new FormControl('', [ipSubnetValidation(true)]),
+      privateNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.preferences.network), ipSubnetValidation(false)]),
+      managementNetworkCtr: new FormControl('', [ipSubnetValidation(true)]),
+      managementNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.preferences.management_network), ipSubnetValidation(false)]),
       dhcpServerCtr: new FormControl(''),
     });
 
@@ -76,7 +76,6 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
   
 
   ngOnInit(): void {
-    this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPrefs({data: data.result})));
   }
 
   ngOnDestroy(): void {
