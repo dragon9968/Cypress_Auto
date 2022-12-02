@@ -19,7 +19,7 @@
     <mat-form-field class="field">
       <mat-label>Template</mat-label>
       <input matInput type="text" placeholder="Select a template" [formControl]="template"
-        [matAutocomplete]="autoTemplate" [readonly]="isDisable">
+        [matAutocomplete]="autoTemplate">
       <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helpers.templateDisplay">
         <mat-option *ngFor="let option of filteredTemplates" [value]="option">
           <div class="option-text">

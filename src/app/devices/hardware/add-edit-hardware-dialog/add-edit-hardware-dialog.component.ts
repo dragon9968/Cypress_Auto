@@ -24,7 +24,6 @@ import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.
   styleUrls: ['./add-edit-hardware-dialog.component.scss']
 })
 export class AddEditHardwareDialogComponent implements OnInit {
-  isDisable = true;
   isViewMode = false;
   selected: any;
   errorMessages = ErrorMessages;
@@ -91,7 +90,6 @@ export class AddEditHardwareDialogComponent implements OnInit {
   }
 
   selectDevice($event: MatAutocompleteSelectedEvent) {
-    this.isDisable = false;
     this.filteredTemplates = this.listTemplate.filter(template => template.device_id == $event.option.value.id);
     this.template?.setValue('');
   }
