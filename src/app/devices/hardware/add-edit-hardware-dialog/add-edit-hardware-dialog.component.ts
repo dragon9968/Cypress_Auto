@@ -68,6 +68,7 @@ export class AddEditHardwareDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.filteredTemplates = this.listTemplate.filter((template: any) => template.device_id == this.data.genData.device?.id);
     this.helpers.setAutoCompleteValue(this.device, this.listDevices, this.data.genData.device?.id);
     this.helpers.setAutoCompleteValue(this.template, this.filteredTemplates, this.data.genData.template?.id);
     this.serialNumber?.setValue(this.data.genData.serial_number);
