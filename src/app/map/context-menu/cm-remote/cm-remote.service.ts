@@ -281,7 +281,14 @@ export class CMRemoteService {
           id: "deploy_update",
           content: "Update",
           selector: "node[elem_category='port_group']",
-          onClickFunction: (event: any) => { },
+          onClickFunction: (event: any) => {
+            const dialogData = {
+              jobName: 'update_pg',
+              activePGs,
+              message: 'Update port group(s)?'
+            };
+            this.dialog.open(AddDeletePGDeployDialogComponent, { width: '450px', data: dialogData });
+          },
           hasTrailingDivider: true,
           disabled: false,
         },
