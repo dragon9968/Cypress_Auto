@@ -59,15 +59,22 @@ export class ServerConnectService {
     return this.http.post<any>(ApiPaths.CONNECT_TO_SERVER, data);
   }
 
+  disconnect(data: any): Observable<any> {
+    if (this.getConnection()) {
+      this.localStorageService.removeItem(LocalStorageKeys.CONNECTION);
+    }
+    return this.http.post<any>(ApiPaths.DISCONNECT_FROM_SERVER, data);
+  }
+
   getConnection(): any {
     return JSON.parse(<any>this.localStorageService.getItem(LocalStorageKeys.CONNECTION));
   }
 
-  disconnectServer(): any {
-    if (this.getConnection()) {
-      this.localStorageService.removeItem(LocalStorageKeys.CONNECTION);
-    }
-  }
+  // disconnectServer(): any {
+  //   if (this.getConnection()) {
+  //     this.localStorageService.removeItem(LocalStorageKeys.CONNECTION);
+  //   }
+  // }
 
   updateConnection(connection: string) {
     this.localStorageService.setItem(LocalStorageKeys.CONNECTION, connection);

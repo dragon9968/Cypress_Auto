@@ -1,6 +1,6 @@
 import { Store } from "@ngrx/store";
 import { MatDialog } from "@angular/material/dialog";
-import { interval, Subject, Subscription, takeUntil } from "rxjs";
+import { interval, Subject, Subscription, takeUntil, throwError } from "rxjs";
 import { ToastrService } from "ngx-toastr";
 import { ActivatedRoute, Params } from "@angular/router";
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
@@ -119,16 +119,30 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
   }
 
   disconnectServer() {
-    this.serverConnectionService.disconnectServer();
-    this.connection = {
-      name: 'Test Connection',
-      id: 0
+    const jsonData = {
+      pk: this.connection.id,
+      project_id: this.collectionId
     }
-    this.vmStatusChecked = false;
-    this.infoPanelService.removeVMStatusOnMap();
-    this.store.dispatch(retrievedIsConnect({ data: false }));
-    this.store.dispatch(retrievedVMStatus({ vmStatus: undefined }));
-    this.toastr.info(`Disconnected to ${this.connection.name} server!`);
+    this.serverConnectionService.disconnect(jsonData)
+      .subscribe({
+        next: response => {
+          
+          this.connection = {
+            name: 'Test Connection',
+            id: 0
+          }
+          this.vmStatusChecked = false;
+          this.infoPanelService.removeVMStatusOnMap();
+          this.store.dispatch(retrievedIsConnect({ data: false }));
+          this.store.dispatch(retrievedVMStatus({ vmStatus: undefined }));
+          this.toastr.info(`Disconnected from ${this.connection.name} server!`);
+        },
+        error: err => {
+          this.toastr.error('Could not to disconnect from Server', 'Error');
+          return throwError(err.error.message);
+        }
+      })
+   
   }
 
 }
