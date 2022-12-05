@@ -59,8 +59,8 @@ export class AddEditHardwareDialogComponent implements OnInit {
     );
     this.isViewMode = this.data.mode == 'view';
     this.hardwareForm = new FormGroup({
-      device: new FormControl({value: '', disabled: this.isViewMode}, [autoCompleteValidator(this.listDevices)]),
-      template: new FormControl({value: '', disabled: this.isViewMode}, [autoCompleteValidator(this.filteredTemplates)]),
+      device: new FormControl({value: '', disabled: this.isViewMode}, [Validators.required, autoCompleteValidator(this.listDevices)]),
+      template: new FormControl({value: '', disabled: this.isViewMode}, [Validators.required, autoCompleteValidator(this.filteredTemplates)]),
       serialNumber: new FormControl({value: '', disabled: this.isViewMode},
         [Validators.required, validateNameExist(() => this.hardwares, this.data.mode, this.data.genData.id, 'serial_number')]),
       assetTag: new FormControl({value: '', disabled: this.isViewMode})
