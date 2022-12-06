@@ -4,6 +4,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { ConfigTemplateService } from 'src/app/core/services/config-template/config-template.service';
+import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { retrievedConfigTemplates } from 'src/app/store/config-template/config-template.actions';
 
 @Component({
@@ -13,6 +14,7 @@ import { retrievedConfigTemplates } from 'src/app/store/config-template/config-t
 })
 export class AddEditConfigTemplateComponent implements OnInit {
   configTemplateForm!: FormGroup;
+  errorMessages = ErrorMessages;
   isViewMode = false;
   constructor(
     private configTemplateService: ConfigTemplateService,

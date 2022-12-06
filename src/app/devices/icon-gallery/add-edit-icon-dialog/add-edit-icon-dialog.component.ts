@@ -6,6 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
 import { IconService } from 'src/app/core/services/icon/icon.service';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
+import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 import { retrievedIcons } from 'src/app/store/icon/icon.actions';
 import { selectIcons } from 'src/app/store/icon/icon.selectors';
@@ -21,6 +22,7 @@ export class AddEditIconDialogComponent implements OnInit {
   isHiddenDeleteButton = false;
   selectedFile: any = null;
   iconForm!: FormGroup;
+  errorMessages = ErrorMessages;
   ICON_PATH = ICON_PATH;
   url = null;
   url_default = null;

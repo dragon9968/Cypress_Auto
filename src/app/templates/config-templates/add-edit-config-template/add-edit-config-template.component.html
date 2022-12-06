@@ -4,8 +4,8 @@
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
       <input type="text" formControlName="name" matInput>
-      <mat-error *ngIf="name?.errors?.required">Name is required*</mat-error>
-      <mat-error *ngIf="name?.errors?.minlength || name?.errors?.maxlength">Field must be between 3 and 50 characters long.</mat-error>
+      <mat-error *ngIf="name?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="name?.errors?.minlength || name?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH_50 }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Description</mat-label>

@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { catchError, Subscription, throwError } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { UserService } from 'src/app/core/services/user/user.service';
+import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { retrievedProjects } from 'src/app/store/project/project.actions';
 import { retrievedUserTasks } from 'src/app/store/user-task/user-task.actions';
 import { selectUserTasks } from 'src/app/store/user-task/user-task.selectors';
@@ -19,6 +20,7 @@ import { ProjectService } from '../services/project.service';
 })
 export class EditProjectDialogComponent implements OnInit, OnDestroy {
   editProjectForm!: FormGroup;
+  errorMessages = ErrorMessages;
   selectUserTasks$ = new Subscription();
   listUser!: any[];
   listShared: any[] = [];

@@ -17,7 +17,7 @@
                 <mat-option value="vmware_vcenter">VMWare vCenter</mat-option>
                 <mat-option value="datasource">Datasource</mat-option>
               </mat-select>
-              <mat-error *ngIf="category?.errors?.required">Category is required*</mat-error>
+              <mat-error *ngIf="category?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
             </mat-form-field>
           </section>
           <section>
@@ -94,13 +94,13 @@
             <mat-form-field class="field">
               <mat-label>User Name:</mat-label>
               <input type="text" formControlName="username" matInput>
-              <mat-error *ngIf="username?.errors?.required">Username is required*</mat-error>
+              <mat-error *ngIf="username?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
             </mat-form-field>
             <div *ngIf="data.mode !== 'view'">
               <mat-form-field class="field" *ngIf="data.mode === 'add'">
                 <mat-label>Password</mat-label>
                 <input type="password" formControlName="password" matInput>
-                <mat-error *ngIf="password?.errors?.required">Password is required*</mat-error>
+                <mat-error *ngIf="password?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
               </mat-form-field>
               <mat-form-field class="field" *ngIf="data.mode === 'update'">
                 <mat-label>Update Password</mat-label>

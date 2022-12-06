@@ -9,6 +9,7 @@ import { ProjectService } from 'src/app/project/services/project.service';
 import { selectProjects } from 'src/app/store/project/project.selectors';
 import { retrievedProjects } from 'src/app/store/project/project.actions';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
+import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 
 @Component({
   selector: 'app-add-project',
@@ -20,6 +21,7 @@ export class AddProjectComponent implements OnInit {
   labelPosition = 'blank';
   projectForm!: FormGroup;
   routeSegments = RouteSegments;
+  errorMessages = ErrorMessages;
   selectProjects$ = new Subscription();
   nameProject!: any[];
 

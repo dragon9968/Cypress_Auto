@@ -5,6 +5,7 @@ import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, throwError } from 'rxjs';
 import { ServerConnectService } from 'src/app/core/services/server-connect/server-connect.service';
+import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { retrievedServerConnect } from 'src/app/store/server-connect/server-connect.actions';
 
 @Component({
@@ -20,6 +21,7 @@ export class AddEditConnectionProfilesComponent implements OnInit {
   isHiddenDeleteButton = false;
   selectedFile: any = null;
   connectionForm?: FormGroup;
+  errorMessages = ErrorMessages;
   constructor(
     private serverConnectService: ServerConnectService,
     private toastr: ToastrService,

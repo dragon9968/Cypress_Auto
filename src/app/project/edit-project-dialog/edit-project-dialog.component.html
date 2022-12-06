@@ -3,8 +3,8 @@
     <mat-form-field class="fields">
         <mat-label>Name</mat-label>
         <input type="text" formControlName="nameCtr" matInput required>
-        <mat-error *ngIf="nameCtr?.errors?.required">Name is required*</mat-error>
-        <mat-error *ngIf="nameCtr?.errors?.minlength || nameCtr?.errors?.maxlength">Field must be between 3 and 50 characters long.</mat-error>
+        <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+        <mat-error *ngIf="nameCtr?.errors?.minlength || nameCtr?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH_50 }}</mat-error>
     </mat-form-field>
     <mat-form-field class="fields">
         <mat-label>Description</mat-label>
@@ -13,12 +13,12 @@
     <mat-form-field class="fields">
         <mat-label>Min VLAN</mat-label>
         <input formControlName="minVlanCtr" type="number" (keypress)="numericOnly($event)" matInput>
-        <mat-error *ngIf="minVlanCtr?.hasError('min') || minVlanCtr?.hasError('max') || minVlanCtr?.errors?.required">Valid value is between 1 and 4093</mat-error>
+        <mat-error *ngIf="minVlanCtr?.hasError('min') || minVlanCtr?.hasError('max') || minVlanCtr?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_1_4943 }}</mat-error>
     </mat-form-field>
     <mat-form-field class="fields">
         <mat-label>Max VLAN</mat-label>
         <input formControlName="maxVlanCtr" type="number" (keypress)="numericOnly($event)" matInput>
-        <mat-error *ngIf="maxVlanCtr?.hasError('min') || maxVlanCtr?.hasError('max') || maxVlanCtr?.errors?.required">Valid value is between 1 and 4094</mat-error>
+        <mat-error *ngIf="maxVlanCtr?.hasError('min') || maxVlanCtr?.hasError('max') || maxVlanCtr?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_1_4944 }}</mat-error>
     </mat-form-field>
     <mat-form-field class="fields">
         <mat-label>Shared</mat-label>

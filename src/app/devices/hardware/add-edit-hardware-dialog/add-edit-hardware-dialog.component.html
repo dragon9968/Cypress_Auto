@@ -36,8 +36,8 @@
     <mat-form-field class="field">
       <mat-label>Serial Number</mat-label>
       <input type="text" formControlName="serialNumber" matInput>
-      <mat-error *ngIf="serialNumber?.errors?.required">Serial Number is required*</mat-error>
-      <mat-error *ngIf="serialNumber?.errors?.isExist">Serial Number already exists</mat-error>
+      <mat-error *ngIf="serialNumber?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="serialNumber?.errors?.isExist">{{ errorMessages.SERIAL_NUMBER_EXIST }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Asset Tag</mat-label>

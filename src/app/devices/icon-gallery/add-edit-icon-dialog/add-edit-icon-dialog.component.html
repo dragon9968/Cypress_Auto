@@ -12,8 +12,8 @@
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
       <input type="text" formControlName="name" matInput>
-      <mat-error *ngIf="name?.errors?.required">Name is required*</mat-error>
-      <mat-error *ngIf="name?.errors?.isExist">Name already exists</mat-error>
+      <mat-error *ngIf="name?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="name?.errors?.isExist">{{ errorMessages.NAME_EXISTS }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field" *ngIf="data.mode === 'view'">
       <mat-label>Photo</mat-label>

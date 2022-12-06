@@ -7,6 +7,7 @@ import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { LoginProfileService } from 'src/app/core/services/login-profile/login-profile.service';
 import { retrievedLoginProfiles } from 'src/app/store/login-profile/login-profile.actions';
+import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 
 @Component({
   selector: 'app-edit-login-profiles-dialog',
@@ -17,6 +18,7 @@ export class EditLoginProfilesDialogComponent implements OnInit {
   loginProfileEditForm!: FormGroup;
   isViewMode = false;
   listExtraArgs: any[] = [];
+  errorMessages = ErrorMessages;
   visible = true;
   selectable = true;
   removable = true;

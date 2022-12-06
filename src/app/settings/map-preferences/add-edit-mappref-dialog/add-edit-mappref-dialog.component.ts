@@ -11,6 +11,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 import { retrievedMapPrefs } from 'src/app/store/map-pref/map-pref.actions';
 import { selectMapPrefs } from 'src/app/store/map-pref/map-pref.selectors';
+import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 
 @Component({
   selector: 'app-add-edit-mappref-dialog',
@@ -23,6 +24,7 @@ export class AddEditMapprefDialogComponent {
   edgeDefaults!: SafeHtml;
   nodeDefaults!: SafeHtml;
   textDefaults!: SafeHtml;
+  errorMessages = ErrorMessages;
   isViewMode = false;
   gbColor = '#000000';
   groupBoxOpacity = 0.2;

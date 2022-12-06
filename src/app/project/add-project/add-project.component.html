@@ -11,9 +11,9 @@
             <mat-form-field class="field" appearance="outline">
               <mat-label>Name</mat-label>
               <input type="text" formControlName="name" matInput required>
-              <mat-error *ngIf="name?.errors?.required">Name is required*</mat-error>
-              <mat-error *ngIf="name?.errors?.minlength || name?.errors?.maxlength">Field must be between 3 and 50 characters long.</mat-error>
-              <mat-error *ngIf="name?.errors?.isExist">Name already exists</mat-error>
+              <mat-error *ngIf="name?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+              <mat-error *ngIf="name?.errors?.minlength || name?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH_50 }}</mat-error>
+              <mat-error *ngIf="name?.errors?.isExist">{{ errorMessages.NAME_EXISTS }}</mat-error>
             </mat-form-field>
             <mat-form-field class="field" appearance="outline">
               <mat-label>Description</mat-label>
@@ -48,25 +48,25 @@
               <mat-form-field class="field" appearance="outline">
                 <mat-label>Number of Enclaves</mat-label>
                 <input type="number" formControlName="enclave_number" (keypress)="numericOnly($event)" matInput>
-                <mat-error *ngIf="enclave_number?.hasError('min') || enclave_number?.hasError('max') || enclave_number?.errors?.required">Valid value is between 1 and 100</mat-error>
+                <mat-error *ngIf="enclave_number?.hasError('min') || enclave_number?.hasError('max') || enclave_number?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_1_100 }}</mat-error>
               </mat-form-field>
               <mat-form-field class="field" appearance="outline">
                 <mat-label>Clients</mat-label>
                 <input type="number" formControlName="enclave_clients" (keypress)="numericOnly($event)" matInput>
                 <mat-hint><strong>Clients per enclave</strong></mat-hint>
-                <mat-error *ngIf="enclave_clients?.hasError('min') || enclave_clients?.hasError('max') || enclave_clients?.errors?.required">Valid value is between 0 and 100</mat-error>
+                <mat-error *ngIf="enclave_clients?.hasError('min') || enclave_clients?.hasError('max') || enclave_clients?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_0_100 }}</mat-error>
               </mat-form-field>
               <mat-form-field class="field" appearance="outline">
                 <mat-label>Servers</mat-label>
                 <input type="number" formControlName="enclave_servers" (keypress)="numericOnly($event)" matInput>
                 <mat-hint><strong>Servers per enclave</strong></mat-hint>
-                <mat-error *ngIf="enclave_servers?.hasError('min') || enclave_servers?.hasError('max') || enclave_servers?.errors?.required">Valid value is between 1 and 100</mat-error>
+                <mat-error *ngIf="enclave_servers?.hasError('min') || enclave_servers?.hasError('max') || enclave_servers?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_1_100 }}</mat-error>
               </mat-form-field>
               <mat-form-field class="field" appearance="outline">
                 <mat-label>Users</mat-label>
                 <input type="number" formControlName="enclave_users" (keypress)="numericOnly($event)" matInput>
                 <mat-hint><strong>Users per enclave</strong></mat-hint>
-                <mat-error *ngIf="enclave_users?.hasError('min') || enclave_users?.hasError('max') || enclave_users?.errors?.required">Valid value is between 0 and 100</mat-error>
+                <mat-error *ngIf="enclave_users?.hasError('min') || enclave_users?.hasError('max') || enclave_users?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_0_100 }}</mat-error>
               </mat-form-field>
             </div>
           </mat-card-content>
@@ -79,12 +79,12 @@
             <mat-form-field class="field" appearance="outline">
               <mat-label>Min VLAN</mat-label>
               <input formControlName="vlan_min" type="number" (keypress)="numericOnly($event)" matInput>
-              <mat-error *ngIf="vlan_min?.hasError('min') || vlan_min?.hasError('max') || vlan_min?.errors?.required">Valid value is between 1 and 4093</mat-error>
+              <mat-error *ngIf="vlan_min?.hasError('min') || vlan_min?.hasError('max') || vlan_min?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_1_4943 }}</mat-error>
             </mat-form-field>
             <mat-form-field class="field" appearance="outline">
               <mat-label>Max VLAN</mat-label>
               <input formControlName="vlan_max" type="number" (keypress)="numericOnly($event)" matInput>
-              <mat-error *ngIf="vlan_max?.hasError('min') || vlan_max?.hasError('max') || vlan_max?.errors?.required">Valid value is between 1 and 4094</mat-error>
+              <mat-error *ngIf="vlan_max?.hasError('min') || vlan_max?.hasError('max') || vlan_max?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_1_4944 }}</mat-error>
             </mat-form-field>
           </mat-card-content>
         </mat-card>
