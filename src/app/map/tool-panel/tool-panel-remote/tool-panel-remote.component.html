@@ -4,7 +4,7 @@
     <span class="tab-connection-name"> {{ connection.name }}</span>
   </div>
   <mat-slide-toggle [(ngModel)]="vmStatusChecked" color="primary" class="tab-field" labelPosition="before"
-                    (change)="toggleVMStatus($event)" >
+                    (change)="toggleVMStatus($event)" [class.hidden]="!isConnect">
     VM Status:
   </mat-slide-toggle>
   <div class="tab-field">

@@ -75,7 +75,7 @@ export class ServerConnectDialogComponent implements OnInit, OnDestroy {
         },
         error: err => {
           this.toastr.error('Could not to connect the Server', 'Error');
-          return throwError(err.error.message);
+          return throwError(() => err.error.message);
         }
       })
   }

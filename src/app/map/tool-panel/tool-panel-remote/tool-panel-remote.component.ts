@@ -29,7 +29,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
   destroy$: Subject<boolean> = new Subject<boolean>();
 
   connection = {
-    name: 'Test Connection',
+    name: '',
     id: 0
   }
 
