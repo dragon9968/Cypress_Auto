@@ -49,6 +49,7 @@ export class AddEditIconDialogComponent implements OnInit {
       photo: new FormControl({
         value: '', disabled: this.isViewMode
       }),
+      file: new FormControl('')
     })
     if (this.data) {
       this.id?.setValue(this.data.genData.id);
@@ -61,6 +62,7 @@ export class AddEditIconDialogComponent implements OnInit {
   get id() { return this.iconForm.get('id'); }
   get name() { return this.iconForm.get('name'); }
   get photo() { return this.iconForm.get('photo'); }
+  get file() { return this.iconForm.get('file'); }
 
   ngOnInit(): void {
     this.isHiddenDeleteButton = true;
@@ -70,6 +72,8 @@ export class AddEditIconDialogComponent implements OnInit {
         } else {
           this.isHiddenDeleteButton = true;
         }
+    } else if (this.data.mode === 'add') {
+      this.file?.setValidators([Validators.required]);
     }
   }
 

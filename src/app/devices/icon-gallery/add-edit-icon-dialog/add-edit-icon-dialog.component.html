@@ -19,14 +19,14 @@
       <mat-label>Photo</mat-label>
       <input type="text" formControlName="photo" matInput>
     </mat-form-field>
-    <div class="photo">
-      <div [hidden]="isHiddenDeleteButton">
+    <div>
+      <div [hidden]="isHiddenDeleteButton" *ngIf="!!url_default">
         <div class="show-photo">
           <img [src]="ICON_PATH + url_default" width="90px" height="auto">
           <mat-checkbox class="delete-file" (change)="onSelectChangeDelete($event)">Delete</mat-checkbox>
         </div>
       </div>
-      <input *ngIf="data.mode !== 'view'" type="file" name='file' accept="image/*" (change)="onFileSelected($event)">
+      <input *ngIf="data.mode !== 'view'" type="file" name='file' accept="image/*" (change)="onFileSelected($event)" formControlName="file">
     </div>
   </div>
   <div mat-dialog-actions [align]="'end'" class="create-btn">

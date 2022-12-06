@@ -42,6 +42,7 @@
   width: 80%;
   height: auto;
   border: 0.5px solid #eee;
+  cursor: pointer;
 }
 
 .sub-title {
@@ -59,4 +60,23 @@
   display: block;
   text-align: left;
   padding-left: 13px;
+}
+
+.no-photo {
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.no-photo button {
+  height: 80px;
+  width: 80px;
+}
+
+.no-photo mat-icon {
+  height: 80px;
+  width: 80px;
+  font-size: 80px;
+  line-height: 1;
 }
