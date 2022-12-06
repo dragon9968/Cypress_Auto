@@ -1,6 +1,8 @@
 <div>
   <h1 mat-dialog-title>Validation Results</h1>
-  <div [innerHTML]="validationResult"></div>
+  <div mat-dialog-content>
+    <div [innerHTML]="validationResult"></div>
+  </div>
   <div mat-dialog-actions [align]="'end'" class="create-btn">
     <button mat-raised-button type="button" (click)="onCancel()">Close</button>
   </div>

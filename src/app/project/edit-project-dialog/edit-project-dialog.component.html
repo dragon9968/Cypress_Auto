@@ -20,24 +20,25 @@
         <input formControlName="maxVlanCtr" type="number" (keypress)="numericOnly($event)" matInput>
         <mat-error *ngIf="maxVlanCtr?.hasError('min') || maxVlanCtr?.hasError('max') || maxVlanCtr?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_1_4944 }}</mat-error>
     </mat-form-field>
-    <mat-form-field class="fields">
-        <mat-label>Shared</mat-label>
-        <mat-chip-list #chipList aria-label="Shared selection">
-            <mat-chip *ngFor="let option of listShared" (removed)="remove(option)">
-                {{ option.first_name }} {{ option.last_name }}
-                <button matChipRemove>
-            <mat-icon>cancel</mat-icon>
-          </button>
-            </mat-chip>
-            <input matInput type="text" placeholder="Select Value" [formControl]="sharedCtr" [matAutocomplete]="autoOption" [matChipInputFor]="chipList">
-        </mat-chip-list>
-        <mat-autocomplete #autoOption="matAutocomplete" [displayWith]="helpers.optionDisplay" (optionSelected)="selectShared($event)">
-            <mat-option *ngFor="let option of listUser" [value]="option">
-                <span>{{ option.first_name }} {{ option.last_name }}</span>
-            </mat-option>
-        </mat-autocomplete>
-    </mat-form-field>
-
+    <div [hidden]="true">
+        <mat-form-field class="fields">
+            <mat-label>Shared</mat-label>
+            <mat-chip-list #chipList aria-label="Shared selection">
+                <mat-chip *ngFor="let option of listShared" (removed)="remove(option)">
+                    {{ option.first_name }} {{ option.last_name }}
+                    <button matChipRemove>
+                <mat-icon>cancel</mat-icon>
+            </button>
+                </mat-chip>
+                <input matInput type="text" placeholder="Select Value" [formControl]="sharedCtr" [matAutocomplete]="autoOption" [matChipInputFor]="chipList">
+            </mat-chip-list>
+            <mat-autocomplete #autoOption="matAutocomplete" [displayWith]="helpers.optionDisplay" (optionSelected)="selectShared($event)">
+                <mat-option *ngFor="let option of listUser" [value]="option">
+                    <span>{{ option.first_name }} {{ option.last_name }}</span>
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+    </div>
     <mat-card-actions [align]="'end'" class="create-btn">
         <button mat-raised-button (click)="cancelProject()">Cancel</button>
         <button mat-raised-button color="primary" (click)="updateProject()">Update</button>

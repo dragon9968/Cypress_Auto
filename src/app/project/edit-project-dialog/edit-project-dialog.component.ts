@@ -65,9 +65,6 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
       this.listShared.push(el)
       this.listUser = this.listUser.filter(value => value.username != el.username)
     });
-    this.userService.getAll().subscribe(data => {
-      this.store.dispatch(retrievedUserTasks({data: data.result}));
-    })
   }
 
   ngOnDestroy(): void {
@@ -128,7 +125,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
   selectShared(event: MatAutocompleteSelectedEvent) {
     this.listShared.push(event.option.value)
     Object.values(this.listShared).forEach(val => {
-      this.listUser = this.listUser.filter(value => value.id != val.id)
+      this.listUser = this.listUser.filter(value => value.username != val.username)
     });
   }
 

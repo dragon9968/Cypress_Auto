@@ -14,7 +14,7 @@ import { retrievedMapSelection } from "src/app/store/map-selection/map-selection
 import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
 import { selectMapEdit } from "src/app/store/map-edit/map-edit.selectors";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
-import { InforPanelShowValidationNodesComponent } from "../infor-panel-show-validation-nodes/infor-panel-show-validation-nodes.component";
+import { InfoPanelShowValidationNodesComponent } from "../info-panel-show-validation-nodes/info-panel-show-validation-nodes.component";
 
 @Component({
   selector: 'app-info-panel-node',
@@ -306,7 +306,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
       this.nodeService.validate({ pks }).pipe(
         catchError((e: any) => {
           this.toastr.error(e.error.message);
-          const dialogRef = this.dialog.open(InforPanelShowValidationNodesComponent, {
+          const dialogRef = this.dialog.open(InfoPanelShowValidationNodesComponent, {
             autoFocus: false,
             width: 'auto',
             data: e.error.result

@@ -67,7 +67,8 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
     if (this.data.mode == 'update') {
       this.helpers.setAutoCompleteValue(this.icon, this.listIcon, this.data.genData.icon.id);
       this.data.genData.category.forEach((el: any) => {
-        this.listCategory.push(el)
+        this.listCategory.push(el);
+        this.listDeviceCategory = this.listDeviceCategory.filter(value => value.id != el.id)
       });
     } else {
       this.helpers.setAutoCompleteValue(this.icon, this.listIcon, '');
@@ -126,7 +127,7 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
     const index = this.listCategory.indexOf(category);
     if (index >= 0) {
       this.listCategory.splice(index, 1);
-      if (this.data.mode === 'add') {
+      if ((this.data.mode === 'add') || (this.data.mode === 'update')) {
         this.listDeviceCategory.unshift(category)
       }
     }

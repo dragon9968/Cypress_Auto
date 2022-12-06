@@ -23,6 +23,8 @@ import { AppPreferencesComponent } from 'src/app/settings/app-preferences/app-pr
 import { AppPrefService } from '../../services/app-pref/app-pref.service';
 import { MapPrefService } from '../../services/map-pref/map-pref.service';
 import { retrievedMapPrefs } from 'src/app/store/map-pref/map-pref.actions';
+import { retrievedUserTasks } from 'src/app/store/user-task/user-task.actions';
+import { UserService } from '../../services/user/user.service';
 
 @Component({
   selector: 'app-nav-bar',
@@ -53,6 +55,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
     private helpersService: HelpersService,
     private appPrefService: AppPrefService,
     iconRegistry: MatIconRegistry,
+    private userService: UserService,
   ) {
     this.selectIsMapOpen$ = this.store.select(selectIsMapOpen).subscribe((isMapOpen: boolean) => {
       this.isMapOpen = isMapOpen;
@@ -108,6 +111,9 @@ export class NavBarComponent implements OnInit, OnDestroy {
 
   editProject() {
     const collectionId = this.projectService.getCollectionId()
+    this.userService.getAll().subscribe(data => {
+      this.store.dispatch(retrievedUserTasks({data: data.result}));
+    })
     this.projectService.get(collectionId).subscribe(data => {
       const dialogData = {
         mode: 'update',

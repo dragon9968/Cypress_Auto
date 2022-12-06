@@ -35,7 +35,7 @@ import { DomainUserDialogComponent } from './info-panel/info-panel-domain/domain
 import { UpdateDomainUserDialogComponent } from './info-panel/info-panel-domain/update-domain-user-dialog/update-domain-user-dialog.component';
 import { AddDeletePGDeployDialogComponent } from './add-delete-pg-deploy-dialog/add-delete-pg-deploy-dialog.component';
 import { UpdateFactsNodeDialogComponent } from './update-facts-node-dialog/update-facts-node-dialog.component';
-import { InforPanelShowValidationNodesComponent } from './info-panel/infor-panel-show-validation-nodes/infor-panel-show-validation-nodes.component';
+import { InfoPanelShowValidationNodesComponent } from './info-panel/info-panel-show-validation-nodes/info-panel-show-validation-nodes.component';
 
 
 @NgModule({
@@ -74,7 +74,7 @@ import { InforPanelShowValidationNodesComponent } from './info-panel/infor-panel
     UpdateDomainUserDialogComponent,
     AddDeletePGDeployDialogComponent,
     UpdateFactsNodeDialogComponent,
-    InforPanelShowValidationNodesComponent
+    InfoPanelShowValidationNodesComponent
   ],
   imports: [
     MapRoutingModule,

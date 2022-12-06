@@ -7,7 +7,7 @@ import { InterfaceService } from 'src/app/core/services/interface/interface.serv
 import { NodeService } from 'src/app/core/services/node/node.service';
 import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
-import { InforPanelShowValidationNodesComponent } from '../../info-panel/infor-panel-show-validation-nodes/infor-panel-show-validation-nodes.component';
+import { InfoPanelShowValidationNodesComponent } from '../../info-panel/info-panel-show-validation-nodes/info-panel-show-validation-nodes.component';
 
 @Injectable({
   providedIn: 'root'
@@ -48,7 +48,7 @@ export class CMActionsService {
             this.nodeService.validate({ pks }).pipe(
               catchError((e: any) => {
                 this.toastr.error(e.error.message);
-                const dialogRef = this.dialog.open(InforPanelShowValidationNodesComponent, {
+                const dialogRef = this.dialog.open(InfoPanelShowValidationNodesComponent, {
                   autoFocus: false,
                   width: 'auto',
                   data: e.error.result
