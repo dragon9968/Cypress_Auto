@@ -7,12 +7,9 @@
                     (change)="toggleVMStatus($event)" [class.hidden]="!isConnect">
     VM Status:
   </mat-slide-toggle>
-  <div class="tab-field">
-    <button mat-raised-button [class.hidden]="isConnect" color="primary" class="connection-map-btn" (click)="openConnectServerForm()">
-      Connect
-    </button>
-    <button mat-raised-button [class.hidden]="!isConnect" color="primary" class="connection-map-btn" (click)="disconnectServer()">
-      Disconnect
+  <div class="tab-field" style="justify-content: center;">
+    <button *ngIf="isConnect && vmStatusChecked" mat-button mat-mini-fab class="btn-refresh" color="primary" matTooltip="Refresh VM status" (click)="refreshVMStatus()">
+      <mat-icon>autorenew</mat-icon>
     </button>
   </div>
 </section>

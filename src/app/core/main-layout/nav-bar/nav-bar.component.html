@@ -90,9 +90,13 @@
     </mat-menu>
     <a mat-button [matMenuTriggerFor]="remote" class="menu-btn">Remote</a>
     <mat-menu #remote="matMenu">
-        <button mat-menu-item [routerLink]="routeSegments.CONNECT_REMOTE">
+        <button *ngIf="!isConnect && isOpen" mat-menu-item (click)="openConnectServerForm()">
             <mat-icon>wifi</mat-icon>
             <span>Connect</span>
+        </button>
+        <button *ngIf="isConnect" mat-menu-item (click)="disconnectServer()">
+            <mat-icon>wifi</mat-icon>
+            <span>Disconnect</span>
         </button>
         <button mat-menu-item [routerLink]="routeSegments.CONNECTION_PROFILES">
             <mat-icon>power</mat-icon>

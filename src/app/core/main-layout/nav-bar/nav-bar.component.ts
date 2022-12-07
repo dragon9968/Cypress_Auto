@@ -1,9 +1,9 @@
 import { Component, ElementRef, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconRegistry } from '@angular/material/icon';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { interval, Subject, Subscription } from 'rxjs';
+import { interval, Subject, Subscription, throwError } from 'rxjs';
 import { EditProjectDialogComponent } from 'src/app/project/edit-project-dialog/edit-project-dialog.component';
 import { ProjectService } from 'src/app/project/services/project.service';
 import { retrievedSearchText } from 'src/app/store/map-option/map-option.actions';
@@ -12,7 +12,7 @@ import { PermissionLevels } from '../../enums/permission-levels.enum';
 import { RouteSegments } from '../../enums/route-segments.enum';
 import { AuthService } from '../../services/auth/auth.service';
 import { selectIsOpen } from 'src/app/store/project/project.selectors';
-import { retrievedIsOpen, retrievedProjects } from 'src/app/store/project/project.actions';
+import { retrievedIsOpen, retrievedProjects, retrievedVMStatus } from 'src/app/store/project/project.actions';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ToastrService } from 'ngx-toastr';
 import { ExportProjectDialogComponent } from 'src/app/project/export-project-dialog/export-project-dialog.component';
@@ -25,6 +25,10 @@ import { MapPrefService } from '../../services/map-pref/map-pref.service';
 import { retrievedMapPrefs } from 'src/app/store/map-pref/map-pref.actions';
 import { retrievedUserTasks } from 'src/app/store/user-task/user-task.actions';
 import { UserService } from '../../services/user/user.service';
+import { selectIsConnect } from 'src/app/store/server-connect/server-connect.selectors';
+import { ServerConnectService } from '../../services/server-connect/server-connect.service';
+import { ServerConnectDialogComponent } from 'src/app/map/tool-panel/tool-panel-remote/server-connect-dialog/server-connect-dialog.component';
+import { retrievedIsConnect, retrievedServerConnect } from 'src/app/store/server-connect/server-connect.actions';
 
 @Component({
   selector: 'app-nav-bar',
@@ -43,6 +47,10 @@ export class NavBarComponent implements OnInit, OnDestroy {
   status = 'active';
   selectIsMapOpen$ = new Subscription();
   destroy$: Subject<boolean> = new Subject<boolean>();
+  selectIsConnect$ = new Subscription();
+  isConnect = false;
+  connection = { name: '', id: 0 }
+  collectionId: any;
 
   constructor(
     private authService: AuthService,
@@ -56,6 +64,8 @@ export class NavBarComponent implements OnInit, OnDestroy {
     private appPrefService: AppPrefService,
     iconRegistry: MatIconRegistry,
     private userService: UserService,
+    private serverConnectionService: ServerConnectService,
+    private serverConnectService: ServerConnectService,
   ) {
     this.selectIsMapOpen$ = this.store.select(selectIsMapOpen).subscribe((isMapOpen: boolean) => {
       this.isMapOpen = isMapOpen;
@@ -65,15 +75,29 @@ export class NavBarComponent implements OnInit, OnDestroy {
     });
     this.selectIsOpen$ = this.store.select(selectIsOpen).subscribe(isOpen => {
       this.isOpen = isOpen
+      this.collectionId = this.projectService.getCollectionId();
     });
+    this.selectIsConnect$ = this.store.select(selectIsConnect).subscribe(isConnect => {
+      if (isConnect !== undefined) {
+        this.isConnect = isConnect;
+        const connection = this.serverConnectionService.getConnection();
+        this.connection = connection ? connection : { name: '', id: 0 };
+      }
+    })
     iconRegistry.addSvgIcon('plant-tree-icon', this.helpersService.setIconPath('/assets/icons/plant-tree-icon.svg'));
     iconRegistry.addSvgIcon('icons8-trash-can', this.helpersService.setIconPath('/assets/icons/icons8-trash-can.svg'));
   }
 
   ngOnInit(): void {
-    if (this.projectService.getCollectionId()) {
-      this.store.dispatch(retrievedIsOpen({data: true}));
+    this.collectionId = this.projectService.getCollectionId();
+    const connection = this.serverConnectionService.getConnection();
+    if (connection && connection.id !== 0) {
+      this.store.dispatch(retrievedIsConnect({ data: true }));
     }
+    if (this.collectionId) {
+      this.store.dispatch(retrievedIsOpen({ data: true }));
+    }
+    this.serverConnectService.getAll().subscribe((data: any) => this.store.dispatch(retrievedServerConnect({ data: data.result })));
   }
 
   ngOnDestroy(): void {
@@ -86,7 +110,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   logout() {
     this.authService.logout();
     this.projectService.closeProject();
-    this.store.dispatch(retrievedIsOpen({data: false}));
+    this.store.dispatch(retrievedIsOpen({ data: false }));
     this.router.navigate([RouteSegments.ROOT, RouteSegments.LOGIN]);
   }
 
@@ -105,16 +129,15 @@ export class NavBarComponent implements OnInit, OnDestroy {
 
   closeProject() {
     this.projectService.closeProject();
-    this.store.dispatch(retrievedIsOpen({data: false}));
+    this.store.dispatch(retrievedIsOpen({ data: false }));
     this.router.navigate([RouteSegments.ROOT]);
   }
 
   editProject() {
-    const collectionId = this.projectService.getCollectionId()
     this.userService.getAll().subscribe(data => {
-      this.store.dispatch(retrievedUserTasks({data: data.result}));
+      this.store.dispatch(retrievedUserTasks({ data: data.result }));
     })
-    this.projectService.get(collectionId).subscribe(data => {
+    this.projectService.get(this.collectionId).subscribe(data => {
       const dialogData = {
         mode: 'update',
         genData: data.result
@@ -136,7 +159,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
     dialogRef.afterClosed().subscribe(result => {
       const jsonData = {
-        pk: this.projectService.getCollectionId(),
+        pk: this.collectionId,
         status: 'delete'
       }
       if (result) {
@@ -144,7 +167,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
           next: (rest) => {
             this.toastr.success(`Delete Project successfully`);
             this.projectService.closeProject();
-            this.store.dispatch(retrievedIsOpen({data: false}));
+            this.store.dispatch(retrievedIsOpen({ data: false }));
             this.projectService.getProjectByStatus(this.status).subscribe(
               (data: any) => this.store.dispatch(retrievedProjects({ data: data.result }))
             );
@@ -159,9 +182,8 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   exportProject() {
-    const collectionId = this.projectService.getCollectionId()
     const dialogData = {
-      pk: collectionId
+      pk: this.collectionId
     }
     const dialogRef = this.dialog.open(ExportProjectDialogComponent, {
       autoFocus: false,
@@ -186,7 +208,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
     dialogRef.afterClosed().subscribe(result => {
       const jsonData = {
-        pk: this.projectService.getCollectionId(),
+        pk: this.collectionId,
       }
       if (result) {
         this.isLoading = true;
@@ -223,12 +245,39 @@ export class NavBarComponent implements OnInit, OnDestroy {
         mode: 'update',
         genData: data.result
       }
-      this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPrefs({data: data.result})));
+      this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPrefs({ data: data.result })));
       const dialogRef = this.dialog.open(AppPreferencesComponent, {
         autoFocus: false,
         width: '600px',
         data: dialogData
       });
     })
+  }
+
+  openConnectServerForm() {
+    const dialogData = {
+      genData: this.connection
+    }
+    this.dialog.open(ServerConnectDialogComponent, { width: '600px', data: dialogData });
+  }
+
+  disconnectServer() {
+    const jsonData = {
+      pk: this.connection.id,
+      project_id: this.collectionId
+    }
+    this.serverConnectionService.disconnect(jsonData)
+      .subscribe({
+        next: response => {
+          this.store.dispatch(retrievedIsConnect({ data: false }));
+          this.store.dispatch(retrievedVMStatus({ vmStatus: undefined }));
+          this.toastr.info(`Disconnected from ${this.connection.name} server!`);
+        },
+        error: err => {
+          this.toastr.error('Could not to disconnect from Server', 'Error');
+          return throwError(() => err.error.message);
+        }
+      })
+
   }
 }

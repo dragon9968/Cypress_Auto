@@ -94,7 +94,7 @@ export class InfoPanelService {
             mode: 'view',
             genData: domainData.result
           };
-          this.dialog.open(AddUpdateDomainDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
+          this.dialog.open(AddUpdateDomainDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
         });
         break;
       case 'group':
@@ -105,7 +105,7 @@ export class InfoPanelService {
             collection_id: groupData.result.collection_id,
             map_category: 'logical'
           };
-          this.dialog.open(AddUpdateGroupDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
+          this.dialog.open(AddUpdateGroupDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
         });
         break;
       case 'userTask':
@@ -114,7 +114,7 @@ export class InfoPanelService {
             mode: 'postTask',
             genData: userTaskData.result
           };
-          this.dialog.open(ShowUserTaskDialogComponent, {width: `${screen.width}px`, autoFocus: false, data: dialogData});
+          this.dialog.open(ShowUserTaskDialogComponent, { width: `${screen.width}px`, autoFocus: false, data: dialogData });
         });
         break;
       case 'edge':
@@ -123,7 +123,7 @@ export class InfoPanelService {
             mode: 'view',
             genData: interfaceData.result,
           };
-          this.dialog.open(AddUpdateInterfaceDialogComponent, {width: '600px', data: dialogData});
+          this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', data: dialogData });
         });
         break;
       case 'portGroup':
@@ -132,7 +132,7 @@ export class InfoPanelService {
             mode: 'view',
             genData: pgData.result,
           };
-          this.dialog.open(AddUpdatePGDialogComponent, {width: '600px', data: dialogData});
+          this.dialog.open(AddUpdatePGDialogComponent, { width: '600px', data: dialogData });
         });
         break;
       case 'node':
@@ -141,19 +141,19 @@ export class InfoPanelService {
             mode: 'view',
             genData: nodeData.result,
           }
-          this.dialog.open(AddUpdateNodeDialogComponent, {width: '600px', data: dialogData});
+          this.dialog.open(AddUpdateNodeDialogComponent, { width: '600px', data: dialogData });
         });
         break;
       case 'domainUser':
         this.domainUserService.get(id).subscribe(domainUserData => {
           this.domainService.get(domainUserData.result.domain_id).subscribe(domainData => {
-              const dialogData = {
-                genData: domainUserData.result,
-                domain: domainData.result,
-                mode: 'view'
-              };
-              this.dialog.open(UpdateDomainUserDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
-            }
+            const dialogData = {
+              genData: domainUserData.result,
+              domain: domainData.result,
+              mode: 'view'
+            };
+            this.dialog.open(UpdateDomainUserDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+          }
           )
         });
         break;
@@ -170,7 +170,7 @@ export class InfoPanelService {
             genData: { ids: ids },
             cy
           };
-          this.dialog.open(InterfaceBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData});
+          this.dialog.open(InterfaceBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
         } else if (ids.length === 0 && id) {
           this.interfaceService.get(id).subscribe(interfaceData => {
             const dialogData = {
@@ -178,7 +178,7 @@ export class InfoPanelService {
               genData: interfaceData.result,
               cy
             }
-            this.dialog.open(AddUpdateInterfaceDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
+            this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
           });
         }
         break;
@@ -188,7 +188,7 @@ export class InfoPanelService {
             genData: { ids: ids },
             cy
           }
-          this.dialog.open(PortGroupBulkEditDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
+          this.dialog.open(PortGroupBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
         } else if (ids.length === 0 && id) {
           this.portGroupService.get(id).subscribe(pgData => {
             const dialogData = {
@@ -196,7 +196,7 @@ export class InfoPanelService {
               genData: pgData.result,
               cy
             }
-            this.dialog.open(AddUpdatePGDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
+            this.dialog.open(AddUpdatePGDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
           });
         }
         break;
@@ -206,7 +206,7 @@ export class InfoPanelService {
             genData: { ids: ids },
             cy
           }
-          this.dialog.open(NodeBulkEditDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
+          this.dialog.open(NodeBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
         } else if (ids.length === 0 && id) {
           this.nodeService.get(id).subscribe(nodeData => {
             const dialogData = {
@@ -214,31 +214,32 @@ export class InfoPanelService {
               genData: nodeData.result,
               cy
             }
-            this.dialog.open(AddUpdateNodeDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
+            this.dialog.open(AddUpdateNodeDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
           });
         }
         break;
       case 'group':
         this.groupService.get(id).subscribe(groupData => {
-            const dialogData = {
-              mode: 'update',
-              genData: groupData.result,
-              collection_id: groupData.result.collection_id,
-              map_category: 'logical'
-            };
-            this.dialog.open(AddUpdateGroupDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
-          })
+          const dialogData = {
+            mode: 'update',
+            genData: groupData.result,
+            collection_id: groupData.result.collection_id,
+            map_category: 'logical'
+          };
+          this.dialog.open(AddUpdateGroupDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+        })
         break;
       case 'domainUser':
         this.domainUserService.get(id).subscribe(domainUserData => {
           this.domainService.get(domainUserData.result.domain_id).subscribe(domainData => {
-              const dialogData = {
-                genData: domainUserData.result,
-                domain: domainData.result,
-                mode: 'update'
-              };
-              this.dialog.open(UpdateDomainUserDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
-          })})
+            const dialogData = {
+              genData: domainUserData.result,
+              domain: domainData.result,
+              mode: 'update'
+            };
+            this.dialog.open(UpdateDomainUserDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+          })
+        })
         break;
       default:
         this.toastr.info('The info panel doesn\'t open yet');
@@ -246,7 +247,7 @@ export class InfoPanelService {
   }
 
   deleteInfoPanelAssociateMap(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[],
-                              deletedNodes: any[], deletedInterfaces: any[], tabName: string, id: any) {
+    deletedNodes: any[], deletedInterfaces: any[], tabName: string, id: any) {
     let idName = '';
     if (tabName == 'node') {
       idName = 'node_id';
@@ -368,7 +369,7 @@ export class InfoPanelService {
           next: () => {
             const collectionId = this.projectService.getCollectionId();
             this.domainService.getDomainByCollectionId(collectionId).subscribe(
-              (data: any) => this.store.dispatch(retrievedDomains({data: data.result}))
+              (data: any) => this.store.dispatch(retrievedDomains({ data: data.result }))
             );
             this.toastr.success(`Deleted domain ${domainName}`);
           },
@@ -386,7 +387,7 @@ export class InfoPanelService {
       next: () => {
         const collectionId = this.projectService.getCollectionId();
         this.groupService.getGroupByCollectionId(collectionId).subscribe(data => {
-         this.store.dispatch(retrievedGroups({data: data.result}));
+          this.store.dispatch(retrievedGroups({ data: data.result }));
         })
         this.toastr.success('Deleted Row', 'Success');
       },
@@ -401,7 +402,7 @@ export class InfoPanelService {
     this.domainUserService.get(id).subscribe(data => {
       this.domainUserService.delete(id).subscribe({
         next: () => {
-          this.store.dispatch(retrievedIsChangeDomainUsers({isChangeDomainUsers: true}));
+          this.store.dispatch(retrievedIsChangeDomainUsers({ isChangeDomainUsers: true }));
           this.toastr.success(`Deleted domain user ${data.result.username}`, 'Success');
         },
         error: err => {
@@ -416,7 +417,7 @@ export class InfoPanelService {
     this.userTaskService.delete(userTaskId).subscribe({
       next: () => {
         this.userTaskService.getAll().subscribe(data => {
-          this.store.dispatch(retrievedUserTasks({data: data.result}));
+          this.store.dispatch(retrievedUserTasks({ data: data.result }));
         })
         this.toastr.success('Deleted Row', 'Success');
       },
@@ -428,14 +429,14 @@ export class InfoPanelService {
   }
 
   rerunTask(userTaskIds: any[]) {
-    this.userTaskService.rerunTask({pks: userTaskIds}).subscribe( {
+    this.userTaskService.rerunTask({ pks: userTaskIds }).subscribe({
       next: value => {
-          this.userTaskService.getAll().subscribe(data => {
-            this.store.dispatch(retrievedUserTasks({data: data.result}));
-          })
-          value.result.map((message: string) => {
-            this.toastr.success(`Rerun task - ${message} `, 'Success');
-          })
+        this.userTaskService.getAll().subscribe(data => {
+          this.store.dispatch(retrievedUserTasks({ data: data.result }));
+        })
+        value.result.map((message: string) => {
+          this.toastr.success(`Rerun task - ${message} `, 'Success');
+        })
       },
       error: err => {
         this.toastr.error(err.error.message, 'Error');
@@ -445,10 +446,10 @@ export class InfoPanelService {
   }
 
   revokeTask(userTaskIds: any[]) {
-    this.userTaskService.revokeTask({pks: userTaskIds}).subscribe({
+    this.userTaskService.revokeTask({ pks: userTaskIds }).subscribe({
       next: value => {
         this.userTaskService.getAll().subscribe(data => {
-          this.store.dispatch(retrievedUserTasks({data: data.result}));
+          this.store.dispatch(retrievedUserTasks({ data: data.result }));
         })
         value.result.map((message: string) => {
           this.toastr.success(`Revoke task - ${message} `, 'Success');
@@ -462,10 +463,10 @@ export class InfoPanelService {
   }
 
   postTask(userTaskIds: any[]) {
-    this.userTaskService.postTask({pks: userTaskIds}).subscribe({
+    this.userTaskService.postTask({ pks: userTaskIds }).subscribe({
       next: value => {
         this.userTaskService.getAll().subscribe(data => {
-          this.store.dispatch(retrievedUserTasks({data: data.result}));
+          this.store.dispatch(retrievedUserTasks({ data: data.result }));
         })
         value.result.map((message: string) => {
           this.toastr.success(`Post task - ${message} `, 'Success');
@@ -493,7 +494,7 @@ export class InfoPanelService {
 
   updateTaskList() {
     this.userTaskService.getAll().subscribe(data => {
-      this.store.dispatch(retrievedUserTasks({data: data.result}));
+      this.store.dispatch(retrievedUserTasks({ data: data.result }));
     })
   }
 
@@ -503,33 +504,35 @@ export class InfoPanelService {
       return;
     }
     // set the VM Power and Status value in the tooltip
-    ele.style({'background-opacity': '1'});
-    ele.style({'border-width': '10px'});
-    ele.style({'border-opacity': '1'});
+    ele.style({ 'background-opacity': '1' });
+    ele.style({ 'border-width': '10px' });
+    ele.style({ 'border-opacity': '1' });
     const d = nodeStatus;
     if (d.state == "on" && d.status == "running") {
       ele.data('color', this.statusColorLookup.on);
-      ele.style({'border-color': this.statusColorLookup.on});
+      ele.style({ 'border-color': this.statusColorLookup.on });
     } else if (d.state == "on" && d.status == "notRunning") {
       ele.data("color", this.statusColorLookup.unknown);
-      ele.style({'border-color': this.statusColorLookup.unknown});
+      ele.style({ 'border-color': this.statusColorLookup.unknown });
     } else if (d.state == "off") {
       ele.data('color', this.statusColorLookup.off);
-      ele.style({'border-color': this.statusColorLookup.off});
+      ele.style({ 'border-color': this.statusColorLookup.off });
     } else if (!(d.state == false)) {
-      ele.style({'background-opacity': '0'});
-      ele.style({'border-opacity': '0'});
+      ele.style({ 'background-opacity': '0' });
+      ele.style({ 'border-opacity': '0' });
     } else {
-      ele.style({'background-opacity': '0'});
-      ele.style({'border-opacity': '0'});
+      ele.style({ 'background-opacity': '0' });
+      ele.style({ 'border-opacity': '0' });
     }
   }
 
   removeVMStatusOnMap() {
-    const nodes = this.cy.nodes().filter('[icon]');
-    nodes.style('border-opacity', 0);
-    nodes.style('border-width', 0);
-    nodes.style('background-opacity', 0);
+    const nodes = this.cy?.nodes().filter('[icon]');
+    if (nodes) {
+      nodes.style('border-opacity', 0);
+      nodes.style('border-width', 0);
+      nodes.style('background-opacity', 0);
+    }
   }
 
   changeVMStatusOnMap(collectionId: number, connectionId: number) {

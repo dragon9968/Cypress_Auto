@@ -46,9 +46,7 @@ export class ServerConnectDialogComponent implements OnInit, OnDestroy {
   get serverConnectCtr() { return this.serverConnectForm.get('serverConnectCtr'); };
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe((params: Params) => {
-      this.collectionId = params['collection_id'];
-    })
+    this.collectionId = this.projectService.getCollectionId(),
     this.serverConnectCtr?.setValue(this.serverConnect[0]);
   }
 
@@ -65,7 +63,7 @@ export class ServerConnectDialogComponent implements OnInit, OnDestroy {
       .subscribe({
         next: response => {
           this.serverConnectionService.updateConnection(JSON.stringify(response.result));
-          this.store.dispatch(retrievedIsConnect({data: true}));
+          this.store.dispatch(retrievedIsConnect({ data: true }));
           this.projectService.get(+this.collectionId).subscribe((data: any) => {
             this.store.dispatch(retrievedVMStatus({ vmStatus: data.result.configuration.vm_status }));
             this.infoPanelService.initVMStatus(this.collectionId, response.result.id);

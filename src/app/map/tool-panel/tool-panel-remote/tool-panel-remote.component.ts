@@ -1,17 +1,14 @@
 import { Store } from "@ngrx/store";
-import { MatDialog } from "@angular/material/dialog";
-import { interval, Subject, Subscription, takeUntil, throwError } from "rxjs";
+import { interval, Subject, Subscription, takeUntil } from "rxjs";
 import { ToastrService } from "ngx-toastr";
-import { ActivatedRoute, Params } from "@angular/router";
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { MapService } from "../../../core/services/map/map.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { ServerConnectService } from "../../../core/services/server-connect/server-connect.service";
-import { ServerConnectDialogComponent } from "./server-connect-dialog/server-connect-dialog.component";
 import { retrievedVMStatus } from "../../../store/project/project.actions";
-import { retrievedIsConnect } from "../../../store/server-connect/server-connect.actions";
 import { selectVMStatus } from "../../../store/project/project.selectors";
 import { selectIsConnect } from "../../../store/server-connect/server-connect.selectors";
+import { ProjectService } from "src/app/project/services/project.service";
 
 @Component({
   selector: 'app-tool-panel-remote',
@@ -28,48 +25,35 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
   isConnect = false;
   destroy$: Subject<boolean> = new Subject<boolean>();
 
-  connection = {
-    name: '',
-    id: 0
-  }
+  connection = { name: '', id: 0 }
 
   constructor(
     private store: Store,
-    private dialog: MatDialog,
-    private route: ActivatedRoute,
+    private projectService: ProjectService,
     private toastr: ToastrService,
     private mapService: MapService,
     private infoPanelService: InfoPanelService,
     private serverConnectionService: ServerConnectService
   ) {
+    this.collectionId = this.projectService.getCollectionId();
     this.selectIsConnect$ = this.store.select(selectIsConnect).subscribe(isConnect => {
       if (isConnect !== undefined) {
         this.isConnect = isConnect;
         const connection = this.serverConnectionService.getConnection();
-        this.connection = connection ? connection : this.connection;
+        this.connection = connection ? connection : { name: '', id: 0 };
       }
     })
     this.selectVMStatus$ = this.store.select(selectVMStatus).subscribe(vmStatusChecked => {
-      if (this.isConnect && vmStatusChecked !== undefined) {
-        this.vmStatusChecked = vmStatusChecked;
+      this.vmStatusChecked = vmStatusChecked;
+      if (this.isConnect && vmStatusChecked) {
+        this.infoPanelService.changeVMStatusOnMap(this.collectionId, this.connection.id);
+      } else {
+        this.infoPanelService.removeVMStatusOnMap();
       }
     })
   }
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe((params: Params) => {
-      this.collectionId = params['collection_id'];
-    })
-    const connection = this.serverConnectionService.getConnection();
-    if (connection) {
-      this.connection = connection;
-      if (this.connection && this.connection.id !== 0) {
-        this.store.dispatch(retrievedIsConnect({ data: true }));
-      }
-      if (this.vmStatusChecked) {
-        this.infoPanelService.changeVMStatusOnMap(this.collectionId, this.connection.id);
-      }
-    }
     interval(30000).pipe(
       takeUntil(this.destroy$)
     ).subscribe(() => {
@@ -114,38 +98,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
     }
   }
 
-  openConnectServerForm() {
-    const dialogData = {
-      genData: this.connection
-    }
-    this.dialog.open(ServerConnectDialogComponent, { width: '600px', data: dialogData });
+  refreshVMStatus() {
+    this.infoPanelService.changeVMStatusOnMap(this.collectionId, this.connection.id);
   }
-
-  disconnectServer() {
-    const jsonData = {
-      pk: this.connection.id,
-      project_id: this.collectionId
-    }
-    this.serverConnectionService.disconnect(jsonData)
-      .subscribe({
-        next: response => {
-
-          this.connection = {
-            name: 'Test Connection',
-            id: 0
-          }
-          this.vmStatusChecked = false;
-          this.infoPanelService.removeVMStatusOnMap();
-          this.store.dispatch(retrievedIsConnect({ data: false }));
-          this.store.dispatch(retrievedVMStatus({ vmStatus: undefined }));
-          this.toastr.info(`Disconnected from ${this.connection.name} server!`);
-        },
-        error: err => {
-          this.toastr.error('Could not to disconnect from Server', 'Error');
-          return throwError(err.error.message);
-        }
-      })
-
-  }
-
 }
