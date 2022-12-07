@@ -3,7 +3,7 @@ import { Store } from '@ngrx/store';
 import { Observable, of, Subscription } from 'rxjs';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
-import { selectIsOpen, selectProjects } from '../store/project/project.selectors';
+import { selectProjects } from '../store/project/project.selectors';
 import { retrievedIsOpen, retrievedProjects } from '../store/project/project.actions';
 import { ProjectService } from './services/project.service';
 import { Router } from '@angular/router';

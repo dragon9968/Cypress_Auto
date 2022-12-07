@@ -15,6 +15,11 @@
           <mat-icon *ngIf="!isOpenToolPanel">keyboard_double_arrow_right</mat-icon>
         </button>
       </div>
+      <div class="dashboard">
+        <button mat-mini-fab mat-button class="dashboard-btn" color="primary" matTooltip="Dashboard" (click)="openDashboard()">
+          <mat-icon>dashboard</mat-icon>
+        </button>
+      </div>
       <div class="map-editor">
         <div id="cy" style="height: calc(100vh - 4rem); width:100%; z-index: 1;"></div>
         <app-info-panel [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs" [activeEdges]="activeEdges"

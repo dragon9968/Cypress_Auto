@@ -1,0 +1,11 @@
+mat-grid-tile {
+  background: #dbe5e8;
+}
+
+app-network-map {
+  width: calc(100% - 50px);
+  height: auto;
+  position: absolute;
+  top: 0;
+  margin-top: 8px;
+}

@@ -14,3 +14,8 @@ export const retrievedIsOpen = createAction(
   'retrievedIsOpen',
   props<{ data: any }>()
 );
+
+export const retrievedDashboard = createAction(
+  'retrievedDashboard',
+  props<{ dashboard: any }>()
+);

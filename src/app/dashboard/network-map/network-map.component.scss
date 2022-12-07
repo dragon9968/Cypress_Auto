@@ -1,0 +1,48 @@
+.network-map {
+  width: calc(100% - 30px);
+  height: calc(100% - 50px);
+  border-top: 3px solid #28a745;
+}
+
+.network-map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.network-map-title {
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.network-map-actions {
+  width: 40%;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.network-map-actions-item {
+  margin-left: 8px;
+}
+
+.network-map-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-top: 1px solid #ccc;
+}
+
+.hide {
+  transform: translate(0, 500px);
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+
+.show {
+  opacity: 1;
+  transition: all 0.5s ease-out;
+  transform: translate(0, 0);
+}

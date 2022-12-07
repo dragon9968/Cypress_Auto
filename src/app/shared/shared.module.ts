@@ -32,6 +32,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SpinnerComponent } from './components/spinner/spinner.component';
 import { MatPaginatorModule } from "@angular/material/paginator";
+import { DragDropModule } from "@angular/cdk/drag-drop";
 
 
 const materialModules = [
@@ -58,7 +59,8 @@ const materialModules = [
   MatGridListModule,
   MatChipsModule,
   MatProgressSpinnerModule,
-  MatPaginatorModule
+  MatPaginatorModule,
+  DragDropModule
 ];
 
 @NgModule({

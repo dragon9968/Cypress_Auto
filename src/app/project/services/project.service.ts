@@ -76,4 +76,8 @@ export class ProjectService {
   cloneProject(data: any): Observable<any>  {
     return this.http.post<any>(ApiPaths.CLONE_PROJECT, data);
   }
+
+  putProjectDashboard(pk: number, mode: string, card: string): Observable<any> {
+    return this.http.put<any>(ApiPaths.PROJECT_DASHBOARD_UPDATE + '/' + pk + '/' + mode + '/' + card, null);
+  }
 }

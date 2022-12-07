@@ -1,1 +1,10 @@
-<p>dashboard works!</p>
+<mat-grid-list cols="2" rowHeight="1:1" cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="drop($event)">
+  <ng-container *ngFor="let card of cards">
+    <mat-grid-tile cdkDrag cdkDragDisabled="{{isLock}}" *ngIf="card == 'map' && dashboard && dashboard.map" >
+      <app-network-map (disableCard)="lockCard($event)"></app-network-map>
+    </mat-grid-tile>
+    <mat-grid-tile cdkDrag cdkDragDisabled="{{isLock}}" *ngIf="card == 'project-detail'">
+      <app-project-detail></app-project-detail>
+    </mat-grid-tile>
+  </ng-container>
+</mat-grid-list>

@@ -6,4 +6,5 @@ export const selectProjectFeature = createFeatureSelector<ProjectState>(ReducerK
 export const selectProjects = createSelector(selectProjectFeature, (state: ProjectState) => state.projects);
 export const selectVMStatus = createSelector(selectProjectFeature, (state: ProjectState) => state.vmStatus);
 export const selectIsOpen = createSelector(selectProjectFeature, (state: ProjectState) => state.isOpen);
+export const selectDashboard = createSelector(selectProjectFeature, (state: ProjectState) => state.dashboard);
 

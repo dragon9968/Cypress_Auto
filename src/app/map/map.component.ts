@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { delay, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { retrievedIsMapOpen, retrievedMap } from '../store/map/map.actions';
@@ -61,6 +61,7 @@ import { retrievedMapSelection } from '../store/map-selection/map-selection.acti
 import { selectIsConnect } from "../store/server-connect/server-connect.selectors";
 import { MapImageService } from '../core/services/map-image/map-image.service';
 import { retrievedMapImages } from '../store/map-image/map-image.actions';
+import { RouteSegments } from "../core/enums/route-segments.enum";
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -146,6 +147,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private store: Store,
     private helpersService: HelpersService,
     private mapService: MapService,
@@ -1186,5 +1188,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         ele.unselect();
       })
     }
+  }
+
+  openDashboard() {
+    this.router.navigate([RouteSegments.DASHBOARD]);
   }
 }

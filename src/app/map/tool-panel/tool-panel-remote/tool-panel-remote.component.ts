@@ -63,9 +63,11 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
     const connection = this.serverConnectionService.getConnection();
     if (connection) {
       this.connection = connection;
-      if (this.connection && this.connection.id !== 0 && this.vmStatusChecked) {
-        this.infoPanelService.changeVMStatusOnMap(this.collectionId, this.connection.id);
+      if (this.connection && this.connection.id !== 0) {
         this.store.dispatch(retrievedIsConnect({ data: true }));
+      }
+      if (this.vmStatusChecked) {
+        this.infoPanelService.changeVMStatusOnMap(this.collectionId, this.connection.id);
       }
     }
     interval(30000).pipe(
@@ -83,7 +85,6 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
   }
 
   toggleVMStatus($event: any) {
-    this.store.dispatch(retrievedVMStatus({ vmStatus: $event.checked }));
     const jsonData = {
       project_id: this.collectionId,
       connection_id: this.connection.id,
@@ -92,6 +93,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
       this.mapService.saveVMStatus(jsonData, 'on').subscribe({
         next: response => {
           this.infoPanelService.changeVMStatusOnMap(this.collectionId, this.connection.id);
+          this.store.dispatch(retrievedVMStatus({ vmStatus: $event.checked }));
         },
         error: err => {
           this.toastr.error('Save VM status failed', 'Failed');
@@ -102,6 +104,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
       this.mapService.saveVMStatus(jsonData, 'off').subscribe({
         next: response => {
           this.infoPanelService.removeVMStatusOnMap();
+          this.store.dispatch(retrievedVMStatus({ vmStatus: $event.checked }));
         },
         error: err => {
           this.toastr.error('Save VM status failed', 'Failed');
@@ -126,7 +129,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
     this.serverConnectionService.disconnect(jsonData)
       .subscribe({
         next: response => {
-          
+
           this.connection = {
             name: 'Test Connection',
             id: 0
@@ -142,7 +145,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
           return throwError(err.error.message);
         }
       })
-   
+
   }
 
 }
