@@ -537,6 +537,7 @@ export class InfoPanelService {
 
   changeVMStatusOnMap(collectionId: number, connectionId: number) {
     this.mapService.getVMStatus(collectionId, connectionId).subscribe(vmStatus => {
+      this.removeVMStatusOnMap();
       for (const [key, value] of Object.entries(vmStatus)) {
         this.delayedAlert(key, value);
       }

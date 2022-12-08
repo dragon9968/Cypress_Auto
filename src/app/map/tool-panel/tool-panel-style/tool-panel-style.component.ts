@@ -334,13 +334,13 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   increaseZIndex() {
-    this.activeGBs.concat(this.activeMBs).map(ele => {
+    this.activeNodes.concat(this.activePGs, this.activeEdges, this.activeGBs, this.activeMBs).map(ele => {
       this.cmGroupBoxService.moveUp(ele);
     });
   }
 
   decreaseZIndex() {
-    this.activeGBs.concat(this.activeMBs).map(ele => {
+    this.activeNodes.concat(this.activePGs, this.activeEdges, this.activeGBs, this.activeMBs).map(ele => {
       ele._private['data'] = { ...ele._private['data'] };
       const label = ele.data('label');
       if (label == 'map_background') {

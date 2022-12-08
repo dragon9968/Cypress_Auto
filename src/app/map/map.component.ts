@@ -417,7 +417,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.isBoxSelecting = false;
       this.isSelectedProcessed = false;
       this.boxSelectedNodes.clear();
-      return;
     } else {
       if (d.elem_category == 'node' && !this.activeNodes.includes(t)) {
         this.activeNodes.push(t);

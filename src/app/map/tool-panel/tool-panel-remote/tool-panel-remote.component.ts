@@ -76,7 +76,6 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
     if ($event.checked) {
       this.mapService.saveVMStatus(jsonData, 'on').subscribe({
         next: response => {
-          this.infoPanelService.changeVMStatusOnMap(this.collectionId, this.connection.id);
           this.store.dispatch(retrievedVMStatus({ vmStatus: $event.checked }));
         },
         error: err => {
@@ -87,7 +86,6 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
     } else {
       this.mapService.saveVMStatus(jsonData, 'off').subscribe({
         next: response => {
-          this.infoPanelService.removeVMStatusOnMap();
           this.store.dispatch(retrievedVMStatus({ vmStatus: $event.checked }));
         },
         error: err => {
