@@ -171,21 +171,30 @@ export class ToolPanelComponent implements OnDestroy {
   }
 
   refresh() {
-    const dialogData = {
-      title: 'User confirmation needed',
-      message: 'Are you sure you want to refresh? Changes have not been saved.'
-    }
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.mapService.getMapData(this.mapCategory, this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
-        this.activeNodes.splice(0);
-        this.activePGs.splice(0);
-        this.activeEdges.splice(0);
-        this.activeGBs.splice(0);
-        this.store.dispatch(retrievedMapSelection({ data: true }));
+    let isDirty = false;
+    this.cy.elements().forEach((ele: any) => {
+      const data = ele.data();
+      if (data.updated) {
+        isDirty = true;
       }
     });
+    if (isDirty) {
+      const dialogData = {
+        title: 'User confirmation needed',
+        message: 'Are you sure you want to refresh? Changes have not been saved.'
+      }
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          this.mapService.getMapData(this.mapCategory, this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
+          this.activeNodes.splice(0);
+          this.activePGs.splice(0);
+          this.activeEdges.splice(0);
+          this.activeGBs.splice(0);
+          this.store.dispatch(retrievedMapSelection({ data: true }));
+        }
+      });
+    }
   }
 
   undo() {

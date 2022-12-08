@@ -111,9 +111,6 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
         const current_dir = edge.data('direction');
         edge.data('prev_direction', current_dir);
         edge.data('direction', 'none');
-        edge.data('new', false);
-        edge.data('updated', true);
-        edge.data('deleted', false);
       }
     } else {
       for (let i = 0; i < this.cy.edges().length; i++) {
@@ -123,9 +120,6 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
           prev_dir = 'both';
         }
         edge.data('direction', prev_dir);
-        edge.data('new', false);
-        edge.data('updated', true);
-        edge.data('deleted', false);
       }
     }
     this.store.dispatch(retrievedMapOption({
