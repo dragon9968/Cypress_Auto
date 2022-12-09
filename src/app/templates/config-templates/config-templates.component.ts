@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -19,7 +19,7 @@ import { AddEditConfigTemplateComponent } from './add-edit-config-template/add-e
   templateUrl: './config-templates.component.html',
   styleUrls: ['./config-templates.component.scss']
 })
-export class ConfigTemplatesComponent implements OnInit {
+export class ConfigTemplatesComponent implements OnInit, OnDestroy {
 
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
   quickFilterValue = '';

@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
@@ -23,7 +23,7 @@ import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.
   templateUrl: './add-edit-hardware-dialog.component.html',
   styleUrls: ['./add-edit-hardware-dialog.component.scss']
 })
-export class AddEditHardwareDialogComponent implements OnInit {
+export class AddEditHardwareDialogComponent implements OnInit, OnDestroy {
   isViewMode = false;
   selected: any;
   errorMessages = ErrorMessages;

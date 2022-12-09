@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { Store } from '@ngrx/store';
@@ -19,7 +19,7 @@ import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
   templateUrl: './tool-panel-edit.component.html',
   styleUrls: ['./tool-panel-edit.component.scss']
 })
-export class ToolPanelEditComponent implements OnDestroy {
+export class ToolPanelEditComponent implements OnInit, OnDestroy {
   @Input() cy: any;
   @Input() config: any;
   @Input() activeNodes: any[] = [];

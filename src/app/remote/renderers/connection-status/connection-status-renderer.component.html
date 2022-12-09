@@ -1,6 +1,6 @@
-<button *ngIf="status == 'Good'" mat-icon-button color="primary" >
+<button *ngIf="status === 'Good'" mat-icon-button color="primary" >
   <mat-icon>arrow_circle_up</mat-icon>
 </button>
-<button *ngIf="status != 'Good'" mat-icon-button color="accent">
+<button *ngIf="status !== 'Good'" mat-icon-button color="accent">
   <mat-icon>arrow_circle_down</mat-icon>
 </button>

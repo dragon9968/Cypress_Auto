@@ -5,7 +5,7 @@
       <mat-label>Id</mat-label>
       <input type="text" formControlName="id" matInput>
     </mat-form-field>
-    <div *ngIf="data.mode == 'view'" class="icon" >
+    <div *ngIf="data.mode === 'view'" class="icon" >
       <div>Icon</div>
       <img [src]="ICON_PATH + url_default" width="90px" height="auto">
     </div>

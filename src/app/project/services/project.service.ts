@@ -80,4 +80,8 @@ export class ProjectService {
   putProjectDashboard(pk: number, mode: string, card: string): Observable<any> {
     return this.http.put<any>(ApiPaths.PROJECT_DASHBOARD_UPDATE + '/' + pk + '/' + mode + '/' + card, null);
   }
+
+  getDeviceCount(pk: any): Observable<any> {
+    return this.http.get<any>(ApiPaths.PROJECTS_DEVICE_COUNT + pk);
+  }
 }

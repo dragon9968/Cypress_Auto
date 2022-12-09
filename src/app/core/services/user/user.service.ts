@@ -25,4 +25,8 @@ export class UserService {
   put(id: string, data: any): Observable<any> {
     return this.http.put<any>(ApiPaths.USER + id, data);
   }
+
+  getCreatorProject(projectId: any): Observable<any> {
+    return this.http.get<any>(ApiPaths.USER_CREATED_PROJECT + projectId);
+  }
 }

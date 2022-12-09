@@ -5,7 +5,7 @@ import * as cytoscape from 'cytoscape';
 import { ToastrService } from "ngx-toastr";
 import { MatIconRegistry } from "@angular/material/icon";
 import { Subscription, throwError } from "rxjs";
-import { Component, OnDestroy, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnDestroy, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { MapState } from "../../store/map/map.state";
 import { environment } from "../../../environments/environment";
 import { RouteSegments } from "../../core/enums/route-segments.enum";
@@ -15,11 +15,11 @@ import { ProjectService } from "../../project/services/project.service";
 import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
 import { ServerConnectService } from "../../core/services/server-connect/server-connect.service";
 import { retrievedMap } from "../../store/map/map.actions";
+import { retrievedIsConnect } from "../../store/server-connect/server-connect.actions";
 import { retrievedDashboard, retrievedIsOpen, retrievedVMStatus } from "../../store/project/project.actions";
 import { selectMapFeature } from "../../store/map/map.selectors";
 import { selectIsConnect } from "../../store/server-connect/server-connect.selectors";
 import { selectDashboard, selectVMStatus } from "../../store/project/project.selectors";
-import { retrievedIsConnect } from "../../store/server-connect/server-connect.actions";
 
 @Component({
   selector: 'app-network-map',
@@ -28,6 +28,7 @@ import { retrievedIsConnect } from "../../store/server-connect/server-connect.ac
 })
 export class NetworkMapComponent implements OnInit, OnDestroy {
   @Output() disableCard = new EventEmitter<any>();
+  @Input() isLock!: boolean;
   cy: any;
   eles: any;
   config: any;
@@ -46,7 +47,6 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
   defaultPreferences: any;
   dashboard: any;
   isMaximize = true;
-  isLock = true;
   isConnect = false;
   connection = {
     name: 'Test Connection',
@@ -64,8 +64,8 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
     private infoPanelService: InfoPanelService,
     private serverConnectionService: ServerConnectService
   ) {
-    this.iconRegistry.addSvgIcon('minus', this.helpersService.setIconPath('/assets/icons/minus.svg'));
-    this.iconRegistry.addSvgIcon('plus', this.helpersService.setIconPath('/assets/icons/plus.svg'));
+    this.iconRegistry.addSvgIcon('minus', this.helpersService.setIconPath('/assets/icons/dashboard/minus.svg'));
+    this.iconRegistry.addSvgIcon('plus', this.helpersService.setIconPath('/assets/icons/dashboard/plus.svg'));
     this.collectionId = this.projectService.getCollectionId();
     this.mapService.getMapData(this.category, this.collectionId).subscribe(
       (data: any) => this.store.dispatch(retrievedMap({ data }))
@@ -80,6 +80,9 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
     this.selectVMStatus$ = this.store.select(selectVMStatus).subscribe(vmStatusChecked => {
       if (this.isConnect && vmStatusChecked !== undefined) {
         this.vmStatusChecked = vmStatusChecked;
+        if (this.vmStatusChecked) {
+          this.infoPanelService.changeVMStatusOnMap(+this.collectionId, this.connection.id);
+        }
       }
     })
     this.selectDashboard$ = this.store.select(selectDashboard).subscribe(dashboard => {
@@ -97,9 +100,6 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
     })
     if (this.connection && this.connection.id !== 0) {
       this.store.dispatch(retrievedIsConnect({ data: true }));
-    }
-    if (this.vmStatusChecked) {
-      this.infoPanelService.changeVMStatusOnMap(+this.collectionId, this.connection.id);
     }
     if (this.dashboard?.map) {
       this.selectMap$ = this.store.select(selectMapFeature).subscribe((map: MapState) => {

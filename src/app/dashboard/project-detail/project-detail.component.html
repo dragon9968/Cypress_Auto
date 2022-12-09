@@ -1,1 +1,137 @@
-<p>project-detail works!</p>
+<mat-card class="project-info" [class.fullscreen]="isExpand">
+  <mat-card-header class="project-info-header">
+    <mat-card-title class="project-info-title">Project Information</mat-card-title>
+    <div class="project-info-actions">
+      <button class="project-info-actions-item" mat-mini-fab color="primary" matTooltip="{{isLock ? 'Lock' : 'Unlock'}}"
+              (click)="toggleCardLock()">
+        <mat-icon *ngIf="isLock">lock</mat-icon>
+        <mat-icon *ngIf="!isLock">lock_open</mat-icon>
+      </button>
+      <button class="project-info-actions-item" mat-mini-fab color="primary" matTooltip="{{isMaximize ? 'Minimize' : 'Maximize' }}"
+              (click)="isMaximize = !isMaximize">
+        <mat-icon *ngIf="isMaximize" svgIcon="minus"></mat-icon>
+        <mat-icon *ngIf="!isMaximize" svgIcon="plus"></mat-icon>
+      </button>
+      <button class="project-info-actions-item" mat-mini-fab color="primary" matTooltip="{{isExpand ? 'Compress' : 'Expand'}}"
+              (click)="expandCard()">
+        <mat-icon *ngIf="isExpand">fullscreen_exit</mat-icon>
+        <mat-icon *ngIf="!isExpand">fullscreen</mat-icon>
+      </button>
+    </div>
+  </mat-card-header>
+  <mat-card-content [class]="isMaximize ? 'show': 'hide'" class="project-info-content" [class.border-none]="isExpand">
+    <mat-card class="project-info-details">
+      <mat-card-header>
+        <mat-card-title>Details</mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="project-info-details-content">
+        <mat-form-field class="field" appearance="outline">
+          <mat-label>Name</mat-label>
+          <input type="text" matInput [value]="name" readonly="readonly" disabled="disabled">
+        </mat-form-field>
+        <mat-form-field class="field" appearance="outline">
+          <mat-label>Description</mat-label>
+          <input type="text" matInput [value]="description" readonly="readonly" disabled="disabled">
+        </mat-form-field>
+        <mat-form-field class="field" appearance="outline">
+          <mat-label>Created By</mat-label>
+          <input type="text" matInput [value]="creator" readonly="readonly" disabled="disabled">
+        </mat-form-field>
+        <mat-form-field class="field" appearance="outline">
+          <mat-label>Shared</mat-label>
+          <input type="text" matInput [value]="shared" readonly="readonly" disabled="disabled">
+        </mat-form-field>
+      </mat-card-content>
+    </mat-card>
+    <mat-card class="project-info-summary">
+      <mat-card-header>
+        <mat-card-title>Devices Summary</mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="project-info-summary-content">
+        <div class="project-info-summary-list">
+          <button>
+            <div class="project-info-summary-item">
+              <mat-icon svgIcon="vm"></mat-icon>
+              <span>VM - {{vmTotal}}</span>
+            </div>
+          </button>
+          <button>
+            <div class="project-info-summary-item">
+              <mat-icon svgIcon="hw"></mat-icon>
+              <span>HW - {{hwTotal}}</span>
+            </div>
+          </button>
+          <button>
+            <div class="project-info-summary-item">
+              <mat-icon svgIcon="switch"></mat-icon>
+              <span>Switches - {{switchesTotal}}</span>
+            </div>
+          </button>
+          <button>
+            <div class="project-info-summary-item">
+              <mat-icon svgIcon="firewall"></mat-icon>
+              <span>Firewall - {{firewallTotal}}</span>
+            </div>
+          </button>
+          <button>
+            <div class="project-info-summary-item">
+              <mat-icon svgIcon="router"></mat-icon>
+              <span>Routers - {{routersTotal}}</span>
+            </div>
+          </button>
+          <button>
+            <div class="project-info-summary-item">
+              <mat-icon svgIcon="linux-server"></mat-icon>
+              <span>Linux Servers - {{linuxServersTotal}}</span>
+            </div>
+          </button>
+          <button>
+            <div class="project-info-summary-item">
+              <mat-icon svgIcon="linux-client"></mat-icon>
+              <span>Linux Clients - {{linuxClientsTotal}}</span>
+            </div>
+          </button>
+          <button>
+            <div class="project-info-summary-item">
+              <mat-icon svgIcon="windows-server"></mat-icon>
+              <span>Windows Servers - {{windowServersTotal}}</span>
+            </div>
+          </button>
+          <button>
+            <div class="project-info-summary-item">
+              <mat-icon svgIcon="windows-client"></mat-icon>
+              <span>Windows Clients - {{windowClientsTotal}}</span>
+            </div>
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+    <mat-card class="project-info-summary">
+      <mat-card-header>
+        <mat-card-title>Network Summary</mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="project-info-summary-content">
+        <div class="project-info-summary-list">
+          <button>
+            <div class="project-info-summary-item">
+              <mat-icon svgIcon="port-group"></mat-icon>
+              <span>Port Groups - {{portGroupsTotal}}</span>
+            </div>
+          </button>
+          <button>
+            <div class="project-info-summary-item">
+              <mat-icon svgIcon="domain"></mat-icon>
+              <span>Domain - {{domainsTotal}}</span>
+            </div>
+          </button>
+          <button>
+            <div class="project-info-summary-item">
+              <mat-icon svgIcon="domain-user"></mat-icon>
+              <span>Domain Users - {{domainUsersTotal}}</span>
+            </div>
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </mat-card-content>
+</mat-card>
