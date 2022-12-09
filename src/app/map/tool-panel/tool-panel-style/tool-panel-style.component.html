@@ -23,21 +23,24 @@
     <mat-divider></mat-divider>
     <h4>Z-Index</h4>
     <div class="tab-field z-index">
-      <button mat-mini-fab class="z-index-btn" color="primary" matTooltip="Increase Z-Index" (click)="increaseZIndex()">
-        <mat-icon>text_increase</mat-icon>
-      </button>
-      <button mat-mini-fab class="z-index-btn" color="primary" matTooltip="Decrease Z-Index" (click)="decreaseZIndex()">
-        <mat-icon>text_decrease</mat-icon>
-      </button>
+        <button mat-mini-fab class="z-index-btn" color="primary" matTooltip="Increase Z-Index"
+            (click)="increaseZIndex()">
+            <mat-icon>text_increase</mat-icon>
+        </button>
+        <button mat-mini-fab class="z-index-btn" color="primary" matTooltip="Decrease Z-Index"
+            (click)="decreaseZIndex()">
+            <mat-icon>text_decrease</mat-icon>
+        </button>
     </div>
-  </section>
+</section>
 
 <section class="tab-section" [hidden]="isHideNode">
     <mat-divider></mat-divider>
     <h4>Node</h4>
     <div class="tab-field">
         <label>Size</label>
-        <mat-slider class="slider" step="1" min="1" max="100" [(ngModel)]="nodeSize" (change)="setNodeSize($event)"></mat-slider>
+        <mat-slider class="slider" step="1" min="1" max="100" [(ngModel)]="nodeSize"
+            (change)="setNodeSize($event)"></mat-slider>
         <label>{{ nodeSize }}px</label>
     </div>
 </section>
@@ -52,25 +55,30 @@
     </div>
     <div class="tab-field">
         <label>Size</label>
-        <mat-slider class="slider" step="1" min="1" max="50" [(ngModel)]="edgeSize" (change)="setEdgeSize($event)"></mat-slider>
+        <mat-slider class="slider" step="1" min="1" max="50" [(ngModel)]="edgeSize"
+            (change)="setEdgeSize($event)"></mat-slider>
         <label>{{ edgeSize }}px</label>
     </div>
     <h4>Arrow</h4>
     <div class="tab-field direction">
         <label>Direction</label>
-        <button mat-mini-fab color="primary" matTooltip="Both" [class.mat-accent]="arrowActivated === 'both'" (click)="setDirection('both')">
+        <button mat-mini-fab color="primary" matTooltip="Both" [class.mat-accent]="arrowActivated === 'both'"
+            (click)="setDirection('both')">
             <mat-icon>sync_alt</mat-icon>
         </button>
-        <button mat-mini-fab color="primary" matTooltip="Inbound" [class.mat-accent]="arrowActivated === 'inbound'" (click)="setDirection('inbound')">
+        <button mat-mini-fab color="primary" matTooltip="Inbound" [class.mat-accent]="arrowActivated === 'inbound'"
+            (click)="setDirection('inbound')">
             <mat-icon>west</mat-icon>
         </button>
-        <button mat-mini-fab color="primary" matTooltip="Outbound" [class.mat-accent]="arrowActivated === 'outbound'" (click)="setDirection('outbound')">
+        <button mat-mini-fab color="primary" matTooltip="Outbound" [class.mat-accent]="arrowActivated === 'outbound'"
+            (click)="setDirection('outbound')">
             <mat-icon>east</mat-icon>
         </button>
     </div>
     <div class="tab-field">
         <label>Size</label>
-        <mat-slider class="slider" step="1" min="1" max="10" [(ngModel)]="arrowSize" (change)="setArrowScale($event)"></mat-slider>
+        <mat-slider class="slider" step="1" min="1" max="10" [(ngModel)]="arrowSize"
+            (change)="setArrowScale($event)"></mat-slider>
         <label>{{ arrowSize }}px</label>
     </div>
 </section>
@@ -84,7 +92,8 @@
     </div>
     <div class="tab-field">
         <label>Size</label>
-        <mat-slider class="slider" step="1" min="1" max="200" [(ngModel)]="pgSize" (change)="setPGSize($event)"></mat-slider>
+        <mat-slider class="slider" step="1" min="1" max="200" [(ngModel)]="pgSize"
+            (change)="setPGSize($event)"></mat-slider>
         <label>{{ pgSize }}px</label>
     </div>
 </section>
@@ -98,27 +107,33 @@
     </div>
     <div class="tab-field">
         <label>Opacity</label>
-        <mat-slider class="slider" step="0.01" min="0" max="1" [(ngModel)]="gbOpacity" (change)="setGBOpacity($event)"></mat-slider>
+        <mat-slider class="slider" step="0.01" min="0" max="1" [(ngModel)]="gbOpacity"
+            (change)="setGBOpacity($event)"></mat-slider>
         <label>{{ gbOpacityLabel }}%</label>
     </div>
     <h4>Group Box Border</h4>
     <div class="tab-field">
         <label for="gbBorderColor">Color</label>
         <button mat-mini-fab id="gbBorderColor" class="color-picker" [(colorPicker)]="gbBorderColor"
-            [style.background]="gbBorderColor" cpPosition="bottom" (colorPickerChange)="setGBBorderColor($event)"></button>
+            [style.background]="gbBorderColor" cpPosition="bottom"
+            (colorPickerChange)="setGBBorderColor($event)"></button>
     </div>
     <div class="tab-field direction">
         <label>Type</label>
-        <button mat-mini-fab color="primary" matTooltip="Solid" [class.mat-accent]="gbBorderTypeActivated === 'solid'" (click)="setGBType('solid')">
+        <button mat-mini-fab color="primary" matTooltip="Solid" [class.mat-accent]="gbBorderTypeActivated === 'solid'"
+            (click)="setGBType('solid')">
             <mat-icon>horizontal_rule</mat-icon>
         </button>
-        <button mat-mini-fab color="primary" matTooltip="Dotted" [class.mat-accent]="gbBorderTypeActivated === 'dotted'" (click)="setGBType('dotted')">
+        <button mat-mini-fab color="primary" matTooltip="Dotted" [class.mat-accent]="gbBorderTypeActivated === 'dotted'"
+            (click)="setGBType('dotted')">
             <mat-icon>more_horiz</mat-icon>
         </button>
-        <button mat-mini-fab color="primary" matTooltip="Dashed" [class.mat-accent]="gbBorderTypeActivated === 'dashed'" (click)="setGBType('dashed')">
+        <button mat-mini-fab color="primary" matTooltip="Dashed" [class.mat-accent]="gbBorderTypeActivated === 'dashed'"
+            (click)="setGBType('dashed')">
             <mat-icon svgIcon="dashed"></mat-icon>
         </button>
-        <button mat-mini-fab color="primary" matTooltip="Double" [class.mat-accent]="gbBorderTypeActivated === 'double'" (click)="setGBType('double')">
+        <button mat-mini-fab color="primary" matTooltip="Double" [class.mat-accent]="gbBorderTypeActivated === 'double'"
+            (click)="setGBType('double')">
             <mat-icon svgIcon="double"></mat-icon>
         </button>
     </div>
@@ -133,30 +148,37 @@
     </div>
     <div class="tab-field">
         <label>Size</label>
-        <mat-slider class="slider" step="1" min="0" max="200" [(ngModel)]="textSize" (change)="setTextSize($event)"></mat-slider>
+        <mat-slider class="slider" step="1" min="0" max="200" [(ngModel)]="textSize"
+            (change)="setTextSize($event)"></mat-slider>
         <label>{{ textSize }}px</label>
     </div>
     <div class="tab-field text-align">
         <label>V Align</label>
-        <button mat-mini-fab color="primary" matTooltip="Top" [class.mat-accent]="vAlignSelect === 'top'" (click)="setTextVAlign('top')">
+        <button mat-mini-fab color="primary" matTooltip="Top" [class.mat-accent]="vAlignSelect === 'top'"
+            (click)="setTextVAlign('top')">
             <mat-icon>align_vertical_top</mat-icon>
         </button>
-        <button mat-mini-fab color="primary" matTooltip="Center" [class.mat-accent]="vAlignSelect === 'center'" (click)="setTextVAlign('center')">
+        <button mat-mini-fab color="primary" matTooltip="Center" [class.mat-accent]="vAlignSelect === 'center'"
+            (click)="setTextVAlign('center')">
             <mat-icon>align_vertical_center</mat-icon>
         </button>
-        <button mat-mini-fab color="primary" matTooltip="Bottom" [class.mat-accent]="vAlignSelect === 'bottom'" (click)="setTextVAlign('bottom')">
+        <button mat-mini-fab color="primary" matTooltip="Bottom" [class.mat-accent]="vAlignSelect === 'bottom'"
+            (click)="setTextVAlign('bottom')">
             <mat-icon>align_vertical_bottom</mat-icon>
         </button>
     </div>
     <div class="tab-field text-align">
         <label>H Align</label>
-        <button mat-mini-fab color="primary" matTooltip="Left" [class.mat-accent]="hAlignSelect === 'left'" (click)="setTextHAlign('left')">
+        <button mat-mini-fab color="primary" matTooltip="Left" [class.mat-accent]="hAlignSelect === 'left'"
+            (click)="setTextHAlign('left')">
             <mat-icon>align_horizontal_left</mat-icon>
         </button>
-        <button mat-mini-fab color="primary" matTooltip="Center" [class.mat-accent]="hAlignSelect === 'center'" (click)="setTextHAlign('center')">
+        <button mat-mini-fab color="primary" matTooltip="Center" [class.mat-accent]="hAlignSelect === 'center'"
+            (click)="setTextHAlign('center')">
             <mat-icon>align_horizontal_center</mat-icon>
         </button>
-        <button mat-mini-fab color="primary" matTooltip="Right" [class.mat-accent]="hAlignSelect === 'right'" (click)="setTextHAlign('right')">
+        <button mat-mini-fab color="primary" matTooltip="Right" [class.mat-accent]="hAlignSelect === 'right'"
+            (click)="setTextHAlign('right')">
             <mat-icon>align_horizontal_right</mat-icon>
         </button>
     </div>
@@ -168,7 +190,36 @@
     </div>
     <div class="tab-field">
         <label>Opacity</label>
-        <mat-slider class="slider" step="0.01" min="0" max="1" [(ngModel)]="textBGOpacity" (change)="setTextBGOpacity($event)"></mat-slider>
+        <mat-slider class="slider" step="0.01" min="0" max="1" [(ngModel)]="textBGOpacity"
+            (change)="setTextBGOpacity($event)"></mat-slider>
         <label>{{ textBGOpacityLabel }}%</label>
     </div>
+</section>
+
+<section class="tab-section" [hidden]="isHideNode && isHidePGs && isHideMBs || !isHideGBs">
+    <mat-divider></mat-divider>
+    <h4>Position</h4>
+    <form [formGroup]="positionForm" (ngSubmit)="updatePosition()">
+        <mat-form-field class="position">
+            <mat-label>X</mat-label>
+            <input matInput type="text" formControlName="xCtr">
+            <mat-error *ngIf="xCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+        </mat-form-field>
+        <mat-form-field class="position">
+            <mat-label>Y</mat-label>
+            <input matInput type="text" formControlName="yCtr">
+            <mat-error *ngIf="yCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+        </mat-form-field>
+        <div class="tab-field z-index">
+            <button mat-mini-fab type="submit" class="z-index-btn" color="primary" matTooltip="Update" [disabled]="!positionForm.valid ">
+                <mat-icon>check</mat-icon>
+            </button>
+            <button mat-mini-fab class="z-index-btn" color="primary" matTooltip="Lock" (click)="lockNodes()">
+                <mat-icon>lock</mat-icon>
+            </button>
+            <button mat-mini-fab class="z-index-btn" color="primary" matTooltip="Unlock" (click)="unlockNodes()">
+                <mat-icon>lock_open</mat-icon>
+            </button>
+        </div>
+    </form>
 </section>

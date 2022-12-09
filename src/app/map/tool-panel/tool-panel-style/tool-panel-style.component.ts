@@ -1,5 +1,5 @@
-import { Component, DoCheck, Input, OnDestroy, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -13,13 +13,16 @@ import { CommonService } from 'src/app/map/context-menu/cm-common-service/common
 import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
 import { ToastrService } from 'ngx-toastr';
 import { CMGroupBoxService } from '../../context-menu/cm-groupbox/cm-groupbox.service';
+import { CMLockUnlockService } from '../../context-menu/cm-lock-unlock/cm-lock-unlock.service';
+import { selectMapSelection } from 'src/app/store/map-selection/map-selection.selectors';
+import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 
 @Component({
   selector: 'app-tool-panel-style',
   templateUrl: './tool-panel-style.component.html',
   styleUrls: ['./tool-panel-style.component.scss']
 })
-export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
+export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   @Input() cy: any;
   @Input() ur: any;
   @Input() config: any;
@@ -52,11 +55,14 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
   isHideText: boolean = true;
   isHideEdge: boolean = true;
   isHideGBs: boolean = true;
+  isHideMBs: boolean = true;
   vAlignSelect?: string;
   hAlignSelect?: string;
   arrowActivated?: string;
   gbBorderTypeActivated?: string;
   selectedMapPref: any;
+  positionForm!: FormGroup;
+  selectMapSelection$ = new Subscription();
 
   constructor(
     private domSanitizer: DomSanitizer,
@@ -67,6 +73,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
     iconRegistry: MatIconRegistry,
     private toastr: ToastrService,
     private cmGroupBoxService: CMGroupBoxService,
+    private cmLockUnlockService: CMLockUnlockService,
   ) {
     iconRegistry.addSvgIcon('dashed', this.setPath('/assets/icons/dashed.svg'));
     iconRegistry.addSvgIcon('double', this.setPath('/assets/icons/double.svg'));
@@ -84,44 +91,67 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
     this.selectMapPref$ = this.store.select(selectMapPref).subscribe((selectedMapPref: any) => {
       this.selectedMapPref = selectedMapPref;
     });
+    this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
+      if (mapSelection) {
+        this.isHideNode = this.activeNodes.length == 0;
+        this.isHideEdge = this.activeEdges.length == 0;
+        this.isHidePGs = this.activePGs.length == 0;
+        this.isHideGBs = this.activeGBs.length == 0;
+        this.isHideMBs = this.activeMBs.length == 0;
+        this.isHideText = this.activeNodes.length + this.activePGs.length + this.activeEdges.length + this.activeGBs.length == 0;
+        if (this.activeNodes.length >= 1) {
+          const data = this.activeNodes[0].data();
+          this.nodeSize = this.removePx(data.height);
+          this.textSize = this.removePx(data.text_size);
+          const ele = this.cy.getElementById(data.id);
+          this.xCtr?.setValue(ele.position().x);
+          this.yCtr?.setValue(ele.position().y);
+          this._setPropertiesCommon(data);
+        }
+        if (this.activePGs.length >= 1) {
+          const data = this.activePGs[0].data();
+          this.pgColor = data.color;
+          this.pgSize = this.removePx(data.height);
+          const ele = this.cy.getElementById(data.id);
+          this.xCtr?.setValue(ele.position().x);
+          this.yCtr?.setValue(ele.position().y);
+          this._setPropertiesCommon(data);
+        }
+        if (this.activeEdges.length >= 1) {
+          const data = this.activeEdges[0].data();
+          this.textSize = this.removePx(data.text_size);
+          this.edgeColor = data.color;
+          this.edgeSize = this.removePx(data.width);
+          this.arrowActivated = data.direction;
+          this.arrowSize = data.arrow_scale ? this.removePx(data.arrow_scale) : 1;
+          this._setPropertiesCommon(data);
+        }
+        if (this.activeGBs.length >= 1) {
+          const data = this.activeGBs[0].data();
+          this.gbColor = data.color;
+          this.gbOpacity = data.group_opacity;
+          this.gbBorderColor = data.border_color;
+          this.gbBorderTypeActivated = data.border_style;
+          this.textColor = data.text_color;
+        }
+        if (this.activeMBs.length >= 1) {
+          const data = this.activeMBs[0].data();
+          const ele = this.cy.getElementById(data.id);
+          this.xCtr?.setValue(ele.position().x);
+          this.yCtr?.setValue(ele.position().y);
+          this._setPropertiesCommon(data);
+        }
+        this.store.dispatch(retrievedMapSelection({ data: false }));
+      }
+    });
+    this.positionForm = new FormGroup({
+      xCtr: new FormControl('', []),
+      yCtr: new FormControl('', []),
+    });
   }
 
-  ngDoCheck(): void {
-    this.isHideNode = this.activeNodes.length == 0;
-    this.isHideEdge = this.activeEdges.length == 0;
-    this.isHidePGs = this.activePGs.length == 0;
-    this.isHideGBs = this.activeGBs.length == 0;
-    this.isHideText = this.activeNodes.length + this.activePGs.length + this.activeEdges.length + this.activeGBs.length == 0;
-    if (this.activeNodes.length >= 1) {
-      const data = this.activeNodes[0].data();
-      this.nodeSize = this.removePx(data.height);
-      this.textSize = this.removePx(data.text_size);
-      this._setPropertiesCommon(data);
-    }
-    if (this.activePGs.length >= 1) {
-      const data = this.activePGs[0].data();
-      this.pgColor = data.color;
-      this.pgSize = this.removePx(data.height);
-      this._setPropertiesCommon(data);
-    }
-    if (this.activeEdges.length >= 1) {
-      const data = this.activeEdges[0].data();
-      this.textSize = this.removePx(data.text_size);
-      this.edgeColor = data.color;
-      this.edgeSize = this.removePx(data.width);
-      this.arrowActivated = data.direction;
-      this.arrowSize = data.arrow_scale ? this.removePx(data.arrow_scale) : 1;
-      this._setPropertiesCommon(data);
-    }
-    if (this.activeGBs.length >= 1) {
-      const data = this.activeGBs[0].data();
-      this.gbColor = data.color;
-      this.gbOpacity = data.group_opacity;
-      this.gbBorderColor = data.border_color;
-      this.gbBorderTypeActivated = data.border_style;
-      this.textColor = data.text_color;
-    }
-  }
+  get xCtr() { return this.positionForm.get('xCtr'); }
+  get yCtr() { return this.positionForm.get('yCtr'); }
 
   private _setPropertiesCommon(data: any) {
     this.textColor = data.text_color;
@@ -194,12 +224,14 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   setTextVAlign(value: string) {
+    this.vAlignSelect = value;
     this.commonService.textVAlign(
       value, this.activeNodes, this.activePGs
     )
   }
 
   setTextHAlign(value: string) {
+    this.hAlignSelect = value;
     this.commonService.textHAlign(
       value, this.activeNodes, this.activePGs
     );
@@ -251,7 +283,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
 
   setTextBGOpacity(opacity: any) {
     this.textBGOpacity = opacity.value;
-    this.textBGOpacityLabel = Math.round(opacity.value*100);
+    this.textBGOpacityLabel = Math.round(opacity.value * 100);
     this.commonService.textBGOpacity(
       opacity,
       this.activeNodes,
@@ -321,7 +353,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
 
   setGBOpacity(event: any) {
     this.gbOpacity = event.value;
-    this.gbOpacityLabel = Math.round(event.value*100);
+    this.gbOpacityLabel = Math.round(event.value * 100);
     this.commonService.gbOpacity(event, this.activeGBs);
   }
 
@@ -360,5 +392,27 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy, DoCheck {
       }
       ele.data('zIndex', ele.data('zIndex') - 1);
     });
+  }
+
+  lockNodes() {
+    this.cmLockUnlockService.lockNodes(this.cy, this.activeNodes, this.activePGs, this.activeMBs);
+  }
+
+  unlockNodes() {
+    this.cmLockUnlockService.unlockNodes(this.activeNodes, this.activePGs, this.activeMBs);
+  }
+
+  updatePosition() {
+    let data: any;
+    if (this.activeNodes.length >= 1) {
+      data = this.activeNodes[0].data();
+    } else if (this.activePGs.length >= 1) {
+      data = this.activePGs[0].data();
+    } else if (this.activeMBs.length >= 1) {
+      data = this.activeMBs[0].data();
+    }
+    const ele = this.cy.getElementById(data.id);
+    ele.position('x', +this.xCtr?.value);
+    ele.position('y', +this.yCtr?.value);
   }
 }

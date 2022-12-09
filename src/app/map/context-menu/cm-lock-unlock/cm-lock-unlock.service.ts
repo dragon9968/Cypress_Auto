@@ -12,34 +12,34 @@ export class CMLockUnlockService {
     private helpersService: HelpersService,
   ) { }
 
-  getLockMenu(cy: any, activeNodes: any[], activePGs: any[]) {
+  getLockMenu(cy: any, activeNodes: any[], activePGs: any[], activeMBs: any[]) {
     return {
       id: "lock_node",
       content: "Lock",
       selector: "node",
       onClickFunction: (event: any) => {
-        this.lockNodes(cy, activeNodes, activePGs);
+        this.lockNodes(cy, activeNodes, activePGs, activeMBs);
       },
       hasTrailingDivider: false,
       disabled: false,
     }
   }
 
-  getUnlockMenu(activeNodes: any[], activePGs: any[]) {
+  getUnlockMenu(activeNodes: any[], activePGs: any[], activeMBs: any[]) {
     return {
       id: "unlock_node",
       content: "Unlock",
       selector: "node",
       onClickFunction: (event: any) => {
-        this.unlockNodes(activeNodes, activePGs);
+        this.unlockNodes(activeNodes, activePGs, activeMBs);
       },
       hasTrailingDivider: true,
       disabled: false,
     }
   }
 
-  lockNodes(cy: any, activeNodes: any[], activePGs: any[]) {
-    activeNodes.concat(activePGs).forEach((ele: any) => {
+  lockNodes(cy: any, activeNodes: any[], activePGs: any[], activeMBs: any[]) {
+    activeNodes.concat(activePGs, activeMBs).forEach((ele: any) => {
       if (ele.locked()) {
         this.toastr.warning('Already locked');
       }
@@ -55,8 +55,8 @@ export class CMLockUnlockService {
     });
   }
 
-  unlockNodes(activeNodes: any[], activePGs: any[]) {
-    activeNodes.concat(activePGs).forEach((ele: any) => {
+  unlockNodes(activeNodes: any[], activePGs: any[], activeMBs: any[]) {
+    activeNodes.concat(activePGs, activeMBs).forEach((ele: any) => {
       if (!(ele.locked())) {
         this.toastr.warning('Already Unlocked');
       }
