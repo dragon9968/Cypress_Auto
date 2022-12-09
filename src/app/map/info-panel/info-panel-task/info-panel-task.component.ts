@@ -29,6 +29,7 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
   rowData$!: Observable<any>;
   isClickAction = false;
   tabName = 'userTask';
+  nodesIdRendered: any[] = [];
   destroy$: Subject<boolean> = new Subject<boolean>();
 
   public gridOptions: GridOptions = {
@@ -231,9 +232,13 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
     interval(30000).pipe(
       takeUntil(this.destroy$)
     ).subscribe(() => {
-      this.userTaskService.getAll().subscribe(response => {
-        this.store.dispatch(retrievedUserTasks({data: response.result}));
-      })
+      this.nodesIdRendered = this.getTaskRendered();
+      if (this.nodesIdRendered.length > 0) {
+        this.userTaskService.getTaskAutoRefresh({pks: this.nodesIdRendered}).subscribe(response => {
+          const tasks = response.result;
+          this.setNodeDataRefresh(tasks);
+        })
+      }
     })
   }
 
@@ -251,5 +256,24 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
     this.rowsSelectedId = [];
     this.rowsSelected = [];
     this.gridApi.deselectAll();
+  }
+
+  getTaskRendered() {
+    if (this.gridApi) {
+      return this.gridApi.getRenderedNodes().map(rowNode => rowNode.data.id);
+    } else {
+      return [];
+    }
+  }
+
+  setNodeDataRefresh(tasks: any) {
+    tasks.map((taskNew: any) => {
+      taskNew.start_time = taskNew.start_time ? taskNew.start_time.replace('T', ' ') : null;
+      this.gridApi?.forEachNode(rowNode => {
+        if (rowNode.data.id === taskNew.id) {
+          rowNode.setData(taskNew);
+        }
+      })
+    })
   }
 }

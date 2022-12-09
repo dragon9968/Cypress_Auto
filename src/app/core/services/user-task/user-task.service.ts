@@ -39,4 +39,8 @@ export class UserTaskService {
   refreshTask() {
     return this.httpClient.get<any>(ApiPaths.USER_TASK_REFRESH_TASK);
   }
+
+  getTaskAutoRefresh(pks: any): Observable<any> {
+    return this.httpClient.post<any>(ApiPaths.USER_TASK_AUTO_REFRESH, pks);
+  }
 }

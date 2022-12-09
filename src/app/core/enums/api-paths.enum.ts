@@ -38,6 +38,7 @@ export enum ApiPaths {
   USER_TASK_REVOKE = '/api/v1/user_task/revoke_task',
   USER_TASK_POST_TASK = '/api/v1/user_task/post_task',
   USER_TASK_REFRESH_TASK = '/api/v1/user_task/refresh',
+  USER_TASK_AUTO_REFRESH = '/api/v1/user_task/auto_refresh',
   PORTGROUP_RANDOMIZE_SUBNET = '/api/v1/portgroup/randomize_subnet/',
   PORTGROUP_RANDOMIZE_SUBNET_BULK = '/api/v1/portgroup/randomize_subnet_bulk',
   PORTGROUP_VALIDATE = '/api/v1/portgroup/validate',
