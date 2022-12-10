@@ -144,7 +144,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
       }
       const dialogRef = this.dialog.open(EditProjectDialogComponent, {
         autoFocus: false,
-        width: '450px',
+        width: '800px',
         data: dialogData
       });
     })

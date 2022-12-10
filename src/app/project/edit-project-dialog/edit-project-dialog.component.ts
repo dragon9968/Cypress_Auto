@@ -1,17 +1,20 @@
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
+import { AgGridAngular } from 'ag-grid-angular';
+import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, Subscription, throwError } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
-import { UserService } from 'src/app/core/services/user/user.service';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
+import { asyncValidateValueSetter } from 'src/app/shared/validations/ip-subnet.validation.ag-grid';
 import { retrievedProjects } from 'src/app/store/project/project.actions';
-import { retrievedUserTasks } from 'src/app/store/user-task/user-task.actions';
 import { selectUserTasks } from 'src/app/store/user-task/user-task.selectors';
+import { ButtonRenderersComponent } from '../renderers/button-renderers-component';
 import { ProjectService } from '../services/project.service';
+import { CustomTooltip } from './custom-tool-tip';
 
 @Component({
   selector: 'app-edit-project-dialog',
@@ -19,17 +22,63 @@ import { ProjectService } from '../services/project.service';
   styleUrls: ['./edit-project-dialog.component.scss']
 })
 export class EditProjectDialogComponent implements OnInit, OnDestroy {
+  @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
+  private gridApi!: GridApi;
   editProjectForm!: FormGroup;
   errorMessages = ErrorMessages;
   selectUserTasks$ = new Subscription();
+  isDisableButton = false;
+  rowData!: any[];
   listUser!: any[];
   listShared: any[] = [];
   isLoading = false;
+  defaultColDef: ColDef = {
+    sortable: true,
+    resizable: true,
+    editable: true,
+    tooltipComponent: CustomTooltip,
+  };
+  columnDefs: ColDef[] = [
+    { headerName: '',
+      editable: false,
+      maxWidth: 90,
+      cellRenderer: ButtonRenderersComponent,
+      cellRendererParams: {
+        onClick: this.onDelete.bind(this),
+      }
+    },
+    { field: 'category',
+      valueFormatter: (params) => params.value,
+      cellEditor: 'agSelectCellEditor', 
+      cellEditorParams: {
+        values: ['public', 'private', 'management'],
+      },
+    },
+    { field: 'network',
+      valueSetter: asyncValidateValueSetter,
+      tooltipValueGetter: (params: any) => {
+        return params.value
+      },
+    },
+    { field: 'reserved_ip',
+      headerName: 'Reserved IP Addresses',
+      autoHeight: true,
+      valueGetter: function(params) {
+        if (Array.isArray(params.data.reserved_ip)) {
+          return params.data.reserved_ip.map((cat: any) => cat.ip).join(',');
+        }
+        return params.data.reserved_ip;
+      },
+      valueSetter: asyncValidateValueSetter,
+      cellRenderer: function(params: any) {
+        return params.value ? `[${params.value}]` : '[]'    
+      }
+    }
+  ];
   constructor(
     public helpers: HelpersService,
     private projectService: ProjectService,
     private store: Store,
-    private userService: UserService,
     private toastr: ToastrService,
     public dialogRef: MatDialogRef<EditProjectDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -37,6 +86,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
     this.selectUserTasks$ = this.store.select(selectUserTasks).subscribe(data => {
       this.listUser = data;
     })
+    this.rowData = this.data.genData.networks
 
     this.editProjectForm = new FormGroup({
       nameCtr: new FormControl('', [Validators.required, 
@@ -71,6 +121,10 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
     this.selectUserTasks$.unsubscribe();
   }
 
+  onGridReady(params: GridReadyEvent) {
+    this.gridApi = params.api;
+    this.gridApi.sizeColumnsToFit();
+  }
 
   numericOnly(event: any): boolean { 
     const charCode = (event.which) ? event.which : event.keyCode;
@@ -84,14 +138,41 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
     this.dialogRef.close();
   }
 
+  processForm(data: string) {
+    let arr: any[] = [];
+    if (data.length == 0) {
+      arr = []
+    } else if (data.length > 1) {
+      const value = data.split(',');
+      for (let i = 0; i < value.length; i++) {
+        arr.push({
+          "ip": value[i].trim(),
+        })
+      }
+    }
+    return arr
+  }
+
   updateProject() {
     const sharedUpdate = this.listShared.map(el => el.username)
-    if(this.editProjectForm.valid) {
+    let items: any[] = [];
+    this.gridApi.forEachNode(node => items.push(node.data));
+    Object.values(items).forEach(val => {
+      if (!Array.isArray(val.reserved_ip)) {
+        val.reserved_ip = this.processForm(val.reserved_ip)
+      }
+      delete val['validation']
+      if ((val.network === '') || (val.category === '')) {
+        this.isDisableButton = true
+      }
+    })
+    if (this.editProjectForm.valid && !this.isDisableButton) {
       const jsonData = {
         name: this.nameCtr?.value,
         description: this.descriptionCtr?.value,
         vlan_min: this.minVlanCtr?.value,
         vlan_max: this.maxVlanCtr?.value,
+        networks: items
       }
       this.projectService.put(this.data.genData.id, jsonData).pipe(
         catchError((e: any) => {
@@ -112,6 +193,9 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
           });
         });
     }
+    else {
+      this.toastr.warning('Category and network fields are required.')
+    }
   }
 
   remove(option: any): void {
@@ -129,4 +213,18 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
     });
   }
 
+  onDelete(params: any) {
+    this.rowData.splice(params.rowData.index, 1);
+    this.gridApi.applyTransaction({ remove: [params.rowData] });
+    return this.rowData;
+  }
+
+  addNetwork() {
+    const jsonData = {
+      category: '',
+      network: '',
+      reserved_ip: []
+    }
+    this.gridApi.applyTransaction({ add: [jsonData] });
+  }
 }

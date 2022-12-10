@@ -10,7 +10,6 @@ export function ipSubnetValidation(subnet: boolean): ValidatorFn {
     const matchSubnet = isSubnet(ips)
     const isIpV4 = isIPv4(ips)
     let isMatch = !isIpV4
-    if (ips == undefined || ips == '') return null;
     if (subnet) {
       if (ips.includes('/')) {
         const ip = ips.split('/')[0]
@@ -24,6 +23,7 @@ export function ipSubnetValidation(subnet: boolean): ValidatorFn {
       }
       isMatch = (!matchSubnet && !isIpV4)
     } else {
+      if (ips == undefined || ips == '') return null;
       let ipArr = ips.split(',');
       isMatch = !isIPv4(ips)
       if (ipArr) {
