@@ -1,4 +1,4 @@
-import { Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -8,10 +8,10 @@ import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, Subscription, throwError } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
+import { UserService } from 'src/app/core/services/user/user.service';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { asyncValidateValueSetter } from 'src/app/shared/validations/ip-subnet.validation.ag-grid';
 import { retrievedProjects } from 'src/app/store/project/project.actions';
-import { selectUserTasks } from 'src/app/store/user-task/user-task.selectors';
 import { ButtonRenderersComponent } from '../renderers/button-renderers-component';
 import { ProjectService } from '../services/project.service';
 import { CustomTooltip } from './custom-tool-tip';
@@ -21,7 +21,7 @@ import { CustomTooltip } from './custom-tool-tip';
   templateUrl: './edit-project-dialog.component.html',
   styleUrls: ['./edit-project-dialog.component.scss']
 })
-export class EditProjectDialogComponent implements OnInit, OnDestroy {
+export class EditProjectDialogComponent implements OnInit {
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
   private gridApi!: GridApi;
   editProjectForm!: FormGroup;
@@ -78,16 +78,28 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
   constructor(
     public helpers: HelpersService,
     private projectService: ProjectService,
+    private userService: UserService,
     private store: Store,
     private toastr: ToastrService,
     public dialogRef: MatDialogRef<EditProjectDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) { 
-    this.selectUserTasks$ = this.store.select(selectUserTasks).subscribe(data => {
-      this.listUser = data;
-    })
     this.rowData = this.data.genData.networks
-
+    this.userService.getAll().subscribe(data => {
+      this.listUser = data.result;
+      if (this.data) {
+        this.nameCtr?.setValue(this.data.genData.name);
+        this.descriptionCtr?.setValue(this.data.genData.description);
+        this.minVlanCtr?.setValue(this.data.genData.vlan_min);
+        this.maxVlanCtr?.setValue(this.data.genData.vlan_max);
+        this.data.genData.share.forEach((el: any) => {
+          this.listShared.push(el)
+          if (this.listUser) {
+            this.listUser = this.listUser.filter(value => value.username != el.username)
+          }
+        });
+      }
+    })
     this.editProjectForm = new FormGroup({
       nameCtr: new FormControl('', [Validators.required, 
         Validators.minLength(3), 
@@ -107,18 +119,6 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
   get sharedCtr() { return this.helpers.getAutoCompleteCtr(this.editProjectForm.get('sharedCtr'), this.listUser); }
 
   ngOnInit(): void {
-    this.nameCtr?.setValue(this.data.genData.name);
-    this.descriptionCtr?.setValue(this.data.genData.description);
-    this.minVlanCtr?.setValue(this.data.genData.vlan_min);
-    this.maxVlanCtr?.setValue(this.data.genData.vlan_max);
-    this.data.genData.share.forEach((el: any) => {
-      this.listShared.push(el)
-      this.listUser = this.listUser.filter(value => value.username != el.username)
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.selectUserTasks$.unsubscribe();
   }
 
   onGridReady(params: GridReadyEvent) {

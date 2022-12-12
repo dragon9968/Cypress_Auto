@@ -25,5 +25,4 @@ export enum RouteSegments {
   APP_PREFERENCES = 'settings/app-preferences',
   MAP_PREFERENCES = 'settings/map-preferences',
   USER_GUIDE = 'help/user-guide',
-  ABOUT = 'help/about',
 }

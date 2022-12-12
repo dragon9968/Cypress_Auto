@@ -29,6 +29,7 @@ import { selectIsConnect } from 'src/app/store/server-connect/server-connect.sel
 import { ServerConnectService } from '../../services/server-connect/server-connect.service';
 import { ServerConnectDialogComponent } from 'src/app/map/tool-panel/tool-panel-remote/server-connect-dialog/server-connect-dialog.component';
 import { retrievedIsConnect, retrievedServerConnect } from 'src/app/store/server-connect/server-connect.actions';
+import { AboutComponent } from 'src/app/help/about/about.component';
 
 @Component({
   selector: 'app-nav-bar',
@@ -75,7 +76,6 @@ export class NavBarComponent implements OnInit, OnDestroy {
     });
     this.selectIsOpen$ = this.store.select(selectIsOpen).subscribe(isOpen => {
       this.isOpen = isOpen
-      this.collectionId = this.projectService.getCollectionId();
     });
     this.selectIsConnect$ = this.store.select(selectIsConnect).subscribe(isConnect => {
       if (isConnect !== undefined) {
@@ -133,10 +133,11 @@ export class NavBarComponent implements OnInit, OnDestroy {
     this.router.navigate([RouteSegments.ROOT]);
   }
 
+  getCollectionId() {
+    this.collectionId = this.projectService.getCollectionId();
+  }
+
   editProject() {
-    this.userService.getAll().subscribe(data => {
-      this.store.dispatch(retrievedUserTasks({ data: data.result }));
-    })
     this.projectService.get(this.collectionId).subscribe(data => {
       const dialogData = {
         mode: 'update',
@@ -278,6 +279,9 @@ export class NavBarComponent implements OnInit, OnDestroy {
           return throwError(() => err.error.message);
         }
       })
+  }
 
+  openAboutModal() {
+    this.dialog.open(AboutComponent, { width: '600px', autoFocus: false});
   }
 }

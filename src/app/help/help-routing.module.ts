@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { PermissionLevels } from '../core/enums/permission-levels.enum';
 import { PageNotFoundComponent } from '../core/page-not-found/page-not-found.component';
-import { AboutComponent } from './about/about.component';
 import { UserGuideComponent } from './user-guide/user-guide.component';
 
 const routes: Routes = [
@@ -16,13 +15,6 @@ const routes: Routes = [
       {
         path: 'user-guide',
         component: UserGuideComponent,
-        data: {
-          permissionLevel: PermissionLevels.USER,
-        }
-      },
-      {
-        path: 'about',
-        component: AboutComponent,
         data: {
           permissionLevel: PermissionLevels.USER,
         }
