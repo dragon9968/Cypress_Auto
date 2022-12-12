@@ -27,7 +27,11 @@ import { ErrorStateMatcher } from '@angular/material/core';
 
 class CrossFieldErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
-    return !!control?.dirty && (form?.errors?.['isNotMatchPattern'] || form?.errors?.['isNotMatchLength']);
+    return !!control?.dirty && (
+      control?.errors?.['required'] ||
+      form?.errors?.['isNotMatchPattern'] ||
+      form?.errors?.['isNotMatchLength']
+    );
   }
 }
 
@@ -148,6 +152,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
     if (this.data.genData.configs) {
       this.configTemplateCtr?.setValue(this.data.genData.configs.map((item: any) => item.id));
     }
+    this.helpers.validateAllFormFields(this.nodeAddForm);
   }
 
   ngOnDestroy(): void {

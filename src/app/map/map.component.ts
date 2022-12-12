@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { delay, ReplaySubject, Subject, Subscription } from 'rxjs';
+import { catchError, delay, ReplaySubject, Subject, Subscription, throwError } from 'rxjs';
 import { retrievedIsMapOpen, retrievedMap } from '../store/map/map.actions';
 import { environment } from 'src/environments/environment';
 import * as cytoscape from 'cytoscape';
@@ -872,7 +872,18 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       collection_id: this.collectionId,
       logical_map_position: newNodePosition
     };
-    this.nodeService.add(jsonData).subscribe((respData: any) => {
+    this.nodeService.add(jsonData).pipe(
+      catchError((resp: any) => {
+        if (resp.status == 422) {
+          const errorMsg: any[] = resp.error.message;
+          const m = Object.keys(errorMsg).map((key: any) => key + ': ' + errorMsg[key])
+          this.toastr.error(m.join(','));
+        }
+        this.isAddNode = false;
+        this._enableMapEditButtons();
+        return throwError(() => resp.message);
+      })
+    ).subscribe((respData: any) => {
       this.nodeService.get(respData.id).subscribe(respData => {
         const cyData = respData.result;
         cyData.id = 'node-' + respData.id;
@@ -1130,7 +1141,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           contextMenu.showMenuItem('edit');
         }
       }
-    } 
+    }
     if (!this.connectionId || this.connectionId == 0) {
       contextMenu.hideMenuItem('node_remote');
       contextMenu.hideMenuItem('pg_remote');

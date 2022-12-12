@@ -4,6 +4,7 @@ import { Injectable, Input } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 import { selectGroupBoxes } from 'src/app/store/map/map.selectors';
+import { FormControl, FormGroup } from '@angular/forms';
 
 @Injectable({
   providedIn: 'root'
@@ -650,5 +651,17 @@ export class HelpersService {
 
   public setIconPath(url: string): SafeResourceUrl {
     return this.domSanitizer.bypassSecurityTrustResourceUrl(url);
+  }
+
+  validateAllFormFields(formGroup: FormGroup) {         
+    Object.keys(formGroup.controls).forEach(field => {  
+      const control = formGroup.get(field);
+      if (control instanceof FormControl) {             
+        control.markAsTouched({ onlySelf: true });
+        control.markAsDirty({ onlySelf: true });
+      } else if (control instanceof FormGroup) {   
+        this.validateAllFormFields(control);
+      }
+    });
   }
 }
