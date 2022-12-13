@@ -14,6 +14,7 @@ import { DeleteNodeDeployDialogComponent } from "../../delete-node-deploy-dialog
 import { ProjectService } from 'src/app/project/services/project.service';
 import { AddDeletePGDeployDialogComponent } from "../../add-delete-pg-deploy-dialog/add-delete-pg-deploy-dialog.component";
 import { UpdateFactsNodeDialogComponent } from "../../update-facts-node-dialog/update-facts-node-dialog.component";
+import { MapService } from 'src/app/core/services/map/map.service';
 
 @Injectable({
   providedIn: 'root'
@@ -27,7 +28,8 @@ export class CMRemoteService {
     private nodeService: NodeService,
     private infoPanelService: InfoPanelService,
     private serverConnectionService: ServerConnectService,
-    private projectService: ProjectService
+    private projectService: ProjectService,
+    private mapService: MapService
   ) { }
 
   getNodeRemoteMenu(activeNodes: any[]) {
@@ -38,7 +40,7 @@ export class CMRemoteService {
       onClickFunction: (event: any) => {
         const target = event.target;
         const data = target.data();
-        const url = data.url;
+        const url = this.getNodeUrl(data.node_id)
         if (url != null) {
           window.open(url);
         } else {
@@ -318,5 +320,22 @@ export class CMRemoteService {
       this.infoPanelService.updateTaskList();
       this.toastr.success("Task added to the queue", "Success");
     });
+  }
+
+  getNodeUrl(nodeId: any) {
+    const connection = this.serverConnectionService.getConnection();
+    const connectionId = connection ? connection?.id : 0;
+    const collectionId = this.projectService.getCollectionId();
+    if (connectionId || collectionId != 0) {
+      this.mapService.getVMStatus(collectionId, connection?.id).subscribe(mapStatus => {
+        for (const [key, value] of Object.entries(mapStatus.vm_status)) {
+          const d = value as any
+          if (d.id === nodeId) {
+            return d.url
+          }
+        }
+      })  
+    }
+    return null
   }
 }
