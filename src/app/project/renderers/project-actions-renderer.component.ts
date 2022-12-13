@@ -3,7 +3,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { ICellRendererParams } from 'ag-grid-community';
-import { EditProjectDialogComponent } from '../edit-project-dialog/edit-project-dialog.component';
 import { ProjectService } from '../services/project.service';
 
 @Component({

@@ -10,7 +10,7 @@
     <mat-form-field class="field">
       <mat-label>Category</mat-label>
       <input matInput type="text" placeholder="Select a category" formControlName="categoryCtr"
-             [matAutocomplete]="autoCategory" [readonly]="isViewMode">[Domains] Should set value None for Admin User and Admin Password
+             [matAutocomplete]="autoCategory" [readonly]="isViewMode">
       <mat-autocomplete #autoCategory="matAutocomplete" [displayWith]="helpers.optionDisplay">
         <mat-option *ngFor="let option of CATEGORIES" [value]="option" (onSelectionChange)="changeCategory($event)">
           {{ option.name }}

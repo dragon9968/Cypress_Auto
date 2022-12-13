@@ -13,27 +13,26 @@ import { UserTaskService } from "../user-task/user-task.service";
 import { PortGroupService } from "../portgroup/portgroup.service";
 import { InterfaceService } from "../interface/interface.service";
 import { DomainUserService } from "../domain-user/domain-user.service";
-import { AddUpdatePGDialogComponent } from "../../../map/add-update-pg-dialog/add-update-pg-dialog.component";
-import { NodeBulkEditDialogComponent } from "../../../map/bulk-edit-dialog/node-bulk-edit-dialog/node-bulk-edit-dialog.component";
-import { AddUpdateNodeDialogComponent } from "../../../map/add-update-node-dialog/add-update-node-dialog.component";
-import { InterfaceBulkEditDialogComponent } from "../../../map/bulk-edit-dialog/interface-bulk-edit-dialog/interface-bulk-edit-dialog.component";
-import { PortGroupBulkEditDialogComponent } from "../../../map/bulk-edit-dialog/port-group-bulk-edit-dialog/port-group-bulk-edit-dialog.component";
-import { AddUpdateInterfaceDialogComponent } from "../../../map/add-update-interface-dialog/add-update-interface-dialog.component";
 import { selectVMStatus } from "../../../store/project/project.selectors";
 import { selectIsConnect } from "../../../store/server-connect/server-connect.selectors";
 import { selectMapOption } from "../../../store/map-option/map-option.selectors";
-import { retrievedDomains } from "../../../store/domain/domain.actions";
 import { selectPortGroups } from "../../../store/portgroup/portgroup.selectors";
 import { selectDomainUsers } from "../../../store/domain-user/domain-user.selectors";
-import { retrievedUserTasks } from "../../../store/user-task/user-task.actions";
 import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
 import { retrievedGroups } from "../../../store/group/group.actions";
+import { retrievedDomains } from "../../../store/domain/domain.actions";
+import { retrievedUserTasks } from "../../../store/user-task/user-task.actions";
 import { retrievedIsChangeDomainUsers } from "../../../store/domain-user-change/domain-user-change.actions";
+import { AddUpdatePGDialogComponent } from "../../../map/add-update-pg-dialog/add-update-pg-dialog.component";
+import { NodeBulkEditDialogComponent } from "../../../map/bulk-edit-dialog/node-bulk-edit-dialog/node-bulk-edit-dialog.component";
 import { ShowUserTaskDialogComponent } from "../../../map/info-panel/info-panel-task/show-user-task-dialog/show-user-task-dialog.component";
+import { AddUpdateNodeDialogComponent } from "../../../map/add-update-node-dialog/add-update-node-dialog.component";
 import { AddUpdateGroupDialogComponent } from "../../../map/add-update-group-dialog/add-update-group-dialog.component";
 import { AddUpdateDomainDialogComponent } from "../../../map/add-update-domain-dialog/add-update-domain-dialog.component";
 import { UpdateDomainUserDialogComponent } from "../../../map/info-panel/info-panel-domain/update-domain-user-dialog/update-domain-user-dialog.component";
-
+import { InterfaceBulkEditDialogComponent } from "../../../map/bulk-edit-dialog/interface-bulk-edit-dialog/interface-bulk-edit-dialog.component";
+import { PortGroupBulkEditDialogComponent } from "../../../map/bulk-edit-dialog/port-group-bulk-edit-dialog/port-group-bulk-edit-dialog.component";
+import { AddUpdateInterfaceDialogComponent } from "../../../map/add-update-interface-dialog/add-update-interface-dialog.component";
 
 @Injectable({
   providedIn: 'root'
@@ -54,9 +53,9 @@ export class InfoPanelService {
   isGroupBoxesChecked!: boolean;
   isConnect!: boolean;
   statusColorLookup = {
-    off: '#FF0000', //red
-    on: '#008000', // green
-    unknown: '#FFFF00' // yellow
+    off: '#D63222', //red
+    on: '#44D62C', // green
+    unknown: '#FFE900' // yellow
   }
 
   constructor(
@@ -498,14 +497,15 @@ export class InfoPanelService {
     })
   }
 
-  delayedAlert(nodeName: string, nodeStatus: any) {
-    const ele = this.cy.nodes().filter(`[name='${nodeName}']`)[0];
+  delayedAlertNode(nodeName: string, nodeStatus: any) {
+    const ele = this.cy?.nodes().filter(`[name='${nodeName}']`)[0];
     if (!ele) {
       return;
     }
     // set the VM Power and Status value in the tooltip
     ele.style({ 'background-opacity': '1' });
     ele.style({ 'border-width': '10px' });
+    ele.style({ 'border-style': 'double' });
     ele.style({ 'border-opacity': '1' });
     const d = nodeStatus;
     if (d.state == "on" && d.status == "running") {
@@ -526,20 +526,41 @@ export class InfoPanelService {
     }
   }
 
+  delayedAlertPortGroup(pgName: string, pgStatus: any) {
+    const ele = this.cy?.nodes().filter(`[name='${pgName}']`)[0];
+    if (!ele) {
+      return;
+    }
+    if (pgStatus) {
+      ele.style({ 'border-color': this.statusColorLookup.on });
+      ele.style({ 'border-style': "double"});
+      ele.style({ 'border-width': 7});
+    }
+  }
+
   removeVMStatusOnMap() {
+    // Remove Node's status
     const nodes = this.cy?.nodes().filter('[icon]');
     if (nodes) {
       nodes.style('border-opacity', 0);
       nodes.style('border-width', 0);
       nodes.style('background-opacity', 0);
     }
+    // Remove PortGroup's status
+    const portGroups = this.cy?.nodes().filter((ele: any) => ele.data('elem_category') === 'port_group');
+    if (portGroups) {
+      portGroups.style({ 'border-width': 0 });
+    }
   }
 
   changeVMStatusOnMap(collectionId: number, connectionId: number) {
-    this.mapService.getVMStatus(collectionId, connectionId).subscribe(vmStatus => {
+    this.mapService.getVMStatus(collectionId, connectionId).subscribe(mapStatus => {
       this.removeVMStatusOnMap();
-      for (const [key, value] of Object.entries(vmStatus)) {
-        this.delayedAlert(key, value);
+      for (const [key, value] of Object.entries(mapStatus.vm_status)) {
+        this.delayedAlertNode(key, value);
+      }
+      for (const [key, value] of Object.entries(mapStatus.pg_status)) {
+        this.delayedAlertPortGroup(key, value);
       }
     })
   }
