@@ -15,11 +15,11 @@ import { ProjectService } from "../../project/services/project.service";
 import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
 import { ServerConnectService } from "../../core/services/server-connect/server-connect.service";
 import { retrievedMap } from "../../store/map/map.actions";
-import { retrievedIsConnect } from "../../store/server-connect/server-connect.actions";
-import { retrievedDashboard, retrievedIsOpen, retrievedVMStatus } from "../../store/project/project.actions";
-import { selectMapFeature } from "../../store/map/map.selectors";
 import { selectIsConnect } from "../../store/server-connect/server-connect.selectors";
+import { selectMapFeature } from "../../store/map/map.selectors";
+import { retrievedIsConnect } from "../../store/server-connect/server-connect.actions";
 import { selectDashboard, selectVMStatus } from "../../store/project/project.selectors";
+import { retrievedDashboard, retrievedIsOpen, retrievedVMStatus } from "../../store/project/project.actions";
 
 @Component({
   selector: 'app-network-map',
@@ -109,6 +109,9 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
           this.mapBackgrounds = map.mapBackgrounds;
           this.defaultPreferences = map.defaultPreferences;
           this._initCytoscapeNetworkMap();
+          if (this.connection && this.connection.id !== 0 && this.vmStatusChecked) {
+            this.infoPanelService.changeVMStatusOnMap(+this.collectionId, this.connection.id);
+          }
         }
       });
     }
