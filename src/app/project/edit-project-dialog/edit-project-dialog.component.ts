@@ -56,8 +56,9 @@ export class EditProjectDialogComponent implements OnInit {
     },
     { field: 'network',
       valueSetter: asyncValidateValueSetter,
+      tooltipComponent: CustomTooltip,
       tooltipValueGetter: (params: any) => {
-        return params.value
+        return params
       },
     },
     { field: 'reserved_ip',
@@ -162,6 +163,7 @@ export class EditProjectDialogComponent implements OnInit {
         val.reserved_ip = this.processForm(val.reserved_ip)
       }
       delete val['validation']
+      delete val['validation_isExists']
       if ((val.network === '') || (val.category === '')) {
         this.isDisableButton = true
       }
