@@ -40,12 +40,25 @@ export class CMRemoteService {
       onClickFunction: (event: any) => {
         const target = event.target;
         const data = target.data();
-        const url = this.getNodeUrl(data.node_id)
-        if (url != null) {
-          window.open(url);
-        } else {
-          this.toastr.warning('Web Console not accessible')
-        }
+        const connection = this.serverConnectionService.getConnection();
+        const connectionId = connection ? connection?.id : 0;
+        const collectionId = this.projectService.getCollectionId();
+        let url = data.url
+        if (connectionId || collectionId != 0) {
+          this.mapService.getVMStatus(collectionId, connection?.id).subscribe(mapStatus => {
+            for (const [key, value] of Object.entries(mapStatus.vm_status)) {
+              const d = value as any
+              if (d.id === data.node_id) {
+                url = d.url
+              }
+            }
+            if (url != null) {
+              window.open(url);
+            } else {
+              this.toastr.warning('Web Console not accessible')
+            }
+          })
+        } 
       },
       hasTrailingDivider: true,
       disabled: false,
@@ -320,22 +333,5 @@ export class CMRemoteService {
       this.infoPanelService.updateTaskList();
       this.toastr.success("Task added to the queue", "Success");
     });
-  }
-
-  getNodeUrl(nodeId: any) {
-    const connection = this.serverConnectionService.getConnection();
-    const connectionId = connection ? connection?.id : 0;
-    const collectionId = this.projectService.getCollectionId();
-    if (connectionId || collectionId != 0) {
-      this.mapService.getVMStatus(collectionId, connection?.id).subscribe(mapStatus => {
-        for (const [key, value] of Object.entries(mapStatus.vm_status)) {
-          const d = value as any
-          if (d.id === nodeId) {
-            return d.url
-          }
-        }
-      })  
-    }
-    return null
   }
 }
