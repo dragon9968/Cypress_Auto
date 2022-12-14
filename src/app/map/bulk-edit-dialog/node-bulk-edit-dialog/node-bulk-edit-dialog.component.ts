@@ -2,7 +2,7 @@ import { Store } from "@ngrx/store";
 import { ToastrService } from "ngx-toastr";
 import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute, Params } from "@angular/router";
-import { forkJoin, map, Subscription } from "rxjs";
+import { forkJoin, map, of, Subscription } from "rxjs";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
@@ -104,6 +104,26 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
     this.selectLoginProfiles$.unsubscribe();
   }
 
+  private _updateNodeOnMap(data: any) {
+    const ele = this.data.cy.getElementById('node-' + data.id);
+    ele.data('icon', ICON_PATH + data.icon.photo);
+    ele.data('icon_id', data.icon_id);
+    ele.data('device', data.device);
+    ele.data('device_id', data.device_id);
+    ele.data('template', data.template);
+    ele.data('template_id', data.template_id);
+    ele.data('folder', data.folder);
+    ele.data('parent_folder', data.parent_folder);
+    ele.data('role', data.role);
+    ele.data('domain', data.domain);
+    ele.data('domain_id', data.domain_id);
+    ele.data('login_profile_id', data.login_profile_id);
+    ele.data('login_profile_show', data.login_profile_show);
+    ele.data('configs', data.configs);
+    ele.data('configuration_show', data.configuration_show);
+    ele.data('groups', data.groups);
+  }
+
   updateNodeBulk() {
     const jsonData = {
       ids: this.data.genData.ids,
@@ -117,44 +137,28 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
       login_profile_id: this.loginProfileCtr?.value.id
     }
     this.nodeService.editBulk(jsonData).subscribe(response => {
-      const nodeEditedData: any[] = [];
-      return forkJoin(this.data.genData.ids.map((nodeId: any) => {
-        return this.nodeService.get(nodeId).pipe(map(nodeData => {
-          const ele = this.data.cy.getElementById('node-' + nodeId);
-          const result = nodeData.result;
-          ele.data('groups', result.groups);
-          ele.data('icon', ICON_PATH + result.icon.photo);
-          nodeEditedData.push({
-            id: result.id,
-            name: result.name,
-            category: result.category,
-            role: result.role,
-            device: result.device.name,
-            template: result.template.display_name,
-            hardware: result.hardware?.serial_number,
-            folder: result.folder,
-            domain: result.domain.name,
-            interfaces: result.interfaces,
-            configuration_show: result.configuration_show,
-            login_profile_show: result.login_profile_show,
-          });
-          if (this.configTemplateCtr?.value) {
-            const configData = {
-              pk: nodeData.id,
-              config_ids: this.configTemplateCtr?.value
-            }
-            this.nodeService.associate(configData).subscribe(respData => {
-              this.store.dispatch(retrievedMapSelection({ data: true }));
-            });
+      return forkJoin(this.data.genData.activeNodes.map((node: any) => {
+        if (this.configTemplateCtr?.value) {
+          const configData = {
+            pk: node.node_id,
+            config_ids: this.configTemplateCtr?.value
           }
-        }));
+          return this.nodeService.associate(configData).pipe(map(respData => {}));
+        }
+        return of([]);
       }))
         .subscribe(() => {
-          this.helpers.reloadGroupBoxes(this.data.cy);
-          this.store.dispatch(retrievedMapEdit({ data: { nodeEditedData } }));
-          this.store.dispatch(retrievedMapSelection({ data: true }));
-          this.dialogRef.close();
-          this.toastr.success(response.message, 'Success');
+          return forkJoin(this.data.genData.activeNodes.map((node: any) => {
+            return this.nodeService.get(node.node_id).pipe(map(nodeData => {
+              this._updateNodeOnMap(nodeData.result);
+            }));
+          }))
+            .subscribe(() => {
+              this.helpers.reloadGroupBoxes(this.data.cy);
+              this.dialogRef.close();
+              this.store.dispatch(retrievedMapSelection({ data: true }));
+              this.toastr.success(response.message, 'Success');
+            });
         });
     });
   }

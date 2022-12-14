@@ -57,6 +57,16 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
     this.selectDomains$.unsubscribe();
   }
 
+  private _updatePGOnMap(data: any) {
+    const ele = this.data.cy.getElementById('pg-' + data.id);
+    ele.data('vlan', data.vlan);
+    ele.data('category', data.category);
+    ele.data('subnet_allocation', data.subnet_allocation);
+    ele.data('groups', data.groups);
+    ele.data('domain', data.domain);
+    ele.data('domain_id', data.domain_id);
+  }
+
   updatePortGroupBulk() {
     const jsonData = {
       ids: this.data.genData.ids,
@@ -66,32 +76,15 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
       subnet_allocation: this.subnetAllocationCtr?.value
     }
     this.portGroupService.editBulk(jsonData).subscribe((response: any) => {
-      const pgEditedData: any[] = [];
-      return forkJoin(this.data.genData.ids.map((portGroupId: any) => {
-        return this.portGroupService.get(portGroupId).pipe(map(pgData => {
-          const ele = this.data.cy.getElementById('pg-' + portGroupId);
-          const result = pgData.result;
-          ele.data('subnet_allocation', result.subnet_allocation);
-          ele.data('group', result.groups);
-          ele.data('domain', result.domain.id);
-          ele.data('vlan', result.vlan);
-          pgEditedData.push({
-            id: result.id,
-            name: result.name,
-            category: result.category,
-            vlan: result.vlan,
-            subnet_allocation: result.subnet_allocation,
-            subnet: result.subnet,
-            domain: result.domain.name,
-            interfaces: result.interfaces
-          });
+      return forkJoin(this.data.genData.activePGs.map((pg: any) => {
+        return this.portGroupService.get(pg.pg_id).pipe(map(pgData => {
+          this._updatePGOnMap(pgData.result);
         }));
       }))
         .subscribe(() => {
-          this.store.dispatch(retrievedMapSelection({data: true}));
-          this.store.dispatch(retrievedMapEdit({ data: { pgEditedData } }));
           this.helpers.reloadGroupBoxes(this.data.cy);
           this.dialogRef.close();
+          this.store.dispatch(retrievedMapSelection({data: true}));
           this.toastr.success(response.message);
         });
     });

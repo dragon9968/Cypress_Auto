@@ -1,5 +1,5 @@
 import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs';
+import { catchError, Subscription, throwError } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { MatRadioChange } from '@angular/material/radio';
 import { HttpErrorResponse } from "@angular/common/http";
@@ -70,14 +70,14 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
     this.helpers.setAutoCompleteValue(this.domainCtr, this.domains, this.data.genData.domain_id);
     this.subnetAllocationCtr?.setValue(this.data.genData.subnet_allocation);
     this.subnetCtr?.setValue(this.data.genData.subnet);
-    this.disableItems(this.subnetAllocationCtr?.value);
+    this._disableItems(this.subnetAllocationCtr?.value);
   }
 
   ngOnDestroy(): void {
     this.selectDomains$.unsubscribe();
   }
 
-  private disableItems(subnetAllocation: string) {
+  private _disableItems(subnetAllocation: string) {
     if (subnetAllocation == 'static_auto') {
       this.subnetCtr?.disable();
     } else {
@@ -85,8 +85,20 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
     }
   }
 
+  private _updatePGOnMap(data: any) {
+    const ele = this.data.cy.getElementById(this.data.genData.id);
+    ele.data('name', data.name);
+    ele.data('vlan', data.vlan);
+    ele.data('category', data.category);
+    ele.data('subnet_allocation', data.subnet_allocation);
+    ele.data('subnet', data.subnet);
+    ele.data('groups', data.groups);
+    ele.data('domain', data.domain);
+    ele.data('domain_id', data.domain_id);
+  }
+
   onSubnetAllocationChange($event: MatRadioChange) {
-    this.disableItems($event.value);
+    this._disableItems($event.value);
   }
 
   onCancel() {
@@ -115,7 +127,26 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
         "text_bg_opacity": this.data.selectedMapPref.text_bg_opacity,
       } : undefined,
     }
-    this.portGroupService.add(jsonData).subscribe((respData: any) => {
+    this.portGroupService.add(jsonData).pipe(
+      catchError(err => {
+        const errorMessage = err.error.message;
+        if (err.status === 422) {
+          if (errorMessage.subnet) {
+            this.subnetCtr?.setErrors({
+              serverError: errorMessage.subnet
+            });
+            this.errors.push({ 'valueCtr': this.subnetCtr?.value, 'error': errorMessage.subnet });
+          }
+          if (errorMessage.vlan) {
+            this.vlanCtr?.setErrors({
+              serverError: errorMessage.vlan
+            });
+            this.errors.push({ 'valueCtr': this.vlanCtr?.value, 'error': errorMessage.vlan });
+          }
+        }
+        return throwError(() => err);
+      })
+    ).subscribe((respData: any) => {
       this.portGroupService.get(respData.id).subscribe(respData => {
         const cyData = respData.result;
         cyData.id = 'pg-' + respData.id;
@@ -132,30 +163,11 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
         this.toastr.success('Port Group details added!');
       })
       this.dialogRef.close();
-    },
-      err => {
-        if (err instanceof HttpErrorResponse) {
-          const errorMessage = err.error.message;
-          if (err.status === 422) {
-            if (errorMessage.subnet) {
-              this.subnetCtr?.setErrors({
-                serverError: errorMessage.subnet
-              });
-              this.errors.push({'valueCtr': this.subnetCtr?.value, 'error': errorMessage.subnet});
-            }
-            if (errorMessage.vlan) {
-              this.vlanCtr?.setErrors({
-                serverError: errorMessage.vlan
-              });
-              this.errors.push({'valueCtr': this.vlanCtr?.value, 'error': errorMessage.vlan});
-            }
-          }
-        }
     });
   }
 
   updatePG() {
-    const ele = this.data.cy.getElementById('pg-' + this.data.genData.id);
+    const ele = this.data.cy.getElementById(this.data.genData.id);
     const jsonData = {
       name: this.nameCtr?.value,
       vlan: this.vlanCtr?.value,
@@ -166,35 +178,33 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
       collection_id: this.data.collectionId,
       logical_map_position: ele.position(),
     }
-    this.portGroupService.put(this.data.genData.id, jsonData).subscribe((_respData: any) => {
-      this.portGroupService.get(this.data.genData.id).subscribe(pgData => {
-        ele.data('subnet', pgData.result.subnet);
-        ele.data('groups', pgData.result.groups);
-        ele.data('domain', this.domainCtr?.value.id);
-        this.helpers.reloadGroupBoxes(this.data.cy);
-        this.toastr.success('Port group details updated!');
-        this.dialogRef.close();
-        this.store.dispatch(retrievedMapSelection({ data: true }));
-      })
-    },
-      err => {
-      if (err instanceof HttpErrorResponse) {
+    this.portGroupService.put(this.data.genData.pg_id, jsonData).pipe(
+      catchError(err => {
         const errorMessage = err.error.message;
         if (err.status === 422) {
           if (errorMessage.subnet) {
             this.subnetCtr?.setErrors({
               serverError: errorMessage.subnet
             });
-            this.errors.push({'valueCtr': this.subnetCtr?.value, 'error': errorMessage.subnet});
+            this.errors.push({ 'valueCtr': this.subnetCtr?.value, 'error': errorMessage.subnet });
           }
           if (errorMessage.vlan) {
             this.vlanCtr?.setErrors({
               serverError: errorMessage.vlan
             });
-            this.errors.push({'valueCtr': this.vlanCtr?.value, 'error': errorMessage.vlan});
+            this.errors.push({ 'valueCtr': this.vlanCtr?.value, 'error': errorMessage.vlan });
           }
         }
-      }
-    })
+        return throwError(() => err);
+      })
+    ).subscribe((_respData: any) => {
+      this.portGroupService.get(this.data.genData.pg_id).subscribe(pgData => {
+        this._updatePGOnMap(pgData.result);
+        this.helpers.reloadGroupBoxes(this.data.cy);
+        this.dialogRef.close();
+        this.store.dispatch(retrievedMapSelection({ data: true }));
+        this.toastr.success('Port group details updated!');
+      });
+    });
   }
 }

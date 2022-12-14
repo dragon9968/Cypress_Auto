@@ -1,6 +1,6 @@
 import { createAction, props } from "@ngrx/store";
 
-export const retrievedNode = createAction(
+export const retrievedNodes = createAction(
   'retrievedNodes',
   props<{data: any}>()
 )

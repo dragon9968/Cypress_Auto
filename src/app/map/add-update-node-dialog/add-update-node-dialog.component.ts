@@ -98,7 +98,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
     this.selectNodes$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => this.nodes = nodes);
     this.isViewMode = this.data.mode == 'view';
     this.nodeAddForm = new FormGroup({
-      nameCtr: new FormControl('', [Validators.required, validateNameExist(() => this.nodes, this.data.mode, this.data.genData.id)]),
+      nameCtr: new FormControl('', [Validators.required, validateNameExist(() => this.nodes, this.data.mode, this.data.genData.node_id)]),
       notesCtr: new FormControl(''),
       iconCtr: new FormControl('', [autoCompleteValidator(this.icons)]),
       categoryCtr: new FormControl({ value: '', disabled: this.isViewMode }),
@@ -131,11 +131,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   get loginProfileCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('loginProfileCtr'), this.loginProfiles); }
 
   ngOnInit(): void {
-    if (this.isViewMode || this.data.mode == 'update') {
-      this.helpers.setAutoCompleteValue(this.iconCtr, this.icons, this.data.genData.icon?.id);
-    } else {
-      this.helpers.setAutoCompleteValue(this.iconCtr, this.icons, this.data.genData.icon_id);
-    }
+    this.helpers.setAutoCompleteValue(this.iconCtr, this.icons, this.data.genData.icon_id);
     this.nameCtr?.setValue(this.data.genData.name);
     this.categoryCtr?.setValue(this.data.genData.category);
     this.disableItems(this.categoryCtr?.value);
@@ -175,6 +171,32 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
       this.templateCtr?.enable();
       this.hardwareCtr?.disable();
     }
+  }
+
+  private _updateNodeOnMap(data: any) {
+    const ele = this.data.cy.getElementById(this.data.genData.id);
+    ele.data('name', data.name);
+    ele.data('notes', data.notes);
+    ele.data('icon', ICON_PATH + data.icon.photo);
+    ele.data('icon_id', data.icon_id);
+    ele.data('category', data.category);
+    ele.data('device', data.device);
+    ele.data('device_id', data.device_id);
+    ele.data('template', data.template);
+    ele.data('template_id', data.template_id);
+    ele.data('hardware', data.hardware);
+    ele.data('hardware_id', data.hardware_id);
+    ele.data('folder', data.folder);
+    ele.data('parent_folder', data.parent_folder);
+    ele.data('role', data.role);
+    ele.data('domain', data.domain);
+    ele.data('domain_id', data.domain_id);
+    ele.data('hostname', data.hostname);
+    ele.data('login_profile_id', data.login_profile_id);
+    ele.data('login_profile_show', data.login_profile_show);
+    ele.data('configs', data.configs);
+    ele.data('configuration_show', data.configuration_show);
+    ele.data('groups', data.groups);
   }
 
   onCategoryChange($event: MatRadioChange) {
@@ -289,30 +311,27 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
       collection_id: this.data.genData.collection_id,
       logical_map_position: ele.position(),
     }
-    this.nodeService.put(this.data.genData.id, jsonData).pipe(
+    this.nodeService.put(this.data.genData.node_id, jsonData).pipe(
       catchError((e: any) => {
         this.toastr.error(e.error.message);
         return throwError(() => e);
       })
     ).subscribe((_respData: any) => {
-      this.nodeService.get(this.data.genData.id).subscribe(nodeData => {
-        ele.data('name', nodeData.result.name);
-        ele.data('groups', nodeData.result.groups);
-        ele.data('icon', ICON_PATH + nodeData.result.icon.photo);
-        if (this.configTemplateCtr?.value) {
-          const configData = {
-            pk: this.data.genData.id,
-            config_ids: this.configTemplateCtr?.value
-          }
-          this.nodeService.associate(configData).subscribe(respData => {
-            this.store.dispatch(retrievedMapSelection({ data: true }));
-          });
-        } else {
-          this.store.dispatch(retrievedMapSelection({ data: true }));
+      if (this.configTemplateCtr?.value) {
+        const configData = {
+          pk: this.data.genData.node_id,
+          config_ids: this.configTemplateCtr?.value
         }
+        this.nodeService.associate(configData).subscribe(respData => {
+          this.store.dispatch(retrievedMapSelection({ data: true }));
+        });
+      }
+      this.nodeService.get(this.data.genData.node_id).subscribe(nodeData => {
+        this._updateNodeOnMap(nodeData.result);
         this.helpers.reloadGroupBoxes(this.data.cy);
-        this.toastr.success('Node details updated!');
         this.dialogRef.close();
+        this.store.dispatch(retrievedMapSelection({ data: true }));
+        this.toastr.success('Node details updated!');
       });
     });
   }

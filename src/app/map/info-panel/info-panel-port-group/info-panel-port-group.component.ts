@@ -14,6 +14,8 @@ import { selectMapSelection } from "src/app/store/map-selection/map-selection.se
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { selectMapEdit } from "src/app/store/map-edit/map-edit.selectors";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
+import { AddUpdatePGDialogComponent } from "../../add-update-pg-dialog/add-update-pg-dialog.component";
+import { PortGroupBulkEditDialogComponent } from "../../bulk-edit-dialog/port-group-bulk-edit-dialog/port-group-bulk-edit-dialog.component";
 
 @Component({
   selector: 'app-info-panel-port-group',
@@ -37,7 +39,6 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
   tabName = 'portGroup';
   collectionId = '0';
   selectMapSelection$ = new Subscription();
-  selectMapEdit$ = new Subscription();
 
   constructor(
     private store: Store,
@@ -56,16 +57,11 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
         this.store.dispatch(retrievedMapSelection({ data: false }));
       }
     });
-    this.selectMapEdit$ = this.store.select(selectMapEdit).subscribe(mapEdit => {
-      if (mapEdit?.pgEditedData?.length > 0) {
-        this.gridApi.setRowData(mapEdit.pgEditedData);
-      }
-    });
   }
 
   get gridHeight() {
     const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
-    return infoPanelHeightNumber >= 300 ? (infoPanelHeightNumber-100) + 'px' : '200px';
+    return infoPanelHeightNumber >= 300 ? (infoPanelHeightNumber - 100) + 'px' : '200px';
   }
 
   ngOnInit(): void {
@@ -76,7 +72,6 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.selectMapSelection$.unsubscribe();
-    this.selectMapEdit$.unsubscribe();
   }
 
   public gridOptions: GridOptions = {
@@ -159,6 +154,15 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
     this.infoPanelService.viewInfoPanel(this.tabName, row.data.id);
   }
 
+  private _setRowActive() {
+    this.gridApi.forEachNode(rowNode => {
+      const activePGIds = this.activePGs.map(ele => ele.data('id'));
+      if (activePGIds.includes(rowNode.data.id)) {
+        rowNode.setSelected(true);
+      }
+    })
+  }
+
   private _setPGInfoPanel(activePGs: any[]) {
     if (activePGs.length === 0) {
       this.rowsSelected = [];
@@ -167,37 +171,17 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
         this.gridApi.setRowData([]);
       }
     } else {
-      forkJoin(
-        activePGs.map(ele => {
-          return this.portGroupService.get(ele.data('pg_id')).pipe(
-            map(pgData => {
-                const result = pgData.result;
-                return {
-                  id: result.id,
-                  name: result.name,
-                  category: result.category,
-                  vlan: result.vlan,
-                  subnet_allocation: result.subnet_allocation,
-                  subnet: result.subnet,
-                  domain: result.domain.name,
-                  interfaces: result.interfaces
-                }
-              }
-            )
-          )
-        })
-      ).subscribe(rowData => {
-        if (this.gridApi != null) {
-          this.gridApi.setRowData(rowData);
-        }
-        this.setRowActive();
-      });
+      const rowData = activePGs.map(ele => ele.data());
+      if (this.gridApi != null) {
+        this.gridApi.setRowData(rowData);
+        this._setRowActive();
+      }
     }
   }
 
   selectedRows() {
     this.rowsSelected = this.gridApi.getSelectedRows();
-    this.rowsSelectedId = this.rowsSelected.map(ele => ele.id);
+    this.rowsSelectedId = this.rowsSelected.map(ele => ele.pg_id);
   }
 
   deletePortGroup() {
@@ -209,7 +193,7 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
         message: 'Delete port_group(s) from this switch?',
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '500px', data: dialogData});
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '500px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
           this.rowsSelectedId.map(pgId => {
@@ -217,7 +201,7 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
               this.deletedNodes, this.deletedInterfaces, this.tabName, pgId);
           });
           this.clearTable();
-          this.store.dispatch(retrievedMapSelection({data: true}));
+          this.store.dispatch(retrievedMapSelection({ data: true }));
         }
       })
     }
@@ -228,9 +212,21 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
       this.toastr.info('No row selected');
     } else {
       if (this.rowsSelectedId.length === 1) {
-        this.infoPanelService.openEditInfoPanelForm(this.cy, this.tabName, this.rowsSelectedId[0], [])
+        const dialogData = {
+          mode: 'update',
+          genData: this.rowsSelected[0],
+          cy: this.cy
+        }
+        this.dialog.open(AddUpdatePGDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
       } else {
-        this.infoPanelService.openEditInfoPanelForm(this.cy, this.tabName, undefined, this.rowsSelectedId);
+        const dialogData = {
+          genData: {
+            ids: this.rowsSelectedId,
+            activePGs: this.rowsSelected
+          },
+          cy: this.cy
+        }
+        this.dialog.open(PortGroupBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
       }
     }
   }
@@ -251,9 +247,9 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
         })
       ).subscribe(response => {
         if (format == 'csv') {
-          file = new Blob([response.data], {type: 'application/json'});
+          file = new Blob([response.data], { type: 'application/json' });
         } else if (format == 'json') {
-          file = new Blob([response.data], {type: 'text/csv;charset=utf-8;'})
+          file = new Blob([response.data], { type: 'text/csv;charset=utf-8;' })
         }
         const fileName = response.filename;
         this.helpers.downloadBlob(fileName, file);
@@ -273,7 +269,7 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
         message: `Generate a new randomize subnet for ${item} port_group${sSuffix}?`,
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '500px', data: dialogData});
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '500px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
           const jsonData = {
@@ -286,7 +282,7 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
               return throwError(() => e);
             })
           ).subscribe(response => {
-            this.store.dispatch(retrievedMapSelection({data: true}));
+            this.store.dispatch(retrievedMapSelection({ data: true }));
             response.result.map((ele: any) => {
               const element = this.cy.getElementById('pg-' + ele.id);
               element.data('subnet', ele.subnet);
@@ -303,7 +299,7 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
     if (this.rowsSelected.length == 0) {
       this.toastr.info('No row selected');
     } else {
-      this.portGroupService.validate({pks: this.rowsSelectedId}).pipe(
+      this.portGroupService.validate({ pks: this.rowsSelectedId }).pipe(
         catchError((e: any) => {
           this.toastr.error(e.error.message);
           return throwError(() => e);
@@ -318,16 +314,5 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
     this.rowsSelected = [];
     this.rowsSelectedId = [];
     this.gridApi.setRowData([]);
-  }
-
-  setRowActive() {
-    if (this.activePGs.length > 0 && this.gridApi) {
-      this.gridApi.forEachNode(rowNode => {
-        const activePGIds = this.activePGs.map(ele => ele.data('pg_id'));
-        if (activePGIds.includes(rowNode.data.id)) {
-          rowNode.setSelected(true);
-        }
-      })
-    }
   }
 }

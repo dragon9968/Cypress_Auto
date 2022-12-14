@@ -6,7 +6,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { NodeService } from "../../core/services/node/node.service";
 import { PortGroupService } from "../../core/services/portgroup/portgroup.service";
 import { DomainUserService } from "../../core/services/domain-user/domain-user.service";
-import { retrievedNode } from "../../store/node/node.actions";
+import { retrievedNodes } from "../../store/node/node.actions";
 import { retrievedPortGroups } from "../../store/portgroup/portgroup.actions";
 import { retrievedDomainUsers } from "../../store/domain-user/domain-user.actions";
 import { retrievedIsChangeDomainUsers } from "../../store/domain-user-change/domain-user-change.actions";
@@ -69,7 +69,7 @@ export class InfoPanelComponent implements OnInit{
       (data: any) => this.store.dispatch(retrievedPortGroups({data: data.result}))
     );
     this.nodeService.getNodesByCollectionId(this.collectionId).subscribe(
-      (data: any) => this.store.dispatch(retrievedNode({data: data.result}))
+      (data: any) => this.store.dispatch(retrievedNodes({data: data.result}))
     );
     this.selectDomainUser$ = this.domainUserService.getAll().subscribe(
       data => this.store.dispatch(retrievedDomainUsers({data: data.result}))

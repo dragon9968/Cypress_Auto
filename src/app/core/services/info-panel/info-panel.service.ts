@@ -163,60 +163,6 @@ export class InfoPanelService {
 
   openEditInfoPanelForm(cy: any, tabName: string, id: any, ids: any[] = []) {
     switch (tabName) {
-      case 'edge':
-        if (ids.length > 0 && id == undefined) {
-          const dialogData = {
-            genData: { ids: ids },
-            cy
-          };
-          this.dialog.open(InterfaceBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-        } else if (ids.length === 0 && id) {
-          this.interfaceService.get(id).subscribe(interfaceData => {
-            const dialogData = {
-              mode: 'update',
-              genData: interfaceData.result,
-              cy
-            }
-            this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-          });
-        }
-        break;
-      case 'portGroup':
-        if (ids.length > 0 && id == undefined) {
-          const dialogData = {
-            genData: { ids: ids },
-            cy
-          }
-          this.dialog.open(PortGroupBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-        } else if (ids.length === 0 && id) {
-          this.portGroupService.get(id).subscribe(pgData => {
-            const dialogData = {
-              mode: 'update',
-              genData: pgData.result,
-              cy
-            }
-            this.dialog.open(AddUpdatePGDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-          });
-        }
-        break;
-      case 'node':
-        if (ids.length > 0 && id == undefined) {
-          const dialogData = {
-            genData: { ids: ids },
-            cy
-          }
-          this.dialog.open(NodeBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-        } else if (ids.length === 0 && id) {
-          this.nodeService.get(id).subscribe(nodeData => {
-            const dialogData = {
-              mode: 'update',
-              genData: nodeData.result,
-              cy
-            }
-            this.dialog.open(AddUpdateNodeDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-          });
-        }
-        break;
       case 'group':
         this.groupService.get(id).subscribe(groupData => {
           const dialogData = {

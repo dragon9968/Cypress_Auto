@@ -44,7 +44,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
     this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe((portGroups: any) => {
       this.portGroups = portGroups;
     });
-    this.selectInterfaces$ = this.store.select(selectInterfaceByIds).subscribe(interfaces => {
+    this.selectInterfaces$ = this.store.select(selectInterfaces).subscribe(interfaces => {
       if (interfaces) {
         this.interfaces = interfaces;
       }
@@ -95,10 +95,10 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
     this.gatewayCtr?.setValue(this.data.genData.gateway);
     this.isGatewayCtr?.setValue(this.data.genData.is_gateway);
     this.isNatCtr?.setValue(this.data.genData.is_nat);
-    this.disableItems(this.ipAllocationCtr?.value);
+    this._disableItems(this.ipAllocationCtr?.value);
   }
 
-  private disableItems(subnetAllocation: string) {
+  private _disableItems(subnetAllocation: string) {
     if (subnetAllocation == 'static_manual') {
       this.ipCtr?.enable();
     } else {
@@ -106,8 +106,29 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
     }
   }
 
+  private _updateInterfaceOnMap(data: any) {
+    const ele = this.data.cy.getElementById(this.data.genData.id);
+    ele.data('name', data.name);
+    ele.data('order', data.order);
+    ele.data('description', data.description);
+    ele.data('category', data.category);
+    ele.data('direction', data.direction);
+    ele.data('mac_address', data.mac_address);
+    ele.data('port_group_id', data.port_group_id);
+    ele.data('ip_allocation', data.ip_allocation);
+    ele.data('ip', data.ip);
+    ele.data('dns_server', data.dns_server);
+    ele.data('gateway', data.gateway);
+    ele.data('is_gateway', data.is_gateway);
+    ele.data('is_nat', data.is_nat);
+    const ip_str = data.ip ? data.ip : "";
+    const ip = ip_str.split(".");
+    const last_octet = ip.length == 4 ? "." + ip[3] : "";
+    ele.data('ip_last_octet', last_octet);
+  }
+
   onIpAllocationChange($event: MatRadioChange) {
-    this.disableItems($event.value);
+    this._disableItems($event.value);
   }
 
   onCancel() {
@@ -163,7 +184,6 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
   }
 
   updateInterface() {
-    const ele = this.data.cy.getElementById(this.data.genData.id);
     const jsonData = {
       order: this.orderCtr?.value,
       name: this.nameCtr?.value,
@@ -181,21 +201,15 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
       node_id: this.data.genData.node_id,
       netmask_id: this.data.genData.netmask_id,
     }
-    this.interfaceService.put(this.data.genData.id, jsonData).subscribe((respData: any) => {
-      ele.data('name', respData.result.name);
-      const ip_str = respData.result.ip ? respData.result.ip : "";
-      const ip = ip_str.split(".");
-      const last_octet = ip.length == 4 ? "." + ip[3] : "";
-      ele.data('ip_last_octet', last_octet);
-      this.store.select(selectInterfaces).subscribe(interfaces => {
-        const interfaceIds = interfaces.map((ele: any) => ele.data.id);
-        this.interfaceService.getDataByPks({pks: interfaceIds}).subscribe(response => {
-          this.store.dispatch(retrievedInterfacesByIds({data: response.result}));
-        })
-      })
-      this.toastr.success('Edge details updated!');
+    this.interfaceService.put(this.data.genData.interface_id, jsonData).subscribe((respData: any) => {
+      const data = {
+        ...this.data.genData,
+        ...jsonData,
+      }
+      this._updateInterfaceOnMap(data);
       this.dialogRef.close();
       this.store.dispatch(retrievedMapSelection({ data: true }));
+      this.toastr.success('Edge details updated!');
     });
   }
 

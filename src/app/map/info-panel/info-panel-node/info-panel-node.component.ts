@@ -4,7 +4,7 @@ import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
 import { MatIconRegistry } from "@angular/material/icon";
 import { Component, Input, OnDestroy } from '@angular/core';
-import { forkJoin, map, Subscription, throwError } from "rxjs";
+import { Subscription, throwError } from "rxjs";
 import { GridApi, GridOptions, GridReadyEvent, RowDoubleClickedEvent } from "ag-grid-community";
 import { NodeService } from "../../../core/services/node/node.service";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
@@ -15,6 +15,8 @@ import { selectMapSelection } from "src/app/store/map-selection/map-selection.se
 import { selectMapEdit } from "src/app/store/map-edit/map-edit.selectors";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { InfoPanelShowValidationNodesComponent } from "../info-panel-show-validation-nodes/info-panel-show-validation-nodes.component";
+import { AddUpdateNodeDialogComponent } from "../../add-update-node-dialog/add-update-node-dialog.component";
+import { NodeBulkEditDialogComponent } from "../../bulk-edit-dialog/node-bulk-edit-dialog/node-bulk-edit-dialog.component";
 
 @Component({
   selector: 'app-info-panel-node',
@@ -40,7 +42,16 @@ export class InfoPanelNodeComponent implements OnDestroy {
 
   get gridHeight() {
     const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
-    return infoPanelHeightNumber >= 300 ? (infoPanelHeightNumber-100) + 'px' : '200px';
+    return infoPanelHeightNumber >= 300 ? (infoPanelHeightNumber - 100) + 'px' : '200px';
+  }
+
+  private _setRowActive() {
+    this.gridApi.forEachNode(rowNode => {
+      const activeNodeIds = this.activeNodes.map(ele => ele.data('id'));
+      if (activeNodeIds.includes(rowNode.data.id)) {
+        rowNode.setSelected(true);
+      }
+    });
   }
 
   private _setNodeInfoPanel(activeNodes: any[]) {
@@ -51,34 +62,11 @@ export class InfoPanelNodeComponent implements OnDestroy {
         this.gridApi.setRowData([]);
       }
     } else {
-      forkJoin(
-        activeNodes.map((ele: any) => {
-          return this.nodeService.get(ele.data('node_id')).pipe(
-            map(nodeData => {
-              const result = nodeData.result;
-              return {
-                id: result.id,
-                name: result.name,
-                category: result.category,
-                role: result.role,
-                device: result.device?.name,
-                template: result.template?.display_name,
-                hardware: result.hardware?.serial_number,
-                folder: result.folder,
-                domain: result.domain.name,
-                interfaces: result.interfaces,
-                configuration_show: result.configuration_show,
-                login_profile_show: result.login_profile_show,
-              };
-            })
-          )
-        })
-      ).subscribe(rowData => {
-        if (this.gridApi != null) {
-          this.gridApi.setRowData(rowData);
-        }
-        this.setRowActive();
-      });
+      const rowData = activeNodes.map((ele: any) => ele.data())
+      if (this.gridApi != null) {
+        this.gridApi.setRowData(rowData);
+        this._setRowActive();
+      }
     }
   }
 
@@ -192,16 +180,10 @@ export class InfoPanelNodeComponent implements OnDestroy {
         this.store.dispatch(retrievedMapSelection({ data: false }));
       }
     });
-    this.selectMapEdit$ = this.store.select(selectMapEdit).subscribe(mapEdit => {
-      if (mapEdit?.nodeEditedData?.length > 0) {
-        this.gridApi.setRowData(mapEdit.nodeEditedData);
-      }
-    });
   }
 
   ngOnDestroy(): void {
     this.selectMapSelection$.unsubscribe();
-    this.selectMapEdit$.unsubscribe();
   }
 
   onGridReady(params: GridReadyEvent) {
@@ -211,7 +193,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
 
   selectedRows() {
     this.rowsSelected = this.gridApi.getSelectedRows();
-    this.rowsSelectedId = this.rowsSelected.map(ele => ele.id);
+    this.rowsSelectedId = this.rowsSelected.map(ele => ele.node_id);
   }
 
   onRowDoubleClicked(row: RowDoubleClickedEvent) {
@@ -258,7 +240,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
                 this.deletedNodes, this.deletedInterfaces, this.tabName, id);
             })
             this.clearTable();
-            this.store.dispatch(retrievedMapSelection({data: true}));
+            this.store.dispatch(retrievedMapSelection({ data: true }));
           }
         }
       })
@@ -270,9 +252,21 @@ export class InfoPanelNodeComponent implements OnDestroy {
       this.toastr.info('No row selected');
     } else {
       if (this.rowsSelected.length == 1) {
-        this.infoPanelService.openEditInfoPanelForm(this.cy, this.tabName, this.rowsSelectedId[0], [])
+        const dialogData = {
+          mode: 'update',
+          genData: this.rowsSelected[0],
+          cy: this.cy
+        }
+        this.dialog.open(AddUpdateNodeDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
       } else {
-        this.infoPanelService.openEditInfoPanelForm(this.cy, this.tabName, undefined, this.rowsSelectedId);
+        const dialogData = {
+          genData: {
+            ids: this.rowsSelectedId,
+            activeNodes: this.rowsSelected
+          },
+          cy: this.cy
+        }
+        this.dialog.open(NodeBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
       }
     }
   }
@@ -323,16 +317,5 @@ export class InfoPanelNodeComponent implements OnDestroy {
     this.rowsSelected = [];
     this.rowsSelectedId = [];
     this.gridApi.setRowData([]);
-  }
-
-  setRowActive() {
-    if (this.activeNodes.length > 0 && this.gridApi) {
-      this.gridApi.forEachNode(rowNode => {
-        const activeNodeIds = this.activeNodes.map(ele => ele.data('node_id'));
-        if (activeNodeIds.includes(rowNode.data.id)) {
-          rowNode.setSelected(true);
-        }
-      })
-    }
   }
 }
