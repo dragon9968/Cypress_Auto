@@ -414,5 +414,6 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
     const ele = this.cy.getElementById(data.id);
     ele.position('x', +this.xCtr?.value);
     ele.position('y', +this.yCtr?.value);
+    ele.data('updated', true);
   }
 }
