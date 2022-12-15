@@ -13,8 +13,7 @@ export class CustomTooltip implements ITooltipComp {
       : '';
     eGui.classList.add('custom-tooltip');
     //@ts-ignore
-    eGui.style['background-color'] = '#ff1a1a';
-    eGui.style['color'] = 'white';
+    eGui.style['background-color'] = '#a9a9a9';
     eGui.innerHTML = `
             <p>
                 <span class"name">${valueToDisplay}</span>

@@ -1,3 +1,5 @@
+$margin: 8px;
+
 .menu-spacer {
   flex: 1 1 auto;
 }
@@ -21,4 +23,18 @@
 
 .btn-clear-search-text, .btn-search {
   font-size: 24px !important;
+}
+
+.project-name {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.project-name mat-icon {
+  margin-right: $margin/2;
+}
+
+.project-name a {
+  padding: 0 $margin/2;
 }

@@ -1,9 +1,13 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Store } from "@ngrx/store";
+import { Router } from "@angular/router";
 import { Observable } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { ApiPaths } from 'src/app/core/enums/api-paths.enum';
+import { RouteSegments } from "../../core/enums/route-segments.enum";
 import { LocalStorageKeys } from 'src/app/core/storage/local-storage/local-storage-keys.enum';
 import { LocalStorageService } from 'src/app/core/storage/local-storage/local-storage.service';
+import { retrievedIsOpen } from "../../store/project/project.actions";
 
 @Injectable({
   providedIn: 'root'
@@ -11,9 +15,11 @@ import { LocalStorageService } from 'src/app/core/storage/local-storage/local-st
 export class ProjectService {
 
   constructor(
+    private store: Store,
+    private router: Router,
     private http: HttpClient,
-    private localStorageService: LocalStorageService
-    ) { }
+    private localStorageService: LocalStorageService,
+  ) { }
 
   getAll(): Observable<any> {
     return this.http.get<any>(ApiPaths.PROJECTS);
@@ -51,8 +57,26 @@ export class ProjectService {
     return this.http.post<any>(ApiPaths.ASSOCIATE_PROJECT, data);
   }
 
-  openProject(collection_id: string) {
-    this.localStorageService.setItem(LocalStorageKeys.COLLECTION_ID, collection_id);
+  openProject(collectionId: string) {
+    const currentCollectionId = this.getCollectionId();
+    if (!currentCollectionId || currentCollectionId !== collectionId) {
+      this.store.dispatch(retrievedIsOpen({data: false}));
+      this.setCollectionId(collectionId);
+    }
+    this.store.dispatch(retrievedIsOpen({data: true}));
+    this.router.navigate(
+      [RouteSegments.MAP],
+      {
+        queryParams: {
+          category: 'logical',
+          collection_id: collectionId
+        }
+      }
+    );
+  }
+
+  setCollectionId(collectionId: string) {
+    this.localStorageService.setItem(LocalStorageKeys.COLLECTION_ID, collectionId);
   }
 
   getCollectionId(): any {

@@ -44,7 +44,6 @@ export class NavBarComponent implements OnInit, OnDestroy {
   searchText = '';
   isMapOpen = false;
   isOpen!: boolean;
-  isLoading = false;
   status = 'active';
   selectIsMapOpen$ = new Subscription();
   destroy$: Subject<boolean> = new Subject<boolean>();
@@ -52,6 +51,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   isConnect = false;
   connection = { name: '', id: 0 }
   collectionId: any;
+  projectName: any;
 
   constructor(
     private authService: AuthService,
@@ -75,7 +75,11 @@ export class NavBarComponent implements OnInit, OnDestroy {
       }
     });
     this.selectIsOpen$ = this.store.select(selectIsOpen).subscribe(isOpen => {
-      this.isOpen = isOpen
+      this.isOpen = isOpen;
+      if (isOpen) {
+        this.collectionId = this.projectService.getCollectionId();
+        this.projectService.get(this.collectionId).subscribe(projectData => this.projectName = projectData.result.name);
+      }
     });
     this.selectIsConnect$ = this.store.select(selectIsConnect).subscribe(isConnect => {
       if (isConnect !== undefined) {
@@ -90,6 +94,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.collectionId = this.projectService.getCollectionId();
+    this.projectService.get(this.collectionId).subscribe(projectData => this.projectName = projectData.result.name);
     const connection = this.serverConnectionService.getConnection();
     if (connection && connection.id !== 0) {
       this.store.dispatch(retrievedIsConnect({ data: true }));
@@ -212,17 +217,14 @@ export class NavBarComponent implements OnInit, OnDestroy {
         pk: this.collectionId,
       }
       if (result) {
-        this.isLoading = true;
         this.projectService.cloneProject(jsonData).subscribe({
           next: (rest) => {
             this.toastr.success(`Clone Project successfully`);
             this.projectService.getProjectByStatus('active').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
             this.router.navigate([RouteSegments.PROJECTS]);
-            this.isLoading = false;
           },
           error: (error) => {
             this.toastr.error(`Error while Clone Project`);
-            this.isLoading = false;
           }
         })
       }
@@ -283,5 +285,9 @@ export class NavBarComponent implements OnInit, OnDestroy {
 
   openAboutModal() {
     this.dialog.open(AboutComponent, { width: '600px', autoFocus: false});
+  }
+
+  openProject(collectionId: string) {
+    this.projectService.openProject(collectionId);
   }
 }

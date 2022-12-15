@@ -70,13 +70,7 @@ export class ServerConnectService {
     return JSON.parse(<any>this.localStorageService.getItem(LocalStorageKeys.CONNECTION));
   }
 
-  // disconnectServer(): any {
-  //   if (this.getConnection()) {
-  //     this.localStorageService.removeItem(LocalStorageKeys.CONNECTION);
-  //   }
-  // }
-
-  updateConnection(connection: string) {
+  setConnection(connection: string) {
     this.localStorageService.setItem(LocalStorageKeys.CONNECTION, connection);
   }
 }

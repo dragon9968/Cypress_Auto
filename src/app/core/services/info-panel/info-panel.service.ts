@@ -502,11 +502,15 @@ export class InfoPanelService {
   changeVMStatusOnMap(collectionId: number, connectionId: number) {
     this.mapService.getVMStatus(collectionId, connectionId).subscribe(mapStatus => {
       this.removeVMStatusOnMap();
-      for (const [key, value] of Object.entries(mapStatus.vm_status)) {
-        this.delayedAlertNode(key, value);
+      if (mapStatus.vm_status) {
+        for (const [key, value] of Object.entries(mapStatus.vm_status)) {
+          this.delayedAlertNode(key, value);
+        }
       }
-      for (const [key, value] of Object.entries(mapStatus.pg_status)) {
-        this.delayedAlertPortGroup(key, value);
+      if (mapStatus.pg_status) {
+        for (const [key, value] of Object.entries(mapStatus.pg_status)) {
+          this.delayedAlertPortGroup(key, value);
+        }
       }
     })
   }

@@ -62,7 +62,7 @@ export class ServerConnectDialogComponent implements OnInit, OnDestroy {
     this.serverConnectionService.connect(jsonData)
       .subscribe({
         next: response => {
-          this.serverConnectionService.updateConnection(JSON.stringify(response.result));
+          this.serverConnectionService.setConnection(JSON.stringify(response.result));
           this.store.dispatch(retrievedIsConnect({ data: true }));
           this.projectService.get(+this.collectionId).subscribe((data: any) => {
             this.store.dispatch(retrievedVMStatus({ vmStatus: data.result.configuration.vm_status }));

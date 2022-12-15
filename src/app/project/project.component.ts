@@ -1,14 +1,12 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable, of, Subscription } from 'rxjs';
 import { AgGridAngular } from 'ag-grid-angular';
+import { Observable, of, Subscription } from 'rxjs';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
-import { selectProjects } from '../store/project/project.selectors';
-import { retrievedIsOpen, retrievedProjects } from '../store/project/project.actions';
-import { ProjectService } from './services/project.service';
-import { Router } from '@angular/router';
-import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { UserService } from '../core/services/user/user.service';
+import { ProjectService } from './services/project.service';
+import { selectProjects } from '../store/project/project.selectors';
+import { retrievedProjects } from '../store/project/project.actions';
 import { retrievedUserTasks } from '../store/user-task/user-task.actions';
 
 @Component({
@@ -46,8 +44,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   constructor(
     private projectService: ProjectService,
     private userService: UserService,
-    private store: Store,
-    private router: Router,
+    private store: Store
   ) {
     this.selectProjects$ = this.store.select(selectProjects)
     .subscribe((data: any) => {
@@ -72,7 +69,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   onSelectionChanged() {
-    var rows = this.gridApi.getSelectedRows();
+    const rows = this.gridApi.getSelectedRows();
     if (rows.length == 1) {
       this.isSubmitBtnDisabled = false;
     } else {
@@ -80,27 +77,13 @@ export class ProjectComponent implements OnInit, OnDestroy {
     }
   }
 
-  openMapProject() {
-    var rows = this.gridApi.getSelectedRows()[0];
-    this.projectService.openProject(rows["id"]);
-    this.store.dispatch(retrievedIsOpen({data: true}));
-    this.router.navigate(
-      [RouteSegments.MAP],
-      {
-        queryParams: {
-          category: 'logical',
-          collection_id: rows["id"]
-        }
-      }
-    );
-    return rows;
-  }
-
   onRowDoubleClicked() {
-    this.openMapProject();
+    const collectionIdSelected = this.gridApi.getSelectedRows()[0]["id"];
+    this.projectService.openProject(collectionIdSelected);
   }
 
   openProject() {
-    this.openMapProject();
+    const collectionIdSelected = this.gridApi.getSelectedRows()[0]["id"];
+    this.projectService.openProject(collectionIdSelected);
   }
 }

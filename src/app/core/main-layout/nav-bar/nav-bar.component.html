@@ -135,6 +135,9 @@
         </button>
     </mat-form-field>
     <span class="menu-spacer"></span>
+    <span *ngIf="isOpen" class="project-name">
+      <mat-icon>folder</mat-icon>Project:<a mat-button (click)="openProject(collectionId)">{{projectName}}</a>
+    </span>
     <a mat-button [matMenuTriggerFor]="account">
         <mat-icon>person</mat-icon>
         <span>{{"User Name"}}</span>
@@ -150,7 +153,3 @@
         </button>
     </mat-menu>
 </mat-toolbar>
-
-<div *ngIf="isLoading" class="loading">
-    <mat-spinner></mat-spinner>
-  </div>
