@@ -21,7 +21,7 @@ export class LoadingInterceptor implements HttpInterceptor {
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     this.totalRequests++;
-    if (!request.url.includes(ApiPaths.USER_TASK) && !request.url.includes(ApiPaths.VM_STATUS)) {
+    if (!request.url.includes(ApiPaths.USER_TASK) && !request.url.includes(ApiPaths.MAP_STATUS)) {
       this.loadingService.setLoading(true);
     }
     return next.handle(request).pipe(

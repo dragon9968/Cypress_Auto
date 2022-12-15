@@ -27,11 +27,11 @@ export class MapService {
     const params = new HttpParams()
       .set('project_id', projectId)
       .set('connection_id', connectionId);
-    return this.http.get<any>(ApiPaths.VM_STATUS, { params });
+    return this.http.get<any>(ApiPaths.MAP_STATUS, { params });
   }
 
-  saveVMStatus(data: any, value: string): Observable<any> {
-    const url = ApiPaths.SAVE_VM_STATUS + '/' + value;
-    return this.http.post<any>(url, data);
-  }
+  // saveVMStatus(data: any, value: string): Observable<any> {
+  //   const url = ApiPaths.SAVE_VM_STATUS + '/' + value;
+  //   return this.http.post<any>(url, data);
+  // }
 }

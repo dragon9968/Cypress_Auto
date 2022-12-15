@@ -178,29 +178,11 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
       connection_id: this.connection.id,
     }
     if ($event.checked) {
-      this.mapService.saveVMStatus(jsonData, 'on').subscribe({
-        next: () => {
-          this.infoPanelService.changeVMStatusOnMap(+this.collectionId, +this.connection.id);
-          this.store.dispatch(retrievedVMStatus({ vmStatus: $event.checked }));
-        },
-        error: err => {
-          this.toastr.error('Save VM status failed', 'Failed');
-          this.vmStatusChecked = !$event.checked;
-          throwError(() => err);
-        }
-      })
+      this.infoPanelService.changeVMStatusOnMap(+this.collectionId, +this.connection.id);
+      this.store.dispatch(retrievedVMStatus({ vmStatus: $event.checked }));
     } else {
-      this.mapService.saveVMStatus(jsonData, 'off').subscribe({
-        next: () => {
-          this.infoPanelService.removeVMStatusOnMap();
-          this.store.dispatch(retrievedVMStatus({ vmStatus: $event.checked }));
-        },
-        error: err => {
-          this.toastr.error('Save VM status failed', 'Failed');
-          this.vmStatusChecked = !$event.checked;
-          throwError(() => err);
-        }
-      })
+      this.infoPanelService.removeVMStatusOnMap();
+      this.store.dispatch(retrievedVMStatus({ vmStatus: $event.checked }));
     }
   }
 

@@ -83,26 +83,32 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
       connection_id: this.connection.id,
     }
     if ($event.checked) {
-      this.mapService.saveVMStatus(jsonData, 'on').subscribe({
-        next: response => {
-          this.store.dispatch(retrievedVMStatus({ vmStatus: $event.checked }));
-        },
-        error: err => {
-          this.toastr.error('Save VM status failed', 'Failed');
-          this.vmStatusChecked = !$event.checked;
-        }
-      })
-    } else {
-      this.mapService.saveVMStatus(jsonData, 'off').subscribe({
-        next: response => {
-          this.store.dispatch(retrievedVMStatus({ vmStatus: $event.checked }));
-        },
-        error: err => {
-          this.toastr.error('Save VM status failed', 'Failed');
-          this.vmStatusChecked = !$event.checked;
-        }
-      })
+      this.store.dispatch(retrievedVMStatus({ vmStatus: $event.checked }));
     }
+    else {
+      this.store.dispatch(retrievedVMStatus({ vmStatus: $event.checked }));
+    }
+    // if ($event.checked) {
+    //   this.mapService.saveVMStatus(jsonData, 'on').subscribe({
+    //     next: response => {
+    //       this.store.dispatch(retrievedVMStatus({ vmStatus: $event.checked }));
+    //     },
+    //     error: err => {
+    //       this.toastr.error('Save VM status failed', 'Failed');
+    //       this.vmStatusChecked = !$event.checked;
+    //     }
+    //   })
+    // } else {
+    //   this.mapService.saveVMStatus(jsonData, 'off').subscribe({
+    //     next: response => {
+    //       this.store.dispatch(retrievedVMStatus({ vmStatus: $event.checked }));
+    //     },
+    //     error: err => {
+    //       this.toastr.error('Save VM status failed', 'Failed');
+    //       this.vmStatusChecked = !$event.checked;
+    //     }
+    //   })
+    // }
   }
 
   refreshVMStatus() {
