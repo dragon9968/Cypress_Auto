@@ -17,6 +17,6 @@ export enum ErrorMessages {
   NAME_EXISTS = 'Name already exists, please enter a different name',
   MIN_MAX_VALUE_1_100 = 'Valid value is between 1 and 100',
   MIN_MAX_VALUE_0_100 = 'Valid value is between 0 and 100',
-  MIN_MAX_VALUE_1_4943 = 'Valid value is between 1 and 4943',
-  MIN_MAX_VALUE_1_4944 = 'Valid value is between 1 and 4944',
+  MIN_MAX_VALUE_1_4093 = 'Valid value is between 1 and 4093',
+  MIN_MAX_VALUE_1_4094 = 'Valid value is between 2 and 4095',
 }
