@@ -1,34 +1,42 @@
 $tool-panel-width: 300px;
 $margin: 8px;
 
-.tab-section {
+.remote-item {
   margin: $margin;
   width: calc($tool-panel-width - $margin*2);
-  text-align: center;
   display: table;
+
+  &__title {
+    margin: $margin 0 $margin*2;
+    text-align: center;
+  }
+
+  &__field {
+    margin: $margin 0;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 8px;
+
+    &--label {
+      display: flex;
+      justify-content: space-between;
+      margin-right: $margin;
+      width: 35%;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    &--content {
+      max-width: 65%;
+      word-wrap: break-word;
+      width: 190px;
+    }
+  }
+
 }
 
-.tab-field {
-  margin: $margin 0;
-  display: flex;
-  width: 100%;
-  align-items: center;
-}
-
-.tab-label {
-  margin-right: $margin;
-  width: 30%;
-  text-align: left;
-}
-
-.tab-connection-name {
-  width: 70%;
-}
-
-.connection-map-btn {
-  width: 100%;
-}
-
-.hidden {
-  display: none;
+.btn-refresh {
+  margin-left: 8px;
 }

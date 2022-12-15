@@ -1,14 +1,14 @@
 import { Store } from "@ngrx/store";
-import { interval, Subject, Subscription, takeUntil } from "rxjs";
 import { ToastrService } from "ngx-toastr";
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { interval, Subject, Subscription, takeUntil } from "rxjs";
 import { MapService } from "../../../core/services/map/map.service";
+import { ProjectService } from "src/app/project/services/project.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { ServerConnectService } from "../../../core/services/server-connect/server-connect.service";
 import { retrievedVMStatus } from "../../../store/project/project.actions";
 import { selectVMStatus } from "../../../store/project/project.selectors";
 import { selectIsConnect } from "../../../store/server-connect/server-connect.selectors";
-import { ProjectService } from "src/app/project/services/project.service";
 
 @Component({
   selector: 'app-tool-panel-remote',
@@ -26,6 +26,14 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
   destroy$: Subject<boolean> = new Subject<boolean>();
 
   connection = { name: '', id: 0 }
+  connectionName = '';
+  connectionCategory = '';
+  connectionServer = '';
+  connectionDatacenter = '';
+  connectionCluster = '';
+  connectionSwitch = '';
+  connectionSwitchType = '';
+  userName = '';
 
   constructor(
     private store: Store,
@@ -41,6 +49,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
         this.isConnect = isConnect;
         const connection = this.serverConnectionService.getConnection();
         this.connection = connection ? connection : { name: '', id: 0 };
+        this._updateConnectionInfo(this.connection);
       }
     })
     this.selectVMStatus$ = this.store.select(selectVMStatus).subscribe(vmStatusChecked => {
@@ -98,5 +107,18 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
 
   refreshVMStatus() {
     this.infoPanelService.changeVMStatusOnMap(this.collectionId, this.connection.id);
+  }
+
+  private _updateConnectionInfo(connection: any) {
+    if (connection.category && connection.parameters) {
+      this.connectionName = connection.name;
+      this.connectionCategory = connection.category;
+      this.connectionServer = connection.parameters?.server;
+      this.connectionDatacenter = connection.parameters?.datacenter;
+      this.connectionCluster = connection.parameters?.cluster;
+      this.connectionSwitch = connection.parameters?.switch;
+      this.connectionSwitchType = connection.parameters?.switch_type;
+      this.userName = connection.parameters?.username;
+    }
   }
 }
