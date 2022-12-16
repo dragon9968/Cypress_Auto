@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import {COMMA, ENTER} from '@angular/cdk/keycodes';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -32,35 +32,33 @@ export class EditLoginProfilesDialogComponent implements OnInit {
     private store: Store,
     public dialogRef: MatDialogRef<EditLoginProfilesDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-  ) {}
+  ) { }
 
-  get name() { return this.loginProfileEditForm.get('name')};
-  get description() { return this.loginProfileEditForm.get('description')};
-  get username() { return this.loginProfileEditForm.get('username')};
-  get password() { return this.loginProfileEditForm.get('password')};
-  get category() { return this.loginProfileEditForm.get('category')};
-  get extraArgs() { return this.loginProfileEditForm.get('extraArgs')};
+  get name() { return this.loginProfileEditForm.get('name') };
+  get description() { return this.loginProfileEditForm.get('description') };
+  get username() { return this.loginProfileEditForm.get('username') };
+  get password() { return this.loginProfileEditForm.get('password') };
+  get category() { return this.loginProfileEditForm.get('category') };
+  get extraArgs() { return this.loginProfileEditForm.get('extraArgs') };
 
   ngOnInit(): void {
     this.isViewMode = this.data.mode == 'view';
     this.loginProfileEditForm = this.formBuilder.group({
-      name: [{value: '', disabled: this.isViewMode },[Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
-      description: [{value: '', disabled: this.isViewMode }],
-      username : [{value: '', disabled: this.isViewMode }, Validators.required],
-      password : [{value: '', disabled: this.isViewMode }, Validators.required],
-      category: [{value: 'local', disabled: this.isViewMode }],
-      extraArgs: [{value: '', disabled: this.isViewMode }],
+      name: [{ value: '', disabled: this.isViewMode }, [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
+      description: [{ value: '', disabled: this.isViewMode }],
+      username: [{ value: '', disabled: this.isViewMode }, Validators.required],
+      password: [{ value: '', disabled: this.isViewMode }, Validators.required],
+      category: [{ value: 'local', disabled: this.isViewMode }],
+      extraArgs: [{ value: '', disabled: this.isViewMode }],
     });
-    if (this.data.mode == 'update') {
-      this.name?.setValue(this.data.genData.name);
-      this.description?.setValue(this.data.genData.description);
-      this.username?.setValue(this.data.genData.username);
-      this.password?.setValue(this.data.genData.password);
-      this.category?.setValue(this.data.genData.category);
-      this.data.genData.extra_args.forEach((el : any) => {
-        this.listExtraArgs.push(el);
-      });
-    }
+    this.name?.setValue(this.data.genData.name);
+    this.description?.setValue(this.data.genData.description);
+    this.username?.setValue(this.data.genData.username);
+    this.password?.setValue(this.data.genData.password);
+    this.category?.setValue(this.data.genData.category);
+    this.data.genData.extra_args.forEach((el: any) => {
+      this.listExtraArgs.push(el);
+    });
   }
 
   onCancel() {
@@ -99,12 +97,12 @@ export class EditLoginProfilesDialogComponent implements OnInit {
         extra_args: this.listExtraArgs
       }
       this.loginProfileService.add(jsonData).subscribe({
-        next:(rest) => {
+        next: (rest) => {
           this.toastr.success(`Add new Login Profile ${rest.result.name} successfully`);
           this.dialogRef.close();
-          this.loginProfileService.getAll().subscribe((data: any) => this.store.dispatch(retrievedLoginProfiles({data: data.result})));
+          this.loginProfileService.getAll().subscribe((data: any) => this.store.dispatch(retrievedLoginProfiles({ data: data.result })));
         },
-        error:(err) => {
+        error: (err) => {
           this.toastr.error(`Error while add login profile `);
         }
       });
@@ -124,7 +122,7 @@ export class EditLoginProfilesDialogComponent implements OnInit {
       this.loginProfileService.put(this.data.genData.id, jsonData).subscribe(response => {
         this.toastr.success(`Updated Login Profile ${response.result.name} successfully`);
         this.dialogRef.close();
-        this.loginProfileService.getAll().subscribe((data: any) => this.store.dispatch(retrievedLoginProfiles({data: data.result})));
+        this.loginProfileService.getAll().subscribe((data: any) => this.store.dispatch(retrievedLoginProfiles({ data: data.result })));
       })
     }
   }
