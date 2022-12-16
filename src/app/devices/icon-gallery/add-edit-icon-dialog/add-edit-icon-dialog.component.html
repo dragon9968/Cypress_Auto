@@ -23,7 +23,6 @@
       <div [hidden]="isHiddenDeleteButton" *ngIf="!!url_default">
         <div class="show-photo">
           <img [src]="ICON_PATH + url_default" width="90px" height="auto">
-          <mat-checkbox class="delete-file" (change)="onSelectChangeDelete($event)">Delete</mat-checkbox>
         </div>
       </div>
       <input *ngIf="data.mode !== 'view'" type="file" name='file' accept="image/*" (change)="onFileSelected($event)" formControlName="file">

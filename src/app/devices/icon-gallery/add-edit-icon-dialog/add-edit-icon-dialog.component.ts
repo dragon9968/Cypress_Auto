@@ -77,14 +77,6 @@ export class AddEditIconDialogComponent implements OnInit {
     }
   }
 
-  onSelectChangeDelete(event: any) {
-    if (event.checked) {
-      this.isChecked = true;
-    } else {
-      this.isChecked = false;
-    }
-  }
-
   addIcon() {
     if (this.iconForm.valid) {
       const formData = new FormData();
