@@ -74,7 +74,7 @@ export class AddProjectComponent implements OnInit {
         Validators.required
         ]],
       vlan_max: [ 2100, 
-        [Validators.min(1),
+        [Validators.min(2),
         Validators.max(4094),
         Validators.required,
         ]]
