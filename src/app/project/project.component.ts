@@ -43,7 +43,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   constructor(
     private projectService: ProjectService,
-    private userService: UserService,
     private store: Store
   ) {
     this.selectProjects$ = this.store.select(selectProjects)
@@ -54,9 +53,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.projectService.getProjectByStatus(this.status).subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
-    this.userService.getAll().subscribe(data => {
-      this.store.dispatch(retrievedUserTasks({data: data.result}));
-    })
   }
 
   ngOnDestroy(): void {

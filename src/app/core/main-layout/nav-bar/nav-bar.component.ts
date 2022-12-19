@@ -23,13 +23,13 @@ import { AppPreferencesComponent } from 'src/app/settings/app-preferences/app-pr
 import { AppPrefService } from '../../services/app-pref/app-pref.service';
 import { MapPrefService } from '../../services/map-pref/map-pref.service';
 import { retrievedMapPrefs } from 'src/app/store/map-pref/map-pref.actions';
-import { retrievedUserTasks } from 'src/app/store/user-task/user-task.actions';
 import { UserService } from '../../services/user/user.service';
 import { selectIsConnect } from 'src/app/store/server-connect/server-connect.selectors';
 import { ServerConnectService } from '../../services/server-connect/server-connect.service';
 import { ServerConnectDialogComponent } from 'src/app/map/tool-panel/tool-panel-remote/server-connect-dialog/server-connect-dialog.component';
 import { retrievedIsConnect, retrievedServerConnect } from 'src/app/store/server-connect/server-connect.actions';
 import { AboutComponent } from 'src/app/help/about/about.component';
+import { retrievedUser } from 'src/app/store/user/user.actions';
 
 @Component({
   selector: 'app-nav-bar',
@@ -52,6 +52,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   connection = { name: '', id: 0 }
   collectionId: any;
   projectName: any;
+  username: any;
 
   constructor(
     private authService: AuthService,
@@ -93,8 +94,17 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    const accessToken = this.authService.getAccessToken();
+    const accessTokenPayload = this.helpersService.decodeToken(accessToken);
+    const userId = accessTokenPayload.identity;
+    this.userService.get(userId).subscribe(respData => {
+      this.username = respData.result.username;
+      this.store.dispatch(retrievedUser({ data: respData.result }));
+    });
     this.collectionId = this.projectService.getCollectionId();
-    this.projectService.get(this.collectionId).subscribe(projectData => this.projectName = projectData.result.name);
+    if (this.collectionId) {
+      this.projectService.get(this.collectionId).subscribe(projectData => this.projectName = projectData.result.name);
+    }
     const connection = this.serverConnectionService.getConnection();
     if (connection && connection.id !== 0) {
       this.store.dispatch(retrievedIsConnect({ data: true }));

@@ -479,6 +479,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.activeNodes.splice(index, 1);
       }
     }
+    this.store.dispatch(retrievedMapSelection({ data: true }));
   }
 
   private _unselectEdge($event: any) {
@@ -487,6 +488,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       const index = this.activeEdges.indexOf(t);
       this.activeEdges.splice(index, 1);
     }
+    this.store.dispatch(retrievedMapSelection({ data: true }));
   }
 
   private _boxStart(_$event: any) {

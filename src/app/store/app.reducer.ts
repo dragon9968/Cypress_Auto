@@ -26,6 +26,7 @@ import { isChangeDomainUserReducer } from "./domain-user-change/domain-user-chan
 import { deviceChangeReducer } from "./device-change/device-change.reducer";
 import { appPrefReducer } from "./app-pref/app-pref.reducer";
 import { mapPrefReducer } from "./map-pref/map-pref.reducer";
+import { userReducer } from "./user/user.reducer";
 
 export const reducers = {
     [ReducerKeys.MAP]: mapReducer,
@@ -55,4 +56,5 @@ export const reducers = {
     [ReducerKeys.DOMAIN_USER_CHANGE]: isChangeDomainUserReducer,
     [ReducerKeys.APP_PREF]: appPrefReducer,
     [ReducerKeys.MAP_PREFS]: mapPrefReducer,
+    [ReducerKeys.USER]: userReducer,
 }

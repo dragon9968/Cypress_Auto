@@ -140,7 +140,7 @@
     </span>
     <a mat-button [matMenuTriggerFor]="account">
         <mat-icon>person</mat-icon>
-        <span>{{"User Name"}}</span>
+        <span>{{username}}</span>
     </a>
     <mat-menu #account="matMenu">
         <button mat-menu-item (click)="userProfile()">

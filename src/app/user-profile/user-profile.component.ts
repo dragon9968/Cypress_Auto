@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { AuthService } from '../core/services/auth/auth.service';
-import { HelpersService } from '../core/services/helpers/helpers.service';
-import { UserService } from '../core/services/user/user.service';
+import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs';
 import { ErrorMessages } from '../shared/enums/error-messages.enum';
+import { selectUser } from '../store/user/user.selectors';
 
 @Component({
   selector: 'app-user-profile',
@@ -14,12 +14,9 @@ export class UserProfileComponent implements OnInit {
   userProfileForm: FormGroup;
   isViewMode = false;
   errorMessages = ErrorMessages;
+  selectUser$ = new Subscription();
 
-  constructor(
-    private userService: UserService,
-    private authService: AuthService,
-    private helpersService: HelpersService,
-    ) {
+  constructor(private store: Store) {
     this.userProfileForm = new FormGroup({
       usernameCtr: new FormControl(''),
       firstNameCtr: new FormControl(''),
@@ -38,16 +35,13 @@ export class UserProfileComponent implements OnInit {
   get activeCtr() { return this.userProfileForm.get('activeCtr'); }
 
   ngOnInit(): void {
-    const accessToken = this.authService.getAccessToken();
-    const accessTokenPayload = this.helpersService.decodeToken(accessToken);
-    const userId = accessTokenPayload.identity;
-    this.userService.get(userId).subscribe(respData => {
-      this.usernameCtr?.setValue(respData.result.username);
-      this.firstNameCtr?.setValue(respData.result.first_name);
-      this.lastNameCtr?.setValue(respData.result.last_name);
-      this.emailCtr?.setValue(respData.result.email);
-      this.roleCtr?.setValue(respData.result.roles[0].name);
-      this.activeCtr?.setValue(respData.result.active);
+    this.selectUser$ = this.store.select(selectUser).subscribe((user: any) => {
+      this.usernameCtr?.setValue(user.username);
+      this.firstNameCtr?.setValue(user.first_name);
+      this.lastNameCtr?.setValue(user.last_name);
+      this.emailCtr?.setValue(user.email);
+      this.roleCtr?.setValue(user.roles[0].name);
+      this.activeCtr?.setValue(user.active);
     });
   }
 }
