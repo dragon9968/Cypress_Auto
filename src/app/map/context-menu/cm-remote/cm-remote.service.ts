@@ -188,7 +188,7 @@ export class CMRemoteService {
                 next: response => {
                   const dialogData = {
                     activeNodes,
-                    names: response.result
+                    names: response
                   };
                   this.dialog.open(DeleteNodeSnapshotDialogComponent, { width: '600px', data: dialogData });
                 }
@@ -213,7 +213,7 @@ export class CMRemoteService {
                 next: response => {
                   const dialogData = {
                     activeNodes,
-                    names: response.result
+                    names: response
                   };
                   this.dialog.open(RevertNodeSnapshotDialogComponent, { width: '600px', data: dialogData });
                 }

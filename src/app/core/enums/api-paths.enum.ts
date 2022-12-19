@@ -20,7 +20,7 @@ export enum ApiPaths {
   CONFIG_TEMPLATES = '/api/v1/configtemplate/',
   LOGIN_PROFILES = '/api/v1/loginprofile/',
   NODE = '/api/v1/node/',
-  NODE_SNAPSHOTS = '/api/v1/node/get_snapshots',
+  NODE_SNAPSHOTS = '/api/v1/map/get_vm_snapshots',
   CLONE_NODE = '/api/v1/node/clone/',
   VALIDATE_NODE = '/api/v1/node/validate',
   PORTGROUP = '/api/v1/portgroup/',
