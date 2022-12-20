@@ -41,7 +41,7 @@ export class AddEditConnectionProfilesComponent implements OnInit {
       switchType: new FormControl({value: '', disabled: this.isViewMode}),
       managementNetwork: new FormControl({value: '', disabled: this.isViewMode}),
       username: new FormControl({value: '', disabled: this.isViewMode}, [Validators.required]),
-      password: new FormControl({value: '', disabled: this.isViewMode}, [Validators.required]),
+      password: new FormControl({value: '', disabled: this.isViewMode}),
       updatePassword: new FormControl({value: '', disabled: this.isViewMode}),
       file: new FormControl({value: '', disabled: this.isViewMode}),
       certFile: new FormControl({value: '', disabled: this.isViewMode})
@@ -98,6 +98,9 @@ export class AddEditConnectionProfilesComponent implements OnInit {
           } else {
             this.isHiddenDeleteButton = false;
           }
+        }
+        if (this.data.mode === 'add') {
+          this.password?.setValidators([Validators.required]);
         }
     }
   }
