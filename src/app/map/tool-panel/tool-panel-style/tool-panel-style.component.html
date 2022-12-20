@@ -196,7 +196,7 @@
     </div>
 </section>
 
-<section class="tab-section" [hidden]="isHideNode && isHidePGs && isHideMBs || !isHideGBs">
+<section class="tab-section" [hidden]="!((activeNodes.length + activePGs.length + activeMBs.length) == 1 && isHideEdge)">
     <mat-divider></mat-divider>
     <h4>Position</h4>
     <form [formGroup]="positionForm" (ngSubmit)="updatePosition()">
