@@ -61,6 +61,7 @@ import { selectIsConnect } from "../store/server-connect/server-connect.selector
 import { MapImageService } from '../core/services/map-image/map-image.service';
 import { retrievedMapImages } from '../store/map-image/map-image.actions';
 import { RouteSegments } from "../core/enums/route-segments.enum";
+import { ContextMenuService } from './context-menu/context-menu.service';
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -177,7 +178,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     private serverConnectService: ServerConnectService,
     private projectService: ProjectService,
     private infoPanelService: InfoPanelService,
-    private mapImageService: MapImageService
+    private mapImageService: MapImageService,
+    private contextMenuService: ContextMenuService,
   ) {
     navigator(cytoscape);
     gridGuide(cytoscape);
@@ -433,7 +435,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         }
       }
     }
-    this._showContextMenu();
+    this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs, this.activeMBs, this.connectionId);
     this.store.dispatch(retrievedMapSelection({ data: true }));
   }
 
@@ -449,7 +451,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.activeEdges.splice(0);
       }
     }
-    this._showContextMenu();
+    this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs, this.activeMBs, this.connectionId);
     this.store.dispatch(retrievedMapSelection({ data: true }));
   }
 
@@ -799,8 +801,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.cy.on("boxselect", this._boxSelect.bind(this));
     this.cy.on("box", this._boxCheck.bind(this));
     this.cy.on("click", this._click.bind(this));
-    this.cy.on("cxttap", "node", this._showContextMenu.bind(this));
-    this.cy.on("cxttap", "edge", this._showContextMenu.bind(this));
+    this.cy.on("cxttap", "node", this.contextMenuService.showContextMenu.bind(this, this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs, this.activeMBs, this.connectionId));
+    this.cy.on("cxttap", "edge", this.contextMenuService.showContextMenu.bind(this, this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs, this.activeMBs, this.connectionId));
     this.cy.on("nodeediting.resizeend", this._nodeEditing.bind(this));
     this.cy.on('cdnddrop', this._cdndDrop.bind(this));
     this.cy.on("noderesize.resizeend", (_e: any, _type: any) => {
@@ -1064,91 +1066,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.isAddTunnel = false
   }
 
-  private _showContextMenu() {
-    const contextMenu = this.cy.contextMenus('get');
-    const activeNodesLength = this.activeNodes.length;
-    const activePGsLength = this.activePGs.length;
-    const activeEdgesLength = this.activeEdges.length;
-    const activeGBsLength = this.activeGBs.length;
-    const activeMBsLength = this.activeMBs.length;
-    contextMenu.hideMenuItem('node_add')
-    contextMenu.hideMenuItem('pg_add');
-    contextMenu.hideMenuItem('edge_add');
-    contextMenu.hideMenuItem('node_actions');
-    contextMenu.hideMenuItem('pg_actions');
-    contextMenu.hideMenuItem('edge_actions');
-    contextMenu.hideMenuItem('view_details');
-    contextMenu.hideMenuItem('edit');
-    contextMenu.showMenuItem('delete');
-    contextMenu.hideMenuItem('node_remote');
-    contextMenu.hideMenuItem('pg_remote');
-    contextMenu.hideMenuItem('move_to_front');
-    contextMenu.hideMenuItem('move_to_back');
-    contextMenu.hideMenuItem('collapse_groupbox');
-    contextMenu.hideMenuItem('expand_groupbox');
-    if (activeGBsLength > 0) {
-      contextMenu.showMenuItem('move_to_front');
-      contextMenu.showMenuItem('move_to_back');
-      contextMenu.showMenuItem('collapse_groupbox');
-      contextMenu.showMenuItem('expand_groupbox');
-      contextMenu.hideMenuItem('delete');
-    } else if (activeMBsLength > 0) {
-      if (activeNodesLength == 0 && activePGsLength == 0 && activeEdgesLength == 0) {
-        contextMenu.showMenuItem('move_to_front');
-        contextMenu.showMenuItem('move_to_back');
-        contextMenu.hideMenuItem('delete');
-      }
-    } else if (activeNodesLength > 0) {
-      if (activePGsLength == 0 && activeEdgesLength == 0) {
-        contextMenu.showMenuItem('lock_node');
-        contextMenu.showMenuItem('unlock_node');
-        if (activeNodesLength > 1) {
-          contextMenu.showMenuItem('node_actions');
-          contextMenu.showMenuItem('edit');
-          contextMenu.showMenuItem('node_remote');
-          contextMenu.hideMenuItem('web_console');
-        } else if (activeNodesLength == 1) {
-          contextMenu.showMenuItem('node_add');
-          contextMenu.showMenuItem('node_actions');
-          contextMenu.showMenuItem('view_details');
-          contextMenu.showMenuItem('edit');
-          contextMenu.showMenuItem('node_remote');
-          contextMenu.showMenuItem('web_console');
-        }
-      }
-    } else if (activePGsLength > 0) {
-      if (activeNodesLength == 0 && activeEdgesLength == 0) {
-        contextMenu.showMenuItem('lock_node');
-        contextMenu.showMenuItem('unlock_node');
-        if (activePGsLength > 1) {
-          contextMenu.showMenuItem('pg_actions');
-          contextMenu.showMenuItem('edit');
-          contextMenu.showMenuItem('pg_remote');
-        } else if (activePGsLength == 1) {
-          contextMenu.showMenuItem('pg_add');
-          contextMenu.showMenuItem('pg_actions');
-          contextMenu.showMenuItem('view_details');
-          contextMenu.showMenuItem('edit');
-          contextMenu.showMenuItem('pg_remote');
-        }
-      }
-    } else if (activeEdgesLength > 0) {
-      if (activeNodesLength == 0 && activePGsLength == 0) {
-        if (activeEdgesLength > 1) {
-          contextMenu.showMenuItem('edge_actions');
-          contextMenu.showMenuItem('edit');
-        } else if (activeEdgesLength == 1) {
-          contextMenu.showMenuItem('edge_actions');
-          contextMenu.showMenuItem('view_details');
-          contextMenu.showMenuItem('edit');
-        }
-      }
-    }
-    if (!this.connectionId || this.connectionId == 0) {
-      contextMenu.hideMenuItem('node_remote');
-      contextMenu.hideMenuItem('pg_remote');
-    }
-  }
+
 
   searchMap(searchText: string) {
     searchText = searchText.trim();
