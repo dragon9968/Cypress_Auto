@@ -54,7 +54,9 @@ export class AuthService {
   logout() {
     this.localStorageService.removeItem(LocalStorageKeys.ACCESS_TOKEN);
     this.localStorageService.removeItem(LocalStorageKeys.REFRESH_TOKEN);
-    this.router.navigate([RouteSegments.ROOT]);
+    this.localStorageService.removeItem(LocalStorageKeys.CONNECTION);
+    this.localStorageService.removeItem(LocalStorageKeys.COLLECTION_ID);
+    this.router.navigate([RouteSegments.ROOT, RouteSegments.LOGIN]);
   }
 
 }
