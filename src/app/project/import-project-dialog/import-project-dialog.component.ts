@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
-import { validateJsonFile } from 'src/app/shared/validations/json-file.validation';
+import { validateInputFile } from 'src/app/shared/validations/format-file.validation';
 import { retrievedProjects } from 'src/app/store/project/project.actions';
 import { ProjectService } from '../services/project.service';
 
@@ -27,7 +27,7 @@ export class ImportProjectDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) { 
     this.importForm = new FormGroup({
-      fileCtr: new FormControl('', [Validators.required, validateJsonFile()])
+      fileCtr: new FormControl('', [Validators.required, validateInputFile('json')])
     })
   }
 

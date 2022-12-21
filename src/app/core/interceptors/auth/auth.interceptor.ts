@@ -22,7 +22,8 @@ export class AuthInterceptor implements HttpInterceptor {
     req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    if (req.url == ApiPaths.ICONS_ADD || req.url.includes(ApiPaths.ICONS_UPDATE) || req.url == ApiPaths.IMPORT_PROJECT || req.url == ApiPaths.ADD_UPDATE_SERVER_CONNECT_FILE) {
+    if (req.url == ApiPaths.ICONS_ADD || req.url.includes(ApiPaths.ICONS_UPDATE) || req.url == ApiPaths.IMPORT_PROJECT 
+      || req.url == ApiPaths.ADD_UPDATE_SERVER_CONNECT_FILE || req.url == ApiPaths.USER_GUIDE_UPLOAD) {
       var authReq = req.clone({
         url: !req.url.includes(ApiPaths.ASSETS) ? environment.apiBaseUrl + req.url : req.url,
       });

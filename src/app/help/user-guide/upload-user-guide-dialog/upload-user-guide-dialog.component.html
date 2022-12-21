@@ -1,0 +1,16 @@
+<form [formGroup]="uploadForm" (ngSubmit)="uploadUserGuide()">
+  <h1 mat-dialog-title>Upload User Guide File</h1>
+  <div mat-dialog-content class="upload-file">
+      <label class="label" for="file">User Guide File</label>
+      <div class="input-file">
+        <input formControlName="fileCtr" type="file" name='file' (change)="onFileSelected($event)">
+        <mat-error *ngIf="fileCtr?.hasError('isNotFile')">{{ errorMessage.PDF_MD_FORMAT_FILE }}</mat-error>
+      </div>
+  </div>
+  <div mat-dialog-actions [align]="'end'" class="create-btn">
+    <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+    <button mat-raised-button color="primary" [disabled]="!uploadForm.valid">
+      Upload
+    </button>
+  </div>
+</form>

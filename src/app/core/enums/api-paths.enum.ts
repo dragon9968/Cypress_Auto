@@ -89,5 +89,8 @@ export enum ApiPaths {
   DEVICES_EXPORT = '/api/v1/device/export',
   TEMPLATES_EXPORT = '/api/v1/template/export',
   MAP_IMAGE = '/api/v1/mapimage/',
-  APP_VERSION = '/api/v1/app/version'
+  APP_VERSION = '/api/v1/app/version',
+  USER_GUIDE = '/api/v1/guide/',
+  USER_GUIDE_UPLOAD = '/api/v1/guide/upload',
+  USER_GUIDE_DOWNLOAD = '/api/v1/guide/download_file'
 }
