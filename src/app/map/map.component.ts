@@ -207,8 +207,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.selectMapEdit$ = this.store.select(selectMapEdit).subscribe((mapEdit: any) => {
       if (mapEdit) {
         this.isAddNode = mapEdit.isAddNode;
-        this.templateId = mapEdit.templateId;
-        this.deviceId = mapEdit.deviceId;
+        this.templateId = mapEdit.templateId ? mapEdit.templateId : this.templateId;
+        this.deviceId = mapEdit.deviceId ? mapEdit.deviceId : this.deviceId;
         this.isCustomizeNode = mapEdit.isCustomizeNode;
         this.isAddPublicPG = mapEdit.isAddPublicPG;
         this.isAddPrivatePG = mapEdit.isAddPrivatePG;
@@ -308,7 +308,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   private _enableMapEditButtons() {
-    this.isDisableAddNode = false;
+    this.isDisableAddNode = !(!!this.templateId && !!this.deviceId);
     this.isDisableAddPG = false;
     this.isDisableAddImage = false;
     this.isDisableCancel = true;

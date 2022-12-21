@@ -2,14 +2,16 @@ import { Store } from '@ngrx/store';
 import { Router } from '@angular/router';
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { throwError } from "rxjs";
+import { catchError } from "rxjs/operators";
 import { ToastrService } from 'ngx-toastr';
 import { ICellRendererParams } from 'ag-grid-community';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
-import { retrievedDevices } from 'src/app/store/device/device.actions';
 import { DeviceService } from 'src/app/core/services/device/device.service';
+import { retrievedDevices } from 'src/app/store/device/device.actions';
+import { retrievedIsDeviceChange } from "../../../store/device-change/device-change.actions";
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { AddEditDeviceDialogComponent } from '../add-edit-device-dialog/add-edit-device-dialog.component';
-import { retrievedIsDeviceChange } from "../../../store/device-change/device-change.actions";
 
 @Component({
   selector: 'app-action-render-device',
@@ -32,7 +34,6 @@ export class ActionRenderDeviceComponent implements ICellRendererAngularComp {
   agInit(params: ICellRendererParams): void {
     this.id = params.value;
   }
-
 
   updateDevice() {
     this.deviceService.get(this.id).subscribe(deviceData => {
@@ -57,15 +58,20 @@ export class ActionRenderDeviceComponent implements ICellRendererAngularComp {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.deviceService.delete(this.id).subscribe({
-          next: (rest) => {
-            this.deviceService.getAll().subscribe((data: any) => this.store.dispatch(retrievedDevices({data: data.result})));
-            this.store.dispatch(retrievedIsDeviceChange({data: true}));
-            this.toastr.success('Deleted device successfully', 'Success');
-          },
-          error: (error) => {
-            this.toastr.error('Delete device failed', 'Error');
-          }
+        this.deviceService.delete(this.id).pipe(
+          catchError(response => {
+            if (response.status == 400) {
+              const messages = response.error.message.split(':')[1];
+              this.toastr.warning(messages, 'Warning');
+            } else {
+              this.toastr.error('Delete device failed', 'Error');
+            }
+            return throwError(() => response.error);
+          })
+        ).subscribe(response => {
+          this.deviceService.getAll().subscribe((data: any) => this.store.dispatch(retrievedDevices({data: data.result})));
+          this.store.dispatch(retrievedIsDeviceChange({data: true}));
+          this.toastr.success('Deleted device successfully', 'Success');
         })
       }
     });

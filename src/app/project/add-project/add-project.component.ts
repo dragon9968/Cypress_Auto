@@ -31,7 +31,7 @@ export class AddProjectComponent implements OnInit {
     private projectService: ProjectService,
     private toastr: ToastrService,
     private router: Router
-  ) { 
+  ) {
     this.selectProjects$ = this.store.select(selectProjects).subscribe(nameProject => {
       this.nameProject = nameProject;
     })
@@ -40,40 +40,40 @@ export class AddProjectComponent implements OnInit {
 
   ngOnInit(): void {
     this.projectForm = this.formBuilder.group({
-      name : ['', 
-        [Validators.required, 
-        Validators.minLength(3), 
-        Validators.maxLength(50), 
+      name : ['',
+        [Validators.required,
+        Validators.minLength(3),
+        Validators.maxLength(50),
         validateNameExist(() => this.nameProject, 'add', undefined)]],
       description: [''],
       target : ['VMWare vCenter'],
       option: [''],
-      enclave_number: [ 1, 
+      enclave_number: [ 1,
         [Validators.min(1),
         Validators.max(100),
-        Validators.required, 
+        Validators.required,
         ]],
-      enclave_clients: [ 3, 
+      enclave_clients: [ 3,
         [Validators.min(0),
         Validators.max(100),
-        Validators.required, 
+        Validators.required,
         ]],
-      enclave_servers: [ 2, 
+      enclave_servers: [ 2,
         [Validators.min(0),
         Validators.max(100),
-        Validators.required, 
+        Validators.required,
         ]],
-      enclave_users: [ 5, 
+      enclave_users: [ 5,
         [Validators.min(0),
         Validators.max(100),
-        Validators.required, 
+        Validators.required,
         ]],
       vlan_min: [ 2000,
         [Validators.min(1),
         Validators.max(4093),
         Validators.required
         ]],
-      vlan_max: [ 2100, 
+      vlan_max: [ 2100,
         [Validators.min(2),
         Validators.max(4094),
         Validators.required,
@@ -143,7 +143,7 @@ export class AddProjectComponent implements OnInit {
     this.router.navigate([RouteSegments.PROJECTS]);
   }
 
-  numericOnly(event: any): boolean { 
+  numericOnly(event: any): boolean {
     const charCode = (event.which) ? event.which : event.keyCode;
     if (charCode == 101 || charCode == 69 || charCode == 45 || charCode == 43) {
       return false;

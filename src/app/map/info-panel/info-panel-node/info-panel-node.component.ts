@@ -60,7 +60,21 @@ export class InfoPanelNodeComponent implements OnDestroy {
         this.gridApi.setRowData([]);
       }
     } else {
-      const rowData = activeNodes.map((ele: any) => ele.data())
+      const rowData = activeNodes.map((ele: any) => {
+        if (ele.data('device')?.name) {
+          ele.data('device', ele.data('device')?.name)
+        }
+        if (ele.data('template')?.name) {
+          ele.data('template', ele.data('template')?.name)
+        }
+        if (ele.data('domain')?.name) {
+          ele.data('domain', ele.data('domain')?.name)
+        }
+        if (ele.data('hardware')?.serial_number) {
+          ele.data('hardware', ele.data('hardware')?.serial_number)
+        }
+        return ele.data();
+      })
       if (this.gridApi != null) {
         this.gridApi.setRowData(rowData);
         this._setRowActive();

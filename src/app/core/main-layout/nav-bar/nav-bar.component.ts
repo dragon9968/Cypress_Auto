@@ -83,7 +83,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
         this.projectService.get(this.collectionId).subscribe(projectData => this.projectName = projectData.result.name);
       }
     });
-    this.selectIsConnect$ = this.store.select(selectIsConnect).subscribe(isConnect => {
+    this.selectIsConnect$ = this.store.select(selectIsConnect).pipe(takeUntil(this.destroy$)).subscribe(isConnect => {
       if (isConnect !== undefined) {
         this.isConnect = isConnect;
         const connection = this.serverConnectionService.getConnection();
@@ -119,6 +119,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.selectIsMapOpen$.unsubscribe();
     this.selectIsOpen$.unsubscribe();
+    this.selectIsConnect$.unsubscribe();
     this.destroy$.next(true);
     this.destroy$.unsubscribe();
   }
@@ -272,7 +273,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
     const dialogData = {
       genData: this.connection
     }
-    this.dialog.open(ServerConnectDialogComponent, { width: '600px', data: dialogData });
+    this.dialog.open(ServerConnectDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
   }
 
   disconnectServer() {

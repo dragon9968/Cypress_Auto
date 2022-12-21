@@ -166,11 +166,13 @@ export class InfoPanelInterfaceManagementComponent implements OnDestroy {
   }
 
   private _setRowActive() {
-    this.gridApi.forEachNode(rowNode => {
-      if (this.rowsSelectedId.includes(rowNode.data.interface_id)) {
-        rowNode.setSelected(true);
-      }
-    });
+    if (this.rowsSelected.length > 0 && this.gridApi) {
+      this.gridApi.forEachNode(rowNode => {
+        if (this.rowsSelectedId.includes(rowNode.data.interface_id)) {
+          rowNode.setSelected(true);
+        }
+      });
+    }
   }
 
   selectedRows() {

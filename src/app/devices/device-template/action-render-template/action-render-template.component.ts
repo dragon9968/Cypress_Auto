@@ -1,13 +1,16 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
-import { ICellRendererAngularComp } from 'ag-grid-angular';
-import { ICellRendererParams } from 'ag-grid-community';
+import { Component } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { throwError } from "rxjs";
+import { catchError } from "rxjs/operators";
 import { ToastrService } from 'ngx-toastr';
+import { ICellRendererParams } from 'ag-grid-community';
+import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { TemplateService } from 'src/app/core/services/template/template.service';
+import { retrievedTemplates } from "../../../store/template/template.actions";
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
-import { retrievedTemplates } from 'src/app/store/template/template.actions';
 import { AddEditTemplateDialogComponent } from '../add-edit-template-dialog/add-edit-template-dialog.component';
+
 
 @Component({
   selector: 'app-action-render-template',
@@ -55,13 +58,22 @@ export class ActionRenderTemplateComponent implements ICellRendererAngularComp {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.templateService.delete(this.id_template).subscribe({
-          next: (rest) => {
-            this.toastr.success(`Delete Template successfully`);
-          },
-          error: (error) => {
-            this.toastr.error(`Error while delete Template`);
-          }
+        this.templateService.delete(this.id_template).pipe(
+          catchError(response => {
+            if (response.status == 400) {
+              const message = response.error.message.split(':')[1];
+              this.toastr.warning(message, 'Warning');
+            } else {
+              this.toastr.error('Delete template failed', 'Error');
+            }
+            return throwError(() => response.error)
+          })
+        ).subscribe(response => {
+          this.templateService.getAll().subscribe((data: any)  => {
+            const template = data.result.filter((ele: any) => ele.device_id === this.id)
+            this.store.dispatch(retrievedTemplates({ data: template }))
+          })
+          this.toastr.success(`Delete template successfully`, 'Success');
         })
       }
     });

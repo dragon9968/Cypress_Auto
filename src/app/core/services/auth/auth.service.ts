@@ -6,15 +6,27 @@ import { ApiPaths } from 'src/app/core/enums/api-paths.enum';
 import { LocalStorageService } from '../../storage/local-storage/local-storage.service';
 import { LocalStorageKeys } from '../../storage/local-storage/local-storage-keys.enum';
 import { RouteSegments } from '../../enums/route-segments.enum';
+import { ProjectService } from "../../../project/services/project.service";
+import { ServerConnectService } from "../server-connect/server-connect.service";
+import { catchError } from "rxjs/operators";
+import { throwError } from "rxjs";
+import { ToastrService } from "ngx-toastr";
+import { retrievedIsConnect } from "../../../store/server-connect/server-connect.actions";
+import { retrievedVMStatus } from "../../../store/project/project.actions";
+import { Store } from "@ngrx/store";
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   constructor(
+    private store: Store,
+    private router: Router,
     private http: HttpClient,
+    private toastr: ToastrService,
     private localStorageService: LocalStorageService,
-    private router: Router
+    private projectService: ProjectService,
+    private serverConnectionService: ServerConnectService
   ) {}
 
   login(username: string, password: string) {
@@ -52,10 +64,26 @@ export class AuthService {
   }
 
   logout() {
+    const connection = this.serverConnectionService.getConnection();
+    if (connection) {
+      const collectionId = this.projectService.getCollectionId();
+      const jsonData = {
+        pk: collectionId,
+        connection_id: connection.id
+      }
+      this.serverConnectionService.disconnect(jsonData).pipe(
+        catchError(err => {
+          this.toastr.error('Could not to disconnect from Server', 'Error');
+          return throwError(() => err.error.message);
+        })).subscribe(() => {
+        this.store.dispatch(retrievedIsConnect({ data: false }));
+        this.store.dispatch(retrievedVMStatus({ vmStatus: undefined }));
+        this.toastr.info(`Disconnected from ${connection.name} server!`);
+      })
+    }
     this.localStorageService.removeItem(LocalStorageKeys.ACCESS_TOKEN);
     this.localStorageService.removeItem(LocalStorageKeys.REFRESH_TOKEN);
     this.localStorageService.removeItem(LocalStorageKeys.CONNECTION);
-    this.localStorageService.removeItem(LocalStorageKeys.COLLECTION_ID);
     this.router.navigate([RouteSegments.ROOT, RouteSegments.LOGIN]);
   }
 

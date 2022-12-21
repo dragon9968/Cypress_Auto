@@ -76,7 +76,8 @@ export class ActionsRenderHardwareComponent implements ICellRendererAngularComp 
         this.hardwareService.delete(this.id).pipe(
           catchError((response: any) => {
             if (response.status == 400) {
-              this.toastr.error(response.error.message.split(':')[1], 'Error');
+              const message = response.error.message.split(':')[1];
+              this.toastr.warning(message, 'Warning');
             } else {
               this.toastr.error('Delete hardware failed', 'Error');
             }

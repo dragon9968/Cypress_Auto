@@ -60,7 +60,7 @@
                 <mat-label>Servers</mat-label>
                 <input type="number" formControlName="enclave_servers" (keypress)="numericOnly($event)" matInput>
                 <mat-hint><strong>Servers per enclave</strong></mat-hint>
-                <mat-error *ngIf="enclave_servers?.hasError('min') || enclave_servers?.hasError('max') || enclave_servers?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_1_100 }}</mat-error>
+                <mat-error *ngIf="enclave_servers?.hasError('min') || enclave_servers?.hasError('max') || enclave_servers?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_0_100 }}</mat-error>
               </mat-form-field>
               <mat-form-field class="field" appearance="outline">
                 <mat-label>Users</mat-label>

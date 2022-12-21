@@ -173,9 +173,8 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
       const rowData = activePGs.map(ele => {
         if (ele.data('domain')?.name) {
           ele.data('domain',  ele.data('domain').name);
-          return ele.data();
-        } else
-          return ele.data();
+        }
+        return ele.data();
       });
       if (this.gridApi != null) {
         this.gridApi.setRowData(rowData);
