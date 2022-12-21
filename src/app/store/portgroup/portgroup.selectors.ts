@@ -4,4 +4,6 @@ import { PortGroupState } from 'src/app/store/portgroup/portgroup.state';
 
 export const selectPortGroupFeature = createFeatureSelector<PortGroupState>(ReducerKeys.PORTGROUP);
 export const selectPortGroups = createSelector(selectPortGroupFeature, (state: PortGroupState) => state.portgroups);
+export const selectPortGroupsManagement = createSelector(selectPortGroupFeature, (state: PortGroupState) => state.portGroupsManagement);
+
 

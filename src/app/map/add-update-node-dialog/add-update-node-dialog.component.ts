@@ -97,6 +97,9 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
     });
     this.selectNodes$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => this.nodes = nodes);
     this.isViewMode = this.data.mode == 'view';
+    if (this.data.mode == 'view') {
+      this.data.genData.node_id = this.data.genData.id;
+    }
     this.nodeAddForm = new FormGroup({
       nameCtr: new FormControl('', [Validators.required, validateNameExist(() => this.nodes, this.data.mode, this.data.genData.node_id)]),
       notesCtr: new FormControl(''),

@@ -19,7 +19,7 @@
       <mat-radio-group class="category-group" color="primary" formControlName="categoryCtr">
         <mat-radio-button class="category-items" value="private">Private</mat-radio-button>
         <mat-radio-button class="category-items" value="public">Public</mat-radio-button>
-        <mat-radio-button class="category-items" value="management">Management</mat-radio-button>
+        <mat-radio-button [disabled]="tabName !== 'portGroupManagement'  && data.mode !== 'add'" class="category-items" value="management">Management</mat-radio-button>
       </mat-radio-group>
     </div>
     <mat-form-field class="field">

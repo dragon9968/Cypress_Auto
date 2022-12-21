@@ -290,7 +290,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.selectIcons$.unsubscribe();
     this.selectDomains$.unsubscribe();
     this.selectSearchText$.unsubscribe();
-    this.cy.nodes().forEach((ele: any) => {
+    this.cy?.nodes().forEach((ele: any) => {
       this.helpersService.removeBadge(ele);
     });
     this.store.dispatch(retrievedIsMapOpen({ data: false }));

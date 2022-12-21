@@ -1,28 +1,26 @@
 import { Store } from "@ngrx/store";
-import { MatDialog } from "@angular/material/dialog";
 import { catchError } from "rxjs/operators";
+import { MatDialog } from "@angular/material/dialog";
 import { ToastrService } from "ngx-toastr";
 import { MatIconRegistry } from "@angular/material/icon";
-import { Subscription, throwError } from "rxjs";
 import { Component, Input, OnDestroy } from '@angular/core';
+import { Observable, of, Subscription, throwError } from "rxjs";
 import { GridApi, GridOptions, GridReadyEvent, RowDoubleClickedEvent } from "ag-grid-community";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
-import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { InterfaceService } from "../../../core/services/interface/interface.service";
-import { selectInterfaces } from "../../../store/map/map.selectors";
-import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
-import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
-import { retrievedInterfacesByIds } from "../../../store/interface/interface.actions";
+import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
+import { retrievedInterfacesManagement } from "../../../store/interface/interface.actions";
+import { selectInterfacesManagement } from "../../../store/interface/interface.selectors";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { AddUpdateInterfaceDialogComponent } from "../../add-update-interface-dialog/add-update-interface-dialog.component";
 import { InterfaceBulkEditDialogComponent } from "../../bulk-edit-dialog/interface-bulk-edit-dialog/interface-bulk-edit-dialog.component";
 
 @Component({
-  selector: 'app-info-panel-interface',
-  templateUrl: './info-panel-interface.component.html',
-  styleUrls: ['./info-panel-interface.component.scss']
+  selector: 'app-info-panel-interface-management',
+  templateUrl: './info-panel-interface-management.component.html',
+  styleUrls: ['./info-panel-interface-management.component.scss']
 })
-export class InfoPanelInterfaceComponent implements OnDestroy {
+export class InfoPanelInterfaceManagementComponent implements OnDestroy {
 
   @Input() cy: any;
   @Input() activeNodes: any[] = [];
@@ -33,11 +31,13 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
   @Input() deletedInterfaces: any[] = [];
   @Input() infoPanelheight = '300px';
   private gridApi!: GridApi;
+  rowData$!: Observable<any[]>;
   rowsSelected: any[] = [];
   rowsSelectedId: any[] = [];
   isClickAction = false;
-  tabName = 'edge';
-  selectMapSelection$ = new Subscription();
+  tabName = 'edgeManagement';
+  selectInterfacesManagement$ = new Subscription();
+  interfacesManagement: any[] = [];
 
   public gridOptions: GridOptions = {
     headerHeight: 48,
@@ -134,12 +134,17 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
     private infoPanelService: InfoPanelService
   ) {
     this.iconRegistry.addSvgIcon('randomize-subnet', this.helpers.setIconPath('/assets/icons/randomize-subnet.svg'));
-    this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
-      if (mapSelection) {
-        this._setEdgeInfoPanel(this.activeEdges);
-        this.store.dispatch(retrievedMapSelection({ data: false }));
+    this.selectInterfacesManagement$ = this.store.select(selectInterfacesManagement).subscribe(interfacesManagement => {
+      if (interfacesManagement) {
+        this.interfacesManagement = interfacesManagement;
+        if (this.gridApi) {
+          this.gridApi.setRowData(interfacesManagement);
+        } else {
+          this.rowData$ = of(interfacesManagement);
+        }
+        this._setRowActive();
       }
-    });
+    })
   }
 
   get gridHeight() {
@@ -148,7 +153,7 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.selectMapSelection$.unsubscribe();
+    this.selectInterfacesManagement$.unsubscribe();
   }
 
   onGridReady(params: GridReadyEvent) {
@@ -157,32 +162,15 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
   }
 
   onRowDoubleClicked(row: RowDoubleClickedEvent) {
-    this.infoPanelService.viewInfoPanel(this.tabName, row.data.id);
+    this.infoPanelService.viewInfoPanel(this.tabName, row.data.interface_id);
   }
 
   private _setRowActive() {
     this.gridApi.forEachNode(rowNode => {
-      const activeEdgeIds = this.activeEdges.map(ele => ele.data('id'));
-      if (activeEdgeIds.includes(rowNode.data.id)) {
+      if (this.rowsSelectedId.includes(rowNode.data.interface_id)) {
         rowNode.setSelected(true);
       }
     });
-  }
-
-  private _setEdgeInfoPanel(activeEdges: any[]) {
-    if (this.activeEdges.length === 0) {
-      this.rowsSelected = [];
-      this.rowsSelectedId = [];
-      if (this.gridApi != null) {
-        this.gridApi.setRowData([]);
-      }
-    } else {
-      if (this.gridApi != null) {
-        const rowData = activeEdges.map(ele => ele.data())
-        this.gridApi.setRowData(rowData);
-        this._setRowActive();
-      }
-    }
   }
 
   selectedRows() {
@@ -202,12 +190,18 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '500px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
-          this.rowsSelectedId.map(edgeId => {
-            this.infoPanelService.deleteInfoPanelAssociateMap(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
-              this.deletedNodes, this.deletedInterfaces, this.tabName, edgeId);
-          })
-          this.clearTable();
-          this.store.dispatch(retrievedMapSelection({ data: true }));
+          const newInterfacesManagement = [...this.interfacesManagement];
+          this.interfacesManagement.map(edge => {
+            if (this.rowsSelectedId.includes(edge.interface_id)) {
+              this.deletedInterfaces.push({
+                'name': edge.id,
+                'interface_id': edge.interface_id
+              });
+              const index = newInterfacesManagement.findIndex(ele => ele.interface_id === edge.interface_id);
+              newInterfacesManagement.splice(index, 1);
+          }})
+          this.clearRow();
+          this.store.dispatch(retrievedInterfacesManagement({ data: newInterfacesManagement }));
         }
       })
     }
@@ -221,7 +215,8 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
         const dialogData = {
           mode: 'update',
           genData: this.rowsSelected[0],
-          cy: this.cy
+          cy: this.cy,
+          tabName: this.tabName
         }
         this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
       } else {
@@ -257,24 +252,11 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
             })
           ).subscribe(response => {
             const data = response.result;
-            data.map((ele: any) => {
-              const element = this.cy.getElementById(ele.id);
-              const ip_str = ele.ip ? ele.ip : "";
-              const ip = ip_str.split(".");
-              const last_octet = ip.length == 4 ? "." + ip[3] : "";
-              element.data('ip', ip_str);
-              element.data('ip_last_octet', last_octet);
-            })
+            const newInterfacesManagement = this.infoPanelService.getNewInterfacesManagement(data);
+            this.store.dispatch(retrievedInterfacesManagement({ data: newInterfacesManagement }))
             response.message.map((message: string) => {
               this.toastr.success(message);
             });
-            this.store.dispatch(retrievedMapSelection({ data: true }));
-            this.store.select(selectInterfaces).subscribe(interfaces => {
-              const interfaceIds = interfaces.map((ele: any) => ele.data.id);
-              this.interfaceService.getDataByPks({ pks: interfaceIds }).subscribe(response => {
-                this.store.dispatch(retrievedInterfacesByIds({ data: response.result }));
-              })
-            })
           });
         }
       });
@@ -296,9 +278,9 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
     }
   }
 
-  clearTable() {
+  clearRow() {
     this.rowsSelected = [];
     this.rowsSelectedId = [];
-    this.gridApi.setRowData([]);
+    this.gridApi.deselectAll();
   }
 }

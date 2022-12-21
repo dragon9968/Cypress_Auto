@@ -11,11 +11,11 @@ import { selectPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { selectInterfaces } from "../../store/map/map.selectors";
-import { retrievedInterfacesByIds } from "../../store/interface/interface.actions";
-import { selectInterfaceByIds } from "../../store/interface/interface.selectors";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
+import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
+import { retrievedInterfacesManagement } from "../../store/interface/interface.actions";
 
 @Component({
   selector: 'app-add-update-interface-dialog',
@@ -32,14 +32,16 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
   selectInterfaces$ = new Subscription();
   gateways: any[] = [];
   interfaces: any[] = [];
+  tabName = '';
 
   constructor(
-    private interfaceService: InterfaceService,
-    private toastr: ToastrService,
-    public dialogRef: MatDialogRef<AddUpdateInterfaceDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    public helpers: HelpersService,
     private store: Store,
+    private toastr: ToastrService,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public dialogRef: MatDialogRef<AddUpdateInterfaceDialogComponent>,
+    public helpers: HelpersService,
+    private interfaceService: InterfaceService,
+    private infoPanelService: InfoPanelService
   ) {
     this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe((portGroups: any) => {
       this.portGroups = portGroups;
@@ -50,11 +52,12 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
       }
     })
     this.isViewMode = this.data.mode == 'view';
+    this.tabName = this.data.tabName;
     this.interfaceAddForm = new FormGroup({
       orderCtr: new FormControl('', Validators.required),
       nameCtr: new FormControl('', Validators.required),
       descriptionCtr: new FormControl('', Validators.required),
-      categoryCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      categoryCtr: new FormControl({ value: '', disabled: this.isViewMode || this.tabName == 'edgeManagement' }),
       directionCtr: new FormControl('', [autoCompleteValidator(DIRECTIONS)]),
       macAddressCtr: new FormControl(''),
       portGroupCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.portGroups)]),
@@ -206,9 +209,14 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
         ...this.data.genData,
         ...jsonData,
       }
-      this._updateInterfaceOnMap(data);
+      if (data.category == 'management') {
+        const newInterfacesManagement = this.infoPanelService.getNewInterfacesManagement([data]);
+        this.store.dispatch(retrievedInterfacesManagement({ data: newInterfacesManagement }));
+      } else {
+        this._updateInterfaceOnMap(data);
+        this.store.dispatch(retrievedMapSelection({ data: true }));
+      }
       this.dialogRef.close();
-      this.store.dispatch(retrievedMapSelection({ data: true }));
       this.toastr.success('Edge details updated!');
     });
   }

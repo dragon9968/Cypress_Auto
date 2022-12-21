@@ -36,6 +36,8 @@ import { UpdateDomainUserDialogComponent } from './info-panel/info-panel-domain/
 import { AddDeletePGDeployDialogComponent } from './add-delete-pg-deploy-dialog/add-delete-pg-deploy-dialog.component';
 import { UpdateFactsNodeDialogComponent } from './update-facts-node-dialog/update-facts-node-dialog.component';
 import { InfoPanelShowValidationNodesComponent } from './info-panel/info-panel-show-validation-nodes/info-panel-show-validation-nodes.component';
+import { InfoPanelPortGroupManagementComponent } from './info-panel/info-panel-port-group-management/info-panel-port-group-management.component';
+import { InfoPanelInterfaceManagementComponent } from './info-panel/info-panel-interface-management/info-panel-interface-management.component';
 
 
 @NgModule({
@@ -74,7 +76,9 @@ import { InfoPanelShowValidationNodesComponent } from './info-panel/info-panel-s
     UpdateDomainUserDialogComponent,
     AddDeletePGDeployDialogComponent,
     UpdateFactsNodeDialogComponent,
-    InfoPanelShowValidationNodesComponent
+    InfoPanelShowValidationNodesComponent,
+    InfoPanelPortGroupManagementComponent,
+    InfoPanelInterfaceManagementComponent
   ],
   imports: [
     MapRoutingModule,

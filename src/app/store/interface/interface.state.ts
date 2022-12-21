@@ -1,3 +1,4 @@
 export interface InterfaceState {
-  interfaces: any[]
+  interfaces: any[],
+  interfacesManagement: any[]
 }

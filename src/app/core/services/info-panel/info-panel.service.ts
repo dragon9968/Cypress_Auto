@@ -1,8 +1,8 @@
 import { Store } from "@ngrx/store";
 import { MatDialog } from "@angular/material/dialog";
 import { ToastrService } from "ngx-toastr";
-import { Injectable, Input } from '@angular/core';
 import { Subscription, throwError } from "rxjs";
+import { Injectable, Input, OnDestroy } from '@angular/core';
 import { MapService } from "../map/map.service";
 import { NodeService } from "../node/node.service";
 import { GroupService } from "../group/group.service";
@@ -14,30 +14,30 @@ import { PortGroupService } from "../portgroup/portgroup.service";
 import { InterfaceService } from "../interface/interface.service";
 import { DomainUserService } from "../domain-user/domain-user.service";
 import { selectVMStatus } from "../../../store/project/project.selectors";
-import { selectIsConnect } from "../../../store/server-connect/server-connect.selectors";
 import { selectMapOption } from "../../../store/map-option/map-option.selectors";
-import { selectPortGroups } from "../../../store/portgroup/portgroup.selectors";
-import { selectDomainUsers } from "../../../store/domain-user/domain-user.selectors";
-import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
 import { retrievedGroups } from "../../../store/group/group.actions";
+import { selectIsConnect } from "../../../store/server-connect/server-connect.selectors";
 import { retrievedDomains } from "../../../store/domain/domain.actions";
+import { selectDomainUsers } from "../../../store/domain-user/domain-user.selectors";
 import { retrievedUserTasks } from "../../../store/user-task/user-task.actions";
+import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
 import { retrievedIsChangeDomainUsers } from "../../../store/domain-user-change/domain-user-change.actions";
+import { retrievedPortGroupsManagement } from "../../../store/portgroup/portgroup.actions";
+import { retrievedInterfacesManagement } from "../../../store/interface/interface.actions";
+import { selectPortGroups, selectPortGroupsManagement } from "../../../store/portgroup/portgroup.selectors";
 import { AddUpdatePGDialogComponent } from "../../../map/add-update-pg-dialog/add-update-pg-dialog.component";
-import { NodeBulkEditDialogComponent } from "../../../map/bulk-edit-dialog/node-bulk-edit-dialog/node-bulk-edit-dialog.component";
 import { ShowUserTaskDialogComponent } from "../../../map/info-panel/info-panel-task/show-user-task-dialog/show-user-task-dialog.component";
 import { AddUpdateNodeDialogComponent } from "../../../map/add-update-node-dialog/add-update-node-dialog.component";
 import { AddUpdateGroupDialogComponent } from "../../../map/add-update-group-dialog/add-update-group-dialog.component";
 import { AddUpdateDomainDialogComponent } from "../../../map/add-update-domain-dialog/add-update-domain-dialog.component";
 import { UpdateDomainUserDialogComponent } from "../../../map/info-panel/info-panel-domain/update-domain-user-dialog/update-domain-user-dialog.component";
-import { InterfaceBulkEditDialogComponent } from "../../../map/bulk-edit-dialog/interface-bulk-edit-dialog/interface-bulk-edit-dialog.component";
-import { PortGroupBulkEditDialogComponent } from "../../../map/bulk-edit-dialog/port-group-bulk-edit-dialog/port-group-bulk-edit-dialog.component";
 import { AddUpdateInterfaceDialogComponent } from "../../../map/add-update-interface-dialog/add-update-interface-dialog.component";
+import { selectInterfacesManagement } from "../../../store/interface/interface.selectors";
 
 @Injectable({
   providedIn: 'root'
 })
-export class InfoPanelService {
+export class InfoPanelService implements OnDestroy {
   @Input() ur: any;
   @Input() cy: any;
   selectNode$ = new Subscription();
@@ -46,9 +46,13 @@ export class InfoPanelService {
   selectDomainUser$ = new Subscription();
   selectVMStatus$ = new Subscription();
   selectIsConnect$ = new Subscription();
+  selectPortGroupsManagement$ = new Subscription();
+  selectInterfacesManagement$ = new Subscription();
   nodes!: any[];
   portGroups!: any[];
   domainUsers!: any[];
+  portGroupsManagement: any[] = [];
+  interfacesManagement: any[] = [];
   vmStatus!: boolean;
   isGroupBoxesChecked!: boolean;
   isConnect!: boolean;
@@ -83,6 +87,22 @@ export class InfoPanelService {
     this.selectDomainUser$ = this.store.select(selectDomainUsers).subscribe(domainUsers => this.domainUsers = domainUsers);
     this.selectVMStatus$ = this.store.select(selectVMStatus).subscribe(vmStatus => this.vmStatus = vmStatus);
     this.selectIsConnect$ = this.store.select(selectIsConnect).subscribe(isConnect => this.isConnect = isConnect);
+    this.selectPortGroupsManagement$ = this.store.select(selectPortGroupsManagement).subscribe(
+      portGroupsData => this.portGroupsManagement = portGroupsData
+    )
+    this.selectInterfacesManagement$ = this.store.select(selectInterfacesManagement).subscribe(
+      interfacesData => this.interfacesManagement = interfacesData
+    )
+  }
+
+  ngOnDestroy(): void {
+    this.selectNode$.unsubscribe();
+    this.selectMapOption$.unsubscribe();
+    this.selectPortGroup$.unsubscribe();
+    this.selectDomainUser$.unsubscribe();
+    this.selectVMStatus$.unsubscribe();
+    this.selectIsConnect$.unsubscribe();
+    this.selectPortGroupsManagement$.unsubscribe();
   }
 
   viewInfoPanel(tabName: string, id: any) {
@@ -113,25 +133,31 @@ export class InfoPanelService {
             mode: 'postTask',
             genData: userTaskData.result
           };
-          this.dialog.open(ShowUserTaskDialogComponent, { width: `${screen.width}px`, autoFocus: false, data: dialogData });
+          this.dialog.open(ShowUserTaskDialogComponent, {
+            width: `${screen.width}px`,
+            autoFocus: false,
+            data: dialogData
+          });
         });
         break;
       case 'edge':
+      case 'edgeManagement':
         this.interfaceService.get(id).subscribe(interfaceData => {
           const dialogData = {
             mode: 'view',
             genData: interfaceData.result,
           };
-          this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', data: dialogData });
+          this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
         });
         break;
       case 'portGroup':
+      case 'portGroupManagement':
         this.portGroupService.get(id).subscribe(pgData => {
           const dialogData = {
             mode: 'view',
             genData: pgData.result,
           };
-          this.dialog.open(AddUpdatePGDialogComponent, { width: '600px', data: dialogData });
+          this.dialog.open(AddUpdatePGDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
         });
         break;
       case 'node':
@@ -140,7 +166,7 @@ export class InfoPanelService {
             mode: 'view',
             genData: nodeData.result,
           }
-          this.dialog.open(AddUpdateNodeDialogComponent, { width: '600px', data: dialogData });
+          this.dialog.open(AddUpdateNodeDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
         });
         break;
       case 'domainUser':
@@ -521,5 +547,65 @@ export class InfoPanelService {
     } else {
       this.removeVMStatusOnMap();
     }
+  }
+
+  initPortGroupManagementStorage(collectionId: string, category = 'management') {
+    this.portGroupService.getByCollectionIdAndCategory(collectionId, category).subscribe(
+      data => {
+        const portGroupData = data.result;
+        const portGroups = portGroupData.map((portGroup: any) => {
+          portGroup.pg_id = portGroup.id;
+          portGroup.id = `pg-${portGroup.id}`;
+          portGroup.domain = portGroup.domain?.name;
+          return portGroup;
+        });
+        this.store.dispatch(retrievedPortGroupsManagement({data: portGroups}))
+      }
+    )
+  }
+
+  getNewPortGroupsManagement(newPortGroups: any) {
+    let newPGsManagement = [...this.portGroupsManagement];
+    newPortGroups.map((newPortGroup: any) => {
+      const isExistInPGsManagement = this.portGroupsManagement.some(pg => pg.pg_id === newPortGroup.id);
+      newPortGroup.pg_id = newPortGroup.id;
+      newPortGroup.id = `pg-${newPortGroup.id}`;
+      newPortGroup.domain = newPortGroup.domain?.name;
+      if (isExistInPGsManagement) {
+        const index = newPGsManagement.findIndex(ele => ele.pg_id === newPortGroup.pg_id);
+        newPGsManagement.splice(index, 1, newPortGroup);
+      } else {
+        newPGsManagement = newPGsManagement.concat(newPortGroup);
+      }
+    })
+    return newPGsManagement;
+  }
+
+  initInterfaceManagementStorage(collectionId: string, category = 'management') {
+    this.interfaceService.getByCollectionIdAndCategory(collectionId, category).subscribe(
+      data => {
+        const portGroupData = data.result;
+        const edges = portGroupData.map((edge: any) => {
+          edge.interface_id = edge.id;
+          return edge;
+        });
+        this.store.dispatch(retrievedInterfacesManagement({ data: edges }))
+      }
+    )
+  }
+
+  getNewInterfacesManagement(newInterfaces: any) {
+    let newInterfacesManagement = [...this.interfacesManagement];
+    newInterfaces.map((newEdge: any) => {
+      const isExistInEdgesManagement = this.interfacesManagement.some(edge => edge.interface_id === newEdge.id);
+      newEdge.interface_id = newEdge.id;
+      if (isExistInEdgesManagement) {
+        const index = newInterfacesManagement.findIndex(ele => ele.interface_id === newEdge.interface_id);
+        newInterfacesManagement.splice(index, 1, newEdge);
+      } else {
+        newInterfacesManagement = newInterfacesManagement.concat(newEdge);
+      }
+    })
+    return newInterfacesManagement;
   }
 }

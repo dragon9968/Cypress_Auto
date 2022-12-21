@@ -21,7 +21,7 @@
       <mat-radio-group class="category-group" formControlName="categoryCtr">
         <mat-radio-button class="category-items" value="wired">Wired</mat-radio-button>
         <mat-radio-button class="category-items" value="wireless">Wireless</mat-radio-button>
-        <mat-radio-button class="category-items" value="management">Management</mat-radio-button>
+        <mat-radio-button [disabled]="tabName !== 'edgeManagement'" class="category-items" value="management">Management</mat-radio-button>
       </mat-radio-group>
     </div>
     <mat-form-field class="field">

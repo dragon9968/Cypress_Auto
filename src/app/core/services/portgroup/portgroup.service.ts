@@ -20,9 +20,20 @@ export class PortGroupService {
   getByCollectionId(collectionId: string): Observable<any> {
     return this.http.get<any>(ApiPaths.PORTGROUP, {
       params: {
-        q: '(columns:!(id,name,subnet,vlan,collection_id,domain_id),filters:!((col:collection_id,opr:eq,value:' + collectionId + ')),keys:!(list_columns),page:0,page_size:1000)'
+        q: '(columns:!(id,name,subnet,vlan,collection_id,domain_id),' +
+           'filters:!((col:collection_id,opr:eq,value:' + collectionId + ')),' +
+           'keys:!(list_columns),page:0,page_size:1000)'
       }
     });
+  }
+
+  getByCollectionIdAndCategory(collectionId: string, category: string): Observable<any> {
+    return this.http.get<any>(ApiPaths.PORTGROUP, {
+      params: {
+        q: '(filters:!((col:collection_id,opr:eq,value:' + collectionId +'),(col:category,opr:eq,value:' + category + '))' +
+           ',keys:!(list_columns),page:0,page_size:1000)'
+      }
+    })
   }
 
   get(id: string): Observable<any> {

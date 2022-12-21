@@ -56,4 +56,8 @@ export class InterfaceService {
       }
     });
   }
+
+  getByCollectionIdAndCategory(collectionId: any, category: string): Observable<any> {
+    return this.http.get<any>(ApiPaths.INTERFACE_DATA_CATEGORY + collectionId + '/' + category)
+  }
 }

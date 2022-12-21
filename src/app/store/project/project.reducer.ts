@@ -18,7 +18,7 @@ export const projectReducer = createReducer(
     ...state,
     isOpen: data,
   })),
-  on(retrievedDashboard, (state, {dashboard}) => ({
+  on(retrievedDashboard, (state, { dashboard }) => ({
     ...state,
     dashboard: dashboard
   }))

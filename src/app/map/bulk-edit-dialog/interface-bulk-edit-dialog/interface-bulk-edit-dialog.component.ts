@@ -8,9 +8,10 @@ import { STATUS } from "../../../shared/contants/status.constant";
 import { ErrorMessages } from "../../../shared/enums/error-messages.enum";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { InterfaceService } from "../../../core/services/interface/interface.service";
+import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
-import { retrievedMapEdit } from "src/app/store/map-edit/map-edit.actions";
+import { retrievedInterfacesManagement } from "../../../store/interface/interface.actions";
 
 @Component({
   selector: 'app-interface-bulk-edit-dialog',
@@ -32,6 +33,7 @@ export class InterfaceBulkEditDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: any,
     public helpers: HelpersService,
     private interfaceService: InterfaceService,
+    private infoPanelService: InfoPanelService
   ) {
     this.interfaceBulkEditForm = new FormGroup({
       statusCtr: new FormControl(''),
@@ -79,15 +81,25 @@ export class InterfaceBulkEditDialogComponent {
       is_nat: this.isNatCtr?.value
     }
     this.interfaceService.editBulk(jsonData).subscribe(response => {
+      let interfacesData: any[] = [];
       this.data.genData.activeEdges.map((edge: any) => {
         const data = {
           ...edge,
           ...jsonData,
         }
-        this._updateInterfaceOnMap(data);
+        if (data.category == 'management') {
+          interfacesData.push(data);
+        } else {
+          this._updateInterfaceOnMap(data);
+        }
       });
+      if (interfacesData.length > 0) {
+        const newInterfacesManagement = this.infoPanelService.getNewInterfacesManagement(interfacesData)
+        this.store.dispatch(retrievedInterfacesManagement({ data: newInterfacesManagement }))
+      } else {
+        this.store.dispatch(retrievedMapSelection({ data: true }));
+      }
       this.dialogRef.close();
-      this.store.dispatch(retrievedMapSelection({ data: true }));
       this.toastr.success(response.message);
     })
   }

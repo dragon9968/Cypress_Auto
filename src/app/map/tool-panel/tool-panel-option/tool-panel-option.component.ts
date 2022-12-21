@@ -49,7 +49,7 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
   }
 
   ngOnChanges(valueChange: any) {
-    if (valueChange.cy.currentValue && valueChange.config.currentValue) {
+    if (valueChange.cy?.currentValue && valueChange.config.currentValue) {
       this.isEdgeDirectionChecked = this.config.default_preferences.edge_direction_checkbox;
       this.isGroupBoxesChecked = this.config.default_preferences.groupbox_checkbox;
       if (!this.groupCategoryId) {

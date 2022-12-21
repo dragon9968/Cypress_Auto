@@ -5,7 +5,9 @@ import { ActivatedRoute, Params } from "@angular/router";
 import { Component, Input, OnInit } from '@angular/core';
 import { NodeService } from "../../core/services/node/node.service";
 import { PortGroupService } from "../../core/services/portgroup/portgroup.service";
+import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
 import { DomainUserService } from "../../core/services/domain-user/domain-user.service";
+import { InterfaceService } from "../../core/services/interface/interface.service";
 import { retrievedNodes } from "../../store/node/node.actions";
 import { retrievedPortGroups } from "../../store/portgroup/portgroup.actions";
 import { retrievedDomainUsers } from "../../store/domain-user/domain-user.actions";
@@ -28,6 +30,7 @@ export class InfoPanelComponent implements OnInit{
   @Input() deletedInterfaces: any[] = [];
   selectDomainUser$ = new Subscription();
   collectionId = '0';
+  managementCategory = 'management';
   style: any = {
     height: '300px'
   };
@@ -35,9 +38,11 @@ export class InfoPanelComponent implements OnInit{
   constructor(
     private store: Store,
     private route: ActivatedRoute,
-    private portGroupService: PortGroupService,
     private nodeService: NodeService,
-    private domainUserService: DomainUserService
+    private portGroupService: PortGroupService,
+    private infoPanelService: InfoPanelService,
+    private interfaceService: InterfaceService,
+    private domainUserService: DomainUserService,
   ) {}
 
   validate(event: ResizeEvent): boolean {
@@ -66,15 +71,16 @@ export class InfoPanelComponent implements OnInit{
       this.collectionId = params['collection_id'];
     })
     this.portGroupService.getByCollectionId(this.collectionId).subscribe(
-      (data: any) => this.store.dispatch(retrievedPortGroups({data: data.result}))
+      (data: any) => this.store.dispatch(retrievedPortGroups({ data: data.result }))
     );
     this.nodeService.getNodesByCollectionId(this.collectionId).subscribe(
-      (data: any) => this.store.dispatch(retrievedNodes({data: data.result}))
+      (data: any) => this.store.dispatch(retrievedNodes({ data: data.result }))
     );
     this.selectDomainUser$ = this.domainUserService.getAll().subscribe(
-      data => this.store.dispatch(retrievedDomainUsers({data: data.result}))
+      data => this.store.dispatch(retrievedDomainUsers({ data: data.result }))
     );
-    this.store.dispatch(retrievedIsChangeDomainUsers({isChangeDomainUsers: false}));
+    this.infoPanelService.initPortGroupManagementStorage(this.collectionId, this.managementCategory);
+    this.infoPanelService.initInterfaceManagementStorage(this.collectionId, this.managementCategory);
+    this.store.dispatch(retrievedIsChangeDomainUsers({ isChangeDomainUsers: false }));
   }
-
 }

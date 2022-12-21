@@ -12,7 +12,6 @@ import { InfoPanelService } from "../../../core/services/info-panel/info-panel.s
 import { CMActionsService } from "../../context-menu/cm-actions/cm-actions.service";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
-import { selectMapEdit } from "src/app/store/map-edit/map-edit.selectors";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { InfoPanelShowValidationNodesComponent } from "../info-panel-show-validation-nodes/info-panel-show-validation-nodes.component";
 import { AddUpdateNodeDialogComponent } from "../../add-update-node-dialog/add-update-node-dialog.component";
@@ -38,7 +37,6 @@ export class InfoPanelNodeComponent implements OnDestroy {
   isClickAction: boolean = true;
   tabName = 'node';
   selectMapSelection$ = new Subscription();
-  selectMapEdit$ = new Subscription();
 
   get gridHeight() {
     const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
@@ -197,7 +195,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
   }
 
   onRowDoubleClicked(row: RowDoubleClickedEvent) {
-    this.infoPanelService.viewInfoPanel(this.tabName, row.data.id);
+    this.infoPanelService.viewInfoPanel(this.tabName, row.data.node_id);
   }
 
   cloneNodes() {
@@ -213,7 +211,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
-          const ids = this.rowsSelected.map(ele => ele.id);
+          const ids = this.rowsSelectedId;
           this.cmActionsService.cloneNodes(this.cy, ids);
         }
       })

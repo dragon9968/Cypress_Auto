@@ -1,10 +1,10 @@
 export const STATUS = [
   {
-    id: 'enable',
+    id: 'enabled',
     name: 'Enable'
   },
   {
-    id: 'disable',
+    id: 'disabled',
     name: 'Disable'
   }
 ]

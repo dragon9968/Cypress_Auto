@@ -12,11 +12,23 @@
         [deletedInterfaces]="deletedInterfaces" [infoPanelheight]="style.height">
       </app-info-panel-port-group>
     </mat-tab>
+    <mat-tab label="Management Port Groups">
+      <app-info-panel-port-group-management [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs"
+                                 [activeEdges]="activeEdges" [activeGBs]="activeGBs" [deletedNodes]="deletedNodes"
+                                 [deletedInterfaces]="deletedInterfaces" [infoPanelheight]="style.height">
+      </app-info-panel-port-group-management>
+    </mat-tab>
     <mat-tab label="Interfaces">
       <app-info-panel-interface [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs"
         [activeEdges]="activeEdges" [activeGBs]="activeGBs" [deletedNodes]="deletedNodes"
         [deletedInterfaces]="deletedInterfaces" [infoPanelheight]="style.height">
       </app-info-panel-interface>
+    </mat-tab>
+    <mat-tab label="Management Interfaces">
+      <app-info-panel-interface-management [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs"
+                                            [activeEdges]="activeEdges" [activeGBs]="activeGBs" [deletedNodes]="deletedNodes"
+                                            [deletedInterfaces]="deletedInterfaces" [infoPanelheight]="style.height">
+      </app-info-panel-interface-management>
     </mat-tab>
     <mat-tab label="Domains">
       <app-info-panel-domain [infoPanelheight]="style.height"></app-info-panel-domain>
