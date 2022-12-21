@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
@@ -9,6 +9,7 @@ import { ToastrService } from 'ngx-toastr';
 import { catchError, Subscription, throwError } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { UserService } from 'src/app/core/services/user/user.service';
+import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { asyncValidateValueSetter } from 'src/app/shared/validations/ip-subnet.validation.ag-grid';
 import { retrievedProjects } from 'src/app/store/project/project.actions';
@@ -82,6 +83,7 @@ export class EditProjectDialogComponent implements OnInit {
     private userService: UserService,
     private store: Store,
     private toastr: ToastrService,
+    private dialog: MatDialog,
     public dialogRef: MatDialogRef<EditProjectDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) { 
@@ -216,8 +218,19 @@ export class EditProjectDialogComponent implements OnInit {
   }
 
   onDelete(params: any) {
-    this.rowData.splice(params.rowData.index, 1);
-    this.gridApi.applyTransaction({ remove: [params.rowData] });
+    const dialogData = {
+      title: 'User confirmation needed',
+      message: 'You sure you want to delete this item?',
+      submitButtonName: 'OK'
+    }
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData, autoFocus: false });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.rowData.splice(params.rowData.index, 1);
+        this.gridApi.applyTransaction({ remove: [params.rowData] });
+        this.toastr.success("Deleted Networks successfully")
+      }
+    });
     return this.rowData;
   }
 
