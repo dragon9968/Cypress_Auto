@@ -107,7 +107,7 @@ export class EditProjectDialogComponent implements OnInit {
         Validators.maxLength(50)]),
       descriptionCtr: new FormControl(''),
       minVlanCtr: new FormControl('', [Validators.min(1), Validators.max(4093),Validators.required]),
-      maxVlanCtr: new FormControl('', [Validators.min(1), Validators.max(4094),Validators.required]),
+      maxVlanCtr: new FormControl('', [Validators.min(2), Validators.max(4094),Validators.required]),
       sharedCtr: new FormControl(''),
     })
 
