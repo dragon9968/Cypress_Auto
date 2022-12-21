@@ -28,7 +28,6 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
   constructor(
     private toastr: ToastrService,
     private store: Store,
-    private mapPrefService: MapPrefService,
     private appPrefService: AppPrefService,
     public dialogRef: MatDialogRef<AppPreferencesComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -40,7 +39,7 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
       this.appPrefDefault = appPref;
     });
     this.appPrefForm = new FormGroup({
-      sessionTimeoutCtr: new FormControl('', [Validators.required]),
+      // sessionTimeoutCtr: new FormControl('', [Validators.required]),
       mapPrefCtr: new FormControl(''),
       publicNetworkCtr: new FormControl('', [ipSubnetValidation(true)]),
       publicNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.preferences.public_network), ipSubnetValidation(false)]),
@@ -52,19 +51,19 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
     });
 
     if (this.data) {
-      this.sessionTimeoutCtr?.setValue(this.data.genData.preferences.session_timeout);
+      // this.sessionTimeoutCtr?.setValue(this.data.genData.preferences.session_timeout);
       this.mapPrefCtr?.setValue(this.data.genData.preferences.map_preferences);
       this.publicNetworkCtr?.setValue(this.data.genData.preferences.public_network);
-      this.publicNetworkIPsCtr?.setValue(this.data.genData.preferences.reserved_ip.map((i: any) => i.ip).join(','));
+      this.publicNetworkIPsCtr?.setValue(this.data.genData.preferences.reserved_ip?.map((i: any) => i.ip).join(','));
       this.privateNetworkCtr?.setValue(this.data.genData.preferences.network);
-      this.privateNetworkIPsCtr?.setValue(this.data.genData.preferences.private_reserved_ip.map((i: any) => i.ip).join(','));
+      this.privateNetworkIPsCtr?.setValue(this.data.genData.preferences.private_reserved_ip?.map((i: any) => i.ip).join(','));
       this.managementNetworkCtr?.setValue(this.data.genData.preferences.management_network);
-      this.managementNetworkIPsCtr?.setValue(this.data.genData.preferences.management_reserved_ip.map((i: any) => i.ip).join(','));
+      this.managementNetworkIPsCtr?.setValue(this.data.genData.preferences.management_reserved_ip?.map((i: any) => i.ip).join(','));
       this.dhcpServerCtr?.setValue(this.data.genData.preferences.management_dhcp_lease);
     }
   }
 
-  get sessionTimeoutCtr() { return this.appPrefForm.get('sessionTimeoutCtr'); }
+  // get sessionTimeoutCtr() { return this.appPrefForm.get('sessionTimeoutCtr'); }
   get mapPrefCtr() { return this.appPrefForm.get('mapPrefCtr'); }
   get publicNetworkCtr() { return this.appPrefForm.get('publicNetworkCtr'); }
   get publicNetworkIPsCtr() { return this.appPrefForm.get('publicNetworkIPsCtr'); }
@@ -85,7 +84,7 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
 
   processForm(data: string) {
     const arr: any[] = [];
-    if (data === "") {
+    if (!data || data === "") {
       return []
     }else {
       const value = data.split(',');
@@ -102,7 +101,7 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
     const jsonData = {
       category: this.data.genData.category,
       name: this.data.genData.name,
-      session_timeout: this.sessionTimeoutCtr?.value,
+      // session_timeout: this.sessionTimeoutCtr?.value,
       map_preferences: this.mapPrefCtr?.value,
       public_network: this.publicNetworkCtr?.value,
       public_reserved_ip: this.processForm(this.publicNetworkIPsCtr?.value),

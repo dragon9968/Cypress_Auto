@@ -1,7 +1,7 @@
 <form [formGroup]="appPrefForm" (ngSubmit)="editAppPref()">
   <h1 mat-dialog-title>Edit App Preference</h1>
   <div mat-dialog-content>
-    <section>
+    <!-- <section>
       <div class="sub-title">Miscellaneous</div>
     </section>
     <mat-divider></mat-divider>
@@ -12,7 +12,7 @@
         <mat-hint>Set the time before the current session expires</mat-hint>
         <mat-error *ngIf="sessionTimeoutCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       </mat-form-field>
-    </section>
+    </section> -->
     <section>
       <div class="sub-title">Map</div>
     </section>
