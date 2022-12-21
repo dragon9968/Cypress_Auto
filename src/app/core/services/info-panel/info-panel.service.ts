@@ -475,10 +475,10 @@ export class InfoPanelService implements OnDestroy {
       return;
     }
     // set the VM Power and Status value in the tooltip
-    ele.style({ 'background-opacity': '1' });
-    ele.style({ 'border-width': '10px' });
-    ele.style({ 'border-style': 'double' });
-    ele.style({ 'border-opacity': '1' });
+    ele.style({ 'background-opacity': '0' });
+    ele.style({ 'border-width': '7px' });
+    ele.style({ 'border-style': 'solid' });
+    ele.style({ 'border-opacity': '0' });
     const d = nodeStatus;
     if (d.state == "on" && d.status == "running") {
       ele.data('color', this.statusColorLookup.on);
@@ -489,13 +489,15 @@ export class InfoPanelService implements OnDestroy {
     } else if (d.state == "off") {
       ele.data('color', this.statusColorLookup.off);
       ele.style({ 'border-color': this.statusColorLookup.off });
-    } else if (!(d.state == false)) {
-      ele.style({ 'background-opacity': '0' });
-      ele.style({ 'border-opacity': '0' });
-    } else {
-      ele.style({ 'background-opacity': '0' });
-      ele.style({ 'border-opacity': '0' });
     }
+    ele.animate({
+      style: {
+        'background-opacity': '1',
+        'border-opacity': '1'
+      },
+      easing: "ease",
+      duration: 1500
+    })
   }
 
   delayedAlertPortGroup(pgName: string, pgStatus: any) {
@@ -503,10 +505,20 @@ export class InfoPanelService implements OnDestroy {
     if (!ele) {
       return;
     }
+
     if (pgStatus) {
       ele.style({ 'border-color': this.statusColorLookup.on });
       ele.style({ 'border-style': "double"});
-      ele.style({ 'border-width': 7});
+      ele.style({ 'border-width': 0});
+      ele.style({ 'border-opacity': '0' });
+      ele.animate({
+        style: {
+          'border-width': 7,
+          'border-opacity': '1'
+        },
+        easing: "ease",
+        duration: 1500
+      })
     }
   }
 
@@ -514,14 +526,27 @@ export class InfoPanelService implements OnDestroy {
     // Remove Node's status
     const nodes = this.cy?.nodes().filter('[icon]');
     if (nodes) {
-      nodes.style('border-opacity', 0);
-      nodes.style('border-width', 0);
-      nodes.style('background-opacity', 0);
+      nodes.animate({
+        style: {
+          'background-opacity': 0,
+          'border-width': 0,
+          'border-opacity': 0
+        },
+        easing: "ease",
+        duration: 1500
+      })
     }
     // Remove PortGroup's status
     const portGroups = this.cy?.nodes().filter((ele: any) => ele.data('elem_category') === 'port_group');
     if (portGroups) {
-      portGroups.style({ 'border-width': 0 });
+      portGroups.animate({
+        style: {
+          'border-width': 0,
+          'border-opacity': 0
+        },
+        easing: "ease",
+        duration: 1500
+      })
     }
   }
 
