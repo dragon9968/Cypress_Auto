@@ -66,10 +66,8 @@ export class AuthService {
   logout() {
     const connection = this.serverConnectionService.getConnection();
     if (connection) {
-      const collectionId = this.projectService.getCollectionId();
       const jsonData = {
-        pk: collectionId,
-        connection_id: connection.id
+        pk: connection.id,
       }
       this.serverConnectionService.disconnect(jsonData).pipe(
         catchError(err => {

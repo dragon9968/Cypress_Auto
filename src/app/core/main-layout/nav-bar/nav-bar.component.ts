@@ -279,7 +279,6 @@ export class NavBarComponent implements OnInit, OnDestroy {
   disconnectServer() {
     const jsonData = {
       pk: this.connection.id,
-      project_id: this.collectionId
     }
     this.serverConnectionService.disconnect(jsonData)
       .subscribe({
