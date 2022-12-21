@@ -65,13 +65,15 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.data.mode == 'update') {
-      this.helpers.setAutoCompleteValue(this.icon, this.listIcon, this.data.genData.icon.id);
-      this.data.genData.category.forEach((el: any) => {
+      if (this.data.genData.icon)
+        this.helpers.setAutoCompleteValue(this.icon, this.listIcon, this.data.genData.icon.id);
+      else {
+        this.helpers.setAutoCompleteValue(this.icon, this.listIcon, '');
+      }
+        this.data.genData.category.forEach((el: any) => {
         this.listCategory.push(el);
         this.listDeviceCategory = this.listDeviceCategory.filter(value => value.id != el.id)
       });
-    } else {
-      this.helpers.setAutoCompleteValue(this.icon, this.listIcon, '');
     }
   }
 

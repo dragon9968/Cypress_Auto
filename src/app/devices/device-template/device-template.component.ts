@@ -85,8 +85,8 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
       headerName: 'Category',
       suppressSizeToFit: true,
       flex: 1,
-      cellRenderer: function(param: any) {
-        return `[${param.value.map((cat: any) => cat.name).join(", ")}]`
+      valueGetter: function(param: any) {
+        return `[${param.data.category.map((cat: any) => cat.name).join(", ")}]`
       },
     },
     {
@@ -94,7 +94,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
       field: 'icon.photo',
       suppressSizeToFit: true,
       cellRenderer: function(param: any) {
-        return `<img src="${ICON_PATH}${param.value}" alt="Photo" height="25" width="25">`
+        return param.value ? `<img src="${ICON_PATH}${param.value}" alt="Photo" height="25" width="25">` : 'None'
       },
       autoHeight: true,
       flex: 1,
@@ -139,7 +139,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
       headerName: 'Icon',
       field: 'icon.photo',
       cellRenderer: function(param: any) {
-        return `<img src="${ICON_PATH}${param.value}" alt="Photo" height="25" width="25">`
+        return param.valie ? `<img src="${ICON_PATH}${param.value}" alt="Photo" height="25" width="25">` : 'None'
       },
       autoHeight: true,
       suppressSizeToFit: true,
