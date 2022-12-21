@@ -18,7 +18,7 @@ import { ToastrService } from 'ngx-toastr';
 import { ExportProjectDialogComponent } from 'src/app/project/export-project-dialog/export-project-dialog.component';
 import { ImportProjectDialogComponent } from 'src/app/project/import-project-dialog/import-project-dialog.component';
 import { HelpersService } from "../../services/helpers/helpers.service";
-import { takeUntil } from "rxjs/operators";
+import { catchError, takeUntil } from "rxjs/operators";
 import { AppPreferencesComponent } from 'src/app/settings/app-preferences/app-preferences.component';
 import { AppPrefService } from '../../services/app-pref/app-pref.service';
 import { MapPrefService } from '../../services/map-pref/map-pref.service';
@@ -30,6 +30,7 @@ import { ServerConnectDialogComponent } from 'src/app/map/tool-panel/tool-panel-
 import { retrievedIsConnect, retrievedServerConnect } from 'src/app/store/server-connect/server-connect.actions';
 import { AboutComponent } from 'src/app/help/about/about.component';
 import { retrievedUser } from 'src/app/store/user/user.actions';
+import { ValidateProjectDialogComponent } from 'src/app/project/validate-project-dialog/validate-project-dialog.component';
 
 @Component({
   selector: 'app-nav-bar',
@@ -299,5 +300,24 @@ export class NavBarComponent implements OnInit, OnDestroy {
 
   openProject(collectionId: string) {
     this.projectService.openProject(collectionId);
+  }
+
+  validateProject() {
+    const dialogData = {
+      pk: this.collectionId
+    }
+    this.projectService.validateProject(dialogData).pipe(
+      catchError((e: any) => {
+        this.toastr.error(e.error.message);
+        this.dialog.open(ValidateProjectDialogComponent, {
+          autoFocus: false,
+          width: 'auto',
+          data: e.error.result
+        });
+        return throwError(() => e);
+      })
+    ).subscribe(response => {
+      this.toastr.success(response.message);
+    });
   }
 }

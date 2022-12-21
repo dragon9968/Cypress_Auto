@@ -6,6 +6,7 @@ export enum ApiPaths {
   GET_MAP_DATA = '/api/v1/map/get_data',
   PROJECTS = '/api/v1/project/',
   PROJECTS_DEVICE_COUNT = '/api/v1/project/device_count/',
+  PROJECT_VALIDATE = '/api/v1/project/validate',
   ICONS = '/api/v1/icon/',
   ICONS_ADD = '/api/v1/icon/add_icon',
   DEVICES = '/api/v1/device/',

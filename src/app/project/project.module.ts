@@ -9,6 +9,7 @@ import { ExportProjectDialogComponent } from './export-project-dialog/export-pro
 import { TrashBinProjectComponent } from './trash-bin-project/trash-bin-project.component';
 import { ImportProjectDialogComponent } from './import-project-dialog/import-project-dialog.component';
 import { ButtonRenderersComponent } from './renderers/button-renderers-component';
+import { ValidateProjectDialogComponent } from './validate-project-dialog/validate-project-dialog.component';
 
 
 @NgModule({
@@ -20,7 +21,8 @@ import { ButtonRenderersComponent } from './renderers/button-renderers-component
     ExportProjectDialogComponent,
     TrashBinProjectComponent,
     ImportProjectDialogComponent,
-    ButtonRenderersComponent
+    ButtonRenderersComponent,
+    ValidateProjectDialogComponent
   ],
   imports: [
     ProjectRoutingModule,

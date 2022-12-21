@@ -108,4 +108,8 @@ export class ProjectService {
   getDeviceCount(pk: any): Observable<any> {
     return this.http.get<any>(ApiPaths.PROJECTS_DEVICE_COUNT + pk);
   }
+
+  validateProject(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.PROJECT_VALIDATE, data);
+  }
 }

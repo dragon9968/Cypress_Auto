@@ -49,6 +49,10 @@
             <mat-icon svgIcon="icons8-trash-can"></mat-icon>
             <span>Trash Bin</span>
         </button>
+        <button mat-menu-item [disabled]="!isOpen" (click)="validateProject()">
+            <mat-icon>check</mat-icon>
+            <span>Validate</span>
+        </button>
         <button mat-menu-item [disabled]="!isOpen" (click)="closeProject()">
             <mat-icon>folder_delete</mat-icon>
             <span>Close</span>
