@@ -801,8 +801,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.cy.on("boxselect", this._boxSelect.bind(this));
     this.cy.on("box", this._boxCheck.bind(this));
     this.cy.on("click", this._click.bind(this));
-    this.cy.on("cxttap", "node", this.contextMenuService.showContextMenu.bind(this, this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs, this.activeMBs, this.connectionId));
-    this.cy.on("cxttap", "edge", this.contextMenuService.showContextMenu.bind(this, this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs, this.activeMBs, this.connectionId));
+    this.cy.on("cxttap", "node", () => this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs, this.activeMBs, this.connectionId));
+    this.cy.on("cxttap", "edge", () => this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs, this.activeMBs, this.connectionId));
     this.cy.on("nodeediting.resizeend", this._nodeEditing.bind(this));
     this.cy.on('cdnddrop', this._cdndDrop.bind(this));
     this.cy.on("noderesize.resizeend", (_e: any, _type: any) => {
