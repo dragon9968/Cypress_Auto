@@ -113,63 +113,63 @@ export class InfoPanelNodeComponent implements OnDestroy {
       {
         field: 'name',
         minWidth: 100,
-        flex: 1,
+        flex: 1
       },
       {
         field: 'category',
-        minWidth: 80,
-        flex: 1,
+        width: 100,
+        flex: 1
       },
       {
         field: 'role',
-        minWidth: 80,
-        flex: 1,
+        minWidth: 100,
+        flex: 1
       },
       {
         field: 'device',
-        minWidth: 80,
-        flex: 1,
+        minWidth: 100,
+        flex: 1
       },
       {
         field: 'template',
-        minWidth: 90,
-        flex: 1,
+        minWidth: 100,
+        flex: 1
       },
       {
         field: 'hardware',
-        minWidth: 90,
-        flex: 1,
+        minWidth: 100,
+        flex: 1
       },
       {
         field: 'folder',
-        minWidth: 60,
-        flex: 1,
+        minWidth: 100,
+        flex: 1
       },
       {
         field: 'domain',
-        minWidth: 80,
-        flex: 1,
+        minWidth: 100,
+        flex: 1
       },
       {
         field: 'interfaces',
-        minWidth: 160,
-        flex: 1,
         cellRenderer: (param: any) => param.value,
-        autoHeight: true
+        autoHeight: true,
+        minWidth: 100,
+        flex: 1
       },
       {
         field: 'login_profile_show',
         headerName: 'Login Profile',
-        minWidth: 150,
-        flex: 1,
         cellRenderer: (param: any) => param.value,
+        minWidth: 100,
+        flex: 1
       },
       {
         field: 'configuration_show',
         headerName: 'Configuration',
-        flex: 1,
         cellRenderer: (param: any) => param.value,
-        autoHeight: true
+        autoHeight: true,
+        flex: 1
       },
     ]
   };
@@ -200,7 +200,6 @@ export class InfoPanelNodeComponent implements OnDestroy {
 
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
-    this.gridApi.sizeColumnsToFit();
   }
 
   selectedRows() {

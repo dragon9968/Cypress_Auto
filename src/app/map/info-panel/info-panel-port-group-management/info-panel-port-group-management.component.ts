@@ -152,7 +152,6 @@ export class InfoPanelPortGroupManagementComponent implements OnInit, OnDestroy 
 
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
-    this.gridApi.sizeColumnsToFit();
   }
 
   onRowDoubleClicked(row: RowDoubleClickedEvent) {

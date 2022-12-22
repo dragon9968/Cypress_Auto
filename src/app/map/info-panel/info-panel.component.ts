@@ -60,7 +60,7 @@ export class InfoPanelComponent implements OnInit{
 
   onResizeEnd(event: ResizeEvent): void {
     this.style = {
-      position: 'fixed',
+      position: 'absolute',
       top: `${event.rectangle.top}px`,
       height: `${event.rectangle.height}px`
     };

@@ -3,7 +3,6 @@ mwlResizable {
 }
 
 .map-info-panel-wrapper {
-  padding-left: 15px;
   position: absolute;
   bottom: 0;
   display: flex;
@@ -16,6 +15,7 @@ mwlResizable {
 .resize-handle-top {
   position: absolute;
   height: 4px;
+  border-top: 1px solid #ccc;
   width: 100%;
   cursor: row-resize;
   top: 0;
@@ -23,5 +23,7 @@ mwlResizable {
 }
 
 .map-info-panel {
+  padding-left: 10px;
+  padding-right: 10px;
   width: 100%;
 }
