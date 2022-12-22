@@ -278,17 +278,17 @@ export class ToolPanelComponent implements OnDestroy {
       updatedGroupbox.collapsed = true;
       const lastPos = data['position-before-collapse'];
       const curPos = ele.position();
-      const offset = { x: curPos.x - lastPos.x, y: curPos.y - lastPos.y };
-      const offsetX = offset.x
-      const offsetY = offset.y
+      const offset = { x: curPos.x.toFixed(2) - lastPos.x.toFixed(2), y: curPos.y.toFixed(2) - lastPos.y.toFixed(2) };
+      const offsetX = offset.x.toFixed(2)
+      const offsetY = offset.y.toFixed(2)
       const expandCollapse = this.cy.expandCollapse('get');
       const children = expandCollapse.getCollapsedChildrenRecursively(ele);
       children.forEach((ele: any) => {
         const data = ele.data();
         if (ele.group() == 'nodes') {
           const curPos = ele.position();
-          const curPosX = curPos.x
-          const curPosY = curPos.y
+          const curPosX = curPos.x.toFixed(2)
+          const curPosY = curPos.y.toFixed(2)
           if (data.label == "map_background") {
             this.getUpdatedMapBackground(ele, { x: curPosX + offsetX, y: curPosY + offsetY });
           } else {

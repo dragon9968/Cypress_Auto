@@ -102,10 +102,9 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
         if (this.activeNodes.length >= 1) {
           const data = this.activeNodes[0].data();
           this.nodeSize = this.removePx(data.height);
-          this.textSize = this.removePx(data.text_size);
           const ele = this.cy.getElementById(data.id);
-          this.xCtr?.setValue(ele.position().x);
-          this.yCtr?.setValue(ele.position().y);
+          this.xCtr?.setValue(ele.position().x.toFixed(2));
+          this.yCtr?.setValue(ele.position().y.toFixed(2));
           this._setPropertiesCommon(data);
         }
         if (this.activePGs.length >= 1) {
@@ -113,13 +112,12 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
           this.pgColor = data.color;
           this.pgSize = this.removePx(data.height);
           const ele = this.cy.getElementById(data.id);
-          this.xCtr?.setValue(ele.position().x);
-          this.yCtr?.setValue(ele.position().y);
+          this.xCtr?.setValue(ele.position().x.toFixed(2));
+          this.yCtr?.setValue(ele.position().y.toFixed(2));
           this._setPropertiesCommon(data);
         }
         if (this.activeEdges.length >= 1) {
           const data = this.activeEdges[0].data();
-          this.textSize = this.removePx(data.text_size);
           this.edgeColor = data.color;
           this.edgeSize = this.removePx(data.width);
           this.arrowActivated = data.direction;
@@ -130,6 +128,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
           const data = this.activeGBs[0].data();
           this.gbColor = data.color;
           this.gbOpacity = data.group_opacity;
+          this.gbOpacityLabel = this.gbOpacity ? Math.round(this.gbOpacity * 100) : 0;
           this.gbBorderColor = data.border_color;
           this.gbBorderTypeActivated = data.border_style;
           this.textColor = data.text_color;
@@ -137,8 +136,8 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
         if (this.activeMBs.length >= 1) {
           const data = this.activeMBs[0].data();
           const ele = this.cy.getElementById(data.id);
-          this.xCtr?.setValue(ele.position().x);
-          this.yCtr?.setValue(ele.position().y);
+          this.xCtr?.setValue(ele.position().x.toFixed(2));
+          this.yCtr?.setValue(ele.position().y.toFixed(2));
           this._setPropertiesCommon(data);
         }
         this.store.dispatch(retrievedMapSelection({ data: false }));
@@ -155,8 +154,10 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
 
   private _setPropertiesCommon(data: any) {
     this.textColor = data.text_color;
+    this.textSize = this.removePx(data.text_size);
     this.textBGColor = data.text_bg_color ? data.text_bg_color : data.logical_map_style?.text_bg_color;
     this.textBGOpacity = data.text_bg_opacity != undefined ? data.text_bg_opacity : data.logical_map_style?.text_bg_opacity;
+    this.textBGOpacityLabel = this.textBGOpacity ? Math.round(this.textBGOpacity * 100) : 0;
     this.vAlignSelect = data.text_valign ? data.text_valign : data.logical_map_style?.text_valign;
     this.hAlignSelect = data.text_halign ? data.text_halign : data.logical_map_style?.text_halign;
   }
@@ -283,7 +284,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
 
   setTextBGOpacity(opacity: any) {
     this.textBGOpacity = opacity.value;
-    this.textBGOpacityLabel = Math.round(opacity.value * 100);
+    this.textBGOpacityLabel = Math.round(this.textBGOpacity * 100);
     this.commonService.textBGOpacity(
       opacity,
       this.activeNodes,

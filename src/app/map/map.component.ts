@@ -531,7 +531,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   private _click($event: any) {
-    const newNodePosition = { x: $event.position.x, y: $event.position.y }
+    const newNodePosition = { x: $event.position.x.toFixed(2), y: $event.position.y.toFixed(2) }
     if (this.isAddNode && this.deviceId && this.templateId) {
       this.nodeService.genData(this.collectionId, this.deviceId, this.templateId)
         .subscribe(genData => {
