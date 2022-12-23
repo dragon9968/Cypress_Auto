@@ -32,9 +32,9 @@ $margin: 8px;
 }
 
 .project-name mat-icon {
-  margin-right: $margin/2;
+  margin-right: calc($margin/2);
 }
 
 .project-name a {
-  padding: 0 $margin/2;
+  padding: 0 calc($margin/2);
 }

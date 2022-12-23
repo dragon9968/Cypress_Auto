@@ -45,7 +45,7 @@ export class CMRemoteService {
         const collectionId = this.projectService.getCollectionId();
         let url = data.url
         if (connectionId || collectionId != 0) {
-          this.mapService.getVMStatus(collectionId, connection?.id).subscribe(mapStatus => {
+          this.mapService.getMapStatus(collectionId, connection?.id).subscribe(mapStatus => {
             for (const [key, value] of Object.entries(mapStatus.vm_status)) {
               const d = value as any
               if (d.id === data.node_id) {
@@ -58,7 +58,7 @@ export class CMRemoteService {
               this.toastr.warning('Web Console not accessible')
             }
           })
-        } 
+        }
       },
       hasTrailingDivider: true,
       disabled: false,

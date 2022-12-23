@@ -21,6 +21,7 @@ import { retrievedDomains } from "../../../store/domain/domain.actions";
 import { selectDomainUsers } from "../../../store/domain-user/domain-user.selectors";
 import { retrievedUserTasks } from "../../../store/user-task/user-task.actions";
 import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
+import { selectInterfacesManagement } from "../../../store/interface/interface.selectors";
 import { retrievedIsChangeDomainUsers } from "../../../store/domain-user-change/domain-user-change.actions";
 import { retrievedPortGroupsManagement } from "../../../store/portgroup/portgroup.actions";
 import { retrievedInterfacesManagement } from "../../../store/interface/interface.actions";
@@ -32,7 +33,6 @@ import { AddUpdateGroupDialogComponent } from "../../../map/add-update-group-dia
 import { AddUpdateDomainDialogComponent } from "../../../map/add-update-domain-dialog/add-update-domain-dialog.component";
 import { UpdateDomainUserDialogComponent } from "../../../map/info-panel/info-panel-domain/update-domain-user-dialog/update-domain-user-dialog.component";
 import { AddUpdateInterfaceDialogComponent } from "../../../map/add-update-interface-dialog/add-update-interface-dialog.component";
-import { selectInterfacesManagement } from "../../../store/interface/interface.selectors";
 
 @Injectable({
   providedIn: 'root'
@@ -61,6 +61,8 @@ export class InfoPanelService implements OnDestroy {
     on: '#44D62C', // green
     unknown: '#FFE900' // yellow
   }
+  nodeIdsDeployed: any[] = [];
+  portGroupIdsDeployed: any[] = [];
 
   constructor(
     private store: Store,
@@ -469,60 +471,84 @@ export class InfoPanelService implements OnDestroy {
     })
   }
 
-  delayedAlertNode(nodeName: string, nodeStatus: any) {
-    const ele = this.cy?.nodes().filter(`[name='${nodeName}']`)[0];
-    if (!ele) {
-      return;
-    }
-    // set the VM Power and Status value in the tooltip
-    ele.style({ 'background-opacity': '0' });
-    ele.style({ 'border-width': '7px' });
-    ele.style({ 'border-style': 'solid' });
-    ele.style({ 'border-opacity': '0' });
-    const d = nodeStatus;
-    if (d.state == "on" && d.status == "running") {
-      ele.data('color', this.statusColorLookup.on);
-      ele.style({ 'border-color': this.statusColorLookup.on });
-    } else if (d.state == "on" && d.status == "notRunning") {
-      ele.data("color", this.statusColorLookup.unknown);
-      ele.style({ 'border-color': this.statusColorLookup.unknown });
-    } else if (d.state == "off") {
-      ele.data('color', this.statusColorLookup.off);
-      ele.style({ 'border-color': this.statusColorLookup.off });
-    }
-    ele.animate({
-      style: {
-        'background-opacity': '1',
-        'border-opacity': '1'
-      },
-      easing: "ease",
-      duration: 1500
-    })
-  }
+  showNodesDeployed(nodesDeployed: any, vmStatus: any) {
+    if (nodesDeployed && nodesDeployed.length > 0) {
+      vmStatus.map((nodeStatus: any) => {
+        const ele = this.cy.nodes().filter((node: any) => node.data('node_id') === nodeStatus.id)[0];
+        if (!ele) {
+          return;
+        }
+        // Add new deploy-status property for the node
+        ele.data('deploy-status', nodeStatus);
 
-  delayedAlertPortGroup(pgName: string, pgStatus: any) {
-    const ele = this.cy?.nodes().filter(`[name='${pgName}']`)[0];
-    if (!ele) {
-      return;
-    }
-
-    if (pgStatus) {
-      ele.style({ 'border-color': this.statusColorLookup.on });
-      ele.style({ 'border-style': "double"});
-      ele.style({ 'border-width': 0});
-      ele.style({ 'border-opacity': '0' });
-      ele.animate({
+        // set the VM Power and Status value in the tooltip
+        const d = nodeStatus;
+        if (d.state == "on" && d.status == "running") {
+          ele.data('color', this.statusColorLookup.on);
+          ele.style({ 'border-color': this.statusColorLookup.on });
+        } else if (d.state == "on" && d.status == "notRunning") {
+          ele.data("color", this.statusColorLookup.unknown);
+          ele.style({ 'border-color': this.statusColorLookup.unknown });
+        } else if (d.state == "off") {
+          ele.data('color', this.statusColorLookup.off);
+          ele.style({ 'border-color': this.statusColorLookup.off });
+        }
+      })
+      nodesDeployed.style({
+        'background-opacity': '0',
+        'border-width': '7px',
+        'border-style': 'solid',
+        'border-opacity': '0'
+      });
+      nodesDeployed.animate({
         style: {
-          'border-width': 7,
-          'border-opacity': '1'
+          'background-opacity': '1',
+          'border-opacity': '1',
         },
-        easing: "ease",
-        duration: 1500
+        easing: 'ease',
+        duration: 1500,
+        complete: () => {
+          nodesDeployed.addClass('node-deployed');
+        }
       })
     }
   }
 
-  removeVMStatusOnMap() {
+  showPortGroupsDeployed(portGroupsDeployed: any, portGroupStatus: any) {
+    if (portGroupsDeployed && portGroupsDeployed.length > 0) {
+      portGroupStatus.map((pg: any) => {
+        const ele = this.cy.nodes().filter(
+          (portGroup: any) => portGroup.data('elem_category') === 'port_group' &&  portGroup.data('pg_id') === pg.id
+        )[0];
+        // Add new deploy-status property for the port group
+        ele.data('deploy-status', pg);
+      })
+      portGroupsDeployed.style({
+        'border-color': this.statusColorLookup.on,
+        'border-style': 'double',
+        'border-width': 0,
+        'border-opacity': 0
+      })
+      portGroupsDeployed.animate({
+        style: {
+          'border-width': 7,
+          'border-opacity': '1'
+        },
+        easing: 'ease',
+        duration: 1500,
+        complete: () => {
+          portGroupsDeployed.addClass('pg-deployed');
+        }
+      })
+    }
+  }
+
+  removeMapStatusOnMap() {
+    this.removeNodesStatusOnMap();
+    this.removePortGroupsStatusOnMap();
+  }
+
+  removeNodesStatusOnMap() {
     // Remove Node's status
     const nodes = this.cy?.nodes().filter('[icon]');
     if (nodes) {
@@ -532,10 +558,19 @@ export class InfoPanelService implements OnDestroy {
           'border-width': 0,
           'border-opacity': 0
         },
-        easing: "ease",
-        duration: 1500
+        easing: 'ease',
+        duration: 1500,
+        complete: () => {
+          nodes.stop();
+        }
       })
+      // Remove the node-deployed class and deploy-status property in all nodes.
+      nodes.removeClass('node-deployed');
+      nodes.map((node: any) => node.data('deploy-status', {}));
     }
+  }
+
+  removePortGroupsStatusOnMap() {
     // Remove PortGroup's status
     const portGroups = this.cy?.nodes().filter((ele: any) => ele.data('elem_category') === 'port_group');
     if (portGroups) {
@@ -544,33 +579,96 @@ export class InfoPanelService implements OnDestroy {
           'border-width': 0,
           'border-opacity': 0
         },
-        easing: "ease",
-        duration: 1500
+        easing: 'ease',
+        duration: 1500,
+        complete: () => {
+          portGroups.stop();
+        }
       })
+      // Remove the pg-deployed class and deploy-status property in all nodes.
+      portGroups.removeClass('pg-deployed');
+      portGroups.map((portGroup: any) => portGroup.data('deploy-status', {}));
     }
   }
 
   changeVMStatusOnMap(collectionId: number, connectionId: number) {
-    this.mapService.getVMStatus(collectionId, connectionId).subscribe(mapStatus => {
-      this.removeVMStatusOnMap();
-      if (mapStatus.vm_status) {
-        for (const [key, value] of Object.entries(mapStatus.vm_status)) {
-          this.delayedAlertNode(key, value);
+    this.mapService.getMapStatus(collectionId, connectionId).subscribe(mapStatus => {
+      if (this.cy) {
+        let nodesDeployed, portGroupsDeployed, vmStatus, portGroupStatus;
+        if (mapStatus.vm_status) {
+          vmStatus = Object.values(mapStatus.vm_status);
+          this.nodeIdsDeployed = vmStatus.map((ele: any) => ele.id);
+          nodesDeployed = this.cy.nodes().filter((node: any) => this.nodeIdsDeployed.includes(node.data('node_id')));
         }
-      }
-      if (mapStatus.pg_status) {
-        for (const [key, value] of Object.entries(mapStatus.pg_status)) {
-          this.delayedAlertPortGroup(key, value);
+
+        if (mapStatus.pg_status) {
+          portGroupStatus = Object.values(mapStatus.pg_status);
+          this.portGroupIdsDeployed = portGroupStatus.map((ele: any) => ele.id);
+          portGroupsDeployed = this.cy.nodes().filter((portGroup: any) => this.portGroupIdsDeployed.includes(portGroup.data('pg_id')));
+        }
+
+        if (!this.isNodesDeployedShowed(vmStatus)) {
+          this.removeNodesStatusOnMap();
+          this.showNodesDeployed(nodesDeployed, vmStatus);
+        }
+
+        if (!this.isPortGroupsDeployedShowed(portGroupStatus)) {
+          this.removePortGroupsStatusOnMap();
+          this.showPortGroupsDeployed(portGroupsDeployed, portGroupStatus);
         }
       }
     })
+  }
+
+  isNodesDeployedShowed(vmStatus: any) {
+    let result = true;
+    const nodesDeployedShowed = this.cy.filter((node: any) => node.hasClass('node-deployed'));
+    const nodeIdsDeployedShowed = nodesDeployedShowed.map((node: any) => node.data('node_id'));
+    const isNodesDeployed = JSON.stringify(nodeIdsDeployedShowed.sort()) === JSON.stringify(this.nodeIdsDeployed.sort());
+    if (isNodesDeployed) {
+      for (const nodeStatus of vmStatus) {
+        if (nodeIdsDeployedShowed.includes(nodeStatus.id)) {
+          const node = nodesDeployedShowed.find((node: any) => node.data('node_id') === nodeStatus.id);
+          // Check node's status is updated or not
+          if (JSON.stringify(node.data('deploy-status')) !== JSON.stringify(nodeStatus)) {
+            result = false;
+            break;
+          }
+        }
+      }
+    } else {
+      return false;
+    }
+    return result;
+  }
+
+  isPortGroupsDeployedShowed(portGroupStatus: any) {
+    let result = true;
+    const portGroupsDeployedShowed = this.cy.filter((pg: any) => pg.hasClass('pg-deployed'));
+    const portGroupIdsDeployedShowed = portGroupsDeployedShowed.map((pg: any) => pg.data('pg_id'));
+    const isPGsDeploy = JSON.stringify(portGroupIdsDeployedShowed.sort()) === JSON.stringify(this.portGroupIdsDeployed.sort());
+    if (isPGsDeploy) {
+      for (const pgStatus of portGroupStatus) {
+        if (portGroupIdsDeployedShowed.includes(pgStatus.id)) {
+          const portGroup = portGroupsDeployedShowed.find((pg: any) => pg.data('pg_id') === pgStatus.id);
+          // Check port group's status is updated or not
+          if (JSON.stringify(portGroup.data('deploy-status')) !== JSON.stringify(pgStatus)) {
+            result = false;
+            break;
+          }
+        }
+      }
+    } else {
+      return false;
+    }
+    return result;
   }
 
   initVMStatus(collectionId: number, connectionId: number) {
     if (this.isConnect && this.vmStatus) {
       this.changeVMStatusOnMap(collectionId, connectionId);
     } else {
-      this.removeVMStatusOnMap();
+      this.removeMapStatusOnMap();
     }
   }
 

@@ -82,6 +82,8 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
         this.vmStatusChecked = vmStatusChecked;
         if (this.vmStatusChecked) {
           this.infoPanelService.changeVMStatusOnMap(+this.collectionId, this.connection.id);
+        } else {
+          this.infoPanelService.removeMapStatusOnMap();
         }
       }
     })
@@ -178,10 +180,8 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
       connection_id: this.connection.id,
     }
     if ($event.checked) {
-      this.infoPanelService.changeVMStatusOnMap(+this.collectionId, +this.connection.id);
       this.store.dispatch(retrievedVMStatus({ vmStatus: $event.checked }));
     } else {
-      this.infoPanelService.removeVMStatusOnMap();
       this.store.dispatch(retrievedVMStatus({ vmStatus: $event.checked }));
     }
   }

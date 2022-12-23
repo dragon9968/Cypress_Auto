@@ -57,7 +57,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
       if (this.isConnect && vmStatusChecked) {
         this.infoPanelService.changeVMStatusOnMap(this.collectionId, this.connection.id);
       } else {
-        this.infoPanelService.removeVMStatusOnMap();
+        this.infoPanelService.removeMapStatusOnMap();
       }
     })
   }
@@ -73,6 +73,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.selectVMStatus$.unsubscribe();
     this.destroy$.next(true);
     this.destroy$.unsubscribe();
   }
@@ -88,27 +89,6 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
     else {
       this.store.dispatch(retrievedVMStatus({ vmStatus: $event.checked }));
     }
-    // if ($event.checked) {
-    //   this.mapService.saveVMStatus(jsonData, 'on').subscribe({
-    //     next: response => {
-    //       this.store.dispatch(retrievedVMStatus({ vmStatus: $event.checked }));
-    //     },
-    //     error: err => {
-    //       this.toastr.error('Save VM status failed', 'Failed');
-    //       this.vmStatusChecked = !$event.checked;
-    //     }
-    //   })
-    // } else {
-    //   this.mapService.saveVMStatus(jsonData, 'off').subscribe({
-    //     next: response => {
-    //       this.store.dispatch(retrievedVMStatus({ vmStatus: $event.checked }));
-    //     },
-    //     error: err => {
-    //       this.toastr.error('Save VM status failed', 'Failed');
-    //       this.vmStatusChecked = !$event.checked;
-    //     }
-    //   })
-    // }
   }
 
   refreshVMStatus() {

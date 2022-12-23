@@ -23,7 +23,7 @@ export class MapService {
     return this.http.post<any>(ApiPaths.SAVE_MAP, data, { params });
   }
 
-  getVMStatus(projectId: number, connectionId: number): Observable<any> {
+  getMapStatus(projectId: number, connectionId: number): Observable<any> {
     const params = new HttpParams()
       .set('project_id', projectId)
       .set('connection_id', connectionId);
