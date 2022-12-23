@@ -45,7 +45,7 @@ export class UserGuideComponent implements OnInit {
       next: (rest) => {
         file = new Blob([rest], {type: 'application/pdf'});
         this.helpers.downloadBlob('user_guide.pdf', file);
-        this.toastr.success("Upload user guide file successfully")
+        this.toastr.success("Downloaded user guide file successfully")
       },
       error: (err) => {
         this.toastr.error("Error while downloading the user guide file")
