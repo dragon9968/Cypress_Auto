@@ -249,32 +249,7 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '500px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
-          this.interfaceService.randomizeIpBulk({ pks: this.rowsSelectedId }).pipe(
-            catchError((error: any) => {
-              this.toastr.error(error.error.message);
-              return throwError(error.error.message);
-            })
-          ).subscribe(response => {
-            const data = response.result;
-            data.map((ele: any) => {
-              const element = this.cy.getElementById(ele.id);
-              const ip_str = ele.ip ? ele.ip : "";
-              const ip = ip_str.split(".");
-              const last_octet = ip.length == 4 ? "." + ip[3] : "";
-              element.data('ip', ip_str);
-              element.data('ip_last_octet', last_octet);
-            })
-            response.message.map((message: string) => {
-              this.toastr.success(message);
-            });
-            this.store.dispatch(retrievedMapSelection({ data: true }));
-            this.store.select(selectInterfaces).subscribe(interfaces => {
-              const interfaceIds = interfaces.map((ele: any) => ele.data.id);
-              this.interfaceService.getDataByPks({ pks: interfaceIds }).subscribe(response => {
-                this.store.dispatch(retrievedInterfacesByIds({ data: response.result }));
-              })
-            })
-          });
+          this.infoPanelService.randomizeIpInterfaces(this.rowsSelectedId);
         }
       });
     }

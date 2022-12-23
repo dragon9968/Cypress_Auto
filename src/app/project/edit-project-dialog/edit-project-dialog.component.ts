@@ -12,7 +12,7 @@ import { UserService } from 'src/app/core/services/user/user.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { asyncValidateValueSetter } from 'src/app/shared/validations/ip-subnet.validation.ag-grid';
-import { retrievedProjects } from 'src/app/store/project/project.actions';
+import { retrievedProjectName, retrievedProjects } from 'src/app/store/project/project.actions';
 import { ButtonRenderersComponent } from '../renderers/button-renderers-component';
 import { ProjectService } from '../services/project.service';
 import { CustomTooltip } from './custom-tool-tip';
@@ -50,7 +50,7 @@ export class EditProjectDialogComponent implements OnInit {
     },
     { field: 'category',
       valueFormatter: (params) => params.value,
-      cellEditor: 'agSelectCellEditor', 
+      cellEditor: 'agSelectCellEditor',
       cellEditorParams: {
         values: ['public', 'private', 'management'],
       },
@@ -73,7 +73,7 @@ export class EditProjectDialogComponent implements OnInit {
       },
       valueSetter: asyncValidateValueSetter,
       cellRenderer: function(params: any) {
-        return params.value ? `[${params.value}]` : '[]'    
+        return params.value ? `[${params.value}]` : '[]'
       }
     }
   ];
@@ -86,7 +86,7 @@ export class EditProjectDialogComponent implements OnInit {
     private dialog: MatDialog,
     public dialogRef: MatDialogRef<EditProjectDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-  ) { 
+  ) {
     this.rowData = this.data.genData.networks
     this.userService.getAll().subscribe(data => {
       this.listUser = data.result;
@@ -104,8 +104,8 @@ export class EditProjectDialogComponent implements OnInit {
       }
     })
     this.editProjectForm = new FormGroup({
-      nameCtr: new FormControl('', [Validators.required, 
-        Validators.minLength(3), 
+      nameCtr: new FormControl('', [Validators.required,
+        Validators.minLength(3),
         Validators.maxLength(50)]),
       descriptionCtr: new FormControl(''),
       minVlanCtr: new FormControl('', [Validators.min(1), Validators.max(4093),Validators.required]),
@@ -129,7 +129,7 @@ export class EditProjectDialogComponent implements OnInit {
     this.gridApi.sizeColumnsToFit();
   }
 
-  numericOnly(event: any): boolean { 
+  numericOnly(event: any): boolean {
     const charCode = (event.which) ? event.which : event.keyCode;
     if (charCode == 101 || charCode == 69 || charCode == 45 || charCode == 43) {
       return false;
@@ -185,7 +185,8 @@ export class EditProjectDialogComponent implements OnInit {
         })
         ).subscribe((_respData: any) => {
           this.projectService.get(this.data.genData.id).subscribe(projectData => {
-              const configData = {
+            this.store.dispatch(retrievedProjectName({ projectName: projectData.result.name}));
+            const configData = {
                 pk: this.data.genData.id,
                 username: sharedUpdate
               }

@@ -57,6 +57,14 @@ export class InterfaceService {
     });
   }
 
+  getByPortGroup(portGroupId: any): Observable<any> {
+    return this.http.get<any>(ApiPaths.INTERFACE, {
+      params: {
+        q: `(filters:!((col:port_group_id,opr:eq,value:${portGroupId})),page:0,page_size:1000)`
+      }
+    });
+  }
+
   getByCollectionIdAndCategory(collectionId: any, category: string): Observable<any> {
     return this.http.get<any>(ApiPaths.INTERFACE_DATA_CATEGORY + collectionId + '/' + category)
   }

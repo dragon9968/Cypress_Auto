@@ -11,8 +11,13 @@ import { selectIsMapOpen } from 'src/app/store/map/map.selectors';
 import { PermissionLevels } from '../../enums/permission-levels.enum';
 import { RouteSegments } from '../../enums/route-segments.enum';
 import { AuthService } from '../../services/auth/auth.service';
-import { selectIsOpen } from 'src/app/store/project/project.selectors';
-import { retrievedIsOpen, retrievedProjects, retrievedVMStatus } from 'src/app/store/project/project.actions';
+import { selectIsOpen, selectProjectName } from 'src/app/store/project/project.selectors';
+import {
+  retrievedIsOpen,
+  retrievedProjectName,
+  retrievedProjects,
+  retrievedVMStatus
+} from 'src/app/store/project/project.actions';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ToastrService } from 'ngx-toastr';
 import { ExportProjectDialogComponent } from 'src/app/project/export-project-dialog/export-project-dialog.component';
@@ -42,6 +47,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   permissionLevels = PermissionLevels;
   routeSegments = RouteSegments;
   selectIsOpen$ = new Subscription();
+  selectProjectName$ = new Subscription();
   searchText = '';
   isMapOpen = false;
   isOpen!: boolean;
@@ -80,9 +86,14 @@ export class NavBarComponent implements OnInit, OnDestroy {
       this.isOpen = isOpen;
       if (isOpen) {
         this.collectionId = this.projectService.getCollectionId();
-        this.projectService.get(this.collectionId).subscribe(projectData => this.projectName = projectData.result.name);
+        this.projectService.get(this.collectionId).subscribe(projectData => {
+          this.store.dispatch(retrievedProjectName({ projectName: projectData.result.name }));
+        });
       }
     });
+    this.selectProjectName$ = this.store.select(selectProjectName).subscribe(
+      projectName => this.projectName = projectName
+    )
     this.selectIsConnect$ = this.store.select(selectIsConnect).pipe(takeUntil(this.destroy$)).subscribe(isConnect => {
       if (isConnect !== undefined) {
         this.isConnect = isConnect;
@@ -103,9 +114,6 @@ export class NavBarComponent implements OnInit, OnDestroy {
       this.store.dispatch(retrievedUser({ data: respData.result }));
     });
     this.collectionId = this.projectService.getCollectionId();
-    if (this.collectionId) {
-      this.projectService.get(this.collectionId).subscribe(projectData => this.projectName = projectData.result.name);
-    }
     const connection = this.serverConnectionService.getConnection();
     if (connection && connection.id !== 0) {
       this.store.dispatch(retrievedIsConnect({ data: true }));
@@ -120,6 +128,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
     this.selectIsMapOpen$.unsubscribe();
     this.selectIsOpen$.unsubscribe();
     this.selectIsConnect$.unsubscribe();
+    this.selectProjectName$.unsubscribe();
     this.destroy$.next(true);
     this.destroy$.unsubscribe();
   }
@@ -146,6 +155,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
 
   closeProject() {
     this.projectService.closeProject();
+    this.store.dispatch(retrievedProjectName({ projectName: undefined }));
     this.store.dispatch(retrievedIsOpen({ data: false }));
     this.router.navigate([RouteSegments.ROOT]);
   }

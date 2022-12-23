@@ -1,3 +1,4 @@
+import { Store } from "@ngrx/store";
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
@@ -8,6 +9,7 @@ import { NodeService } from 'src/app/core/services/node/node.service';
 import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { InfoPanelShowValidationNodesComponent } from '../../info-panel/info-panel-show-validation-nodes/info-panel-show-validation-nodes.component';
+import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 
 @Injectable({
   providedIn: 'root'
@@ -15,12 +17,14 @@ import { InfoPanelShowValidationNodesComponent } from '../../info-panel/info-pan
 export class CMActionsService {
 
   constructor(
-    private helpers: HelpersService,
+    private store: Store,
+    private dialog: MatDialog,
     private toastr: ToastrService,
+    private helpers: HelpersService,
     private nodeService: NodeService,
     private portGroupService: PortGroupService,
     private interfaceService: InterfaceService,
-    private dialog: MatDialog,
+    private infoPanelService: InfoPanelService
   ) { }
 
   getNodeActionsMenu(cy: any, activeNodes: any[]) {
@@ -76,19 +80,8 @@ export class CMActionsService {
           id: "randomize_pg_subnet",
           content: "Randomize Subnet",
           onClickFunction: (event: any) => {
-            const data = event.target.data();
-            this.portGroupService.randomizeSubnet(data.pg_id, collectionId).pipe(
-              catchError((e: any) => {
-                this.toastr.error(e.error.message);
-                return throwError(() => e);
-              })
-            ).subscribe(respData => {
-              const ele = cy.getElementById('pg-' + data.pg_id);
-              ele.data('subnet', respData.result.subnet);
-              ele.data('name', respData.result.name);
-              this.toastr.success(respData.message);
-              // this.info_panel.updateRow(data.pg_id, 'port_group');
-            });
+            const pks = activePGs.map(pg => pg.data('pg_id'));
+            this.infoPanelService.randomizeSubnetPortGroups(pks, collectionId);
           },
           hasTrailingDivider: true,
           disabled: false,
@@ -135,20 +128,8 @@ export class CMActionsService {
           content: "Randomize IP",
           selector: "edge",
           onClickFunction: (event: any) => {
-            const data = event.target.data();
-            this.interfaceService.randomizeIP(data.interface_id).pipe(
-              catchError((e: any) => {
-                this.toastr.error(e.error.message);
-                return throwError(() => e);
-              })
-            ).subscribe(respData => {
-              const ele = cy.getElementById(data.interface_id);
-              const ip_str = respData.result.ip ? respData.result.ip : ""
-              const ip = ip_str.split(".")
-              const last_octet = ip.length == 4 ? "." + ip[3] : ""
-              ele.data('ip_last_octet', last_octet)
-              this.toastr.success(respData.message);
-            });
+            const interfaceIds = activeEdges.map(edge => edge.data('interface_id'));
+            this.infoPanelService.randomizeIpInterfaces(interfaceIds);
           },
           hasTrailingDivider: true,
           disabled: false,

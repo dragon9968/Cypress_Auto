@@ -19,3 +19,9 @@ export const retrievedDashboard = createAction(
   'retrievedDashboard',
   props<{ dashboard: any }>()
 );
+
+export const retrievedProjectName = createAction(
+  'retrievedProjectName',
+  props<{ projectName: any }>()
+);
+

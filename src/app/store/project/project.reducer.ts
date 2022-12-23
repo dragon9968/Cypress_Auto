@@ -1,6 +1,12 @@
 import { createReducer, on } from '@ngrx/store';
 import { ProjectState } from 'src/app/store/project/project.state';
-import { retrievedVMStatus, retrievedProjects, retrievedIsOpen, retrievedDashboard } from './project.actions';
+import {
+  retrievedVMStatus,
+  retrievedProjects,
+  retrievedIsOpen,
+  retrievedDashboard,
+  retrievedProjectName
+} from './project.actions';
 
 const initialState = {} as ProjectState;
 
@@ -21,5 +27,9 @@ export const projectReducer = createReducer(
   on(retrievedDashboard, (state, { dashboard }) => ({
     ...state,
     dashboard: dashboard
+  })),
+  on(retrievedProjectName, (state, { projectName }) => ({
+    ...state,
+    projectName: projectName
   }))
 );

@@ -275,25 +275,7 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '500px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
-          const jsonData = {
-            pks: this.rowsSelectedId,
-            collection_id: this.collectionId
-          }
-          this.portGroupService.randomizeSubnetBulk(jsonData).pipe(
-            catchError((e: any) => {
-              this.toastr.error(e.error.message);
-              return throwError(() => e);
-            })
-          ).subscribe(response => {
-            this.store.dispatch(retrievedMapSelection({ data: true }));
-            response.result.map((ele: any) => {
-              const element = this.cy.getElementById('pg-' + ele.id);
-              element.data('subnet', ele.subnet);
-              element.data('name', ele.name);
-            })
-            this.store.dispatch(retrievedMapSelection({ data: true }));
-            this.toastr.success(response.message);
-          })
+          this.infoPanelService.randomizeSubnetPortGroups(this.rowsSelectedId, this.collectionId);
         }
       })
     }

@@ -283,6 +283,7 @@ export class InfoPanelPortGroupManagementComponent implements OnInit, OnDestroy 
           ).subscribe(response => {
             this.toastr.success(response.message);
             const newPGsManagement = this.infoPanelService.getNewPortGroupsManagement(response.result);
+            this.infoPanelService.updateInterfaceIPBasedOnPGId(this.rowsSelectedId);
             this.store.dispatch(retrievedPortGroupsManagement({ data: newPGsManagement }));
           })
         }
