@@ -11,6 +11,12 @@
   height: calc(100vh - 220px);
 }
 
+.title {
+  text-align: center;
+  font-weight: 600;
+  font-size: 24px;
+}
+
 ::ng-deep .ag-header-cell-label {
   justify-content: center;
 }
