@@ -216,6 +216,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
     this.ur.do("changeGBOpacity", { activeGBs: this.activeGBs, newGBOpacity });
     this.ur.do("changeGBType", { activeGBs: this.activeGBs, newGBBorderType });
     this.ur.do("changeGBBorderColor", { activeGBs: this.activeGBs, newGBBorderColor });
+    this.store.dispatch(retrievedMapSelection({ data: true }));
   }
 
   selectMapPref($event: MatAutocompleteSelectedEvent) {
