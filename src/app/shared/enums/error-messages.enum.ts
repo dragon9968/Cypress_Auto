@@ -12,6 +12,7 @@ export enum ErrorMessages {
   DEVICE_CATEGORY_NAME_EXIST = 'Device category name already exists, please enter a different name',
   NODE_NAME_EXIST = 'Node name already exists, please enter a different name',
   FIELD_IS_IP = 'Expected 4 octets and only decimal digits permitted. Invalid IP Address',
+  NETWORK_EXISTS = "Network already exists, please enter a different network",
   IP_IN_NETWORK = 'IP Address not cointained in network',
   RANGE_LENGTH_50 = 'Field must be between 3 and 50 characters long.',
   NAME_EXISTS = 'Name already exists, please enter a different name',

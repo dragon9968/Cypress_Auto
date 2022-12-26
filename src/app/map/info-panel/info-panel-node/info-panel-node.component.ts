@@ -117,7 +117,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
       },
       {
         field: 'category',
-        width: 100,
+        minWidth: 120,
         flex: 1
       },
       {
@@ -132,12 +132,12 @@ export class InfoPanelNodeComponent implements OnDestroy {
       },
       {
         field: 'template',
-        minWidth: 100,
+        minWidth: 120,
         flex: 1
       },
       {
         field: 'hardware',
-        minWidth: 100,
+        minWidth: 120,
         flex: 1
       },
       {
@@ -154,14 +154,14 @@ export class InfoPanelNodeComponent implements OnDestroy {
         field: 'interfaces',
         cellRenderer: (param: any) => param.value,
         autoHeight: true,
-        minWidth: 100,
+        minWidth: 120,
         flex: 1
       },
       {
         field: 'login_profile_show',
         headerName: 'Login Profile',
         cellRenderer: (param: any) => param.value,
-        minWidth: 100,
+        minWidth: 120,
         flex: 1
       },
       {
@@ -169,6 +169,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
         headerName: 'Configuration',
         cellRenderer: (param: any) => param.value,
         autoHeight: true,
+        minWidth: 120,
         flex: 1
       },
     ]

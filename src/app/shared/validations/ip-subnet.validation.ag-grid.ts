@@ -50,6 +50,7 @@ const _onSuccess = (params: any) => (isExists: boolean) => {
   let field = params.colDef.field;
   data[field] = params.newValue
   data['validation'] = false
+  data['validation_required'] = false
   data['validation_isExists'] = isExists
   params.api.applyTransaction({  update: [data] });
 };
@@ -58,6 +59,7 @@ const _onFail = (params: any) => (isExists: boolean) => {
   let data = params.data;
   let field = params.colDef.field;
   data[field] = params.oldValue
+  data['validation_required'] = params.newValue === '' ? true : false;
   data['validation'] = true
   data['validation_isExists'] = isExists
   params.api.applyTransaction({  update: [data] });

@@ -15,7 +15,7 @@ import { asyncValidateValueSetter } from 'src/app/shared/validations/ip-subnet.v
 import { retrievedProjectName, retrievedProjects } from 'src/app/store/project/project.actions';
 import { ButtonRenderersComponent } from '../renderers/button-renderers-component';
 import { ProjectService } from '../services/project.service';
-import { CustomTooltip } from './custom-tool-tip';
+import { CustomTooltip } from '../../shared/components/tool-tip/custom-tool-tip';
 
 @Component({
   selector: 'app-edit-project-dialog',
@@ -166,6 +166,7 @@ export class EditProjectDialogComponent implements OnInit {
       }
       delete val['validation']
       delete val['validation_isExists']
+      delete val['validation_required']
       if ((val.network === '') || (val.category === '')) {
         this.isDisableButton = true
       }
