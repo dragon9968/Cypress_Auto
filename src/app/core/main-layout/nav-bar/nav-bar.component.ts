@@ -94,12 +94,10 @@ export class NavBarComponent implements OnInit, OnDestroy {
     this.selectProjectName$ = this.store.select(selectProjectName).subscribe(
       projectName => this.projectName = projectName
     )
-    this.selectIsConnect$ = this.store.select(selectIsConnect).pipe(takeUntil(this.destroy$)).subscribe(isConnect => {
-      if (isConnect !== undefined) {
-        this.isConnect = isConnect;
-        const connection = this.serverConnectionService.getConnection();
-        this.connection = connection ? connection : { name: '', id: 0 };
-      }
+    this.selectIsConnect$ = this.store.select(selectIsConnect).subscribe(isConnect => {
+      this.isConnect = isConnect;
+      const connection = this.serverConnectionService.getConnection();
+      this.connection = connection ? connection : { name: '', id: 0 };
     })
     iconRegistry.addSvgIcon('plant-tree-icon', this.helpersService.setIconPath('/assets/icons/plant-tree-icon.svg'));
     iconRegistry.addSvgIcon('icons8-trash-can', this.helpersService.setIconPath('/assets/icons/icons8-trash-can.svg'));
@@ -305,7 +303,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   openAboutModal() {
-    this.dialog.open(AboutComponent, { width: '600px', autoFocus: false});
+    this.dialog.open(AboutComponent, { width: '600px', autoFocus: false });
   }
 
   openProject(collectionId: string) {
