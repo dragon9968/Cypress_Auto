@@ -62,6 +62,7 @@ import { MapImageService } from '../core/services/map-image/map-image.service';
 import { retrievedMapImages } from '../store/map-image/map-image.actions';
 import { RouteSegments } from "../core/enums/route-segments.enum";
 import { ContextMenuService } from './context-menu/context-menu.service';
+import { retrievedMapEdit } from "../store/map-edit/map-edit.actions";
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -298,6 +299,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.store.dispatch(retrievedIsMapOpen({ data: false }));
     this.destroy$.next(true);
     this.destroy$.unsubscribe();
+    this.store.dispatch(retrievedMapEdit({ data: undefined }))
+    this.deviceId = '';
+    this.templateId = '';
   }
 
   private _disableMapEditButtons() {
