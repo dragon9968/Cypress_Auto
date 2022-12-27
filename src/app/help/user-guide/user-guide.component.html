@@ -1,13 +1,17 @@
 <mat-card class="guide-container">
   <mat-card>
     <mat-card-title class="guide-title">User Guide</mat-card-title>
-    <div mat-card-actions>
-      <button class="guide-btn" mat-raised-button color="primary" type="button" (click)="downladUserGuide()">
-        <mat-icon>download</mat-icon>
-      </button>
-      <button class="guide-btn" mat-raised-button color="primary" type="button" (click)="openUploadUserGuide()">
-        <mat-icon>add</mat-icon>
-      </button>
+    <div mat-card-actions class="guide-actions">
+      <div matTooltip="The file does not exist." [matTooltipDisabled]="!isDisabled">
+        <button class="guide-btn" mat-raised-button color="primary" matTooltip="Download" type="button" [disabled]="isDisabled" (click)="downladUserGuide()">
+          <mat-icon>download</mat-icon>
+        </button>
+      </div>
+      <div>
+        <button class="guide-btn" mat-raised-button color="primary" matTooltip="Upload" type="button" (click)="openUploadUserGuide()">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
     </div>
   </mat-card>
   <mat-card>

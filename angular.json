@@ -33,7 +33,9 @@
             "scripts": [
             ],  
             "allowedCommonJsDependencies": [
-              "cytoscape"
+              "cytoscape", 
+              "src/app/shared/validations/ip-subnet.validation.ag-grid",
+              "src/app/shared/validations/ip-subnet.validation"
             ]
           },
           "configurations": {

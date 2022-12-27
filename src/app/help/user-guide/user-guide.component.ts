@@ -5,6 +5,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { UploadUserGuideDialogComponent } from './upload-user-guide-dialog/upload-user-guide-dialog.component';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { ToastrService } from 'ngx-toastr';
+import { Subscription } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { selectUserGuide } from 'src/app/store/user-guide/user-guide.selectors';
+import { retrievedUserGuide } from 'src/app/store/user-guide/user-guide.actions';
 
 @Component({
   selector: 'app-user-guide',
@@ -12,6 +16,8 @@ import { ToastrService } from 'ngx-toastr';
   styleUrls: ['./user-guide.component.scss']
 })
 export class UserGuideComponent implements OnInit {
+  isDisabled!: boolean;
+  selectUserGuide$ = new Subscription();
   userGuideContent!: SafeHtml;
   headings!: NodeListOf<Element>;
   constructor(
@@ -20,9 +26,18 @@ export class UserGuideComponent implements OnInit {
     private dialog: MatDialog,
     private helpers: HelpersService,
     private toastr: ToastrService,
+    private store: Store
   ) {
+    this.selectUserGuide$ = this.store.select(selectUserGuide).subscribe(isDisable => {
+      this.isDisabled = isDisable;
+    });
+   }
+
+  ngOnInit(): void {
     this.guideService.getGuide().subscribe(guideData => {
       if (guideData) {
+        this.isDisabled = guideData.result_file_pdf
+        this.store.dispatch(retrievedUserGuide({ data: guideData.result_file_pdf }));
         this.userGuideContent = this.sanitizer.bypassSecurityTrustHtml(guideData.result);
         setTimeout(() => {
           // @ts-ignore: Object is possibly 'null'.
@@ -30,9 +45,6 @@ export class UserGuideComponent implements OnInit {
         });
       }
     });
-   }
-
-  ngOnInit(): void {
   }
 
   openUploadUserGuide() {
@@ -48,7 +60,7 @@ export class UserGuideComponent implements OnInit {
         this.toastr.success("Downloaded user guide file successfully")
       },
       error: (err) => {
-        this.toastr.error("Error while downloading the user guide file")
+        this.toastr.warning("The file does not exist. Please upload file")
       }
     })
   }
