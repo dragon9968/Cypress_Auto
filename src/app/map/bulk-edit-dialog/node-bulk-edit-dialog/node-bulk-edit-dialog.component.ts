@@ -18,7 +18,6 @@ import { selectTemplates } from "../../../store/template/template.selectors";
 import { selectLoginProfiles } from "../../../store/login-profile/login-profile.selectors";
 import { selectConfigTemplates } from "../../../store/config-template/config-template.selectors";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
-import { retrievedMapEdit } from "src/app/store/map-edit/map-edit.actions";
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
 
 @Component({

@@ -205,18 +205,6 @@ export class InfoPanelService implements OnDestroy {
           this.dialog.open(AddUpdateGroupDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
         })
         break;
-      case 'domainUser':
-        this.domainUserService.get(id).subscribe(domainUserData => {
-          this.domainService.get(domainUserData.result.domain_id).subscribe(domainData => {
-            const dialogData = {
-              genData: domainUserData.result,
-              domain: domainData.result,
-              mode: 'update'
-            };
-            this.dialog.open(UpdateDomainUserDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-          })
-        })
-        break;
       default:
         this.toastr.info('The info panel doesn\'t open yet');
     }
