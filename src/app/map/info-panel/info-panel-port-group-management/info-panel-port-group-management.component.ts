@@ -155,7 +155,11 @@ export class InfoPanelPortGroupManagementComponent implements OnInit, OnDestroy 
   }
 
   onRowDoubleClicked(row: RowDoubleClickedEvent) {
-    this.infoPanelService.viewInfoPanel(this.tabName, row.data.pg_id);
+    const dialogData = {
+      mode: 'view',
+      genData: row.data,
+    }
+    this.dialog.open(AddUpdatePGDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
   }
 
   private _setRowActive() {

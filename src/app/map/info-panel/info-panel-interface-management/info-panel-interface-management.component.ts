@@ -161,7 +161,11 @@ export class InfoPanelInterfaceManagementComponent implements OnDestroy {
   }
 
   onRowDoubleClicked(row: RowDoubleClickedEvent) {
-    this.infoPanelService.viewInfoPanel(this.tabName, row.data.interface_id);
+    const dialogData = {
+      mode: 'view',
+      genData: row.data,
+    };
+    this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
   }
 
   private _setRowActive() {

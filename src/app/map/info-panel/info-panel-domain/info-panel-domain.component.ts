@@ -109,19 +109,19 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-   this.selectDomains$.unsubscribe();
+    this.selectDomains$.unsubscribe();
   }
 
   get gridHeight() {
     const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
-    return infoPanelHeightNumber >= 300 ? (infoPanelHeightNumber-100) + 'px' : '200px';
+    return infoPanelHeightNumber >= 300 ? (infoPanelHeightNumber - 100) + 'px' : '200px';
   }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe((params: Params) => {
       this.collectionId = params['collection_id'];
     })
-    this.domainService.getDomainByCollectionId(this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedDomains({data: data.result})));
+    this.domainService.getDomainByCollectionId(this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedDomains({ data: data.result })));
   }
 
   onGridReady(params: GridReadyEvent) {
@@ -129,7 +129,11 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
   }
 
   onRowDoubleClicked(row: RowDoubleClickedEvent) {
-    this.infoPanelService.viewInfoPanel(this.tabName, row.data.id);
+    const dialogData = {
+      mode: 'view',
+      genData: row.data
+    };
+    this.dialog.open(AddUpdateDomainDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
   }
 
   selectedRows() {
@@ -147,7 +151,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
         admin_password: ''
       }
     };
-    this.dialog.open(AddUpdateDomainDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
+    this.dialog.open(AddUpdateDomainDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
   }
 
   addDomainUser() {
@@ -157,7 +161,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
       const dialogData = {
         genData: { domainId: this.rowsSelectedId }
       }
-      this.dialog.open(AddDomainUserDialogComponent, {width: '600px', data: dialogData});
+      this.dialog.open(AddDomainUserDialogComponent, { width: '600px', data: dialogData });
     }
   }
 
@@ -171,7 +175,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
           mode: 'update',
           genData: domainData.result
         };
-        this.dialog.open(AddUpdateDomainDialogComponent, {width: '600px', autoFocus: false, data: dialogData});
+        this.dialog.open(AddUpdateDomainDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
       })
     } else {
       const dialogData = {
@@ -194,7 +198,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
         message: `Are you sure you want to delete ${item}?`,
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '450px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
           this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.rowsSelectedId);
@@ -218,7 +222,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
         if (format === 'json') {
           file = new Blob([response.data], { type: 'application/json' });
         } else if (format === 'csv') {
-          file = new Blob([response.data], { type: 'text/csv;charset=utf-8;'})
+          file = new Blob([response.data], { type: 'text/csv;charset=utf-8;' })
         }
         const fileName = response.filename;
         this.helpers.downloadBlob(fileName, file);
@@ -257,15 +261,13 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
 
   openDomainUsers() {
     if (this.rowsSelectedId.length === 1) {
-      this.domainService.get(this.rowsSelectedId[0]).subscribe( domainResponse => {
-        this.domainUserService.getDomainUserByDomainId(this.rowsSelectedId[0]).subscribe(data => {
-          const dialogData = {
-            genData: data.result,
-            domain: domainResponse.result
-          }
-          this.dialog.open(DomainUserDialogComponent,
-            {width: `${screen.width}px`, height: `${screen.height*.85}px`, data: dialogData});
-        })
+      this.domainUserService.getDomainUserByDomainId(this.rowsSelectedId[0]).subscribe(data => {
+        const dialogData = {
+          genData: data.result,
+          domain: this.rowsSelected[0]
+        }
+        this.dialog.open(DomainUserDialogComponent,
+          { width: `${screen.width}px`, height: `${screen.height * .85}px`, data: dialogData });
       })
     } else {
       this.toastr.info('Please select only one domain to open the domain user list!', 'Info');

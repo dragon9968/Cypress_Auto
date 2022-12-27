@@ -9,6 +9,8 @@ import { DomainUserService } from "../../../../core/services/domain-user/domain-
 import { selectIsChangeDomainUsers } from "../../../../store/domain-user-change/domain-user-change.selectors";
 import { retrievedIsChangeDomainUsers } from "../../../../store/domain-user-change/domain-user-change.actions";
 import { ConfirmationDialogComponent } from "../../../../shared/components/confirmation-dialog/confirmation-dialog.component";
+import { UpdateDomainUserDialogComponent } from "../update-domain-user-dialog/update-domain-user-dialog.component";
+import { DomainService } from "src/app/core/services/domain/domain.service";
 
 
 @Component({
@@ -132,7 +134,8 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private toastr: ToastrService,
     private domainUserService: DomainUserService,
-    private infoPanelService: InfoPanelService
+    private infoPanelService: InfoPanelService,
+    private domainService: DomainService,
   ) {
     this.domain = this.data.domain;
     this.rowData$ = of(this.convertDomainUsers(this.data.genData));
@@ -163,7 +166,17 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
   }
 
   onRowDoubleClicked(row: RowDoubleClickedEvent) {
-    this.infoPanelService.viewInfoPanel(this.tabName, row.data.id);
+    this.domainUserService.get(row.data.id).subscribe(domainUserData => {
+      this.domainService.get(domainUserData.result.domain_id).subscribe(domainData => {
+        const dialogData = {
+          genData: domainUserData.result,
+          domain: domainData.result,
+          mode: 'view'
+        };
+        this.dialog.open(UpdateDomainUserDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+      }
+      )
+    });
   }
 
   convertDomainUsers(data: any) {
@@ -193,7 +206,16 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
     if (this.rowsSelectedId.length === 0) {
       this.toastr.info('No row selected');
     } else if (this.rowsSelectedId.length === 1) {
-      this.infoPanelService.openEditInfoPanelForm(undefined, this.tabName, this.rowsSelectedId[0]);
+      this.domainUserService.get(this.rowsSelectedId[0]).subscribe(domainUserData => {
+        this.domainService.get(domainUserData.result.domain_id).subscribe(domainData => {
+          const dialogData = {
+            genData: domainUserData.result,
+            domain: domainData.result,
+            mode: 'update'
+          };
+          this.dialog.open(UpdateDomainUserDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+        })
+      })
     } else {
       this.toastr.info('Bulk edit do not apply to the domain user.<br> Please select only one domain user',
                   'Info', {enableHtml: true});

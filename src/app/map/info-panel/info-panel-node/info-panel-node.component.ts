@@ -209,7 +209,11 @@ export class InfoPanelNodeComponent implements OnDestroy {
   }
 
   onRowDoubleClicked(row: RowDoubleClickedEvent) {
-    this.infoPanelService.viewInfoPanel(this.tabName, row.data.node_id);
+    const dialogData = {
+      mode: 'view',
+      genData: row.data,
+    }
+    this.dialog.open(AddUpdateNodeDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
   }
 
   cloneNodes() {

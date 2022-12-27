@@ -113,8 +113,8 @@ export class AddUpdateGroupDialogComponent implements OnInit {
       this.helpers.setAutoCompleteValue(this.categoryCtr, this.CATEGORIES, this.data.genData.category);
     } else {
       this.categoryCtr?.setValue(this.CATEGORIES[0]);
-      this.nodesCtr?.setValue('[' + this.data.genData.nodes?.map((nodeData: any) => nodeData.name).join(', ') + ']');
-      this.portGroupsCtr?.setValue('[' + this.data.genData.port_groups?.map((pgData: any) => pgData.name).join(', ') + ']');
+      this.nodesCtr?.setValue(this.data.genData.nodes);
+      this.portGroupsCtr?.setValue(this.data.genData.port_groups);
     }
     this.groupAddForm.controls['categoryCtr'].valueChanges.subscribe(value => {
       switch (value.name) {
