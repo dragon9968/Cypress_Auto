@@ -92,6 +92,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
   get loginProfileCtr() { return this.helpers.getAutoCompleteCtr(this.nodeBulkEditForm.get('loginProfileCtr'), this.loginProfiles); }
 
   ngOnInit(): void {
+    this.filteredTemplates = this.templates.filter((template: any) => template.device_id == this.data.genData.device?.id);
     this.route.queryParams.subscribe((params: Params) => this.collectionId = params['collection_id']);
   }
 

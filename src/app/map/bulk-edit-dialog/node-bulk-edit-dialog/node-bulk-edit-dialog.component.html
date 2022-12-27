@@ -86,7 +86,7 @@
       <input matInput type="text" placeholder="Assign a login profile" formControlName="loginProfileCtr"
              [matAutocomplete]="autoLoginProfile">
       <mat-autocomplete #autoLoginProfile="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of loginProfiles" [value]="option" height="60">
+        <mat-option class="login-profiles-option" *ngFor="let option of loginProfiles" [value]="option" height="80">
           <div class="login-profiles-option-text">
             <span class="option-text-items"><b>{{ option.name }}</b></span>
             <span class="option-text-items">Username: {{ option.username }}</span>
