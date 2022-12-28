@@ -120,7 +120,7 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
       for (let i = 0; i < this.cy.edges().length; i++) {
         const edge = this.cy.edges()[i];
         let prev_dir = edge.data('prev_direction');
-        if (prev_dir == 'none') {
+        if (!prev_dir || prev_dir == 'none') {
           prev_dir = 'both';
         }
         edge.data('direction', prev_dir);
