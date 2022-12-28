@@ -7,7 +7,6 @@ import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { retrievedMapOption } from 'src/app/store/map-option/map-option.actions';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
-import { selectIsMapOpen } from 'src/app/store/map/map.selectors';
 
 @Component({
   selector: 'app-tool-panel-option',
@@ -33,7 +32,6 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
   ];
   nav: any;
   selectMapOption$ = new Subscription();
-  selectIsMapOpen$ = new Subscription();
   groupBoxes: any;
   groupCategoryId!: string;
 
@@ -46,13 +44,6 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
       if (mapOption) {
         this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
         this.groupCategoryId = mapOption.groupCategoryId;
-      }
-    });
-
-    this.selectIsMapOpen$ = this.store.select(selectIsMapOpen).subscribe((isMapOpen: boolean) => {
-      if (!isMapOpen && this.nav) {
-        this.nav.destroy();
-        this.nav = undefined;
       }
     });
   }
@@ -98,7 +89,10 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
 
   ngOnDestroy(): void {
     this.selectMapOption$.unsubscribe();
-    this.selectIsMapOpen$.unsubscribe();
+    if (this.nav) {
+      this.nav.destroy();
+      this.nav = undefined;
+    }
   }
 
   private _updateNodeStatus() {
