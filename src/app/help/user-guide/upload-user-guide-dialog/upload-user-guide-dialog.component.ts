@@ -38,10 +38,13 @@ export class UploadUserGuideDialogComponent implements OnInit {
     if (this.uploadForm.valid) {
       const formData = new FormData();
       formData.append('file', this.selectedFile);
+      const formatFile = this.selectedFile.name.split('.').pop();
       this.guideService.uploadUserGuide(formData).subscribe({
         next:(rest) => {
           this.toastr.success(`Upload user guide file successfully`);
-          this.store.dispatch(retrievedUserGuide({ data: false }));
+          if (formatFile === 'pdf') {
+            this.store.dispatch(retrievedUserGuide({ data: false }));
+          }
           this.dialogRef.close();
           },
         error:(err) => {

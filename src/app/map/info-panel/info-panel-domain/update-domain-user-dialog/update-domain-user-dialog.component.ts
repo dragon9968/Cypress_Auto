@@ -41,13 +41,13 @@ export class UpdateDomainUserDialogComponent implements OnInit, OnDestroy {
         Validators.required,
         Validators.minLength(2),
         Validators.maxLength(20),
-        Validators.pattern('[a-zA-Z ]*')
+        Validators.pattern('[a-zA-Z- ]*')
       ]),
       lastnameCtr: new FormControl('', [
         Validators.required,
         Validators.minLength(2),
         Validators.maxLength(20),
-        Validators.pattern('[a-zA-Z ]*')
+        Validators.pattern('[a-zA-Z- ]*')
       ]),
       usernameCtr: new FormControl('', [
         Validators.required, validateNameExist(() => this.domainUsers, 'update', this.data.genData.id, 'username')]),

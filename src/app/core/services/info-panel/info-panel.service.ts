@@ -66,6 +66,7 @@ export class InfoPanelService implements OnDestroy {
   }
   nodeIdsDeployed: any[] = [];
   portGroupIdsDeployed: any[] = [];
+  interfaceIds: any[] = [];
 
   constructor(
     private store: Store,
@@ -648,9 +649,9 @@ export class InfoPanelService implements OnDestroy {
   updateInterfaceIPBasedOnPGId(portGroupIds: any) {
     portGroupIds.map((portGroupId: any) => {
       this.interfaceService.getByPortGroup(portGroupId).subscribe(response => {
-        const interfaceIds = response.ids;
-        if (interfaceIds && interfaceIds.length > 0) {
-          this.interfaceService.randomizeIpBulk({ pks: interfaceIds }).pipe(
+        this.checkIpAlocation(response.result)
+        if (this.interfaceIds.length > 0) {
+          this.interfaceService.randomizeIpBulk({ pks: this.interfaceIds }).pipe(
             catchError((error: any) => {
               this.toastr.error(error.error.message);
               return throwError(error.error.message);
@@ -675,32 +676,47 @@ export class InfoPanelService implements OnDestroy {
     })
   }
 
-  randomizeIpInterfaces(interfaceIds: any) {
-    this.interfaceService.randomizeIpBulk({ pks: interfaceIds }).pipe(
-      catchError((error: any) => {
-        this.toastr.error(error.error.message);
-        return throwError(() => error.error.message);
-      })
-    ).subscribe(response => {
-      const data = response.result;
-      data.map((ele: any) => {
-        const element = this.cy.getElementById(ele.id);
-        const ip_str = ele.ip ? ele.ip : "";
-        const ip = ip_str.split(".");
-        const last_octet = ip.length == 4 ? "." + ip[3] : "";
-        element.data('ip', ip_str);
-        element.data('ip_last_octet', last_octet);
-      })
-      response.message.map((message: string) => {
-        this.toastr.success(message);
-      });
-      this.store.dispatch(retrievedMapSelection({ data: true }));
-      this.store.select(selectInterfaces).subscribe(interfaces => {
-        const interfaceIds = interfaces.map((ele: any) => ele.data.id);
-        this.interfaceService.getDataByPks({ pks: interfaceIds }).subscribe(response => {
-          this.store.dispatch(retrievedInterfacesByIds({ data: response.result }));
+  randomizeIpInterfaces(listInterfaces: any) {
+    this.checkIpAlocation(listInterfaces)
+    if (this.interfaceIds.length > 0) {
+      this.interfaceService.randomizeIpBulk({ pks: this.interfaceIds }).pipe(
+        catchError((error: any) => {
+          this.toastr.error(error.error.message);
+          return throwError(() => error.error.message);
         })
-      })
+      ).subscribe(response => {
+        const data = response.result;
+        data.map((ele: any) => {
+          const element = this.cy.getElementById(ele.id);
+          const ip_str = ele.ip ? ele.ip : "";
+          const ip = ip_str.split(".");
+          const last_octet = ip.length == 4 ? "." + ip[3] : "";
+          element.data('ip', ip_str);
+          element.data('ip_last_octet', last_octet);
+        })
+        response.message.map((message: string) => {
+          this.toastr.success(message);
+        });
+        this.store.dispatch(retrievedMapSelection({ data: true }));
+        this.store.select(selectInterfaces).subscribe(interfaces => {
+          const interfaceIds = interfaces.map((ele: any) => ele.data.id);
+          this.interfaceService.getDataByPks({ pks: interfaceIds }).subscribe(response => {
+            this.store.dispatch(retrievedInterfacesByIds({ data: response.result }));
+          })
+        })
+      });
+    }
+  }
+
+  checkIpAlocation(data: any) {
+    this.interfaceIds = []
+    data.forEach((val: any) => {
+      if (val.ip_allocation === 'static_manual') {
+        this.toastr.warning(`Interface ${val.name}'s IP address of “static_manual” interfaces cannot be randomized.`)
+      } else {
+        const ids = val.interface_id ? val.interface_id : val.id
+        this.interfaceIds.push(ids)
+      }
     });
   }
 }
