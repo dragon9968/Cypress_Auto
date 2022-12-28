@@ -8,7 +8,7 @@ export enum ErrorMessages {
   DOMAIN_USER_USERNAME_EXIST = 'Domain username already exists, please enter a different username',
   FIELD_IS_ALPHABET = 'Input must be consists of only letters.',
   RANGE_LENGTH = 'Field must be between 2 and 20 characters long.',
-  MIN_NUMBER = 'The number of users is a number greater than one',
+  MIN_NUMBER_1 = 'The number of users is a number greater than or equal to one',
   DEVICE_CATEGORY_NAME_EXIST = 'Device category name already exists, please enter a different name',
   NODE_NAME_EXIST = 'Node name already exists, please enter a different name',
   FIELD_IS_IP = 'Expected 4 octets and only decimal digits permitted. Invalid IP Address',

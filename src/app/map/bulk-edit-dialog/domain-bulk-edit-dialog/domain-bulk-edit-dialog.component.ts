@@ -34,18 +34,26 @@ export class DomainBulkEditDialogComponent implements OnInit {
   }
 
   editDomainBulk() {
-    const jsonData = {
-      pks: this.data.genData.pks,
-      admin_user: this.adminUserCtr?.value,
-      admin_password: this.adminPasswordCtr?.value
-    }
-    this.domainService.editBulk(jsonData).subscribe(response => {
-      this.toastr.success(response.message);
-      this.domainService.getDomainByCollectionId(this.data.genData.collectionId).subscribe(domains => {
-        this.store.dispatch(retrievedDomains({ data: domains.result }));
-      });
+    const pks = this.data.genData.pks;
+    const adminUser = this.adminUserCtr?.value !== '' ? this.adminUserCtr?.value : undefined;
+    const adminPassword = this.adminPasswordCtr?.value !== '' ? this.adminPasswordCtr?.value : undefined;
+    if (adminUser || adminPassword) {
+      const jsonData = {
+        pks: pks,
+        admin_user: this.adminUserCtr?.value !== '' ? this.adminUserCtr?.value : undefined,
+        admin_password: this.adminPasswordCtr?.value !== '' ? this.adminPasswordCtr?.value : undefined
+      }
+      this.domainService.editBulk(jsonData).subscribe(response => {
+        this.domainService.getDomainByCollectionId(this.data.genData.collectionId).subscribe(domains => {
+          this.store.dispatch(retrievedDomains({ data: domains.result }));
+        });
+        this.dialogRef.close();
+        this.toastr.success(response.message, 'Success');
+      })
+    } else {
       this.dialogRef.close();
-    })
+      this.toastr.info('You\'re not updating anything in the bulk edit domains', 'Info');
+    }
   }
 
   onCancel() {

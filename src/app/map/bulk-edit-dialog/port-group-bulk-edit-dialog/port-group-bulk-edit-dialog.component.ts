@@ -72,36 +72,47 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
   }
 
   updatePortGroupBulk() {
-    const jsonData = {
-      ids: this.data.genData.ids,
-      domain_id: this.domainCtr?.value.id,
-      vlan: this.vlanCtr?.value,
-      category: this.categoryCtr?.value,
-      subnet_allocation: this.subnetAllocationCtr?.value
+    const ids = this.data.genData.ids;
+    const domainId = this.domainCtr?.value.id;
+    const vlan = this.vlanCtr?.value !== '' ? this.vlanCtr?.value : undefined;
+    const category = this.categoryCtr?.value !== '' ? this.categoryCtr?.value: undefined;
+    const subnetAllocation = this.subnetAllocationCtr?.value !== '' ? this.subnetAllocationCtr?.value: undefined;
+    if (domainId || vlan || category || subnetAllocation) {
+      const jsonData = {
+        ids: ids,
+        domain_id: domainId,
+        vlan: vlan,
+        category: category,
+        subnet_allocation: subnetAllocation
+      }
+      this.portGroupService.editBulk(jsonData).subscribe((response: any) => {
+        return forkJoin(this.data.genData.activePGs.map((pg: any) => {
+          return this.portGroupService.get(pg.pg_id).pipe(map(pgData => {
+            const portGroup = pgData.result;
+            if (portGroup.category == 'management') {
+              return portGroup;
+            } else {
+              this._updatePGOnMap(portGroup);
+            }
+          }));
+        }))
+          .subscribe((resData: any) => {
+            if (resData[0]) {
+              const newPGsManagement = this.infoPanelService.getNewPortGroupsManagement(resData);
+              this.store.dispatch(retrievedPortGroupsManagement({ data: newPGsManagement }));
+            } else {
+              this.helpers.reloadGroupBoxes(this.data.cy);
+              this.store.dispatch(retrievedMapSelection({ data: true }));
+            }
+            this.dialogRef.close();
+            this.toastr.success(response.message, 'Success');
+          });
+      });
+    } else {
+      this.dialogRef.close();
+      this.toastr.info('You\'re not updating anything in the bulk edit port groups', 'Info')
     }
-    this.portGroupService.editBulk(jsonData).subscribe((response: any) => {
-      return forkJoin(this.data.genData.activePGs.map((pg: any) => {
-        return this.portGroupService.get(pg.pg_id).pipe(map(pgData => {
-          const portGroup = pgData.result;
-          if (portGroup.category == 'management') {
-            return portGroup;
-          } else {
-            this._updatePGOnMap(portGroup);
-          }
-        }));
-      }))
-        .subscribe((resData: any) => {
-          if (resData[0]) {
-            const newPGsManagement = this.infoPanelService.getNewPortGroupsManagement(resData);
-            this.store.dispatch(retrievedPortGroupsManagement({ data: newPGsManagement }));
-          } else {
-            this.helpers.reloadGroupBoxes(this.data.cy);
-            this.store.dispatch(retrievedMapSelection({ data: true }));
-          }
-          this.dialogRef.close();
-          this.toastr.success(response.message);
-        });
-    });
+
   }
 
   onCancel() {

@@ -18,7 +18,6 @@ import { selectTemplates } from "../../../store/template/template.selectors";
 import { selectLoginProfiles } from "../../../store/login-profile/login-profile.selectors";
 import { selectConfigTemplates } from "../../../store/config-template/config-template.selectors";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
-import { retrievedMapEdit } from "src/app/store/map-edit/map-edit.actions";
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
 
 @Component({
@@ -107,8 +106,8 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
 
   private _updateNodeOnMap(data: any) {
     const ele = this.data.cy.getElementById('node-' + data.id);
-    ele.data('icon', ICON_PATH + data.icon.photo);
-    ele.data('icon_id', data.icon_id);
+    ele.data('icon', ICON_PATH + data.icon?.photo);
+    ele.data('icon_id', data.icon?.id);
     ele.data('device', data.device);
     ele.data('device_id', data.device_id);
     ele.data('template', data.template);
@@ -126,42 +125,57 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
   }
 
   updateNodeBulk() {
-    const jsonData = {
-      ids: this.data.genData.ids,
-      icon_id: this.iconCtr?.value.id,
-      device_id: this.deviceCtr?.value.id,
-      template_id: this.templateCtr?.value.id,
-      domain_id: this.domainCtr?.value.id,
-      folder: this.folderCtr?.value,
-      parent_folder: this.parentFolderCtr?.value,
-      role: this.roleCtr?.value.id,
-      login_profile_id: this.loginProfileCtr?.value.id
-    }
-    this.nodeService.editBulk(jsonData).subscribe(response => {
-      return forkJoin(this.data.genData.activeNodes.map((node: any) => {
-        if (this.configTemplateCtr?.value) {
-          const configData = {
-            pk: node.node_id,
-            config_ids: this.configTemplateCtr?.value
+    const ids = this.data.genData.ids;
+    const iconId = this.iconCtr?.value.id;
+    const deviceId = this.deviceCtr?.value.id;
+    const templateId = this.templateCtr?.value.id;
+    const domainId = this.domainCtr?.value.id;
+    const folder = this.folderCtr?.value !== '' ? this.folderCtr?.value : undefined;
+    const parentFolder = this.parentFolderCtr?.value !== '' ? this.parentFolderCtr?.value : undefined;
+    const role = this.roleCtr?.value.id;
+    const configId = this.configTemplateCtr?.value;
+    const loginProfileId = this.loginProfileCtr?.value.id;
+    if (iconId || deviceId || templateId || domainId || folder || parentFolder || role || configId || loginProfileId) {
+      const jsonData = {
+        ids: ids,
+        icon_id: iconId,
+        device_id: deviceId,
+        template_id: templateId,
+        domain_id: domainId,
+        folder: folder,
+        parent_folder: parentFolder,
+        role: role,
+        login_profile_id: loginProfileId
+      }
+      this.nodeService.editBulk(jsonData).subscribe(response => {
+        return forkJoin(this.data.genData.activeNodes.map((node: any) => {
+          if (configId) {
+            const configData = {
+              pk: node.node_id,
+              config_ids: configId
+            }
+            return this.nodeService.associate(configData).pipe(map(respData => {}));
           }
-          return this.nodeService.associate(configData).pipe(map(respData => {}));
-        }
-        return of([]);
-      }))
-        .subscribe(() => {
-          return forkJoin(this.data.genData.activeNodes.map((node: any) => {
-            return this.nodeService.get(node.node_id).pipe(map(nodeData => {
-              this._updateNodeOnMap(nodeData.result);
-            }));
-          }))
-            .subscribe(() => {
-              this.helpers.reloadGroupBoxes(this.data.cy);
-              this.dialogRef.close();
-              this.store.dispatch(retrievedMapSelection({ data: true }));
-              this.toastr.success(response.message, 'Success');
-            });
-        });
-    });
+          return of([]);
+        }))
+          .subscribe(() => {
+            return forkJoin(this.data.genData.activeNodes.map((node: any) => {
+              return this.nodeService.get(node.node_id).pipe(map(nodeData => {
+                this._updateNodeOnMap(nodeData.result);
+              }));
+            }))
+              .subscribe(() => {
+                this.helpers.reloadGroupBoxes(this.data.cy);
+                this.dialogRef.close();
+                this.store.dispatch(retrievedMapSelection({ data: true }));
+                this.toastr.success(response.message, 'Success');
+              });
+          });
+      });
+    } else {
+      this.dialogRef.close();
+      this.toastr.info('You\'re not updating anything in the bulk edit nodes');
+    }
   }
 
   selectDevice($event: MatAutocompleteSelectedEvent) {

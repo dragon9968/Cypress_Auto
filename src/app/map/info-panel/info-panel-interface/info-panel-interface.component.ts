@@ -266,7 +266,7 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
       this.interfaceService.validate({ pks: this.rowsSelectedId }).pipe(
         catchError((error: any) => {
           this.toastr.error(error.error.message);
-          return throwError(error.error.message);
+          return throwError(() => error.error.message);
         })
       ).subscribe(response => {
         this.toastr.success(response.message);

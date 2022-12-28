@@ -253,7 +253,7 @@ export class InfoPanelInterfaceManagementComponent implements OnDestroy {
           this.interfaceService.randomizeIpBulk({ pks: this.rowsSelectedId }).pipe(
             catchError((error: any) => {
               this.toastr.error(error.error.message);
-              return throwError(error.error.message);
+              return throwError(() => error.error.message);
             })
           ).subscribe(response => {
             const data = response.result;
@@ -275,7 +275,7 @@ export class InfoPanelInterfaceManagementComponent implements OnDestroy {
       this.interfaceService.validate({ pks: this.rowsSelectedId }).pipe(
         catchError((error: any) => {
           this.toastr.error(error.error.message);
-          return throwError(error.error.message);
+          return throwError(() => error.error.message);
         })
       ).subscribe(response => {
         this.toastr.success(response.message);

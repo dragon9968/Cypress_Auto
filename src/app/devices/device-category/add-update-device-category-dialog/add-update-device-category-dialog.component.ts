@@ -58,7 +58,7 @@ export class AddUpdateDeviceCategoryDialogComponent implements OnInit, OnDestroy
     this.deviceCategoryService.add(jsonData).pipe(
       catchError((error: any) => {
         this.toastr.error(`Add device category failed!`);
-        return throwError(error.messages);
+        return throwError(() => error);
       })
     ).subscribe(response => {
       this.toastr.success(`Added device category ${response.result.name} successfully`, 'Success');
@@ -76,7 +76,7 @@ export class AddUpdateDeviceCategoryDialogComponent implements OnInit, OnDestroy
     this.deviceCategoryService.put(this.data.genData.id, jsonData).pipe(
       catchError((error: any) => {
         this.toastr.error(`Edit device category failed due to ${error.messages}`, 'Error');
-        return throwError(error.messages);
+        return throwError(() => error);
       })
     ).subscribe(response => {
       this.toastr.success(`Changed device category name from ${this.data.genData.name} to ${response.result.name}`, 'Success');

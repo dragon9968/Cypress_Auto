@@ -70,38 +70,51 @@ export class InterfaceBulkEditDialogComponent {
   }
 
   updateInterfaceBulk() {
-    const jsonData = {
-      ids: this.data.genData.ids,
-      status: this.statusCtr?.value.id,
-      direction: this.directionCtr?.value.id,
-      ip_allocation: this.ipAllocationCtr?.value,
-      dns_server: this.dnsServerCtr?.value,
-      gateway: this.gatewayCtr?.value,
-      is_gateway: this.isGatewayCtr?.value,
-      is_nat: this.isNatCtr?.value
-    }
-    this.interfaceService.editBulk(jsonData).subscribe(response => {
-      let interfacesData: any[] = [];
-      this.data.genData.activeEdges.map((edge: any) => {
-        const data = {
-          ...edge,
-          ...jsonData,
-        }
-        if (data.category == 'management') {
-          interfacesData.push(data);
-        } else {
-          this._updateInterfaceOnMap(data);
-        }
-      });
-      if (interfacesData.length > 0) {
-        const newInterfacesManagement = this.infoPanelService.getNewInterfacesManagement(interfacesData)
-        this.store.dispatch(retrievedInterfacesManagement({ data: newInterfacesManagement }))
-      } else {
-        this.store.dispatch(retrievedMapSelection({ data: true }));
+    const ids = this.data.genData.ids;
+    const status = this.statusCtr?.value.id;
+    const direction =  this.directionCtr?.value.id;
+    const ipAllocation = this.ipAllocationCtr?.value !== '' ? this.ipAllocationCtr?.value : undefined;
+    const dnsServer = this.dnsServerCtr?.value !== '' ? this.dnsServerCtr?.value : undefined;
+    const gateway = this.gatewayCtr?.value !== '' ? this.gatewayCtr?.value : undefined;
+    const isGateway =  this.isGatewayCtr?.value !== '' ? this.isGatewayCtr?.value : undefined;
+    const isNat = this.isNatCtr?.value !== '' ? this.isNatCtr?.value : undefined;
+    if ( status || direction || ipAllocation || dnsServer || gateway || isGateway || isNat ) {
+      const jsonData = {
+        ids: ids,
+        status: status,
+        direction: direction,
+        ip_allocation: ipAllocation,
+        dns_server: dnsServer,
+        gateway: gateway,
+        is_gateway: isGateway,
+        is_nat: isNat
       }
+      this.interfaceService.editBulk(jsonData).subscribe(response => {
+        let interfacesData: any[] = [];
+        this.data.genData.activeEdges.map((edge: any) => {
+          const data = {
+            ...edge,
+            ...jsonData,
+          }
+          if (data.category == 'management') {
+            interfacesData.push(data);
+          } else {
+            this._updateInterfaceOnMap(data);
+          }
+        });
+        if (interfacesData.length > 0) {
+          const newInterfacesManagement = this.infoPanelService.getNewInterfacesManagement(interfacesData)
+          this.store.dispatch(retrievedInterfacesManagement({ data: newInterfacesManagement }))
+        } else {
+          this.store.dispatch(retrievedMapSelection({ data: true }));
+        }
+        this.dialogRef.close();
+        this.toastr.success(response.message, 'Success');
+      })
+    } else {
       this.dialogRef.close();
-      this.toastr.success(response.message);
-    })
+      this.toastr.info('You\'re not updating anything in the bulk edit interfaces');
+    }
   }
 
 }

@@ -12,7 +12,7 @@ import { DomainService } from "../../../../core/services/domain/domain.service";
 })
 export class AddDomainUserDialogComponent implements OnInit {
   addDomainUserForm: FormGroup;
-  errorMessage = ErrorMessages;
+  errorMessages = ErrorMessages;
 
   constructor(
     private toastr: ToastrService,
@@ -21,7 +21,7 @@ export class AddDomainUserDialogComponent implements OnInit {
     private domainService: DomainService
   ) {
     this.addDomainUserForm = new FormGroup({
-      numberUserCtr: new FormControl('', [Validators.required, Validators.min(1)]),
+      numberUserCtr: new FormControl('', [Validators.required, Validators.min(1), Validators.pattern('^[0-9]*$') ]),
       userPasswordCtr: new FormControl('')
     })
   }
@@ -40,7 +40,7 @@ export class AddDomainUserDialogComponent implements OnInit {
   addDomainUsers() {
     const jsonData = {
       domain_id: this.data.genData.domainId,
-      number_user: this.numberUserCtr?.value,
+      number_user: Number(this.numberUserCtr?.value),
       user_password: this.userPasswordCtr?.value
     }
     this.domainService.addDomainUser(jsonData).subscribe(response => {
