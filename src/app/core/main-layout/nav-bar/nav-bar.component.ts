@@ -163,17 +163,20 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   editProject() {
-    this.projectService.get(this.collectionId).subscribe(data => {
-      const dialogData = {
-        mode: 'update',
-        genData: data.result
-      }
-      const dialogRef = this.dialog.open(EditProjectDialogComponent, {
-        autoFocus: false,
-        width: '800px',
-        data: dialogData
+    this.projectService.getProjectByStatus('active').subscribe(data => {
+      this.store.dispatch(retrievedProjects({data: data.result}));
+      this.projectService.get(this.collectionId).subscribe(resp => {
+        const dialogData = {
+          mode: 'update',
+          genData: resp.result
+        }
+        const dialogRef = this.dialog.open(EditProjectDialogComponent, {
+          autoFocus: false,
+          width: '800px',
+          data: dialogData
+        });
       });
-    })
+    });
   }
 
   deleteProject() {
