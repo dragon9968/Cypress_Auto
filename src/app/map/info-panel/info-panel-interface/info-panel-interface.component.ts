@@ -93,6 +93,11 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
         flex: 1,
       },
       {
+        field: 'node',
+        minWidth: 100,
+        flex: 1,
+      },
+      {
         field: 'mac_address',
         headerName: 'Mac Address',
         minWidth: 100,
