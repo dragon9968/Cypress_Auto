@@ -139,7 +139,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
       headerName: 'Icon',
       field: 'icon.photo',
       cellRenderer: function(param: any) {
-        return param.valie ? `<img src="${ICON_PATH}${param.value}" alt="Photo" height="25" width="25">` : 'None'
+        return param.value ? `<img src="${ICON_PATH}${param.value}" alt="Photo" height="25" width="25">` : 'None'
       },
       autoHeight: true,
       suppressSizeToFit: true,

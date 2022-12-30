@@ -11,7 +11,7 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Description</mat-label>
-      <input type="text" formControlName="description" matInput >
+      <input type="text" formControlName="description" matInput readonly>
     </mat-form-field>
     <div [hidden]="!(data.genData.configuration?.static_routes?.length > 0)">
       <h3><strong><u>Static Routes</u></strong></h3>

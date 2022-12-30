@@ -129,7 +129,7 @@ export class ActionsRendersConfigTemplateComponent implements ICellRendererAngul
   openConfigTemplate() {
     this.configTemplateService.get(this.id).subscribe(configTemplateData => {
       const dialogData = {
-        mode: 'update',
+        mode: 'view',
         genData: configTemplateData.result
       }
       const dialogRef = this.dialog.open(ShowConfigTemplateDialogComponent, {

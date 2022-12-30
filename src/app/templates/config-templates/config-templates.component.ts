@@ -60,6 +60,7 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
     {
       headerName: 'Firewall',
       field: 'configuration.firewall_rule',
+      autoHeight: true,
       cellRenderer: function(param: any) {
         if (param.value){
           let html_str = "<div>"
