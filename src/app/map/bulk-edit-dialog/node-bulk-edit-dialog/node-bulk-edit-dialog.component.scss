@@ -1,0 +1,36 @@
+$margin: 8px;
+
+.field {
+  width: 100%;
+  align-items: center;
+}
+
+.option-text {
+  display: flex;
+  align-items: center;
+}
+
+.mat-option {
+  height: 60px;
+}
+
+.login-profile {
+  margin: $margin 0;
+}
+
+.configurations-option-text, .login-profiles-option-text {
+  line-height: normal;
+}
+
+.option-text-items {
+  display: block;
+  padding: 2px 0;
+}
+
+.login-profiles-option {
+  height: 90px;
+}
+
+.configuration-template {
+  font-family: 'Roboto', sans-serif;
+}

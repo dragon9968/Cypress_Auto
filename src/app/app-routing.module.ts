@@ -1,16 +1,16 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { LoginPageComponent } from './components/login/login.component';
-import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
-import { PermissionLevels } from './core/enums/permission-levels.enum';
-import { RouteSegments } from './core/enums/routes/route-segments.enum';
-import { AuthGuard } from './core/guards/auth.guard';
 import { AppRoute } from './core/models/app-route.model';
+import { PermissionLevels } from './core/enums/permission-levels.enum';
+import { LoginComponent } from './login/login.component';
+import { AuthGuard } from './core/guards/auth.guard';
+import { PageNotFoundComponent } from './core/page-not-found/page-not-found.component';
+import { RouteSegments } from './core/enums/route-segments.enum';
 
 const routes: AppRoute[] = [
   {
     path: RouteSegments.LOGIN,
-    component: LoginPageComponent,
+    component: LoginComponent,
   },
   {
     path: '',
@@ -25,7 +25,7 @@ const routes: AppRoute[] = [
           permissionLevel: PermissionLevels.USER,
         },
         loadChildren: () =>
-          import('./components/main-layout/main-layout.module').then(
+          import('./core/main-layout/main-layout.module').then(
             (m) => m.MainLayoutModule
           ),
       },

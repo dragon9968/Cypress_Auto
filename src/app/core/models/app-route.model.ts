@@ -1,5 +1,5 @@
 import { Route } from '@angular/router';
-import { PermissionLevels } from '../enums/permission-levels.enum';
+import { PermissionLevels } from 'src/app/core/enums/permission-levels.enum';
 
 interface AppRouteData {
   permissionLevel: PermissionLevels;

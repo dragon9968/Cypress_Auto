@@ -1,0 +1,52 @@
+<form [formGroup]="loginProfileEditForm" (ngSubmit)="data.mode === 'add' ? addLoginProfile() : updateLogin()">
+  <h1 mat-dialog-title>{{data.mode === 'add' ? 'Add Login Profile' : data.mode === 'update' ? 'Edit Login Profiles':
+    'Login Profile Detail'}}</h1>
+  <div mat-dialog-content>
+    <mat-form-field class="field">
+      <mat-label>Name</mat-label>
+      <input type="text" formControlName="name" matInput [readonly]="isViewMode">
+      <mat-error *ngIf="name?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="name?.errors?.minlength || name?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH_50
+        }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Description</mat-label>
+      <input type="text" formControlName="description" matInput [readonly]="isViewMode">
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Username</mat-label>
+      <input type="text" formControlName="username" matInput [readonly]="isViewMode">
+      <mat-error *ngIf="username?.hasError('required')">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Password</mat-label>
+      <input type="text" formControlName="password" matInput [readonly]="isViewMode">
+      <mat-error *ngIf="username?.hasError('required')">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Category</mat-label>
+      <mat-select formControlName="category">
+        <mat-option value="local">local</mat-option>
+        <mat-option value="domain">domain</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Extra Args</mat-label>
+      <mat-chip-list #chipList>
+        <mat-chip *ngFor="let value of listExtraArgs" [selectable]="selectable" [removable]="removable"
+          (removed)="remove(value)" [disabled]="isViewMode">
+          {{value}}
+          <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+        </mat-chip>
+        <input placeholder="" [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+          [matChipInputAddOnBlur]="addOnBlur" (matChipInputTokenEnd)="addExtraArgs($event)" [readonly]="isViewMode">
+      </mat-chip-list>
+    </mat-form-field>
+  </div>
+  <div mat-dialog-actions [align]="'end'" class="create-btn">
+    <button mat-raised-button type="button" (click)="onCancel()">{{data.mode === 'view' ? 'Close' : 'Cancel'}}</button>
+    <button *ngIf="data.mode !== 'view'" mat-raised-button color="primary" [disabled]="!loginProfileEditForm.valid">
+      {{ data.mode === 'add' ? 'Create' : 'Update' }}
+    </button>
+  </div>
+</form>

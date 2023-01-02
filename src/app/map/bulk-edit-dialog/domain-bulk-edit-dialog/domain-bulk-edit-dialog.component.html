@@ -1,0 +1,19 @@
+<form [formGroup]="domainBulkEditForm" (ngSubmit)="editDomainBulk()">
+  <h1 mat-dialog-title>Domain Bulk Edit Form</h1>
+  <div mat-dialog-content>
+    <mat-form-field class="field">
+      <mat-label>Admin User</mat-label>
+      <input type="text" matInput placeholder="Admin User" formControlName="adminUserCtr">
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Admin Password</mat-label>
+      <input type="text" matInput placeholder="Admin Password" formControlName="adminPasswordCtr">
+    </mat-form-field>
+  </div>
+  <div mat-dialog-actions [align]="'end'">
+    <button type="button" mat-raised-button (click)="onCancel()">Cancel</button>
+    <button type="submit" mat-raised-button color="primary" [disabled]="!domainBulkEditForm.valid && adminUserCtr?.value">
+      Update
+    </button>
+  </div>
+</form>

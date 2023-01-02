@@ -1,0 +1,135 @@
+$margin: 8px;
+
+/* PROJECT INFORMATION */
+.project-info {
+  width: calc(100% - 30px);
+  height: calc(100% - 50px);
+  border-top: 3px solid #007bff;
+}
+
+.project-info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.project-info-title {
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.project-info-actions {
+  width: 40%;
+  margin-bottom: $margin;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.project-info-actions-item {
+  margin-left: $margin;
+}
+
+.project-info-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-top: 1px solid #ccc;
+}
+
+/* PROJECT INFORMATION DETAILS */
+.project-info-details {
+  width: 96%;
+  margin-top: $margin;
+}
+
+.project-info-details-content {
+  margin: 0 $margin;
+}
+
+.field {
+  width: 100%;
+}
+
+/* PROJECT INFORMATION DEVICES SUMMARY */
+.project-info-summary {
+  width: 96%;
+  margin-top: $margin*2;
+}
+
+.project-info-summary-content {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 10px;
+}
+
+.project-info-summary-list {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.project-info-summary-list button {
+  display: flex;
+  justify-content: center;
+  width: 142px;
+  height: 60px;
+  color: #000;
+  background-color: #f8f9fa;
+  border: 1px solid #dde3e7;
+  border-radius: 4px;
+  padding: 4px 4px;
+  margin: 0 4px 4px 0;
+}
+
+.project-info-summary-list button:hover{
+  background-color: #e4e8ec;
+}
+
+.project-info-summary-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.project-info-summary-item span {
+  margin-top: $margin;
+}
+
+.mat-input-element:disabled {
+  color: #0b0b0b !important;
+}
+
+.hide {
+  transform: translate(0, 500px);
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+
+.show {
+  opacity: 1;
+  transition: all 0.5s ease-out;
+  transform: translate(0, 0);
+}
+
+.project-info {
+  transition: all .5s ease;
+}
+
+.border-none {
+  border: none;
+}
+
+.fullscreen {
+  z-index: 99999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: calc(100% - 25px);
+  height: 100%;
+  margin: 0;
+}

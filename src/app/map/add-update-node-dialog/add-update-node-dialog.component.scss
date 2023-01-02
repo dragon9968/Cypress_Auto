@@ -1,0 +1,49 @@
+$margin: 8px;
+
+.field {
+    width: 100%;
+    align-items: center;
+}
+
+.category {
+    width: 100%;
+    align-items: center;
+    margin: $margin 0 12px 0;;
+    display: flex;
+}
+
+.category-group {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.category-label {
+    width: 200px;
+    font-family: 'Roboto', sans-serif;
+}
+
+.category-items {
+    margin: 0 $margin;
+}
+
+.mat-option {
+  height: 50px !important;
+}
+
+.option-text {
+    display: flex;
+    align-items: center;
+}
+
+.option-text-items {
+    display: block;
+}
+
+.hardware-option-text, .configurations-option-text, .login-profiles-option-text {
+    line-height: normal;
+}
+
+.mat-option {
+    height: 60px;
+}

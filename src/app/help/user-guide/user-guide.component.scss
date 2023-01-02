@@ -1,0 +1,72 @@
+.guide-container {
+  height: calc(100vh - 100px);
+}
+
+.guide-btn {
+  margin: 0 10px;
+}
+
+.guide-title {
+  text-align: center;
+  font-weight: 600;
+  font-size: 28px;
+}
+
+::ng-deep .toc {
+  display: none;
+}
+
+::ng-deep a:-webkit-any-link {
+  cursor: pointer;
+  text-decoration: none;
+  padding-bottom: 5px;
+}
+
+::ng-deep a {
+  color: #007bff;
+  padding-bottom:10px
+}
+
+::ng-deep .heading li {
+  padding-bottom: 7px
+}
+
+::ng-deep a:hover {
+  color: #3f77b3
+}
+
+::ng-deep .markdown p:first-of-type {
+  display: none;
+}
+
+.guide-content {
+  display: flex;
+  justify-content: space-between;
+}
+
+
+nav > ul {
+  padding: 0 16px;
+}
+
+.heading {
+  align-self: flex-start;
+  position: sticky;
+  top: 16px;
+  width: 20%;
+  overflow-y: scroll;
+  height: calc(100vh - 225px);
+}
+
+.content {
+  margin-top: -18px;
+  width: 75%;
+  position: sticky;
+  top: 16px;
+  overflow-y: scroll;
+  height: calc(100vh - 225px);
+}
+
+.guide-actions {
+  display: flex;
+}

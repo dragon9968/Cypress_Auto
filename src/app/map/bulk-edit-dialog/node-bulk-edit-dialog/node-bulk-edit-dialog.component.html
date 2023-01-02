@@ -1,0 +1,106 @@
+<form [formGroup]="nodeBulkEditForm" (ngSubmit)="updateNodeBulk()">
+  <h1 mat-dialog-title>Node Bulk Edit Form</h1>
+  <div mat-dialog-content>
+    <mat-form-field class="field">
+      <mat-label>Icon</mat-label>
+      <input matInput type="text" placeholder="Select an icon" formControlName="iconCtr" [matAutocomplete]="autoIcon">
+      <mat-autocomplete #autoIcon="matAutocomplete" [displayWith]="helpers.optionDisplay">
+        <mat-option *ngFor="let option of icons" [value]="option">
+          <div class="option-text">
+            <img [src]="ICON_PATH + option.photo" height="24" width="24">
+            <span>{{ option.name }}</span>
+          </div>
+        </mat-option>
+      </mat-autocomplete>
+      <mat-error *ngIf="iconCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Device</mat-label>
+      <input matInput type="text" placeholder="Select a device" formControlName="deviceCtr"
+             [matAutocomplete]="autoDevice">
+      <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="helpers.optionDisplay"
+                        (optionSelected)="selectDevice($event)">
+        <mat-option *ngFor="let option of devices" [value]="option">
+          <div class="option-text">
+            <img [src]="ICON_PATH + option.icon.photo" height="24" width="24">
+            <span>{{ option.name }}</span>
+          </div>
+        </mat-option>
+      </mat-autocomplete>
+      <mat-error *ngIf="deviceCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Template</mat-label>
+      <input matInput type="text" placeholder="Select a template" formControlName="templateCtr"
+             [matAutocomplete]="autoTemplate">
+      <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helpers.templateDisplay">
+        <mat-option *ngFor="let option of filteredTemplates" [value]="option">
+          <div class="option-text">
+            <img [src]="ICON_PATH + option.icon.photo" height="24" width="24">
+            <span>{{ option.display_name }}</span>
+          </div>
+        </mat-option>
+      </mat-autocomplete>
+      <mat-error *ngIf="templateCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Domain</mat-label>
+      <input matInput type="text" placeholder="Select a domain" formControlName="domainCtr"
+             [matAutocomplete]="autoDomain">
+      <mat-autocomplete #autoDomain="matAutocomplete" [displayWith]="helpers.optionDisplay">
+        <mat-option *ngFor="let option of domains" [value]="option">
+          {{ option.name }}
+        </mat-option>
+      </mat-autocomplete>
+      <mat-error *ngIf="domainCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Folder</mat-label>
+      <input matInput formControlName="folderCtr">
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Parent Folder</mat-label>
+      <input matInput formControlName="parentFolderCtr">
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Role</mat-label>
+      <input matInput type="text" placeholder="Select a role" formControlName="roleCtr" [matAutocomplete]="autoRole">
+      <mat-autocomplete #autoRole="matAutocomplete" [displayWith]="helpers.optionDisplay">
+        <mat-option *ngFor="let option of ROLES" [value]="option">
+          {{ option.name }}
+        </mat-option>
+      </mat-autocomplete>
+      <mat-error *ngIf="roleCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+    </mat-form-field>
+    <ng-select class="configuration-template" formControlName="configTemplateCtr" [items]="configTemplates"
+      [multiple]="true" bindLabel="name" bindValue="id" placeholder="Configurations">
+      <ng-template ng-option-tmp let-item="item" let-index="index">
+        <div class="configurations-option-text">
+          <span class="option-text-items"><b>{{ item.name }}</b></span>
+          <span class="option-text-items">{{ item.description }}</span>
+        </div>
+      </ng-template>
+    </ng-select>
+    <mat-form-field class="field">
+      <mat-label>Login Profile</mat-label>
+      <input matInput type="text" placeholder="Assign a login profile" formControlName="loginProfileCtr"
+             [matAutocomplete]="autoLoginProfile">
+      <mat-autocomplete #autoLoginProfile="matAutocomplete" [displayWith]="helpers.optionDisplay">
+        <mat-option class="login-profiles-option" *ngFor="let option of loginProfiles" [value]="option" height="80">
+          <div class="login-profiles-option-text">
+            <span class="option-text-items"><b>{{ option.name }}</b></span>
+            <span class="option-text-items">Username: {{ option.username }}</span>
+            <span class="option-text-items">Password: {{ option.password }}</span>
+          </div>
+        </mat-option>
+      </mat-autocomplete>
+      <mat-error *ngIf="loginProfileCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+    </mat-form-field>
+  </div>
+  <div mat-dialog-actions [align]="'end'">
+    <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+    <button mat-raised-button type="submit" color="primary"
+            [disabled]="!nodeBulkEditForm.valid">Update
+    </button>
+  </div>
+</form>

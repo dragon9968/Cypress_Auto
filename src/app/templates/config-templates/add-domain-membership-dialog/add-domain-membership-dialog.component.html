@@ -1,0 +1,19 @@
+<form [formGroup]="domainMemberForm" (ngSubmit)="addDomainMembership()">
+  <h1 mat-dialog-title>Add Domain Membership</h1>
+  <div mat-dialog-content>
+    <section class="domain-field">
+      <label>Join Domain</label>
+      <mat-checkbox formControlName="joinDomain"></mat-checkbox>
+    </section>
+    <mat-form-field class="field">
+      <mat-label>OU Path</mat-label>
+      <input type="text" formControlName="ouPath" matInput>
+    </mat-form-field>
+  </div>
+  <div mat-dialog-actions [align]="'end'" class="create-btn">
+    <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+    <button mat-raised-button color="primary">
+     Add
+    </button>
+  </div>
+</form>

@@ -1,0 +1,60 @@
+$tool-panel-width: 300px;
+$margin: 8px;
+
+.tab-section {
+    margin: $margin;
+    width: calc($tool-panel-width - $margin*2);
+    text-align: center;
+}
+
+.tab-select-field {
+    width: 100%;
+    align-items: center;
+}
+
+.tab-field {
+    width: 100%;
+    margin: $margin 0;
+    align-items: center;
+    display: flex;
+}
+
+.apply-map-pref-btn {
+    width: 100%;
+}
+
+.slider {
+    width: 70%;
+}
+
+.color-picker {
+    width: 40px;
+    height: 40px;
+    margin: 0 $margin;
+    cursor: pointer;
+    z-index: 1;
+    &.mat-mini-fab {
+      position: relative;
+    }
+}
+
+.text-align,
+.direction {
+    display: flex;
+    justify-content: space-between;
+}
+
+.z-index {
+    justify-content: center;
+}
+
+.z-index-btn {
+    margin: 4px;
+}
+
+.position {
+    display: inline-block;
+    width: 100%;
+    margin: $margin 0;
+    align-items: center;
+}

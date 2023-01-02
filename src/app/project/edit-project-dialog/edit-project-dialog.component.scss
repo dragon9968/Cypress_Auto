@@ -1,0 +1,38 @@
+.fields {
+    width: 90%;
+}
+
+.name-section {
+    display: flex;
+    justify-content: space-between;
+}
+
+.networks-section {
+  width: 95%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.networks-table {
+  padding-top: 10px;
+  height: 200px;
+}
+
+.section-sub {
+  text-align: center;
+}
+
+.create-btn {
+  width: 95%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.networks-label {
+  font-family: 'Roboto', sans-serif;
+  margin-bottom: 10px;
+}
+
+.add-button {
+  padding: 5px 0;
+}

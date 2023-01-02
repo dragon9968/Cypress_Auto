@@ -1,0 +1,23 @@
+<div class="btn-actions-group">
+  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteInterfaces()">
+    <mat-icon>delete_forever</mat-icon>
+  </button>
+  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Edit" (click)="editInterfaces()">
+    <mat-icon>edit</mat-icon>
+  </button>
+  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Randomize IP" (click)="randomizeIp()">
+    <mat-icon svgIcon="randomize-subnet"></mat-icon>
+  </button>
+  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Validate" (click)="validateNode()">
+    <mat-icon>check</mat-icon>
+  </button>
+  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Clear Table" (click)="clearTable()">
+    <mat-icon>clear</mat-icon>
+  </button>
+</div>
+
+<div class="ag-theme-alpine info-panel-interface" [style.height]="gridHeight">
+  <ag-grid-angular style="width: 100%; height: 100%;" [gridOptions]="gridOptions" (gridReady)="onGridReady($event)"
+    (rowSelected)="selectedRows()">
+  </ag-grid-angular>
+</div>

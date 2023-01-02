@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { VersionService } from './core/version/version.service';
+import { VersionService } from './version/version.service';
 
 @Component({
   selector: 'app-root',

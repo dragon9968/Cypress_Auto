@@ -1,0 +1,6 @@
+<h1 mat-dialog-title>User confirmation needed</h1>
+<div mat-dialog-content>{{ data.message }}</div>
+<div mat-dialog-actions [align]="'end'">
+  <button mat-raised-button type="button" mat-dialog-close>Cancel</button>
+  <button mat-raised-button type="submit" color="primary" (click)="addDeletePortGroupDeploy()">OK</button>
+</div>

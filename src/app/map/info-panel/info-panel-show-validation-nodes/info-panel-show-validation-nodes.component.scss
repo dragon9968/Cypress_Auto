@@ -1,0 +1,13 @@
+::ng-deep .table {
+  border-bottom: 1px solid #d9d5d5;
+  border-top: 1px solid #d9d5d5;
+  padding-bottom: 15px;
+}
+
+::ng-deep tr th {
+  padding-right: 30px;
+}
+
+::ng-deep tr {
+  border-bottom: 1px solid black;
+}

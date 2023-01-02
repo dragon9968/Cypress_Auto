@@ -1,0 +1,56 @@
+<section *ngIf="isConnect; else isNotConnect" class="tab-remote remote-list">
+  <section class="remote-item">
+    <h4 class="remote-item__title">Server Details</h4>
+    <div class="remote-item__field">
+      <mat-label class="remote-item__field--label">Name <span>:</span></mat-label>
+      <span class="remote-item__field--content">{{ connectionName }}</span>
+    </div>
+    <div class="remote-item__field">
+      <mat-label class="remote-item__field--label">Category <span>:</span></mat-label>
+      <span class="remote-item__field--content">{{ connectionCategory }}</span>
+    </div>
+    <div class="remote-item__field">
+      <mat-label class="remote-item__field--label">Server <span>:</span></mat-label>
+      <span class="remote-item__field--content">{{ connectionServer }}</span>
+    </div>
+    <div class="remote-item__field">
+      <mat-label class="remote-item__field--label">Datacenter <span>:</span></mat-label>
+      <span class="remote-item__field--content">{{ connectionDatacenter }}</span>
+    </div>
+    <div class="remote-item__field">
+      <mat-label class="remote-item__field--label">Cluster <span>:</span></mat-label>
+      <span class="remote-item__field--content">{{ connectionCluster }}</span>
+    </div>
+    <div class="remote-item__field">
+      <mat-label class="remote-item__field--label">Switch <span>:</span></mat-label>
+      <span class="remote-item__field--content">{{ connectionSwitch }}</span>
+    </div>
+    <div class="remote-item__field">
+      <mat-label class="remote-item__field--label">Switch Type<span>:</span> </mat-label>
+      <span class="remote-item__field--content">{{ connectionSwitchType }}</span>
+    </div>
+    <div class="remote-item__field">
+      <mat-label class="remote-item__field--label">Username<span>:</span></mat-label>
+      <span class="remote-item__field--content">{{ userName }}</span>
+    </div>
+  </section>
+  <section class="remote-item map-status">
+    <h4 class="remote-item__title">Map Status</h4>
+    <div class="remote-item__field">
+      <mat-label class="remote-item__field--label">Status<span>:</span></mat-label>
+      <mat-slide-toggle [(ngModel)]="vmStatusChecked" color="primary" (change)="toggleVMStatus($event)">
+      </mat-slide-toggle>
+    </div>
+    <div *ngIf="isConnect && vmStatusChecked" class="remote-item__field">
+      <mat-label class="remote-item__field--label">Refresh<span>:</span></mat-label>
+      <button mat-button mat-mini-fab class="btn-refresh" color="primary"
+              matTooltip="Refresh Map Status" (click)="refreshVMStatus()">
+        <mat-icon>autorenew</mat-icon>
+      </button>
+    </div>
+  </section>
+</section>
+
+<ng-template #isNotConnect>
+  <h4 class="remote-item__title">No Connection</h4>
+</ng-template>

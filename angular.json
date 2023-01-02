@@ -28,14 +28,14 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.scss",
-              "node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "node_modules/@fortawesome/fontawesome-free/scss/fontawesome.scss"
+              "src/styles.scss"
             ],
             "scripts": [
-              "node_modules/jquery/dist/jquery.min.js",
-              "node_modules/bootstrap/dist/js/bootstrap.min.js",
-              "node_modules/@fortawesome/fontawesome-free/js/all.js"
+            ],  
+            "allowedCommonJsDependencies": [
+              "cytoscape", 
+              "src/app/shared/validations/ip-subnet.validation.ag-grid",
+              "src/app/shared/validations/ip-subnet.validation"
             ]
           },
           "configurations": {
@@ -104,7 +104,8 @@
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [
+            ]
           }
         },
         "lint": {

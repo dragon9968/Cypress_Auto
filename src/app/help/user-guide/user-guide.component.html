@@ -1,0 +1,33 @@
+<mat-card class="guide-container">
+  <mat-card>
+    <mat-card-title class="guide-title">User Guide</mat-card-title>
+    <div mat-card-actions class="guide-actions">
+      <div matTooltip="The file does not exist." [matTooltipDisabled]="!isDisabled">
+        <button class="guide-btn" mat-raised-button color="primary" matTooltip="Download" type="button" [disabled]="isDisabled" (click)="downladUserGuide()">
+          <mat-icon>download</mat-icon>
+        </button>
+      </div>
+      <div>
+        <button class="guide-btn" mat-raised-button color="primary" matTooltip="Upload" type="button" (click)="openUploadUserGuide()">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+    </div>
+  </mat-card>
+  <mat-card>
+    <div mat-card-content class="guide-content">
+      <div class="heading">
+        <nav>
+          <ul>
+            <li *ngFor="let heading of headings">
+              <a [routerLink]="['/help/user-guide']" fragment="{{ heading.id }}" (click)="onClick(heading.id)">{{ heading.innerHTML }}</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      <div class="content">
+        <div class="markdown" [innerHTML]="userGuideContent"></div>
+      </div>
+    </div>
+  </mat-card>
+</mat-card>

@@ -1,0 +1,24 @@
+$tool-panel-width: 300px;
+$margin: 8px;
+
+.tab-section {
+    margin: $margin;
+    width: calc($tool-panel-width - $margin*2);
+    text-align: center;
+    display: table;
+}
+
+.tab-field {
+    margin: $margin 0;
+    display: flex;
+}
+
+.tab-select-field,
+.tab-field {
+    width: 100%;
+    align-items: center;
+}
+
+.reinitialize-map-btn {
+    width: 100%;
+}

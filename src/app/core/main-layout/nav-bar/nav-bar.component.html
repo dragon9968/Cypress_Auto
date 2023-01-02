@@ -1,0 +1,159 @@
+<mat-toolbar color="primary">
+    <a mat-button [routerLink]="routeSegments.ROOT" class="home-btn">
+        <img alt="App icon" src="favicon.ico" style="height: 40px; width: 55px">
+        <span style="font-size: 24px;"><b style="color:#007bff;">Blue</b> Cloak</span>
+    </a>
+    <a mat-button [matMenuTriggerFor]="project" class="menu-btn" (click)="getCollectionId()">Project</a>
+    <mat-menu #project="matMenu">
+        <button mat-menu-item [matMenuTriggerFor]="new">
+            <mat-icon>create_new_folder</mat-icon>
+            <span>New</span>
+        </button>
+        <mat-menu #new="matMenu">
+            <button mat-menu-item [routerLink]="routeSegments.ADD_PROJECT">
+                <mat-icon>create_new_folder</mat-icon>
+                <span>New</span>
+            </button>
+            <button mat-menu-item [disabled]="!isOpen" (click)="cloneProject()">
+                <mat-icon>file_copy</mat-icon>
+                <span>Clone</span>
+            </button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="routeSegments.PROJECTS">
+            <mat-icon>folder_open</mat-icon>
+            <span>Open</span>
+        </button>
+        <button mat-menu-item [disabled]="!isOpen" (click)="editProject()">
+            <mat-icon>edit</mat-icon>
+            <span>Edit</span>
+        </button>
+        <button mat-menu-item [matMenuTriggerFor]="exportimport">
+            <mat-icon>create_new_folder</mat-icon>
+            <span>Export/Import</span>
+        </button>
+        <mat-menu #exportimport="matMenu">
+            <button mat-menu-item [disabled]="!isOpen" (click)="exportProject()">
+                <mat-icon>download</mat-icon>
+                <span>Export</span>
+            </button>
+            <button mat-menu-item (click)="importProject()">
+                <mat-icon>add_circle_outline</mat-icon>
+                <span>Import</span>
+            </button>
+        </mat-menu>
+        <button mat-menu-item [disabled]="!isOpen" (click)="deleteProject()">
+            <mat-icon>delete</mat-icon>
+            <span>Delete</span>
+        </button>
+        <button mat-menu-item [routerLink]="routeSegments.TRASH_PROJECT">
+            <mat-icon svgIcon="icons8-trash-can"></mat-icon>
+            <span>Trash Bin</span>
+        </button>
+        <button mat-menu-item [disabled]="!isOpen" (click)="validateProject()">
+            <mat-icon>check</mat-icon>
+            <span>Validate</span>
+        </button>
+        <button mat-menu-item [disabled]="!isOpen" (click)="closeProject()">
+            <mat-icon>folder_delete</mat-icon>
+            <span>Close</span>
+        </button>
+    </mat-menu>
+    <a mat-button [matMenuTriggerFor]="devices" class="menu-btn">Devices</a>
+    <mat-menu #devices="matMenu">
+        <button mat-menu-item [routerLink]="routeSegments.DEVICES_TEMPLATE">
+            <mat-icon>devices</mat-icon>
+            <span>Device/Template</span>
+        </button>
+      <button mat-menu-item [routerLink]="routeSegments.DEVICES_CATEGORY">
+        <mat-icon>dvr</mat-icon>
+        <span>Device Category</span>
+      </button>
+        <button mat-menu-item [routerLink]="routeSegments.HARDWARE">
+            <mat-icon>router</mat-icon>
+            <span>Hardware</span>
+        </button>
+        <button mat-menu-item [routerLink]="routeSegments.DEVICES + '/login_profiles'">
+            <mat-icon>groups</mat-icon>
+            <span>Login Profiles</span>
+        </button>
+        <button mat-menu-item [routerLink]="routeSegments.DEVICES + '/icon'">
+            <mat-icon svgIcon="plant-tree-icon"></mat-icon>
+            <span>Icon</span>
+        </button>
+    </mat-menu>
+    <a mat-button [matMenuTriggerFor]="templates" class="menu-btn">Templates</a>
+    <mat-menu #templates="matMenu">
+        <button mat-menu-item [routerLink]="routeSegments.CONFIG_TEMPLATES">
+            <mat-icon>source</mat-icon>
+            <span>Configuration Templates</span>
+        </button>
+        <!-- <button mat-menu-item [routerLink]="routeSegments.NETWORK_TEMPLATES">
+            <mat-icon>network_wifi</mat-icon>
+            <span>Network Templates</span>
+        </button> -->
+    </mat-menu>
+    <a mat-button [matMenuTriggerFor]="remote" class="menu-btn">Remote</a>
+    <mat-menu #remote="matMenu">
+        <button *ngIf="!isConnect && isOpen" mat-menu-item (click)="openConnectServerForm()">
+            <mat-icon>wifi</mat-icon>
+            <span>Connect</span>
+        </button>
+        <button *ngIf="isConnect" mat-menu-item (click)="disconnectServer()">
+            <mat-icon>wifi</mat-icon>
+            <span>Disconnect</span>
+        </button>
+        <button mat-menu-item [routerLink]="routeSegments.CONNECTION_PROFILES">
+            <mat-icon>power</mat-icon>
+            <span>Connection Profiles</span>
+        </button>
+    </mat-menu>
+    <a mat-button [matMenuTriggerFor]="settings" class="menu-btn">Settings</a>
+    <mat-menu #settings="matMenu">
+        <button mat-menu-item (click)="openAppPref()">
+            <mat-icon>settings</mat-icon>
+            <span>App Preferences</span>
+        </button>
+        <button mat-menu-item [routerLink]="routeSegments.MAP_PREFERENCES">
+            <mat-icon>settings</mat-icon>
+            <span>Map Preferences</span>
+        </button>
+    </mat-menu>
+    <a mat-button [matMenuTriggerFor]="help" class="menu-btn">Help</a>
+    <mat-menu #help="matMenu">
+        <button mat-menu-item [routerLink]="routeSegments.USER_GUIDE">
+            <mat-icon>book</mat-icon>
+            <span>User Guide</span>
+        </button>
+        <button mat-menu-item (click)="openAboutModal()">
+            <mat-icon>info</mat-icon>
+            <span>About</span>
+        </button>
+    </mat-menu>
+    <mat-form-field *ngIf="isMapOpen" floatLabel="never" class="search-bar">
+        <input matInput #searchbar [(ngModel)]="searchText" placeholder="Search Map" (keyup.enter)="search()">
+        <button *ngIf="searchText" mat-button mat-icon-button class="btn-clear-search-text" (click)="close()" matSuffix>
+            <mat-icon>close</mat-icon>
+        </button>
+        <button mat-icon-button class="btn-search" (click)="search()" matSuffix>
+            <mat-icon>search</mat-icon>
+        </button>
+    </mat-form-field>
+    <span class="menu-spacer"></span>
+    <span *ngIf="isOpen" class="project-name">
+      <mat-icon>folder</mat-icon>Project:<a mat-button (click)="openProject(collectionId)">{{projectName}}</a>
+    </span>
+    <a mat-button [matMenuTriggerFor]="account">
+        <mat-icon>person</mat-icon>
+        <span>{{username}}</span>
+    </a>
+    <mat-menu #account="matMenu">
+        <button mat-menu-item (click)="userProfile()">
+            <mat-icon>account_box</mat-icon>
+            <span>Profile</span>
+        </button>
+        <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            <span>Logout</span>
+        </button>
+    </mat-menu>
+</mat-toolbar>

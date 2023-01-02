@@ -1,0 +1,33 @@
+<mat-card class="network-map">
+  <mat-card-header class="network-map-header">
+    <mat-card-title class="network-map-title">Network Map</mat-card-title>
+    <div class="network-map-actions">
+      <mat-slide-toggle *ngIf="connection.id !== 0" class="network-map-actions-item" color="primary" labelPosition="before"
+                        [(ngModel)]="vmStatusChecked"  (change)="toggleVMStatus($event)" >
+        <span>VM Status:</span>
+      </mat-slide-toggle>
+      <button class="network-map-actions-item" mat-mini-fab color="primary" matTooltip="{{isLock ? 'Lock' : 'Unlock'}}"
+              (click)="toggleCardLock()">
+        <mat-icon *ngIf="isLock">lock</mat-icon>
+        <mat-icon *ngIf="!isLock">lock_open</mat-icon>
+      </button>
+      <button class="network-map-actions-item" mat-mini-fab color="primary" matTooltip="Sync Map" (click)="syncMap()">
+        <mat-icon>sync</mat-icon>
+      </button>
+      <button class="network-map-actions-item" mat-mini-fab color="primary" matTooltip="Open Map" (click)="openMap()">
+        <mat-icon>open_in_new</mat-icon>
+      </button>
+      <button class="network-map-actions-item" mat-mini-fab color="primary" matTooltip="{{isMaximize ? 'Minimize' : 'Maximize' }}"
+              (click)="isMaximize = !isMaximize">
+        <mat-icon *ngIf="isMaximize" svgIcon="minus"></mat-icon>
+        <mat-icon *ngIf="!isMaximize" svgIcon="plus"></mat-icon>
+      </button>
+      <button class="network-map-actions-item" mat-mini-fab color="primary" matTooltip="Remove Card" (click)="removeDashboard()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </mat-card-header>
+  <mat-card-content [class]="isMaximize ? 'show': 'hide'" class="network-map-content">
+    <div id="cy-network-map" style="height: calc(100vh - 11rem); width: 100%; z-index: 1;"></div>
+  </mat-card-content>
+</mat-card>

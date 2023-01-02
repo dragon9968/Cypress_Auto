@@ -1,0 +1,722 @@
+import { Store } from "@ngrx/store";
+import { MatDialog } from "@angular/material/dialog";
+import { catchError } from "rxjs/operators";
+import { ToastrService } from "ngx-toastr";
+import { Subscription, throwError } from "rxjs";
+import { Injectable, Input, OnDestroy } from '@angular/core';
+import { MapService } from "../map/map.service";
+import { NodeService } from "../node/node.service";
+import { GroupService } from "../group/group.service";
+import { DomainService } from "../domain/domain.service";
+import { ProjectService } from "../../../project/services/project.service";
+import { HelpersService } from "../helpers/helpers.service";
+import { UserTaskService } from "../user-task/user-task.service";
+import { PortGroupService } from "../portgroup/portgroup.service";
+import { InterfaceService } from "../interface/interface.service";
+import { DomainUserService } from "../domain-user/domain-user.service";
+import { selectVMStatus } from "../../../store/project/project.selectors";
+import { selectMapOption } from "../../../store/map-option/map-option.selectors";
+import { retrievedGroups } from "../../../store/group/group.actions";
+import { selectIsConnect } from "../../../store/server-connect/server-connect.selectors";
+import { retrievedDomains } from "../../../store/domain/domain.actions";
+import { selectInterfaces } from "../../../store/map/map.selectors";
+import { selectDomainUsers } from "../../../store/domain-user/domain-user.selectors";
+import { retrievedUserTasks } from "../../../store/user-task/user-task.actions";
+import { retrievedMapSelection } from "../../../store/map-selection/map-selection.actions";
+import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
+import { selectInterfacesManagement } from "../../../store/interface/interface.selectors";
+import { retrievedIsChangeDomainUsers } from "../../../store/domain-user-change/domain-user-change.actions";
+import { retrievedPortGroupsManagement } from "../../../store/portgroup/portgroup.actions";
+import { selectPortGroups, selectPortGroupsManagement } from "../../../store/portgroup/portgroup.selectors";
+import { retrievedInterfacesByIds, retrievedInterfacesManagement } from "../../../store/interface/interface.actions";
+import { AddUpdatePGDialogComponent } from "../../../map/add-update-pg-dialog/add-update-pg-dialog.component";
+import { ShowUserTaskDialogComponent } from "../../../map/info-panel/info-panel-task/show-user-task-dialog/show-user-task-dialog.component";
+import { AddUpdateNodeDialogComponent } from "../../../map/add-update-node-dialog/add-update-node-dialog.component";
+import { AddUpdateGroupDialogComponent } from "../../../map/add-update-group-dialog/add-update-group-dialog.component";
+import { AddUpdateDomainDialogComponent } from "../../../map/add-update-domain-dialog/add-update-domain-dialog.component";
+import { UpdateDomainUserDialogComponent } from "../../../map/info-panel/info-panel-domain/update-domain-user-dialog/update-domain-user-dialog.component";
+import { AddUpdateInterfaceDialogComponent } from "../../../map/add-update-interface-dialog/add-update-interface-dialog.component";
+
+@Injectable({
+  providedIn: 'root'
+})
+export class InfoPanelService implements OnDestroy {
+  @Input() ur: any;
+  @Input() cy: any;
+  selectNode$ = new Subscription();
+  selectMapOption$ = new Subscription();
+  selectPortGroup$ = new Subscription();
+  selectDomainUser$ = new Subscription();
+  selectVMStatus$ = new Subscription();
+  selectIsConnect$ = new Subscription();
+  selectPortGroupsManagement$ = new Subscription();
+  selectInterfacesManagement$ = new Subscription();
+  nodes!: any[];
+  portGroups!: any[];
+  domainUsers!: any[];
+  portGroupsManagement: any[] = [];
+  interfacesManagement: any[] = [];
+  vmStatus!: boolean;
+  isGroupBoxesChecked!: boolean;
+  isConnect!: boolean;
+  statusColorLookup = {
+    off: '#D63222', //red
+    on: '#44D62C', // green
+    unknown: '#FFE900' // yellow
+  }
+  nodeIdsDeployed: any[] = [];
+  portGroupIdsDeployed: any[] = [];
+  interfaceIds: any[] = [];
+
+  constructor(
+    private store: Store,
+    private dialog: MatDialog,
+    private toastr: ToastrService,
+    private mapService: MapService,
+    private helpers: HelpersService,
+    private nodeService: NodeService,
+    private interfaceService: InterfaceService,
+    private portGroupService: PortGroupService,
+    private groupService: GroupService,
+    private domainService: DomainService,
+    private userTaskService: UserTaskService,
+    private projectService: ProjectService,
+    private domainUserService: DomainUserService,
+  ) {
+    this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
+      if (mapOption) {
+        this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
+      }
+    });
+    this.selectNode$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => this.nodes = nodes);
+    this.selectPortGroup$ = this.store.select(selectPortGroups).subscribe(portGroups => this.portGroups = portGroups);
+    this.selectDomainUser$ = this.store.select(selectDomainUsers).subscribe(domainUsers => this.domainUsers = domainUsers);
+    this.selectVMStatus$ = this.store.select(selectVMStatus).subscribe(vmStatus => this.vmStatus = vmStatus);
+    this.selectIsConnect$ = this.store.select(selectIsConnect).subscribe(isConnect => this.isConnect = isConnect);
+    this.selectPortGroupsManagement$ = this.store.select(selectPortGroupsManagement).subscribe(
+      portGroupsData => this.portGroupsManagement = portGroupsData
+    )
+    this.selectInterfacesManagement$ = this.store.select(selectInterfacesManagement).subscribe(
+      interfacesData => this.interfacesManagement = interfacesData
+    )
+  }
+
+  ngOnDestroy(): void {
+    this.selectNode$.unsubscribe();
+    this.selectMapOption$.unsubscribe();
+    this.selectPortGroup$.unsubscribe();
+    this.selectDomainUser$.unsubscribe();
+    this.selectVMStatus$.unsubscribe();
+    this.selectIsConnect$.unsubscribe();
+    this.selectPortGroupsManagement$.unsubscribe();
+  }
+
+  deleteInfoPanelAssociateMap(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[],
+    deletedNodes: any[], deletedInterfaces: any[], tabName: string, id: any) {
+    let idName = '';
+    if (tabName == 'node') {
+      idName = 'node_id';
+    } else if (tabName == 'portGroup') {
+      idName = 'pg_id';
+    } else if (tabName == 'edge') {
+      idName = 'interface_id';
+    }
+    activeEdges.filter(ele => ele.data(idName) === id).forEach((edge: any) => {
+      const sourceData = cy.getElementById(edge.data('source')).data();
+      const targetData = cy.getElementById(edge.data('target')).data();
+      if ('temp' in sourceData || 'temp' in targetData) {
+        return
+      } else {
+        this.ur?.do('removeEdge', edge);
+        const index = activeEdges.findIndex(ele => ele.data(idName) === id);
+        activeEdges.splice(index, 1);
+        // TODO: this.tool_panel.update_components();
+      }
+    });
+
+    activeNodes.concat(activePGs, activeGBs)
+      .filter(ele => ele.data(idName) === id)
+      .forEach((node: any) => {
+        // Remove the interface is connecting to the Port Group or Node
+        const interfacesDeleted = this.getEdgesConnectingToNode(node);
+        for (let i = 0; i < activeEdges.length; i++) {
+          const data = activeEdges[i].data();
+          if (interfacesDeleted.includes(data.interface_id)) {
+            activeEdges.splice(i, 1);
+            i--;
+          }
+        }
+        this.ur?.do("removeNode", node)
+        if (this.isGroupBoxesChecked) {
+          cy.nodes().filter('[label="group_box"]').forEach((gb: any) => {
+            if (gb.children().length == 0) {
+              this.ur?.do("removeNode", gb)
+            }
+          });
+        }
+        if (idName === 'node_id') {
+          const indexNode = activeNodes.findIndex(ele => ele.data(idName) === id);
+          activeNodes.splice(indexNode, 1);
+        } else if (idName === 'pg_id') {
+          const indexNode = activePGs.findIndex(ele => ele.data(idName) === id);
+          activePGs.splice(indexNode, 1);
+        }
+        activeGBs.splice(0);
+        // TODO: this.tool_panel.update_components();
+      });
+  }
+
+  getEdgesConnectingToNode(node: any) {
+    const interfacesDeleted: any[] = [];
+    node.connectedEdges().forEach((ele: any) => {
+      const data = ele.data();
+      if (data && !data.new) {
+        data.deleted = true;
+        interfacesDeleted.push({
+          'name': data.id,
+          'interface_id': data.interface_id
+        });
+      }
+    });
+    return interfacesDeleted.map(ele => ele.interface_id);
+  }
+
+  deleteInfoPanelNotAssociateMap(tabName: string, ids: any[] = []) {
+    if (ids.length > 0) {
+      switch (tabName) {
+        case 'domain':
+          ids.map(id => this.deleteDomain(id));
+          break;
+        case 'group':
+          ids.map(id => this.deleteGroup(id));
+          break;
+        case 'domainUser':
+          ids.map(id => this.deleteDomainUser(id));
+          break;
+        case 'userTask':
+          ids.map(id => this.deleteUserTask(id));
+          break;
+        default:
+          this.toastr.warning('Please open the table info before deleting', 'Warning');
+      }
+    } else {
+      this.toastr.warning('Please select the item before deleting', 'Warning');
+    }
+  }
+
+  deleteDomain(id: any) {
+    this.domainService.get(id).subscribe(domainData => {
+      const domain = domainData.result;
+      const isDomainInNode = this.nodes.some(ele => ele.domain_id === domain.id);
+      const isDomainInPG = this.portGroups.some(ele => ele.domain_id === domain.id);
+      const domainName = domain.name;
+      if (isDomainInNode && isDomainInPG) {
+        this.toastr.error(`Port groups and nodes are still associated with domain ${domainName}`);
+      } else if (isDomainInNode) {
+        this.toastr.error(`Nodes are still associated with this domain ${domainName}`);
+      } else if (isDomainInPG) {
+        this.toastr.error(`Port groups are still associated with domain ${domainName}`)
+      } else {
+        this.domainUsers
+          .filter(ele => ele.domain_id === domain.id)
+          .map(ele => {
+            return this.domainUserService.delete(ele.id).subscribe({
+              next: () => {
+                this.toastr.success(`Deleted domain user ${ele.username}`, 'Success');
+              },
+              error: err => {
+                this.toastr.error('Delete domain user failed', 'Error');
+                throwError(() => err.message);
+              }
+            })
+          });
+        this.domainService.delete(domain.id).subscribe({
+          next: () => {
+            const collectionId = this.projectService.getCollectionId();
+            this.domainService.getDomainByCollectionId(collectionId).subscribe(
+              (data: any) => this.store.dispatch(retrievedDomains({ data: data.result }))
+            );
+            this.toastr.success(`Deleted domain ${domainName}`);
+          },
+          error: err => {
+            this.toastr.error(`Delete domain ${domainName} failed`, 'Error');
+            throwError(() => err.message);
+          }
+        })
+      }
+    });
+  }
+
+  deleteGroup(id: any) {
+    this.groupService.delete(id).subscribe({
+      next: () => {
+        const collectionId = this.projectService.getCollectionId();
+        this.groupService.getGroupByCollectionId(collectionId).subscribe(data => {
+          this.store.dispatch(retrievedGroups({ data: data.result }));
+        })
+        this.toastr.success('Deleted Row', 'Success');
+      },
+      error: err => {
+        this.toastr.error('Delete group failed', 'Error');
+        throwError(() => err.message);
+      }
+    });
+  }
+
+  deleteDomainUser(id: any) {
+    this.domainUserService.get(id).subscribe(data => {
+      this.domainUserService.delete(id).subscribe({
+        next: () => {
+          this.store.dispatch(retrievedIsChangeDomainUsers({ isChangeDomainUsers: true }));
+          this.toastr.success(`Deleted domain user ${data.result.username}`, 'Success');
+        },
+        error: err => {
+          this.toastr.error('Delete domain user failed', 'Error');
+          throwError(() => err.message);
+        }
+      })
+    })
+  }
+
+  deleteUserTask(userTaskId: number) {
+    this.userTaskService.delete(userTaskId).subscribe({
+      next: () => {
+        this.userTaskService.getAll().subscribe(data => {
+          this.store.dispatch(retrievedUserTasks({ data: data.result }));
+        })
+        this.toastr.success('Deleted Row', 'Success');
+      },
+      error: error => {
+        this.toastr.error(error.error.message, 'Error');
+        throwError(() => error.message);
+      }
+    })
+  }
+
+  rerunTask(userTaskIds: any[]) {
+    this.userTaskService.rerunTask({ pks: userTaskIds }).subscribe({
+      next: value => {
+        this.userTaskService.getAll().subscribe(data => {
+          this.store.dispatch(retrievedUserTasks({ data: data.result }));
+        })
+        value.result.map((message: string) => {
+          this.toastr.success(`Rerun task - ${message} `, 'Success');
+        })
+      },
+      error: err => {
+        this.toastr.error(err.error.message, 'Error');
+        throwError(() => err.message);
+      }
+    })
+  }
+
+  revokeTask(userTaskIds: any[]) {
+    this.userTaskService.revokeTask({ pks: userTaskIds }).subscribe({
+      next: value => {
+        this.userTaskService.getAll().subscribe(data => {
+          this.store.dispatch(retrievedUserTasks({ data: data.result }));
+        })
+        value.result.map((message: string) => {
+          this.toastr.success(`Revoke task - ${message} `, 'Success');
+        })
+      },
+      error: err => {
+        this.toastr.error('Revoke task failed', 'Error');
+        throwError(() => err.message);
+      }
+    })
+  }
+
+  postTask(userTaskIds: any[]) {
+    this.userTaskService.postTask({ pks: userTaskIds }).subscribe({
+      next: value => {
+        this.userTaskService.getAll().subscribe(data => {
+          this.store.dispatch(retrievedUserTasks({ data: data.result }));
+        })
+        value.result.map((message: string) => {
+          this.toastr.success(`Post task - ${message} `, 'Success');
+        })
+      },
+      error: err => {
+        this.toastr.error('Post task failed', 'Error');
+        throwError(() => err.message);
+      }
+    })
+  }
+
+  refreshTask() {
+    this.userTaskService.refreshTask().subscribe({
+      next: response => {
+        this.toastr.success(response.message, 'Success');
+        this.updateTaskList();
+      },
+      error: err => {
+        this.toastr.error(err.error.message, 'Error');
+        throwError(() => err.message);
+      }
+    })
+  }
+
+  updateTaskList() {
+    this.userTaskService.getAll().subscribe(data => {
+      this.store.dispatch(retrievedUserTasks({ data: data.result }));
+    })
+  }
+
+  showNodesDeployed(nodesDeployed: any, vmStatus: any) {
+    if (nodesDeployed && nodesDeployed.length > 0) {
+      vmStatus.map((nodeStatus: any) => {
+        const ele = this.cy.nodes().filter((node: any) => node.data('node_id') === nodeStatus.id)[0];
+        if (!ele) {
+          return;
+        }
+        // Add new deploy-status property for the node
+        ele.data('deploy-status', nodeStatus);
+
+        // set the VM Power and Status value in the tooltip
+        const d = nodeStatus;
+        if (d.state == "on" && d.status == "running") {
+          ele.data('color', this.statusColorLookup.on);
+          ele.style({ 'border-color': this.statusColorLookup.on });
+        } else if (d.state == "on" && d.status == "notRunning") {
+          ele.data("color", this.statusColorLookup.unknown);
+          ele.style({ 'border-color': this.statusColorLookup.unknown });
+        } else if (d.state == "off") {
+          ele.data('color', this.statusColorLookup.off);
+          ele.style({ 'border-color': this.statusColorLookup.off });
+        }
+      })
+      nodesDeployed.style({
+        'background-opacity': '0',
+        'border-width': '7px',
+        'border-style': 'solid',
+        'border-opacity': '0'
+      });
+      nodesDeployed.animate({
+        style: {
+          'background-opacity': '1',
+          'border-opacity': '1',
+        },
+        easing: 'ease',
+        duration: 1500,
+        complete: () => {
+          nodesDeployed.addClass('node-deployed');
+        }
+      })
+    }
+  }
+
+  showPortGroupsDeployed(portGroupsDeployed: any, portGroupStatus: any) {
+    if (portGroupsDeployed && portGroupsDeployed.length > 0) {
+      portGroupStatus.map((pg: any) => {
+        const ele = this.cy.nodes().filter(
+          (portGroup: any) => portGroup.data('elem_category') === 'port_group' &&  portGroup.data('pg_id') === pg.id
+        )[0];
+        // Add new deploy-status property for the port group
+        ele.data('deploy-status', pg);
+      })
+      portGroupsDeployed.style({
+        'border-color': this.statusColorLookup.on,
+        'border-style': 'double',
+        'border-width': 0,
+        'border-opacity': 0
+      })
+      portGroupsDeployed.animate({
+        style: {
+          'border-width': 7,
+          'border-opacity': '1'
+        },
+        easing: 'ease',
+        duration: 1500,
+        complete: () => {
+          portGroupsDeployed.addClass('pg-deployed');
+        }
+      })
+    }
+  }
+
+  removeMapStatusOnMap() {
+    this.removeNodesStatusOnMap();
+    this.removePortGroupsStatusOnMap();
+  }
+
+  removeNodesStatusOnMap() {
+    // Remove Node's status
+    const nodes = this.cy?.nodes().filter('[icon]');
+    if (nodes) {
+      nodes.animate({
+        style: {
+          'background-opacity': 0,
+          'border-width': 0,
+          'border-opacity': 0
+        },
+        easing: 'ease',
+        duration: 1500,
+        complete: () => {
+          nodes.stop();
+        }
+      })
+      // Remove the node-deployed class and deploy-status property in all nodes.
+      nodes.removeClass('node-deployed');
+      nodes.map((node: any) => node.data('deploy-status', {}));
+    }
+  }
+
+  removePortGroupsStatusOnMap() {
+    // Remove PortGroup's status
+    const portGroups = this.cy?.nodes().filter((ele: any) => ele.data('elem_category') === 'port_group');
+    if (portGroups) {
+      portGroups.animate({
+        style: {
+          'border-width': 0,
+          'border-opacity': 0
+        },
+        easing: 'ease',
+        duration: 1500,
+        complete: () => {
+          portGroups.stop();
+        }
+      })
+      // Remove the pg-deployed class and deploy-status property in all nodes.
+      portGroups.removeClass('pg-deployed');
+      portGroups.map((portGroup: any) => portGroup.data('deploy-status', {}));
+    }
+  }
+
+  changeVMStatusOnMap(collectionId: number, connectionId: number) {
+    this.mapService.getMapStatus(collectionId, connectionId).subscribe(mapStatus => {
+      if (this.cy) {
+        let nodesDeployed, portGroupsDeployed, vmStatus, portGroupStatus;
+        if (mapStatus.vm_status) {
+          vmStatus = Object.values(mapStatus.vm_status);
+          this.nodeIdsDeployed = vmStatus.map((ele: any) => ele.id);
+          nodesDeployed = this.cy.nodes().filter((node: any) => this.nodeIdsDeployed.includes(node.data('node_id')));
+        }
+
+        if (mapStatus.pg_status) {
+          portGroupStatus = Object.values(mapStatus.pg_status);
+          this.portGroupIdsDeployed = portGroupStatus.map((ele: any) => ele.id);
+          portGroupsDeployed = this.cy.nodes().filter((portGroup: any) => this.portGroupIdsDeployed.includes(portGroup.data('pg_id')));
+        }
+
+        if (!this.isNodesDeployedShowed(vmStatus)) {
+          this.removeNodesStatusOnMap();
+          this.showNodesDeployed(nodesDeployed, vmStatus);
+        }
+
+        if (!this.isPortGroupsDeployedShowed(portGroupStatus)) {
+          this.removePortGroupsStatusOnMap();
+          this.showPortGroupsDeployed(portGroupsDeployed, portGroupStatus);
+        }
+      }
+    })
+  }
+
+  isNodesDeployedShowed(vmStatus: any) {
+    let result = true;
+    const nodesDeployedShowed = this.cy.filter((node: any) => node.hasClass('node-deployed'));
+    const nodeIdsDeployedShowed = nodesDeployedShowed.map((node: any) => node.data('node_id'));
+    const isNodesDeployed = JSON.stringify(nodeIdsDeployedShowed.sort()) === JSON.stringify(this.nodeIdsDeployed.sort());
+    if (isNodesDeployed) {
+      for (const nodeStatus of vmStatus) {
+        if (nodeIdsDeployedShowed.includes(nodeStatus.id)) {
+          const node = nodesDeployedShowed.find((node: any) => node.data('node_id') === nodeStatus.id);
+          // Check node's status is updated or not
+          if (JSON.stringify(node.data('deploy-status')) !== JSON.stringify(nodeStatus)) {
+            result = false;
+            break;
+          }
+        }
+      }
+    } else {
+      return false;
+    }
+    return result;
+  }
+
+  isPortGroupsDeployedShowed(portGroupStatus: any) {
+    let result = true;
+    const portGroupsDeployedShowed = this.cy.filter((pg: any) => pg.hasClass('pg-deployed'));
+    const portGroupIdsDeployedShowed = portGroupsDeployedShowed.map((pg: any) => pg.data('pg_id'));
+    const isPGsDeploy = JSON.stringify(portGroupIdsDeployedShowed.sort()) === JSON.stringify(this.portGroupIdsDeployed.sort());
+    if (isPGsDeploy) {
+      for (const pgStatus of portGroupStatus) {
+        if (portGroupIdsDeployedShowed.includes(pgStatus.id)) {
+          const portGroup = portGroupsDeployedShowed.find((pg: any) => pg.data('pg_id') === pgStatus.id);
+          // Check port group's status is updated or not
+          if (JSON.stringify(portGroup.data('deploy-status')) !== JSON.stringify(pgStatus)) {
+            result = false;
+            break;
+          }
+        }
+      }
+    } else {
+      return false;
+    }
+    return result;
+  }
+
+  initVMStatus(collectionId: number, connectionId: number) {
+    if (this.isConnect && this.vmStatus) {
+      this.changeVMStatusOnMap(collectionId, connectionId);
+    } else {
+      this.removeMapStatusOnMap();
+    }
+  }
+
+  initPortGroupManagementStorage(collectionId: string, category = 'management') {
+    this.portGroupService.getByCollectionIdAndCategory(collectionId, category).subscribe(
+      data => {
+        const portGroupData = data.result;
+        const portGroups = portGroupData.map((portGroup: any) => {
+          portGroup.pg_id = portGroup.id;
+          portGroup.id = `pg-${portGroup.id}`;
+          portGroup.domain = portGroup.domain?.name;
+          return portGroup;
+        });
+        this.store.dispatch(retrievedPortGroupsManagement({data: portGroups}))
+      }
+    )
+  }
+
+  getNewPortGroupsManagement(newPortGroups: any) {
+    let newPGsManagement = [...this.portGroupsManagement];
+    newPortGroups.map((newPortGroup: any) => {
+      const isExistInPGsManagement = this.portGroupsManagement.some(pg => pg.pg_id === newPortGroup.id);
+      newPortGroup.pg_id = newPortGroup.id;
+      newPortGroup.id = `pg-${newPortGroup.id}`;
+      newPortGroup.domain = newPortGroup.domain?.name;
+      if (isExistInPGsManagement) {
+        const index = newPGsManagement.findIndex(ele => ele.pg_id === newPortGroup.pg_id);
+        newPGsManagement.splice(index, 1, newPortGroup);
+      } else {
+        newPGsManagement = newPGsManagement.concat(newPortGroup);
+      }
+    })
+    return newPGsManagement;
+  }
+
+  initInterfaceManagementStorage(collectionId: string, category = 'management') {
+    this.interfaceService.getByCollectionIdAndCategory(collectionId, category).subscribe(
+      data => {
+        const portGroupData = data.result;
+        const edges = portGroupData.map((edge: any) => {
+          edge.interface_id = edge.id;
+          return edge;
+        });
+        this.store.dispatch(retrievedInterfacesManagement({ data: edges }))
+      }
+    )
+  }
+
+  getNewInterfacesManagement(newInterfaces: any) {
+    let newInterfacesManagement = [...this.interfacesManagement];
+    newInterfaces.map((newEdge: any) => {
+      const isExistInEdgesManagement = this.interfacesManagement.some(edge => edge.interface_id === newEdge.id);
+      newEdge.interface_id = newEdge.id;
+      if (isExistInEdgesManagement) {
+        const index = newInterfacesManagement.findIndex(ele => ele.interface_id === newEdge.interface_id);
+        newInterfacesManagement.splice(index, 1, newEdge);
+      } else {
+        newInterfacesManagement = newInterfacesManagement.concat(newEdge);
+      }
+    })
+    return newInterfacesManagement;
+  }
+
+  randomizeSubnetPortGroups(pks: any, collectionId: any) {
+    const jsonData = {
+      pks: pks,
+      collection_id: collectionId
+    }
+    this.portGroupService.randomizeSubnetBulk(jsonData).pipe(
+      catchError((e: any) => {
+        this.toastr.error(e.error.message);
+        return throwError(() => e);
+      })
+    ).subscribe(response => {
+      response.result.map((ele: any) => {
+        const element = this.cy.getElementById('pg-' + ele.id);
+        element.data('subnet', ele.subnet);
+        element.data('name', ele.name);
+      })
+      this.updateInterfaceIPBasedOnPGId(pks);
+      this.store.dispatch(retrievedMapSelection({ data: true }));
+      this.toastr.success(response.message);
+    })
+  }
+
+  updateInterfaceIPBasedOnPGId(portGroupIds: any) {
+    portGroupIds.map((portGroupId: any) => {
+      this.interfaceService.getByPortGroup(portGroupId).subscribe(response => {
+        this.checkIpAlocation(response.result)
+        if (this.interfaceIds.length > 0) {
+          this.interfaceService.randomizeIpBulk({ pks: this.interfaceIds }).pipe(
+            catchError((error: any) => {
+              this.toastr.error(error.error.message);
+              return throwError(error.error.message);
+            })
+          ).subscribe(data => {
+            const interfaces = data.result;
+            interfaces.map((ele: any) => {
+              const element = this.cy.getElementById(ele.id);
+              const ip_str = ele.ip ? ele.ip : "";
+              const ip = ip_str.split(".");
+              const last_octet = ip.length == 4 ? "." + ip[3] : "";
+              element.data('ip', ip_str);
+              element.data('ip_last_octet', last_octet);
+            })
+            data.message.map((message: string) => {
+              this.toastr.success(message);
+            });
+            this.store.dispatch(retrievedMapSelection({ data: true }));
+          })
+        }
+      })
+    })
+  }
+
+  randomizeIpInterfaces(listInterfaces: any) {
+    this.checkIpAlocation(listInterfaces)
+    if (this.interfaceIds.length > 0) {
+      this.interfaceService.randomizeIpBulk({ pks: this.interfaceIds }).pipe(
+        catchError((error: any) => {
+          this.toastr.error(error.error.message);
+          return throwError(() => error.error.message);
+        })
+      ).subscribe(response => {
+        const data = response.result;
+        data.map((ele: any) => {
+          const element = this.cy.getElementById(ele.id);
+          const ip_str = ele.ip ? ele.ip : "";
+          const ip = ip_str.split(".");
+          const last_octet = ip.length == 4 ? "." + ip[3] : "";
+          element.data('ip', ip_str);
+          element.data('ip_last_octet', last_octet);
+        })
+        response.message.map((message: string) => {
+          this.toastr.success(message);
+        });
+        this.store.dispatch(retrievedMapSelection({ data: true }));
+        this.store.select(selectInterfaces).subscribe(interfaces => {
+          const interfaceIds = interfaces.map((ele: any) => ele.data.id);
+          this.interfaceService.getDataByPks({ pks: interfaceIds }).subscribe(response => {
+            this.store.dispatch(retrievedInterfacesByIds({ data: response.result }));
+          })
+        })
+      });
+    }
+  }
+
+  checkIpAlocation(data: any) {
+    this.interfaceIds = []
+    data.forEach((val: any) => {
+      if (val.ip_allocation === 'static_manual') {
+        this.toastr.warning(`Interface ${val.name}'s IP address of “static_manual” interfaces cannot be randomized.`)
+      } else {
+        const ids = val.interface_id ? val.interface_id : val.id
+        this.interfaceIds.push(ids)
+      }
+    });
+  }
+}

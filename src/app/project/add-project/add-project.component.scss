@@ -1,0 +1,60 @@
+$margin: 8px;
+
+.project-container {
+  max-width: 40%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 25px;
+  margin-bottom: 15px;
+  box-shadow: 3px 6px 12px #a9a9a9;
+  // border: 1px solid #A9A9A9;
+}
+
+.project-title {
+  text-align: center;
+  font-weight: 600;
+  font-size: 28px;
+}
+
+mat-form-field {
+  display: block;
+  width: 70%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+label {
+  font-size: 16px;
+}
+
+.section-option {
+  max-width: 40%;
+  display: flex;
+  align-content: center;
+  height: 60px;
+  padding: 20px 0 0 10px;
+}
+
+.margin-button {
+  margin: 0 40px;
+  padding-bottom: 10px;
+  font-size: 14px;
+}
+
+.form-option {
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px solid rgba(0, 0, 0, .12);
+  margin-bottom: 1.34375em;
+  border-radius: 5px;
+}
+
+.field {
+  width: 100%;
+  align-items: center;
+  margin-bottom: $margin;
+}
+
+.info-group, .build-options-group, .network-configuration-group {
+  margin-bottom: $margin;
+}

@@ -1,0 +1,58 @@
+<mat-card class="connection-container">
+  <mat-card-title class="connection-title">Connection List</mat-card-title>
+  <div class="sub-title">
+    <div class="left">
+    <button mat-raised-button color="primary" (click)="addConnection()">
+      <mat-icon>add</mat-icon>
+    </button>
+    <button class="btn-menu"mat-raised-button [matMenuTriggerFor]="actionMenu" (click)="isClickAction = !isClickAction">
+      Actions
+      <mat-icon *ngIf="isClickAction">keyboard_arrow_down</mat-icon>
+      <mat-icon *ngIf="!isClickAction">keyboard_arrow_up</mat-icon>
+    </button>
+    <mat-menu #actionMenu="matMenu" yPosition="below">
+      <button mat-menu-item (click)="clearParameters()">
+        <mat-icon>delete_sweep</mat-icon>
+        <span>Clear Parameters</span>
+      </button>
+      <button mat-menu-item (click)="exportJson()">
+        <mat-icon svgIcon="export_json"></mat-icon>
+        <span>Export JSON</span>
+      </button>
+      <button mat-menu-item (click)="loginCheck()">
+        <mat-icon>key</mat-icon>
+        <span>Login Check</span>
+      </button>
+      <button mat-menu-item (click)="pingTest()">
+        <mat-icon>terminal</mat-icon>
+        <span>Ping Test</span>
+      </button>
+    </mat-menu>
+    </div>
+    <div class="right">
+        <input
+          matInput
+          class="search"
+          type="search"
+          [(ngModel)]="quickFilterValue"
+          placeholder="Search..."
+          (input)="onQuickFilterInput($event)"
+          />
+    </div>
+  </div>
+  <mat-card-content>
+    <ag-grid-angular
+        class="ag-theme-alpine connection-table"
+        [pagination]="true"
+        [columnDefs]="columnDefs"
+        [defaultColDef]="defaultColDef"
+        [rowData]="rowData$ | async"
+        [rowSelection]="'multiple'"
+        [suppressRowClickSelection]="true"
+        [animateRows]="true"
+        (gridReady)="onGridReady($event)"
+        (rowSelected)="selectedRows()"
+        >
+    </ag-grid-angular>
+  </mat-card-content>
+</mat-card>

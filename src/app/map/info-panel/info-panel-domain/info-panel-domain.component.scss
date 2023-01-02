@@ -1,0 +1,18 @@
+$margin: 8px;
+
+.info-panel-domain {
+  text-align: center;
+}
+
+.btn-actions-group {
+  padding: 0 5px 0 10px;
+  margin: $margin 0;
+}
+
+.btn-action-item {
+  margin-right: $margin;
+}
+
+::ng-deep .ag-header-cell-label {
+  justify-content: center;
+}

@@ -1,0 +1,44 @@
+<div class="map-info-panel-wrapper" [ngStyle]="style" mwlResizable [validateResize]="validate" [enableGhostResize]="true"
+  [resizeSnapGrid]="{ left: 1, right: 1 }" (resizeEnd)="onResizeEnd($event)">
+  <mat-tab-group class="map-info-panel">
+    <mat-tab label="Nodes">
+      <app-info-panel-node [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs" [activeEdges]="activeEdges"
+        [activeGBs]="activeGBs" [deletedNodes]="deletedNodes" [deletedInterfaces]="deletedInterfaces" [infoPanelheight]="style.height">
+      </app-info-panel-node>
+    </mat-tab>
+    <mat-tab label="Port Groups">
+      <app-info-panel-port-group [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs"
+        [activeEdges]="activeEdges" [activeGBs]="activeGBs" [deletedNodes]="deletedNodes"
+        [deletedInterfaces]="deletedInterfaces" [infoPanelheight]="style.height">
+      </app-info-panel-port-group>
+    </mat-tab>
+    <mat-tab label="Management Port Groups">
+      <app-info-panel-port-group-management [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs"
+                                 [activeEdges]="activeEdges" [activeGBs]="activeGBs" [deletedNodes]="deletedNodes"
+                                 [deletedInterfaces]="deletedInterfaces" [infoPanelheight]="style.height">
+      </app-info-panel-port-group-management>
+    </mat-tab>
+    <mat-tab label="Interfaces">
+      <app-info-panel-interface [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs"
+        [activeEdges]="activeEdges" [activeGBs]="activeGBs" [deletedNodes]="deletedNodes"
+        [deletedInterfaces]="deletedInterfaces" [infoPanelheight]="style.height">
+      </app-info-panel-interface>
+    </mat-tab>
+    <mat-tab label="Management Interfaces">
+      <app-info-panel-interface-management [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs"
+                                            [activeEdges]="activeEdges" [activeGBs]="activeGBs" [deletedNodes]="deletedNodes"
+                                            [deletedInterfaces]="deletedInterfaces" [infoPanelheight]="style.height">
+      </app-info-panel-interface-management>
+    </mat-tab>
+    <mat-tab label="Domains">
+      <app-info-panel-domain [infoPanelheight]="style.height"></app-info-panel-domain>
+    </mat-tab>
+    <mat-tab label="Group">
+      <app-info-panel-group [infoPanelheight]="style.height"></app-info-panel-group>
+    </mat-tab>
+    <mat-tab label="Task List">
+      <app-info-panel-task [infoPanelheight]="style.height"></app-info-panel-task>
+    </mat-tab>
+  </mat-tab-group>
+  <div class="resize-handle-top" mwlResizeHandle [resizeEdges]="{ top: true }"></div>
+</div>

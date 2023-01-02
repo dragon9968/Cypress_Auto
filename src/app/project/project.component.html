@@ -1,0 +1,9 @@
+<mat-card class="content">
+    <mat-card-title class="title">Open a Project</mat-card-title>
+    <ag-grid-angular class="ag-theme-alpine project-table" [pagination]="true" [paginationPageSize]="25" [columnDefs]="columnDefs" [defaultColDef]="defaultColDef" [rowData]="rowData$ | async" rowSelection="multiple" (gridReady)="onGridReady($event)" (selectionChanged)="onSelectionChanged()"
+        (rowDoubleClicked)="onRowDoubleClicked()">
+    </ag-grid-angular>
+    <mat-card-actions align="end" class="open-btn">
+        <button mat-raised-button [disabled]="isSubmitBtnDisabled" color="primary" (click)="openProject()">Open</button>
+    </mat-card-actions>
+</mat-card>
