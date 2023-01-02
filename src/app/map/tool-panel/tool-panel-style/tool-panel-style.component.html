@@ -152,7 +152,7 @@
             (change)="setTextSize($event)"></mat-slider>
         <label>{{ textSize }}px</label>
     </div>
-    <div class="tab-field text-align">
+    <div *ngIf="isHideEdge" class="tab-field text-align">
         <label>V Align</label>
         <button mat-mini-fab color="primary" matTooltip="Top" [class.mat-accent]="vAlignSelect === 'top'"
             (click)="setTextVAlign('top')">
@@ -167,7 +167,7 @@
             <mat-icon>align_vertical_bottom</mat-icon>
         </button>
     </div>
-    <div class="tab-field text-align">
+    <div *ngIf="isHideEdge" class="tab-field text-align">
         <label>H Align</label>
         <button mat-mini-fab color="primary" matTooltip="Left" [class.mat-accent]="hAlignSelect === 'left'"
             (click)="setTextHAlign('left')">

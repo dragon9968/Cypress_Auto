@@ -3,10 +3,10 @@
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Number of User</mat-label>
-      <input type="number" matInput formControlName="numberUserCtr" placeholder="Please enter the number of user">
-      <mat-error *ngIf="numberUserCtr?.errors?.required">{{ errorMessage.FIELD_IS_REQUIRED }}</mat-error>
-      <mat-error *ngIf="numberUserCtr?.errors?.min">{{ errorMessage.MIN_NUMBER }}</mat-error>
-
+      <input type="text" matInput formControlName="numberUserCtr" placeholder="Please enter the number of user">
+      <mat-error *ngIf="numberUserCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="numberUserCtr?.errors?.min">{{ errorMessages.MIN_NUMBER_1 }}</mat-error>
+      <mat-error *ngIf="numberUserCtr?.errors?.pattern">{{ errorMessages.FIELD_IS_NUMBER }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>User Password</mat-label>

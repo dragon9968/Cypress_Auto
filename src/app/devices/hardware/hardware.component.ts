@@ -168,7 +168,7 @@ export class HardwareComponent implements OnInit, OnDestroy {
                 } else {
                   this.toastr.error('Delete hardware failed', 'Error');
                 }
-                return throwError(response.error);
+                return throwError(() => response.error);
               })
             );
           })).subscribe(() => {

@@ -72,7 +72,7 @@
       </mat-autocomplete>
       <mat-error *ngIf="roleCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
     </mat-form-field>
-    <ng-select formControlName="configTemplateCtr" [items]="configTemplates"
+    <ng-select class="configuration-template" formControlName="configTemplateCtr" [items]="configTemplates"
       [multiple]="true" bindLabel="name" bindValue="id" placeholder="Configurations">
       <ng-template ng-option-tmp let-item="item" let-index="index">
         <div class="configurations-option-text">
@@ -86,7 +86,7 @@
       <input matInput type="text" placeholder="Assign a login profile" formControlName="loginProfileCtr"
              [matAutocomplete]="autoLoginProfile">
       <mat-autocomplete #autoLoginProfile="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of loginProfiles" [value]="option" height="60">
+        <mat-option class="login-profiles-option" *ngFor="let option of loginProfiles" [value]="option" height="80">
           <div class="login-profiles-option-text">
             <span class="option-text-items"><b>{{ option.name }}</b></span>
             <span class="option-text-items">Username: {{ option.username }}</span>

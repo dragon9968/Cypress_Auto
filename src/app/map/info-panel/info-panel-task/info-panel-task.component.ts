@@ -12,6 +12,7 @@ import { InfoPanelService } from "../../../core/services/info-panel/info-panel.s
 import { selectUserTasks } from "../../../store/user-task/user-task.selectors";
 import { retrievedUserTasks } from "../../../store/user-task/user-task.actions";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
+import { ShowUserTaskDialogComponent } from "./show-user-task-dialog/show-user-task-dialog.component";
 
 @Component({
   selector: 'app-info-panel-task',
@@ -209,7 +210,15 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
   }
 
   onRowDoubleClicked(row: RowDoubleClickedEvent) {
-    this.infoPanelService.viewInfoPanel(this.tabName, row.data.id);
+    const dialogData = {
+      mode: 'postTask',
+      genData: row.data
+    };
+    this.dialog.open(ShowUserTaskDialogComponent, {
+      width: `${screen.width}px`,
+      autoFocus: false,
+      data: dialogData
+    });
   }
 
   selectedRows() {

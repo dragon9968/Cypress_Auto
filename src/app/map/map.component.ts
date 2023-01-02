@@ -62,6 +62,7 @@ import { MapImageService } from '../core/services/map-image/map-image.service';
 import { retrievedMapImages } from '../store/map-image/map-image.actions';
 import { RouteSegments } from "../core/enums/route-segments.enum";
 import { ContextMenuService } from './context-menu/context-menu.service';
+import { retrievedMapEdit } from "../store/map-edit/map-edit.actions";
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -298,6 +299,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.store.dispatch(retrievedIsMapOpen({ data: false }));
     this.destroy$.next(true);
     this.destroy$.unsubscribe();
+    this.store.dispatch(retrievedMapEdit({ data: undefined }))
+    this.deviceId = '';
+    this.templateId = '';
   }
 
   private _disableMapEditButtons() {
@@ -531,7 +535,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   private _click($event: any) {
-    const newNodePosition = { x: $event.position.x.toFixed(2), y: $event.position.y.toFixed(2) }
+    const newNodePosition = { x: Number($event.position.x.toFixed(2)), y: Number($event.position.y.toFixed(2)) }
     if (this.isAddNode && this.deviceId && this.templateId) {
       this.nodeService.genData(this.collectionId, this.deviceId, this.templateId)
         .subscribe(genData => {

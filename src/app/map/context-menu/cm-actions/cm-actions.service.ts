@@ -128,8 +128,8 @@ export class CMActionsService {
           content: "Randomize IP",
           selector: "edge",
           onClickFunction: (event: any) => {
-            const interfaceIds = activeEdges.map(edge => edge.data('interface_id'));
-            this.infoPanelService.randomizeIpInterfaces(interfaceIds);
+            const listInterfaces = activeEdges.map(edge => edge.data());
+            this.infoPanelService.randomizeIpInterfaces(listInterfaces);
           },
           hasTrailingDivider: true,
           disabled: false,

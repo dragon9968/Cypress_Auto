@@ -145,7 +145,13 @@ export class InfoPanelGroupComponent implements OnInit {
   }
 
   onRowDoubleClicked(row: RowDoubleClickedEvent) {
-    this.infoPanelService.viewInfoPanel(this.tabName, row.data.id);
+    const dialogData = {
+      mode: 'view',
+      genData: row.data,
+      collection_id: row.data.collection_id,
+      map_category: 'logical'
+    };
+    this.dialog.open(AddUpdateGroupDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
   }
 
   selectedRows() {
@@ -157,7 +163,15 @@ export class InfoPanelGroupComponent implements OnInit {
     if (this.rowsSelectedId.length === 0) {
       this.toastr.info('No row selected');
     } else if (this.rowsSelectedId.length === 1) {
-      this.infoPanelService.openEditInfoPanelForm(undefined, this.tabName, this.rowsSelectedId[0], []);
+      this.groupService.get(this.rowsSelectedId[0]).subscribe(groupData => {
+        const dialogData = {
+          mode: 'update',
+          genData: groupData.result,
+          collection_id: groupData.result.collection_id,
+          map_category: 'logical'
+        };
+        this.dialog.open(AddUpdateGroupDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+      })
     } else {
       this.toastr.info('Bulk edits do not apply to the Group.<br>Please select only one Group',
                           'Info', {enableHtml: true});

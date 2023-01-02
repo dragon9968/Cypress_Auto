@@ -81,7 +81,7 @@ export class ActionsRenderHardwareComponent implements ICellRendererAngularComp 
             } else {
               this.toastr.error('Delete hardware failed', 'Error');
             }
-            return throwError(response.error);
+            return throwError(() => response.error);
           })
         ).subscribe(() => {
           this.hardwareService.getAll().subscribe((data: any) => this.store.dispatch(retrievedHardwares({data: data.result})));

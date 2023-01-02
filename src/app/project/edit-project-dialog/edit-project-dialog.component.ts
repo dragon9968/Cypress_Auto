@@ -15,7 +15,9 @@ import { asyncValidateValueSetter } from 'src/app/shared/validations/ip-subnet.v
 import { retrievedProjectName, retrievedProjects } from 'src/app/store/project/project.actions';
 import { ButtonRenderersComponent } from '../renderers/button-renderers-component';
 import { ProjectService } from '../services/project.service';
-import { CustomTooltip } from './custom-tool-tip';
+import { CustomTooltip } from '../../shared/components/tool-tip/custom-tool-tip';
+import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
+import { selectProjects } from 'src/app/store/project/project.selectors';
 
 @Component({
   selector: 'app-edit-project-dialog',
@@ -28,6 +30,8 @@ export class EditProjectDialogComponent implements OnInit {
   editProjectForm!: FormGroup;
   errorMessages = ErrorMessages;
   selectUserTasks$ = new Subscription();
+  selectProjects$ = new Subscription();
+  listProjects!: any[];
   isDisableButton = false;
   rowData!: any[];
   listUser!: any[];
@@ -103,10 +107,14 @@ export class EditProjectDialogComponent implements OnInit {
         });
       }
     })
+    this.selectProjects$ = this.store.select(selectProjects).subscribe(name => {
+      this.listProjects = name;
+    })
     this.editProjectForm = new FormGroup({
       nameCtr: new FormControl('', [Validators.required,
         Validators.minLength(3),
-        Validators.maxLength(50)]),
+        Validators.maxLength(50),
+        validateNameExist(() => this.listProjects, this.data.mode, this.data.genData.id)]),
       descriptionCtr: new FormControl(''),
       minVlanCtr: new FormControl('', [Validators.min(1), Validators.max(4093),Validators.required]),
       maxVlanCtr: new FormControl('', [Validators.min(2), Validators.max(4094),Validators.required]),
@@ -166,9 +174,8 @@ export class EditProjectDialogComponent implements OnInit {
       }
       delete val['validation']
       delete val['validation_isExists']
-      if ((val.network === '') || (val.category === '')) {
-        this.isDisableButton = true
-      }
+      delete val['validation_required']
+      this.isDisableButton = true ? ((val.network === '') || (val.category === '')) : false
     })
     if (this.editProjectForm.valid && !this.isDisableButton) {
       const jsonData = {

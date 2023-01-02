@@ -27,6 +27,7 @@ import { deviceChangeReducer } from "./device-change/device-change.reducer";
 import { appPrefReducer } from "./app-pref/app-pref.reducer";
 import { mapPrefReducer } from "./map-pref/map-pref.reducer";
 import { userReducer } from "./user/user.reducer";
+import { userGuideReducer } from "./user-guide/user-guide.reducer";
 
 export const reducers = {
     [ReducerKeys.MAP]: mapReducer,
@@ -57,4 +58,5 @@ export const reducers = {
     [ReducerKeys.APP_PREF]: appPrefReducer,
     [ReducerKeys.MAP_PREFS]: mapPrefReducer,
     [ReducerKeys.USER]: userReducer,
+    [ReducerKeys.USER_GUIDE]: userGuideReducer,
 }

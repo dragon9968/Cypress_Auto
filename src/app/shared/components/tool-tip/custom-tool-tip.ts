@@ -1,15 +1,16 @@
 import { ITooltipComp, ITooltipParams } from 'ag-grid-community';
+import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 
 export class CustomTooltip implements ITooltipComp {
   eGui: any;
   init(params: ITooltipParams & { color: string }) {
     const eGui = (this.eGui = document.createElement('div'));
     const color = params.color || 'white';
-    const validationMsg = "Expected 4 octets and only decimal digits permitted";
-    const validationIsExists = "Network already exists, please enter a different network"
-    const valueToDisplay = (params.data['validation'] && !params.data['validation_isExists'])
-      ? validationMsg
-      : (params.data['validation'] && params.data['validation_isExists']) ? validationIsExists
+    const valueToDisplay = params.data['validation_required'] 
+      ? ErrorMessages.FIELD_IS_REQUIRED 
+      : (params.data['validation'] && !params.data['validation_isExists'])
+      ? ErrorMessages.FIELD_IS_IP
+      : (params.data['validation'] && params.data['validation_isExists']) ? ErrorMessages.NETWORK_EXISTS
       : '';
     eGui.classList.add('custom-tooltip');
     //@ts-ignore
@@ -19,6 +20,9 @@ export class CustomTooltip implements ITooltipComp {
                 <span class"name">${valueToDisplay}</span>
             </p>
         `;
+    params.data['validation_required'] = false
+    params.data['validation'] = false
+    params.data['validation_isExists'] = false
   }
 
   getGui() {

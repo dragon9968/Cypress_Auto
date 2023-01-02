@@ -78,7 +78,7 @@ export class DeviceCategoryRenderComponent implements OnInit, ICellRendererAngul
             } else {
               this.toastr.error('Delete device category failed!')
             }
-            return throwError(response.error);
+            return throwError(() => response.error);
           })
         ).subscribe(response => {
           this.toastr.success(`Deleted device category ${ deviceCategory.name }`, 'Success');
