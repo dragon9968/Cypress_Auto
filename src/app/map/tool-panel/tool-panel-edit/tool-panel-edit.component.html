@@ -7,7 +7,7 @@
         (change)="changeDevice()">
       <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="helpers.optionDisplay"
         (optionSelected)="selectDevice($event)">
-        <mat-option *ngFor="let option of devices" [value]="option">
+        <mat-option *ngFor="let option of filteredDevices | async" [value]="option">
           <div class="option-text">
             <img [src]="ICON_PATH + option.icon?.photo" height="24" width="24">
             &nbsp;
@@ -23,7 +23,7 @@
         [matAutocomplete]="autoTemplate" (change)="changeTemplate()">
       <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helpers.templateDisplay"
         (optionSelected)="selectTemplate($event)">
-        <mat-option *ngFor="let option of filteredTemplates" [value]="option">
+        <mat-option *ngFor="let option of filteredTemplates | async" [value]="option">
           <div class="option-text">
             <img [src]="ICON_PATH + option.icon?.photo" height="24" width="24">
             &nbsp;
@@ -69,7 +69,7 @@
     <mat-label>Image</mat-label>
     <input matInput type="text" placeholder="Select Image" [formControl]="mapImageCtr" [matAutocomplete]="autoImage">
     <mat-autocomplete #autoImage="matAutocomplete" [displayWith]="helpers.optionDisplay">
-      <mat-option *ngFor="let option of mapImages" [value]="option"> {{ option.name }} </mat-option>
+      <mat-option *ngFor="let option of filteredMapImages | async" [value]="option"> {{ option.name }} </mat-option>
     </mat-autocomplete>
     <mat-error *ngIf="mapImageCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
   </mat-form-field>

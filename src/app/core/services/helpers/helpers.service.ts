@@ -1,5 +1,5 @@
 import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs';
+import { map, startWith, Subscription } from 'rxjs';
 import { Injectable, Input } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
@@ -450,6 +450,16 @@ export class HelpersService {
       }
     }
     return control;
+  }
+
+  filterOptions(control: any, options: any[]) {
+    return control.valueChanges.pipe(
+      startWith(''),
+      map((value: any | string) => {
+        const text = typeof value === 'string' ? value.toLowerCase() : value.name;
+        return options?.filter((option: any) => option.name.toLowerCase().includes(text));
+      }),
+    );
   }
 
   removeNode(node: any) {

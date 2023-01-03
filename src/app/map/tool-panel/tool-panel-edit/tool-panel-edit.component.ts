@@ -7,7 +7,7 @@ import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { retrievedMapEdit } from 'src/app/store/map-edit/map-edit.actions';
 import { selectDevices } from 'src/app/store/device/device.selectors';
 import { selectTemplates } from 'src/app/store/template/template.selectors';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
@@ -43,10 +43,13 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
   devices!: any[];
   templates!: any[];
   mapImages!: any[];
-  filteredTemplates!: any[];
+  filteredTemplatesByDevice!: any[];
   isGroupBoxesChecked!: boolean;
   ICON_PATH = ICON_PATH;
   selectedMapPref: any;
+  filteredDevices!: Observable<any[]>;
+  filteredTemplates!: Observable<any[]>;
+  filteredMapImages!: Observable<any[]>;
 
   constructor(
     private store: Store,
@@ -63,19 +66,22 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
       if (devices) {
         this.devices = devices;
         this.deviceCtr?.setValidators([autoCompleteValidator(this.devices)]);
+        this.filteredDevices = this.helpers.filterOptions(this.deviceCtr, this.devices);
       }
     });
     this.selectTemplates$ = this.store.select(selectTemplates).subscribe((templates: any) => {
       if (templates) {
         this.templates = templates;
-        this.filteredTemplates = templates;
         this.templateCtr?.setValidators([autoCompleteValidator(this.templates, 'display_name')]);
+        this.filteredTemplatesByDevice = templates
+        this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice);
       }
     });
     this.selectMapImages$ = this.store.select(selectMapImages).subscribe((mapImages: any) => {
       if (mapImages) {
         this.mapImages = mapImages;
         this.mapImageCtr?.setValidators([autoCompleteValidator(this.mapImages)]);
+        this.filteredMapImages = this.helpers.filterOptions(this.mapImageCtr, this.mapImages);
       }
     });
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
@@ -106,10 +112,11 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
 
 
   disableTemplate(deviceId: string) {
-    this.filteredTemplates = this.templates.filter(template => template.device.id == deviceId);
+    this.filteredTemplatesByDevice = this.templates.filter(template => template.device.id == deviceId);
+    this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice);
     this.templateCtr?.setValue('');
     this.isDisableAddNode = true;
-    if (this.filteredTemplates.length > 0) {
+    if (this.filteredTemplatesByDevice.length > 0) {
       this.templateCtr?.enable();
     } else {
       this.templateCtr?.disable();
