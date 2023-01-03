@@ -129,6 +129,35 @@
             <span>About</span>
         </button>
     </mat-menu>
+    <a mat-button [matMenuTriggerFor]="administration" class="menu-btn">Administration</a>
+    <mat-menu #administration="matMenu">
+        <button mat-menu-item>
+            <mat-icon>person</mat-icon>
+            <span>Users</span>
+        </button>
+        <button mat-menu-item>
+            <mat-icon>supervised_user_circle</mat-icon>
+            <span>Roles</span>
+        </button>
+        <button mat-menu-item>
+            <mat-icon>folder</mat-icon>
+            <span>Projects</span>
+        </button>
+        <button mat-menu-item [matMenuTriggerFor]="services">
+            <mat-icon>create_new_folder</mat-icon>
+            <span>Services</span>
+        </button>
+        <mat-menu #services="matMenu">
+            <button mat-menu-item>
+                <mat-icon>ac_unit</mat-icon>
+                <span>Flower</span>
+            </button>
+            <button mat-menu-item>
+                <mat-icon>supervisor_account</mat-icon>
+                <span>Supervisor</span>
+            </button>
+        </mat-menu>
+    </mat-menu>
     <mat-form-field *ngIf="isMapOpen" floatLabel="never" class="search-bar">
         <input matInput #searchbar [(ngModel)]="searchText" placeholder="Search Map" (keyup.enter)="search()">
         <button *ngIf="searchText" mat-button mat-icon-button class="btn-clear-search-text" (click)="close()" matSuffix>
