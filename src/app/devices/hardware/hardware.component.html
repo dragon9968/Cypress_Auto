@@ -1,23 +1,26 @@
-<mat-card class="hardware-container">
-  <mat-card-title class="hardware-title">Hardware</mat-card-title>
-  <div class="sub-title">
-    <div class="left">
-      <button mat-raised-button color="primary" (click)="addHardware()">
+<mat-card class="table">
+  <mat-card-title class="table__title">Hardware</mat-card-title>
+  <div class="table__nav">
+    <div class="table__nav--actions">
+      <button mat-button mat-mini-fab color="primary" matTooltip="Add" (click)="addHardware()">
         <mat-icon>add</mat-icon>
       </button>
-      <button mat-button [matMenuTriggerFor]="actionMenu" class="actions">Actions
-        <mat-icon>keyboard_arrow_down</mat-icon>
+      <button mat-button mat-mini-fab color="primary" matTooltip="Edit" (click)="updateHardware()">
+        <mat-icon>edit</mat-icon>
       </button>
-      <mat-menu #actionMenu="matMenu">
-        <button mat-menu-item (click)="deleteHardware()"><mat-icon>delete</mat-icon>Delete</button>
-        <button mat-menu-item (click)="exportHardware('csv')"><mat-icon svgIcon="export-csv"></mat-icon>Export as CSV</button>
-        <button mat-menu-item (click)="exportHardware('json')"><mat-icon svgIcon="export-json"></mat-icon>Export as JSON</button>
-      </mat-menu>
+      <button mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteHardware()">
+        <mat-icon>delete</mat-icon>
+      </button>
+      <button mat-button mat-mini-fab color="primary" matTooltip="Export as CSV" (click)="exportHardware('csv')">
+        <mat-icon svgIcon="export-csv"></mat-icon>
+      </button>
+      <button mat-button mat-mini-fab color="primary" matTooltip="Export as JSON" (click)="exportHardware('json')">
+        <mat-icon svgIcon="export-json"></mat-icon>
+      </button>
     </div>
-    <div class="right">
+    <div class="table__nav--search">
       <input
         matInput
-        class="search"
         type="search"
         [(ngModel)]="quickFilterValue"
         placeholder="Search..."
@@ -25,19 +28,21 @@
       >
     </div>
   </div>
-  <ag-grid-angular
-  class="ag-theme-alpine hardware"
-  [pagination]="true"
-  [paginationPageSize]="25"
-  [columnDefs]="columnDefs"
-  [defaultColDef]="defaultColDef"
-  [rowData]="rowData$ | async"
-  [rowSelection]="'multiple'"
-  [suppressRowClickSelection]="true"
-  [animateRows]="true"
-  (gridReady)="onGridReady($event)"
-  (rowSelected)="selectedRows()"
-  >
-  </ag-grid-angular>
-
+  <mat-card-content class="table__content">
+    <ag-grid-angular
+      class="ag-theme-alpine"
+      [pagination]="true"
+      [paginationPageSize]="25"
+      [columnDefs]="columnDefs"
+      [defaultColDef]="defaultColDef"
+      [rowData]="rowData$ | async"
+      [rowSelection]="'multiple'"
+      [suppressRowClickSelection]="true"
+      [animateRows]="true"
+      (gridReady)="onGridReady($event)"
+      (rowSelected)="selectedRows()"
+      (rowDoubleClicked)="onRowDoubleClicked($event)"
+    >
+    </ag-grid-angular>
+  </mat-card-content>
 </mat-card>

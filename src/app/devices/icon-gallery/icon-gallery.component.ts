@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconRegistry } from '@angular/material/icon';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
-import { Subscription } from 'rxjs';
+import { Subscription, throwError } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { IconService } from 'src/app/core/services/icon/icon.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
@@ -12,6 +12,7 @@ import { retrievedIcons } from 'src/app/store/icon/icon.actions';
 import { selectIcons } from 'src/app/store/icon/icon.selectors';
 import { AddEditIconDialogComponent } from './add-edit-icon-dialog/add-edit-icon-dialog.component';
 import { PageEvent } from "@angular/material/paginator";
+import { catchError } from "rxjs/operators";
 
 @Component({
   selector: 'app-icon-gallery',
@@ -42,8 +43,8 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
         this.listIcons = icons;
         this.totalSize = this.listIcons.length;
         this.activePageDataChunk = this.listIcons.slice(0, this.pageSize);
+        this.selectedIcon = [];
       }
-
     });
     iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
    }
@@ -59,7 +60,7 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
   getId(obj: any, e: any) {
     if (e.checked) {
       this.selectedIcon.push(obj.id);
-    }else {
+    } else {
       this.selectedIcon = this.selectedIcon.filter(i => i !== obj.id);
     }
   }
@@ -69,7 +70,6 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
       this.listIcons.forEach(element => {
         this.selectedIcon.push(element.id);
       })
-
     } else {
       this.selectedIcon.splice(0, this.selectedIcon.length);
     }
@@ -84,49 +84,61 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
         ext: ''
       }
     }
-    const dialogRef = this.dialog.open(AddEditIconDialogComponent, {
+    this.dialog.open(AddEditIconDialogComponent, {
       autoFocus: false,
       width: '450px',
       data: dialogData
     });
   }
 
-  updateIcon(icon: any) {
-    this.id = icon.id;
-    this.iconService.get(this.id).subscribe(iconData => {
-      const dialogData = {
-        mode: 'update',
-        genData: iconData.result
-      }
-      const dialogRef = this.dialog.open(AddEditIconDialogComponent, {
-        autoFocus: false,
-        width: '450px',
-        data: dialogData
+  updateIcon() {
+    if (this.selectedIcon.length === 0) {
+      this.toastr.info('No row selected');
+    } else if (this.selectedIcon.length === 1) {
+      this.iconService.get(this.selectedIcon[0]).subscribe(iconData => {
+        const dialogData = {
+          mode: 'update',
+          genData: iconData.result
+        }
+        this.dialog.open(AddEditIconDialogComponent, {
+          autoFocus: false,
+          width: '450px',
+          data: dialogData
+        });
       });
-    });
+    } else {
+      this.toastr.info('Bulk edits do not apply to icon.<br> Please select only one icon',
+        'Info', { enableHtml: true });
+    }
   }
 
 
-  deleteIcon(icon: any) {
-    this.id = icon.id;
-    if (this.id) {
-      const dialogData = {
-        title: 'User confirmation needed',
-        message: 'Are you sure you want to delete this item?'
-      }
-      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
-      dialogRef.afterClosed().subscribe(result => {
-        if (result) {
-          this.iconService.delete(this.id).subscribe({
-            next: (rest) => {
+  deleteIcon() {
+    if (this.selectedIcon.length === 0) {
+      this.toastr.info('No row selected');
+    } else {
+      this.selectedIcon.map(iconId => {
+        const suffix = this.selectedIcon.length === 1 ? 'this item' : 'these items';
+        const dialogData = {
+          title: 'User confirmation needed',
+          message: `Are you sure you want to delete ${suffix}?`,
+          submitButtonName: 'OK'
+        }
+        const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
+        dialogRef.afterClosed().subscribe(result => {
+          if (result) {
+            this.iconService.delete(iconId).pipe(
+              catchError((error: any) => {
+                this.toastr.error('Delete icon failed!', 'Error');
+                return throwError(() => error);
+              })
+            ).subscribe(() =>{
+              this.selectedIcon = [];
               this.iconService.getAll().subscribe((data: any) => this.store.dispatch(retrievedIcons({data: data.result})));
               this.toastr.success(`Delete successfully`);
-            },
-            error: (error) => {
-              this.toastr.error(`Error while delete Icon`);
-            }
-          })
-        }
+            })
+          }
+        })
       })
     }
   }
@@ -151,7 +163,7 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
         mode: 'view',
         genData: iconData.result
       }
-      const dialogRef = this.dialog.open(AddEditIconDialogComponent, {
+      this.dialog.open(AddEditIconDialogComponent, {
         autoFocus: false,
         width: '600px',
         data: dialogData

@@ -302,7 +302,7 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
     if (this.rowsSelectedId.length === 0) {
       this.toastr.info('No row selected');
     } else {
-      const item = this.rowsSelectedId.length === 1 ? 'this' : 'those';
+      const item = this.rowsSelectedId.length === 1 ? 'this' : 'these';
       const dialogData = {
         title: 'User confirmation needed',
         message: `Are you sure you want to delete ${item}?`,

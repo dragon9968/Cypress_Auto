@@ -220,7 +220,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
     if (this.rowsSelected.length === 0) {
       this.toastr.info('No row selected');
     } else {
-      const message = this.rowsSelected.length === 1 ? 'Clone this node?' : 'Clone those nodes?';
+      const message = this.rowsSelected.length === 1 ? 'Clone this node?' : 'Clone these nodes?';
       const dialogData = {
         title: 'User confirmation needed',
         message: message,

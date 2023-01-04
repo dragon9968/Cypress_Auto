@@ -269,7 +269,7 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
     if (this.rowsSelected.length == 0) {
       this.toastr.info('No row selected');
     } else {
-      const item = this.rowsSelectedId.length === 1 ? 'this' : 'those';
+      const item = this.rowsSelectedId.length === 1 ? 'this' : 'these';
       const sSuffix = this.rowsSelectedId.length === 1 ? '' : 's';
       const dialogData = {
         title: 'User confirmation needed',

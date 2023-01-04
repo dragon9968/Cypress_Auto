@@ -3,16 +3,22 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Store } from '@ngrx/store';
+import { catchError } from "rxjs/operators";
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
+import { ColDef, GridApi, GridReadyEvent, RowDoubleClickedEvent } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, of, Subscription } from 'rxjs';
+import { Observable, of, Subscription, throwError } from 'rxjs';
 import { ConfigTemplateService } from 'src/app/core/services/config-template/config-template.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { retrievedConfigTemplates } from 'src/app/store/config-template/config-template.actions';
 import { selectConfigTemplates } from 'src/app/store/config-template/config-template.selectors';
-import { ActionsRendersConfigTemplateComponent } from './actions-renders-config-template/actions-renders-config-template.component';
 import { AddEditConfigTemplateComponent } from './add-edit-config-template/add-edit-config-template.component';
+import { ConfirmationDialogComponent } from "../../shared/components/confirmation-dialog/confirmation-dialog.component";
+import { AddRouteDialogComponent } from "./add-route-dialog/add-route-dialog.component";
+import { AddFirewallRuleDialogComponent } from "./add-firewall-rule-dialog/add-firewall-rule-dialog.component";
+import { AddDomainMembershipDialogComponent } from "./add-domain-membership-dialog/add-domain-membership-dialog.component";
+import { AddEditRolesServicesDialogComponent } from "./add-edit-roles-services-dialog/add-edit-roles-services-dialog.component";
+import { ShowConfigTemplateDialogComponent } from "./show-config-template-dialog/show-config-template-dialog.component";
 
 @Component({
   selector: 'app-config-templates',
@@ -22,6 +28,7 @@ import { AddEditConfigTemplateComponent } from './add-edit-config-template/add-e
 export class ConfigTemplatesComponent implements OnInit, OnDestroy {
 
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
+  id: any;
   quickFilterValue = '';
   rowsSelected: any[] = [];
   rowsSelectedId: any[] = [];
@@ -40,13 +47,8 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
       width: 52
     },
     {
-      headerName: '',
       field: 'id',
-      suppressSizeToFit: true,
-      width: 200,
-      cellRenderer: ActionsRendersConfigTemplateComponent,
-      cellClass: 'config-template-actions',
-      sortable: false,
+      hide: true,
       getQuickFilterText: () => ''
     },
     { field: 'name',
@@ -127,7 +129,14 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
 
   ) {
     this.selectConfigTemplates$ = this.store.select(selectConfigTemplates).subscribe((data: any) => {
-      this.rowData$ = of(data);
+      if (data) {
+        if (this.gridApi) {
+          this.gridApi.setRowData(data);
+        } else {
+          this.rowData$ = of(data);
+        }
+        this.updateRow();
+      }
     });
     iconRegistry.addSvgIcon('export-csv', this._setPath('/assets/icons/export-csv.svg'));
     iconRegistry.addSvgIcon('export-json', this._setPath('/assets/icons/export-json.svg'));
@@ -149,6 +158,17 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
   selectedRows() {
     this.rowsSelected = this.gridApi.getSelectedRows();
     this.rowsSelectedId = this.rowsSelected.map(ele => ele.id);
+    this.id = this.rowsSelectedId[0];
+  }
+
+  updateRow() {
+    if (this.gridApi && this.rowsSelectedId.length > 0) {
+      this.gridApi.forEachNode(rowNode => {
+        if (this.rowsSelectedId.includes(rowNode.data.id)) {
+          rowNode.setSelected(true);
+        }
+      })
+    }
   }
 
   onQuickFilterInput(event: any) {
@@ -167,7 +187,7 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
         description: '',
       }
     }
-    const dialogRef = this.dialog.open(AddEditConfigTemplateComponent, {
+    this.dialog.open(AddEditConfigTemplateComponent, {
       autoFocus: false,
       width: '450px',
       data: dialogData
@@ -177,14 +197,170 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
   exportJson() {
     if (this.rowsSelectedId.length == 0) {
       this.toastr.info('No row selected');
-    }else {
+    } else {
       let file = new Blob();
       this.configTemplateService.export(this.rowsSelectedId).subscribe(response => {
         file = new Blob([JSON.stringify(response, null, 4)], {type: 'application/json'});
         this.helpers.downloadBlob('Config-Export.json', file);
         this.toastr.success(`Exported Config as ${'json'.toUpperCase()} file successfully`);
       })
-      this.gridApi.deselectAll();
     }
+  }
+
+  onRowDoubleClick(row: RowDoubleClickedEvent) {
+    this.configTemplateService.get(row.data.id).subscribe(configTemplateData => {
+      const dialogData = {
+        mode: 'view',
+        genData: configTemplateData.result
+      }
+      this.dialog.open(ShowConfigTemplateDialogComponent, {
+        autoFocus: false,
+        width: '450px',
+        data: dialogData
+      });
+    })
+  }
+
+  updateConfigTemplate() {
+    if (this.rowsSelectedId.length === 0) {
+      this.toastr.info('No row selected');
+    } else if (this.rowsSelectedId.length === 1) {
+      this.configTemplateService.get(this.id).subscribe(configTemplateData => {
+        const dialogData = {
+          mode: 'update',
+          genData: configTemplateData.result
+        }
+        this.dialog.open(AddEditConfigTemplateComponent, {
+          autoFocus: false,
+          width: '450px',
+          data: dialogData
+        });
+      })
+    } else {
+      this.toastr.info('Bulk edits do not apply to config template.<br>Please select only one config template',
+        'Info', { enableHtml: true });
+    }
+  }
+
+  deleteConfigTemplate() {
+    if (this.rowsSelectedId.length === 0) {
+      this.toastr.info('No row selected');
+    } else {
+      const suffix = this.rowsSelectedId.length === 1 ? 'this item' : 'these items';
+      const dialogData = {
+        title: 'User confirmation needed',
+        message: `You sure you want to delete ${suffix}?`,
+        submitButtonName: 'OK'
+      }
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          this.rowsSelectedId.map(id => {
+            this.configTemplateService.delete(id).pipe(
+              catchError(error => {
+                this.toastr.error('Delete configuration template failed!', 'Error');
+                return throwError(() => error);
+              })
+            ).subscribe(() =>{
+              this.configTemplateService.getAll().subscribe(
+                (data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result}))
+              );
+              this.clearRow();
+              this.toastr.success(`Delete configuration template successfully`, 'Success');
+            })
+          })
+        }
+      });
+    }
+  }
+
+  addRouter() {
+    if (this.rowsSelectedId.length === 0) {
+      this.toastr.info('No row selected');
+    } else if (this.rowsSelectedId.length === 1) {
+      this.configTemplateService.get(this.id).subscribe(configTemplateData => {
+        const dialogData = {
+          mode: 'update',
+          genData: configTemplateData.result
+        }
+        this.dialog.open(AddRouteDialogComponent, {
+          autoFocus: false,
+          width: '450px',
+          data: dialogData
+        });
+      })
+    } else {
+      this.toastr.info('Add router do not apply to multiple config template.<br>Please select only one config template.',
+        'Info', { enableHtml: true });
+    }
+  }
+
+  addFirewallRule() {
+    if (this.rowsSelectedId.length === 0) {
+      this.toastr.info('No row selected');
+    } else if (this.rowsSelectedId.length === 1) {
+      this.configTemplateService.get(this.id).subscribe(configTemplateData => {
+        const dialogData = {
+          mode: 'update',
+          genData: configTemplateData.result
+        }
+        this.dialog.open(AddFirewallRuleDialogComponent, {
+          autoFocus: false,
+          width: '450px',
+          data: dialogData
+        });
+      })
+    } else {
+      this.toastr.info('Add firewall rule do not apply to multiple config template.<br>Please select only one config template.',
+        'Info', { enableHtml: true });
+    }
+  }
+
+  openDomainMembership() {
+    if (this.rowsSelectedId.length === 0) {
+      this.toastr.info('No row selected');
+    } else if (this.rowsSelectedId.length === 1) {
+      this.configTemplateService.get(this.id).subscribe(configTemplateData => {
+        const dialogData = {
+          mode: 'update',
+          genData: configTemplateData.result
+        }
+        this.dialog.open(AddDomainMembershipDialogComponent, {
+          autoFocus: false,
+          width: '450px',
+          data: dialogData
+        });
+      })
+    } else {
+      this.toastr.info('Add domain membership do not apply to multiple config template.<br>Please select only one config template.',
+        'Info', { enableHtml: true });
+    }
+  }
+
+  openRoleService() {
+    if (this.rowsSelectedId.length === 0) {
+      this.toastr.info('No row selected');
+    } else if (this.rowsSelectedId.length === 1) {
+      this.configTemplateService.get(this.id).subscribe(configTemplateData => {
+        const dialogData = {
+          mode: 'update',
+          genData: configTemplateData.result
+        }
+        this.dialog.open(AddEditRolesServicesDialogComponent, {
+          autoFocus: false,
+          width: '450px',
+          data: dialogData
+        });
+      })
+    } else {
+      this.toastr.info('Add role and service do not apply to multiple config template.<br>Please select only one config template.',
+        'Info', { enableHtml: true });
+    }
+  }
+
+  clearRow() {
+    this.gridApi.deselectAll();
+    this.rowsSelectedId = [];
+    this.rowsSelected = [];
   }
 }

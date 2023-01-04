@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconRegistry } from '@angular/material/icon';
 import { Store } from '@ngrx/store';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
+import { ColDef, GridApi, GridReadyEvent, RowDoubleClickedEvent } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin, Observable, of, Subscription, throwError } from 'rxjs';
 import { HardwareService } from 'src/app/core/services/hardware/hardware.service';
@@ -11,7 +11,6 @@ import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { retrievedHardwares } from 'src/app/store/hardware/hardware.actions';
 import { selectHardwares } from 'src/app/store/hardware/hardware.selectors';
-import { ActionsRenderHardwareComponent } from './actions-render-hardware/actions-render-hardware.component';
 import { AddEditHardwareDialogComponent } from './add-edit-hardware-dialog/add-edit-hardware-dialog.component';
 import { NodeService } from "../../core/services/node/node.service";
 import { catchError } from "rxjs/operators";
@@ -45,13 +44,8 @@ export class HardwareComponent implements OnInit, OnDestroy {
       width: 52
     },
     {
-      headerName: '',
       field: 'id',
-      suppressSizeToFit: true,
-      width: 160,
-      cellRenderer: ActionsRenderHardwareComponent,
-      cellClass: 'hardware-actions',
-      sortable: false,
+      hide: true,
       getQuickFilterText: () => ''
     },
     {
@@ -82,10 +76,17 @@ export class HardwareComponent implements OnInit, OnDestroy {
     private hardwareService: HardwareService,
   ) {
     this.selectHardwares$ = this.store.select(selectHardwares).subscribe((data: any) => {
-      this.rowData$ = of(data);
+      if (data) {
+        if (this.gridApi) {
+          this.gridApi.setRowData(data);
+        } else {
+          this.rowData$ = of(data);
+        }
+        this.updateRow();
+      }
     });
-    iconRegistry.addSvgIcon('export-csv', this.helpers.setIconPath('/assets/icons/export-csv.svg'));
-    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
+    iconRegistry.addSvgIcon('export-csv', this.helpers.setIconPath('/assets/icons/export-csv-info-panel.svg'));
+    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json-info-panel.svg'));
    }
 
   ngOnInit(): void {
@@ -101,6 +102,16 @@ export class HardwareComponent implements OnInit, OnDestroy {
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
     this.gridApi.sizeColumnsToFit();
+  }
+
+  updateRow() {
+    if (this.gridApi && this.rowsSelectedId.length > 0) {
+      this.gridApi.forEachNode(rowNode => {
+        if (this.rowsSelectedId.includes(rowNode.data.id)) {
+          rowNode.setSelected(true);
+        }
+      })
+    }
   }
 
   selectedRows() {
@@ -122,7 +133,7 @@ export class HardwareComponent implements OnInit, OnDestroy {
         assetTag: '',
       }
     }
-    const dialogRef = this.dialog.open(AddEditHardwareDialogComponent, {
+    this.dialog.open(AddEditHardwareDialogComponent, {
       autoFocus: false,
       width: '450px',
       data: dialogData
@@ -151,10 +162,11 @@ export class HardwareComponent implements OnInit, OnDestroy {
   deleteHardware() {
     if (this.rowsSelectedId.length == 0) {
       this.toastr.info('No row selected');
-    }else {
+    } else {
+      const suffix = this.rowsSelectedId.length === 1 ? 'this item' : 'these items';
       const dialogData = {
         title: 'User confirmation needed',
-        message: 'Are you sure you want to delete this item?',
+        message: `Are you sure you want to delete ${suffix}?`,
         submitButtonName: 'OK'
       }
       const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
@@ -176,9 +188,51 @@ export class HardwareComponent implements OnInit, OnDestroy {
             this.hardwareService.getAll().subscribe(
               data => this.store.dispatch(retrievedHardwares({data: data.result}))
             );
+            this.clearRow();
           })
         }
       })
     }
+  }
+
+  onRowDoubleClicked(row: RowDoubleClickedEvent) {
+    this.hardwareService.get(row.data.id).subscribe(hardwareData => {
+      const dialogData = {
+        mode: 'view',
+        genData: hardwareData.result
+      }
+      this.dialog.open(AddEditHardwareDialogComponent, {
+        autoFocus: false,
+        width: '450px',
+        data: dialogData
+      });
+    })
+  }
+
+  updateHardware() {
+    if (this.rowsSelectedId.length === 0) {
+      this.toastr.info('No row selected');
+    } else if (this.rowsSelectedId.length === 1) {
+      this.hardwareService.get(this.rowsSelectedId[0]).subscribe(hardwareData => {
+        const dialogData = {
+          mode: 'update',
+          genData: hardwareData.result
+        }
+        this.dialog.open(AddEditHardwareDialogComponent, {
+          autoFocus: false,
+          width: '450px',
+          data: dialogData
+        });
+      })
+    } else {
+      this.toastr.info('Bulk edits do not apply to hardware.<br> Please select only one piece of hardware.',
+        'Info', { enableHtml: true });
+    }
+  }
+
+  clearRow() {
+    this.gridApi.deselectAll();
+    this.rowsSelected = [];
+    this.rowsSelectedId = [];
   }
 }

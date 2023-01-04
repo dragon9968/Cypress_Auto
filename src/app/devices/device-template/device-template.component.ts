@@ -5,7 +5,7 @@ import { Store } from '@ngrx/store';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, of, Subscription } from 'rxjs';
+import { Observable, of, Subscription, throwError } from 'rxjs';
 import { DeviceCategoryService } from 'src/app/core/services/device-category/device-category.service';
 import { DeviceService } from 'src/app/core/services/device/device.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
@@ -20,12 +20,12 @@ import { retrievedIcons } from 'src/app/store/icon/icon.actions';
 import { retrievedLoginProfiles } from 'src/app/store/login-profile/login-profile.actions';
 import { retrievedTemplates } from 'src/app/store/template/template.actions';
 import { selectTemplates } from 'src/app/store/template/template.selectors';
-import { ActionRenderDeviceComponent } from './action-render-device/action-render-device.component';
-import { ActionRenderTemplateComponent } from './action-render-template/action-render-template.component';
 import { AddEditDeviceDialogComponent } from './add-edit-device-dialog/add-edit-device-dialog.component';
 import { AddEditTemplateDialogComponent } from './add-edit-template-dialog/add-edit-template-dialog.component';
 import { selectIsDeviceChange } from "../../store/device-change/device-change.selectors";
 import { retrievedIsDeviceChange } from "../../store/device-change/device-change.actions";
+import { ConfirmationDialogComponent } from "../../shared/components/confirmation-dialog/confirmation-dialog.component";
+import { catchError } from "rxjs/operators";
 
 @Component({
   selector: 'app-device-template',
@@ -69,11 +69,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
     {
       headerName: '',
       field: 'id',
-      suppressSizeToFit: true,
-      width: 90,
-      cellRenderer: ActionRenderDeviceComponent,
-      cellClass: 'devices-actions',
-      sortable: false,
+      hide: true,
       getQuickFilterText: () => ''
     },
     { field: 'name',
@@ -111,14 +107,8 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
       width: 52
     },
     {
-      headerName: '',
       field: 'id',
-      suppressSizeToFit: true,
-      flex: 1,
-      maxWidth: 90,
-      cellRenderer: ActionRenderTemplateComponent,
-      cellClass: 'template-actions',
-      sortable: false,
+      hide: true,
       getQuickFilterText: () => ''
     },
     {
@@ -200,8 +190,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
         this.store.dispatch(retrievedIsDeviceChange({data: false}));
       }
     })
-
-    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
+    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json-info-panel.svg'));
    }
 
   ngOnInit(): void {
@@ -362,4 +351,136 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
       })
     }
   }
+
+  updateDevice() {
+    if (this.rowSelectedDeviceId.length === 0) {
+      this.toastr.info('No row selected');
+    } else if (this.rowSelectedDeviceId.length === 1) {
+      this.deviceService.get(this.rowSelectedDeviceId[0]).subscribe(deviceData => {
+        const dialogData = {
+          mode: 'update',
+          genData: deviceData.result
+        }
+        const dialogRef = this.dialog.open(AddEditDeviceDialogComponent, {
+          autoFocus: false,
+          width: '450px',
+          data: dialogData
+        });
+      })
+    } else {
+      this.toastr.info('Bulk edits do not apply to the device.<br> Please select only one device',
+                  'Info', { enableHtml: true})
+    }
+  }
+
+  deleteDevice() {
+    if (this.rowSelectedDeviceId.length === 0) {
+      this.toastr.info('No row selected');
+    } else {
+      const suffix = this.rowSelectedDeviceId.length === 1 ? 'this item' : 'these items';
+      const dialogData = {
+        title: 'User confirmation needed',
+        message: `Are you sure you want to delete ${suffix}?`,
+        submitButtonName: 'OK'
+      }
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          this.rowSelectedDevice.map(device => {
+            this.deviceService.delete(device.id).pipe(
+              catchError(response => {
+                if (response.status == 400) {
+                  const messages = response.error.message.split(':')[1];
+                  this.toastr.warning(messages, 'Warning');
+                } else {
+                  this.toastr.error(`Delete ${device.name} device failed`, 'Error');
+                }
+                return throwError(() => response.error);
+              })
+            ).subscribe(response => {
+              this.deviceService.getAll().subscribe(
+                (data: any) => this.store.dispatch(retrievedDevices({ data: data.result }))
+              );
+              this.store.dispatch(retrievedIsDeviceChange({ data: true }));
+              this.toastr.success(`Deleted ${device.name} device successfully`, 'Success');
+            })
+          })
+          this.clearDeviceTable();
+        }
+      });
+    }
+  }
+
+  updateTemplate() {
+    if (this.rowsSelectedTemplateId.length === 0) {
+      this.toastr.info('No row selected');
+    } else if (this.rowsSelectedTemplateId.length === 1) {
+      this.templateService.get(this.rowsSelectedTemplateId[0]).subscribe(templateData => {
+        const dialogData = {
+          mode: 'update',
+          genData: templateData.result,
+          deviceId: this.rowSelectedDeviceId[0]
+        }
+        this.dialog.open(AddEditTemplateDialogComponent, {
+          autoFocus: false,
+          width: '450px',
+          data: dialogData
+        });
+      })
+    } else {
+      this.toastr.info('Bulk edits do not apply to template.<br> Please select only one template', 'Info',
+              { enableHtml: true })
+    }
+  }
+
+  deleteTemplate() {
+    if (this.rowsSelectedTemplateId.length === 0) {
+      this.toastr.info('No row selected');
+    } else {
+      const suffix = this.rowsSelectedTemplateId.length === 1 ? 'this item' : 'these items';
+      const dialogData = {
+        title: 'User confirmation needed',
+        message: `Are you sure you want to delete ${suffix}?`,
+        submitButtonName: 'OK'
+      }
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          this.rowsSelectedTemplate.map(template => {
+            this.templateService.delete(template.id).pipe(
+              catchError(response => {
+                if (response.status == 400) {
+                  const message = response.error.message.split(':')[1];
+                  this.toastr.warning(message, 'Warning');
+                } else {
+                  this.toastr.error(`Delete ${template.display_name} template failed`, 'Error');
+                }
+                return throwError(() => response.error);
+              })
+            ).subscribe(() => {
+              this.templateService.getAll().subscribe((data: any)  => {
+                const template = data.result.filter((ele: any) => ele.device_id === this.rowSelectedDeviceId[0]);
+                this.store.dispatch(retrievedTemplates({ data: template }));
+              })
+              this.toastr.success(`Delete ${template.display_name} template successfully`, 'Success');
+            })
+          })
+          this.clearDeviceTemplateTable();
+        }
+      });
+    }
+  }
+
+  clearDeviceTable() {
+    this.agGrid1.api.deselectAll();
+    this.rowSelectedDevice = [];
+    this.rowSelectedDeviceId = [];
+  }
+
+  clearDeviceTemplateTable() {
+    this.agGrid2.api.deselectAll();
+    this.rowsSelectedTemplate = [];
+    this.rowsSelectedTemplateId = [];
+  }
+
 }

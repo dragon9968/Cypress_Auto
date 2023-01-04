@@ -1,21 +1,35 @@
-<mat-card class="config-template-container">
-  <mat-card-title class="config-template-title">Configuration Templates</mat-card-title>
-  <div class="sub-title">
-    <div class="left">
-      <button mat-raised-button color="primary" (click)="addConfigTemplate()">
+<mat-card class="table">
+  <mat-card-title class="table__title">Configuration Templates</mat-card-title>
+  <div class="table__nav">
+    <div class="table__nav--actions">
+      <button mat-button mat-mini-fab color="primary" matTooltip="Add New Config Template" (click)="addConfigTemplate()">
         <mat-icon>add</mat-icon>
       </button>
-      <button mat-button [matMenuTriggerFor]="actionMenu" class="actions">Actions
-        <mat-icon>keyboard_arrow_down</mat-icon>
+      <button mat-button mat-mini-fab color="primary" matTooltip="Edit" (click)="updateConfigTemplate()">
+        <mat-icon>edit</mat-icon>
       </button>
-      <mat-menu #actionMenu="matMenu">
-        <button mat-menu-item (click)="exportJson()"><mat-icon svgIcon="export-json"></mat-icon>Export as JSON</button>
-      </mat-menu>
+      <button mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteConfigTemplate()">
+        <mat-icon>delete</mat-icon>
+      </button>
+      <button mat-button mat-mini-fab color="primary" matTooltip="Add Route" (click)="addRouter()">
+        <mat-icon>router</mat-icon>
+      </button>
+      <button mat-button mat-mini-fab color="primary" matTooltip="Add Firewall Rule" (click)="addFirewallRule()">
+        <mat-icon>security</mat-icon>
+      </button>
+      <button mat-button mat-mini-fab color="primary" matTooltip="Add Domain Membership" (click)="openDomainMembership()">
+        <mat-icon>domain</mat-icon>
+      </button>
+      <button mat-button mat-mini-fab color="primary" matTooltip="Add Roles & Service" (click)="openRoleService()">
+        <mat-icon>settings_system_daydream</mat-icon>
+      </button>
+      <button mat-button mat-mini-fab color="primary" matTooltip="Export as JSON" (click)="exportJson()">
+        <mat-icon svgIcon="export-json"></mat-icon>
+      </button>
     </div>
-    <div class="right">
+    <div class="table__nav--search">
       <input
         matInput
-        class="search"
         type="search"
         [(ngModel)]="quickFilterValue"
         placeholder="Search..."
@@ -23,18 +37,21 @@
       >
     </div>
   </div>
-  <ag-grid-angular
-    class="ag-theme-alpine configTemplate"
-    [pagination]="true"
-    [paginationPageSize]="25"
-    [columnDefs]="columnDefs"
-    [defaultColDef]="defaultColDef"
-    [rowData]="rowData$ | async"
-    [rowSelection]="'multiple'"
-    [suppressRowClickSelection]="true"
-    [animateRows]="true"
-    (gridReady)="onGridReady($event)"
-    (rowSelected)="selectedRows()"
-  >
-  </ag-grid-angular>
+  <mat-card-content class="table__content">
+    <ag-grid-angular
+      class="ag-theme-alpine"
+      [pagination]="true"
+      [paginationPageSize]="25"
+      [columnDefs]="columnDefs"
+      [defaultColDef]="defaultColDef"
+      [rowData]="rowData$ | async"
+      [rowSelection]="'multiple'"
+      [suppressRowClickSelection]="true"
+      [animateRows]="true"
+      (gridReady)="onGridReady($event)"
+      (rowSelected)="selectedRows()"
+      (rowDoubleClicked)="onRowDoubleClick($event)"
+    >
+    </ag-grid-angular>
+  </mat-card-content>
 </mat-card>

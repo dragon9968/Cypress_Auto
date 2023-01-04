@@ -33,7 +33,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
       field: 'id',
       suppressSizeToFit: true,
       width: 60,
-      cellClass: 'project-actions'
     },
     { field: 'name'},
     { field: 'description' },

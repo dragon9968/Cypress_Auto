@@ -249,7 +249,7 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
     if (this.rowsSelected.length == 0) {
       this.toastr.info('No row selected');
     } else {
-      const message = this.rowsSelectedId.length == 1 ? 'Generate a new randomized IP for this interface?' : 'Generate a new randomized IP for those interfaces?';
+      const message = this.rowsSelectedId.length == 1 ? 'Generate a new randomized IP for this interface?' : 'Generate a new randomized IP for these interfaces?';
       const dialogData = {
         title: 'User confirmation needed',
         message: message,

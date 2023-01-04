@@ -30,7 +30,7 @@
       <input type="text" formControlName="zoomSpeedCtr" matInput [readonly]="isViewMode">
     </mat-form-field>
     <mat-form-field class="field">
-      <mat-label>None</mat-label>
+      <mat-label>Default Icon</mat-label>
       <input type="text" formControlName="defaultIconCtr" matInput [readonly]="isViewMode">
     </mat-form-field>
   </div>
@@ -59,14 +59,14 @@
     </mat-form-field>
     <div class="tab-field">
       <label class="label" for="groupBoxBorderColor">Group Box Border Color </label>
-      <button type="button" mat-mini-fab id="groupBoxBorderColor" class="color-picker" 
+      <button type="button" mat-mini-fab id="groupBoxBorderColor" class="color-picker"
       [(colorPicker)]="gbBorderColor"
       [style.background]="gbBorderColor" cpPosition="bottom" (colorPickerChange)="setGbBorderColor($event)"
       ></button>
     </div>
     <div class="tab-field">
       <label class="label" for="portGroupColor">Port Group Color </label>
-      <button type="button" mat-mini-fab id="portGroupColor" class="color-picker" 
+      <button type="button" mat-mini-fab id="portGroupColor" class="color-picker"
       [(colorPicker)]="pgColor"
       [style.background]="pgColor" cpPosition="bottom" (colorPickerChange)="setPgColor($event)"
       ></button>
@@ -79,7 +79,7 @@
     </div>
     <div class="tab-field">
       <label class="label" for="edgeColor">Edge Color </label>
-      <button type="button" mat-mini-fab id="edgeColor" class="color-picker" 
+      <button type="button" mat-mini-fab id="edgeColor" class="color-picker"
       [(colorPicker)]="edgeColor"
       [style.background]="edgeColor" cpPosition="bottom" (colorPickerChange)="setEdgeColor($event)"
       ></button>
@@ -98,7 +98,7 @@
     </div>
     <div class="tab-field">
       <label class="label" for="textColor">Text Color </label>
-      <button type="button" mat-mini-fab id="textColor" class="color-picker" 
+      <button type="button" mat-mini-fab id="textColor" class="color-picker"
       [(colorPicker)]="textColor"
       [style.background]="textColor" cpPosition="bottom" (colorPickerChange)="setTextColor($event)"
       ></button>
@@ -117,7 +117,7 @@
     </mat-form-field>
     <div class="tab-field">
       <label class="label" for="TextBG">Text Background </label>
-      <button type="button" mat-mini-fab id="TextBG" class="color-picker" 
+      <button type="button" mat-mini-fab id="TextBG" class="color-picker"
       [(colorPicker)]="TextBG"
       [style.background]="TextBG" cpPosition="bottom" (colorPickerChange)="setTextBG($event)"
       ></button>

@@ -139,7 +139,7 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
     if (this.rowsSelectedId.length === 0) {
       this.toastr.info('No row selected');
     } else {
-      const item = this.rowsSelectedId.length === 1 ? 'this' : 'those';
+      const item = this.rowsSelectedId.length === 1 ? 'this' : 'these';
       const dialogData = {
         title: 'User confirmation needed',
         message: `Are you sure you want to delete ${item}?`,
@@ -159,7 +159,7 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
     if (this.rowsSelectedId.length === 0) {
       this.toastr.info('No row selected');
     } else {
-      const message = this.rowsSelectedId.length === 1 ? 'Rerun this task?' : 'Rerun those tasks?';
+      const message = this.rowsSelectedId.length === 1 ? 'Rerun this task?' : 'Rerun these tasks?';
       const dialogData = {
         title: 'User confirmation needed',
         message: message,

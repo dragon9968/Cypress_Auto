@@ -3,7 +3,6 @@ import { SharedModule } from '../shared/shared.module';
 import { TemplatesRoutingModule } from './templates-routing.module';
 import { ConfigTemplatesComponent } from './config-templates/config-templates.component';
 import { NetworkTemplatesComponent } from './network-templates/network-templates.component';
-import { ActionsRendersConfigTemplateComponent } from './config-templates/actions-renders-config-template/actions-renders-config-template.component';
 import { AddEditConfigTemplateComponent } from './config-templates/add-edit-config-template/add-edit-config-template.component';
 import { AddRouteDialogComponent } from './config-templates/add-route-dialog/add-route-dialog.component';
 import { AddFirewallRuleDialogComponent } from './config-templates/add-firewall-rule-dialog/add-firewall-rule-dialog.component';
@@ -16,7 +15,6 @@ import { ShowConfigTemplateDialogComponent } from './config-templates/show-confi
   declarations: [
     ConfigTemplatesComponent,
     NetworkTemplatesComponent,
-    ActionsRendersConfigTemplateComponent,
     AddEditConfigTemplateComponent,
     AddRouteDialogComponent,
     AddFirewallRuleDialogComponent,
