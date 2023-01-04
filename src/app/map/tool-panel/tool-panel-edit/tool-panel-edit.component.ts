@@ -109,8 +109,6 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
     this.selectMapOption$.unsubscribe();
   }
 
-
-
   disableTemplate(deviceId: string) {
     this.filteredTemplatesByDevice = this.templates.filter(template => template.device.id == deviceId);
     this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice);

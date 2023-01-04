@@ -6,7 +6,7 @@
             [matAutocomplete]="autoMapPref">
         <mat-autocomplete #autoMapPref="matAutocomplete" [displayWith]="helpers.optionDisplay"
             (optionSelected)="selectMapPref($event)">
-            <mat-option *ngFor="let option of mapPrefs" [value]="option">
+            <mat-option *ngFor="let option of filteredMapPrefs | async" [value]="option">
                 {{ option.name }}
             </mat-option>
         </mat-autocomplete>

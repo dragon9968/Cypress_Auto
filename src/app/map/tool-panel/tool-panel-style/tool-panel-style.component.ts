@@ -4,7 +4,7 @@ import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { MapPrefService } from 'src/app/core/services/map-pref/map-pref.service';
 import { retrievedMapPref } from 'src/app/store/map-style/map-style.actions';
@@ -63,6 +63,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   selectedMapPref: any;
   positionForm!: FormGroup;
   selectMapSelection$ = new Subscription();
+  filteredMapPrefs!: Observable<any[]>;
 
   constructor(
     private domSanitizer: DomSanitizer,
@@ -169,6 +170,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.mapPrefService.getAll().subscribe(data => {
       this.mapPrefs = data.result;
+      this.filteredMapPrefs = this.helpers.filterOptions(this.mapPrefCtr, this.mapPrefs);
     });
   }
 

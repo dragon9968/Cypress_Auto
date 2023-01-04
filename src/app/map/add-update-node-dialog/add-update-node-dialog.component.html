@@ -17,7 +17,7 @@
       <input matInput type="text" placeholder="Select an icon" formControlName="iconCtr" [matAutocomplete]="autoIcon"
         [readonly]="isViewMode">
       <mat-autocomplete #autoIcon="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of icons" [value]="option">
+        <mat-option *ngFor="let option of filteredIcons | async" [value]="option">
           <div class="option-text">
             <img [src]="ICON_PATH + option.photo" height="24" width="24">
             &nbsp;
@@ -41,7 +41,7 @@
         [matAutocomplete]="autoDevice" [readonly]="isViewMode" (change)="changeDevice()">
       <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="helpers.optionDisplay"
         (optionSelected)="selectDevice($event)">
-        <mat-option *ngFor="let option of devices" [value]="option">
+        <mat-option *ngFor="let option of filteredDevices | async" [value]="option">
           <div class="option-text">
             <img [src]="ICON_PATH + option.icon?.photo" height="24" width="24">
             &nbsp;
@@ -57,7 +57,7 @@
       <input matInput type="text" placeholder="Select a template" formControlName="templateCtr"
         [matAutocomplete]="autoTemplate" [readonly]="isViewMode">
       <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helpers.templateDisplay">
-        <mat-option *ngFor="let option of filteredTemplates" [value]="option">
+        <mat-option *ngFor="let option of filteredTemplates | async" [value]="option">
           <div class="option-text">
             <img [src]="ICON_PATH + option.icon?.photo" height="24" width="24">
             &nbsp;
@@ -73,7 +73,7 @@
       <input matInput type="text" placeholder="Select a hardware" formControlName="hardwareCtr"
         [matAutocomplete]="autoHardware" [readonly]="isViewMode">
       <mat-autocomplete #autoHardware="matAutocomplete" [displayWith]="helpers.hardwareDisplay">
-        <mat-option *ngFor="let option of hardwares" [value]="option" style="height: 60px !important;">
+        <mat-option *ngFor="let option of filteredHardwares | async" [value]="option" style="height: 60px !important;">
           <div class="hardware-option-text">
             <span class="option-text-items"><b>{{ option.device?.name }} {{ option.template?.name }}</b></span>
             <span class="option-text-items">Serial #: {{ option.serial_number }}</span>
@@ -98,7 +98,7 @@
       <input matInput type="text" placeholder="Select a role" formControlName="roleCtr" [matAutocomplete]="autoRole"
         [readonly]="isViewMode">
       <mat-autocomplete #autoRole="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of ROLES" [value]="option">
+        <mat-option *ngFor="let option of filteredRoles | async" [value]="option">
           {{ option.name }}
         </mat-option>
       </mat-autocomplete>
@@ -110,7 +110,7 @@
       <input matInput type="text" placeholder="Select a domain" formControlName="domainCtr"
         [matAutocomplete]="autoDomain" [readonly]="isViewMode">
       <mat-autocomplete #autoDomain="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of domains" [value]="option">
+        <mat-option *ngFor="let option of filteredDomains | async" [value]="option">
           {{ option.name }}
         </mat-option>
       </mat-autocomplete>
@@ -138,7 +138,7 @@
       <input matInput type="text" placeholder="Assign a login profile" formControlName="loginProfileCtr"
         [matAutocomplete]="autoLoginProfile" [readonly]="isViewMode">
       <mat-autocomplete #autoLoginProfile="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of loginProfiles" [value]="option" style="height: 60px !important;">
+        <mat-option *ngFor="let option of filteredLoginProfiles | async" [value]="option" style="height: 60px !important;">
           <div class="login-profiles-option-text">
             <span class="option-text-items"><b>{{ option.name }}</b></span>
             <span class="option-text-items">Username: {{ option.username }}</span>

@@ -9,7 +9,7 @@
       [matAutocomplete]="autoGroupCategory">
     <mat-autocomplete #autoGroupCategory="matAutocomplete" [displayWith]="helpers.optionDisplay"
       (optionSelected)="selectGroupCategory()">
-      <mat-option *ngFor="let option of groupCategories" [value]="option">
+      <mat-option *ngFor="let option of filteredGroupCategories | async" [value]="option">
         {{ option.name }}
       </mat-option>
     </mat-autocomplete>

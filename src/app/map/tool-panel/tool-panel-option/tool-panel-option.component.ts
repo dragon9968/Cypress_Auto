@@ -2,7 +2,7 @@ import { Component, Input, OnChanges, OnDestroy } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { retrievedMapOption } from 'src/app/store/map-option/map-option.actions';
@@ -34,6 +34,7 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
   selectMapOption$ = new Subscription();
   groupBoxes: any;
   groupCategoryId!: string;
+  filteredGroupCategories!: Observable<any[]>;
 
   constructor(
     private store: Store,
@@ -46,6 +47,7 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
         this.groupCategoryId = mapOption.groupCategoryId;
       }
     });
+    this.filteredGroupCategories = this.helpers.filterOptions(this.groupCategoryCtr, this.groupCategories);
   }
 
   ngOnChanges(valueChange: any) {

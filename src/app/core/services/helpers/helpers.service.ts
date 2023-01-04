@@ -457,7 +457,7 @@ export class HelpersService {
       startWith(''),
       map((value: any | string) => {
         const text = typeof value === 'string' ? value.toLowerCase() : value.name;
-        return options?.filter((option: any) => option.name.toLowerCase().includes(text));
+        return options?.filter((option: any) => option.name?.toLowerCase().includes(text));
       }),
     );
   }

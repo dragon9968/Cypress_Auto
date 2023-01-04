@@ -10,7 +10,7 @@ import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { ToastrService } from 'ngx-toastr';
 import { NodeService } from 'src/app/core/services/node/node.service';
 import { Store } from '@ngrx/store';
-import { catchError, Subscription, throwError } from 'rxjs';
+import { catchError, Observable, Subscription, throwError } from 'rxjs';
 import { selectIcons } from '../../store/icon/icon.selectors';
 import { selectDevices } from '../../store/device/device.selectors';
 import { selectTemplates } from '../../store/template/template.selectors';
@@ -45,7 +45,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   errorMatcher = new CrossFieldErrorMatcher();
   ROLES = ROLES;
   ICON_PATH = ICON_PATH;
-  filteredTemplates!: any[];
+  filteredTemplatesByDevice!: any[];
   errorMessages = ErrorMessages;
   icons!: any[];
   devices!: any[];
@@ -64,6 +64,14 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   selectLoginProfiles$ = new Subscription();
   selectNodes$ = new Subscription();
   isViewMode = false;
+  filteredIcons!: Observable<any[]>;
+  filteredDevices!: Observable<any[]>;
+  filteredTemplates!: Observable<any[]>;
+  filteredHardwares!: Observable<any[]>;
+  filteredDomains!: Observable<any[]>;
+  filteredRoles!: Observable<any[]>;
+  filteredConfigTemplates!: Observable<any[]>;
+  filteredLoginProfiles!: Observable<any[]>;
 
   constructor(
     private nodeService: NodeService,
@@ -73,46 +81,60 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
     public helpers: HelpersService,
     private store: Store,
   ) {
-    this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
-      this.icons = icons;
-    });
-    this.selectDevices$ = this.store.select(selectDevices).subscribe((devices: any) => {
-      this.devices = devices;
-    });
-    this.selectTemplates$ = this.store.select(selectTemplates).subscribe((templates: any) => {
-      this.templates = templates;
-      this.filteredTemplates = templates;
-    });
-    this.selectHardwares$ = this.store.select(selectHardwares).subscribe((hardwares: any) => {
-      this.hardwares = hardwares;
-    });
-    this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
-      this.domains = domains;
-    });
-    this.selectConfigTemplates$ = this.store.select(selectConfigTemplates).subscribe((configTemplates: any) => {
-      this.configTemplates = configTemplates;
-    });
-    this.selectLoginProfiles$ = this.store.select(selectLoginProfiles).subscribe((loginProfiles: any) => {
-      this.loginProfiles = loginProfiles;
-    });
-    this.selectNodes$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => this.nodes = nodes);
-    this.isViewMode = this.data.mode == 'view';
     this.nodeAddForm = new FormGroup({
       nameCtr: new FormControl('', [Validators.required, validateNameExist(() => this.nodes, this.data.mode, this.data.genData.node_id)]),
       notesCtr: new FormControl(''),
-      iconCtr: new FormControl('', [autoCompleteValidator(this.icons)]),
+      iconCtr: new FormControl(''),
       categoryCtr: new FormControl({ value: '', disabled: this.isViewMode }),
-      deviceCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.devices)]),
-      templateCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.templates, 'display_name')]),
-      hardwareCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.hardwares)]),
+      deviceCtr: new FormControl(''),
+      templateCtr: new FormControl(''),
+      hardwareCtr: new FormControl(''),
       folderCtr: new FormControl('', Validators.required),
       parentFolderCtr: new FormControl(''),
-      roleCtr: new FormControl('', [Validators.required, autoCompleteValidator(ROLES)]),
-      domainCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.domains)]),
+      roleCtr: new FormControl(''),
+      domainCtr: new FormControl(''),
       hostnameCtr: new FormControl('', Validators.required),
       configTemplateCtr: new FormControl({ value: '', disabled: this.isViewMode }),
-      loginProfileCtr: new FormControl('', [autoCompleteValidator(this.loginProfiles)]),
+      loginProfileCtr: new FormControl(''),
     }, { validators: hostnameValidator });
+    this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
+      this.icons = icons;
+      this.iconCtr.setValidators([autoCompleteValidator(this.icons)]);
+      this.filteredIcons = this.helpers.filterOptions(this.iconCtr, this.icons);
+    });
+    this.selectDevices$ = this.store.select(selectDevices).subscribe((devices: any) => {
+      this.devices = devices;
+      this.deviceCtr.setValidators([Validators.required, autoCompleteValidator(this.devices)]);
+      this.filteredDevices = this.helpers.filterOptions(this.deviceCtr, this.devices);
+    });
+    this.selectTemplates$ = this.store.select(selectTemplates).subscribe((templates: any) => {
+      this.templates = templates;
+      this.templateCtr.setValidators([Validators.required, autoCompleteValidator(this.templates, 'display_name')]);
+      this.filteredTemplates = templates;
+      this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice);
+    });
+    this.selectHardwares$ = this.store.select(selectHardwares).subscribe((hardwares: any) => {
+      this.hardwares = hardwares;
+      this.hardwareCtr.setValidators([Validators.required, autoCompleteValidator(this.hardwares)]);
+      this.filteredHardwares = this.helpers.filterOptions(this.hardwareCtr, this.hardwares);
+    });
+    this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
+      this.domains = domains;
+      this.domainCtr.setValidators([Validators.required, autoCompleteValidator(this.domains)]);
+      this.filteredDomains = this.helpers.filterOptions(this.domainCtr, this.domains);
+    });
+    this.selectConfigTemplates$ = this.store.select(selectConfigTemplates).subscribe((configTemplates: any) => {
+      this.configTemplates = configTemplates;
+      this.configTemplateCtr?.setValidators([autoCompleteValidator(this.configTemplates)]);
+      this.filteredConfigTemplates = this.helpers.filterOptions(this.configTemplateCtr, this.configTemplates);
+    });
+    this.selectLoginProfiles$ = this.store.select(selectLoginProfiles).subscribe((loginProfiles: any) => {
+      this.loginProfiles = loginProfiles;
+      this.loginProfileCtr.setValidators([autoCompleteValidator(this.loginProfiles)]);
+      this.filteredLoginProfiles = this.helpers.filterOptions(this.loginProfileCtr, this.loginProfiles);
+    });
+    this.selectNodes$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => this.nodes = nodes);
+    this.isViewMode = this.data.mode == 'view';
   }
 
   get nameCtr() { return this.nodeAddForm.get('nameCtr'); }
@@ -131,12 +153,15 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   get loginProfileCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('loginProfileCtr'), this.loginProfiles); }
 
   ngOnInit(): void {
+    this.roleCtr.setValidators([Validators.required, autoCompleteValidator(this.ROLES)]);
+    this.filteredRoles = this.helpers.filterOptions(this.roleCtr, this.ROLES);
     this.helpers.setAutoCompleteValue(this.iconCtr, this.icons, this.data.genData.icon_id);
     this.nameCtr?.setValue(this.data.genData.name);
     this.categoryCtr?.setValue(this.data.genData.category);
     this.disableItems(this.categoryCtr?.value);
     this.helpers.setAutoCompleteValue(this.deviceCtr, this.devices, this.data.genData.device_id);
-    this.filteredTemplates = this.templates.filter((template: any) => template.device_id == this.data.genData.device_id);
+    this.filteredTemplatesByDevice = this.templates.filter((template: any) => template.device_id == this.data.genData.device_id);
+    this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice);
     this.helpers.setAutoCompleteValue(this.templateCtr, this.templates, this.data.genData.template_id);
     this.helpers.setAutoCompleteValue(this.hardwareCtr, this.hardwares, this.data.genData.hardware_id);
     this.folderCtr?.setValue(this.data.genData.folder);
@@ -204,9 +229,10 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   }
 
   disableTemplate(deviceId: string) {
-    this.filteredTemplates = this.templates.filter(template => template.device.id == deviceId);
+    this.filteredTemplatesByDevice = this.templates.filter(template => template.device.id == deviceId);
+    this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice);
     this.templateCtr?.setValue('');
-    if (this.filteredTemplates.length > 0) {
+    if (this.filteredTemplatesByDevice.length > 0) {
       this.templateCtr?.enable();
     } else {
       this.templateCtr?.disable();
