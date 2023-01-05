@@ -1,5 +1,5 @@
 <form [formGroup]="hardwareForm" (ngSubmit)="data.mode === 'add' ? addHardware() : updateHardware()">
-  <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Hardware' : data.mode === 'update' ? 'Edit Hardware' : 'Haware Detail' }}</h1>
+  <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Hardware' : data.mode === 'update' ? 'Edit Hardware' : 'Hardware Detail' }}</h1>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Device</mat-label>
