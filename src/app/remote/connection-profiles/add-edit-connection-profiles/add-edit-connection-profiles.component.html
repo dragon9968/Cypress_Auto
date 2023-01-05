@@ -30,6 +30,7 @@
                 <mat-label>Server</mat-label>
                 <input type="text" formControlName="server" matInput>
                 <mat-hint *ngIf="data.mode !== 'view'" align="start"><strong>IP address or FQDN of hypervisor</strong></mat-hint>
+                <mat-error *ngIf="server?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
               </mat-form-field>
             </div>
             <div *ngIf="data.mode === 'view'">

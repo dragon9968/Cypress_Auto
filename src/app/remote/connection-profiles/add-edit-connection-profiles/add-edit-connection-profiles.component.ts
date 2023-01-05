@@ -33,7 +33,7 @@ export class AddEditConnectionProfilesComponent implements OnInit {
     this.connectionForm =  new FormGroup({
       name: new FormControl({value: '', disabled: this.isViewMode}),
       category: new FormControl({value: '', disabled: this.isViewMode}, [Validators.required]),
-      server: new FormControl({value: '', disabled: this.isViewMode}),
+      server: new FormControl({value: '', disabled: this.isViewMode}, [Validators.required]),
       dataCenter: new FormControl({value: '', disabled: this.isViewMode}),
       cluster: new FormControl({value: '', disabled: this.isViewMode}),
       dataStore: new FormControl({value: '', disabled: this.isViewMode}),
