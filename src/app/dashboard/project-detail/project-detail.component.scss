@@ -2,8 +2,7 @@ $margin: 8px;
 
 /* PROJECT INFORMATION */
 .project-info {
-  width: calc(100% - 30px);
-  height: calc(100% - 50px);
+  width: calc(100% - 35px);
   border-top: 3px solid #007bff;
 }
 
@@ -132,4 +131,5 @@ $margin: 8px;
   width: calc(100% - 25px);
   height: 100%;
   margin: 0;
+  overflow-y: auto;
 }
