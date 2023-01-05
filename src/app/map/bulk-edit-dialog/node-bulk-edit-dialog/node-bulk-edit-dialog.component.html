@@ -5,7 +5,7 @@
       <mat-label>Icon</mat-label>
       <input matInput type="text" placeholder="Select an icon" formControlName="iconCtr" [matAutocomplete]="autoIcon">
       <mat-autocomplete #autoIcon="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of icons" [value]="option">
+        <mat-option *ngFor="let option of filteredIcons | async" [value]="option">
           <div class="option-text">
             <img [src]="ICON_PATH + option.photo" height="24" width="24">
             <span>{{ option.name }}</span>
@@ -20,9 +20,9 @@
              [matAutocomplete]="autoDevice">
       <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="helpers.optionDisplay"
                         (optionSelected)="selectDevice($event)">
-        <mat-option *ngFor="let option of devices" [value]="option">
+        <mat-option *ngFor="let option of filteredDevices | async" [value]="option">
           <div class="option-text">
-            <img [src]="ICON_PATH + option.icon.photo" height="24" width="24">
+            <img [src]="ICON_PATH + option.icon?.photo" height="24" width="24">
             <span>{{ option.name }}</span>
           </div>
         </mat-option>
@@ -34,9 +34,9 @@
       <input matInput type="text" placeholder="Select a template" formControlName="templateCtr"
              [matAutocomplete]="autoTemplate">
       <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helpers.templateDisplay">
-        <mat-option *ngFor="let option of filteredTemplates" [value]="option">
+        <mat-option *ngFor="let option of filteredTemplates | async" [value]="option">
           <div class="option-text">
-            <img [src]="ICON_PATH + option.icon.photo" height="24" width="24">
+            <img [src]="ICON_PATH + option.icon?.photo" height="24" width="24">
             <span>{{ option.display_name }}</span>
           </div>
         </mat-option>
@@ -48,7 +48,7 @@
       <input matInput type="text" placeholder="Select a domain" formControlName="domainCtr"
              [matAutocomplete]="autoDomain">
       <mat-autocomplete #autoDomain="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of domains" [value]="option">
+        <mat-option *ngFor="let option of filteredDomains | async" [value]="option">
           {{ option.name }}
         </mat-option>
       </mat-autocomplete>
@@ -66,7 +66,7 @@
       <mat-label>Role</mat-label>
       <input matInput type="text" placeholder="Select a role" formControlName="roleCtr" [matAutocomplete]="autoRole">
       <mat-autocomplete #autoRole="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of ROLES" [value]="option">
+        <mat-option *ngFor="let option of filteredRoles | async" [value]="option">
           {{ option.name }}
         </mat-option>
       </mat-autocomplete>
@@ -86,7 +86,7 @@
       <input matInput type="text" placeholder="Assign a login profile" formControlName="loginProfileCtr"
              [matAutocomplete]="autoLoginProfile">
       <mat-autocomplete #autoLoginProfile="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option class="login-profiles-option" *ngFor="let option of loginProfiles" [value]="option" height="80">
+        <mat-option class="login-profiles-option" *ngFor="let option of filteredLoginProfiles | async" [value]="option" height="80">
           <div class="login-profiles-option-text">
             <span class="option-text-items"><b>{{ option.name }}</b></span>
             <span class="option-text-items">Username: {{ option.username }}</span>

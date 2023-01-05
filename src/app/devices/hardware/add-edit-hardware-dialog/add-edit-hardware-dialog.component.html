@@ -8,7 +8,7 @@
         (optionSelected)="selectDevice($event)">
         <mat-option *ngFor="let option of listDevices" [value]="option">
           <div class="option-text">
-            <img [src]="ICON_PATH + option.icon.photo" height="24" width="24">
+            <img [src]="ICON_PATH + option.icon?.photo" height="24" width="24">
             &nbsp;
             <span>{{ option.name }}</span>
           </div>
@@ -24,7 +24,7 @@
       <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helpers.templateDisplay">
         <mat-option *ngFor="let option of filteredTemplates" [value]="option">
           <div class="option-text">
-            <img [src]="ICON_PATH + option.icon.photo" height="15" width="15">
+            <img [src]="ICON_PATH + option.icon?.photo" height="15" width="15">
             &nbsp;
             <span>{{ option.display_name }}</span>
           </div>

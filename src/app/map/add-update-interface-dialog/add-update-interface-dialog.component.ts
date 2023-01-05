@@ -9,7 +9,7 @@ import { DIRECTIONS } from 'src/app/shared/contants/directions.constant';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 import { selectPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { selectInterfaces } from "../../store/map/map.selectors";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
@@ -33,6 +33,8 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
   gateways: any[] = [];
   interfaces: any[] = [];
   tabName = '';
+  filteredPortGroups!: Observable<any[]>;
+  filteredDirections!: Observable<any[]>;
 
   constructor(
     private store: Store,
@@ -43,8 +45,25 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
     private interfaceService: InterfaceService,
     private infoPanelService: InfoPanelService
   ) {
+    this.interfaceAddForm = new FormGroup({
+      orderCtr: new FormControl('', Validators.required),
+      nameCtr: new FormControl('', Validators.required),
+      descriptionCtr: new FormControl('', Validators.required),
+      categoryCtr: new FormControl({ value: '', disabled: this.isViewMode || this.tabName == 'edgeManagement' }),
+      directionCtr: new FormControl(''),
+      macAddressCtr: new FormControl(''),
+      portGroupCtr: new FormControl(''),
+      ipAllocationCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      ipCtr: new FormControl('', Validators.required),
+      dnsServerCtr: new FormControl(''),
+      gatewayCtr: new FormControl(''),
+      isGatewayCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      isNatCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+    });
     this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe((portGroups: any) => {
       this.portGroups = portGroups;
+      this.portGroupCtr.setValidators([Validators.required, autoCompleteValidator(this.portGroups)]);
+      this.filteredPortGroups = this.helpers.filterOptions(this.portGroupCtr, this.portGroups);
     });
     this.selectInterfaces$ = this.store.select(selectInterfaces).subscribe(interfaces => {
       if (interfaces) {
@@ -53,21 +72,6 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
     })
     this.isViewMode = this.data.mode == 'view';
     this.tabName = this.data.tabName;
-    this.interfaceAddForm = new FormGroup({
-      orderCtr: new FormControl('', Validators.required),
-      nameCtr: new FormControl('', Validators.required),
-      descriptionCtr: new FormControl('', Validators.required),
-      categoryCtr: new FormControl({ value: '', disabled: this.isViewMode || this.tabName == 'edgeManagement' }),
-      directionCtr: new FormControl('', [autoCompleteValidator(DIRECTIONS)]),
-      macAddressCtr: new FormControl(''),
-      portGroupCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.portGroups)]),
-      ipAllocationCtr: new FormControl({ value: '', disabled: this.isViewMode }),
-      ipCtr: new FormControl('', Validators.required),
-      dnsServerCtr: new FormControl(''),
-      gatewayCtr: new FormControl(''),
-      isGatewayCtr: new FormControl({ value: '', disabled: this.isViewMode }),
-      isNatCtr: new FormControl({ value: '', disabled: this.isViewMode }),
-    });
   }
 
   get orderCtr() { return this.interfaceAddForm.get('orderCtr'); }
@@ -85,6 +89,8 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
   get isNatCtr() { return this.interfaceAddForm.get('isNatCtr'); }
 
   ngOnInit(): void {
+    this.directionCtr.setValidators([autoCompleteValidator(this.DIRECTIONS)]);
+    this.filteredDirections = this.helpers.filterOptions(this.directionCtr, this.DIRECTIONS);
     this.orderCtr?.setValue(this.data.genData.order);
     this.nameCtr?.setValue(this.data.genData.name);
     this.descriptionCtr?.setValue(this.data.genData.description);

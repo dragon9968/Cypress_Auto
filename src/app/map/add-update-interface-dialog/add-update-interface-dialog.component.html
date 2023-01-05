@@ -29,7 +29,7 @@
       <input matInput placeholder="Select or enter a direction" formControlName="directionCtr"
         [matAutocomplete]="autoDirection" [readonly]="isViewMode">
       <mat-autocomplete #autoDirection="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of DIRECTIONS" [value]="option">
+        <mat-option *ngFor="let option of filteredDirections | async" [value]="option">
           {{ option.name }}
         </mat-option>
       </mat-autocomplete>
@@ -45,7 +45,7 @@
         [matAutocomplete]="autoPortgroup" [readonly]="isViewMode">
       <mat-autocomplete #autoPortgroup="matAutocomplete" [displayWith]="helpers.optionDisplay"
                         (optionSelected)="selectPortGroup($event)">
-        <mat-option *ngFor="let option of portGroups" [value]="option">
+        <mat-option *ngFor="let option of filteredPortGroups | async" [value]="option">
           <div class="portgroup-option-text">
             <span class="option-text-items"><b>{{ option.name }}</b></span>
             <span class="option-text-items">Subnet: {{ option.subnet }}</span>

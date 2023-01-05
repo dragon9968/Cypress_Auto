@@ -2,7 +2,7 @@ import { Store } from "@ngrx/store";
 import { ToastrService } from "ngx-toastr";
 import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute, Params } from "@angular/router";
-import { forkJoin, map, of, Subscription } from "rxjs";
+import { forkJoin, map, Observable, of, Subscription } from "rxjs";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
@@ -36,7 +36,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
   domains!: any[];
   configTemplates!: any[];
   loginProfiles!: any[]
-  filteredTemplates!: any[];
+  filteredTemplatesByDevice!: any[];
   collectionId = '0';
   selectIcons$ = new Subscription();
   selectDevices$ = new Subscription();
@@ -44,6 +44,14 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
   selectDomains$ = new Subscription();
   selectConfigTemplates$ = new Subscription();
   selectLoginProfiles$ = new Subscription();
+  filteredIcons!: Observable<any[]>;
+  filteredDevices!: Observable<any[]>;
+  filteredTemplates!: Observable<any[]>;
+  filteredHardwares!: Observable<any[]>;
+  filteredDomains!: Observable<any[]>;
+  filteredRoles!: Observable<any[]>;
+  filteredConfigTemplates!: Observable<any[]>;
+  filteredLoginProfiles!: Observable<any[]>;
 
   constructor(
     private store: Store,
@@ -54,30 +62,48 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
     public helpers: HelpersService,
     private nodeService: NodeService,
   ) {
-    this.selectIcons$ = this.store.select(selectIcons).subscribe(icons => this.icons = icons);
-    this.selectDevices$ = this.store.select(selectDevices).subscribe(devices => this.devices = devices);
-    this.selectTemplates$ = this.store.select(selectTemplates).subscribe(templates => {
-      this.templates = templates;
-      this.filteredTemplates = templates;
-    });
-    this.selectDomains$ = this.store.select(selectDomains).subscribe(domains => this.domains = domains);
-    this.selectConfigTemplates$ = this.store.select(selectConfigTemplates).subscribe(
-      configTemplates => this.configTemplates = configTemplates
-    );
-    this.selectLoginProfiles$ = this.store.select(selectLoginProfiles).subscribe(
-      loginProfiles => this.loginProfiles = loginProfiles
-    );
     this.nodeBulkEditForm = new FormGroup({
-      iconCtr: new FormControl('', [autoCompleteValidator(this.icons)]),
-      deviceCtr: new FormControl('', [autoCompleteValidator(this.devices)]),
-      templateCtr: new FormControl('', [autoCompleteValidator(this.templates, 'display_name')]),
-      domainCtr: new FormControl('', [autoCompleteValidator(this.domains)]),
+      iconCtr: new FormControl(''),
+      deviceCtr: new FormControl(''),
+      templateCtr: new FormControl(''),
+      domainCtr: new FormControl(''),
       folderCtr: new FormControl(''),
       parentFolderCtr: new FormControl(''),
-      roleCtr: new FormControl('', [autoCompleteValidator(ROLES)]),
+      roleCtr: new FormControl(''),
       configTemplateCtr: new FormControl(''),
-      loginProfileCtr: new FormControl('', [autoCompleteValidator(this.loginProfiles)]),
-    })
+      loginProfileCtr: new FormControl(''),
+    });
+    this.selectIcons$ = this.store.select(selectIcons).subscribe(icons => {
+      this.icons = icons;
+      this.iconCtr.setValidators([autoCompleteValidator(this.icons)]);
+      this.filteredIcons = this.helpers.filterOptions(this.iconCtr, this.icons);
+    });
+    this.selectDevices$ = this.store.select(selectDevices).subscribe(devices => {
+      this.devices = devices;
+      this.deviceCtr.setValidators([autoCompleteValidator(this.devices)]);
+      this.filteredDevices = this.helpers.filterOptions(this.deviceCtr, this.devices);
+    });
+    this.selectTemplates$ = this.store.select(selectTemplates).subscribe(templates => {
+      this.templates = templates;
+      this.templateCtr.setValidators([autoCompleteValidator(this.templates, 'display_name')]);
+      this.filteredTemplatesByDevice = templates;
+      this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice);
+    });
+    this.selectDomains$ = this.store.select(selectDomains).subscribe(domains => {
+      this.domains = domains;
+      this.domainCtr.setValidators([autoCompleteValidator(this.domains)]);
+      this.filteredDomains = this.helpers.filterOptions(this.domainCtr, this.domains);
+    });
+    this.selectConfigTemplates$ = this.store.select(selectConfigTemplates).subscribe(configTemplates => {
+      this.configTemplates = configTemplates;
+      this.configTemplateCtr?.setValidators([autoCompleteValidator(this.configTemplates)]);
+      this.filteredConfigTemplates = this.helpers.filterOptions(this.configTemplateCtr, this.configTemplates);
+    });
+    this.selectLoginProfiles$ = this.store.select(selectLoginProfiles).subscribe(loginProfiles => {
+      this.loginProfiles = loginProfiles;
+      this.loginProfileCtr.setValidators([autoCompleteValidator(this.loginProfiles)]);
+      this.filteredLoginProfiles = this.helpers.filterOptions(this.loginProfileCtr, this.loginProfiles);
+    });
   }
 
   get iconCtr() { return this.helpers.getAutoCompleteCtr(this.nodeBulkEditForm.get('iconCtr'), this.icons); }
@@ -91,7 +117,10 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
   get loginProfileCtr() { return this.helpers.getAutoCompleteCtr(this.nodeBulkEditForm.get('loginProfileCtr'), this.loginProfiles); }
 
   ngOnInit(): void {
-    this.filteredTemplates = this.templates.filter((template: any) => template.device_id == this.data.genData.device?.id);
+    this.roleCtr.setValidators([autoCompleteValidator(this.ROLES)]);
+    this.filteredRoles = this.helpers.filterOptions(this.roleCtr, this.ROLES);
+    this.filteredTemplatesByDevice = this.templates.filter((template: any) => template.device_id == this.data.genData.device?.id);
+    this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice);
     this.route.queryParams.subscribe((params: Params) => this.collectionId = params['collection_id']);
   }
 
@@ -179,7 +208,8 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
   }
 
   selectDevice($event: MatAutocompleteSelectedEvent) {
-    this.filteredTemplates = this.templates.filter((template: any) => template.device_id == $event.option.value.id);
+    this.filteredTemplatesByDevice = this.templates.filter((template: any) => template.device_id == $event.option.value.id);
+    this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice);
     this.templateCtr?.setValue('');
   }
 

@@ -3,7 +3,7 @@ import { ToastrService } from 'ngx-toastr';
 import { MatRadioChange } from '@angular/material/radio';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { catchError, Subscription, throwError } from 'rxjs';
+import { catchError, Observable, Subscription, throwError } from 'rxjs';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
@@ -32,6 +32,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
   isViewMode = false;
   tabName = '';
   errors: any[] = [];
+  filteredDomains!: Observable<any[]>;
 
   constructor(
     private store: Store,
@@ -39,18 +40,9 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<AddUpdatePGDialogComponent>,
     public helpers: HelpersService,
-    private projectService: ProjectService,
     private portGroupService: PortGroupService,
     private infoPanelService: InfoPanelService,
   ) {
-    this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
-      this.domains = domains;
-    });
-    this.selectPortGroupsManagement$ = this.store.select(selectPortGroupsManagement).subscribe(
-      portGroupsManagement => this.portGroupsManagement = portGroupsManagement
-    )
-    this.isViewMode = this.data.mode == 'view';
-    this.tabName = this.data.tabName;
     this.pgAddForm = new FormGroup({
       nameCtr: new FormControl('', Validators.required),
       vlanCtr: new FormControl('', [
@@ -59,12 +51,22 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
         showErrorFromServer(() => this.errors)
       ]),
       categoryCtr: new FormControl({ value: '', disabled: this.isViewMode || this.tabName == 'portGroupManagement' }),
-      domainCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.domains)]),
+      domainCtr: new FormControl(''),
       subnetAllocationCtr: new FormControl({ value: '', disabled: this.isViewMode }),
       subnetCtr: new FormControl('', [
         Validators.required,
         showErrorFromServer(() => this.errors)])
     });
+    this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
+      this.domains = domains;
+      this.domainCtr.setValidators([Validators.required, autoCompleteValidator(this.domains)]);
+      this.filteredDomains = this.helpers.filterOptions(this.domainCtr, this.domains);
+    });
+    this.selectPortGroupsManagement$ = this.store.select(selectPortGroupsManagement).subscribe(
+      portGroupsManagement => this.portGroupsManagement = portGroupsManagement
+    )
+    this.isViewMode = this.data.mode == 'view';
+    this.tabName = this.data.tabName;
   }
 
   get nameCtr() { return this.pgAddForm.get('nameCtr'); }

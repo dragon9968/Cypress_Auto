@@ -1,7 +1,7 @@
 import { Store } from "@ngrx/store";
 import { ToastrService } from "ngx-toastr";
 import { FormControl, FormGroup } from "@angular/forms";
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { DIRECTIONS } from "../../../shared/contants/directions.constant";
 import { STATUS } from "../../../shared/contants/status.constant";
@@ -12,19 +12,22 @@ import { InfoPanelService } from "../../../core/services/info-panel/info-panel.s
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { retrievedInterfacesManagement } from "../../../store/interface/interface.actions";
+import { Observable } from "rxjs";
 
 @Component({
   selector: 'app-interface-bulk-edit-dialog',
   templateUrl: './interface-bulk-edit-dialog.component.html',
   styleUrls: ['./interface-bulk-edit-dialog.component.scss']
 })
-export class InterfaceBulkEditDialogComponent {
+export class InterfaceBulkEditDialogComponent implements OnInit {
   interfaceBulkEditForm: FormGroup;
   DIRECTIONS = DIRECTIONS;
   STATUS = STATUS;
   errorMessages = ErrorMessages;
   mapCategory = '';
   collectionId = '0';
+  filteredStatus!: Observable<any[]>;
+  filteredDirections!: Observable<any[]>;
 
   constructor(
     private store: Store,
@@ -37,7 +40,7 @@ export class InterfaceBulkEditDialogComponent {
   ) {
     this.interfaceBulkEditForm = new FormGroup({
       statusCtr: new FormControl(''),
-      directionCtr: new FormControl('', [autoCompleteValidator(this.DIRECTIONS)]),
+      directionCtr: new FormControl(''),
       ipAllocationCtr: new FormControl(''),
       dnsServerCtr: new FormControl(''),
       gatewayCtr: new FormControl(''),
@@ -53,6 +56,12 @@ export class InterfaceBulkEditDialogComponent {
   get gatewayCtr() { return this.interfaceBulkEditForm.get('gatewayCtr'); }
   get isGatewayCtr() { return this.interfaceBulkEditForm.get('isGatewayCtr'); }
   get isNatCtr() { return this.interfaceBulkEditForm.get('isNatCtr'); }
+
+  ngOnInit(): void {
+    this.filteredStatus = this.helpers.filterOptions(this.statusCtr, this.STATUS);
+    this.directionCtr.setValidators([autoCompleteValidator(this.DIRECTIONS)]);
+    this.filteredDirections = this.helpers.filterOptions(this.directionCtr, this.DIRECTIONS);
+  }
 
   private _updateInterfaceOnMap(data: any) {
     const ele = this.data.cy.getElementById(data.id);

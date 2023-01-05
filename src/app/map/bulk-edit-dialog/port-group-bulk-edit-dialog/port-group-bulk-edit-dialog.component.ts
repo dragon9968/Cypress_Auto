@@ -1,5 +1,5 @@
 import { Store } from "@ngrx/store";
-import { forkJoin, map, Subscription } from "rxjs";
+import { forkJoin, map, Observable, Subscription } from "rxjs";
 import { ToastrService } from "ngx-toastr";
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from "@angular/forms";
@@ -26,6 +26,7 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
   selectDomains$ = new Subscription();
   errors: any[] = [];
   tabName = '';
+  filteredDomains!: Observable<any[]>;
 
   constructor(
     private store: Store,
@@ -36,17 +37,21 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
     private portGroupService: PortGroupService,
     private infoPanelService: InfoPanelService
   ) {
-    this.selectDomains$ = this.store.select(selectDomains).subscribe(domains => this.domains = domains);
-    this.tabName = this.data.tabName;
     this.portGroupBulkEdit = new FormGroup({
-      domainCtr: new FormControl('', [autoCompleteValidator(this.domains)]),
+      domainCtr: new FormControl(''),
       vlanCtr: new FormControl('', [
         Validators.pattern('^[0-9]*$'),
         showErrorFromServer(() => this.errors)
       ]),
       categoryCtr: new FormControl({ value: '', disabled: this.tabName == 'portGroupManagement'}),
       subnetAllocationCtr: new FormControl(''),
-    })
+    });
+    this.selectDomains$ = this.store.select(selectDomains).subscribe(domains => {
+      this.domains = domains;
+      this.domainCtr.setValidators([autoCompleteValidator(this.domains)]);
+      this.filteredDomains = this.helpers.filterOptions(this.domainCtr, this.domains);
+    });
+    this.tabName = this.data.tabName;
   }
 
   get domainCtr() { return this.helpers.getAutoCompleteCtr(this.portGroupBulkEdit.get('domainCtr'), this.domains); }

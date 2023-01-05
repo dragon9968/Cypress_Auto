@@ -6,7 +6,7 @@
       <input matInput type="text" placeholder="Select a domain" formControlName="domainCtr"
              [matAutocomplete]="autoDomain">
       <mat-autocomplete #autoDomain="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of domains" [value]="option">
+        <mat-option *ngFor="let option of filteredDomains | async" [value]="option">
           {{ option.name }}
         </mat-option>
       </mat-autocomplete>

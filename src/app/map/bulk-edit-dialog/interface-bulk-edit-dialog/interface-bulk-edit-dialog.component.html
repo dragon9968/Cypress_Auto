@@ -7,7 +7,7 @@
              [matAutocomplete]="autoStatus">
       <mat-autocomplete #autoStatus="matAutocomplete"
                         [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of STATUS" [value]="option">
+        <mat-option *ngFor="let option of filteredStatus | async" [value]="option">
           {{ option.name }}
         </mat-option>
       </mat-autocomplete>
@@ -17,7 +17,7 @@
       <input matInput type="text" placeholder="Select a direction" formControlName="directionCtr"
              [matAutocomplete]="autoDirection">
       <mat-autocomplete #autoDirection="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of DIRECTIONS" [value]="option">
+        <mat-option *ngFor="let option of filteredDirections | async" [value]="option">
           {{ option.name }}
         </mat-option>
       </mat-autocomplete>
