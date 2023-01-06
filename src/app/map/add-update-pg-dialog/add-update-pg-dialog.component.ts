@@ -55,6 +55,8 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
       nameCtr: new FormControl('', Validators.required),
       vlanCtr: new FormControl('', [
         Validators.required,
+        Validators.min(0),
+        Validators.max(4095),
         Validators.pattern('^[0-9]*$'),
         showErrorFromServer(() => this.errors)
       ]),
