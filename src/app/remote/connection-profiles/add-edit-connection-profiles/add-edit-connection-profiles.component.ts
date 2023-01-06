@@ -22,6 +22,7 @@ export class AddEditConnectionProfilesComponent implements OnInit {
   selectedFile: any = null;
   connectionForm?: FormGroup;
   errorMessages = ErrorMessages;
+  public showPassword: boolean = false;
   constructor(
     private serverConnectService: ServerConnectService,
     private toastr: ToastrService,
@@ -103,6 +104,10 @@ export class AddEditConnectionProfilesComponent implements OnInit {
           this.password?.setValidators([Validators.required]);
         }
     }
+  }
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
   }
 
   onCancel() {

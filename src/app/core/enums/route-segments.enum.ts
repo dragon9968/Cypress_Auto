@@ -8,6 +8,7 @@ export enum RouteSegments {
   REMOTE = 'remote',
   SETTINGS = 'settings',
   HELP = 'help',
+  ADMINISTRATION = 'administration',
   MAP = 'map',
   USER_PROFILE = 'user-profile',
   ADD_PROJECT = 'projects/add',
@@ -25,4 +26,5 @@ export enum RouteSegments {
   APP_PREFERENCES = 'settings/app-preferences',
   MAP_PREFERENCES = 'settings/map-preferences',
   USER_GUIDE = 'help/user-guide',
+  LIST_USERS = 'administration/users'
 }

@@ -34,8 +34,8 @@ import { ServerConnectService } from '../../services/server-connect/server-conne
 import { ServerConnectDialogComponent } from 'src/app/map/tool-panel/tool-panel-remote/server-connect-dialog/server-connect-dialog.component';
 import { retrievedIsConnect, retrievedServerConnect } from 'src/app/store/server-connect/server-connect.actions';
 import { AboutComponent } from 'src/app/help/about/about.component';
-import { retrievedUser } from 'src/app/store/user/user.actions';
 import { ValidateProjectDialogComponent } from 'src/app/project/validate-project-dialog/validate-project-dialog.component';
+import { retrievedUserProfile } from 'src/app/store/user-profile/user-profile.actions';
 
 @Component({
   selector: 'app-nav-bar',
@@ -60,6 +60,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   collectionId: any;
   projectName: any;
   username: any;
+  isAdmin = false;
 
   constructor(
     private authService: AuthService,
@@ -99,18 +100,19 @@ export class NavBarComponent implements OnInit, OnDestroy {
       const connection = this.serverConnectionService.getConnection();
       this.connection = connection ? connection : { name: '', id: 0 };
     })
-    iconRegistry.addSvgIcon('plant-tree-icon', this.helpersService.setIconPath('/assets/icons/plant-tree-icon.svg'));
-    iconRegistry.addSvgIcon('icons8-trash-can', this.helpersService.setIconPath('/assets/icons/icons8-trash-can.svg'));
-  }
-
-  ngOnInit(): void {
     const accessToken = this.authService.getAccessToken();
     const accessTokenPayload = this.helpersService.decodeToken(accessToken);
     const userId = accessTokenPayload.identity;
     this.userService.get(userId).subscribe(respData => {
       this.username = respData.result.username;
-      this.store.dispatch(retrievedUser({ data: respData.result }));
+      this.isAdmin = respData.result.roles[0].id === PermissionLevels.ADMIN;
+      this.store.dispatch(retrievedUserProfile({ data: respData.result }));
     });
+    iconRegistry.addSvgIcon('plant-tree-icon', this.helpersService.setIconPath('/assets/icons/plant-tree-icon.svg'));
+    iconRegistry.addSvgIcon('icons8-trash-can', this.helpersService.setIconPath('/assets/icons/icons8-trash-can.svg'));
+  }
+
+  ngOnInit(): void {
     this.collectionId = this.projectService.getCollectionId();
     const connection = this.serverConnectionService.getConnection();
     if (connection && connection.id !== 0) {

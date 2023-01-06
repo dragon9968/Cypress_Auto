@@ -1,0 +1,45 @@
+<mat-card class="table">
+  <mat-card-title class="table__title">List Users</mat-card-title>
+  <div class="table__nav">
+    <div class="table__nav--actions">
+      <button mat-mini-fab color="primary" matTooltip="Add" (click)="addUser()">
+        <mat-icon>add</mat-icon>
+      </button>
+      <button mat-mini-fab color="primary" matTooltip="Edit" (click)="editUser()">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteUser()">
+        <mat-icon>delete</mat-icon>
+      </button>
+      <button mat-mini-fab color="primary" matTooltip="Reset Password" (click)="resetPassword()">
+        <mat-icon>lock</mat-icon>
+      </button>
+    </div>
+    <div class="table__nav--search">
+      <input
+        matInput
+        type="search"
+        [(ngModel)]="quickFilterValue"
+        placeholder="Search..."
+        (input)="onQuickFilterInput($event)"
+      >
+    </div>
+  </div>
+  <mat-card-content class="table__content">
+    <ag-grid-angular
+      class="ag-theme-alpine"
+      [pagination]="true"
+      [paginationPageSize]="25"
+      [columnDefs]="columnDefs"
+      [defaultColDef]="defaultColDef"
+      [rowData]="rowData$ | async"
+      [rowSelection]="'multiple'"
+      [suppressRowClickSelection]="true"
+      [animateRows]="true"
+      (rowSelected)="selectedRows()"
+      (rowDoubleClicked)="onRowDoubleClicked($event)"
+      (gridReady)="onGridReady($event)"
+    >
+    </ag-grid-angular>
+  </mat-card-content>
+</mat-card>

@@ -92,6 +92,16 @@ const routes: AppRoute[] = [
           ),
       },
       {
+        path: RouteSegments.ADMINISTRATION,
+        data: {
+          permissionLevel: PermissionLevels.ADMIN,
+        },
+        loadChildren: () =>
+          import('../../administration/administration.module').then(
+            (m) => m.AdministrationModule
+          ),
+      },
+      {
         path: RouteSegments.DASHBOARD,
         data: {
           permissionLevel: PermissionLevels.USER,

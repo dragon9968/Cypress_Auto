@@ -26,6 +26,14 @@ export class UserService {
     return this.http.put<any>(ApiPaths.USER + id, data);
   }
 
+  delete(id: string): Observable<any> {
+    return this.http.delete<any>(ApiPaths.USER + id);
+  }
+
+  associate(data: any) {
+    return this.http.post<any>(ApiPaths.ASSOCIATE_ROLE, data);
+  }
+
   getCreatorProject(projectId: any): Observable<any> {
     return this.http.get<any>(ApiPaths.USER_CREATED_PROJECT + projectId);
   }

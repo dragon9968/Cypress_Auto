@@ -16,9 +16,11 @@ export enum ErrorMessages {
   IP_IN_NETWORK = 'IP Address not cointained in network',
   RANGE_LENGTH_50 = 'Field must be between 3 and 50 characters long.',
   NAME_EXISTS = 'Name already exists, please enter a different name',
+  MAIL_EXISTS = 'Email already exists, please enter a different email',
   MIN_MAX_VALUE_1_100 = 'Valid value is between 1 and 100',
   MIN_MAX_VALUE_0_100 = 'Valid value is between 0 and 100',
   MIN_MAX_VALUE_1_4093 = 'Valid value is between 1 and 4093',
   MIN_MAX_VALUE_2_4094 = 'Valid value is between 2 and 4094',
-  PDF_MD_FORMAT_FILE = 'PDF or Markdown file only!'
+  PDF_MD_FORMAT_FILE = 'PDF or Markdown file only!',
+  PASSWORD_NOT_MATCH = 'Password do not match'
 }

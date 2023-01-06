@@ -26,6 +26,7 @@ export enum ReducerKeys {
     MAP_IMAGE = 'mapImage',
     APP_PREF = 'appPref',
     MAP_PREFS = 'mapPrefs',
-    USER = 'user',
+    USERS = 'users',
+    USER_PROFILE = 'userProfile',
     USER_GUIDE = 'userGuide'
 }

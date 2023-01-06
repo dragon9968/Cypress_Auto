@@ -1,0 +1,132 @@
+<form [formGroup]="usersForm" (ngSubmit)="data.mode === 'add' ? addUser() : updateUser()">
+  <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add User' : data.mode === 'update' ? 'Edit User' : 'Show User' }}</h1>
+  <div *ngIf="data.mode === 'view'" mat-dialog-content>
+    <section>
+      <div class="sub-title">User info</div>
+    </section>
+    <mat-divider></mat-divider>
+    <section>
+      <mat-form-field class="field">
+        <mat-label>User Name</mat-label>
+        <input type="text" formControlName="userNameCtr" matInput>
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>Is Active?</mat-label>
+        <input type="text" formControlName="activeCtr" matInput>
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>Role</mat-label>
+        <mat-chip-list #chipList aria-label="role selection">
+          <mat-chip
+            *ngFor="let role of roles">
+            {{role.name}}
+          </mat-chip>
+          <input matInput type="text" placeholder="Select Value" 
+          [formControl]="roleCtr" 
+          [matChipInputFor]="chipList" [disabled]="true">
+        </mat-chip-list>
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>Login count</mat-label>
+        <input type="text" formControlName="loginCountCtr" matInput>
+      </mat-form-field>
+    </section>
+    <section>
+      <div class="sub-title">Personal Info</div>
+    </section>
+    <mat-divider></mat-divider>
+    <section>
+      <mat-form-field class="field">
+        <mat-label>First Name</mat-label>
+        <input type="text" formControlName="firstNameCtr" matInput>
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>Last Name</mat-label>
+        <input type="text" formControlName="lastNameCtr" matInput>
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>Email</mat-label>
+        <input type="text" formControlName="emailCtr" matInput>
+      </mat-form-field>
+    </section>
+  </div>
+  <div *ngIf="data.mode != 'view'" mat-dialog-content>
+    <mat-form-field class="field">
+      <mat-label>First Name</mat-label>
+      <input type="text" formControlName="firstNameCtr" matInput>
+      <mat-hint>Write the user first name or names</mat-hint>
+      <mat-error *ngIf="firstNameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Last Name</mat-label>
+      <input type="text" formControlName="lastNameCtr" matInput>
+      <mat-hint>Write the user last name</mat-hint>
+      <mat-error *ngIf="lastNameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>User Name</mat-label>
+      <input type="text" formControlName="userNameCtr" matInput>
+      <mat-hint>Username valid for authentication on DB or LDAP, unused for OID auth</mat-hint>
+      <mat-error *ngIf="userNameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="userNameCtr?.errors?.isExist">{{ errorMessages.NAME_EXISTS }}</mat-error>
+    </mat-form-field>
+    <div class="field-checkbox">
+      <label>Is Active?</label>
+      <mat-checkbox color="primary" formControlName="activeCtr">It's not a good policy to remove a user, just make it inactive</mat-checkbox>
+    </div>
+    <mat-form-field class="field">
+      <mat-label>Email</mat-label>
+      <input type="text" formControlName="emailCtr" matInput>
+      <mat-hint>The user's email, this will also be used for OID auth</mat-hint>
+      <mat-error *ngIf="emailCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="emailCtr?.errors?.isExist">{{ errorMessages.MAIL_EXISTS }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Role</mat-label>
+      <mat-chip-list #chipList aria-label="role selection">
+        <mat-chip
+          *ngFor="let role of roles"
+          (removed)="remove(role)">
+          {{role.name}}
+          <button matChipRemove>
+            <mat-icon>cancel</mat-icon>
+          </button>
+        </mat-chip>
+        <input matInput type="text" placeholder="Select Value" 
+        [formControl]="roleCtr"
+        [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+        [matChipInputAddOnBlur]="addOnBlur"
+        (matChipInputTokenEnd)="addRole($event)"
+        [matAutocomplete]="autoRole"
+        [matChipInputFor]="chipList">
+      </mat-chip-list>
+      <mat-autocomplete #autoRole="matAutocomplete" [displayWith]="helpers.optionDisplay"
+        (optionSelected)="selectRole($event)">
+        <mat-option *ngFor="let option of listRole" [value]="option">
+            <span>{{ option.name }}</span>
+        </mat-option>
+      </mat-autocomplete>
+      <mat-hint>The user role on the application, this will associate with a list of permissions</mat-hint>
+    </mat-form-field>
+    <mat-form-field class="field" *ngIf="data.mode === 'add'">
+      <mat-label>Password</mat-label>
+      <input [type]="showPassword ? 'text' : 'password'" formControlName="passwordCtr" matInput>
+      <mat-icon matSuffix (click)="togglePassword()">{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+      <mat-hint>Please use a good password policy, this application does not check this for you</mat-hint>
+      <mat-error *ngIf="passwordCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field" *ngIf="data.mode === 'add'">
+      <mat-label>Confirm Password</mat-label>
+      <input [type]="showConfirmPassword ? 'text' : 'password'" formControlName="confirmPasswordCtr" [errorStateMatcher]="errorMatcher" matInput>
+      <mat-icon matSuffix (click)="toggleConfirmPassword()">{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+      <mat-hint>Please rewrite the user's password to confirm</mat-hint>
+      <mat-error *ngIf="usersForm?.errors?.['isNotMatch']">{{ errorMessages.PASSWORD_NOT_MATCH}}</mat-error>
+    </mat-form-field>
+  </div>
+  <div mat-dialog-actions [align]="'end'" class="create-btn">
+    <button mat-raised-button type="button" (click)="onCancel()">{{ data.mode === 'view' ? 'Close' : 'Cancel' }}</button>
+    <button *ngIf="data.mode !== 'view'" mat-raised-button color="primary" [disabled]="!usersForm.valid">
+     {{ data.mode === 'add' ? 'Create' : 'Update' }}
+    </button>
+  </div>
+</form>

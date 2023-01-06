@@ -3,11 +3,9 @@ import { AgGridAngular } from 'ag-grid-angular';
 import { Observable, of, Subscription } from 'rxjs';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { UserService } from '../core/services/user/user.service';
 import { ProjectService } from './services/project.service';
 import { selectProjects } from '../store/project/project.selectors';
 import { retrievedProjects } from '../store/project/project.actions';
-import { retrievedUserTasks } from '../store/user-task/user-task.actions';
 
 @Component({
   selector: 'app-project',

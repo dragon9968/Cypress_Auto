@@ -1,120 +1,120 @@
-
-      <form [formGroup]="connectionForm" (ngSubmit)="data.mode === 'add' ? addServerConnect() : updateServerConnect()">
-        <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Server Connect' : data.mode === 'update' ? 'Edit Server Connect' : 'Connection Detail' }}</h1>
-        <div mat-dialog-content>
-          <section>
-            <div class="sub-title">Info</div>
-          </section>
-          <mat-divider></mat-divider>
-          <section>
-            <mat-form-field class="field">
-              <mat-label>Name</mat-label>
-              <input type="text" formControlName="name" matInput>
-            </mat-form-field>
-            <mat-form-field class="field">
-              <mat-label>Category</mat-label>
-              <mat-select (ngModelChange)="onSelectChange($event)" formControlName="category">
-                <mat-option value="vmware_vcenter">VMWare vCenter</mat-option>
-                <mat-option value="datasource">Datasource</mat-option>
-              </mat-select>
-              <mat-error *ngIf="category?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-            </mat-form-field>
-          </section>
-          <section>
-            <div class="sub-title">Connection Parameters</div>
-          </section>
-          <mat-divider></mat-divider>
-          <section>
-            <div class="hint">
-              <mat-form-field class="field">
-                <mat-label>Server</mat-label>
-                <input type="text" formControlName="server" matInput>
-                <mat-hint *ngIf="data.mode !== 'view'" align="start"><strong>IP address or FQDN of hypervisor</strong></mat-hint>
-                <mat-error *ngIf="server?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-              </mat-form-field>
-            </div>
-            <div *ngIf="data.mode === 'view'">
-              <mat-form-field class="field">
-                <mat-label>Cert File</mat-label>
-                <input type="text" formControlName="certFile" matInput>
-              </mat-form-field>
-            </div>
-            <div [hidden]="isHiddenField">
-              <mat-form-field class="field">
-                <mat-label>Datacenter</mat-label>
-                <input type="text" formControlName="dataCenter" matInput>
-              </mat-form-field>
-              <mat-form-field class="field">
-                <mat-label>Cluster</mat-label>
-                <input type="text" formControlName="cluster" matInput>
-              </mat-form-field>
-              <mat-form-field class="field">
-                <mat-label>Data Store</mat-label>
-                <input type="text" formControlName="dataStore" matInput>
-              </mat-form-field>
-              <div class="hint">
-                <mat-form-field class="field">
-                  <mat-label>Switch</mat-label>
-                  <input type="text" formControlName="switch" matInput>
-                  <mat-hint *ngIf="data.mode !== 'view'" align="start"><strong>Optional - For deployment to an existing DSwitch or VSwitch</strong></mat-hint>
-                </mat-form-field>
-              </div>
-              <mat-form-field class="field">
-                <mat-label>Switch Type</mat-label>
-                <mat-select formControlName="switchType" >
-                  <mat-option value="vswitch">vSwitch</mat-option>
-                  <mat-option value="dvswitch">dvSwitch</mat-option>
-                </mat-select>
-              </mat-form-field>
-              <div class="hint">
-                <mat-form-field class="field">
-                  <mat-label>VM Management Network</mat-label>
-                  <input type="text" formControlName="managementNetwork" matInput>
-                  <mat-hint *ngIf="data.mode !== 'view'" align="start"><strong>VM management network</strong></mat-hint>
-                </mat-form-field>
-              </div>
-            </div>
-            <div [hidden]="!isHiddenField">
-              <div class="cert-file">
-                <label class="label-cert-file" for="file">Cert File</label>
-                <div class="input-cert-file">
-                  <div [hidden]="isHiddenDeleteButton">
-                    <input class="show_file" type="text" formControlName="certFile" matInput>
-                    <mat-checkbox class="delete_file" (change)="onSelectChangeDelete($event)">Delete</mat-checkbox>
-                  </div>
-                  <input class="file" formControlName="file" type="file" name='file' (change)="onFileSelected($event)">
-                </div>
-              </div>
-            </div>
-          </section>
-          <section>
-            <div class="sub-title">Login Credential</div>
-          </section>
-          <mat-divider></mat-divider>
-          <section>
-            <mat-form-field class="field">
-              <mat-label>User Name</mat-label>
-              <input type="text" formControlName="username" matInput>
-              <mat-error *ngIf="username?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-            </mat-form-field>
-            <div *ngIf="data.mode !== 'view'">
-              <mat-form-field class="field" *ngIf="data.mode === 'add'">
-                <mat-label>Password</mat-label>
-                <input type="password" formControlName="password" matInput>
-                <mat-error *ngIf="password?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-              </mat-form-field>
-              <mat-form-field class="field" *ngIf="data.mode === 'update'">
-                <mat-label>Update Password</mat-label>
-                <input type="password" formControlName="updatePassword" matInput>
-              </mat-form-field>
-            </div>
-          </section>
+<form [formGroup]="connectionForm" (ngSubmit)="data.mode === 'add' ? addServerConnect() : updateServerConnect()">
+  <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Server Connect' : data.mode === 'update' ? 'Edit Server Connect' : 'Connection Detail' }}</h1>
+  <div mat-dialog-content>
+    <section>
+      <div class="sub-title">Info</div>
+    </section>
+    <mat-divider></mat-divider>
+    <section>
+      <mat-form-field class="field">
+        <mat-label>Name</mat-label>
+        <input type="text" formControlName="name" matInput>
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>Category</mat-label>
+        <mat-select (ngModelChange)="onSelectChange($event)" formControlName="category">
+          <mat-option value="vmware_vcenter">VMWare vCenter</mat-option>
+          <mat-option value="datasource">Datasource</mat-option>
+        </mat-select>
+        <mat-error *ngIf="category?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      </mat-form-field>
+    </section>
+    <section>
+      <div class="sub-title">Connection Parameters</div>
+    </section>
+    <mat-divider></mat-divider>
+    <section>
+      <div class="hint">
+        <mat-form-field class="field">
+          <mat-label>Server</mat-label>
+          <input type="text" formControlName="server" matInput>
+          <mat-hint *ngIf="data.mode !== 'view'" align="start"><strong>IP address or FQDN of hypervisor</strong></mat-hint>
+          <mat-error *ngIf="server?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+        </mat-form-field>
+      </div>
+      <div *ngIf="data.mode === 'view'">
+        <mat-form-field class="field">
+          <mat-label>Cert File</mat-label>
+          <input type="text" formControlName="certFile" matInput>
+        </mat-form-field>
+      </div>
+      <div [hidden]="isHiddenField">
+        <mat-form-field class="field">
+          <mat-label>Datacenter</mat-label>
+          <input type="text" formControlName="dataCenter" matInput>
+        </mat-form-field>
+        <mat-form-field class="field">
+          <mat-label>Cluster</mat-label>
+          <input type="text" formControlName="cluster" matInput>
+        </mat-form-field>
+        <mat-form-field class="field">
+          <mat-label>Data Store</mat-label>
+          <input type="text" formControlName="dataStore" matInput>
+        </mat-form-field>
+        <div class="hint">
+          <mat-form-field class="field">
+            <mat-label>Switch</mat-label>
+            <input type="text" formControlName="switch" matInput>
+            <mat-hint *ngIf="data.mode !== 'view'" align="start"><strong>Optional - For deployment to an existing DSwitch or VSwitch</strong></mat-hint>
+          </mat-form-field>
         </div>
-        <div mat-dialog-actions [align]="'end' "class="create-btn">
-          <button mat-raised-button type="button" (click)="onCancel()">{{data.mode === 'view' ? 'Close' : 'Cancel'}}</button>
-          <button *ngIf="data.mode !== 'view'" mat-raised-button color="primary" [disabled]="!connectionForm.valid">
-            {{ data.mode === 'add' ? 'Create' : 'Update' }}
-           </button>
+        <mat-form-field class="field">
+          <mat-label>Switch Type</mat-label>
+          <mat-select formControlName="switchType" >
+            <mat-option value="vswitch">vSwitch</mat-option>
+            <mat-option value="dvswitch">dvSwitch</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <div class="hint">
+          <mat-form-field class="field">
+            <mat-label>VM Management Network</mat-label>
+            <input type="text" formControlName="managementNetwork" matInput>
+            <mat-hint *ngIf="data.mode !== 'view'" align="start"><strong>VM management network</strong></mat-hint>
+          </mat-form-field>
         </div>
-      </form>
+      </div>
+      <div [hidden]="!isHiddenField">
+        <div class="cert-file">
+          <label class="label-cert-file" for="file">Cert File</label>
+          <div class="input-cert-file">
+            <div [hidden]="isHiddenDeleteButton">
+              <input class="show_file" type="text" formControlName="certFile" matInput>
+              <mat-checkbox class="delete_file" (change)="onSelectChangeDelete($event)">Delete</mat-checkbox>
+            </div>
+            <input class="file" formControlName="file" type="file" name='file' (change)="onFileSelected($event)">
+          </div>
+        </div>
+      </div>
+    </section>
+    <section>
+      <div class="sub-title">Login Credential</div>
+    </section>
+    <mat-divider></mat-divider>
+    <section>
+      <mat-form-field class="field">
+        <mat-label>User Name</mat-label>
+        <input type="text" formControlName="username" matInput>
+        <mat-error *ngIf="username?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      </mat-form-field>
+      <div *ngIf="data.mode !== 'view'">
+        <mat-form-field class="field" *ngIf="data.mode === 'add'">
+          <mat-label>Password</mat-label>
+          <input [type]="showPassword ? 'text' : 'password'" formControlName="password" matInput>
+          <mat-icon matSuffix (click)="togglePassword()">{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          <mat-error *ngIf="password?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+        </mat-form-field>
+        <mat-form-field class="field" *ngIf="data.mode === 'update'">
+          <mat-label>Update Password</mat-label>
+          <input type="password" formControlName="updatePassword" matInput>
+        </mat-form-field>
+      </div>
+    </section>
+  </div>
+  <div mat-dialog-actions [align]="'end' "class="create-btn">
+    <button mat-raised-button type="button" (click)="onCancel()">{{data.mode === 'view' ? 'Close' : 'Cancel'}}</button>
+    <button *ngIf="data.mode !== 'view'" mat-raised-button color="primary" [disabled]="!connectionForm.valid">
+      {{ data.mode === 'add' ? 'Create' : 'Update' }}
+      </button>
+  </div>
+</form>
 

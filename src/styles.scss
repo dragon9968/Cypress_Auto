@@ -87,7 +87,7 @@ ag-grid-angular .ag-cell-focus,
 .table {
   width: 80%;
   margin: 16px auto;
-  box-shadow: 3px 6px 12px #a9a9a9;
+  box-shadow: 3px 6px 12px #a9a9a9 !important;
 
   // Table title
   &__title {

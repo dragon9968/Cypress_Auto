@@ -49,6 +49,8 @@ export enum ApiPaths {
   INTERFACE_VALIDATE = '/api/v1/interface/validate',
   SAVE_MAP = '/api/v1/map/save',
   USER = '/api/v1/user/',
+  ASSOCIATE_ROLE = '/api/v1/user/associate',
+  ROLES = '/api/v1/roles/',
   USER_CREATED_PROJECT = '/api/v1/user/created/',
   SEARCH = '/api/v1/search/map',
   DOMAIN_USER = '/api/v1/domainuser/',
