@@ -2,8 +2,8 @@ import { Store } from "@ngrx/store";
 import { ToastrService } from 'ngx-toastr';
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { catchError, Subscription, throwError } from 'rxjs';
+import { FormControl, FormGroup } from '@angular/forms';
+import { catchError, Observable, Subscription, throwError } from 'rxjs';
 import { TaskService } from 'src/app/core/services/task/task.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { selectLoginProfiles } from "../../store/login-profile/login-profile.selectors";
@@ -22,6 +22,8 @@ export class AddUpdateNodeDeployDialogComponent {
   selectLoginProfiles$ = new Subscription();
   loginProfiles: any[] = [];
   errorMessages = ErrorMessages;
+  filteredLoginProfiles!: Observable<any[]>;
+
   constructor(
     private store: Store,
     private toastr: ToastrService,
@@ -32,13 +34,15 @@ export class AddUpdateNodeDeployDialogComponent {
     private infoPanelService: InfoPanelService,
     private serverConnectionService: ServerConnectService
   ) {
-    this.selectLoginProfiles$ = this.store.select(selectLoginProfiles).subscribe(
-      loginProfiles => this.loginProfiles = loginProfiles
-    )
     this.deployNewNodeForm = new FormGroup({
-      loginProfileCtr: new FormControl('', [autoCompleteValidator(this.loginProfiles)]),
+      loginProfileCtr: new FormControl(''),
       isBackupVMCtr: new FormControl(true),
       isOSCustomizationCtr: new FormControl(true),
+    });
+    this.selectLoginProfiles$ = this.store.select(selectLoginProfiles).subscribe(loginProfiles => {
+      this.loginProfiles = loginProfiles;
+      this.loginProfileCtr.setValidators([autoCompleteValidator(this.loginProfiles)]);
+      this.filteredLoginProfiles = this.helpers.filterOptions(this.loginProfileCtr, this.loginProfiles);
     });
   }
 

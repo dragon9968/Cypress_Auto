@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { MapPrefService } from 'src/app/core/services/map-pref/map-pref.service';
 import { selectIcons } from 'src/app/store/icon/icon.selectors';
@@ -12,6 +12,8 @@ import { validateNameExist } from 'src/app/shared/validations/name-exist.validat
 import { retrievedMapPrefs } from 'src/app/store/map-pref/map-pref.actions';
 import { selectMapPrefs } from 'src/app/store/map-pref/map-pref.selectors';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
+import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
+import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 
 @Component({
   selector: 'app-add-edit-mappref-dialog',
@@ -41,7 +43,6 @@ export class AddEditMapprefDialogComponent {
   listMapPref!: any[];
   listIcons!: any[];
   icon_default: any[] = [];
-  listDefaultIcons: any[] = [];
   listGroupBoxBorder = [{ value: 'solid', name: "Solid" },
   { value: 'dotted', name: "Dotted" },
   { value: 'dashed', name: "Dashed" },
@@ -61,6 +62,9 @@ export class AddEditMapprefDialogComponent {
     { value: 'both', name: "Both" },
     { value: 'inbound', name: "Inbound" },
     { value: 'outbound', name: "Outbound" }];
+  ICON_PATH = ICON_PATH;
+  filteredIcons!: Observable<any[]>;
+
   constructor(
     private store: Store,
     public helpers: HelpersService,
@@ -70,41 +74,58 @@ export class AddEditMapprefDialogComponent {
     public dialogRef: MatDialogRef<AddEditMapprefDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
-    this.selectMapPrefs$ = this.store.select(selectMapPrefs).subscribe((data: any) => {
-      this.listMapPref = data;
-      this.listDefaultMapPref = data.filter((el: any) => el.name === 'Default')
-    });
-    this.selectIcons$ = this.store.select(selectIcons).subscribe((data: any) => {
-      this.listIcons = data;
-    });
-    this.isViewMode = this.data.mode == 'view';
-    this.gbColor = this.listDefaultMapPref[0].group_box_color;
-    this.gbBorderColor = this.listDefaultMapPref[0].group_box_border_color;
-    this.pgColor = this.listDefaultMapPref[0].port_group_color;
-    this.edgeColor = this.listDefaultMapPref[0].edge_color;
-    this.textColor = this.listDefaultMapPref[0].text_color;
-    this.TextBG = this.listDefaultMapPref[0].text_bg_color;
     this.mapPrefForm = new FormGroup({
       name: new FormControl(
         { value: '', disabled: false },
         [Validators.required, validateNameExist(() => this.listMapPref, this.data.mode, this.data.genData.id)]),
-      gbOpacity: new FormControl({ value: this.listDefaultMapPref[0].group_box_opacity, disabled: this.isViewMode }),
-      gbBorder: new FormControl({ value: this.listDefaultMapPref[0].group_box_border, disabled: this.isViewMode }),
-      pgSizeCtr: new FormControl({ value: this.listDefaultMapPref[0].port_group_size, disabled: this.isViewMode }),
-      edgeWidthCtr: new FormControl({ value: this.listDefaultMapPref[0].edge_width, disabled: this.isViewMode }),
-      nodeSizeCtr: new FormControl({ value: this.listDefaultMapPref[0].node_size, disabled: this.isViewMode }),
-      textSizeCtr: new FormControl({ value: this.listDefaultMapPref[0].text_size, disabled: this.isViewMode }),
-      textHorizontalAlignmentCtr: new FormControl({ value: this.listDefaultMapPref[0].text_halign, disabled: this.isViewMode }),
-      textVerticalAlignmentCtr: new FormControl({ value: this.listDefaultMapPref[0].text_valign, disabled: this.isViewMode }),
-      textBgOpacityCtr: new FormControl({ value: this.listDefaultMapPref[0].text_bg_opacity, disabled: this.isViewMode }),
+      gbOpacity: new FormControl({ value: '', disabled: this.isViewMode }),
+      gbBorder: new FormControl({ value: '', disabled: this.isViewMode }),
+      pgSizeCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      edgeWidthCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      nodeSizeCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      textSizeCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      textHorizontalAlignmentCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      textVerticalAlignmentCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      textBgOpacityCtr: new FormControl({ value: '', disabled: this.isViewMode }),
       mapGridCtr: new FormControl({ value: false, disabled: this.isViewMode }),
       snapToGridCtr: new FormControl({ value: false, disabled: this.isViewMode }),
-      gridSpacingCtr: new FormControl({ value: this.listDefaultMapPref[0].grid_spacing, disabled: this.isViewMode }),
+      gridSpacingCtr: new FormControl({ value: '', disabled: this.isViewMode }),
       zoomSpeedCtr: new FormControl({ value: 0.1, disabled: false }),
-      defaultIconCtr: new FormControl({ value: this.icon_default[0], disabled: false }),
-      edgeArrowDirectionCtr: new FormControl({ value: this.listDefaultMapPref[0].edge_arrow_direction, disabled: this.isViewMode }),
-      edgeArrowSizeCtr: new FormControl({ value: this.listDefaultMapPref[0].edge_arrow_size, disabled: this.isViewMode }),
+      defaultIconCtr: new FormControl({ value: '', disabled: false }),
+      edgeArrowDirectionCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      edgeArrowSizeCtr: new FormControl({ value: '', disabled: this.isViewMode }),
     });
+    this.selectMapPrefs$ = this.store.select(selectMapPrefs).subscribe((data: any) => {
+      this.listMapPref = data;
+      this.listDefaultMapPref = data.filter((el: any) => el.name === 'Default');
+      this.gbColor = this.listDefaultMapPref[0].group_box_color;
+      this.gbBorderColor = this.listDefaultMapPref[0].group_box_border_color;
+      this.pgColor = this.listDefaultMapPref[0].port_group_color;
+      this.edgeColor = this.listDefaultMapPref[0].edge_color;
+      this.textColor = this.listDefaultMapPref[0].text_color;
+      this.TextBG = this.listDefaultMapPref[0].text_bg_color;
+      this.gbOpacity?.setValue(this.listDefaultMapPref[0].group_box_opacity);
+      this.gbBorder?.setValue(this.listDefaultMapPref[0].group_box_border);
+      this.pgSizeCtr?.setValue(this.listDefaultMapPref[0].port_group_size);
+      this.edgeWidthCtr?.setValue(this.listDefaultMapPref[0].edge_width);
+      this.nodeSizeCtr?.setValue(this.listDefaultMapPref[0].node_size);
+      this.textSizeCtr?.setValue(this.listDefaultMapPref[0].text_size);
+      this.textHorizontalAlignmentCtr?.setValue(this.listDefaultMapPref[0].text_halign);
+      this.textVerticalAlignmentCtr?.setValue(this.listDefaultMapPref[0].text_valign);
+      this.textBgOpacityCtr?.setValue(this.listDefaultMapPref[0].text_bg_opacity);
+      this.defaultIconCtr?.setValue(this.data.genIcon[0]);
+      this.edgeArrowDirectionCtr?.setValue(this.listDefaultMapPref[0].edge_arrow_direction);
+      this.edgeArrowSizeCtr?.setValue(this.listDefaultMapPref[0].edge_arrow_size);
+      this.mapGridCtr?.setValue(this.listDefaultMapPref[0].grid_enabled);
+      this.snapToGridCtr?.setValue(this.listDefaultMapPref[0].grid_snap);
+      this.gridSpacingCtr?.setValue(this.listDefaultMapPref[0].grid_spacing);
+    });
+    this.selectIcons$ = this.store.select(selectIcons).subscribe((data: any) => {
+      this.listIcons = data;
+      this.defaultIconCtr.setValidators([autoCompleteValidator(this.listIcons)]);
+      this.filteredIcons = this.helpers.filterOptions(this.defaultIconCtr, this.listIcons);
+    });
+    this.isViewMode = this.data.mode == 'view';
     if ((data.mode === 'update')) {
       const icon = this.listIcons.filter(i => i.name === this.data.genData.default_icon)
       this.name?.setValue(this.data.genData.name);
@@ -140,8 +161,6 @@ export class AddEditMapprefDialogComponent {
       this.textDefaults = this.sanitizer.bypassSecurityTrustHtml(this.data.genData.text_defaults);
       this.zoomSpeedCtr?.setValue(this.data.genData.zoom_speed);
       this.defaultIconCtr?.setValue(this.data.genData.default_icon);
-    } else {
-      this.defaultIconCtr?.setValue(this.data.genIcon[0]);
     }
   }
 
@@ -157,7 +176,7 @@ export class AddEditMapprefDialogComponent {
   get textVerticalAlignmentCtr() { return this.mapPrefForm.get('textVerticalAlignmentCtr'); }
   get textBgOpacityCtr() { return this.mapPrefForm.get('textBgOpacityCtr'); }
   get zoomSpeedCtr() { return this.mapPrefForm.get('zoomSpeedCtr'); }
-  get defaultIconCtr() { return this.mapPrefForm.get('defaultIconCtr'); }
+  get defaultIconCtr() { return this.helpers.getAutoCompleteCtr(this.mapPrefForm.get('defaultIconCtr'), this.listIcons); }
   get edgeArrowDirectionCtr() { return this.mapPrefForm.get('edgeArrowDirectionCtr') }
   get edgeArrowSizeCtr() { return this.mapPrefForm.get('edgeArrowSizeCtr') }
   get mapGridCtr() { return this.mapPrefForm.get('mapGridCtr') }

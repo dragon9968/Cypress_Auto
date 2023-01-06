@@ -4,8 +4,10 @@ import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
+import { Observable } from 'rxjs';
 import { ConfigTemplateService } from 'src/app/core/services/config-template/config-template.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
+import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { retrievedConfigTemplates } from 'src/app/store/config-template/config-template.actions';
 
 @Component({
@@ -18,6 +20,8 @@ export class AddEditRolesServicesDialogComponent implements OnInit {
   rolesList: any[] = [];
   roleService: any[] = [];
   roleServiceKey: any[] = [];
+  filteredRoles!: Observable<any[]>;
+
   constructor(
     public helpers: HelpersService,
     private configTemplateService: ConfigTemplateService,
@@ -29,16 +33,17 @@ export class AddEditRolesServicesDialogComponent implements OnInit {
     this.roleServicesForm = new FormGroup({
       roles: new FormControl('')
     })
-  }
-  get roles() {
-    return this.roleServicesForm.get('roles');
-  }
-
-  ngOnInit(): void {
     this.configTemplateService.getWinroles().subscribe(data => {
       this.rolesList = data;
+      this.roles.setValidators([autoCompleteValidator(this.rolesList)]);
+      this.filteredRoles = this.helpers.filterOptions(this.roles, this.rolesList);
     });
   }
+  get roles() {
+    return this.helpers.getAutoCompleteCtr(this.roleServicesForm.get('roles'), this.rolesList);
+  }
+
+  ngOnInit(): void {}
 
   onCancel() {
     this.dialogRef.close();
@@ -52,12 +57,12 @@ export class AddEditRolesServicesDialogComponent implements OnInit {
       role_services: this.roleServiceKey
     }
     this.configTemplateService.addConfiguration(jsonData).subscribe({
-      next: (rest) =>{
+      next: (rest) => {
         this.toastr.success(`Add Roles & Service successfully`);
         this.dialogRef.close();
-        this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
+        this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
       },
-      error:(err) => {
+      error: (err) => {
         this.toastr.error(`Error while add Roles & Service`);
       }
     });

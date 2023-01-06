@@ -2,7 +2,7 @@ import { Store } from "@ngrx/store";
 import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
 import { FormGroup, FormControl } from "@angular/forms";
-import { Subscription, throwError } from "rxjs";
+import { Observable, Subscription, throwError } from "rxjs";
 import { Component, Inject, OnDestroy } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { TaskService } from "../../core/services/task/task.service";
@@ -24,6 +24,7 @@ export class DeleteNodeDeployDialogComponent implements OnDestroy {
   loginProfiles: any[] = [];
   errorMessages = ErrorMessages;
   connection: any;
+  filteredLoginProfiles!: Observable<any[]>;
 
   constructor(
     private store: Store,
@@ -35,11 +36,13 @@ export class DeleteNodeDeployDialogComponent implements OnDestroy {
     private infoPanelService: InfoPanelService,
     private serverConnectionService: ServerConnectService
   ) {
-    this.selectLoginProfiles$ = this.store.select(selectLoginProfiles).subscribe(
-      loginProfiles => this.loginProfiles = loginProfiles
-    );
     this.deleteNodeDeployForm = new FormGroup({
-      loginProfileCtr: new FormControl('', [autoCompleteValidator(this.loginProfiles)])
+      loginProfileCtr: new FormControl('')
+    });
+    this.selectLoginProfiles$ = this.store.select(selectLoginProfiles).subscribe(loginProfiles => {
+      this.loginProfiles = loginProfiles;
+      this.loginProfileCtr.setValidators([autoCompleteValidator(this.loginProfiles)]);
+      this.filteredLoginProfiles = this.helperService.filterOptions(this.loginProfileCtr, this.loginProfiles);
     });
     const connection = this.serverConnectionService.getConnection();
     if (connection) {

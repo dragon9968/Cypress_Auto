@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ErrorMessages } from "../../shared/enums/error-messages.enum";
 import { Store } from "@ngrx/store";
 import { ToastrService } from "ngx-toastr";
-import { Subscription } from "rxjs";
+import { Observable, Subscription } from "rxjs";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { selectGroups } from "../../store/group/group.selectors";
 import { HelpersService } from "../../core/services/helpers/helpers.service";
@@ -45,10 +45,11 @@ export class AddUpdateGroupDialogComponent implements OnInit {
   domains!: any[];
   devices!: any[];
   roles!: any[];
-
   categoryName: string = 'custom';
   isHiddenCategoryChild: boolean = true;
-  dataCategoryChild!: any[];
+  categoryChilds!: any[];
+  filteredCategories!: Observable<any[]>;
+  filteredCategoryChild!: Observable<any[]>;
 
   constructor(
     private store: Store,
@@ -76,7 +77,8 @@ export class AddUpdateGroupDialogComponent implements OnInit {
       descriptionCtr: new FormControl(''),
       nodesCtr: new FormControl({ value: '', disabled: this.isViewMode }),
       portGroupsCtr: new FormControl({ value: '', disabled: this.isViewMode }),
-    })
+    });
+    this.filteredCategories = this.helpers.filterOptions(this.categoryCtr, this.CATEGORIES);
   }
 
   get nameCtr() {
@@ -119,29 +121,30 @@ export class AddUpdateGroupDialogComponent implements OnInit {
     this.groupAddForm.controls['categoryCtr'].valueChanges.subscribe(value => {
       switch (value.name) {
         case 'domain':
-          this.dataCategoryChild = this.domains;
+          this.categoryChilds = this.domains;
           this.categoryIdCtr?.setValue(this.domains[0]);
           this.categoryName = 'By Domain';
           break;
         case 'device':
-          this.dataCategoryChild = this.devices;
+          this.categoryChilds = this.devices;
           this.categoryIdCtr?.setValue(this.devices[0]);
           this.categoryName = 'By Device';
           break;
         case 'role':
-          this.dataCategoryChild = this.ROLES;
+          this.categoryChilds = this.ROLES;
           this.categoryIdCtr?.setValue(this.ROLES[0]);
           this.categoryName = 'By Role';
           break;
         case 'template':
-          this.dataCategoryChild = this.template;
+          this.categoryChilds = this.template;
           this.categoryIdCtr?.setValue(this.template[0]);
           this.categoryName = 'By Template/Model';
           break;
         default:
           this.isHiddenCategoryChild = true;
-          this.dataCategoryChild = [];
+          this.categoryChilds = [];
       }
+      this.filteredCategoryChild = this.helpers.filterOptions(this.categoryIdCtr, this.categoryChilds);
     })
   }
 
@@ -192,9 +195,10 @@ export class AddUpdateGroupDialogComponent implements OnInit {
     this.categoryName = event.source.name;
     this.isHiddenCategoryChild = this.categoryName === 'custom';
     if (this.categoryName === 'domain') {
-      this.dataCategoryChild = this.domains;
+      this.categoryChilds = this.domains;
     } else if (this.categoryName === 'device') {
-      this.dataCategoryChild = this.devices;
+      this.categoryChilds = this.devices;
     }
+    this.filteredCategoryChild = this.helpers.filterOptions(this.categoryIdCtr, this.categoryChilds);
   }
 }

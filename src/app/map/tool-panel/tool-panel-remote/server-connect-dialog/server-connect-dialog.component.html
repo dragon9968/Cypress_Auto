@@ -5,7 +5,7 @@
       <mat-label>Server Connection</mat-label>
       <input type="text" matInput formControlName="serverConnectCtr" [matAutocomplete]="autoServerConnect">
       <mat-autocomplete #autoServerConnect="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of serverConnect" [value]="option">
+        <mat-option *ngFor="let option of filteredServerConnect | async" [value]="option">
           {{ option.name }}
         </mat-option>
       </mat-autocomplete>

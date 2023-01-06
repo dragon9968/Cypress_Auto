@@ -6,7 +6,7 @@
       <input matInput type="text" placeholder="Select a device" [formControl]="device" [matAutocomplete]="autoDevice">
       <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="helpers.optionDisplay"
         (optionSelected)="selectDevice($event)">
-        <mat-option *ngFor="let option of listDevices" [value]="option">
+        <mat-option *ngFor="let option of filteredDevices | async" [value]="option">
           <div class="option-text">
             <img [src]="ICON_PATH + option.icon?.photo" height="24" width="24">
             &nbsp;
@@ -22,9 +22,9 @@
       <input matInput type="text" placeholder="Select a template" [formControl]="template"
         [matAutocomplete]="autoTemplate">
       <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helpers.templateDisplay">
-        <mat-option *ngFor="let option of filteredTemplates" [value]="option">
+        <mat-option *ngFor="let option of filteredTemplates | async" [value]="option">
           <div class="option-text">
-            <img [src]="ICON_PATH + option.icon?.photo" height="15" width="15">
+            <img [src]="ICON_PATH + option.icon?.photo" height="24" width="24">
             &nbsp;
             <span>{{ option.display_name }}</span>
           </div>

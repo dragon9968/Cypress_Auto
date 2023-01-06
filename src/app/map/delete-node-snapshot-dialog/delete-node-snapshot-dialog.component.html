@@ -5,7 +5,7 @@
       <mat-label>Name</mat-label>
       <input matInput type="text" placeholder="Select a name" formControlName="nameCtr" [matAutocomplete]="autoName">
       <mat-autocomplete #autoName="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of data.names" [value]="option">
+        <mat-option *ngFor="let option of filteredSnapshots | async" [value]="option">
           {{ option.name }}
         </mat-option>
       </mat-autocomplete>

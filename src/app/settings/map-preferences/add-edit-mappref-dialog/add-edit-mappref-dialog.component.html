@@ -1,5 +1,6 @@
 <form [formGroup]="mapPrefForm" (ngSubmit)="data.mode === 'add' ? addMapPref() : updateMapPref()">
-  <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add New Preferences' : data.mode === 'update' ? 'Edit Map Preferences' : 'Map Preference Detail' }}</h1>
+  <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add New Preferences' : data.mode === 'update' ? 'Edit Map Preferences'
+    : 'Map Preference Detail' }}</h1>
   <div mat-dialog-content *ngIf="data.mode === 'view'">
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
@@ -13,16 +14,16 @@
       <label class="label">Port Group Defaults</label>
       <div [innerHTML]="gbDefaultHtml"></div>
     </div>
-	  <div class="tab-field">
-      <label class="label" >Edge Defaults</label>
+    <div class="tab-field">
+      <label class="label">Edge Defaults</label>
       <div [innerHTML]="edgeDefaults"></div>
     </div>
     <div class="tab-field">
-      <label class="label" >Node Defaults</label>
+      <label class="label">Node Defaults</label>
       <div [innerHTML]="nodeDefaults"></div>
     </div>
     <div class="tab-field">
-      <label class="label" >Text Defaults</label>
+      <label class="label">Text Defaults</label>
       <div [innerHTML]="textDefaults"></div>
     </div>
     <mat-form-field class="field">
@@ -44,12 +45,11 @@
     <div class="tab-field">
       <label class="label" for="gbColor">Group Box Color</label>
       <button type="button" mat-mini-fab id="gbColor" class="color-picker" [(colorPicker)]="gbColor"
-      [style.background]="gbColor" cpPosition="bottom" (colorPickerChange)="setGbColor($event)"
-      ></button>
+        [style.background]="gbColor" cpPosition="bottom" (colorPickerChange)="setGbColor($event)"></button>
     </div>
     <div class="tab-field">
       <label class="label">Group Box Opacity</label>
-      <mat-slider class="slider" formControlName="gbOpacity" step="0.01" min="0" max="1" ></mat-slider>
+      <mat-slider class="slider" formControlName="gbOpacity" step="0.01" min="0" max="1"></mat-slider>
     </div>
     <mat-form-field class="field">
       <mat-label>Group Box Border</mat-label>
@@ -59,17 +59,13 @@
     </mat-form-field>
     <div class="tab-field">
       <label class="label" for="groupBoxBorderColor">Group Box Border Color </label>
-      <button type="button" mat-mini-fab id="groupBoxBorderColor" class="color-picker"
-      [(colorPicker)]="gbBorderColor"
-      [style.background]="gbBorderColor" cpPosition="bottom" (colorPickerChange)="setGbBorderColor($event)"
-      ></button>
+      <button type="button" mat-mini-fab id="groupBoxBorderColor" class="color-picker" [(colorPicker)]="gbBorderColor"
+        [style.background]="gbBorderColor" cpPosition="bottom" (colorPickerChange)="setGbBorderColor($event)"></button>
     </div>
     <div class="tab-field">
       <label class="label" for="portGroupColor">Port Group Color </label>
-      <button type="button" mat-mini-fab id="portGroupColor" class="color-picker"
-      [(colorPicker)]="pgColor"
-      [style.background]="pgColor" cpPosition="bottom" (colorPickerChange)="setPgColor($event)"
-      ></button>
+      <button type="button" mat-mini-fab id="portGroupColor" class="color-picker" [(colorPicker)]="pgColor"
+        [style.background]="pgColor" cpPosition="bottom" (colorPickerChange)="setPgColor($event)"></button>
     </div>
     <div class="tab-field">
       <label class="label">Port Group Size</label>
@@ -79,10 +75,8 @@
     </div>
     <div class="tab-field">
       <label class="label" for="edgeColor">Edge Color </label>
-      <button type="button" mat-mini-fab id="edgeColor" class="color-picker"
-      [(colorPicker)]="edgeColor"
-      [style.background]="edgeColor" cpPosition="bottom" (colorPickerChange)="setEdgeColor($event)"
-      ></button>
+      <button type="button" mat-mini-fab id="edgeColor" class="color-picker" [(colorPicker)]="edgeColor"
+        [style.background]="edgeColor" cpPosition="bottom" (colorPickerChange)="setEdgeColor($event)"></button>
     </div>
     <div class="tab-field">
       <label class="label">Edge Width</label>
@@ -98,29 +92,27 @@
     </div>
     <div class="tab-field">
       <label class="label" for="textColor">Text Color </label>
-      <button type="button" mat-mini-fab id="textColor" class="color-picker"
-      [(colorPicker)]="textColor"
-      [style.background]="textColor" cpPosition="bottom" (colorPickerChange)="setTextColor($event)"
-      ></button>
+      <button type="button" mat-mini-fab id="textColor" class="color-picker" [(colorPicker)]="textColor"
+        [style.background]="textColor" cpPosition="bottom" (colorPickerChange)="setTextColor($event)"></button>
     </div>
     <mat-form-field class="field">
       <mat-label>Text Horizontal Alignment</mat-label>
       <mat-select formControlName="textHorizontalAlignmentCtr">
-        <mat-option *ngFor="let option of listTextHorizontalAlignment" [value]="option.value">{{ option.name }}</mat-option>
+        <mat-option *ngFor="let option of listTextHorizontalAlignment" [value]="option.value">{{ option.name
+          }}</mat-option>
       </mat-select>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Text Vertical Alignment</mat-label>
       <mat-select formControlName="textVerticalAlignmentCtr">
-        <mat-option *ngFor="let option of listTextVerticalAlignment" [value]="option.value">{{ option.name }}</mat-option>
+        <mat-option *ngFor="let option of listTextVerticalAlignment" [value]="option.value">{{ option.name
+          }}</mat-option>
       </mat-select>
     </mat-form-field>
     <div class="tab-field">
       <label class="label" for="TextBG">Text Background </label>
-      <button type="button" mat-mini-fab id="TextBG" class="color-picker"
-      [(colorPicker)]="TextBG"
-      [style.background]="TextBG" cpPosition="bottom" (colorPickerChange)="setTextBG($event)"
-      ></button>
+      <button type="button" mat-mini-fab id="TextBG" class="color-picker" [(colorPicker)]="TextBG"
+        [style.background]="TextBG" cpPosition="bottom" (colorPickerChange)="setTextBG($event)"></button>
     </div>
     <div class="tab-field">
       <label class="label">Text Background Opacity</label>
@@ -146,10 +138,15 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Default Icon</mat-label>
-      <input matInput type="text" placeholder="Select a Icon" [formControl]="defaultIconCtr" [matAutocomplete]="autoDevice">
+      <input matInput type="text" placeholder="Select a Icon" [formControl]="defaultIconCtr"
+        [matAutocomplete]="autoDevice">
       <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of listIcons" [value]="option">
-          {{ option.name }}
+        <mat-option *ngFor="let option of filteredIcons | async" [value]="option">
+          <div class="option-text">
+            <img [src]="ICON_PATH + option.photo" height="24" width="24">
+            &nbsp;
+            <span>{{ option.name }}</span>
+          </div>
         </mat-option>
       </mat-autocomplete>
     </mat-form-field>
@@ -167,7 +164,7 @@
   <div mat-dialog-actions [align]="'end'" class="create-btn">
     <button mat-raised-button type="button" (click)="onCancel()">{{data.mode === 'view' ? 'Close' : 'Cancel'}}</button>
     <button *ngIf="data.mode !== 'view'" mat-raised-button color="primary" [disabled]="!mapPrefForm.valid">
-     {{ data.mode === 'add' ? 'Create' : 'Update' }}
+      {{ data.mode === 'add' ? 'Create' : 'Update' }}
     </button>
   </div>
 </form>

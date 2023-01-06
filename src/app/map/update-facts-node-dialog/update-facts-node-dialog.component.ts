@@ -2,7 +2,7 @@ import { Store } from "@ngrx/store";
 import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
 import { FormGroup, FormControl } from "@angular/forms";
-import { Subscription, throwError } from "rxjs";
+import { Observable, Subscription, throwError } from "rxjs";
 import { Component, Inject, OnDestroy } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { ErrorMessages } from "../../shared/enums/error-messages.enum";
@@ -18,12 +18,13 @@ import { selectLoginProfiles } from "../../store/login-profile/login-profile.sel
   templateUrl: './update-facts-node-dialog.component.html',
   styleUrls: ['./update-facts-node-dialog.component.scss']
 })
-export class UpdateFactsNodeDialogComponent implements  OnDestroy {
+export class UpdateFactsNodeDialogComponent implements OnDestroy {
   updateFactsNodeForm: FormGroup;
   errorMessages = ErrorMessages;
   selectLoginProfiles$ = new Subscription();
   loginProfiles: any[] = [];
   connection: any;
+  filteredLoginProfiles!: Observable<any[]>;
 
   constructor(
     private store: Store,
@@ -35,12 +36,14 @@ export class UpdateFactsNodeDialogComponent implements  OnDestroy {
     private infoPanelService: InfoPanelService,
     private serverConnectionService: ServerConnectService
   ) {
-    this.selectLoginProfiles$ = this.store.select(selectLoginProfiles).subscribe(
-      loginProfiles => this.loginProfiles = loginProfiles
-    )
     this.updateFactsNodeForm = new FormGroup({
-      loginProfileCtr: new FormControl('', [autoCompleteValidator(this.loginProfiles)])
+      loginProfileCtr: new FormControl('')
     })
+    this.selectLoginProfiles$ = this.store.select(selectLoginProfiles).subscribe(loginProfiles => {
+      this.loginProfiles = loginProfiles;
+      this.loginProfileCtr.setValidators([autoCompleteValidator(this.loginProfiles)]);
+      this.filteredLoginProfiles = this.helpersService.filterOptions(this.loginProfileCtr, this.loginProfiles);
+    });
     const connection = this.serverConnectionService.getConnection();
     if (connection) {
       this.connection = connection;

@@ -1,6 +1,6 @@
 import { ToastrService } from 'ngx-toastr';
 import { Component, Inject } from '@angular/core';
-import { catchError, throwError } from 'rxjs';
+import { catchError, Observable, throwError } from 'rxjs';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ErrorMessages } from "../../shared/enums/error-messages.enum";
@@ -19,6 +19,8 @@ import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.
 export class DeleteNodeSnapshotDialogComponent {
   deleteNodeSnapshotForm: FormGroup;
   errorMessages = ErrorMessages;
+  filteredSnapshots!: Observable<any[]>;
+
 
   constructor(
     private toastr: ToastrService,
@@ -32,6 +34,7 @@ export class DeleteNodeSnapshotDialogComponent {
     this.deleteNodeSnapshotForm = new FormGroup({
       nameCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.data.names)]),
     });
+    this.filteredSnapshots = this.helpers.filterOptions(this.nameCtr, this.data.names);
   }
 
   get nameCtr() { return this.helpers.getAutoCompleteCtr(this.deleteNodeSnapshotForm.get('nameCtr'), this.data.names); }

@@ -12,7 +12,7 @@
       <input matInput type="text" placeholder="Select a category" formControlName="categoryCtr"
              [matAutocomplete]="autoCategory" [readonly]="isViewMode">
       <mat-autocomplete #autoCategory="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of CATEGORIES" [value]="option" (onSelectionChange)="changeCategory($event)">
+        <mat-option *ngFor="let option of filteredCategories | async" [value]="option" (onSelectionChange)="changeCategory($event)">
           {{ option.name }}
         </mat-option>
       </mat-autocomplete>
@@ -22,7 +22,7 @@
       <input matInput type="text" [matAutocomplete]="autoCategoryChild" [readonly]="isViewMode"
              [placeholder]="categoryName" formControlName="categoryIdCtr">
       <mat-autocomplete #autoCategoryChild="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let data of dataCategoryChild" [value]="data">
+        <mat-option *ngFor="let data of filteredCategoryChild | async" [value]="data">
           {{ data.name }}
         </mat-option>
       </mat-autocomplete>

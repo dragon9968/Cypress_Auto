@@ -8,8 +8,12 @@
         formControlName="loginProfileCtr"
         [matAutocomplete]="autoLoginProfile">
       <mat-autocomplete #autoLoginProfile="matAutocomplete" [displayWith]="helpersService.optionDisplay">
-        <mat-option *ngFor="let option of loginProfiles" [value]="option">
-          {{ option.name }}
+        <mat-option *ngFor="let option of filteredLoginProfiles | async" [value]="option" style="height: 60px !important;">
+          <div class="login-profiles-option-text">
+            <span class="option-text-items"><b>{{ option.name }}</b></span>
+            <span class="option-text-items">Username: {{ option.username }}</span>
+            <span class="option-text-items">Password: {{ option.password }}</span>
+          </div>
         </mat-option>
       </mat-autocomplete>
       <mat-error *ngIf="loginProfileCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>

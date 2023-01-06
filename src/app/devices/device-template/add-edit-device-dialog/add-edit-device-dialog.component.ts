@@ -4,9 +4,10 @@ import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { DeviceService } from 'src/app/core/services/device/device.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
+import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 import { selectDeviceCategories } from 'src/app/store/device-category/device-category.selectors';
@@ -30,6 +31,9 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
   listIcon!: any[];
   listCategory: any[] = [];
   removeCategory: any[] = [];
+  filteredIcons!: Observable<any[]>;
+  ICON_PATH = ICON_PATH;
+
   constructor(
     private store: Store,
     public helpers: HelpersService,
@@ -38,22 +42,22 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
     public dialogRef: MatDialogRef<AddEditDeviceDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
+    this.deviceForm = new FormGroup({
+      name: new FormControl({value: '', disabled: false}, [Validators.required, validateNameExist(() => this.deviceName, data.mode, this.data.genData.id)]),
+      category: new FormControl({value: '', disabled: false}),
+      icon: new FormControl(''),
+    });
     this.selectDeviceCategories$ = this.store.select(selectDeviceCategories).subscribe(data => {
       this.listDeviceCategory = data;
     })
     this.selectIcons$ = this.store.select(selectIcons).subscribe(icons => {
       this.listIcon = icons;
+      this.filteredIcons = this.helpers.filterOptions(this.icon, this.listIcon);
     })
 
     this.selectDevices$ = this.store.select(selectDevices).subscribe((devicesData: any) => {
       this.deviceName = devicesData;
     });
-
-    this.deviceForm = new FormGroup({
-      name: new FormControl({value: '', disabled: false}, [Validators.required, validateNameExist(() => this.deviceName, data.mode, this.data.genData.id)]),
-      category: new FormControl({value: '', disabled: false}),
-      icon: new FormControl(''),
-    })
     if (this.data) {
       this.name?.setValue(this.data.genData.name);
     }

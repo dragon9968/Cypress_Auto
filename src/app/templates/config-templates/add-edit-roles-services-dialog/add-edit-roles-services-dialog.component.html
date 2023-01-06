@@ -19,7 +19,7 @@
       </mat-chip-list>
       <mat-autocomplete #autoRole="matAutocomplete" [displayWith]="helpers.optionDisplay"
         (optionSelected)="selectRolesOrServices($event)">
-        <mat-option *ngFor="let option of rolesList" [value]="option">
+        <mat-option *ngFor="let option of filteredRoles | async" [value]="option">
             <span>{{ option.name }}</span>
         </mat-option>
       </mat-autocomplete>

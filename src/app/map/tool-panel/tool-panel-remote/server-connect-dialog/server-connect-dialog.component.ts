@@ -1,13 +1,11 @@
 import { Store } from "@ngrx/store";
 import { ToastrService } from "ngx-toastr";
 import { FormControl, FormGroup } from "@angular/forms";
-import { ActivatedRoute, Params } from "@angular/router";
-import { Subscription, throwError } from "rxjs";
+import { Observable, Subscription, throwError } from "rxjs";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { HelpersService } from "../../../../core/services/helpers/helpers.service";
 import { ProjectService } from "../../../../project/services/project.service";
-import { InfoPanelService } from "../../../../core/services/info-panel/info-panel.service";
 import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
 import { retrievedIsConnect } from "../../../../store/server-connect/server-connect.actions";
 import { retrievedVMStatus } from "../../../../store/project/project.actions";
@@ -23,24 +21,24 @@ export class ServerConnectDialogComponent implements OnInit, OnDestroy {
   serverConnect!: any[];
   selectServerConnect$ = new Subscription();
   collectionId!: number;
+  filteredServerConnect!: Observable<any[]>;
 
   constructor(
     private store: Store,
-    private route: ActivatedRoute,
     private toastr: ToastrService,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private dialogRef: MatDialogRef<ServerConnectDialogComponent>,
     public helpers: HelpersService,
     private projectService: ProjectService,
-    private infoPanelService: InfoPanelService,
     private serverConnectionService: ServerConnectService,
   ) {
-    this.selectServerConnect$ = this.store.select(selectServerConnects).subscribe(serverConnect => {
-      this.serverConnect = serverConnect;
-    });
     this.serverConnectForm = new FormGroup({
       serverConnectCtr: new FormControl('')
-    })
+    });
+    this.selectServerConnect$ = this.store.select(selectServerConnects).subscribe(serverConnect => {
+      this.serverConnect = serverConnect;
+      this.filteredServerConnect = this.helpers.filterOptions(this.serverConnectCtr, this.serverConnect);
+    });
   }
 
   get serverConnectCtr() { return this.serverConnectForm.get('serverConnectCtr'); };

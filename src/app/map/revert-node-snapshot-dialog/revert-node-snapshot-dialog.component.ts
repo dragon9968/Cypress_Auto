@@ -1,4 +1,4 @@
-import { throwError } from "rxjs";
+import { Observable, throwError } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
 import { Component, Inject } from '@angular/core';
@@ -20,6 +20,7 @@ import { autoCompleteValidator } from "../../shared/validations/auto-complete.va
 export class RevertNodeSnapshotDialogComponent {
   revertNodeSnapshotForm: FormGroup;
   errorMessage = ErrorMessages;
+  filteredSnapshots!: Observable<any[]>;
 
   constructor(
     private toastr: ToastrService,
@@ -32,7 +33,8 @@ export class RevertNodeSnapshotDialogComponent {
   ) {
     this.revertNodeSnapshotForm = new FormGroup({
       nameCtr: new FormControl('', [Validators.required ,autoCompleteValidator(this.data.names)])
-    })
+    });
+    this.filteredSnapshots = this.helperService.filterOptions(this.nameCtr, this.data.names);
   }
 
   get nameCtr() { return this.helperService.getAutoCompleteCtr(this.revertNodeSnapshotForm.get('nameCtr'), this.data.names) };
