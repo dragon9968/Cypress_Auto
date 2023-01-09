@@ -16,6 +16,7 @@ import { CMGroupBoxService } from '../../context-menu/cm-groupbox/cm-groupbox.se
 import { CMLockUnlockService } from '../../context-menu/cm-lock-unlock/cm-lock-unlock.service';
 import { selectMapSelection } from 'src/app/store/map-selection/map-selection.selectors';
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
+import { MatButtonToggleChange } from '@angular/material/button-toggle';
 
 @Component({
   selector: 'app-tool-panel-style',
@@ -56,8 +57,8 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   isHideEdge: boolean = true;
   isHideGBs: boolean = true;
   isHideMBs: boolean = true;
-  vAlignSelect?: string;
-  hAlignSelect?: string;
+  vAlignSelect!: string;
+  hAlignSelect!: string;
   arrowActivated?: string;
   gbBorderTypeActivated?: string;
   selectedMapPref: any;
@@ -227,132 +228,80 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
     });
   }
 
-  setTextVAlign(value: string) {
-    this.vAlignSelect = value;
-    this.commonService.textVAlign(
-      value, this.activeNodes, this.activePGs
-    )
+  setTextVAlign($event: MatButtonToggleChange) {
+    this.vAlignSelect = $event.value;
+    this.commonService.textVAlign(this.vAlignSelect, this.activeNodes, this.activePGs);
   }
 
-  setTextHAlign(value: string) {
-    this.hAlignSelect = value;
-    this.commonService.textHAlign(
-      value, this.activeNodes, this.activePGs
-    );
+  setTextHAlign($event: MatButtonToggleChange) {
+    this.hAlignSelect = $event.value;
+    this.commonService.textHAlign(this.hAlignSelect, this.activeNodes, this.activePGs);
   }
 
-  setDirection(value: string) {
-    this.commonService.edgeDirection(
-      value,
-      this.activeEdges,
-    );
+  setDirection($event: MatButtonToggleChange) {
+    this.commonService.edgeDirection($event.value, this.activeEdges);
   }
 
-  setGBType(newGbBorderType: string) {
-    this.gbBorderTypeActivated = newGbBorderType
-    this.commonService.gBType(
-      newGbBorderType,
-      this.activeGBs
-    );
+  setGBType($event: MatButtonToggleChange) {
+    this.gbBorderTypeActivated = $event.value;
+    this.commonService.gBType($event.value, this.activeGBs);
   }
 
   setNodeSize(size: any) {
     this.nodeSize = size.value <= 100 ? size.value : 100;
-    this.commonService.changeNodeSize(
-      size,
-      this.activeNodes
-    );
+    this.commonService.changeNodeSize(size, this.activeNodes);
   }
 
   setTextColor(color: string) {
     this.textColor = this.helpers.fullColorHex(color);
-    this.commonService.textColor(
-      color,
-      this.activeNodes,
-      this.activePGs,
-      this.activeEdges,
-      this.activeGBs
-    );
+    this.commonService.textColor(color, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs);
   }
 
   setTextSize(size: any) {
     this.textSize = size.value <= 200 ? size.value : 200;
-    this.commonService.textSize(
-      size,
-      this.activeNodes,
-      this.activeEdges,
-      this.activePGs
-    );
+    this.commonService.textSize(size, this.activeNodes, this.activeEdges, this.activePGs);
   }
 
   setTextBGOpacity(opacity: any) {
     this.textBGOpacity = opacity.value;
     this.textBGOpacityLabel = Math.round(this.textBGOpacity * 100);
-    this.commonService.textBGOpacity(
-      opacity,
-      this.activeNodes,
-      this.activeEdges,
-      this.activePGs
-    );
+    this.commonService.textBGOpacity(opacity, this.activeNodes, this.activeEdges, this.activePGs);
   }
 
   setTextBGColor(color: any) {
     this.textBGColor = this.helpers.fullColorHex(color);
-    this.commonService.textBGColor(
-      color,
-      this.activeNodes,
-      this.activeEdges,
-      this.activePGs,
-      this.activeGBs
-    );
+    this.commonService.textBGColor(color, this.activeNodes, this.activeEdges, this.activePGs, this.activeGBs);
   }
 
   setPGColor(color: string) {
     this.pgColor = this.helpers.fullColorHex(color);
-    this.commonService.pgColor(
-      color,
-      this.activePGs
-    );
+    this.commonService.pgColor(color, this.activePGs);
   }
 
 
   setPGSize(size: any) {
     this.pgSize = size.value <= 200 ? size.value : 200;
-    this.commonService.pgSize(
-      size,
-      this.activePGs
-    );
+    this.commonService.pgSize(size, this.activePGs);
   }
 
   setEdgeColor(color: string) {
     this.edgeColor = this.helpers.fullColorHex(color);
-    this.commonService.edgeColor(
-      color,
-      this.activeEdges
-    );
+    this.commonService.edgeColor(color, this.activeEdges);
   }
 
   setEdgeSize(size: any) {
     this.edgeSize = size.value <= 50 ? size.value : 50;
-    this.commonService.edgeSize(
-      size,
-      this.activeEdges,
-    );
+    this.commonService.edgeSize(size, this.activeEdges);
   }
 
   setArrowScale(size: any) {
     this.arrowSize = size.value <= 200 ? size.value : 200;
-    this.commonService.arrowScale(
-      size,
-      this.activeEdges
-    );
+    this.commonService.arrowScale(size, this.activeEdges);
   }
 
   setGBColor(newGbColor: string) {
     this.gbColor = this.helpers.fullColorHex(newGbColor);
-    this.commonService.gBColor(
-      newGbColor, this.activeGBs
-    );
+    this.commonService.gBColor(newGbColor, this.activeGBs);
   }
 
   setGBOpacity(event: any) {
@@ -363,10 +312,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
 
   setGBBorderColor(newGbBorderColor: string) {
     this.gbBorderColor = this.helpers.fullColorHex(newGbBorderColor);
-    this.commonService.gBBorderColor(
-      newGbBorderColor,
-      this.activeGBs
-    );
+    this.commonService.gBBorderColor(newGbBorderColor, this.activeGBs);
   }
 
   increaseZIndex() {

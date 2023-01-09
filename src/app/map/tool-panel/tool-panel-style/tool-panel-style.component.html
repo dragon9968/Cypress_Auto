@@ -62,18 +62,11 @@
     <h4>Arrow</h4>
     <div class="tab-field direction">
         <label>Direction</label>
-        <button mat-mini-fab color="primary" matTooltip="Both" [class.mat-accent]="arrowActivated === 'both'"
-            (click)="setDirection('both')">
-            <mat-icon>sync_alt</mat-icon>
-        </button>
-        <button mat-mini-fab color="primary" matTooltip="Inbound" [class.mat-accent]="arrowActivated === 'inbound'"
-            (click)="setDirection('inbound')">
-            <mat-icon>west</mat-icon>
-        </button>
-        <button mat-mini-fab color="primary" matTooltip="Outbound" [class.mat-accent]="arrowActivated === 'outbound'"
-            (click)="setDirection('outbound')">
-            <mat-icon>east</mat-icon>
-        </button>
+        <mat-button-toggle-group (change)="setDirection($event)">
+            <mat-button-toggle value="both"><mat-icon>sync_alt</mat-icon></mat-button-toggle>
+            <mat-button-toggle value="inbound"><mat-icon>west</mat-icon></mat-button-toggle>
+            <mat-button-toggle value="outbound"><mat-icon>east</mat-icon></mat-button-toggle>
+        </mat-button-toggle-group>
     </div>
     <div class="tab-field">
         <label>Size</label>
@@ -120,22 +113,12 @@
     </div>
     <div class="tab-field direction">
         <label>Type</label>
-        <button mat-mini-fab color="primary" matTooltip="Solid" [class.mat-accent]="gbBorderTypeActivated === 'solid'"
-            (click)="setGBType('solid')">
-            <mat-icon>horizontal_rule</mat-icon>
-        </button>
-        <button mat-mini-fab color="primary" matTooltip="Dotted" [class.mat-accent]="gbBorderTypeActivated === 'dotted'"
-            (click)="setGBType('dotted')">
-            <mat-icon>more_horiz</mat-icon>
-        </button>
-        <button mat-mini-fab color="primary" matTooltip="Dashed" [class.mat-accent]="gbBorderTypeActivated === 'dashed'"
-            (click)="setGBType('dashed')">
-            <mat-icon svgIcon="dashed"></mat-icon>
-        </button>
-        <button mat-mini-fab color="primary" matTooltip="Double" [class.mat-accent]="gbBorderTypeActivated === 'double'"
-            (click)="setGBType('double')">
-            <mat-icon svgIcon="double"></mat-icon>
-        </button>
+        <mat-button-toggle-group (change)="setGBType($event)">
+            <mat-button-toggle value="solid"><mat-icon>horizontal_rule</mat-icon></mat-button-toggle>
+            <mat-button-toggle value="dotted"><mat-icon>more_horiz</mat-icon></mat-button-toggle>
+            <mat-button-toggle value="dashed"><mat-icon svgIcon="dashed"></mat-icon></mat-button-toggle>
+            <mat-button-toggle value="double"><mat-icon svgIcon="double"></mat-icon></mat-button-toggle>
+        </mat-button-toggle-group>
     </div>
 </section>
 <section class="tab-section" [hidden]="isHideText">
@@ -154,33 +137,19 @@
     </div>
     <div *ngIf="isHideEdge" class="tab-field text-align">
         <label>V Align</label>
-        <button mat-mini-fab color="primary" matTooltip="Top" [class.mat-accent]="vAlignSelect === 'top'"
-            (click)="setTextVAlign('top')">
-            <mat-icon>align_vertical_top</mat-icon>
-        </button>
-        <button mat-mini-fab color="primary" matTooltip="Center" [class.mat-accent]="vAlignSelect === 'center'"
-            (click)="setTextVAlign('center')">
-            <mat-icon>align_vertical_center</mat-icon>
-        </button>
-        <button mat-mini-fab color="primary" matTooltip="Bottom" [class.mat-accent]="vAlignSelect === 'bottom'"
-            (click)="setTextVAlign('bottom')">
-            <mat-icon>align_vertical_bottom</mat-icon>
-        </button>
+        <mat-button-toggle-group (change)="setTextVAlign($event)">
+            <mat-button-toggle value="top"><mat-icon>align_vertical_top</mat-icon></mat-button-toggle>
+            <mat-button-toggle value="center"><mat-icon>align_vertical_center</mat-icon></mat-button-toggle>
+            <mat-button-toggle value="bottom"><mat-icon>align_vertical_bottom</mat-icon></mat-button-toggle>
+        </mat-button-toggle-group>
     </div>
     <div *ngIf="isHideEdge" class="tab-field text-align">
         <label>H Align</label>
-        <button mat-mini-fab color="primary" matTooltip="Left" [class.mat-accent]="hAlignSelect === 'left'"
-            (click)="setTextHAlign('left')">
-            <mat-icon>align_horizontal_left</mat-icon>
-        </button>
-        <button mat-mini-fab color="primary" matTooltip="Center" [class.mat-accent]="hAlignSelect === 'center'"
-            (click)="setTextHAlign('center')">
-            <mat-icon>align_horizontal_center</mat-icon>
-        </button>
-        <button mat-mini-fab color="primary" matTooltip="Right" [class.mat-accent]="hAlignSelect === 'right'"
-            (click)="setTextHAlign('right')">
-            <mat-icon>align_horizontal_right</mat-icon>
-        </button>
+        <mat-button-toggle-group (change)="setTextHAlign($event)">
+            <mat-button-toggle value="left"><mat-icon>align_horizontal_left</mat-icon></mat-button-toggle>
+            <mat-button-toggle value="center"><mat-icon>align_horizontal_center</mat-icon></mat-button-toggle>
+            <mat-button-toggle value="right"><mat-icon>align_horizontal_right</mat-icon></mat-button-toggle>
+        </mat-button-toggle-group>
     </div>
     <h4>Text Background</h4>
     <div class="tab-field">
@@ -196,7 +165,8 @@
     </div>
 </section>
 
-<section class="tab-section" [hidden]="!((activeNodes.length + activePGs.length + activeMBs.length) == 1 && isHideEdge)">
+<section class="tab-section"
+    [hidden]="!((activeNodes.length + activePGs.length + activeMBs.length) == 1 && isHideEdge)">
     <mat-divider></mat-divider>
     <h4>Position</h4>
     <form [formGroup]="positionForm" (ngSubmit)="updatePosition()">
@@ -211,7 +181,8 @@
             <mat-error *ngIf="yCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
         </mat-form-field>
         <div class="tab-field z-index">
-            <button mat-mini-fab type="submit" class="z-index-btn" color="primary" matTooltip="Update" [disabled]="!positionForm.valid ">
+            <button mat-mini-fab type="submit" class="z-index-btn" color="primary" matTooltip="Update"
+                [disabled]="!positionForm.valid ">
                 <mat-icon>check</mat-icon>
             </button>
             <button mat-mini-fab class="z-index-btn" color="primary" matTooltip="Lock" (click)="lockNodes()">
