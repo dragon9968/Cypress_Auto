@@ -8,8 +8,7 @@ $margin: 8px;
 }
 
 .tab-select-field {
-    width: 100%;
-    align-items: center;
+    width: 75%;
 }
 
 .tab-field {
@@ -19,18 +18,26 @@ $margin: 8px;
     display: flex;
 }
 
-.apply-map-pref-btn {
-    width: 100%;
+.tab-select-btn {
+    width: 20%;
+    margin-left: 5px;
+}
+
+.control-label {
+    font-size: 14px;
+    // width: 15%;
+    justify-content: left;
 }
 
 .slider {
     width: 70%;
+    margin: 0 auto;
 }
 
 .color-picker {
-    width: 40px;
-    height: 40px;
-    margin: 0 $margin;
+    width: 30px;
+    height: 30px;
+    margin: 0 $margin*2;
     cursor: pointer;
     z-index: 1;
     &.mat-mini-fab {
@@ -41,7 +48,7 @@ $margin: 8px;
 .text-align,
 .direction {
     display: flex;
-    justify-content: space-between;
+    // justify-content: space-between;
 }
 
 .z-index {
@@ -54,7 +61,10 @@ $margin: 8px;
 
 .position {
     display: inline-block;
-    width: 100%;
-    margin: $margin 0;
-    align-items: center;
+    width: 45%;
+    margin: $margin auto;
+}
+
+.button-group {
+    margin: 0 auto;
 }

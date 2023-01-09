@@ -1,6 +1,31 @@
 $tool-panel-width: 300px;
 $margin: 8px;
 
+.tab-section {
+    margin: $margin;
+    width: calc($tool-panel-width - $margin*2);
+    text-align: center;
+}
+
+.tab-form {
+  width: 100%;
+}
+
+.tab-select-field {
+    width: 75%;
+}
+
+.tab-field {
+    width: 100%;
+    margin: $margin 0;
+    align-items: center;
+    display: flex;
+}
+
+.tab-select-btn {
+    margin-left: 5px;
+}
+
 .remote-item {
   margin: $margin;
   width: calc($tool-panel-width - $margin*2);
@@ -17,7 +42,7 @@ $margin: 8px;
     width: 100%;
     align-items: center;
     border-bottom: 1px solid #ccc;
-    padding-bottom: 8px;
+    padding-bottom: 10px;
 
     &--label {
       display: flex;
@@ -25,6 +50,7 @@ $margin: 8px;
       margin-right: $margin;
       width: 35%;
       text-align: left;
+      font-size: 12px;
       font-weight: 600;
     }
 
@@ -32,6 +58,7 @@ $margin: 8px;
       max-width: 65%;
       word-wrap: break-word;
       width: 190px;
+      font-size: 12px;
     }
   }
 
@@ -48,9 +75,13 @@ $margin: 8px;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-width: 35px;
+      min-width: 30px;
       height: 30px;
       margin-left: calc($margin/2);
     }
   }
+}
+
+.btn-refresh {
+  margin: 0 auto;
 }
