@@ -4,12 +4,12 @@ import { ToastrService } from "ngx-toastr";
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
-import { ErrorMessages } from "../../shared/enums/error-messages.enum";
-import { TaskService } from "../../core/services/task/task.service";
-import { HelpersService } from "../../core/services/helpers/helpers.service";
-import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
-import { ServerConnectService } from "../../core/services/server-connect/server-connect.service";
-import { autoCompleteValidator } from "../../shared/validations/auto-complete.validation";
+import { ErrorMessages } from "../../../../shared/enums/error-messages.enum";
+import { TaskService } from "../../../../core/services/task/task.service";
+import { HelpersService } from "../../../../core/services/helpers/helpers.service";
+import { InfoPanelService } from "../../../../core/services/info-panel/info-panel.service";
+import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
+import { autoCompleteValidator } from "../../../../shared/validations/auto-complete.validation";
 
 
 @Component({
@@ -32,7 +32,7 @@ export class RevertNodeSnapshotDialogComponent {
     private serverConnectionService: ServerConnectService
   ) {
     this.revertNodeSnapshotForm = new FormGroup({
-      nameCtr: new FormControl('', [Validators.required ,autoCompleteValidator(this.data.names)])
+      nameCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.data.names)])
     });
     this.filteredSnapshots = this.helperService.filterOptions(this.nameCtr, this.data.names);
   }
@@ -54,9 +54,9 @@ export class RevertNodeSnapshotDialogComponent {
         return throwError(() => err);
       })
     ).subscribe(() => {
-      this.toastr.success('Task added to the queue', 'Success');
       this.infoPanelService.updateTaskList();
       this.dialogRef.close();
+      this.toastr.success('Task added to the queue', 'Success');
     })
   }
 }

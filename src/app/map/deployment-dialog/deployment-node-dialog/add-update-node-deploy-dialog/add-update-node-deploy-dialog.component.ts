@@ -6,11 +6,11 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { catchError, Observable, Subscription, throwError } from 'rxjs';
 import { TaskService } from 'src/app/core/services/task/task.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
-import { selectLoginProfiles } from "../../store/login-profile/login-profile.selectors";
-import { autoCompleteValidator } from "../../shared/validations/auto-complete.validation";
-import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
-import { ErrorMessages } from "../../shared/enums/error-messages.enum";
-import { ServerConnectService } from "../../core/services/server-connect/server-connect.service";
+import { selectLoginProfiles } from "../../../../store/login-profile/login-profile.selectors";
+import { autoCompleteValidator } from "../../../../shared/validations/auto-complete.validation";
+import { InfoPanelService } from "../../../../core/services/info-panel/info-panel.service";
+import { ErrorMessages } from "../../../../shared/enums/error-messages.enum";
+import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
 
 @Component({
   selector: 'app-add-node-deploy-dialog',

@@ -6,15 +6,16 @@ import { TaskService } from 'src/app/core/services/task/task.service';
 import { NodeService } from "../../../core/services/node/node.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { ServerConnectService } from "../../../core/services/server-connect/server-connect.service";
-import { AddUpdateNodeDeployDialogComponent } from 'src/app/map/add-update-node-deploy-dialog/add-update-node-deploy-dialog.component';
-import { CreateNodeSnapshotDialogComponent } from '../../create-node-snapshot-dialog/create-node-snapshot-dialog.component';
-import { DeleteNodeSnapshotDialogComponent } from '../../delete-node-snapshot-dialog/delete-node-snapshot-dialog.component';
-import { RevertNodeSnapshotDialogComponent } from "../../revert-node-snapshot-dialog/revert-node-snapshot-dialog.component";
-import { DeleteNodeDeployDialogComponent } from "../../delete-node-deploy-dialog/delete-node-deploy-dialog.component";
+import { AddUpdateNodeDeployDialogComponent } from 'src/app/map/deployment-dialog/deployment-node-dialog/add-update-node-deploy-dialog/add-update-node-deploy-dialog.component';
+import { CreateNodeSnapshotDialogComponent } from '../../deployment-dialog/deployment-node-dialog/create-node-snapshot-dialog/create-node-snapshot-dialog.component';
+import { DeleteNodeSnapshotDialogComponent } from '../../deployment-dialog/deployment-node-dialog/delete-node-snapshot-dialog/delete-node-snapshot-dialog.component';
+import { RevertNodeSnapshotDialogComponent } from "../../deployment-dialog/deployment-node-dialog/revert-node-snapshot-dialog/revert-node-snapshot-dialog.component";
+import { DeleteNodeDeployDialogComponent } from "../../deployment-dialog/deployment-node-dialog/delete-node-deploy-dialog/delete-node-deploy-dialog.component";
 import { ProjectService } from 'src/app/project/services/project.service';
-import { AddDeletePGDeployDialogComponent } from "../../add-delete-pg-deploy-dialog/add-delete-pg-deploy-dialog.component";
-import { UpdateFactsNodeDialogComponent } from "../../update-facts-node-dialog/update-facts-node-dialog.component";
+import { AddDeletePGDeployDialogComponent } from "../../deployment-dialog/deployment-pg-dialog/add-delete-pg-deploy-dialog/add-delete-pg-deploy-dialog.component";
+import { UpdateFactsNodeDialogComponent } from "../../deployment-dialog/deployment-node-dialog/update-facts-node-dialog/update-facts-node-dialog.component";
 import { MapService } from 'src/app/core/services/map/map.service';
+import { NodeToolsDialogComponent } from "../../deployment-dialog/deployment-node-dialog/node-tools-dialog/node-tools-dialog.component";
 
 @Injectable({
   providedIn: 'root'
@@ -74,9 +75,8 @@ export class CMRemoteService {
           content: "Power On",
           selector: "node[icon]",
           onClickFunction: (event: any) => {
-            const target = event.target;
-            const data = target.data();
-            this.add_task('node', 'power_on_node', data.node_id.toString());
+            const activeNodeIds = activeNodes.map(ele => ele.data('node_id')).join(',');
+            this.add_task('node', 'power_on_node', activeNodeIds);
           },
           hasTrailingDivider: true,
           disabled: false,
@@ -86,9 +86,8 @@ export class CMRemoteService {
           content: "Power Off",
           selector: "node[icon]",
           onClickFunction: (event: any) => {
-            const target = event.target;
-            const data = target.data();
-            this.add_task('node', 'power_off_node', data.node_id.toString());
+            const activeNodeIds = activeNodes.map(ele => ele.data('node_id')).join(',');
+            this.add_task('node', 'power_off_node', activeNodeIds);
           },
           hasTrailingDivider: true,
           disabled: false,
@@ -98,9 +97,8 @@ export class CMRemoteService {
           content: "Restart",
           selector: "node[icon]",
           onClickFunction: (event: any) => {
-            const target = event.target;
-            const data = target.data();
-            this.add_task('node', 'restart_node', data.node_id.toString());
+            const activeNodeIds = activeNodes.map(ele => ele.data('node_id')).join(',');
+            this.add_task('node', 'restart_node', activeNodeIds);
           },
           hasTrailingDivider: true,
           disabled: false,
@@ -240,6 +238,43 @@ export class CMRemoteService {
       hasTrailingDivider: true,
       disabled: false,
     }
+    const tool = {
+      id: 'tool',
+      content: 'Tool',
+      selector: 'node[icon]',
+      submenu: [
+        {
+          id: 'ping_test',
+          content: 'Ping',
+          selector: 'node[icon]',
+          onClickFunction: () => {
+            const dialogData = {
+              pks: activeNodes.map((node: any) => node.data('node_id')),
+              jobName: 'ping_test',
+            }
+            this.dialog.open(NodeToolsDialogComponent, { width: '450px', data: dialogData, autoFocus: false })
+          },
+          hasTrailingDivider: true,
+          disabled: false,
+        },
+        {
+          id: 'shell_command',
+          content: 'Shell Command',
+          selector: 'node[icon]',
+          onClickFunction: () => {
+            const dialogData = {
+              pks: activeNodes.map((node: any) => node.data('node_id')),
+              jobName: 'shell_command',
+            }
+            this.dialog.open(NodeToolsDialogComponent, { width: '450px', data: dialogData, autoFocus: false })
+          },
+          hasTrailingDivider: true,
+          disabled: false,
+        }
+      ],
+      hasTrailingDivider: true,
+      disabled: false,
+    }
     return {
       id: "node_remote",
       content: "Remote",
@@ -247,6 +282,7 @@ export class CMRemoteService {
       hasTrailingDivider: true,
       submenu: [
         webConsole,
+        tool,
         deploy,
         power,
         snapshot,

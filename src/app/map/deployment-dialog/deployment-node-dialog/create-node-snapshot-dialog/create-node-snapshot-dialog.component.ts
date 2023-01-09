@@ -5,8 +5,8 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { catchError, throwError } from 'rxjs';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
-import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
-import { ServerConnectService } from "../../core/services/server-connect/server-connect.service";
+import { InfoPanelService } from "../../../../core/services/info-panel/info-panel.service";
+import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
 
 @Component({
   selector: 'app-create-node-snapshot-dialog',

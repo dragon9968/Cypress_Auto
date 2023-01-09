@@ -35,6 +35,7 @@ export enum ApiPaths {
   INTERFACE_DATA_CATEGORY = '/api/v1/interface/get_data/',
   INTERFACE_BY_PKS = '/api/v1/interface/data_by_pks',
   TASK = '/api/v1/task/add',
+  TOOL = '/api/v1/tool/add',
   USER_TASK = '/api/v1/user_task/',
   USER_TASK_RERUN = '/api/v1/user_task/rerun_task',
   USER_TASK_REVOKE = '/api/v1/user_task/revoke_task',

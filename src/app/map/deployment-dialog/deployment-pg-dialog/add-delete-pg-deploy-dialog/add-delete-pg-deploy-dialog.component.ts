@@ -3,9 +3,9 @@ import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { TaskService } from "../../core/services/task/task.service";
-import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
-import { ServerConnectService } from "../../core/services/server-connect/server-connect.service";
+import { TaskService } from "../../../../core/services/task/task.service";
+import { InfoPanelService } from "../../../../core/services/info-panel/info-panel.service";
+import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
 
 @Component({
   selector: 'app-add-delete-pg-deploy-dialog',
