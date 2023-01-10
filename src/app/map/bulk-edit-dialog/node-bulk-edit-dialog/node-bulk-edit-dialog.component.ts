@@ -87,7 +87,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
       this.templates = templates;
       this.templateCtr.setValidators([autoCompleteValidator(this.templates, 'display_name')]);
       this.filteredTemplatesByDevice = templates;
-      this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice);
+      this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice, 'display_name');
     });
     this.selectDomains$ = this.store.select(selectDomains).subscribe(domains => {
       this.domains = domains;
@@ -120,7 +120,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
     this.roleCtr.setValidators([autoCompleteValidator(this.ROLES)]);
     this.filteredRoles = this.helpers.filterOptions(this.roleCtr, this.ROLES);
     this.filteredTemplatesByDevice = this.templates.filter((template: any) => template.device_id == this.data.genData.device?.id);
-    this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice);
+    this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice, 'display_name');
     this.route.queryParams.subscribe((params: Params) => this.collectionId = params['collection_id']);
   }
 
@@ -209,7 +209,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
 
   selectDevice($event: MatAutocompleteSelectedEvent) {
     this.filteredTemplatesByDevice = this.templates.filter((template: any) => template.device_id == $event.option.value.id);
-    this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice);
+    this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice, 'display_name');
     this.templateCtr?.setValue('');
   }
 

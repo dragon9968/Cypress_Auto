@@ -74,7 +74,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
         this.templates = templates;
         this.templateCtr?.setValidators([autoCompleteValidator(this.templates, 'display_name')]);
         this.filteredTemplatesByDevice = templates
-        this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice);
+        this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice, 'display_name');
       }
     });
     this.selectMapImages$ = this.store.select(selectMapImages).subscribe((mapImages: any) => {
@@ -111,7 +111,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
 
   disableTemplate(deviceId: string) {
     this.filteredTemplatesByDevice = this.templates.filter(template => template.device.id == deviceId);
-    this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice);
+    this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice, 'display_name');
     this.templateCtr?.setValue('');
     this.isDisableAddNode = true;
     if (this.filteredTemplatesByDevice.length > 0) {

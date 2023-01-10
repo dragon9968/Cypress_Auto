@@ -61,7 +61,7 @@ export class AddEditHardwareDialogComponent implements OnInit, OnDestroy {
       this.listTemplate = listTemplate;
       this.template.setValidators([Validators.required, autoCompleteValidator(this.listTemplate, 'display_name')]);
       this.filteredTemplates = listTemplate;
-      this.filteredTemplates = this.helpers.filterOptions(this.template, this.filteredTemplatesByDevice);
+      this.filteredTemplates = this.helpers.filterOptions(this.template, this.filteredTemplatesByDevice, 'display_name');
     });
     this.selectHardwares$ = this.store.select(selectHardwares).subscribe(
       hardwares => this.hardwares = hardwares
@@ -71,7 +71,7 @@ export class AddEditHardwareDialogComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.filteredTemplatesByDevice = this.listTemplate.filter((template: any) => template.device_id == this.data.genData.device?.id);
-    this.filteredTemplates = this.helpers.filterOptions(this.template, this.filteredTemplatesByDevice);
+    this.filteredTemplates = this.helpers.filterOptions(this.template, this.filteredTemplatesByDevice, 'display_name');
     this.helpers.setAutoCompleteValue(this.device, this.listDevices, this.data.genData.device?.id);
     this.helpers.setAutoCompleteValue(this.template, this.filteredTemplatesByDevice, this.data.genData.template?.id);
     this.serialNumber?.setValue(this.data.genData.serial_number);
@@ -95,7 +95,7 @@ export class AddEditHardwareDialogComponent implements OnInit, OnDestroy {
 
   selectDevice($event: MatAutocompleteSelectedEvent) {
     this.filteredTemplatesByDevice = this.listTemplate.filter(template => template.device_id == $event.option.value.id);
-    this.filteredTemplates = this.helpers.filterOptions(this.template, this.filteredTemplatesByDevice);
+    this.filteredTemplates = this.helpers.filterOptions(this.template, this.filteredTemplatesByDevice, 'display_name');
     this.template?.setValue('');
   }
 

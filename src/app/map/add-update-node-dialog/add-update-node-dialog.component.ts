@@ -111,7 +111,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
       this.templates = templates;
       this.templateCtr.setValidators([Validators.required, autoCompleteValidator(this.templates, 'display_name')]);
       this.filteredTemplates = templates;
-      this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice);
+      this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice, 'display_name');
     });
     this.selectHardwares$ = this.store.select(selectHardwares).subscribe((hardwares: any) => {
       this.hardwares = hardwares;
@@ -161,7 +161,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
     this.disableItems(this.categoryCtr?.value);
     this.helpers.setAutoCompleteValue(this.deviceCtr, this.devices, this.data.genData.device_id);
     this.filteredTemplatesByDevice = this.templates.filter((template: any) => template.device_id == this.data.genData.device_id);
-    this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice);
+    this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice, 'display_name');
     this.helpers.setAutoCompleteValue(this.templateCtr, this.templates, this.data.genData.template_id);
     this.helpers.setAutoCompleteValue(this.hardwareCtr, this.hardwares, this.data.genData.hardware_id);
     this.folderCtr?.setValue(this.data.genData.folder);
@@ -230,7 +230,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
 
   disableTemplate(deviceId: string) {
     this.filteredTemplatesByDevice = this.templates.filter(template => template.device.id == deviceId);
-    this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice);
+    this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice, 'display_name');
     this.templateCtr?.setValue('');
     if (this.filteredTemplatesByDevice.length > 0) {
       this.templateCtr?.enable();

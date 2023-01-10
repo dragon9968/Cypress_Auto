@@ -452,12 +452,12 @@ export class HelpersService {
     return control;
   }
 
-  filterOptions(control: any, options: any[]) {
+  filterOptions(control: any, options: any[], optionColumn: string = 'name') {
     return control.valueChanges.pipe(
       startWith(''),
       map((value: any | string) => {
         const text = typeof value === 'string' ? value.toLowerCase() : value.name;
-        return options?.filter((option: any) => option.name?.toLowerCase().includes(text));
+        return options?.filter((option: any) => option[optionColumn]?.toLowerCase().includes(text));
       }),
     );
   }
