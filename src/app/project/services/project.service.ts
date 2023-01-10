@@ -64,15 +64,17 @@ export class ProjectService {
       this.setCollectionId(collectionId);
     }
     this.store.dispatch(retrievedIsOpen({data: true}));
-    this.router.navigate(
-      [RouteSegments.MAP],
-      {
-        queryParams: {
-          category: 'logical',
-          collection_id: collectionId
+    this.saveRecentProject({ project_id: collectionId }).subscribe(() => {
+      this.router.navigate(
+        [RouteSegments.MAP],
+        {
+          queryParams: {
+            category: 'logical',
+            collection_id: collectionId
+          }
         }
-      }
-    );
+      );
+    })
   }
 
   setCollectionId(collectionId: string) {
@@ -111,5 +113,13 @@ export class ProjectService {
 
   validateProject(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.PROJECT_VALIDATE, data);
+  }
+
+  saveRecentProject(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.PROJECT_RECENT, data);
+  }
+
+  getRecentProjects():Observable<any> {
+    return this.http.get<any>(ApiPaths.PROJECT_RECENT);
   }
 }

@@ -8,4 +8,5 @@ export const selectVMStatus = createSelector(selectProjectFeature, (state: Proje
 export const selectIsOpen = createSelector(selectProjectFeature, (state: ProjectState) => state.isOpen);
 export const selectDashboard = createSelector(selectProjectFeature, (state: ProjectState) => state.dashboard);
 export const selectProjectName = createSelector(selectProjectFeature, (state: ProjectState) => state.projectName);
+export const selectRecentProjects = createSelector(selectProjectFeature, (state: ProjectState) => state.recentProjects);
 

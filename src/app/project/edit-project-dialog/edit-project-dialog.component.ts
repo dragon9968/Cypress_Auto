@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -12,26 +12,32 @@ import { UserService } from 'src/app/core/services/user/user.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { asyncValidateValueSetter } from 'src/app/shared/validations/ip-subnet.validation.ag-grid';
-import { retrievedProjectName, retrievedProjects } from 'src/app/store/project/project.actions';
+import {
+  retrievedProjectName,
+  retrievedProjects,
+  retrievedRecentProjects
+} from 'src/app/store/project/project.actions';
 import { ButtonRenderersComponent } from '../renderers/button-renderers-component';
 import { ProjectService } from '../services/project.service';
 import { CustomTooltip } from '../../shared/components/tool-tip/custom-tool-tip';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
-import { selectProjects } from 'src/app/store/project/project.selectors';
+import { selectProjects, selectRecentProjects } from 'src/app/store/project/project.selectors';
 
 @Component({
   selector: 'app-edit-project-dialog',
   templateUrl: './edit-project-dialog.component.html',
   styleUrls: ['./edit-project-dialog.component.scss']
 })
-export class EditProjectDialogComponent implements OnInit {
+export class EditProjectDialogComponent implements OnInit, OnDestroy {
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
   private gridApi!: GridApi;
   editProjectForm!: FormGroup;
   errorMessages = ErrorMessages;
   selectUserTasks$ = new Subscription();
   selectProjects$ = new Subscription();
-  listProjects!: any[];
+  selectRecentProjects$ = new Subscription();
+  recentProjects: any[] = [];
+   listProjects!: any[];
   isDisableButton = false;
   rowData!: any[];
   listUser!: any[];
@@ -107,8 +113,8 @@ export class EditProjectDialogComponent implements OnInit {
         });
       }
     })
-    this.selectProjects$ = this.store.select(selectProjects).subscribe(name => {
-      this.listProjects = name;
+    this.selectProjects$ = this.store.select(selectProjects).subscribe(projects => {
+      this.listProjects = projects;
     })
     this.editProjectForm = new FormGroup({
       nameCtr: new FormControl('', [Validators.required,
@@ -120,7 +126,17 @@ export class EditProjectDialogComponent implements OnInit {
       maxVlanCtr: new FormControl('', [Validators.min(2), Validators.max(4094),Validators.required]),
       sharedCtr: new FormControl(''),
     })
+    this.selectProjects$ = this.store.select(selectRecentProjects).subscribe(recentProjects => {
+      if (recentProjects) {
+        this.recentProjects = recentProjects;
+      }
+    })
+  }
 
+  ngOnDestroy(): void {
+    this.selectProjects$.unsubscribe();
+    this.selectUserTasks$.unsubscribe();
+    this.selectRecentProjects$.unsubscribe();
   }
 
   get nameCtr() { return this.editProjectForm.get('nameCtr');}
@@ -191,8 +207,25 @@ export class EditProjectDialogComponent implements OnInit {
           return throwError(() => e);
         })
         ).subscribe((_respData: any) => {
-          this.projectService.get(this.data.genData.id).subscribe(projectData => {
-            this.store.dispatch(retrievedProjectName({ projectName: projectData.result.name}));
+          this.projectService.get(this.data.genData.id).subscribe(response => {
+            const projectData = response.result;
+            this.store.dispatch(retrievedProjectName({ projectName: projectData.name}));
+            // Update Recent Projects Storage if the project in recent projects and project is updated
+            const recentProjectIds = this.recentProjects.map(project => project.id);
+            if (recentProjectIds.includes(projectData.id)) {
+              const recentProject = this.recentProjects.find(project => project.id === projectData.id);
+              if (recentProject.name !== projectData.name || recentProject.description !== projectData.description) {
+                const newRecentProjects = [...this.recentProjects];
+                const index = newRecentProjects.findIndex(project => project.id === projectData.id);
+                const newRecentProject = {
+                  id: projectData.id,
+                  name: projectData.name,
+                  description: projectData.description
+                }
+                newRecentProjects.splice(index, 1, newRecentProject);
+                this.store.dispatch(retrievedRecentProjects({ recentProjects: newRecentProjects }));
+              }
+            }
             const configData = {
                 pk: this.data.genData.id,
                 username: sharedUpdate

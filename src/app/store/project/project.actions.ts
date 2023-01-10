@@ -25,3 +25,9 @@ export const retrievedProjectName = createAction(
   props<{ projectName: any }>()
 );
 
+export const retrievedRecentProjects = createAction(
+  'retrievedRecentProjects',
+  props<{ recentProjects: any }>()
+);
+
+

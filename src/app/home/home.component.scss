@@ -1,3 +1,5 @@
+$margin: 8px;
+
 .home-container {
   height: calc(100vh - 100px);
   display: flex;
@@ -6,11 +8,10 @@
 }
 
 .home-content {
-  width: 500px;
+  width: 550px;
   margin: 10px auto;
-  // border: 2px solid #A9A9A9;
   text-align: center;
-  height: 50%;
+  height: auto;
   box-shadow: 3px 6px 12px #a9a9a9;
 }
 
@@ -24,7 +25,7 @@ button {
 }
 
 mat-card-title {
-  font-weight: 600px;
+  font-weight: 500;
   font-size: 28px;
 }
 
@@ -36,4 +37,44 @@ mat-card-subtitle {
 
 span {
   color:#007bff;
+}
+
+.btn-areas {
+  margin-bottom: calc($margin*4);
+}
+
+.recent-project {
+  margin: 0 calc($margin*2);
+  &__title {
+    text-align: left;
+  }
+  &__list {
+    padding-left: calc($margin*3);
+    margin-bottom: 0;
+    .recent-project-item {
+      text-align: left;
+      margin-bottom: calc($margin*2);
+      &__title {
+        margin: 0;
+        color: #235999;
+        width: fit-content;
+      }
+      &__title:hover {
+        cursor: pointer;
+        color: #007bff;
+      }
+      &__desc {
+        margin: calc($margin/2) 0;
+        color: #717171;
+        font-weight: 500;
+      }
+      &__subtitle {
+        margin: calc($margin/2) 0;
+      }
+    }
+  }
+}
+
+.no-recent-project {
+  text-align: left;
 }
