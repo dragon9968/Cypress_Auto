@@ -87,10 +87,9 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
   }
 
   addDevice() {
-    const categoryAdd = this.listCategory.map(el => el.name)
     const jsonData = {
       name: this.name?.value,
-      category: categoryAdd,
+      category: this.category?.value,
       icon_id: this.icon?.value.id,
     }
     this.deviceService.add(jsonData).subscribe({
@@ -111,7 +110,7 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
       id: this.data.genData.id,
       name: this.name?.value,
       icon_id: this.icon?.value.id,
-      category: categoryAdd,
+      category: this.category?.value,
     }
     this.deviceService.put(jsonData).subscribe({
       next: (rest) => {
