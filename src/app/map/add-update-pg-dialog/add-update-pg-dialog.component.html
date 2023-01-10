@@ -11,6 +11,8 @@
       <input matInput formControlName="vlanCtr" [readonly]="isViewMode">
       <mat-error *ngIf="vlanCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="vlanCtr?.errors?.pattern">{{ errorMessages.FIELD_IS_NUMBER }}</mat-error>
+      <mat-error *ngIf="vlanCtr?.errors?.min">{{ errorMessages.VLAN_RANGE_VALUE_0_4095 }}</mat-error>
+      <mat-error *ngIf="vlanCtr?.errors?.max">{{ errorMessages.VLAN_RANGE_VALUE_0_4095 }}</mat-error>
       <mat-error *ngIf="vlanCtr?.errors?.serverError">{{ vlanCtr?.errors?.serverError }}</mat-error>
       <mat-error *ngIf="vlanCtr?.errors?.errorServerExist">{{ vlanCtr?.errors?.errorServerExist }}</mat-error>
     </mat-form-field>

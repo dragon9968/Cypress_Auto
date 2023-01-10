@@ -21,6 +21,7 @@ export enum ErrorMessages {
   MIN_MAX_VALUE_0_100 = 'Valid value is between 0 and 100',
   MIN_MAX_VALUE_1_4093 = 'Valid value is between 1 and 4093',
   MIN_MAX_VALUE_2_4094 = 'Valid value is between 2 and 4094',
-  PDF_MD_FORMAT_FILE = 'PDF or Markdown file only!',
-  PASSWORD_NOT_MATCH = 'Password do not match'
+  PASSWORD_NOT_MATCH = 'Password do not match',
+  VLAN_RANGE_VALUE_0_4095 = 'Must be greater than or equal to 0 and less than or equal to 4095',
+  PDF_MD_FORMAT_FILE = 'PDF or Markdown file only!'
 }
