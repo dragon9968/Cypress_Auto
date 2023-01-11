@@ -86,6 +86,22 @@
               <input formControlName="vlan_max" type="number" (keypress)="numericOnly($event)" matInput>
               <mat-error *ngIf="vlan_max?.hasError('min') || vlan_max?.hasError('max') || vlan_max?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_2_4094 }}</mat-error>
             </mat-form-field>
+            <div class="add-button">
+              <button mat-button mat-mini-fab type="button" color="primary" (click)="addNetwork()">
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+            <ag-grid-angular class="ag-theme-alpine networks-table" 
+            [pagination]="true" [paginationPageSize]="25" 
+            [columnDefs]="columnDefs" 
+            [defaultColDef]="defaultColDef" 
+            [rowData]="rowData" 
+            [tooltipShowDelay]="0"
+            [tooltipHideDelay]="3000"
+            rowSelection="multiple"
+            (gridReady)="onGridReady($event)"
+            >
+          </ag-grid-angular>
           </mat-card-content>
         </mat-card>
         <mat-card-actions [align]="'end'" class="create-btn">

@@ -5,12 +5,11 @@ import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, Subscription, throwError } from 'rxjs';
 import { AppPrefService } from 'src/app/core/services/app-pref/app-pref.service';
-import { MapPrefService } from 'src/app/core/services/map-pref/map-pref.service';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { ipInNetworkValidator } from 'src/app/shared/validations/ip-innetwork.validation';
 import { ipSubnetValidation } from 'src/app/shared/validations/ip-subnet.validation';
+import { retrievedAppPref } from 'src/app/store/app-pref/app-pref.actions';
 import { selectAppPref } from 'src/app/store/app-pref/app-pref.selectors';
-import { retrievedMapPrefs } from 'src/app/store/map-pref/map-pref.actions';
 import { selectMapPrefs } from 'src/app/store/map-pref/map-pref.selectors';
 
 @Component({
@@ -42,11 +41,11 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
       // sessionTimeoutCtr: new FormControl('', [Validators.required]),
       mapPrefCtr: new FormControl(''),
       publicNetworkCtr: new FormControl('', [ipSubnetValidation(true)]),
-      publicNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.preferences.public_network), ipSubnetValidation(false)]),
+      publicNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.preferences.public_network, "public"), ipSubnetValidation(false)]),
       privateNetworkCtr: new FormControl('', [ipSubnetValidation(true)]),
-      privateNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.preferences.network), ipSubnetValidation(false)]),
+      privateNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.preferences.network, "private"), ipSubnetValidation(false)]),
       managementNetworkCtr: new FormControl('', [ipSubnetValidation(true)]),
-      managementNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.preferences.management_network), ipSubnetValidation(false)]),
+      managementNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.preferences.management_network, "management"), ipSubnetValidation(false)]),
       dhcpServerCtr: new FormControl(''),
     });
 
@@ -118,6 +117,7 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
       })
     ).subscribe(response => {
       this.toastr.success(`Changed App Preferences`, 'Success');
+      this.appPrefService.get("2").subscribe((data: any) => this.store.dispatch(retrievedAppPref({ data: data.result })));
       this.dialogRef.close();
     });
   }

@@ -4,14 +4,13 @@ import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
+import { ColDef, GridApi, GridReadyEvent, ValueSetterParams } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, Subscription, throwError } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { UserService } from 'src/app/core/services/user/user.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
-import { asyncValidateValueSetter } from 'src/app/shared/validations/ip-subnet.validation.ag-grid';
 import {
   retrievedProjectName,
   retrievedProjects,
@@ -19,7 +18,6 @@ import {
 } from 'src/app/store/project/project.actions';
 import { ButtonRenderersComponent } from '../renderers/button-renderers-component';
 import { ProjectService } from '../services/project.service';
-import { CustomTooltip } from '../../shared/components/tool-tip/custom-tool-tip';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 import { selectProjects, selectRecentProjects } from 'src/app/store/project/project.selectors';
 
@@ -47,7 +45,6 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
     sortable: true,
     resizable: true,
     editable: true,
-    tooltipComponent: CustomTooltip,
   };
   columnDefs: ColDef[] = [
     { headerName: '',
@@ -66,11 +63,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
       },
     },
     { field: 'network',
-      valueSetter: asyncValidateValueSetter,
-      tooltipComponent: CustomTooltip,
-      tooltipValueGetter: (params: any) => {
-        return params
-      },
+      valueSetter: this.setterValueNetwork.bind(this),
     },
     { field: 'reserved_ip',
       headerName: 'Reserved IP Addresses',
@@ -81,7 +74,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
         }
         return params.data.reserved_ip;
       },
-      valueSetter: asyncValidateValueSetter,
+      valueSetter: this.setterValueNetwork.bind(this),
       cellRenderer: function(params: any) {
         return params.value ? `[${params.value}]` : '[]'
       }
@@ -165,32 +158,14 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
     this.dialogRef.close();
   }
 
-  processForm(data: string) {
-    let arr: any[] = [];
-    if (data.length == 0) {
-      arr = []
-    } else if (data.length > 1) {
-      const value = data.split(',');
-      for (let i = 0; i < value.length; i++) {
-        arr.push({
-          "ip": value[i].trim(),
-        })
-      }
-    }
-    return arr
-  }
-
   updateProject() {
     const sharedUpdate = this.listShared.map(el => el.username)
     let items: any[] = [];
     this.gridApi.forEachNode(node => items.push(node.data));
     Object.values(items).forEach(val => {
       if (!Array.isArray(val.reserved_ip)) {
-        val.reserved_ip = this.processForm(val.reserved_ip)
+        val.reserved_ip = this.helpers.processIpForm(val.reserved_ip)
       }
-      delete val['validation']
-      delete val['validation_isExists']
-      delete val['validation_required']
       this.isDisableButton = true ? ((val.network === '') || (val.category === '')) : false
     })
     if (this.editProjectForm.valid && !this.isDisableButton) {
@@ -282,5 +257,9 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
       reserved_ip: []
     }
     this.gridApi.applyTransaction({ add: [jsonData] });
+  }
+
+  setterValueNetwork(params: ValueSetterParams) {
+    return this.helpers.setterValue(params)
   }
 }

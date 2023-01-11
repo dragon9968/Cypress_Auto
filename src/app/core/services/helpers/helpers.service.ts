@@ -5,6 +5,9 @@ import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 import { selectGroupBoxes } from 'src/app/store/map/map.selectors';
 import { FormControl, FormGroup } from '@angular/forms';
+import { validatieIP } from 'src/app/shared/validations/ip-subnet.validation.ag-grid';
+import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +16,7 @@ export class HelpersService {
   selectMapOption$ = new Subscription();
   selectGroupBoxes$ = new Subscription();
   groupCategoryId!: string;
+  errorMessages = ErrorMessages;
   isGroupBoxesChecked!: boolean;
   groupBoxes!: any[];
   lastWidth = 0;
@@ -22,6 +26,7 @@ export class HelpersService {
   @Input() deletedNodes!: any[];
 
   constructor(private store: Store,
+              private toastr: ToastrService,
               private domSanitizer: DomSanitizer) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
@@ -673,5 +678,50 @@ export class HelpersService {
         this.validateAllFormFields(control);
       }
     });
+  }
+
+  processIpForm(data: string) {
+    let arr: any[] = [];
+    if (data.length == 0) {
+      arr = []
+    } else if (data.length > 1) {
+      const value = data.split(',');
+      for (let i = 0; i < value.length; i++) {
+        arr.push({
+          "ip": value[i].trim(),
+        })
+      }
+    }
+    return arr
+  }
+
+  setterValue(params: any) {
+    const newValue = params.newValue;
+    const data = params.data;
+    const field = params.colDef.field
+    const typeOfValidation = validatieIP(params, newValue)
+    if (newValue === '' && field == 'network') {
+      this.toastr.warning(ErrorMessages.FIELD_IS_REQUIRED)
+      return false 
+    }
+
+    switch (typeOfValidation) {
+      case 'ip in network':
+        this.toastr.warning(ErrorMessages.IP_IN_NETWORK)
+        return false
+      case 'validation reserved_ip':
+        this.toastr.warning(ErrorMessages.FIELD_IS_IP)
+        return false
+      case 'network is exists':
+        this.toastr.warning(ErrorMessages.NETWORK_EXISTS)
+        return false
+      case 'validation network':
+        this.toastr.warning(ErrorMessages.FIELD_IS_IP)
+        return false
+      default:
+        data[`${field}`] = newValue
+        return true
+
+    }
   }
 }
