@@ -29,14 +29,6 @@ import { retrievedIsChangeDomainUsers } from "../../../store/domain-user-change/
 import { retrievedPortGroupsManagement } from "../../../store/portgroup/portgroup.actions";
 import { selectPortGroups, selectPortGroupsManagement } from "../../../store/portgroup/portgroup.selectors";
 import { retrievedInterfacesByIds, retrievedInterfacesManagement } from "../../../store/interface/interface.actions";
-import { AddUpdatePGDialogComponent } from "../../../map/add-update-pg-dialog/add-update-pg-dialog.component";
-import { ShowUserTaskDialogComponent } from "../../../map/info-panel/info-panel-task/show-user-task-dialog/show-user-task-dialog.component";
-import { AddUpdateNodeDialogComponent } from "../../../map/add-update-node-dialog/add-update-node-dialog.component";
-import { AddUpdateGroupDialogComponent } from "../../../map/add-update-group-dialog/add-update-group-dialog.component";
-import { AddUpdateDomainDialogComponent } from "../../../map/add-update-domain-dialog/add-update-domain-dialog.component";
-import { UpdateDomainUserDialogComponent } from "../../../map/info-panel/info-panel-domain/update-domain-user-dialog/update-domain-user-dialog.component";
-import { AddUpdateInterfaceDialogComponent } from "../../../map/add-update-interface-dialog/add-update-interface-dialog.component";
-
 @Injectable({
   providedIn: 'root'
 })
@@ -66,6 +58,7 @@ export class InfoPanelService implements OnDestroy {
   }
   nodeIdsDeployed: any[] = [];
   portGroupIdsDeployed: any[] = [];
+  interfaceIds: any[] = [];
 
   constructor(
     private store: Store,
@@ -108,106 +101,6 @@ export class InfoPanelService implements OnDestroy {
     this.selectVMStatus$.unsubscribe();
     this.selectIsConnect$.unsubscribe();
     this.selectPortGroupsManagement$.unsubscribe();
-  }
-
-  viewInfoPanel(tabName: string, id: any) {
-    switch (tabName) {
-      case 'domain':
-        this.domainService.get(id).subscribe(domainData => {
-          const dialogData = {
-            mode: 'view',
-            genData: domainData.result
-          };
-          this.dialog.open(AddUpdateDomainDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-        });
-        break;
-      case 'group':
-        this.groupService.get(id).subscribe(groupData => {
-          const dialogData = {
-            mode: 'view',
-            genData: groupData.result,
-            collection_id: groupData.result.collection_id,
-            map_category: 'logical'
-          };
-          this.dialog.open(AddUpdateGroupDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-        });
-        break;
-      case 'userTask':
-        this.userTaskService.get(id).subscribe(userTaskData => {
-          const dialogData = {
-            mode: 'postTask',
-            genData: userTaskData.result
-          };
-          this.dialog.open(ShowUserTaskDialogComponent, {
-            width: `${screen.width}px`,
-            autoFocus: false,
-            data: dialogData
-          });
-        });
-        break;
-      case 'edge':
-      case 'edgeManagement':
-        this.interfaceService.get(id).subscribe(interfaceData => {
-          const dialogData = {
-            mode: 'view',
-            genData: interfaceData.result,
-          };
-          this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-        });
-        break;
-      case 'portGroup':
-      case 'portGroupManagement':
-        this.portGroupService.get(id).subscribe(pgData => {
-          const dialogData = {
-            mode: 'view',
-            genData: pgData.result,
-          };
-          this.dialog.open(AddUpdatePGDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-        });
-        break;
-      case 'node':
-        this.nodeService.get(id).subscribe(nodeData => {
-          const dialogData = {
-            mode: 'view',
-            genData: nodeData.result,
-          }
-          this.dialog.open(AddUpdateNodeDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-        });
-        break;
-      case 'domainUser':
-        this.domainUserService.get(id).subscribe(domainUserData => {
-          this.domainService.get(domainUserData.result.domain_id).subscribe(domainData => {
-            const dialogData = {
-              genData: domainUserData.result,
-              domain: domainData.result,
-              mode: 'view'
-            };
-            this.dialog.open(UpdateDomainUserDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-          }
-          )
-        });
-        break;
-      default:
-        this.toastr.warning('Please select an item before opening', 'Warning');
-    }
-  }
-
-  openEditInfoPanelForm(cy: any, tabName: string, id: any, ids: any[] = []) {
-    switch (tabName) {
-      case 'group':
-        this.groupService.get(id).subscribe(groupData => {
-          const dialogData = {
-            mode: 'update',
-            genData: groupData.result,
-            collection_id: groupData.result.collection_id,
-            map_category: 'logical'
-          };
-          this.dialog.open(AddUpdateGroupDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-        })
-        break;
-      default:
-        this.toastr.info('The info panel doesn\'t open yet');
-    }
   }
 
   deleteInfoPanelAssociateMap(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[],
@@ -748,9 +641,9 @@ export class InfoPanelService implements OnDestroy {
   updateInterfaceIPBasedOnPGId(portGroupIds: any) {
     portGroupIds.map((portGroupId: any) => {
       this.interfaceService.getByPortGroup(portGroupId).subscribe(response => {
-        const interfaceIds = response.ids;
-        if (interfaceIds && interfaceIds.length > 0) {
-          this.interfaceService.randomizeIpBulk({ pks: interfaceIds }).pipe(
+        this.checkIpAlocation(response.result)
+        if (this.interfaceIds.length > 0) {
+          this.interfaceService.randomizeIpBulk({ pks: this.interfaceIds }).pipe(
             catchError((error: any) => {
               this.toastr.error(error.error.message);
               return throwError(error.error.message);
@@ -775,32 +668,47 @@ export class InfoPanelService implements OnDestroy {
     })
   }
 
-  randomizeIpInterfaces(interfaceIds: any) {
-    this.interfaceService.randomizeIpBulk({ pks: interfaceIds }).pipe(
-      catchError((error: any) => {
-        this.toastr.error(error.error.message);
-        return throwError(() => error.error.message);
-      })
-    ).subscribe(response => {
-      const data = response.result;
-      data.map((ele: any) => {
-        const element = this.cy.getElementById(ele.id);
-        const ip_str = ele.ip ? ele.ip : "";
-        const ip = ip_str.split(".");
-        const last_octet = ip.length == 4 ? "." + ip[3] : "";
-        element.data('ip', ip_str);
-        element.data('ip_last_octet', last_octet);
-      })
-      response.message.map((message: string) => {
-        this.toastr.success(message);
-      });
-      this.store.dispatch(retrievedMapSelection({ data: true }));
-      this.store.select(selectInterfaces).subscribe(interfaces => {
-        const interfaceIds = interfaces.map((ele: any) => ele.data.id);
-        this.interfaceService.getDataByPks({ pks: interfaceIds }).subscribe(response => {
-          this.store.dispatch(retrievedInterfacesByIds({ data: response.result }));
+  randomizeIpInterfaces(listInterfaces: any) {
+    this.checkIpAlocation(listInterfaces)
+    if (this.interfaceIds.length > 0) {
+      this.interfaceService.randomizeIpBulk({ pks: this.interfaceIds }).pipe(
+        catchError((error: any) => {
+          this.toastr.error(error.error.message);
+          return throwError(() => error.error.message);
         })
-      })
+      ).subscribe(response => {
+        const data = response.result;
+        data.map((ele: any) => {
+          const element = this.cy.getElementById(ele.id);
+          const ip_str = ele.ip ? ele.ip : "";
+          const ip = ip_str.split(".");
+          const last_octet = ip.length == 4 ? "." + ip[3] : "";
+          element.data('ip', ip_str);
+          element.data('ip_last_octet', last_octet);
+        })
+        response.message.map((message: string) => {
+          this.toastr.success(message);
+        });
+        this.store.dispatch(retrievedMapSelection({ data: true }));
+        this.store.select(selectInterfaces).subscribe(interfaces => {
+          const interfaceIds = interfaces.map((ele: any) => ele.data.id);
+          this.interfaceService.getDataByPks({ pks: interfaceIds }).subscribe(response => {
+            this.store.dispatch(retrievedInterfacesByIds({ data: response.result }));
+          })
+        })
+      });
+    }
+  }
+
+  checkIpAlocation(data: any) {
+    this.interfaceIds = []
+    data.forEach((val: any) => {
+      if (val.ip_allocation === 'static_manual') {
+        this.toastr.warning(`Interface ${val.name}'s IP address of “static_manual” interfaces cannot be randomized.`)
+      } else {
+        const ids = val.interface_id ? val.interface_id : val.id
+        this.interfaceIds.push(ids)
+      }
     });
   }
 }
