@@ -462,7 +462,8 @@ export class HelpersService {
       startWith(''),
       map((value: any | string) => {
         const text = typeof value === 'string' ? value.toLowerCase() : value.name;
-        return options?.filter((option: any) => option[optionColumn]?.toLowerCase().includes(text));
+        const filteredOptions =  options?.filter((option: any) => option[optionColumn]?.toLowerCase().includes(text));
+        return filteredOptions.length > 0 ? filteredOptions : options;
       }),
     );
   }
