@@ -27,15 +27,39 @@ export class ProjectComponent implements OnInit, OnDestroy {
   };
   columnDefs: ColDef[] = [
     {
-      headerName: 'No.',
       field: 'id',
-      suppressSizeToFit: true,
-      width: 60,
+      hide: true,
     },
-    { field: 'name'},
-    { field: 'description' },
-    { field: 'status' },
-    { field: 'category' }
+    {
+      field: 'name',
+      flex: 1,
+    },
+    {
+      field: 'description',
+      flex: 1,
+    },
+    {
+      headerName: 'Created By',
+      field: 'created_by',
+      flex: 1,
+    },
+    {
+      headerName: 'Created On',
+      field: 'created_on',
+      flex: 1,
+      cellRenderer: (param: any) => new Date(param.value).toLocaleString(),
+    },
+    {
+      headerName: 'Changed By',
+      field: 'changed_by',
+      flex: 1,
+    },
+    {
+      headerName: 'Changed On',
+      field: 'changed_on',
+      flex: 1,
+      cellRenderer: (param: any) => new Date(param.value).toLocaleString(),
+    }
   ];
 
   constructor(
@@ -43,9 +67,9 @@ export class ProjectComponent implements OnInit, OnDestroy {
     private store: Store
   ) {
     this.selectProjects$ = this.store.select(selectProjects)
-    .subscribe((data: any) => {
-      this.rowData$ = of(data)
-    });
+      .subscribe((data: any) => {
+        this.rowData$ = of(data)
+      });
   }
 
   ngOnInit(): void {
