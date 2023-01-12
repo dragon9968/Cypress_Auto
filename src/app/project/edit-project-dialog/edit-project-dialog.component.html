@@ -1,78 +1,84 @@
 <form [formGroup]="editProjectForm">
-    <h1 mat-dialog-title>Edit Project</h1>
-    <!-- <div mat-dialog-content> -->
-        <div class="name-section">
-            <div class="section-sub">
-              <mat-form-field class="fields">
-                  <mat-label>Name</mat-label>
-                  <input type="text" formControlName="nameCtr" matInput required>
-                  <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-                  <mat-error *ngIf="nameCtr?.errors?.minlength || nameCtr?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH_50 }}</mat-error>
-                  <mat-error *ngIf="nameCtr?.errors?.isExist">{{ errorMessages.NAME_EXISTS }}</mat-error>
-                </mat-form-field>
-              <mat-form-field class="fields">
-                  <mat-label>Description</mat-label>
-                  <input formControlName="descriptionCtr" type="text" matInput>
-              </mat-form-field>
-              <div [hidden]="true">
-                <mat-form-field class="fields">
-                    <mat-label>Shared</mat-label>
-                    <mat-chip-list #chipList aria-label="Shared selection">
-                        <mat-chip *ngFor="let option of listShared" (removed)="remove(option)">
-                            {{ option.first_name }} {{ option.last_name }}
-                            <button matChipRemove>
-                        <mat-icon>cancel</mat-icon>
-                    </button>
-                        </mat-chip>
-                        <input matInput type="text" placeholder="Select Value" [formControl]="sharedCtr" [matAutocomplete]="autoOption" [matChipInputFor]="chipList">
-                    </mat-chip-list>
-                    <mat-autocomplete #autoOption="matAutocomplete" [displayWith]="helpers.optionDisplay" (optionSelected)="selectShared($event)">
-                        <mat-option *ngFor="let option of listUser" [value]="option">
-                            <span>{{ option.first_name }} {{ option.last_name }}</span>
-                        </mat-option>
-                    </mat-autocomplete>
-                </mat-form-field>
-              </div>
-            </div>
-            <div class="section-sub">
-              <mat-form-field class="fields">
-                  <mat-label>Min VLAN</mat-label>
-                  <input formControlName="minVlanCtr" type="number" (keypress)="numericOnly($event)" matInput>
-                  <mat-error *ngIf="minVlanCtr?.hasError('min') || minVlanCtr?.hasError('max') || minVlanCtr?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_1_4093 }}</mat-error>
-              </mat-form-field>
-              <mat-form-field class="fields">
-                  <mat-label>Max VLAN</mat-label>
-                  <input formControlName="maxVlanCtr" type="number" (keypress)="numericOnly($event)" matInput>
-                  <mat-error *ngIf="maxVlanCtr?.hasError('min') || maxVlanCtr?.hasError('max') || maxVlanCtr?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_2_4094 }}</mat-error>
-              </mat-form-field>
-            </div>
-        </div>
-        <div class="networks-section">
-          <label class="networks-label">Networks:</label>
-        </div>
-        <div class="networks-section">
-          <div class="add-button">
-            <button mat-button mat-mini-fab type="button" color="primary" (click)="addNetwork()">
-              <mat-icon>add</mat-icon>
-            </button>
-          </div>
-          <ag-grid-angular class="ag-theme-alpine networks-table" 
-            [pagination]="true" [paginationPageSize]="25" 
-            [columnDefs]="columnDefs" 
-            [defaultColDef]="defaultColDef" 
-            [rowData]="rowData" 
-            [tooltipShowDelay]="0"
-            [tooltipHideDelay]="3000"
-            rowSelection="multiple"
-            (gridReady)="onGridReady($event)"
-            >
-          </ag-grid-angular>
-        </div>
-    <!-- </div> -->
-    <div class="create-btn">
-      <div mat-dialog-actions [align]="'end'">
-        <button mat-raised-button type="button" (click)="cancelProject()">Cancel</button>
-        <button mat-raised-button color="primary" [disabled]="!editProjectForm.valid" (click)="updateProject()">Update</button>
+  <h1 mat-dialog-title>Edit Project</h1>
+  <!-- <div mat-dialog-content> -->
+  <div class="name-section">
+    <div class="section-sub">
+      <mat-form-field class="fields">
+        <mat-label>Name</mat-label>
+        <input type="text" formControlName="nameCtr" matInput required>
+        <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+        <mat-error *ngIf="nameCtr?.errors?.minlength || nameCtr?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH_50
+          }}</mat-error>
+        <mat-error *ngIf="nameCtr?.errors?.isExist">{{ errorMessages.NAME_EXISTS }}</mat-error>
+      </mat-form-field>
+      <mat-form-field class="fields">
+        <mat-label>Description</mat-label>
+        <input formControlName="descriptionCtr" type="text" matInput>
+      </mat-form-field>
+      <div [hidden]="categoryCtr?.value != 'project'">
+        <mat-form-field class="fields">
+          <mat-label>Shared</mat-label>
+          <mat-chip-list #chipList aria-label="Shared selection">
+            <mat-chip *ngFor="let option of listShared" (removed)="remove(option)">
+              {{ option.first_name }} {{ option.last_name }}
+              <button matChipRemove>
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip>
+            <input matInput type="text" placeholder="Select Value" [formControl]="sharedCtr"
+              [matAutocomplete]="autoOption" [matChipInputFor]="chipList">
+          </mat-chip-list>
+          <mat-autocomplete #autoOption="matAutocomplete" [displayWith]="helpers.optionDisplay"
+            (optionSelected)="selectShared($event)">
+            <mat-option *ngFor="let option of listUser" [value]="option">
+              <span>{{ option.first_name }} {{ option.last_name }}</span>
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
       </div>
     </div>
+    <div class="section-sub">
+      <mat-form-field class="fields">
+        <mat-label>Min VLAN</mat-label>
+        <input formControlName="minVlanCtr" type="number" (keypress)="numericOnly($event)" matInput>
+        <mat-error *ngIf="minVlanCtr?.hasError('min') || minVlanCtr?.hasError('max') || minVlanCtr?.errors?.required">{{
+          errorMessages.MIN_MAX_VALUE_1_4093 }}</mat-error>
+      </mat-form-field>
+      <mat-form-field class="fields">
+        <mat-label>Max VLAN</mat-label>
+        <input formControlName="maxVlanCtr" type="number" (keypress)="numericOnly($event)" matInput>
+        <mat-error *ngIf="maxVlanCtr?.hasError('min') || maxVlanCtr?.hasError('max') || maxVlanCtr?.errors?.required">{{
+          errorMessages.MIN_MAX_VALUE_2_4094 }}</mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+  <div class="category">
+    <label class="category-label">Category:</label>
+    <mat-radio-group class="category-group" formControlName="categoryCtr" (change)="changeCategory($event)">
+      <mat-radio-button class="category-items" value="project">Project</mat-radio-button>
+      <mat-radio-button class="category-items" value="template">Template</mat-radio-button>
+    </mat-radio-group>
+  </div>
+  <div class="networks-section">
+    <label class="networks-label">Networks:</label>
+  </div>
+  <div class="networks-section">
+    <div class="add-button">
+      <button mat-button mat-mini-fab type="button" color="primary" (click)="addNetwork()">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+    <ag-grid-angular class="ag-theme-alpine networks-table" [pagination]="true" [paginationPageSize]="25"
+      [columnDefs]="columnDefs" [defaultColDef]="defaultColDef" [rowData]="rowData" [tooltipShowDelay]="0"
+      [tooltipHideDelay]="3000" rowSelection="multiple" (gridReady)="onGridReady($event)">
+    </ag-grid-angular>
+  </div>
+  <!-- </div> -->
+  <div class="create-btn">
+    <div mat-dialog-actions [align]="'end'">
+      <button mat-raised-button type="button" (click)="cancelProject()">Cancel</button>
+      <button mat-raised-button color="primary" [disabled]="!editProjectForm.valid"
+        (click)="updateProject()">Update</button>
+    </div>
+  </div>
 </form>

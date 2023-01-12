@@ -683,9 +683,9 @@ export class HelpersService {
 
   processIpForm(data: string) {
     let arr: any[] = [];
-    if (data.length == 0) {
+    if (data?.length == 0) {
       arr = []
-    } else if (data.length > 1) {
+    } else if (data?.length > 1) {
       const value = data.split(',');
       for (let i = 0; i < value.length; i++) {
         arr.push({
