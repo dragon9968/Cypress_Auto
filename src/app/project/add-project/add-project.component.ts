@@ -6,8 +6,8 @@ import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { Router } from '@angular/router';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { ProjectService } from 'src/app/project/services/project.service';
-import { selectProjects } from 'src/app/store/project/project.selectors';
-import { retrievedProjects } from 'src/app/store/project/project.actions';
+import { selectProjects, selectProjectTemplate } from 'src/app/store/project/project.selectors';
+import { retrievedProjects, retrievedProjectsTemplate } from 'src/app/store/project/project.actions';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -19,6 +19,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { selectAppPref } from 'src/app/store/app-pref/app-pref.selectors';
 import { retrievedAppPref } from 'src/app/store/app-pref/app-pref.actions';
+import { ProjectTemplateService } from 'src/app/core/services/project-template/project-template.service';
+import { MatRadioChange } from '@angular/material/radio';
 
 @Component({
   selector: 'app-add-project',
@@ -35,9 +37,15 @@ export class AddProjectComponent implements OnInit {
   routeSegments = RouteSegments;
   errorMessages = ErrorMessages;
   selectProjects$ = new Subscription();
+  selectProjectTemplate$ = new Subscription();
   nameProject!: any[];
+  projectTemplate!: any[];
   rowData!: any[];
+  checked = false;
   isDisableButton = false;
+  isHiddenNetwork = false;
+  isHiddenTemplate = false;
+  isHiddenOption = true;
   appPrefDefault!: any[];
 
   defaultColDef: ColDef = {
@@ -88,10 +96,15 @@ export class AddProjectComponent implements OnInit {
     private router: Router,
     private appPrefService: AppPrefService,
     private dialog: MatDialog,
-    private helpers: HelpersService
+    private helpers: HelpersService,
+    private projectTemplateService: ProjectTemplateService,
   ) {
     this.selectProjects$ = this.store.select(selectProjects).subscribe(nameProject => {
       this.nameProject = nameProject;
+    })
+
+    this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(templateData => {
+      this.projectTemplate = templateData;
     })
     this.selectAppPref$ = this.store.select(selectAppPref).subscribe((data: any)=> {
       if (data) {
@@ -117,77 +130,68 @@ export class AddProjectComponent implements OnInit {
 
   ngOnInit(): void {
     this.projectForm = this.formBuilder.group({
-      name : ['',
-        [Validators.required,
-        Validators.minLength(3),
-        Validators.maxLength(50),
-        validateNameExist(() => this.nameProject, 'add', undefined)]],
+      name : ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50), validateNameExist(() => this.nameProject, 'add', undefined)]],
       description: [''],
+      category: ['project'],
       target : ['VMWare vCenter'],
       option: [''],
-      enclave_number: [ 1,
-        [Validators.min(1),
-        Validators.max(100),
-        Validators.required,
-        ]],
-      enclave_clients: [ 3,
-        [Validators.min(0),
-        Validators.max(100),
-        Validators.required,
-        ]],
-      enclave_servers: [ 2,
-        [Validators.min(0),
-        Validators.max(100),
-        Validators.required,
-        ]],
-      enclave_users: [ 5,
-        [Validators.min(0),
-        Validators.max(100),
-        Validators.required,
-        ]],
-      vlan_min: [ 2000,
-        [Validators.min(1),
-        Validators.max(4093),
-        Validators.required
-        ]],
-      vlan_max: [ 2100,
-        [Validators.min(2),
-        Validators.max(4094),
-        Validators.required,
-        ]]
+      layoutOnly: [false],
+      template: [''],
+      enclave_number: [1, [Validators.min(1), Validators.max(100), Validators.required]],
+      enclave_clients: [3, [Validators.min(0), Validators.max(100), Validators.required]],
+      enclave_servers: [2, [Validators.min(0), Validators.max(100), Validators.required]],
+      enclave_users: [5, [Validators.min(0), Validators.max(100), Validators.required]],
+      vlan_min: [2000, [Validators.min(1), Validators.max(4093), Validators.required]],
+      vlan_max: [2100, [Validators.min(2), Validators.max(4094), Validators.required]]
     })
     this.projectService.getProjectByStatus('active').subscribe(data => {
       this.store.dispatch(retrievedProjects({data: data.result}));
     })
     this.appPrefService.get("2").subscribe((data: any) => this.store.dispatch(retrievedAppPref({ data: data.result })));
+    this.projectService.getProjectByCategory('template').subscribe((data: any) => this.store.dispatch(retrievedProjectsTemplate({ template: data.result })));
   }
 
-  get name() {
-    return this.projectForm.get('name');
+  get name() { return this.projectForm.get('name'); }
+  get description() { return this.projectForm.get('description'); }
+  get category() { return this.projectForm.get('category'); }
+  get target() { return this.projectForm.get('target'); }
+  get option() { return this.projectForm.get('option'); }
+  get layoutOnly() { return this.projectForm.get('layoutOnly'); }
+  get template() { return this.projectForm.get('template'); }
+  get enclave_number() { return this.projectForm.get('enclave_number'); }
+  get enclave_clients() { return this.projectForm.get('enclave_clients'); }
+  get enclave_servers() { return this.projectForm.get('enclave_servers'); }
+  get enclave_users() { return this.projectForm.get('enclave_users'); }
+  get vlan_min() { return this.projectForm.get('vlan_min'); }
+  get vlan_max() { return this.projectForm.get('vlan_max'); }
+
+  selectLayout(event: any) {
+    if (event.checked) {
+      this.isHiddenNetwork = false
+    } else {
+      this.isHiddenNetwork = true
+    }
   }
 
-  get description() { return this.projectForm.get('description');}
-  get target() { return this.projectForm.get('target');}
-  get option() { return this.projectForm.get('option');}
-
-  get enclave_number() {
-    return this.projectForm.get('enclave_number');
-  }
-
-  get enclave_clients() {
-    return this.projectForm.get('enclave_clients');
-  }
-  get enclave_servers() {
-    return this.projectForm.get('enclave_servers');
-  }
-  get enclave_users() {
-    return this.projectForm.get('enclave_users');
-  }
-  get vlan_min() {
-    return this.projectForm.get('vlan_min');
-  }
-  get vlan_max() {
-    return this.projectForm.get('vlan_max');
+  onOptionChange(event: MatRadioChange) {
+    if (event.value === 'blank') {
+      this.isHiddenTemplate = false
+      this.isHiddenOption = true
+      this.isHiddenNetwork = false
+      this.checked = false
+    } else if (event.value === 'template') {
+      this.isHiddenTemplate = true
+      this.isHiddenOption = true
+      if (!this.checked) {
+        this.isHiddenNetwork = true
+      }
+      this.checked = false
+    } else {
+      this.isHiddenOption = false
+      this.checked = false
+      this.isHiddenTemplate = false
+      this.isHiddenNetwork = false
+    }
   }
 
   addProject() {
@@ -203,8 +207,11 @@ export class AddProjectComponent implements OnInit {
       const jsonData = {
         name: this.name?.value,
         description: this.description?.value,
+        category: this.category?.value,
         target: this.target?.value,
         option: this.option?.value,
+        layout_only: this.layoutOnly?.value,
+        template_id: this.template?.value,
         enclave_number: this.enclave_number?.value,
         enclave_clients: this.enclave_clients?.value,
         enclave_servers: this.enclave_servers?.value,

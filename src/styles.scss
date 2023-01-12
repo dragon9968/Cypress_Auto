@@ -57,6 +57,14 @@ ag-grid-angular .ag-cell-focus,
     right: 0;
 }
 
+.field-checkbox {
+  padding-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Roboto', sans-serif;
+}
+
 
 /* Transparent Overlay */
 

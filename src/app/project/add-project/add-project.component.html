@@ -19,6 +19,17 @@
               <mat-label>Description</mat-label>
               <input formControlName="description" type="text" matInput>
             </mat-form-field>
+            <div class="form-option">
+              <section class="category-option">
+                <div class="lable-option">
+                  <label>Category:</label>
+                </div>
+                <mat-radio-group color="primary" formControlName="category">
+                  <mat-radio-button class="margin-button" value="project">Project</mat-radio-button>
+                  <mat-radio-button class="margin-button" value="template">Template</mat-radio-button>
+                </mat-radio-group>
+              </section>
+            </div>
           </mat-card-content>
         </mat-card>
         <mat-card class="build-options-group">
@@ -34,17 +45,33 @@
               </mat-select>
             </mat-form-field>
             <div class="form-option">
-              <section class="section-option">
+              <section class="build-option category">
                 <div class="lable-option">
                   <label>Option:</label>
                 </div>
-                <mat-radio-group formControlName="option" [(ngModel)]="labelPosition" >
-                  <mat-radio-button class="margin-button" value="blank">Blank Project</mat-radio-button>
-                  <mat-radio-button class="margin-button" value="random">Random Project</mat-radio-button>
+                <mat-radio-group color="primary" formControlName="option" [(ngModel)]="labelPosition" (change)="onOptionChange($event)">
+                  <mat-radio-button class="margin-button" value="blank">Blank</mat-radio-button>
+                  <mat-radio-button class="margin-button" value="random">Random</mat-radio-button>
+                  <mat-radio-button class="margin-button" value="template">Template</mat-radio-button>
                 </mat-radio-group>
               </section>
             </div>
-            <div [hidden]="labelPosition === 'blank'" class="random-container">
+            <div class="form-option" [hidden]="labelPosition !== 'template'">
+              <div class="field-checkbox">
+                <label class="randomize-label">Layout Only</label>
+                <mat-checkbox color="primary" formControlName="layoutOnly" [(ngModel)]="checked" (change)="selectLayout($event)"></mat-checkbox>
+              </div>
+            </div>
+            <div [hidden]="!isHiddenTemplate" class="random-container">
+              <mat-form-field class="field" appearance="outline">
+                <mat-label>Template</mat-label>
+                <mat-select formControlName="template">
+                  <mat-option *ngFor="let option of projectTemplate" [value]="option.id">{{ option.name }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div [hidden]="isHiddenOption" class="random-container">
               <mat-form-field class="field" appearance="outline">
                 <mat-label>Number of Enclaves</mat-label>
                 <input type="number" formControlName="enclave_number" (keypress)="numericOnly($event)" matInput>
@@ -71,39 +98,41 @@
             </div>
           </mat-card-content>
         </mat-card>
-        <mat-card class="network-configuration-group">
-          <mat-card-header>
-            <mat-card-title>Network Configuration</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <mat-form-field class="field" appearance="outline">
-              <mat-label>Min VLAN</mat-label>
-              <input formControlName="vlan_min" type="number" (keypress)="numericOnly($event)" matInput>
-              <mat-error *ngIf="vlan_min?.hasError('min') || vlan_min?.hasError('max') || vlan_min?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_1_4093 }}</mat-error>
-            </mat-form-field>
-            <mat-form-field class="field" appearance="outline">
-              <mat-label>Max VLAN</mat-label>
-              <input formControlName="vlan_max" type="number" (keypress)="numericOnly($event)" matInput>
-              <mat-error *ngIf="vlan_max?.hasError('min') || vlan_max?.hasError('max') || vlan_max?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_2_4094 }}</mat-error>
-            </mat-form-field>
-            <div class="add-button">
-              <button mat-button mat-mini-fab type="button" color="primary" (click)="addNetwork()">
-                <mat-icon>add</mat-icon>
-              </button>
-            </div>
-            <ag-grid-angular class="ag-theme-alpine networks-table" 
-            [pagination]="true" [paginationPageSize]="25" 
-            [columnDefs]="columnDefs" 
-            [defaultColDef]="defaultColDef" 
-            [rowData]="rowData" 
-            [tooltipShowDelay]="0"
-            [tooltipHideDelay]="3000"
-            rowSelection="multiple"
-            (gridReady)="onGridReady($event)"
-            >
-          </ag-grid-angular>
-          </mat-card-content>
-        </mat-card>
+        <div [hidden]="isHiddenNetwork">
+          <mat-card class="network-configuration-group">
+            <mat-card-header>
+              <mat-card-title>Network Configuration</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <mat-form-field class="field" appearance="outline">
+                <mat-label>Min VLAN</mat-label>
+                <input formControlName="vlan_min" type="number" (keypress)="numericOnly($event)" matInput>
+                <mat-error *ngIf="vlan_min?.hasError('min') || vlan_min?.hasError('max') || vlan_min?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_1_4093 }}</mat-error>
+              </mat-form-field>
+              <mat-form-field class="field" appearance="outline">
+                <mat-label>Max VLAN</mat-label>
+                <input formControlName="vlan_max" type="number" (keypress)="numericOnly($event)" matInput>
+                <mat-error *ngIf="vlan_max?.hasError('min') || vlan_max?.hasError('max') || vlan_max?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_2_4094 }}</mat-error>
+              </mat-form-field>
+              <div class="add-button">
+                <button mat-button mat-mini-fab type="button" color="primary" (click)="addNetwork()">
+                  <mat-icon>add</mat-icon>
+                </button>
+              </div>
+              <ag-grid-angular class="ag-theme-alpine networks-table" 
+              [pagination]="true" [paginationPageSize]="25" 
+              [columnDefs]="columnDefs" 
+              [defaultColDef]="defaultColDef" 
+              [rowData]="rowData" 
+              [tooltipShowDelay]="0"
+              [tooltipHideDelay]="3000"
+              rowSelection="multiple"
+              (gridReady)="onGridReady($event)"
+              >
+            </ag-grid-angular>
+            </mat-card-content>
+          </mat-card>
+        </div>
         <mat-card-actions [align]="'end'" class="create-btn">
           <button mat-raised-button (click)="cancelProject()">Cancel</button>
           <button mat-raised-button color="primary" [disabled]="!projectForm.valid" (click)="addProject()">Create</button>

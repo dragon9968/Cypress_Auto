@@ -30,4 +30,9 @@ export const retrievedRecentProjects = createAction(
   props<{ recentProjects: any }>()
 );
 
+export const retrievedProjectsTemplate = createAction(
+  'retrievedProjectsTemplate',
+  props<{ template: any }>()
+);
+
 

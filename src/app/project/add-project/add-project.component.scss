@@ -27,11 +27,19 @@ label {
   font-size: 16px;
 }
 
-.section-option {
+.category-option {
   max-width: 40%;
   display: flex;
   align-content: center;
   height: 60px;
+  padding: 20px 0 0 10px;
+}
+
+.build-option {
+  max-width: 40%;
+  display: flex;
+  align-content: center;
+  height: 90px;
   padding: 20px 0 0 10px;
 }
 
@@ -55,11 +63,21 @@ label {
   margin-bottom: $margin;
 }
 
-.info-group, .build-options-group, .network-configuration-group {
+.info-group, .build-options-group, .network-configuration-group, .category-group {
   margin-bottom: $margin;
 }
 
 .networks-table {
   padding-top: 10px;
   height: 250px;
+}
+
+.field-checkbox {
+  justify-content: flex-start;
+  margin-bottom: $margin;
+  padding-left: 10px;
+}
+
+.randomize-label {
+  padding-right: 23px;
 }

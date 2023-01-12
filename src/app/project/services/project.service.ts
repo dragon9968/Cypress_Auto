@@ -33,6 +33,14 @@ export class ProjectService {
     });
   }
 
+  getProjectByCategory(category: string) : Observable<any> {
+    return this.http.get<any>(ApiPaths.PROJECTS, {
+      params: {
+        q: '(filters:!((col:category,opr:eq,value:' + category + ')),keys:!(list_columns),page:0,page_size:1000)'
+      }
+    });
+  }
+
   get(id: number): Observable<any> {
     return this.http.get<any>(ApiPaths.PROJECTS + id);
   }
