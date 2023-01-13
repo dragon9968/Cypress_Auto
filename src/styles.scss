@@ -125,6 +125,7 @@ ag-grid-angular .ag-cell-focus,
   // Table nav
   &__nav {
     display: flex;
+    height: 50px;
     justify-content: space-between;
     padding-bottom: $margin;
 
@@ -176,5 +177,15 @@ ag-grid-angular .ag-cell-focus,
     }
   }
 
+  &__content_open ag-grid-angular {
+    height: calc(100vh - 290px);
+    text-align: center;
+    .ag-header-cell-label {
+      justify-content: center;
+    }
+    .ag-cell-wrap-text {
+      word-break: break-word;
+    }
+  }
 }
 /* END TABLE STYLE COMMON */

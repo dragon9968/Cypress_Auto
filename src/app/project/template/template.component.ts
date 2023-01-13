@@ -126,6 +126,16 @@ export class TemplateComponent implements OnInit {
     }
   }
 
+  onRowDoubleClicked() {
+    const collectionIdSelected = this.gridApi.getSelectedRows()[0]["id"];
+    this.projectService.openProject(collectionIdSelected);
+  }
+
+  openProject() {
+    const collectionIdSelected = this.gridApi.getSelectedRows()[0]["id"];
+    this.projectService.openProject(collectionIdSelected);
+  }
+
   editTemplate() {
     if (this.rowsSelectedId.length === 0) {
       this.toastr.info('No row selected');
@@ -202,5 +212,4 @@ export class TemplateComponent implements OnInit {
     this.rowsSelected = [];
     this.rowsSelectedId = [];
   }
-
 }

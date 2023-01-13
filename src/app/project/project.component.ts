@@ -14,6 +14,7 @@ import { retrievedProjects } from '../store/project/project.actions';
 })
 export class ProjectComponent implements OnInit, OnDestroy {
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
+  quickFilterValue = '';
   id: any;
   category: any;
   status = 'active';
@@ -103,4 +104,9 @@ export class ProjectComponent implements OnInit, OnDestroy {
     const collectionIdSelected = this.gridApi.getSelectedRows()[0]["id"];
     this.projectService.openProject(collectionIdSelected);
   }
+
+  onQuickFilterInput(event: any) {
+    this.gridApi.setQuickFilter(event.target.value);
+  }
+
 }
