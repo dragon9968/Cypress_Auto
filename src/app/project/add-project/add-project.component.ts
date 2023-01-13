@@ -42,6 +42,7 @@ export class AddProjectComponent implements OnInit {
   projectTemplate!: any[];
   rowData!: any[];
   checked = false;
+  status = 'active';
   isDisableButton = false;
   isHiddenNetwork = false;
   isHiddenTemplate = false;
@@ -144,11 +145,11 @@ export class AddProjectComponent implements OnInit {
       vlan_min: [2000, [Validators.min(1), Validators.max(4093), Validators.required]],
       vlan_max: [2100, [Validators.min(2), Validators.max(4094), Validators.required]]
     })
-    this.projectService.getProjectByStatus('active').subscribe(data => {
+    this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe(data => {
       this.store.dispatch(retrievedProjects({data: data.result}));
     })
     this.appPrefService.get("2").subscribe((data: any) => this.store.dispatch(retrievedAppPref({ data: data.result })));
-    this.projectService.getProjectByCategory('template').subscribe((data: any) => this.store.dispatch(retrievedProjectsTemplate({ template: data.result })));
+    this.projectService.getProjectByStatusAndCategory(this.status, 'template').subscribe((data: any) => this.store.dispatch(retrievedProjectsTemplate({ template: data.result })));
   }
 
   get name() { return this.projectForm.get('name'); }
@@ -227,7 +228,11 @@ export class AddProjectComponent implements OnInit {
         })
         ).subscribe(rest =>{
           this.toastr.success(`Created Project ${rest.result.name} successfully`);
-          this.router.navigate([RouteSegments.PROJECTS]);
+          if (this.category?.value === 'project') {
+            this.router.navigate([RouteSegments.PROJECTS]);
+          } else {
+            this.router.navigate([RouteSegments.TEMPLATES]);
+          }
       });
     } else {
       this.toastr.warning('Category and network fields are required.')

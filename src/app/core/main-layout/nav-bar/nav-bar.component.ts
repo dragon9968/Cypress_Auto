@@ -165,11 +165,12 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   editProject() {
-    this.projectService.getProjectByStatus('active').subscribe(data => {
+    this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe(data => {
       this.store.dispatch(retrievedProjects({data: data.result}));
       this.projectService.get(this.collectionId).subscribe(resp => {
         const dialogData = {
           mode: 'update',
+          category: 'project',
           genData: resp.result
         }
         const dialogRef = this.dialog.open(EditProjectDialogComponent, {
@@ -199,7 +200,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
             this.toastr.success(`Delete Project successfully`);
             this.projectService.closeProject();
             this.store.dispatch(retrievedIsOpen({ data: false }));
-            this.projectService.getProjectByStatus(this.status).subscribe(
+            this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe(
               (data: any) => this.store.dispatch(retrievedProjects({ data: data.result }))
             );
             this.router.navigate([RouteSegments.PROJECTS]);
@@ -245,7 +246,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
         this.projectService.cloneProject(jsonData).subscribe({
           next: (rest) => {
             this.toastr.success(`Clone Project successfully`);
-            this.projectService.getProjectByStatus('active').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
+            this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
             this.router.navigate([RouteSegments.PROJECTS]);
           },
           error: (error) => {

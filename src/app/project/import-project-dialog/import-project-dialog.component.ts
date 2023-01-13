@@ -46,7 +46,7 @@ export class ImportProjectDialogComponent implements OnInit {
           this.toastr.success(`Import project successfully`);
           this.dialogRef.close();
           this.router.navigate([RouteSegments.PROJECTS]);
-          this.projectService.getProjectByStatus('active').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
+          this.projectService.getProjectByStatusAndCategory('active', 'project').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
           this.isLoading = false;
           },
         error:(err) => {

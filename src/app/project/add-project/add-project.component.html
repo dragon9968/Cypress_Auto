@@ -49,7 +49,7 @@
                 <div class="lable-option">
                   <label>Option:</label>
                 </div>
-                <mat-radio-group color="primary" formControlName="option" [(ngModel)]="labelPosition" (change)="onOptionChange($event)">
+                <mat-radio-group class="content-option" color="primary" formControlName="option" [(ngModel)]="labelPosition" (change)="onOptionChange($event)">
                   <mat-radio-button class="margin-button" value="blank">Blank</mat-radio-button>
                   <mat-radio-button class="margin-button" value="random">Random</mat-radio-button>
                   <mat-radio-button class="margin-button" value="template">Template</mat-radio-button>

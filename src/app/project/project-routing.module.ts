@@ -6,6 +6,7 @@ import { PermissionLevels } from 'src/app/core/enums/permission-levels.enum';
 import { PageNotFoundComponent } from '../core/page-not-found/page-not-found.component';
 import { AddProjectComponent } from 'src/app/project/add-project/add-project.component';
 import { TrashBinProjectComponent } from './trash-bin-project/trash-bin-project.component';
+import { TemplateComponent } from './template/template.component';
 
 const routes: AppRoute[] = [
   {
@@ -25,6 +26,13 @@ const routes: AppRoute[] = [
       {
         path: 'trash',
         component: TrashBinProjectComponent,
+        data: {
+          permissionLevel: PermissionLevels.USER,
+        }
+      },
+      {
+        path: 'templates',
+        component: TemplateComponent,
         data: {
           permissionLevel: PermissionLevels.USER,
         }

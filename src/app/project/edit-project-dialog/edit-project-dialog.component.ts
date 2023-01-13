@@ -19,7 +19,7 @@ import {
 import { ButtonRenderersComponent } from '../renderers/button-renderers-component';
 import { ProjectService } from '../services/project.service';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
-import { selectProjects, selectRecentProjects } from 'src/app/store/project/project.selectors';
+import { selectProjects, selectProjectTemplate, selectRecentProjects } from 'src/app/store/project/project.selectors';
 import { MatRadioChange } from '@angular/material/radio';
 import { selectUserProfile } from 'src/app/store/user-profile/user-profile.selectors';
 
@@ -35,10 +35,12 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
   errorMessages = ErrorMessages;
   selectProjects$ = new Subscription();
   selectRecentProjects$ = new Subscription();
+  selectProjectTemplate$ = new Subscription();
   selectUser$ = new Subscription();
   currentUser: any = {};
   recentProjects: any[] = [];
   listProjects!: any[];
+  listTemplates!: any[];
   isDisableButton = false;
   rowData!: any[];
   listUser!: any[];
@@ -114,9 +116,16 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
         });
       }
     })
-    this.selectProjects$ = this.store.select(selectProjects).subscribe(projects => {
-      this.listProjects = projects;
-    })
+    if (this.data.category === 'project') {
+      this.selectProjects$ = this.store.select(selectProjects).subscribe(projects => {
+        this.listProjects = projects;
+      });
+    } else {
+      this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(templateData => {
+        this.listProjects = templateData;
+      });
+    }
+
     this.editProjectForm = new FormGroup({
       nameCtr: new FormControl('', [Validators.required,
       Validators.minLength(3),
@@ -220,7 +229,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
         }
         this.projectService.associate(configData).subscribe(respData => {
           this.toastr.success(`Update Project successfully`)
-          this.projectService.getProjectByStatus('active').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
+          this.projectService.getProjectByStatusAndCategory('active', 'project').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
         });
         this.dialogRef.close();
       });

@@ -33,10 +33,10 @@ export class ProjectService {
     });
   }
 
-  getProjectByCategory(category: string) : Observable<any> {
+  getProjectByStatusAndCategory(status: string, category: string) : Observable<any> {
     return this.http.get<any>(ApiPaths.PROJECTS, {
       params: {
-        q: '(filters:!((col:category,opr:eq,value:' + category + ')),keys:!(list_columns),page:0,page_size:1000)'
+        q: '(filters:!((col:status,opr:eq,value:' + status + '),(col:category,opr:eq,value:' + category + ')),keys:!(list_columns),page:0,page_size:1000)'
       }
     });
   }

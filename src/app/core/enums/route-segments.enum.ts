@@ -4,7 +4,7 @@ export enum RouteSegments {
   DASHBOARD = 'dashboard',
   PROJECTS = 'projects',
   DEVICES = 'devices',
-  TEMPLATES = 'templates',
+  TEMPLATES = 'projects/templates',
   REMOTE = 'remote',
   SETTINGS = 'settings',
   HELP = 'help',

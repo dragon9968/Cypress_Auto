@@ -1,5 +1,5 @@
 <form [formGroup]="editProjectForm">
-  <h1 mat-dialog-title>Edit Project</h1>
+  <h1 mat-dialog-title>{{ data.category === 'project' ? 'Edit Project': 'Edit Template'}}</h1>
   <!-- <div mat-dialog-content> -->
   <div class="name-section">
     <div class="section-sub">

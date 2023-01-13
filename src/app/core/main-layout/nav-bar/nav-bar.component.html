@@ -19,10 +19,20 @@
                 <span>Clone</span>
             </button>
         </mat-menu>
-        <button mat-menu-item [routerLink]="routeSegments.PROJECTS">
-            <mat-icon>folder_open</mat-icon>
+        <button mat-menu-item [matMenuTriggerFor]="open">
+            <mat-icon>create_new_folder</mat-icon>
             <span>Open</span>
         </button>
+        <mat-menu #open="matMenu">
+            <button mat-menu-item [routerLink]="routeSegments.PROJECTS">
+                <mat-icon>folder_open</mat-icon>
+                <span>Project</span>
+            </button>
+            <button mat-menu-item [routerLink]="routeSegments.TEMPLATES">
+                <mat-icon>folder_open</mat-icon>
+                <span>Template</span>
+            </button>
+        </mat-menu>
         <button mat-menu-item [disabled]="!isOpen" (click)="editProject()">
             <mat-icon>edit</mat-icon>
             <span>Edit</span>
