@@ -23,5 +23,6 @@ export enum ErrorMessages {
   MIN_MAX_VALUE_2_4094 = 'Valid value is between 2 and 4094',
   PASSWORD_NOT_MATCH = 'Password do not match',
   VLAN_RANGE_VALUE_0_4095 = 'Must be greater than or equal to 0 and less than or equal to 4095',
-  PDF_MD_FORMAT_FILE = 'PDF or Markdown file only!'
+  PDF_MD_FORMAT_FILE = 'PDF or Markdown file only!',
+  MAIL_INVALID = 'This email in invalid'
 }
