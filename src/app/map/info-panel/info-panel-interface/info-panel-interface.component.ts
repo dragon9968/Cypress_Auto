@@ -9,10 +9,8 @@ import { GridApi, GridOptions, GridReadyEvent, RowDoubleClickedEvent } from "ag-
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { InterfaceService } from "../../../core/services/interface/interface.service";
-import { selectInterfaces } from "../../../store/map/map.selectors";
 import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
-import { retrievedInterfacesByIds } from "../../../store/interface/interface.actions";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { AddUpdateInterfaceDialogComponent } from "../../add-update-interface-dialog/add-update-interface-dialog.component";
 import { InterfaceBulkEditDialogComponent } from "../../bulk-edit-dialog/interface-bulk-edit-dialog/interface-bulk-edit-dialog.component";

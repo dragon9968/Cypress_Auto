@@ -1,0 +1,14 @@
+$margin: 8px;
+
+.field {
+  width: 100%;
+}
+
+.edge-option {
+  height: auto;
+  padding: $margin calc($margin*2);
+  line-height: calc($margin*3);
+  &__item {
+    display: block;
+  }
+}

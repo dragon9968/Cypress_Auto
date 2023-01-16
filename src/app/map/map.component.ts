@@ -55,7 +55,7 @@ import { ProjectService } from "../project/services/project.service";
 import { retrievedVMStatus } from "../store/project/project.actions";
 import { ICON_PATH } from '../shared/contants/icon-path.constant';
 import { InfoPanelService } from '../core/services/info-panel/info-panel.service';
-import { retrievedInterfacesByIds } from "../store/interface/interface.actions";
+import { retrievedInterfaceIdConnectPG } from "../store/interface/interface.actions";
 import { retrievedMapSelection } from '../store/map-selection/map-selection.actions';
 import { selectIsConnect } from "../store/server-connect/server-connect.selectors";
 import { MapImageService } from '../core/services/map-image/map-image.service';
@@ -63,6 +63,9 @@ import { retrievedMapImages } from '../store/map-image/map-image.actions';
 import { RouteSegments } from "../core/enums/route-segments.enum";
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { retrievedMapEdit } from "../store/map-edit/map-edit.actions";
+import { CMConnectService } from "./context-menu/cm-connect/cm-connect.service";
+import { selectInterfaceIdConnectPG } from "../store/interface/interface.selectors";
+import { CMDisconnectService } from "./context-menu/cm-disconnect/cm-disconnect.service";
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -121,6 +124,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   edgePortGroup: any;
   isAddEdge: any;
   isAddTunnel: any;
+  isConnectToPG: any;
   deletedNodes: any[] = [];
   deletedInterfaces: any[] = [];
   activeNodes: any[] = [];
@@ -134,6 +138,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   connectionId = 0;
   vmStatus!: boolean;
   boxSelectedNodes = new Set();
+  interfaceIdConnectPG!: any;
   selectMap$ = new Subscription();
   selectMapPref$ = new Subscription();
   selectMapEdit$ = new Subscription();
@@ -143,6 +148,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   selectInterfaces$ = new Subscription();
   selectSearchText$ = new Subscription();
   selectIsConnect$ = new Subscription();
+  selectInterfaceIdConnectPG = new Subscription();
   selectMapFeatureSubject: Subject<MapState> = new ReplaySubject(1);
   destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -165,6 +171,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     private dialog: MatDialog,
     private toastr: ToastrService,
     private cmAddService: CMAddService,
+    private cmConnectService: CMConnectService,
+    private cmDisconnectService: CMDisconnectService,
     private cmActionsService: CMActionsService,
     private cmViewDetailsService: CMViewDetailsService,
     private cmEditService: CMEditService,
@@ -231,14 +239,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.clearSearch();
       }
     });
-    this.selectInterfaces$ = this.store.select(selectInterfaces).subscribe(interfaces => {
-      if (interfaces) {
-        const interfaceIds = interfaces.map((ele: any) => ele.data.id);
-        this.interfaceService.getDataByPks({ pks: interfaceIds }).subscribe(response => {
-          this.store.dispatch(retrievedInterfacesByIds({ data: response.result }));
-        })
-      }
-    });
     this.selectIsConnect$ = this.store.select(selectIsConnect).subscribe(isConnect => {
       if (isConnect !== undefined) {
         const connection = this.serverConnectService.getConnection();
@@ -266,6 +266,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       }
     })
     this.store.dispatch(retrievedIsMapOpen({ data: true }));
+    this.selectInterfaceIdConnectPG = this.store.select(selectInterfaceIdConnectPG).subscribe(interfaceIdConnectPG => {
+      this.interfaceIdConnectPG = interfaceIdConnectPG;
+    })
   }
 
   ngAfterViewInit(): void {
@@ -364,11 +367,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     const targetData = $event.target.data();
     if (this.isAddEdge) {
       if (
-        targetData.temp
-        || $event.target.group() != 'nodes'
+        $event.target.group() != 'nodes'
         || targetData.label == 'group_box'
-        || (this.edgeNode && targetData.elem_category != 'port_group')
-        || (this.edgePortGroup && targetData.elem_category == 'port_group')
+        || (this.edgeNode && targetData.elem_category && targetData.elem_category != 'port_group')
+        || (this.edgePortGroup && targetData.elem_category && targetData.elem_category == 'port_group')
       ) {
         return this._unqueueEdge();
       }
@@ -383,7 +385,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       }
       const el = this.cy.edges().filter(`[source=${src}][target=${targ}]`).length
       if (el > 0) {
-        return this.toastr.warning("The edge already exists.");
+        // Add a new edge without connecting to the port group
+        return this.interfaceService.genData(this.edgeNode.data().node_id, undefined)
+          .subscribe(genData => {
+            this._openAddUpdateInterfaceDialog(genData, this.newEdgeData);
+          });
       }
       this._addNewEdge($event);
     } else if (this.isAddTunnel) {
@@ -396,6 +402,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         return this._unqueueEdge();
       }
       this._addNewEdge($event);
+    } else if (this.isConnectToPG) {
+      this._connectEdgeToPG($event)
     }
   }
 
@@ -821,6 +829,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.cmGroupBoxService.getMoveToFrontMenu(),
         this.cmGroupBoxService.getMoveToBackMenu(),
         this.cmAddService.getNodeAddMenu(this.queueEdge.bind(this)),
+        this.cmConnectService.getNodeConnectMenu(this.queueEdge.bind(this), this.cy, this.activeNodes),
+        this.cmDisconnectService.getNodeDisconnectMenu(this.queueEdge.bind(this), this.cy, this.activeNodes),
         this.cmAddService.getPortGroupAddMenu(this.queueEdge.bind(this)),
         this.cmAddService.getEdgeAddMenu(),
         this.cmActionsService.getNodeActionsMenu(this.cy, this.activeNodes),
@@ -977,6 +987,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     }
     const dialogRef = this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', data: dialogData });
     dialogRef.afterClosed().subscribe((_data: any) => {
+      this.cy.unbind('mousemove');
       this.inv.remove();
       this.e.remove();
       this.inv = null;
@@ -984,6 +995,29 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.edgeNode = null;
       this.isAddEdge = false;
       this._enableMapEditButtons();
+    });
+  }
+
+  private _openConnectInterfaceToPGDialog(genData: any, newEdgeData: any) {
+    const dialogData = {
+      mode: 'connect',
+      collectionId: this.collectionId,
+      portGroups: this.portGroups,
+      gateways: this.gateways,
+      selectedMapPref: this.selectedMapPref,
+      cy: this.cy,
+      genData,
+      newEdgeData,
+    }
+    const dialogRef = this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', data: dialogData });
+    dialogRef.afterClosed().subscribe((_data: any) => {
+      this.cy.unbind('mousemove');
+      this.inv.remove();
+      this.e.remove();
+      this.inv = null;
+      this.edgeNode = null;
+      this.isConnectToPG = false;
+      this.store.dispatch(retrievedInterfaceIdConnectPG({ interfaceIdConnectPG: undefined }));
     });
   }
 
@@ -1013,6 +1047,26 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.edgeNode = null;
       this.isDisableCancel = true;
       this.isAddTunnel = false;
+    }
+  }
+
+  private _connectEdgeToPG($event: any) {
+    if (this.isConnectToPG) {
+      this.cy.unbind('mousemove');
+      const portGroupData = $event.target.data();
+      if (portGroupData.elem_category === 'port_group') {
+        let targ = portGroupData.id;
+        this.e.move({ target: targ });
+        this.newEdgeData.target = targ;
+        this.interfaceService.genDataConnectPG(this.interfaceIdConnectPG, this.edgeNode.data().node_id, portGroupData.pg_id)
+          .subscribe(genData => {
+            genData.interface_id = this.interfaceIdConnectPG;
+            this._openConnectInterfaceToPGDialog(genData, this.newEdgeData);
+          });
+      } else {
+        this._unqueueEdge();
+        this.toastr.warning('Please select a port group to connect', 'Warning');
+      }
     }
   }
 
@@ -1052,6 +1106,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.e = this.helpersService.addCYEdge(this.cy, this.newEdgeData)[0];
     if (category == "tunnel") {
       this.isAddTunnel = true
+    } else if (this.interfaceIdConnectPG) {
+      this.isConnectToPG = true;
     } else {
       this.isAddEdge = true;
     }
@@ -1067,7 +1123,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.edgeNode = null;
     this.edgePortGroup = null;
     this.isAddEdge = false;
-    this.isAddTunnel = false
+    this.isAddTunnel = false;
+    this.store.dispatch(retrievedInterfaceIdConnectPG({ interfaceIdConnectPG: undefined }));
   }
 
 

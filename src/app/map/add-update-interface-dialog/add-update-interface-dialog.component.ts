@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
@@ -62,7 +62,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
     });
     this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe((portGroups: any) => {
       this.portGroups = portGroups;
-      this.portGroupCtr.setValidators([Validators.required, autoCompleteValidator(this.portGroups)]);
+      this.portGroupCtr.setValidators([autoCompleteValidator(this.portGroups)]);
       this.filteredPortGroups = this.helpers.filterOptions(this.portGroupCtr, this.portGroups);
     });
     this.selectInterfaces$ = this.store.select(selectInterfaces).subscribe(interfaces => {
@@ -134,6 +134,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
     const ip = ip_str.split(".");
     const last_octet = ip.length == 4 ? "." + ip[3] : "";
     ele.data('ip_last_octet', last_octet);
+    ele.data('target', `pg-${data.port_group_id}`);
   }
 
   onIpAllocationChange($event: MatRadioChange) {
@@ -174,19 +175,24 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
       } : undefined,
     }
     this.interfaceService.add(jsonData).subscribe((respData: any) => {
-      const id = respData.id
-      const ip_str = respData.result.ip ? respData.result.ip : ""
-      const ip = ip_str.split(".")
-      const last_octet = ip.length == 4 ? "." + ip[3] : ""
-      const cyData = respData.result;
-      cyData.id = id;
-      cyData.interface_id = id;
-      cyData.ip_last_octet = last_octet
-      cyData.width = cyData.logical_map_style.width;
-      cyData.text_color = cyData.logical_map_style.text_color;
-      cyData.text_size = cyData.logical_map_style.text_size;
-      cyData.color = cyData.logical_map_style.color;
-      this.helpers.addCYEdge(this.data.cy, { ...this.data.newEdgeData, ...cyData });
+      const portGroupId = respData.result.port_group_id;
+      if (portGroupId) {
+        const newEdgeData = this.data.newEdgeData;
+        newEdgeData.target = newEdgeData.target === `pg-${portGroupId}` ? newEdgeData.target : `pg-${portGroupId}`;
+        const id = respData.id
+        const ip_str = respData.result.ip ? respData.result.ip : ""
+        const ip = ip_str.split(".")
+        const last_octet = ip.length == 4 ? "." + ip[3] : ""
+        const cyData = respData.result;
+        cyData.id = id;
+        cyData.interface_id = id;
+        cyData.ip_last_octet = last_octet
+        cyData.width = cyData.logical_map_style.width;
+        cyData.text_color = cyData.logical_map_style.text_color;
+        cyData.text_size = cyData.logical_map_style.text_size;
+        cyData.color = cyData.logical_map_style.color;
+        this.helpers.addCYEdge(this.data.cy, { ...newEdgeData, ...cyData });
+      }
       this.toastr.success('Edge details added!');
       this.dialogRef.close();
     });
@@ -215,6 +221,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
         ...this.data.genData,
         ...jsonData,
       }
+      data.ip = respData.result.ip;
       if (data.category == 'management') {
         const newInterfacesManagement = this.infoPanelService.getNewInterfacesManagement([data]);
         this.store.dispatch(retrievedInterfacesManagement({ data: newInterfacesManagement }));
@@ -224,6 +231,66 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
       }
       this.dialogRef.close();
       this.toastr.success('Edge details updated!');
+    });
+  }
+
+  connectInterfaceToPG() {
+    const jsonData = {
+      order: this.orderCtr?.value,
+      name: this.nameCtr?.value,
+      description: this.descriptionCtr?.value,
+      category: this.categoryCtr?.value,
+      direction: this.directionCtr?.value.id,
+      mac_address: this.macAddressCtr?.value,
+      port_group_id: this.portGroupCtr?.value.id,
+      ip_allocation: this.ipAllocationCtr?.value,
+      ip: this.ipCtr?.value,
+      dns_server: this.dnsServerCtr?.value,
+      gateway: this.gatewayCtr?.value,
+      is_gateway: this.isGatewayCtr?.value,
+      is_nat: this.isNatCtr?.value,
+      node_id: this.data.genData.node_id,
+      netmask_id: this.data.genData.netmask_id,
+    }
+    this.interfaceService.put(this.data.genData.interface_id, jsonData).subscribe((respData: any) => {
+      const data = {
+        ...this.data.genData,
+        ...jsonData,
+      }
+      data.logical_map_position = this.data.newNodePosition;
+      data.logical_map_style = (this.data.mode == 'connect') ? {
+        "width": this.data.selectedMapPref.edge_width,
+        "color": this.data.selectedMapPref.edge_color,
+        "text_size": this.data.selectedMapPref.text_size,
+        "text_color": this.data.selectedMapPref.text_color,
+        "text_halign": this.data.selectedMapPref.text_halign,
+        "text_valign": this.data.selectedMapPref.text_valign,
+        "text_bg_color": this.data.selectedMapPref.text_bg_color,
+        "text_bg_opacity": this.data.selectedMapPref.text_bg_opacity,
+      } : undefined;
+      if (data.category == 'management') {
+        const newInterfacesManagement = this.infoPanelService.getNewInterfacesManagement([data]);
+        this.store.dispatch(retrievedInterfacesManagement({ data: newInterfacesManagement }));
+      } else {
+        const newEdgeData = this.data.newEdgeData;
+        newEdgeData.target = newEdgeData.target === `pg-${data.port_group_id}` ? newEdgeData.target : `pg-${data.port_group_id}`;
+        const id = this.data.genData.interface_id
+        const ip_str = data.ip ? data.ip : ""
+        const ip = ip_str.split(".")
+        const last_octet = ip.length == 4 ? "." + ip[3] : ""
+        const cyData = respData.result;
+        cyData.id = id;
+        cyData.interface_id = id;
+        cyData.ip_last_octet = last_octet
+        cyData.width = cyData.logical_map_style.width;
+        cyData.text_color = cyData.logical_map_style.text_color;
+        cyData.text_size = cyData.logical_map_style.text_size;
+        cyData.color = cyData.logical_map_style.color;
+        this.helpers.addCYEdge(this.data.cy, { ...newEdgeData, ...cyData });
+        this.store.dispatch(retrievedMapSelection({ data: true }));
+      }
+      this.dialogRef.close();
+      this.toastr.success('Connected Interface to Port Group', 'Success');
     });
   }
 

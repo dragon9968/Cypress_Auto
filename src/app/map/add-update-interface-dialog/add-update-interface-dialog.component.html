@@ -1,5 +1,12 @@
-<form [formGroup]="interfaceAddForm" (ngSubmit)="data.mode === 'add' ? addInterface() : updateInterface()">
-  <h1 mat-dialog-title>{{data.mode === 'add' ? 'Edge Add' : data.mode === 'update' ? 'Edge Edit': 'Edge Info'}}</h1>
+<form [formGroup]="interfaceAddForm"
+      (ngSubmit)="data.mode === 'add' ? addInterface() : data.mode === 'update' ? updateInterface() : connectInterfaceToPG()">
+  <h1 mat-dialog-title>
+    {{
+        data.mode === 'add' ? 'Edge Add'
+      : data.mode === 'update' ? 'Edge Edit'
+      : data.mode === 'connect' ? 'Connecting Interface to Port Group'
+      : 'Edge Info'
+    }}</h1>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Order</mat-label>
@@ -53,7 +60,6 @@
           </div>
         </mat-option>
       </mat-autocomplete>
-      <mat-error *ngIf="portGroupCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="portGroupCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
     </mat-form-field>
     <div class="category">
@@ -89,7 +95,7 @@
       {{data.mode === 'view' ? 'Close' : 'Cancel'}}
     </button>
     <button *ngIf="data.mode !== 'view'" mat-raised-button type="submit" color="primary" [disabled]="!interfaceAddForm.valid">
-      {{data.mode === 'add' ? 'Add' : 'Update'}}
+      {{data.mode === 'add' ? 'Add' : data.mode === 'update' ? 'Update' : 'Connect'}}
     </button>
   </div>
 </form>

@@ -1,17 +1,25 @@
 import { InterfaceState } from "./interface.state";
 import { createReducer, on } from "@ngrx/store";
-import { retrievedInterfacesByIds, retrievedInterfacesManagement } from "./interface.actions";
+import {
+  retrievedInterfacesManagement,
+  retrievedInterfacesNotConnectPG,
+  retrievedInterfaceIdConnectPG
+} from "./interface.actions";
 
 const initialState = {} as InterfaceState;
 
 export const interfaceReducerByIds = createReducer(
   initialState,
-  on(retrievedInterfacesByIds, (state, { data }) => ({
-    ...state,
-    interfaces: data
-  })),
   on(retrievedInterfacesManagement, (state, { data }) => ({
     ...state,
     interfacesManagement: data
+  })),
+  on(retrievedInterfacesNotConnectPG, (state, { interfacesNotConnectPG }) => ({
+    ...state,
+    interfacesNotConnectPG: interfacesNotConnectPG
+  })),
+  on(retrievedInterfaceIdConnectPG, (state, { interfaceIdConnectPG }) => ({
+    ...state,
+    interfaceIdConnectPG: interfaceIdConnectPG
   }))
 );

@@ -39,6 +39,7 @@ import { InfoPanelShowValidationNodesComponent } from './info-panel/info-panel-s
 import { InfoPanelPortGroupManagementComponent } from './info-panel/info-panel-port-group-management/info-panel-port-group-management.component';
 import { InfoPanelInterfaceManagementComponent } from './info-panel/info-panel-interface-management/info-panel-interface-management.component';
 import { NodeToolsDialogComponent } from './deployment-dialog/deployment-node-dialog/node-tools-dialog/node-tools-dialog.component';
+import { ConnectInterfaceToPgDialogComponent } from './context-menu/cm-dialog/connect-interface-to-pg-dialog/connect-interface-to-pg-dialog.component';
 
 
 @NgModule({
@@ -80,7 +81,8 @@ import { NodeToolsDialogComponent } from './deployment-dialog/deployment-node-di
     InfoPanelShowValidationNodesComponent,
     InfoPanelPortGroupManagementComponent,
     InfoPanelInterfaceManagementComponent,
-    NodeToolsDialogComponent
+    NodeToolsDialogComponent,
+    ConnectInterfaceToPgDialogComponent
   ],
   imports: [
     MapRoutingModule,

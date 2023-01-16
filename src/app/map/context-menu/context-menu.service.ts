@@ -14,7 +14,9 @@ export class ContextMenuService {
     const activeEdgesLength = activeEdges.length;
     const activeGBsLength = activeGBs.length;
     const activeMBsLength = activeMBs.length;
-    contextMenu.hideMenuItem('node_add')
+    contextMenu.hideMenuItem('node_add');
+    contextMenu.hideMenuItem('node_connect');
+    contextMenu.hideMenuItem('node_disconnect');
     contextMenu.hideMenuItem('pg_add');
     contextMenu.hideMenuItem('edge_add');
     contextMenu.hideMenuItem('node_actions');
@@ -58,6 +60,8 @@ export class ContextMenuService {
           contextMenu.hideMenuItem('web_console');
         } else if (activeNodesLength == 1) {
           contextMenu.showMenuItem('node_add');
+          contextMenu.showMenuItem('node_connect');
+          contextMenu.showMenuItem('node_disconnect');
           contextMenu.showMenuItem('node_actions');
           contextMenu.showMenuItem('view_details');
           contextMenu.showMenuItem('edit');
@@ -106,5 +110,5 @@ export class ContextMenuService {
       contextMenu.hideMenuItem('pg_remote');
     }
   }
-  
+
 }

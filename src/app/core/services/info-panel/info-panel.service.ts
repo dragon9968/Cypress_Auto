@@ -19,7 +19,6 @@ import { selectMapOption } from "../../../store/map-option/map-option.selectors"
 import { retrievedGroups } from "../../../store/group/group.actions";
 import { selectIsConnect } from "../../../store/server-connect/server-connect.selectors";
 import { retrievedDomains } from "../../../store/domain/domain.actions";
-import { selectInterfaces } from "../../../store/map/map.selectors";
 import { selectDomainUsers } from "../../../store/domain-user/domain-user.selectors";
 import { retrievedUserTasks } from "../../../store/user-task/user-task.actions";
 import { retrievedMapSelection } from "../../../store/map-selection/map-selection.actions";
@@ -27,8 +26,8 @@ import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
 import { selectInterfacesManagement } from "../../../store/interface/interface.selectors";
 import { retrievedIsChangeDomainUsers } from "../../../store/domain-user-change/domain-user-change.actions";
 import { retrievedPortGroupsManagement } from "../../../store/portgroup/portgroup.actions";
+import { retrievedInterfacesManagement } from "../../../store/interface/interface.actions";
 import { selectPortGroups, selectPortGroupsManagement } from "../../../store/portgroup/portgroup.selectors";
-import { retrievedInterfacesByIds, retrievedInterfacesManagement } from "../../../store/interface/interface.actions";
 @Injectable({
   providedIn: 'root'
 })
@@ -690,12 +689,6 @@ export class InfoPanelService implements OnDestroy {
           this.toastr.success(message);
         });
         this.store.dispatch(retrievedMapSelection({ data: true }));
-        this.store.select(selectInterfaces).subscribe(interfaces => {
-          const interfaceIds = interfaces.map((ele: any) => ele.data.id);
-          this.interfaceService.getDataByPks({ pks: interfaceIds }).subscribe(response => {
-            this.store.dispatch(retrievedInterfacesByIds({ data: response.result }));
-          })
-        })
       });
     }
   }

@@ -70,9 +70,6 @@ export class InfoPanelComponent implements OnInit{
     this.route.queryParams.subscribe((params: Params) => {
       this.collectionId = params['collection_id'];
     })
-    this.portGroupService.getByCollectionId(this.collectionId).subscribe(
-      (data: any) => this.store.dispatch(retrievedPortGroups({ data: data.result }))
-    );
     this.nodeService.getNodesByCollectionId(this.collectionId).subscribe(
       (data: any) => this.store.dispatch(retrievedNodes({ data: data.result }))
     );

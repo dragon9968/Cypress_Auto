@@ -1,0 +1,31 @@
+<form [formGroup]="connectInterfaceToPGForm"
+      (ngSubmit)="data.mode === 'connect' ? connectToPortGroup() : disconnectPortGroup()">
+  <h1 mat-dialog-title>
+    {{ data.mode === 'connect' ? 'Connect Interface to Port Group Form' : 'Disconnect Interface from Port Group Form' }}
+  </h1>
+  <mat-dialog-content>
+    <mat-form-field class="field">
+      <mat-label>Interface</mat-label>
+      <input matInput placeholder="Select a interface" formControlName="interfaceCtr"
+             [matAutocomplete]="autoInterface">
+      <mat-autocomplete #autoInterface="matAutocomplete"
+                        [displayWith]="helpersService.optionDisplay">
+        <mat-option class="edge-option" *ngFor="let option of filteredInterfaces | async" [value]="option">
+          <div>
+            <span class="edge-option__item">Interface Name: <b>{{ option.name }}</b></span>
+            <span *ngIf="option.port_group_id" class="edge-option__item">Interface IP Address: {{ option.ip }}</span>
+            <span *ngIf="option.port_group_id" class="edge-option__item">Port Group Name: {{ option.port_group?.name }}</span>
+          </div>
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+    <mat-error *ngIf="interfaceCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    <mat-error *ngIf="interfaceCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+  </mat-dialog-content>
+  <mat-dialog-actions [align]="'end'">
+    <button mat-raised-button type="button" mat-dialog-close>Cancel</button>
+    <button mat-raised-button type="submit" color="primary" [disabled]="connectInterfaceToPGForm.invalid">
+      Continue
+    </button>
+  </mat-dialog-actions>
+</form>
