@@ -1,6 +1,6 @@
 import { Store } from '@ngrx/store';
 import { map, startWith, Subscription } from 'rxjs';
-import { Injectable, Input } from '@angular/core';
+import { Injectable, Input, OnDestroy } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 import { selectGroupBoxes } from 'src/app/store/map/map.selectors';
@@ -8,13 +8,17 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { validatieIP } from 'src/app/shared/validations/ip-subnet.validation.ag-grid';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { ToastrService } from 'ngx-toastr';
+import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
+import { retrievedNodes } from "../../../store/node/node.actions";
 
 @Injectable({
   providedIn: 'root'
 })
-export class HelpersService {
+export class HelpersService implements OnDestroy{
   selectMapOption$ = new Subscription();
   selectGroupBoxes$ = new Subscription();
+  selectNodes$ = new Subscription();
+  nodes: any[] = [];
   groupCategoryId!: string;
   errorMessages = ErrorMessages;
   isGroupBoxesChecked!: boolean;
@@ -37,6 +41,13 @@ export class HelpersService {
     this.selectGroupBoxes$ = this.store.select(selectGroupBoxes).subscribe((groupBoxes: any[]) => {
       this.groupBoxes = groupBoxes;
     });
+    this.selectNodes$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => this.nodes = nodes);
+  }
+
+  ngOnDestroy(): void {
+    this.selectMapOption$.unsubscribe();
+    this.selectGroupBoxes$.unsubscribe();
+    this.selectNodes$.unsubscribe();
   }
 
   optionDisplay(option: any) {
@@ -669,13 +680,13 @@ export class HelpersService {
     return this.domSanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
-  validateAllFormFields(formGroup: FormGroup) {         
-    Object.keys(formGroup.controls).forEach(field => {  
+  validateAllFormFields(formGroup: FormGroup) {
+    Object.keys(formGroup.controls).forEach(field => {
       const control = formGroup.get(field);
-      if (control instanceof FormControl) {             
+      if (control instanceof FormControl) {
         control.markAsTouched({ onlySelf: true });
         control.markAsDirty({ onlySelf: true });
-      } else if (control instanceof FormGroup) {   
+      } else if (control instanceof FormGroup) {
         this.validateAllFormFields(control);
       }
     });
@@ -703,7 +714,7 @@ export class HelpersService {
     const typeOfValidation = validatieIP(params, newValue)
     if (newValue === '' && field == 'network') {
       this.toastr.warning(ErrorMessages.FIELD_IS_REQUIRED)
-      return false 
+      return false
     }
 
     switch (typeOfValidation) {
@@ -724,5 +735,28 @@ export class HelpersService {
         return true
 
     }
+  }
+
+  updateNodesStorage(newNode: any) {
+    const nodeIds = this.nodes.map(node => node.id);
+    const newNodes = [...this.nodes];
+    if (nodeIds.includes(newNode.id)) {
+      const index = this.nodes.findIndex(node => node.id === newNode.id);
+      newNodes.splice(index, 1, newNode);
+      this.store.dispatch(retrievedNodes({ data: newNodes }));
+    } else {
+      this.store.dispatch(retrievedNodes({ data: newNodes.concat(newNode) }));
+    }
+  }
+
+  removeNodesInStorage(nodeIds: any[]) {
+    const newNodes = [...this.nodes];
+    this.nodes.map(node => {
+      if (nodeIds.includes(node.id)) {
+        const index = newNodes.findIndex(ele => ele.id === node.id);
+        newNodes.splice(index, 1);
+      }
+    })
+    this.store.dispatch(retrievedNodes({ data: newNodes }));
   }
 }

@@ -156,6 +156,12 @@ export class ToolPanelComponent implements OnDestroy {
         return throwError(() => error);
       })
     ).subscribe((_respData: any) => {
+      if (this.deletedNodes.length > 0) {
+        const nodeDeletedIds = this.deletedNodes.map(node => node.elem_category == 'node' && node.id);
+        if (nodeDeletedIds.length > 0) {
+          this.helpersService.removeNodesInStorage(nodeDeletedIds);
+        }
+      }
       this.deletedNodes.splice(0);
       this.deletedInterfaces.splice(0);
       this.cy.elements().forEach((ele: any) => {

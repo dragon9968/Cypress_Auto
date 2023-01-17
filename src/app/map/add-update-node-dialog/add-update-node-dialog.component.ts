@@ -284,12 +284,13 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
     }
     this.nodeService.add(jsonData).pipe(
       catchError((e: any) => {
-        this.toastr.error(e.error.message);
+        this.toastr.error('Add new node failed', 'Error');
         return throwError(() => e);
       })
     ).subscribe((respData: any) => {
       this.nodeService.get(respData.id).subscribe(respData => {
         const cyData = respData.result;
+        this.helpers.updateNodesStorage({...cyData});
         cyData.id = 'node-' + respData.id;
         cyData.node_id = respData.id;
         cyData.domain = this.domainCtr?.value.name;
@@ -339,7 +340,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
     }
     this.nodeService.put(this.data.genData.node_id, jsonData).pipe(
       catchError((e: any) => {
-        this.toastr.error(e.error.message);
+        this.toastr.error('Update node failed!', 'Error');
         return throwError(() => e);
       })
     ).subscribe((_respData: any) => {
@@ -353,6 +354,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
         });
       }
       this.nodeService.get(this.data.genData.node_id).subscribe(nodeData => {
+        this.helpers.updateNodesStorage(nodeData.result);
         this._updateNodeOnMap(nodeData.result);
         this.helpers.reloadGroupBoxes(this.data.cy);
         this.dialogRef.close();
