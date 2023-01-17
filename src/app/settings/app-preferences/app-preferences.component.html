@@ -35,6 +35,7 @@
         <input type="text" matInput formControlName="publicNetworkCtr">
         <mat-hint>Set default network space for public network</mat-hint>
         <mat-error *ngIf="publicNetworkCtr?.errors?.isNotMatchIP">{{ publicNetworkCtr?.errors?.value }}</mat-error>
+        <mat-error *ngIf="publicNetworkCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       </mat-form-field>
       <mat-form-field class="field">
         <mat-label>Public Network Reserved IPs</mat-label>
@@ -53,6 +54,7 @@
         <input type="text" matInput formControlName="privateNetworkCtr">
         <mat-hint>Set default network space for private network</mat-hint>
         <mat-error *ngIf="privateNetworkCtr?.errors?.isNotMatchIP">{{ privateNetworkCtr?.errors?.value }}</mat-error>
+        <mat-error *ngIf="privateNetworkCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       </mat-form-field>
       <mat-form-field class="field">
         <mat-label>Private Network Reserved IPs</mat-label>
@@ -71,6 +73,7 @@
         <input type="text" matInput formControlName="managementNetworkCtr">
         <mat-hint>Set default network space for management network</mat-hint>
         <mat-error *ngIf="managementNetworkCtr?.errors?.isNotMatchIP">{{ managementNetworkCtr?.errors?.value }}</mat-error>
+        <mat-error *ngIf="managementNetworkCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       </mat-form-field>
       <mat-form-field class="field">
         <mat-label>Management Network Reserved IPs</mat-label>

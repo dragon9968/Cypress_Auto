@@ -40,11 +40,11 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
     this.appPrefForm = new FormGroup({
       // sessionTimeoutCtr: new FormControl('', [Validators.required]),
       mapPrefCtr: new FormControl(''),
-      publicNetworkCtr: new FormControl('', [ipSubnetValidation(true)]),
+      publicNetworkCtr: new FormControl('', [Validators.required, ipSubnetValidation(true)]),
       publicNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.preferences.public_network, "public"), ipSubnetValidation(false)]),
-      privateNetworkCtr: new FormControl('', [ipSubnetValidation(true)]),
+      privateNetworkCtr: new FormControl('', [Validators.required, ipSubnetValidation(true)]),
       privateNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.preferences.network, "private"), ipSubnetValidation(false)]),
-      managementNetworkCtr: new FormControl('', [ipSubnetValidation(true)]),
+      managementNetworkCtr: new FormControl('', [Validators.required, ipSubnetValidation(true)]),
       managementNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.preferences.management_network, "management"), ipSubnetValidation(false)]),
       dhcpServerCtr: new FormControl(''),
     });
