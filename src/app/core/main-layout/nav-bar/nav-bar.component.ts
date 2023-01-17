@@ -36,6 +36,7 @@ import { retrievedIsConnect, retrievedServerConnect } from 'src/app/store/server
 import { AboutComponent } from 'src/app/help/about/about.component';
 import { ValidateProjectDialogComponent } from 'src/app/project/validate-project-dialog/validate-project-dialog.component';
 import { retrievedUserProfile } from 'src/app/store/user-profile/user-profile.actions';
+import { CloneProjectDialogComponent } from 'src/app/project/clone-project-dialog/clone-project-dialog.component';
 
 @Component({
   selector: 'app-nav-bar',
@@ -232,29 +233,16 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   cloneProject() {
-    const dialogData = {
-      title: 'User confirmation needed',
-      message: 'Clone this project?',
-      submitButtonName: 'OK'
-    }
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
-    dialogRef.afterClosed().subscribe(result => {
-      const jsonData = {
-        pk: this.collectionId,
+    this.projectService.get(this.collectionId).subscribe(data => {
+      const dialogData = {
+        genData: data.result
       }
-      if (result) {
-        this.projectService.cloneProject(jsonData).subscribe({
-          next: (rest) => {
-            this.toastr.success(`Clone Project successfully`);
-            this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
-            this.router.navigate([RouteSegments.PROJECTS]);
-          },
-          error: (error) => {
-            this.toastr.error(`Error while Clone Project`);
-          }
-        })
-      }
-    });
+      this.dialog.open(CloneProjectDialogComponent, { 
+        autoFocus: false,
+        width: '400px', 
+        data: dialogData 
+      });
+    })
   }
 
   searchByInterval() {

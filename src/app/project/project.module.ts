@@ -11,6 +11,7 @@ import { ImportProjectDialogComponent } from './import-project-dialog/import-pro
 import { ButtonRenderersComponent } from './renderers/button-renderers-component';
 import { ValidateProjectDialogComponent } from './validate-project-dialog/validate-project-dialog.component';
 import { TemplateComponent } from './template/template.component';
+import { CloneProjectDialogComponent } from './clone-project-dialog/clone-project-dialog.component';
 
 
 @NgModule({
@@ -24,7 +25,8 @@ import { TemplateComponent } from './template/template.component';
     ImportProjectDialogComponent,
     ButtonRenderersComponent,
     ValidateProjectDialogComponent,
-    TemplateComponent
+    TemplateComponent,
+    CloneProjectDialogComponent
   ],
   imports: [
     ProjectRoutingModule,
