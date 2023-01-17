@@ -2,9 +2,9 @@
   <mat-sidenav #sidenav mode="side" [opened]="isOpenToolPanel">
     <app-tool-panel [cy]="cy" [ur]="ur" [config]="config" [collectionId]="collectionId" [mapCategory]="mapCategory"
       [isDisableCancel]="isDisableCancel" [isDisableAddNode]="isDisableAddNode" [isDisableAddPG]="isDisableAddPG"
-      [isDisableAddImage]="isDisableAddImage" [activeNodes]="activeNodes" [activePGs]="activePGs"
-      [activeEdges]="activeEdges" [activeGBs]="activeGBs" [activeMBs]="activeMBs" [deletedNodes]="deletedNodes"
-      [deletedInterfaces]="deletedInterfaces">
+      [isDisableAddImage]="isDisableAddImage" [isTemplateCategory]="isTemplateCategory" [activeNodes]="activeNodes"
+      [activePGs]="activePGs" [activeEdges]="activeEdges" [activeGBs]="activeGBs" [activeMBs]="activeMBs"
+      [deletedNodes]="deletedNodes" [deletedInterfaces]="deletedInterfaces">
     </app-tool-panel>
   </mat-sidenav>
   <mat-sidenav-content>
@@ -15,7 +15,7 @@
           <mat-icon *ngIf="!isOpenToolPanel">keyboard_double_arrow_right</mat-icon>
         </button>
       </div>
-      <div class="dashboard">
+      <div *ngIf="!isTemplateCategory" class="dashboard">
         <button mat-mini-fab mat-button class="dashboard-btn" color="primary" matTooltip="Dashboard" (click)="openDashboard()">
           <mat-icon>dashboard</mat-icon>
         </button>

@@ -7,7 +7,8 @@ export class ContextMenuService {
 
   constructor() { }
 
-  showContextMenu(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], activeMBs: any[], connectionId: any) {
+  showContextMenu(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], activeMBs: any[],
+                  connectionId: any, isTemplateCategory: any) {
     const contextMenu = cy.contextMenus('get');
     const activeNodesLength = activeNodes.length;
     const activePGsLength = activePGs.length;
@@ -105,7 +106,7 @@ export class ContextMenuService {
         }
       }
     }
-    if (!connectionId || connectionId == 0) {
+    if (!connectionId || connectionId == 0 || isTemplateCategory) {
       contextMenu.hideMenuItem('node_remote');
       contextMenu.hideMenuItem('pg_remote');
     }

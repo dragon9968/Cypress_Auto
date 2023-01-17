@@ -30,6 +30,7 @@ export class ToolPanelComponent implements OnDestroy {
   @Input() isDisableAddNode = true;
   @Input() isDisableAddPG = false;
   @Input() isDisableAddImage = false;
+  @Input() isTemplateCategory = false;
   @Input() activeNodes: any[] = [];
   @Input() activePGs: any[] = [];
   @Input() activeEdges: any[] = [];
