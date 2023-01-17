@@ -14,6 +14,7 @@ import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import {
   retrievedProjectName,
   retrievedProjects,
+  retrievedProjectsTemplate,
   retrievedRecentProjects
 } from 'src/app/store/project/project.actions';
 import { ButtonRenderersComponent } from '../renderers/button-renderers-component';
@@ -212,7 +213,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
         this.store.dispatch(retrievedProjectName({ projectName: jsonData.name }));
         // Update Recent Projects Storage if the project in recent projects and project is updated
         const recentProject = this.recentProjects.find(project => project.id === this.data.genData.id);
-        if (recentProject && recentProject.name !== jsonData.name || recentProject.description !== jsonData.description) {
+        if (recentProject && recentProject.name !== jsonData.name || recentProject?.description !== jsonData.description) {
           const newRecentProjects = [...this.recentProjects];
           const index = newRecentProjects.findIndex(project => project.id === this.data.genData.id);
           const newRecentProject = {
@@ -228,8 +229,13 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
           username: sharedUpdate
         }
         this.projectService.associate(configData).subscribe(respData => {
-          this.toastr.success(`Update Project successfully`)
-          this.projectService.getProjectByStatusAndCategory('active', 'project').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
+          this.toastr.success(`Update ${jsonData.category} successfully`)
+          if (jsonData.category === 'project') {
+            this.projectService.getProjectByStatusAndCategory('active', 'project').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
+          } else {
+            this.projectService.getProjectByStatusAndCategory('active', 'template').subscribe((data: any) => this.store.dispatch(retrievedProjectsTemplate({ template: data.result })));
+          }
+          
         });
         this.dialogRef.close();
       });
