@@ -65,9 +65,15 @@
             <div [hidden]="!isHiddenTemplate" class="random-container">
               <mat-form-field class="field" appearance="outline">
                 <mat-label>Template</mat-label>
-                <mat-select formControlName="template">
-                  <mat-option *ngFor="let option of projectTemplate" [value]="option.id">{{ option.name }}</mat-option>
-                </mat-select>
+                <input matInput type="text" placeholder="Select a category" formControlName="template"
+                  [matAutocomplete]="autoTemplate">
+                <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helpers.optionDisplay">
+                  <mat-option *ngFor="let option of filteredTemplate | async" [value]="option">
+                    {{ option.name }}
+                  </mat-option>
+                </mat-autocomplete>
+                <mat-error *ngIf="template?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+                <mat-error *ngIf="template?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
               </mat-form-field>
             </div>
 

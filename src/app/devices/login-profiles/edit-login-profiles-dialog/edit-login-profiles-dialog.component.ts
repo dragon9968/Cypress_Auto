@@ -56,9 +56,11 @@ export class EditLoginProfilesDialogComponent implements OnInit {
     this.username?.setValue(this.data.genData.username);
     this.password?.setValue(this.data.genData.password);
     this.category?.setValue(this.data.genData.category);
-    this.data.genData.extra_args.forEach((el: any) => {
-      this.listExtraArgs.push(el);
-    });
+    if (this.data.mode !== 'add' ) {
+      this.data.genData.extra_args.forEach((el: any) => {
+        this.listExtraArgs.push(el);
+      });
+    }
   }
 
   onCancel() {
@@ -78,8 +80,8 @@ export class EditLoginProfilesDialogComponent implements OnInit {
     }
   }
 
-  remove(fruit: any): void {
-    const index = this.listExtraArgs.indexOf(fruit);
+  remove(value: any): void {
+    const index = this.listExtraArgs.indexOf(value);
 
     if (index >= 0) {
       this.listExtraArgs.splice(index, 1);

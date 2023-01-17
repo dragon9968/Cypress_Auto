@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { catchError, Subscription, throwError } from "rxjs";
+import { catchError, Observable, Subscription, throwError } from "rxjs";
 import { Store } from '@ngrx/store';
 import { ToastrService } from "ngx-toastr";
 import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
@@ -19,8 +19,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { selectAppPref } from 'src/app/store/app-pref/app-pref.selectors';
 import { retrievedAppPref } from 'src/app/store/app-pref/app-pref.actions';
-import { ProjectTemplateService } from 'src/app/core/services/project-template/project-template.service';
 import { MatRadioChange } from '@angular/material/radio';
+import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 
 @Component({
   selector: 'app-add-project',
@@ -48,6 +48,7 @@ export class AddProjectComponent implements OnInit {
   isHiddenTemplate = false;
   isHiddenOption = true;
   appPrefDefault!: any[];
+  filteredTemplate!: Observable<any[]>;
 
   defaultColDef: ColDef = {
     sortable: true,
@@ -97,15 +98,34 @@ export class AddProjectComponent implements OnInit {
     private router: Router,
     private appPrefService: AppPrefService,
     private dialog: MatDialog,
-    private helpers: HelpersService,
-    private projectTemplateService: ProjectTemplateService,
+    public helpers: HelpersService,
   ) {
+
+    this.projectForm = this.formBuilder.group({
+      name : ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50), validateNameExist(() => this.nameProject, 'add', undefined)]],
+      description: [''],
+      category: ['project'],
+      target : ['VMWare vCenter'],
+      option: [''],
+      layoutOnly: [false],
+      template: [''],
+      enclave_number: [1, [Validators.min(1), Validators.max(100), Validators.required]],
+      enclave_clients: [3, [Validators.min(0), Validators.max(100), Validators.required]],
+      enclave_servers: [2, [Validators.min(0), Validators.max(100), Validators.required]],
+      enclave_users: [5, [Validators.min(0), Validators.max(100), Validators.required]],
+      vlan_min: [2000, [Validators.min(1), Validators.max(4093), Validators.required]],
+      vlan_max: [2100, [Validators.min(2), Validators.max(4094), Validators.required]]
+    })
     this.selectProjects$ = this.store.select(selectProjects).subscribe(nameProject => {
       this.nameProject = nameProject;
     })
 
     this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(templateData => {
       this.projectTemplate = templateData;
+      if (this.projectTemplate) {
+        this.template.setValidators([Validators.required, autoCompleteValidator(this.projectTemplate)]);
+        this.filteredTemplate = this.helpers.filterOptions(this.template, this.projectTemplate);
+      }
     })
     this.selectAppPref$ = this.store.select(selectAppPref).subscribe((data: any)=> {
       if (data) {
@@ -130,21 +150,7 @@ export class AddProjectComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.projectForm = this.formBuilder.group({
-      name : ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50), validateNameExist(() => this.nameProject, 'add', undefined)]],
-      description: [''],
-      category: ['project'],
-      target : ['VMWare vCenter'],
-      option: [''],
-      layoutOnly: [false],
-      template: [''],
-      enclave_number: [1, [Validators.min(1), Validators.max(100), Validators.required]],
-      enclave_clients: [3, [Validators.min(0), Validators.max(100), Validators.required]],
-      enclave_servers: [2, [Validators.min(0), Validators.max(100), Validators.required]],
-      enclave_users: [5, [Validators.min(0), Validators.max(100), Validators.required]],
-      vlan_min: [2000, [Validators.min(1), Validators.max(4093), Validators.required]],
-      vlan_max: [2100, [Validators.min(2), Validators.max(4094), Validators.required]]
-    })
+    this.helpers.setAutoCompleteValue(this.template, this.projectTemplate, '');
     this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe(data => {
       this.store.dispatch(retrievedProjects({data: data.result}));
     })
@@ -158,7 +164,7 @@ export class AddProjectComponent implements OnInit {
   get target() { return this.projectForm.get('target'); }
   get option() { return this.projectForm.get('option'); }
   get layoutOnly() { return this.projectForm.get('layoutOnly'); }
-  get template() { return this.projectForm.get('template'); }
+  get template() { return this.helpers.getAutoCompleteCtr(this.projectForm.get('template'), this.projectTemplate);  }
   get enclave_number() { return this.projectForm.get('enclave_number'); }
   get enclave_clients() { return this.projectForm.get('enclave_clients'); }
   get enclave_servers() { return this.projectForm.get('enclave_servers'); }
@@ -212,7 +218,7 @@ export class AddProjectComponent implements OnInit {
         target: this.target?.value,
         option: this.option?.value,
         layout_only: this.layoutOnly?.value,
-        template_id: this.template?.value,
+        template_id: this.template?.value.id,
         enclave_number: this.enclave_number?.value,
         enclave_clients: this.enclave_clients?.value,
         enclave_servers: this.enclave_servers?.value,
