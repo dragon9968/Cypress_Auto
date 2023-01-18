@@ -123,7 +123,7 @@ export class AddProjectComponent implements OnInit {
     this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(templateData => {
       this.projectTemplate = templateData;
       if (this.projectTemplate) {
-        this.template.setValidators([Validators.required, autoCompleteValidator(this.projectTemplate)]);
+        this.template.setValidators([autoCompleteValidator(this.projectTemplate)]);
         this.filteredTemplate = this.helpers.filterOptions(this.template, this.projectTemplate);
       }
     })
@@ -227,19 +227,23 @@ export class AddProjectComponent implements OnInit {
         vlan_max: this.vlan_max?.value,
         networks: items
       }
-      this.projectService.add(jsonData).pipe(
-        catchError((e: any) => {
-          this.toastr.error(e.error.message);
-          return throwError(() => e);
-        })
-        ).subscribe(rest =>{
-          this.toastr.success(`Created Project ${rest.result.name} successfully`);
-          if (this.category?.value === 'project') {
-            this.router.navigate([RouteSegments.PROJECTS]);
-          } else {
-            this.router.navigate([RouteSegments.TEMPLATES]);
-          }
-      });
+      if (!jsonData.template_id) {
+        this.toastr.warning('The template field is required.')
+      } else {
+        this.projectService.add(jsonData).pipe(
+          catchError((e: any) => {
+            this.toastr.error(e.error.message);
+            return throwError(() => e);
+          })
+          ).subscribe(rest =>{
+            this.toastr.success(`Created Project ${rest.result.name} successfully`);
+            if (this.category?.value === 'project') {
+              this.router.navigate([RouteSegments.PROJECTS]);
+            } else {
+              this.router.navigate([RouteSegments.TEMPLATES]);
+            }
+        });
+      }
     } else {
       this.toastr.warning('Category and network fields are required.')
     }

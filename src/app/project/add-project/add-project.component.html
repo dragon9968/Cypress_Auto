@@ -72,7 +72,6 @@
                     {{ option.name }}
                   </mat-option>
                 </mat-autocomplete>
-                <mat-error *ngIf="template?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
                 <mat-error *ngIf="template?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
               </mat-form-field>
             </div>
@@ -140,8 +139,8 @@
           </mat-card>
         </div>
         <mat-card-actions [align]="'end'" class="create-btn">
-          <button mat-raised-button (click)="cancelProject()">Cancel</button>
-          <button mat-raised-button color="primary" [disabled]="!projectForm.valid" (click)="addProject()">Create</button>
+          <button mat-raised-button type="button" (click)="cancelProject()">Cancel</button>
+          <button mat-raised-button type="button" color="primary" [disabled]="!projectForm.valid" (click)="addProject()">Create</button>
         </mat-card-actions>
       </form>
     </mat-card-content>
