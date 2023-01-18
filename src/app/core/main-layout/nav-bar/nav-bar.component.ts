@@ -216,7 +216,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
 
   exportProject() {
     const dialogData = {
-      pk: this.collectionId
+      pks: [this.collectionId]
     }
     const dialogRef = this.dialog.open(ExportProjectDialogComponent, {
       autoFocus: false,

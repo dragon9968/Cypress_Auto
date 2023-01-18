@@ -23,7 +23,7 @@ $margin: 8px;
 
 .icon-container {
   width: 90%;
-  height: auto;
+  height: 80%;
   border: 0.5px solid #eee;
   cursor: pointer;
   padding: $margin;
@@ -56,4 +56,9 @@ $margin: 8px;
 
 .mat-card-content, .mat-card-title {
   margin-bottom: 0;
+}
+
+.icon-title {
+  font-size: 20px;
+  padding-top: 20px;
 }

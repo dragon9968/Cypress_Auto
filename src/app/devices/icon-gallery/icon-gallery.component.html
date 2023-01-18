@@ -20,13 +20,13 @@
     <div class="select-all">
       <mat-checkbox color="primary" [(ngModel)]="checked" (change)="selectAll($event)"><strong>Select All</strong></mat-checkbox>
     </div>
-    <mat-grid-list cols="4" rowHeight="2:1">
-      <mat-grid-tile *ngFor="let icon of activePageDataChunk">
+    <mat-grid-list [cols]="cols" rowHeight="200px">
+      <mat-grid-tile *ngFor="let icon of activePageDataChunk" [colspan]="1" [rowspan]="1">
         <mat-checkbox class="checkbox-icons" color="primary" [checked]="checked" (change)="getId(icon, $event)"></mat-checkbox>
         <mat-card (click)="showIcon(icon)"  class="icon-container">
-          <mat-card-title>Icon</mat-card-title>
+          <mat-card-title class="icon-title">Icon</mat-card-title>
           <mat-card-content>
-            <img [src]="ICON_PATH + icon.photo" width="80px" height="auto" alt="Photo">
+            <img [src]="ICON_PATH + icon.photo" width="50px" height="auto" alt="Photo">
           </mat-card-content>
           <mat-card-footer class="name-footer">
               <span><strong>Name</strong></span>

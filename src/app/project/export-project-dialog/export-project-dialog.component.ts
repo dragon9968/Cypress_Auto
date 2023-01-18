@@ -37,7 +37,7 @@ export class ExportProjectDialogComponent implements OnInit {
 
   exportProject() {
     const jsonData = {
-      pks: this.data.pk,
+      pks: this.data.pks,
       file_name: this.fileNameCtr?.value
     }
     let file = new Blob();

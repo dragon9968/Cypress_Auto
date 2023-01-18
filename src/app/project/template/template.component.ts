@@ -201,7 +201,7 @@ export class TemplateComponent implements OnInit {
       this.toastr.info('No row selected');
     } else {
       const dialogData = {
-        pk: this.rowsSelectedId
+        pks: this.rowsSelectedId
       }
       this.dialog.open(ExportProjectDialogComponent, { autoFocus: false, width: '400px', data: dialogData });
     }

@@ -13,6 +13,7 @@ import { selectIcons } from 'src/app/store/icon/icon.selectors';
 import { AddEditIconDialogComponent } from './add-edit-icon-dialog/add-edit-icon-dialog.component';
 import { PageEvent } from "@angular/material/paginator";
 import { catchError } from "rxjs/operators";
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-icon-gallery',
@@ -29,6 +30,14 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
   pageIndex = 0;
   pageSize = 25;
   totalSize = 0;
+  cols: any;
+  gridByBreakpoint = {
+    xl: 5,
+    lg: 4,
+    md: 3,
+    sm: 3,
+    xs: 1
+  }
   activePageDataChunk: any[] = [];
   constructor(
     private store: Store,
@@ -37,6 +46,7 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
     private helpers: HelpersService,
     private dialog: MatDialog,
     iconRegistry: MatIconRegistry,
+    private breakpointObserver: BreakpointObserver
   ) {
     this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
       if (icons) {
@@ -47,6 +57,32 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
       }
     });
     iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
+    this.breakpointObserver.observe([
+      Breakpoints.XSmall,
+      Breakpoints.Small,
+      Breakpoints.Medium,
+      Breakpoints.Large,
+      Breakpoints.XLarge,
+    ]).subscribe(result => {
+      if (result.matches) {
+        if (result.breakpoints[Breakpoints.XSmall]) {
+          this.cols = this.gridByBreakpoint.xs;
+        }
+        if (result.breakpoints[Breakpoints.Small]) {
+          this.cols = this.gridByBreakpoint.sm;
+        }
+        if (result.breakpoints[Breakpoints.Medium]) {
+          this.cols = this.gridByBreakpoint.md;
+        }
+        if (result.breakpoints[Breakpoints.Large]) {
+          this.cols = this.gridByBreakpoint.lg;
+        }
+        if (result.breakpoints[Breakpoints.XLarge]) {
+          this.cols = this.gridByBreakpoint.xl;
+        }
+      }
+    })
+    
    }
 
   ngOnInit(): void {
