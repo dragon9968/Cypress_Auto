@@ -210,15 +210,17 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
   }
 
   onRowDoubleClicked(row: RowDoubleClickedEvent) {
-    const dialogData = {
-      mode: 'postTask',
-      genData: row.data
-    };
-    this.dialog.open(ShowUserTaskDialogComponent, {
-      width: `${screen.width}px`,
-      autoFocus: false,
-      data: dialogData
-    });
+    this.userTaskService.get(row.data.id).subscribe(response => {
+      const dialogData = {
+        mode: 'postTask',
+        genData: response.result
+      };
+      this.dialog.open(ShowUserTaskDialogComponent, {
+        width: `${screen.width}px`,
+        autoFocus: false,
+        data: dialogData
+      });
+    })
   }
 
   selectedRows() {
