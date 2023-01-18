@@ -386,11 +386,16 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       }
       const el = this.cy.edges().filter(`[source=${src}][target=${targ}]`).length
       if (el > 0) {
-        // Add a new edge without connecting to the port group
-        return this.interfaceService.genData(this.edgeNode.data().node_id, undefined)
-          .subscribe(genData => {
-            this._openAddUpdateInterfaceDialog(genData, this.newEdgeData);
-          });
+        if (targ.includes('tempNode')) {
+          // Add a new edge without connecting to the port group
+          return this.interfaceService.genData(this.edgeNode.data().node_id, undefined)
+            .subscribe(genData => {
+              this._openAddUpdateInterfaceDialog(genData, this.newEdgeData);
+            });
+        } else {
+          // Add a new edge connecting to the port group with some of the edges already connected to this port group before.
+          return this._addNewEdge($event);
+        }
       }
       this._addNewEdge($event);
     } else if (this.isAddTunnel) {
@@ -1104,7 +1109,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       name: "",
       category,
       direction: "both",
-      curve_style: category == 'tunnel' ? 'bezier' : 'straight',
+      curve_style: 'bezier',
       color: this.selectedMapPref.edge_color,
       width: this.selectedMapPref.edge_width + "px",
     }
@@ -1129,6 +1134,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.edgePortGroup = null;
     this.isAddEdge = false;
     this.isAddTunnel = false;
+    this.isConnectToPG = false;
     this.store.dispatch(retrievedInterfaceIdConnectPG({ interfaceIdConnectPG: undefined }));
   }
 

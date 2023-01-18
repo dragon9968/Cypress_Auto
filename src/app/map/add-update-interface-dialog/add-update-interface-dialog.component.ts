@@ -192,6 +192,9 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
         cyData.text_size = cyData.logical_map_style.text_size;
         cyData.color = cyData.logical_map_style.color;
         this.helpers.addCYEdge(this.data.cy, { ...newEdgeData, ...cyData });
+        const edge = this.data.cy.getElementById(cyData.id);
+        edge.style('target-arrow-shape', 'none');
+        edge.style('source-arrow-shape', 'none');
       }
       this.toastr.success('Edge details added!');
       this.dialogRef.close();
@@ -287,6 +290,9 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
         cyData.text_size = cyData.logical_map_style.text_size;
         cyData.color = cyData.logical_map_style.color;
         this.helpers.addCYEdge(this.data.cy, { ...newEdgeData, ...cyData });
+        const edge = this.data.cy.getElementById(cyData.id);
+        edge.style('target-arrow-shape', 'none');
+        edge.style('source-arrow-shape', 'none');
         this.store.dispatch(retrievedMapSelection({ data: true }));
       }
       this.dialogRef.close();

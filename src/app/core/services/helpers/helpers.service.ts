@@ -225,7 +225,7 @@ export class HelpersService implements OnDestroy{
         selector: "edge",
         style: {
           "text-opacity": 1,
-          "curve-style": "straight",
+          "curve-style": "bezier",
           "line-color": defaults.edge.color,
           "width": defaults.edge.size,
           "zIndex": 999,
@@ -233,7 +233,8 @@ export class HelpersService implements OnDestroy{
           "text-margin-x": 20,
           "text-margin-y": -20,
           "text-rotation": "autorotate",
-          "arrow-scale": 3
+          "arrow-scale": 3,
+          "control-point-step-size": 100,
         },
       },
       {

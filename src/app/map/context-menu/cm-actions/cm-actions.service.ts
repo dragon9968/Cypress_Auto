@@ -208,7 +208,7 @@ export class CMActionsService {
                   name: "",
                   category: cyData.category,
                   direction: cyData.direction,
-                  curve_style: cyData.category == 'tunnel' ? 'bezier' : 'straight',
+                  curve_style: 'bezier',
                   color: logicalMapStyle.color,
                   width: logicalMapStyle.width,
                 }
