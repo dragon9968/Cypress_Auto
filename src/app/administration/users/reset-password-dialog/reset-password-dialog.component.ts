@@ -62,7 +62,7 @@ export class ResetPasswordDialogComponent implements OnInit {
 
   resetPassword() {
     const jsonData = {
-      password: this.passwordCtr?.value,
+      update_password: this.passwordCtr?.value,
     }
     this.userService.put(this.data.genData.id, jsonData).pipe(
       catchError((e: any) => {
