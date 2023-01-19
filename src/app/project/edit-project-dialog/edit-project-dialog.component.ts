@@ -45,6 +45,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
   isDisableButton = false;
   rowData!: any[];
   listUser!: any[];
+  usersData!: any[];
   listShared: any[] = [];
   isLoading = false;
   defaultColDef: ColDef = {
@@ -103,6 +104,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
     this.rowData = this.data.genData.networks
     this.userService.getAll().subscribe(data => {
       this.listUser = data.result;
+      this.usersData = data.result;
       if (this.data) {
         this.nameCtr?.setValue(this.data.genData.name);
         this.descriptionCtr?.setValue(this.data.genData.description);
@@ -235,7 +237,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
           } else {
             this.projectService.getProjectByStatusAndCategory('active', 'template').subscribe((data: any) => this.store.dispatch(retrievedProjectsTemplate({ template: data.result })));
           }
-          
+
         });
         this.dialogRef.close();
       });
@@ -291,7 +293,19 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
   }
 
   changeCategory($event: MatRadioChange) {
-    this.listShared = [];
-    if ($event.value == 'project') this.listShared.push(this.currentUser);
+    if($event.value == 'template') {
+      this.listUser = [];
+      this.listShared = [];
+      this.sharedCtr.disable();
+    } else {
+      this.sharedCtr.enable();
+      this.listUser = this.usersData;
+      if (this.data.genData.share.length > 0) {
+        this.data.genData.share.forEach((el: any) => {
+          this.listShared.push(el);
+          this.listUser = this.listUser.filter(value => value.username != el.username)
+        });
+      }
+    }
   }
 }
