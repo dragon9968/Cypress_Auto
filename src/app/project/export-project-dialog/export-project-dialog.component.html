@@ -1,5 +1,5 @@
 <form [formGroup]="exportForm" (ngSubmit)="exportProject()">
-  <h1 mat-dialog-title>Export Project</h1>
+  <h1 mat-dialog-title>{{ data.category === 'project' ? 'Export Project' : 'Export Project Template'}}</h1>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>File Name</mat-label>

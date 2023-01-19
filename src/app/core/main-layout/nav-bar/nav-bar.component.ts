@@ -62,6 +62,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   projectName: any;
   username: any;
   isAdmin = false;
+  categoryProject: any
 
   constructor(
     private authService: AuthService,
@@ -89,6 +90,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
       if (isOpen) {
         this.collectionId = this.projectService.getCollectionId();
         this.projectService.get(this.collectionId).subscribe(projectData => {
+          this.categoryProject = projectData.result.category
           this.store.dispatch(retrievedProjectName({ projectName: projectData.result.name }));
         });
       }
@@ -171,12 +173,12 @@ export class NavBarComponent implements OnInit, OnDestroy {
       this.projectService.get(this.collectionId).subscribe(resp => {
         const dialogData = {
           mode: 'update',
-          category: 'project',
+          category: resp.result.category,
           genData: resp.result
         }
         const dialogRef = this.dialog.open(EditProjectDialogComponent, {
           autoFocus: false,
-          width: '800px',
+          width: 'auto',
           data: dialogData
         });
       });
@@ -215,14 +217,17 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   exportProject() {
-    const dialogData = {
-      pks: [this.collectionId]
-    }
-    const dialogRef = this.dialog.open(ExportProjectDialogComponent, {
-      autoFocus: false,
-      width: '450px',
-      data: dialogData
-    });
+    this.projectService.get(this.collectionId).subscribe(data => {
+      const dialogData = {
+        pks: [this.collectionId],
+        category: data.result.category
+      }
+      this.dialog.open(ExportProjectDialogComponent, {
+        autoFocus: false,
+        width: '450px',
+        data: dialogData
+      });
+    })
   }
 
   importProject() {
@@ -235,7 +240,8 @@ export class NavBarComponent implements OnInit, OnDestroy {
   cloneProject() {
     this.projectService.get(this.collectionId).subscribe(data => {
       const dialogData = {
-        genData: data.result
+        genData: data.result,
+        category: data.result.category
       }
       this.dialog.open(CloneProjectDialogComponent, { 
         autoFocus: false,

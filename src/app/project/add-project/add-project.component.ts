@@ -48,6 +48,7 @@ export class AddProjectComponent implements OnInit {
   isHiddenTemplate = false;
   isHiddenOption = true;
   appPrefDefault!: any[];
+  isDisableTemplate = true;
   filteredTemplate!: Observable<any[]>;
 
   defaultColDef: ColDef = {
@@ -186,18 +187,21 @@ export class AddProjectComponent implements OnInit {
       this.isHiddenOption = true
       this.isHiddenNetwork = false
       this.checked = false
+      this.isDisableTemplate = true
     } else if (event.value === 'template') {
       this.isHiddenTemplate = true
       this.isHiddenOption = true
       if (!this.checked) {
         this.isHiddenNetwork = true
       }
+      this.isDisableTemplate = false
       this.checked = false
     } else {
       this.isHiddenOption = false
       this.checked = false
       this.isHiddenTemplate = false
       this.isHiddenNetwork = false
+      this.isDisableTemplate = true
     }
   }
 
@@ -227,7 +231,7 @@ export class AddProjectComponent implements OnInit {
         vlan_max: this.vlan_max?.value,
         networks: items
       }
-      if (!jsonData.template_id) {
+      if (!jsonData.template_id && !this.isDisableTemplate) {
         this.toastr.warning('The template field is required.')
       } else {
         this.projectService.add(jsonData).pipe(
@@ -236,7 +240,7 @@ export class AddProjectComponent implements OnInit {
             return throwError(() => e);
           })
           ).subscribe(rest =>{
-            this.toastr.success(`Created Project ${rest.result.name} successfully`);
+            this.toastr.success(`Created ${rest.result.category} ${rest.result.name} successfully`);
             if (this.category?.value === 'project') {
               this.router.navigate([RouteSegments.PROJECTS]);
             } else {

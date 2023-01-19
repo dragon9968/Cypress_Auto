@@ -89,7 +89,14 @@ export class TemplateComponent implements OnInit {
     private helpers: HelpersService
   ) {
     this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(templateData => {
-      this.rowData$ = of(templateData);
+      if (templateData) {
+        if (this.gridApi) {
+          this.gridApi.setRowData(templateData);
+        } else {
+          this.rowData$ = of(templateData);
+        }
+        this.updateRow();
+      }
     })
     iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json-info-panel.svg'));
   }
@@ -105,6 +112,16 @@ export class TemplateComponent implements OnInit {
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
     this.gridApi.sizeColumnsToFit();
+  }
+
+  updateRow() {
+    if (this.gridApi && this.rowsSelectedId.length > 0) {
+      this.gridApi.forEachNode(rowNode => {
+        if (this.rowsSelectedId.includes(rowNode.data.id)) {
+          rowNode.setSelected(true);
+        }
+      })
+    }
   }
 
   selectedRows() {
@@ -143,7 +160,6 @@ export class TemplateComponent implements OnInit {
       this.projectService.getProjectByStatusAndCategory(this.status, this.category).subscribe(data => {
         this.store.dispatch(retrievedProjectsTemplate({ template: data.result }));
         this.projectService.get(this.rowsSelectedId[0]).subscribe(data => {
-
           const dialogData = {
             mode: 'update',
             category: 'template',
