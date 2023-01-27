@@ -113,7 +113,7 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
       category: this.category?.value,
       device_id: this.data.deviceId,
       icon_id: this.icon?.value.id,
-      login_profile_id: this.loginProfile?.value.id
+      login_profile_id: this.loginProfile?.value.id ? this.loginProfile?.value.id : null
     }
     this.templateService.put(this.data.genData.id, jsonData).subscribe({
       next: (rest) => {
