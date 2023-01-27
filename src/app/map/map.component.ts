@@ -386,15 +386,21 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       }
       const el = this.cy.edges().filter(`[source=${src}][target=${targ}]`).length
       if (el > 0) {
-        if (targ.includes('tempNode')) {
+        if (targ.includes('tempNode') && this.edgeNode) {
           // Add a new edge without connecting to the port group
           return this.interfaceService.genData(this.edgeNode.data().node_id, undefined)
             .subscribe(genData => {
               this._openAddUpdateInterfaceDialog(genData, this.newEdgeData);
             });
-        } else {
+        } else if (!this.edgePortGroup) {
           // Add a new edge connecting to the port group with some of the edges already connected to this port group before.
           return this._addNewEdge($event);
+        } else if (targ.includes('node-')) {
+          this.toastr.warning('The edge is already existing!', 'Warning');
+          return this._unqueueEdge();
+        } else {
+          this.toastr.warning('Please select a node to create new edge!', 'Warning');
+          return this._unqueueEdge();
         }
       }
       this._addNewEdge($event);

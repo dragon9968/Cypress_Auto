@@ -178,7 +178,9 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
       const portGroupId = respData.result.port_group_id;
       if (portGroupId) {
         const newEdgeData = this.data.newEdgeData;
-        newEdgeData.target = newEdgeData.target === `pg-${portGroupId}` ? newEdgeData.target : `pg-${portGroupId}`;
+        if (!newEdgeData.target.includes('node')) {
+          newEdgeData.target = newEdgeData.target === `pg-${portGroupId}` ? newEdgeData.target : `pg-${portGroupId}`;
+        }
         const id = respData.id
         const ip_str = respData.result.ip ? respData.result.ip : ""
         const ip = ip_str.split(".")
