@@ -46,7 +46,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
     private infoPanelService: InfoPanelService
   ) {
     this.interfaceAddForm = new FormGroup({
-      orderCtr: new FormControl('', Validators.required),
+      orderCtr: new FormControl('',[Validators.required, Validators.pattern('^[0-9]*$')]),
       nameCtr: new FormControl('', Validators.required),
       descriptionCtr: new FormControl('', Validators.required),
       categoryCtr: new FormControl({ value: '', disabled: this.isViewMode || this.tabName == 'edgeManagement' }),

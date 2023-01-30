@@ -11,7 +11,8 @@
     <mat-form-field class="field">
       <mat-label>Order</mat-label>
       <input matInput formControlName="orderCtr" [readonly]="isViewMode">
-      <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="orderCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="orderCtr?.errors?.pattern">{{ errorMessages.FIELD_IS_NUMBER }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
