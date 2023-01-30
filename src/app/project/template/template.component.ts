@@ -6,6 +6,7 @@ import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, forkJoin, Observable, of, Subscription, throwError } from 'rxjs';
+import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { retrievedProjectsTemplate } from 'src/app/store/project/project.actions';
@@ -86,14 +87,20 @@ export class TemplateComponent implements OnInit {
     private store: Store,
     private dialog: MatDialog,
     private toastr: ToastrService,
-    private helpers: HelpersService
+    private helpers: HelpersService,
+    private authService: AuthService,
   ) {
+    const accessToken = this.authService.getAccessToken();
+    const accessTokenPayload = this.helpers.decodeToken(accessToken);
+    const userId = accessTokenPayload.identity;
     this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(templateData => {
       if (templateData) {
+        let newData = [...templateData]
+        newData = newData.filter((val: any) => val.created_by_fk === userId)
         if (this.gridApi) {
-          this.gridApi.setRowData(templateData);
+          this.gridApi.setRowData(newData);
         } else {
-          this.rowData$ = of(templateData);
+          this.rowData$ = of(newData);
         }
         this.updateRow();
       }

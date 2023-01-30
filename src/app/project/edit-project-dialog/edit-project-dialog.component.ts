@@ -23,6 +23,7 @@ import { validateNameExist } from 'src/app/shared/validations/name-exist.validat
 import { selectProjects, selectProjectTemplate, selectRecentProjects } from 'src/app/store/project/project.selectors';
 import { MatRadioChange } from '@angular/material/radio';
 import { selectUserProfile } from 'src/app/store/user-profile/user-profile.selectors';
+import { AuthService } from 'src/app/core/services/auth/auth.service';
 
 @Component({
   selector: 'app-edit-project-dialog',
@@ -93,6 +94,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
   ];
   constructor(
     public helpers: HelpersService,
+    private authService: AuthService,
     private projectService: ProjectService,
     private userService: UserService,
     private store: Store,
@@ -102,8 +104,12 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
     this.rowData = this.data.genData.networks
+    const accessToken = this.authService.getAccessToken();
+    const accessTokenPayload = this.helpers.decodeToken(accessToken);
+    const userId = accessTokenPayload.identity;
     this.userService.getAll().subscribe(data => {
       this.listUser = data.result;
+      this.listUser = this.listUser.filter(value => value.id != userId)
       this.usersData = data.result;
       if (this.data) {
         this.nameCtr?.setValue(this.data.genData.name);

@@ -6,6 +6,8 @@ import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ProjectService } from './services/project.service';
 import { selectProjects } from '../store/project/project.selectors';
 import { retrievedProjects } from '../store/project/project.actions';
+import { AuthService } from '../core/services/auth/auth.service';
+import { HelpersService } from '../core/services/helpers/helpers.service';
 
 @Component({
   selector: 'app-project',
@@ -22,6 +24,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   private gridApi!: GridApi;
   private selectProjects$ = new Subscription();
   rowData$!: Observable<any[]>;
+  shareProject!: any[];
   defaultColDef: ColDef = {
     sortable: true,
     resizable: true
@@ -65,11 +68,30 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   constructor(
     private projectService: ProjectService,
-    private store: Store
+    private store: Store,
+    private authService: AuthService,
+    private helpersService: HelpersService,
   ) {
+    const accessToken = this.authService.getAccessToken();
+    const accessTokenPayload = this.helpersService.decodeToken(accessToken);
+    const userId = accessTokenPayload.identity;
     this.selectProjects$ = this.store.select(selectProjects)
-      .subscribe((data: any) => {
-        this.rowData$ = of(data)
+      .subscribe((data) => {
+        this.projectService.getShareProject(this.status, 'project').subscribe((resp: any) => {
+          this.shareProject = resp.result
+        })
+        if (data) {
+          let newData = [...data]
+          newData = newData.filter((val: any) => val.created_by_fk === userId)
+          if (this.shareProject) {
+            Object.values(this.shareProject).forEach(element => {
+              newData.push(element)
+            });
+            this.rowData$ = of(newData)
+          } else {
+            this.rowData$ = of(newData)
+          }
+        }
       });
   }
 

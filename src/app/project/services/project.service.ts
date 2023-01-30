@@ -8,6 +8,7 @@ import { RouteSegments } from "../../core/enums/route-segments.enum";
 import { LocalStorageKeys } from 'src/app/core/storage/local-storage/local-storage-keys.enum';
 import { LocalStorageService } from 'src/app/core/storage/local-storage/local-storage.service';
 import { retrievedIsOpen } from "../../store/project/project.actions";
+import { HelpersService } from "src/app/core/services/helpers/helpers.service";
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +20,7 @@ export class ProjectService {
     private router: Router,
     private http: HttpClient,
     private localStorageService: LocalStorageService,
+    private helpersService: HelpersService
   ) { }
 
   getAll(): Observable<any> {
@@ -41,7 +43,15 @@ export class ProjectService {
     });
   }
 
-  get(id: number): Observable<any> {
+  getShareProject(status: string, category: string) : Observable<any>{
+    return this.http.get<any>(ApiPaths.SHARE_PROJECT, {
+      params: {
+        q: '(filters:!((col:status,opr:eq,value:' + status + '),(col:category,opr:eq,value:' + category + ')),keys:!(list_columns),page:0,page_size:1000)'
+      }
+    });
+  }
+
+  get(id: number): Observable<any>  {
     return this.http.get<any>(ApiPaths.PROJECTS + id);
   }
 
