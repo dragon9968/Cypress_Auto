@@ -1,15 +1,15 @@
 import { Store } from "@ngrx/store";
 import { ResizeEvent } from 'angular-resizable-element';
 import { Subscription } from "rxjs";
-import { ActivatedRoute, Params } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import { Component, Input, OnInit } from '@angular/core';
 import { NodeService } from "../../core/services/node/node.service";
+import { ProjectService } from "../../project/services/project.service";
 import { PortGroupService } from "../../core/services/portgroup/portgroup.service";
 import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
 import { DomainUserService } from "../../core/services/domain-user/domain-user.service";
 import { InterfaceService } from "../../core/services/interface/interface.service";
 import { retrievedNodes } from "../../store/node/node.actions";
-import { retrievedPortGroups } from "../../store/portgroup/portgroup.actions";
 import { retrievedDomainUsers } from "../../store/domain-user/domain-user.actions";
 import { retrievedIsChangeDomainUsers } from "../../store/domain-user-change/domain-user-change.actions";
 
@@ -39,6 +39,7 @@ export class InfoPanelComponent implements OnInit{
     private store: Store,
     private route: ActivatedRoute,
     private nodeService: NodeService,
+    private projectService: ProjectService,
     private portGroupService: PortGroupService,
     private infoPanelService: InfoPanelService,
     private interfaceService: InterfaceService,
@@ -67,9 +68,7 @@ export class InfoPanelComponent implements OnInit{
   }
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe((params: Params) => {
-      this.collectionId = params['collection_id'];
-    })
+    this.collectionId = this.projectService.getCollectionId();
     this.nodeService.getNodesByCollectionId(this.collectionId).subscribe(
       (data: any) => this.store.dispatch(retrievedNodes({ data: data.result }))
     );

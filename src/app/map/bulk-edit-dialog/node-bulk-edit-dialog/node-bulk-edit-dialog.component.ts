@@ -1,7 +1,7 @@
 import { Store } from "@ngrx/store";
 import { ToastrService } from "ngx-toastr";
+import { ActivatedRoute } from "@angular/router";
 import { FormControl, FormGroup } from "@angular/forms";
-import { ActivatedRoute, Params } from "@angular/router";
 import { forkJoin, map, Observable, of, Subscription } from "rxjs";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
@@ -11,6 +11,7 @@ import { ICON_PATH } from "src/app/shared/contants/icon-path.constant";
 import { ErrorMessages } from "../../../shared/enums/error-messages.enum";
 import { NodeService } from "../../../core/services/node/node.service";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
+import { ProjectService } from "../../../project/services/project.service";
 import { selectIcons } from "../../../store/icon/icon.selectors";
 import { selectDomains } from "../../../store/domain/domain.selectors";
 import { selectDevices } from "../../../store/device/device.selectors";
@@ -61,6 +62,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
     public dialogRef: MatDialogRef<NodeBulkEditDialogComponent>,
     public helpers: HelpersService,
     private nodeService: NodeService,
+    private projectService: ProjectService
   ) {
     this.nodeBulkEditForm = new FormGroup({
       iconCtr: new FormControl(''),
@@ -121,7 +123,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
     this.filteredRoles = this.helpers.filterOptions(this.roleCtr, this.ROLES);
     this.filteredTemplatesByDevice = this.templates.filter((template: any) => template.device_id == this.data.genData.device?.id);
     this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice, 'display_name');
-    this.route.queryParams.subscribe((params: Params) => this.collectionId = params['collection_id']);
+    this.collectionId = this.projectService.getCollectionId();
   }
 
   ngOnDestroy(): void {

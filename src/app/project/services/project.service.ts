@@ -73,15 +73,7 @@ export class ProjectService {
     }
     this.store.dispatch(retrievedIsOpen({data: true}));
     this.saveRecentProject({ project_id: collectionId }).subscribe(() => {
-      this.router.navigate(
-        [RouteSegments.MAP],
-        {
-          queryParams: {
-            category: 'logical',
-            collection_id: collectionId
-          }
-        }
-      );
+      this.router.navigate([RouteSegments.MAP]);
     })
   }
 

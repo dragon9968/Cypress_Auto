@@ -245,11 +245,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.connectionId = connection ? connection?.id : 0;
       }
     })
-    this.route.queryParams.subscribe((params: Params) => {
-      this.mapCategory = params['category'];
-      this.collectionId = params['collection_id'];
-      this.mapService.getMapData(params['category'], params['collection_id']).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
-    });
+    this.mapCategory = 'logical';
+    this.collectionId = this.projectService.getCollectionId();
+    this.mapService.getMapData(this.mapCategory, this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
     this.iconService.getAll().subscribe((data: any) => this.store.dispatch(retrievedIcons({ data: data.result })));
     this.deviceService.getAll().subscribe((data: any) => this.store.dispatch(retrievedDevices({ data: data.result })));
     this.templateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedTemplates({ data: data.result })));

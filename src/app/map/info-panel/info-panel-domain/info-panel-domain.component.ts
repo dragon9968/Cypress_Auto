@@ -2,22 +2,23 @@ import { Store } from "@ngrx/store";
 import { MatDialog } from "@angular/material/dialog";
 import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
+import { ActivatedRoute } from "@angular/router";
 import { MatIconRegistry } from "@angular/material/icon";
-import { ActivatedRoute, Params } from "@angular/router";
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Observable, of, Subscription, throwError } from "rxjs";
 import { GridApi, GridOptions, GridReadyEvent, RowDoubleClickedEvent } from "ag-grid-community";
 import { DomainService } from "../../../core/services/domain/domain.service";
+import { HelpersService } from "../../../core/services/helpers/helpers.service";
+import { ProjectService } from "../../../project/services/project.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { DomainUserService } from "../../../core/services/domain-user/domain-user.service";
-import { HelpersService } from "../../../core/services/helpers/helpers.service";
-import { AddUpdateDomainDialogComponent } from "../../add-update-domain-dialog/add-update-domain-dialog.component";
-import { AddDomainUserDialogComponent } from "./add-domain-user-dialog/add-domain-user-dialog.component";
-import { DomainBulkEditDialogComponent } from "../../bulk-edit-dialog/domain-bulk-edit-dialog/domain-bulk-edit-dialog.component";
-import { retrievedDomains } from "../../../store/domain/domain.actions";
 import { selectDomains } from "../../../store/domain/domain.selectors";
+import { retrievedDomains } from "../../../store/domain/domain.actions";
 import { DomainUserDialogComponent } from "./domain-user-dialog/domain-user-dialog.component";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
+import { AddDomainUserDialogComponent } from "./add-domain-user-dialog/add-domain-user-dialog.component";
+import { DomainBulkEditDialogComponent } from "../../bulk-edit-dialog/domain-bulk-edit-dialog/domain-bulk-edit-dialog.component";
+import { AddUpdateDomainDialogComponent } from "../../add-update-domain-dialog/add-update-domain-dialog.component";
 
 @Component({
   selector: 'app-info-panel-domain',
@@ -91,6 +92,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
     private iconRegister: MatIconRegistry,
     private helpers: HelpersService,
     private domainService: DomainService,
+    private projectService: ProjectService,
     private infoPanelService: InfoPanelService,
     private domainUserService: DomainUserService
   ) {
@@ -118,9 +120,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe((params: Params) => {
-      this.collectionId = params['collection_id'];
-    })
+    this.collectionId = this.projectService.getCollectionId();
     this.domainService.getDomainByCollectionId(this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedDomains({ data: data.result })));
   }
 

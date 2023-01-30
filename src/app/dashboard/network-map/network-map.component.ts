@@ -198,15 +198,7 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
 
   openMap() {
     this.store.dispatch(retrievedIsOpen({data: true}));
-    this.router.navigate(
-      [RouteSegments.MAP],
-      {
-        queryParams: {
-          category: 'logical',
-          collection_id: this.collectionId
-        }
-      }
-    );
+    this.router.navigate([RouteSegments.MAP]);
   }
 
   removeDashboard() {

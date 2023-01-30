@@ -2,15 +2,15 @@ import { Store } from "@ngrx/store";
 import { MatDialog } from "@angular/material/dialog";
 import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
+import { ActivatedRoute } from "@angular/router";
 import { MatIconRegistry } from "@angular/material/icon";
-import { ActivatedRoute, Params } from "@angular/router";
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Observable, of, Subscription, throwError } from "rxjs";
 import { GridApi, GridOptions, GridReadyEvent, RowDoubleClickedEvent } from "ag-grid-community";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
+import { ProjectService } from "../../../project/services/project.service";
 import { PortGroupService } from "../../../core/services/portgroup/portgroup.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
-import { retrievedMapSelection } from "../../../store/map-selection/map-selection.actions";
 import { selectPortGroupsManagement } from "../../../store/portgroup/portgroup.selectors";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { AddUpdatePGDialogComponent } from "../../add-update-pg-dialog/add-update-pg-dialog.component";
@@ -50,6 +50,7 @@ export class InfoPanelPortGroupManagementComponent implements OnInit, OnDestroy 
     private route: ActivatedRoute,
     private iconRegistry: MatIconRegistry,
     private helpers: HelpersService,
+    private projectService: ProjectService,
     private portGroupService: PortGroupService,
     private infoPanelService: InfoPanelService
   ) {
@@ -73,9 +74,7 @@ export class InfoPanelPortGroupManagementComponent implements OnInit, OnDestroy 
   }
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe((params: Params) => {
-      this.collectionId = params['collection_id'];
-    })
+    this.collectionId = this.projectService.getCollectionId();
   }
 
   ngOnDestroy(): void {

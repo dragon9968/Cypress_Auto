@@ -1,14 +1,15 @@
 import { Store } from "@ngrx/store";
 import { MatDialog } from "@angular/material/dialog";
 import { ToastrService } from "ngx-toastr";
-import { ActivatedRoute, Params } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import { Component, Input, OnInit } from '@angular/core';
 import { Observable, of, Subscription } from "rxjs";
 import { GridApi, GridOptions, GridReadyEvent, RowDoubleClickedEvent } from "ag-grid-community";
 import { GroupService } from "../../../core/services/group/group.service";
+import { ProjectService } from "../../../project/services/project.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
-import { retrievedGroups } from "../../../store/group/group.actions";
 import { selectGroups } from "../../../store/group/group.selectors";
+import { retrievedGroups } from "../../../store/group/group.actions";
 import { AddUpdateGroupDialogComponent } from "../../add-update-group-dialog/add-update-group-dialog.component";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 
@@ -87,6 +88,7 @@ export class InfoPanelGroupComponent implements OnInit {
     private dialog: MatDialog,
     private toastr: ToastrService,
     private groupService: GroupService,
+    private projectService: ProjectService,
     private infoPanelService: InfoPanelService
   ) {
     this.selectGroups$ = this.store.select(selectGroups).subscribe(groupData => {
@@ -120,11 +122,8 @@ export class InfoPanelGroupComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe((params: Params) => {
-      this.mapCategory = params['category'];
-      this.collectionId = params['collection_id'];
-    }
-    )
+    this.mapCategory = 'logical';
+    this.collectionId = this.projectService.getCollectionId();
     this.selectGroups$ = this.groupService.getGroupByCollectionId(this.collectionId).subscribe(
       groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
     )
