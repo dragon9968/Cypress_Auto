@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { CMDisconnectService } from './cm-disconnect.service';
+import { CMInterfaceService } from './cm-interface.service';
 
-describe('CMDisconnectService', () => {
-  let service: CMDisconnectService;
+describe('CMInterfaceInNodeService', () => {
+  let service: CMInterfaceService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(CMDisconnectService);
+    service = TestBed.inject(CMInterfaceService);
   });
 
   it('should be created', () => {

@@ -63,9 +63,8 @@ import { retrievedMapImages } from '../store/map-image/map-image.actions';
 import { RouteSegments } from "../core/enums/route-segments.enum";
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { retrievedMapEdit } from "../store/map-edit/map-edit.actions";
-import { CMConnectService } from "./context-menu/cm-connect/cm-connect.service";
 import { selectInterfaceIdConnectPG } from "../store/interface/interface.selectors";
-import { CMDisconnectService } from "./context-menu/cm-disconnect/cm-disconnect.service";
+import { CMInterfaceService } from "./context-menu/cm-interface/cm-interface.service";
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -171,8 +170,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     private dialog: MatDialog,
     private toastr: ToastrService,
     private cmAddService: CMAddService,
-    private cmConnectService: CMConnectService,
-    private cmDisconnectService: CMDisconnectService,
+    private cmInterfaceService: CMInterfaceService,
     private cmActionsService: CMActionsService,
     private cmViewDetailsService: CMViewDetailsService,
     private cmEditService: CMEditService,
@@ -842,10 +840,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       menuItems: [
         this.cmGroupBoxService.getMoveToFrontMenu(),
         this.cmGroupBoxService.getMoveToBackMenu(),
-        this.cmAddService.getNodeAddMenu(this.queueEdge.bind(this)),
-        this.cmConnectService.getNodeConnectMenu(this.queueEdge.bind(this), this.cy, this.activeNodes),
-        this.cmDisconnectService.getNodeDisconnectMenu(this.queueEdge.bind(this), this.cy, this.activeNodes),
-        this.cmAddService.getPortGroupAddMenu(this.queueEdge.bind(this)),
+        this.cmInterfaceService.getNodeInterfaceMenu(this.queueEdge.bind(this), this.cy, this.activeNodes),
+        this.cmInterfaceService.getPortGroupInterfaceMenu(this.queueEdge.bind(this)),
         this.cmAddService.getEdgeAddMenu(),
         this.cmActionsService.getNodeActionsMenu(this.cy, this.activeNodes),
         this.cmActionsService.getPortGroupActionsMenu(this.cy, this.collectionId, this.activePGs),
