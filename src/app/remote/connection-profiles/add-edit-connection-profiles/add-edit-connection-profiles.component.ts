@@ -90,7 +90,6 @@ export class AddEditConnectionProfilesComponent implements OnInit {
         this.managementNetwork?.setValue(this.data.genData.parameters.management_network);
         this.username?.setValue(this.data.genData.parameters.username);
         this.password?.setValue(this.data.genData.parameters.password);
-        this.updatePassword?.setValue('update');
         if (this.data.genData.category === 'datasource') {
           this.isHiddenField = true;
           this.certFile?.setValue(this.data.genData.parameters.cert_file);

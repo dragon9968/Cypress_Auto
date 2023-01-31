@@ -48,7 +48,6 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
       managementNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.preferences.network_space.management.network, "management"), ipSubnetValidation(false)]),
       dhcpServerCtr: new FormControl(''),
     });
-    console.log(this.data)
     if (this.data) {
       // this.sessionTimeoutCtr?.setValue(this.data.genData.preferences.session_timeout);
       this.mapPrefCtr?.setValue(this.data.genData.preferences.map_preferences);
