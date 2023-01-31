@@ -1,6 +1,5 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
@@ -74,10 +73,11 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
       else {
         this.helpers.setAutoCompleteValue(this.icon, this.listIcon, '');
       }
-        this.data.genData.category.forEach((el: any) => {
-        this.listCategory.push(el);
-        this.listDeviceCategory = this.listDeviceCategory.filter(value => value.id != el.id)
-      });
+      this.category?.setValue(this.data.genData.category.map((ele: any) => ele.name));
+      // this.data.genData.category.forEach((el: any) => {
+      //   this.listCategory.push(el);
+      //   this.listDeviceCategory = this.listDeviceCategory.filter(value => value.id != el.id)
+      // });
     }
   }
 
@@ -128,21 +128,21 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
     this.dialogRef.close();
   }
 
-  remove(category: any): void {
-    const index = this.listCategory.indexOf(category);
-    if (index >= 0) {
-      this.listCategory.splice(index, 1);
-      if ((this.data.mode === 'add') || (this.data.mode === 'update')) {
-        this.listDeviceCategory.unshift(category)
-      }
-    }
-  }
+  // remove(category: any): void {
+  //   const index = this.listCategory.indexOf(category);
+  //   if (index >= 0) {
+  //     this.listCategory.splice(index, 1);
+  //     if ((this.data.mode === 'add') || (this.data.mode === 'update')) {
+  //       this.listDeviceCategory.unshift(category)
+  //     }
+  //   }
+  // }
 
-  selectDeviceCategory(event: MatAutocompleteSelectedEvent) {
-    this.listCategory.push(event.option.value)
-    Object.values(this.listCategory).forEach(val => {
-      this.listDeviceCategory = this.listDeviceCategory.filter(value => value.id != val.id)
-    });
-  }
+  // selectDeviceCategory(event: MatAutocompleteSelectedEvent) {
+  //   this.listCategory.push(event.option.value)
+  //   Object.values(this.listCategory).forEach(val => {
+  //     this.listDeviceCategory = this.listDeviceCategory.filter(value => value.id != val.id)
+  //   });
+  // }
 
 }

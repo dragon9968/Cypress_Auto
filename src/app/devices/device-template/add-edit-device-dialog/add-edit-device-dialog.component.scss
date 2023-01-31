@@ -6,3 +6,15 @@
   display: flex;
   align-items: center;
 }
+
+.ng-select-categories {
+  font-family: 'Roboto', sans-serif;
+}
+
+::ng-deep .ng-placeholder {
+  margin-top: 4px;
+}
+
+::ng-deep ng-dropdown-panel {
+  position: relative !important;
+}

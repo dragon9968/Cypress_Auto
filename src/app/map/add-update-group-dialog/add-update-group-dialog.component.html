@@ -40,6 +40,7 @@
 
     <ng-select
       *ngIf="!isViewMode && data.mode !== 'add'"
+      class="ng-select-nodes"
       formControlName="nodesCtr"
       [items]="nodes"
       [multiple]="true"
@@ -55,6 +56,7 @@
 
     <ng-select
       *ngIf="!isViewMode && data.mode !== 'add'"
+      class="ng-select-port-groups"
       formControlName="portGroupsCtr"
       [items]="portGroups"
       [multiple]="true"

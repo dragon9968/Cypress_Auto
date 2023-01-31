@@ -9,7 +9,7 @@
     </mat-form-field>
 
     <ng-select formControlName="category" [items]="listDeviceCategory" [multiple]="true" bindLabel="name" bindValue="name"
-      placeholder="Category">
+      placeholder="Category" class="ng-select-categories">
       <ng-template ng-option-tmp let-item="item" let-index="index">
         <div class="configurations-option-text">
           <span class="option-text-items"><b>{{ item.name }}</b></span>
