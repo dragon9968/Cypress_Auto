@@ -133,17 +133,17 @@ export class AddProjectComponent implements OnInit {
         let pubNetwork = {
           "network": data.preferences.public_network ? data.preferences.public_network : "10.0.0.0/8",
           "category": "public",
-          "reserved_ip": data.preferences.reserved_ip
+          "reserved_ip": data.preferences.network_space.public.reserved_ip.reserved_ip
         }
         let privNetwork = {
           "network": data.preferences.network ? data.preferences.network : "192.168.0.0/16",
           "category": "private",
-          "reserved_ip": data.preferences.private_reserved_ip
+          "reserved_ip": data.preferences.network_space.private.reserved_ip.reserved_ip
         }
         let manNetwork = {
           "network": data.preferences.management_network ? data.preferences.management_network : "172.16.0.0/22",
           "category": "management",
-          "reserved_ip": data.preferences.management_reserved_ip
+          "reserved_ip": data.preferences.network_space.management.reserved_ip.reserved_ip
         }
         this.rowData = [pubNetwork, privNetwork, manNetwork]
       }
