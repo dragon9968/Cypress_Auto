@@ -7,7 +7,8 @@ import {
   retrievedDashboard,
   retrievedProjectName,
   retrievedRecentProjects,
-  retrievedProjectsTemplate
+  retrievedProjectsTemplate,
+  retrievedAllProjects
 } from './project.actions';
 
 const initialState = {} as ProjectState;
@@ -41,5 +42,9 @@ export const projectReducer = createReducer(
   on(retrievedProjectsTemplate, (state, { template }) => ({
     ...state,
     template: template
+  })),
+  on(retrievedAllProjects, (state, { listAllProject }) => ({
+    ...state,
+    listAllProject: listAllProject
   }))
 );

@@ -42,7 +42,8 @@ export class ExportProjectDialogComponent implements OnInit, OnDestroy {
   get fileNameCtr() { return this.exportForm.get('fileNameCtr') }
 
   ngOnInit(): void {
-    this.fileNameCtr?.setValue(this.projectName + '-' + this.helpers.getDateformatYYYYMMDDHHMMSS(new Date()));
+    let projectNameExport = this.data.type === 'user' ? this.projectName : this.data.name
+    this.fileNameCtr?.setValue(projectNameExport + '-' + this.helpers.getDateformatYYYYMMDDHHMMSS(new Date()));
   }
 
   onCancel() {

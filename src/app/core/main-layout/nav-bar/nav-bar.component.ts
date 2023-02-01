@@ -220,7 +220,8 @@ export class NavBarComponent implements OnInit, OnDestroy {
     this.projectService.get(this.collectionId).subscribe(data => {
       const dialogData = {
         pks: [this.collectionId],
-        category: data.result.category
+        category: data.result.category,
+        type: 'user'
       }
       this.dialog.open(ExportProjectDialogComponent, {
         autoFocus: false,

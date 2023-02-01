@@ -12,6 +12,7 @@ import { UserService } from 'src/app/core/services/user/user.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import {
+  retrievedAllProjects,
   retrievedProjectName,
   retrievedProjects,
   retrievedProjectsTemplate,
@@ -49,6 +50,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
   usersData!: any[];
   listShared: any[] = [];
   isLoading = false;
+  status = 'active';
   defaultColDef: ColDef = {
     sortable: true,
     resizable: true,
@@ -127,11 +129,11 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
     })
     if (this.data.category === 'project') {
       this.selectProjects$ = this.store.select(selectProjects).subscribe(projects => {
-        this.listProjects = projects;
+      this.listProjects = projects;
       });
     } else {
       this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(templateData => {
-        this.listProjects = templateData;
+      this.listProjects = templateData;
       });
     }
 
@@ -239,11 +241,11 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
         this.projectService.associate(configData).subscribe(respData => {
           this.toastr.success(`Update ${jsonData.category} successfully`)
           if (jsonData.category === 'project') {
-            this.projectService.getProjectByStatusAndCategory('active', 'project').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
+            this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
           } else {
-            this.projectService.getProjectByStatusAndCategory('active', 'template').subscribe((data: any) => this.store.dispatch(retrievedProjectsTemplate({ template: data.result })));
+            this.projectService.getProjectByStatusAndCategory(this.status, 'template').subscribe((data: any) => this.store.dispatch(retrievedProjectsTemplate({ template: data.result })));
           }
-
+          this.projectService.getProjectByStatus(this.status).subscribe((data: any) => this.store.dispatch(retrievedAllProjects({ listAllProject: data.result })));
         });
         this.dialogRef.close();
       });

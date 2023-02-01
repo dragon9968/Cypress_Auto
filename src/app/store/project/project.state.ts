@@ -5,5 +5,6 @@ export interface ProjectState {
   dashboard: any,
   projectName: any,
   recentProjects: any[],
-  template: any[]
+  template: any[],
+  listAllProject: any[]
 }

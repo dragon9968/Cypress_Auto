@@ -1,13 +1,21 @@
 import { Store } from '@ngrx/store';
 import { AgGridAngular } from 'ag-grid-angular';
-import { Observable, of, Subscription } from 'rxjs';
+import { catchError, forkJoin, Observable, of, Subscription, throwError } from 'rxjs';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ProjectService } from './services/project.service';
-import { selectProjects } from '../store/project/project.selectors';
-import { retrievedProjects } from '../store/project/project.actions';
+import { selectAllProjects, selectProjects, selectProjectTemplate } from '../store/project/project.selectors';
+import { retrievedAllProjects, retrievedProjects, retrievedProjectsTemplate } from '../store/project/project.actions';
 import { AuthService } from '../core/services/auth/auth.service';
 import { HelpersService } from '../core/services/helpers/helpers.service';
+import { Router } from '@angular/router';
+import { RouteSegments } from '../core/enums/route-segments.enum';
+import { MatIconRegistry } from '@angular/material/icon';
+import { ToastrService } from 'ngx-toastr';
+import { MatDialog } from '@angular/material/dialog';
+import { EditProjectDialogComponent } from './edit-project-dialog/edit-project-dialog.component';
+import { ConfirmationDialogComponent } from '../shared/components/confirmation-dialog/confirmation-dialog.component';
+import { ExportProjectDialogComponent } from './export-project-dialog/export-project-dialog.component';
 
 @Component({
   selector: 'app-project',
@@ -17,22 +25,41 @@ import { HelpersService } from '../core/services/helpers/helpers.service';
 export class ProjectComponent implements OnInit, OnDestroy {
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
   quickFilterValue = '';
+  routeSegments = RouteSegments;
   id: any;
   category: any;
+  categoryPage: any;
   status = 'active';
+  rowsSelected: any[] = [];
+  rowsSelectedId: any[] = [];
   isSubmitBtnDisabled: boolean = true;
   private gridApi!: GridApi;
   private selectProjects$ = new Subscription();
+  selectProjectTemplate$ = new Subscription();
+  selectAllProjects$ = new Subscription();
   rowData$!: Observable<any[]>;
   shareProject!: any[];
+  isAdmin = true;
+  projetcAdminUrl = `${this.routeSegments.ROOT + this.routeSegments.PROJECTS_ADMINISTRATION}`
+  templatePageUrl = `${this.routeSegments.ROOT + this.routeSegments.TEMPLATES}`
+  projectPageUrl = `${this.routeSegments.ROOT + this.routeSegments.PROJECTS}`
+
   defaultColDef: ColDef = {
     sortable: true,
     resizable: true
   };
   columnDefs: ColDef[] = [
     {
+      headerCheckboxSelection: true,
+      checkboxSelection: true,
+      suppressSizeToFit: true,
+      width: 52,
+      hide: this.router.url !== this.projetcAdminUrl
+    },
+    {
       field: 'id',
       hide: true,
+      getQuickFilterText: () => ''
     },
     {
       field: 'name',
@@ -41,6 +68,11 @@ export class ProjectComponent implements OnInit, OnDestroy {
     {
       field: 'description',
       flex: 1,
+    },
+    {
+      field: 'category',
+      flex: 1,
+      hide: this.router.url !== this.projetcAdminUrl
     },
     {
       headerName: 'Created By',
@@ -68,6 +100,10 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   constructor(
     private projectService: ProjectService,
+    private dialog: MatDialog,
+    private router: Router,
+    iconRegistry: MatIconRegistry,
+    private toastr: ToastrService,
     private store: Store,
     private authService: AuthService,
     private helpersService: HelpersService,
@@ -75,7 +111,17 @@ export class ProjectComponent implements OnInit, OnDestroy {
     const accessToken = this.authService.getAccessToken();
     const accessTokenPayload = this.helpersService.decodeToken(accessToken);
     const userId = accessTokenPayload.identity;
-    this.selectProjects$ = this.store.select(selectProjects)
+    this.isAdmin = this.router.url === this.projetcAdminUrl
+    if (this.router.url === this.templatePageUrl) {
+      this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(templateData => {
+        if (templateData) {
+          let newTemplateData = [...templateData]
+          newTemplateData = newTemplateData.filter((val: any) => val.created_by_fk === userId)
+          this.rowData$ = of(newTemplateData)
+        }
+      });
+    } else if (this.router.url === this.projectPageUrl) {
+      this.selectProjects$ = this.store.select(selectProjects)
       .subscribe((data) => {
         this.projectService.getShareProject(this.status, 'project').subscribe((resp: any) => {
           this.shareProject = resp.result
@@ -87,16 +133,28 @@ export class ProjectComponent implements OnInit, OnDestroy {
             Object.values(this.shareProject).forEach(element => {
               newData.push(element)
             });
-            this.rowData$ = of(newData)
-          } else {
-            this.rowData$ = of(newData)
           }
+          this.rowData$ = of(newData)
         }
       });
+    } else {
+      this.selectAllProjects$ = this.store.select(selectAllProjects).subscribe((data: any) => {
+        this.rowData$ = of(data)
+      })
+    }
+      iconRegistry.addSvgIcon('export-json', this.helpersService.setIconPath('/assets/icons/export-json-info-panel.svg'));
   }
 
   ngOnInit(): void {
-    this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
+    if (!this.isAdmin && this.router.url === this.projectPageUrl) {
+      this.categoryPage = 'project'
+      this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
+    } else if (!this.isAdmin && this.router.url === this.templatePageUrl) {
+      this.categoryPage = 'template'
+      this.projectService.getProjectByStatusAndCategory(this.status, 'template').subscribe((data: any) => this.store.dispatch(retrievedProjectsTemplate({ template: data.result })));
+    } else {
+      this.projectService.getProjectByStatus(this.status).subscribe((data: any) => this.store.dispatch(retrievedAllProjects({ listAllProject: data.result })));
+    }
   }
 
   ngOnDestroy(): void {
@@ -118,8 +176,17 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   onRowDoubleClicked() {
-    const collectionIdSelected = this.gridApi.getSelectedRows()[0]["id"];
-    this.projectService.openProject(collectionIdSelected);
+    if (!this.isAdmin) {
+      const collectionIdSelected = this.gridApi.getSelectedRows()[0]["id"];
+      this.projectService.openProject(collectionIdSelected);
+    }
+  }
+
+  selectedRows() {
+    if (this.isAdmin) {
+      this.rowsSelected = this.gridApi.getSelectedRows();
+      this.rowsSelectedId = this.rowsSelected.map(ele => ele.id);
+    }
   }
 
   openProject() {
@@ -129,6 +196,88 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   onQuickFilterInput(event: any) {
     this.gridApi.setQuickFilter(event.target.value);
+  }
+
+  clearRow() {
+    this.gridApi.deselectAll();
+    this.rowsSelected = [];
+    this.rowsSelectedId = [];
+  }
+
+  editProject() {
+    if (this.rowsSelectedId.length === 0) {
+      this.toastr.info('No row selected');
+    } else if (this.rowsSelectedId.length === 1) {
+        this.projectService.get(this.rowsSelectedId[0]).subscribe(data => {
+          this.projectService.getProjectByStatusAndCategory(this.status, `${data.result.category}`).subscribe((resp: any) => {
+            if (data.result.category === 'project') {
+              this.store.dispatch(retrievedProjects({data: resp.result}));
+            } else if (data.result.category === 'template') {
+              this.store.dispatch(retrievedProjectsTemplate({ template: resp.result }));
+            }
+            const dialogData = {
+              mode: 'update',
+              category: data.result.category,
+              genData: data.result
+            }
+            this.dialog.open(EditProjectDialogComponent, {
+              autoFocus: false,
+              width: '600px',
+              data: dialogData
+            });
+          });
+        });
+    } else {
+      this.toastr.info('Bulk edits do not apply to projects.<br> Please select only one project',
+          'Info', { enableHtml: true });
+    }
+  }
+
+  deleteProject() {
+    if (this.rowsSelectedId.length == 0) {
+      this.toastr.info('No row selected');
+    } else {
+      const suffix = this.rowsSelectedId.length === 1 ? 'this item' : 'these items';
+      const dialogData = {
+        title: 'User confirmation needed',
+        message: `Are you sure you want to delete ${suffix}?`,
+        submitButtonName: 'OK'
+      }
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          forkJoin(this.rowsSelectedId.map(id => {
+            const jsonData = {
+              pk: id,
+              status: 'delete'
+            }
+            return this.projectService.deleteOrRecoverProject(jsonData).pipe(
+              catchError((e: any) => {
+                this.toastr.error(e.error.message);
+                return throwError(() => e);
+              })
+            );
+          })).subscribe(() => {
+            this.toastr.success('Deleted Project(s) successfully', 'Success');
+            this.projectService.getProjectByStatus(this.status).subscribe((data: any) => this.store.dispatch(retrievedAllProjects({ listAllProject: data.result })));
+            this.clearRow();
+          })
+        }
+      })
+    }
+  }
+
+  exportProject() {
+    if (this.rowsSelectedId.length === 0) {
+      this.toastr.info('No row selected');
+    } else {
+      const dialogData = {
+        pks: this.rowsSelectedId,
+        name: this.rowsSelectedId.length === 1 ? this.rowsSelected[0].name : 'Projects',
+        type: 'admin'
+      }
+      this.dialog.open(ExportProjectDialogComponent, { autoFocus: false, width: '400px', data: dialogData });
+    }
   }
 
 }

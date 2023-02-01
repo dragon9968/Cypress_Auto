@@ -10,7 +10,6 @@ import { TrashBinProjectComponent } from './trash-bin-project/trash-bin-project.
 import { ImportProjectDialogComponent } from './import-project-dialog/import-project-dialog.component';
 import { ButtonRenderersComponent } from './renderers/button-renderers-component';
 import { ValidateProjectDialogComponent } from './validate-project-dialog/validate-project-dialog.component';
-import { TemplateComponent } from './template/template.component';
 import { CloneProjectDialogComponent } from './clone-project-dialog/clone-project-dialog.component';
 
 
@@ -25,7 +24,6 @@ import { CloneProjectDialogComponent } from './clone-project-dialog/clone-projec
     ImportProjectDialogComponent,
     ButtonRenderersComponent,
     ValidateProjectDialogComponent,
-    TemplateComponent,
     CloneProjectDialogComponent
   ],
   imports: [

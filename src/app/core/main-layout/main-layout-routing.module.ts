@@ -42,6 +42,16 @@ const routes: AppRoute[] = [
           ),
       },
       {
+        path: RouteSegments.PROJECTS_ADMINISTRATION,
+        data: {
+          permissionLevel: PermissionLevels.ADMIN,
+        },
+        loadChildren: () =>
+          import('../../project/project.module').then(
+            (m) => m.ProjectModule
+          ),
+      },
+      {
         path: RouteSegments.DEVICES,
         data: {
           permissionLevel: PermissionLevels.USER,
@@ -57,8 +67,8 @@ const routes: AppRoute[] = [
           permissionLevel: PermissionLevels.USER,
         },
         loadChildren: () =>
-          import('../../templates/templates.module').then(
-            (m) => m.TemplatesModule
+          import('../../project/project.module').then(
+            (m) => m.ProjectModule
           ),
       },
       {

@@ -9,6 +9,7 @@ export enum RouteSegments {
   SETTINGS = 'settings',
   HELP = 'help',
   ADMINISTRATION = 'administration',
+  PROJECTS_ADMINISTRATION = 'administration/projects',
   MAP = 'map',
   USER_PROFILE = 'user-profile',
   ADD_PROJECT = 'projects/add',
