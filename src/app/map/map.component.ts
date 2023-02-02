@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { catchError, delay, ReplaySubject, Subject, Subscription, throwError } from 'rxjs';
 import { retrievedIsMapOpen, retrievedMap } from '../store/map/map.actions';

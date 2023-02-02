@@ -14,6 +14,10 @@ import { CommonService } from 'src/app/map/context-menu/cm-common-service/common
 import { retrievedMapContextMenu } from 'src/app/store/map-context-menu/map-context-menu.actions';
 import { retrievedMap } from 'src/app/store/map/map.actions';
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
+import { GroupService } from "../../core/services/group/group.service";
+import { selectGroups } from "../../store/group/group.selectors";
+import { selectNodesByCollectionId } from "../../store/node/node.selectors";
+import { retrievedGroups } from "../../store/group/group.actions";
 
 @Component({
   selector: 'app-tool-panel',
@@ -42,10 +46,15 @@ export class ToolPanelComponent implements OnDestroy {
   updatedInterfaces: any[] = [];
   updatedGroupBoxes: any[] = [];
   updatedMapBackgrounds: any[] = [];
+  updatedNodeAndPGInGroups: any[] = [];
+  groups: any[] = [];
+  nodes: any[] = [];
   selectMapOption$ = new Subscription();
   selectMapPref$ = new Subscription();
   selectDefaultPreferences$ = new Subscription();
   selectMapContextMenu$ = new Subscription();
+  selectGroups$ = new Subscription();
+  selectNodes$ = new Subscription();
   isEdgeDirectionChecked!: boolean;
   isGroupBoxesChecked!: boolean;
   isMapGridChecked!: boolean;
@@ -61,6 +70,7 @@ export class ToolPanelComponent implements OnDestroy {
     private toastr: ToastrService,
     private mapService: MapService,
     private dialog: MatDialog,
+    private groupService: GroupService,
     private helpersService: HelpersService,
     private commonService: CommonService
   ) {
@@ -93,12 +103,17 @@ export class ToolPanelComponent implements OnDestroy {
         this.store.dispatch(retrievedMapContextMenu({ data: { event: undefined } }));
       }
     });
+    this.selectGroups$ = this.store.select(selectGroups).subscribe(groups => this.groups = groups);
+    this.selectNodes$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => this.nodes = nodes);
   }
 
   ngOnDestroy() {
+    this.selectNodes$.unsubscribe();
+    this.selectGroups$.unsubscribe();
     this.selectMapOption$.unsubscribe();
     this.selectMapPref$.unsubscribe();
     this.selectMapContextMenu$.unsubscribe();
+    this.selectDefaultPreferences$.unsubscribe();
   }
 
   download() {
@@ -130,6 +145,8 @@ export class ToolPanelComponent implements OnDestroy {
       }
     });
 
+    this.getUpdatedNodesInGroup();
+
     const updatedMapOptions = {
       accessed: true,
       edge_direction_checkbox: this.isEdgeDirectionChecked,
@@ -149,6 +166,7 @@ export class ToolPanelComponent implements OnDestroy {
       deletedNodes: this.deletedNodes,
       deletedInterfaces: this.deletedInterfaces,
       updatedGroupBoxes: this.updatedGroupBoxes,
+      updatedNodeAndPGInGroups: this.updatedNodeAndPGInGroups,
       updatedMapOptions
     }
     this.mapService.saveMap(this.collectionId, this.mapCategory, jsonData).pipe(
@@ -171,6 +189,9 @@ export class ToolPanelComponent implements OnDestroy {
           data.updated = false;
         }
       });
+      if (this.updatedNodeAndPGInGroups.length > 0) {
+        this.updateNodesAndPGInGroupStorageAndMap();
+      }
       this.toastr.success("Map saved");
     })
     this.updatedNodes.splice(0);
@@ -206,7 +227,6 @@ export class ToolPanelComponent implements OnDestroy {
 
   undo() {
     this.commonService?.ur.undo();
-
   }
 
   redo() {
@@ -368,5 +388,46 @@ export class ToolPanelComponent implements OnDestroy {
       updatedMapBackground.elem_category = data.elem_category;
     }
     this.updatedMapBackgrounds.push(updatedMapBackground);
+  }
+
+  getUpdatedNodesInGroup() {
+    this.groups.map(group => {
+      const groupElement = this.cy.getElementById(`group-${group.id}`);
+      const nodeIdsInGroup = group.nodes.map((node: any) => node.id);
+      const nodeIdsInGroupElement = groupElement.children('[elem_category="node"]').map((node: any) => node.data('node_id'));
+      const isNodesInGroupChange = JSON.stringify(nodeIdsInGroup.sort()) !== JSON.stringify(nodeIdsInGroupElement.sort());
+      if (isNodesInGroupChange) {
+        this.updatedNodeAndPGInGroups.push({
+          group_id: group.id,
+          domain_id: group.domain_id,
+          domain: group.domain,
+          nodes: nodeIdsInGroupElement
+        })
+      }
+    })
+  }
+
+  updateNodesAndPGInGroupStorageAndMap() {
+    let newGroups = JSON.parse(JSON.stringify(this.groups));
+    this.updatedNodeAndPGInGroups.map(group => {
+      const indexGroup = newGroups.findIndex((ele: any) => ele.id === group.group_id);
+      let newGroup = newGroups[indexGroup];
+      let nodes: any[] = [];
+      group.nodes.map((nodeId: any) => {
+        // Update domain data for the nodes
+        const nodeEle = this.cy.getElementById(`node-${nodeId}`);
+        nodeEle.data('domain_id', group.domain_id);
+        nodeEle.data('domain', group.domain);
+        // Update the list of nodes in the group's storage
+        const node = this.nodes.find(node => node.id === nodeId)
+        nodes.push({id: nodeId, name: node.name})
+      });
+      newGroup.nodes = nodes;
+      newGroups.splice(indexGroup, 1, newGroup);
+      // TODO: Update the list of port groups in the group box storage
+    })
+    this.updatedNodeAndPGInGroups.splice(0);
+    this.store.dispatch(retrievedGroups({ data: newGroups }));
+    this.store.dispatch(retrievedMapSelection({ data: true }));
   }
 }
