@@ -1,0 +1,21 @@
+.field {
+  width: 100%;
+}
+
+::ng-deep div.listbox {
+  font-family: 'Roboto', sans-serif;
+}
+
+::ng-deep div.record-picker {
+  height: 400px;
+}
+
+::ng-deep .record-picker ul li{
+  font-size: 1.2rem;
+}
+
+.permissions {
+  display: flex;
+  flex-direction: column;
+  font-family: 'Roboto', sans-serif;
+}

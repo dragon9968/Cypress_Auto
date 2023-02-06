@@ -9,3 +9,8 @@ export const retrievedRole = createAction(
   'retrievedRole',
   props<{role: any}>()
 )
+
+export const retrievedPermissions = createAction(
+  'retrievedPermissions',
+  props<{permissions: any}>()
+)

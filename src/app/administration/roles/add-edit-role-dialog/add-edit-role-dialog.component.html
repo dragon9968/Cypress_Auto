@@ -1,0 +1,20 @@
+<form [formGroup]="rolesForm" (ngSubmit)="data.mode === 'add' ? addRole() : updateRole()">
+  <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Role' : data.mode === 'update' ? 'Edit Role' : 'Show Roles' }}</h1>
+  <div mat-dialog-content>
+    <mat-form-field class="field">
+      <mat-label>Name</mat-label>
+      <input type="text" formControlName="nameCtr" matInput>
+      <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+    <div class="permissions">
+      <label>Permissions:</label>
+      <dual-list [source]="listPermissions" [(destination)]="confirmed" key="id" display="name"></dual-list>
+    </div>
+  </div>
+  <div mat-dialog-actions [align]="'end'" class="create-btn">
+    <button mat-raised-button type="button" (click)="onCancel()">{{ data.mode === 'view' ? 'Close' : 'Cancel' }}</button>
+    <button *ngIf="data.mode !== 'view'" mat-raised-button color="primary" [disabled]="!rolesForm.valid">
+     {{ data.mode === 'add' ? 'Create' : 'Update' }}
+    </button>
+  </div>
+</form>

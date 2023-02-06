@@ -1,0 +1,16 @@
+<form [formGroup]="cloneForm" (ngSubmit)="cloneRole()">
+  <h1 mat-dialog-title>Clone Role</h1>
+  <div mat-dialog-content>
+    <mat-form-field class="field">
+      <mat-label>Name</mat-label>
+      <input type="text" formControlName="nameCtr" matInput>
+      <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+  </div>
+  <div mat-dialog-actions [align]="'end'" class="create-btn">
+    <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+    <button mat-raised-button color="primary" [disabled]="cloneForm.invalid">
+      Clone
+    </button>
+  </div>
+</form>

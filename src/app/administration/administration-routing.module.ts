@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { PermissionLevels } from '../core/enums/permission-levels.enum';
 import { PageNotFoundComponent } from '../core/page-not-found/page-not-found.component';
+import { RolesComponent } from './roles/roles.component';
 import { UsersComponent } from './users/users.component';
 
 const routes: Routes = [
@@ -15,6 +16,13 @@ const routes: Routes = [
       {
         path: 'users',
         component: UsersComponent,
+        data: {
+          permissionLevel: PermissionLevels.ADMIN,
+        }
+      },
+      {
+        path: 'roles',
+        component: RolesComponent,
         data: {
           permissionLevel: PermissionLevels.ADMIN,
         }
