@@ -62,7 +62,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   projectName: any;
   username: any;
   isAdmin = false;
-  categoryProject: any
+  categoryProject: any;
 
   constructor(
     private authService: AuthService,

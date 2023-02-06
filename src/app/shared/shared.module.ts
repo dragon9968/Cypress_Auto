@@ -34,6 +34,7 @@ import { SpinnerComponent } from './components/spinner/spinner.component';
 import { MatPaginatorModule } from "@angular/material/paginator";
 import { DragDropModule } from "@angular/cdk/drag-drop";
 import { MatButtonToggleModule } from "@angular/material/button-toggle";
+import { FlexLayoutModule } from '@angular/flex-layout';
 import { AngularDualListBoxModule } from 'angular-dual-listbox';
 
 
@@ -64,6 +65,7 @@ const materialModules = [
   MatPaginatorModule,
   DragDropModule,
   MatButtonToggleModule,
+  FlexLayoutModule,
   AngularDualListBoxModule
 ];
 
