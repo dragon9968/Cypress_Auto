@@ -117,9 +117,9 @@ export class AddProjectComponent implements OnInit {
       vlan_min: [2000, [Validators.min(1), Validators.max(4093), Validators.required]],
       vlan_max: [2100, [Validators.min(2), Validators.max(4094), Validators.required]]
     })
-    this.selectProjects$ = this.store.select(selectProjects).subscribe(nameProject => {
-      this.nameProject = nameProject;
-    })
+    this.projectService.getAll().subscribe((data: any) => {
+      this.nameProject = data.result;
+    });
 
     this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(templateData => {
       this.projectTemplate = templateData;

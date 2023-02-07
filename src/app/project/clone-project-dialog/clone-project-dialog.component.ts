@@ -6,6 +6,7 @@ import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
+import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 import { retrievedProjects, retrievedProjectsTemplate } from 'src/app/store/project/project.actions';
 import { ProjectService } from '../services/project.service';
 
@@ -19,6 +20,7 @@ export class CloneProjectDialogComponent implements OnInit {
   errorMessages = ErrorMessages;
   projectId: any;
   status = 'active';
+  listProjects!: any[];
   constructor(
     private projectService: ProjectService,
     private toastr: ToastrService,
@@ -26,16 +28,23 @@ export class CloneProjectDialogComponent implements OnInit {
     private router: Router,
     public dialogRef: MatDialogRef<CloneProjectDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) { 
+  ) {
     this.cloneForm = new FormGroup({
-      nameCtr: new FormControl('', [Validators.required]),
+      nameCtr: new FormControl(''),
       categoryCtr: new FormControl('project')
-    })
-    this.nameCtr?.setValue(this.data.genData.name)
+    });
+    this.projectService.getAll().subscribe((data: any) => {
+      this.listProjects = data.result;
+      this.nameCtr?.setValidators([Validators.required,
+      Validators.minLength(3),
+      Validators.maxLength(50),
+      validateNameExist(() => this.listProjects, '', undefined)]);
+    });
+    this.nameCtr?.setValue(this.data.genData.name);
   }
 
-  get nameCtr () { return this.cloneForm.get('nameCtr') }
-  get categoryCtr () { return this.cloneForm.get('categoryCtr') }
+  get nameCtr() { return this.cloneForm.get('nameCtr') }
+  get categoryCtr() { return this.cloneForm.get('categoryCtr') }
 
   ngOnInit(): void {
     this.projectId = this.projectService.getCollectionId()

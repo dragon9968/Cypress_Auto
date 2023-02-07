@@ -21,7 +21,7 @@ import {
 import { ButtonRenderersComponent } from '../renderers/button-renderers-component';
 import { ProjectService } from '../services/project.service';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
-import { selectProjects, selectProjectTemplate, selectRecentProjects } from 'src/app/store/project/project.selectors';
+import { selectRecentProjects } from 'src/app/store/project/project.selectors';
 import { MatRadioChange } from '@angular/material/radio';
 import { selectUserProfile } from 'src/app/store/user-profile/user-profile.selectors';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
@@ -127,15 +127,9 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
         });
       }
     })
-    if (this.data.category === 'project') {
-      this.selectProjects$ = this.store.select(selectProjects).subscribe(projects => {
-      this.listProjects = projects;
-      });
-    } else {
-      this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(templateData => {
-      this.listProjects = templateData;
-      });
-    }
+    this.projectService.getAll().subscribe((data: any) => {
+      this.listProjects = data.result;
+    });
 
     this.editProjectForm = new FormGroup({
       nameCtr: new FormControl('', [Validators.required,
