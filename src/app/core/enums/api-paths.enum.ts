@@ -71,6 +71,7 @@ export enum ApiPaths {
   CONNECT_TO_SERVER = '/api/v1/server_connect/connect',
   DISCONNECT_FROM_SERVER = '/api/v1/server_connect/disconnect',
   MAP_STATUS = '/api/v1/map/map_status',
+  SAVE_MAP_OVERVIEW = '/api/v1/map/save_map_overview',
   // VM_STATUS = '/api/v1/map/vm_status',
   // SAVE_VM_STATUS = '/api/v1/map/save_vm_status',
   ADD_PROJECT = '/api/v1/project/add',

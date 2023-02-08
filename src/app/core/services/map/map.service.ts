@@ -29,6 +29,10 @@ export class MapService {
     return this.http.get<any>(ApiPaths.MAP_STATUS, { params });
   }
 
+  uploadMapOverviewImage(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.SAVE_MAP_OVERVIEW, data);
+  }
+
   addTemplateIntoMap(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.PROJECT_TEMPLATE_ADD, data);
   }

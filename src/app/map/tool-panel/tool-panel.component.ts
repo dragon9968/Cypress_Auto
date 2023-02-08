@@ -160,6 +160,24 @@ export class ToolPanelComponent implements OnDestroy {
         snap_to_grid: this.isSnapToGridChecked
       }
     }
+
+    const text = this.cy.png({
+      output: "blob",
+      bg: "#ffffff",
+      full: false,
+    });
+    const file = new Blob([text], { type: "image/png" });
+    const formData = new FormData();
+    formData.append('file', file, 'map_overview.png');
+    this.mapService.uploadMapOverviewImage(formData)
+    .pipe(catchError((error: any) => {
+      this.toastr.error("Map Overview saved failed");
+      return throwError(() => error);
+    })
+    ).subscribe((resp: any) => {
+      this.toastr.success("Map Overview saved");
+    });
+
     const jsonData = {
       updatedNodes: this.updatedNodes,
       updatedInterfaces: this.updatedInterfaces,
