@@ -29,8 +29,7 @@ export class MapService {
     return this.http.get<any>(ApiPaths.MAP_STATUS, { params });
   }
 
-  // saveVMStatus(data: any, value: string): Observable<any> {
-  //   const url = ApiPaths.SAVE_VM_STATUS + '/' + value;
-  //   return this.http.post<any>(url, data);
-  // }
+  addTemplateIntoMap(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.PROJECT_TEMPLATE_ADD, data);
+  }
 }

@@ -357,7 +357,9 @@ export class ToolPanelComponent implements OnDestroy {
       }
     };
     if (data.updated) {
-      this.updatedNodes.push(updatedNode);
+      if (data.id?.includes('node-') || data.id?.includes('pg-')) {
+        this.updatedNodes.push(updatedNode);
+      }
     }
   }
 

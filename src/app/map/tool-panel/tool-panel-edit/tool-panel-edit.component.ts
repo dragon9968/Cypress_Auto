@@ -13,6 +13,10 @@ import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
 import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
+import { MatDialog } from "@angular/material/dialog";
+import { AddTemplateDialogComponent } from "../../add-template-dialog/add-template-dialog.component";
+import { retrievedProjectsTemplate } from "../../../store/project/project.actions";
+import { ProjectService } from "../../../project/services/project.service";
 
 @Component({
   selector: 'app-tool-panel-edit',
@@ -32,6 +36,8 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
   @Input() isDisableAddNode = true;
   @Input() isDisableAddPG = false;
   @Input() isDisableAddImage = false;
+  status = 'active';
+  category = 'template';
   nodeAddForm!: FormGroup;
   isCustomizePG = true;
   errorMessages = ErrorMessages;
@@ -53,7 +59,9 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
 
   constructor(
     private store: Store,
+    private dialog: MatDialog,
     public helpers: HelpersService,
+    private projectService: ProjectService
   ) {
     this.nodeAddForm = new FormGroup({
       deviceCtr: new FormControl(''),
@@ -218,5 +226,18 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
       },
       position: { x: 0, y: 0 }
     })[0];
+  }
+
+  openAddTemplate() {
+    this.projectService.getProjectByStatusAndCategory(this.status, this.category).subscribe(
+      data => {
+        const dialogData = {
+          cy: this.cy
+        }
+        this.store.dispatch(retrievedProjectsTemplate({template: data.result}));
+        this.dialog.open(AddTemplateDialogComponent, { width: '450px', data: dialogData});
+      }
+    );
+
   }
 }

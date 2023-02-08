@@ -102,6 +102,7 @@ export enum ApiPaths {
   DEVICES_UPDATE = '/api/v1/device/update',
   DEVICES_EXPORT = '/api/v1/device/export',
   TEMPLATES_EXPORT = '/api/v1/template/export',
+  PROJECT_TEMPLATE_ADD = '/api/v1/map/add_template',
   MAP_IMAGE = '/api/v1/mapimage/',
   APP_VERSION = '/api/v1/app/version',
   USER_GUIDE = '/api/v1/guide/',

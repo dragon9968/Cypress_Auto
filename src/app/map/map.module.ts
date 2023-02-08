@@ -40,6 +40,7 @@ import { InfoPanelPortGroupManagementComponent } from './info-panel/info-panel-p
 import { InfoPanelInterfaceManagementComponent } from './info-panel/info-panel-interface-management/info-panel-interface-management.component';
 import { NodeToolsDialogComponent } from './deployment-dialog/deployment-node-dialog/node-tools-dialog/node-tools-dialog.component';
 import { ConnectInterfaceToPgDialogComponent } from './context-menu/cm-dialog/connect-interface-to-pg-dialog/connect-interface-to-pg-dialog.component';
+import { AddTemplateDialogComponent } from './add-template-dialog/add-template-dialog.component';
 
 
 @NgModule({
@@ -82,7 +83,8 @@ import { ConnectInterfaceToPgDialogComponent } from './context-menu/cm-dialog/co
     InfoPanelPortGroupManagementComponent,
     InfoPanelInterfaceManagementComponent,
     NodeToolsDialogComponent,
-    ConnectInterfaceToPgDialogComponent
+    ConnectInterfaceToPgDialogComponent,
+    AddTemplateDialogComponent
   ],
   imports: [
     MapRoutingModule,

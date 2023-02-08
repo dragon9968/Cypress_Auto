@@ -244,10 +244,10 @@ export class NavBarComponent implements OnInit, OnDestroy {
         genData: data.result,
         category: data.result.category
       }
-      this.dialog.open(CloneProjectDialogComponent, { 
+      this.dialog.open(CloneProjectDialogComponent, {
         autoFocus: false,
-        width: '400px', 
-        data: dialogData 
+        width: '400px',
+        data: dialogData
       });
     })
   }

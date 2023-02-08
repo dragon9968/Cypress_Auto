@@ -10,6 +10,7 @@ import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { ToastrService } from 'ngx-toastr';
 import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
 import { retrievedNodes } from "../../../store/node/node.actions";
+import { environment } from "../../../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
@@ -361,6 +362,20 @@ export class HelpersService implements OnDestroy{
       group: "edges",
       data,
     });
+  }
+
+  addCYNodeAndEdge(cy: any, nodes: any[], edges: any[]) {
+    // Draw new nodes from the project template into the current project.
+    nodes.map((node: any) => {
+      if (node.data.elem_category == 'node') {
+        node.data.icon = environment.apiBaseUrl + node.data.icon;
+      }
+      this.addCYNode(cy, { newNodeData: node.data, newNodePosition: node.position });
+    })
+    // Draw new interfaces from the project template into the current project.
+    edges.map((edge: any) => {
+      this.addCYEdge(cy, edge.data);
+    })
   }
 
   removeGroupBoxes(cy: any) {

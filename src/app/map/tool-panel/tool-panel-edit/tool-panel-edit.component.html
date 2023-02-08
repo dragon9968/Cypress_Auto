@@ -40,7 +40,7 @@
       </button>
     </div>
     <div class="tab-field">
-      
+
     </div>
   </form>
 </section>
@@ -81,6 +81,16 @@
     <button mat-raised-button color="primary" class="add-image-btn" matTooltip="Add" (click)="addImage()"
     [disabled]="isDisableAddImage">
       <mat-icon>add</mat-icon>
+    </button>
+  </div>
+</section>
+
+<mat-divider></mat-divider>
+<section class="tab-section">
+  <h4>Template</h4>
+  <div>
+    <button mat-raised-button color="primary" matTooltip="Add Template" (click)="openAddTemplate()">
+      <mat-icon>add</mat-icon>Add Template
     </button>
   </div>
 </section>

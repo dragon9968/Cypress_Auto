@@ -101,7 +101,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
     this.ipAllocationCtr?.setValue(this.data.genData.ip_allocation);
     this.ipCtr?.setValue(this.data.genData.ip);
     this.dnsServerCtr?.setValue(this.data.genData.dns_server);
-    this.gatewayCtr?.setValue(this.data.genData.gateway);
+    this.gatewayCtr?.setValue(this.data.genData.gateway?.gateway ? this.data.genData.gateway.gateway : this.data.genData.gateway);
     this.isGatewayCtr?.setValue(this.data.genData.is_gateway);
     this.isNatCtr?.setValue(this.data.genData.is_nat);
     this._disableItems(this.ipAllocationCtr?.value);
