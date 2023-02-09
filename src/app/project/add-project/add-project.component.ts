@@ -6,7 +6,7 @@ import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { Router } from '@angular/router';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { ProjectService } from 'src/app/project/services/project.service';
-import { selectProjects, selectProjectTemplate } from 'src/app/store/project/project.selectors';
+import { selectProjectTemplate } from 'src/app/store/project/project.selectors';
 import { retrievedProjects, retrievedProjectsTemplate } from 'src/app/store/project/project.actions';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
@@ -43,12 +43,14 @@ export class AddProjectComponent implements OnInit {
   rowData!: any[];
   checked = false;
   status = 'active';
+  dataClone: any;
   isDisableButton = false;
   isHiddenNetwork = false;
   isHiddenTemplate = false;
   isHiddenOption = true;
   appPrefDefault!: any[];
   isDisableTemplate = true;
+  isCreateNewFromSelected = false;
   filteredTemplate!: Observable<any[]>;
 
   defaultColDef: ColDef = {
@@ -101,6 +103,12 @@ export class AddProjectComponent implements OnInit {
     private dialog: MatDialog,
     public helpers: HelpersService,
   ) {
+
+    const state = this.router.getCurrentNavigation()?.extras.state;
+    if (state?.['option'] == 'clone') {
+      this.isCreateNewFromSelected = true;
+      this.dataClone = state;
+    }
 
     this.projectForm = this.formBuilder.group({
       name : ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50), validateNameExist(() => this.nameProject, 'add', undefined)]],
@@ -231,16 +239,27 @@ export class AddProjectComponent implements OnInit {
         vlan_max: this.vlan_max?.value,
         networks: items
       }
-      const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
+      let jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
       if (!jsonData.template_id && !this.isDisableTemplate) {
         this.toastr.warning('The template field is required.')
       } else {
+        if (this.isCreateNewFromSelected) {
+          jsonData = {...jsonData, ...this.dataClone}
+        }
         this.projectService.add(jsonData).pipe(
           catchError((e: any) => {
             this.toastr.error(e.error.message);
             return throwError(() => e);
           })
-          ).subscribe(rest =>{
+          ).subscribe(rest => {
+            if (this.isCreateNewFromSelected) {
+              this.projectService.validateProject({pk: rest.result.id}).pipe(
+                catchError((e: any) => {
+                  return throwError(() => e)
+                })
+              ).subscribe(() => {});
+              this.isCreateNewFromSelected = false;
+            }
             this.toastr.success(`Created ${rest.result.category} ${rest.result.name} successfully`);
             if (this.category?.value === 'project') {
               this.router.navigate([RouteSegments.PROJECTS]);

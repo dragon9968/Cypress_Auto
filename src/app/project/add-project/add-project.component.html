@@ -32,77 +32,79 @@
             </div>
           </mat-card-content>
         </mat-card>
-        <mat-card class="build-options-group">
-          <mat-card-header>
-            <mat-card-title>Build Options</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <mat-form-field class="field" appearance="outline">
-              <mat-label>Target Environment</mat-label>
-              <mat-select formControlName="target">
-                <mat-option value="VMWare vCenter">VMWare vCenter</mat-option>
-                <mat-option value="VMWare Workstation">VMWare Workstation</mat-option>
-              </mat-select>
-            </mat-form-field>
-            <div class="form-option">
-              <section class="build-option category">
-                <div class="lable-option">
-                  <label>Option:</label>
-                </div>
-                <mat-radio-group class="content-option" color="primary" formControlName="option" [(ngModel)]="labelPosition" (change)="onOptionChange($event)">
-                  <mat-radio-button class="margin-button" value="blank">Blank</mat-radio-button>
-                  <mat-radio-button class="margin-button" value="random">Random</mat-radio-button>
-                  <mat-radio-button class="margin-button" value="template">Template</mat-radio-button>
-                </mat-radio-group>
-              </section>
-            </div>
-            <div class="form-option" [hidden]="labelPosition !== 'template'">
-              <div class="field-checkbox">
-                <label class="randomize-label">Layout Only</label>
-                <mat-checkbox color="primary" formControlName="layoutOnly" [(ngModel)]="checked" (change)="selectLayout($event)"></mat-checkbox>
+        <div [hidden]="isCreateNewFromSelected">
+          <mat-card class="build-options-group">
+            <mat-card-header>
+              <mat-card-title>Build Options</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <mat-form-field class="field" appearance="outline">
+                <mat-label>Target Environment</mat-label>
+                <mat-select formControlName="target">
+                  <mat-option value="VMWare vCenter">VMWare vCenter</mat-option>
+                  <mat-option value="VMWare Workstation">VMWare Workstation</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <div class="form-option">
+                <section class="build-option category">
+                  <div class="lable-option">
+                    <label>Option:</label>
+                  </div>
+                  <mat-radio-group class="content-option" color="primary" formControlName="option" [(ngModel)]="labelPosition" (change)="onOptionChange($event)">
+                    <mat-radio-button class="margin-button" value="blank">Blank</mat-radio-button>
+                    <mat-radio-button class="margin-button" value="random">Random</mat-radio-button>
+                    <mat-radio-button class="margin-button" value="template">Template</mat-radio-button>
+                  </mat-radio-group>
+                </section>
               </div>
-            </div>
-            <div [hidden]="!isHiddenTemplate" class="random-container">
-              <mat-form-field class="field" appearance="outline">
-                <mat-label>Template</mat-label>
-                <input matInput type="text" placeholder="Select a category" formControlName="template"
-                  [matAutocomplete]="autoTemplate">
-                <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helpers.optionDisplay">
-                  <mat-option *ngFor="let option of filteredTemplate | async" [value]="option">
-                    {{ option.name }}
-                  </mat-option>
-                </mat-autocomplete>
-                <mat-error *ngIf="template?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
-              </mat-form-field>
-            </div>
+              <div class="form-option" [hidden]="labelPosition !== 'template'">
+                <div class="field-checkbox">
+                  <label class="randomize-label">Layout Only</label>
+                  <mat-checkbox color="primary" formControlName="layoutOnly" [(ngModel)]="checked" (change)="selectLayout($event)"></mat-checkbox>
+                </div>
+              </div>
+              <div [hidden]="!isHiddenTemplate" class="random-container">
+                <mat-form-field class="field" appearance="outline">
+                  <mat-label>Template</mat-label>
+                  <input matInput type="text" placeholder="Select a category" formControlName="template"
+                         [matAutocomplete]="autoTemplate">
+                  <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helpers.optionDisplay">
+                    <mat-option *ngFor="let option of filteredTemplate | async" [value]="option">
+                      {{ option.name }}
+                    </mat-option>
+                  </mat-autocomplete>
+                  <mat-error *ngIf="template?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+                </mat-form-field>
+              </div>
 
-            <div [hidden]="isHiddenOption" class="random-container">
-              <mat-form-field class="field" appearance="outline">
-                <mat-label>Number of Enclaves</mat-label>
-                <input type="number" formControlName="enclave_number" (keypress)="numericOnly($event)" matInput>
-                <mat-error *ngIf="enclave_number?.hasError('min') || enclave_number?.hasError('max') || enclave_number?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_1_100 }}</mat-error>
-              </mat-form-field>
-              <mat-form-field class="field" appearance="outline">
-                <mat-label>Clients</mat-label>
-                <input type="number" formControlName="enclave_clients" (keypress)="numericOnly($event)" matInput>
-                <mat-hint><strong>Clients per enclave</strong></mat-hint>
-                <mat-error *ngIf="enclave_clients?.hasError('min') || enclave_clients?.hasError('max') || enclave_clients?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_0_100 }}</mat-error>
-              </mat-form-field>
-              <mat-form-field class="field" appearance="outline">
-                <mat-label>Servers</mat-label>
-                <input type="number" formControlName="enclave_servers" (keypress)="numericOnly($event)" matInput>
-                <mat-hint><strong>Servers per enclave</strong></mat-hint>
-                <mat-error *ngIf="enclave_servers?.hasError('min') || enclave_servers?.hasError('max') || enclave_servers?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_0_100 }}</mat-error>
-              </mat-form-field>
-              <mat-form-field class="field" appearance="outline">
-                <mat-label>Users</mat-label>
-                <input type="number" formControlName="enclave_users" (keypress)="numericOnly($event)" matInput>
-                <mat-hint><strong>Users per enclave</strong></mat-hint>
-                <mat-error *ngIf="enclave_users?.hasError('min') || enclave_users?.hasError('max') || enclave_users?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_0_100 }}</mat-error>
-              </mat-form-field>
-            </div>
-          </mat-card-content>
-        </mat-card>
+              <div [hidden]="isHiddenOption" class="random-container">
+                <mat-form-field class="field" appearance="outline">
+                  <mat-label>Number of Enclaves</mat-label>
+                  <input type="number" formControlName="enclave_number" (keypress)="numericOnly($event)" matInput>
+                  <mat-error *ngIf="enclave_number?.hasError('min') || enclave_number?.hasError('max') || enclave_number?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_1_100 }}</mat-error>
+                </mat-form-field>
+                <mat-form-field class="field" appearance="outline">
+                  <mat-label>Clients</mat-label>
+                  <input type="number" formControlName="enclave_clients" (keypress)="numericOnly($event)" matInput>
+                  <mat-hint><strong>Clients per enclave</strong></mat-hint>
+                  <mat-error *ngIf="enclave_clients?.hasError('min') || enclave_clients?.hasError('max') || enclave_clients?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_0_100 }}</mat-error>
+                </mat-form-field>
+                <mat-form-field class="field" appearance="outline">
+                  <mat-label>Servers</mat-label>
+                  <input type="number" formControlName="enclave_servers" (keypress)="numericOnly($event)" matInput>
+                  <mat-hint><strong>Servers per enclave</strong></mat-hint>
+                  <mat-error *ngIf="enclave_servers?.hasError('min') || enclave_servers?.hasError('max') || enclave_servers?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_0_100 }}</mat-error>
+                </mat-form-field>
+                <mat-form-field class="field" appearance="outline">
+                  <mat-label>Users</mat-label>
+                  <input type="number" formControlName="enclave_users" (keypress)="numericOnly($event)" matInput>
+                  <mat-hint><strong>Users per enclave</strong></mat-hint>
+                  <mat-error *ngIf="enclave_users?.hasError('min') || enclave_users?.hasError('max') || enclave_users?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_0_100 }}</mat-error>
+                </mat-form-field>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
         <div [hidden]="isHiddenNetwork">
           <mat-card class="network-configuration-group">
             <mat-card-header>
@@ -124,11 +126,11 @@
                   <mat-icon>add</mat-icon>
                 </button>
               </div>
-              <ag-grid-angular class="ag-theme-alpine networks-table" 
-              [pagination]="true" [paginationPageSize]="25" 
-              [columnDefs]="columnDefs" 
-              [defaultColDef]="defaultColDef" 
-              [rowData]="rowData" 
+              <ag-grid-angular class="ag-theme-alpine networks-table"
+              [pagination]="true" [paginationPageSize]="25"
+              [columnDefs]="columnDefs"
+              [defaultColDef]="defaultColDef"
+              [rowData]="rowData"
               [tooltipShowDelay]="0"
               [tooltipHideDelay]="3000"
               rowSelection="multiple"

@@ -86,11 +86,21 @@
 </section>
 
 <mat-divider></mat-divider>
-<section class="tab-section">
+<section class="tab-section tab-section-template">
   <h4>Template</h4>
   <div>
-    <button mat-raised-button color="primary" matTooltip="Add Template" (click)="openAddTemplate()">
+    <button mat-raised-button color="primary" (click)="openAddTemplate()">
       <mat-icon>add</mat-icon>Add Template
+    </button>
+  </div>
+</section>
+
+<mat-divider></mat-divider>
+<section class="tab-section">
+  <h4>Clone selected to new project/template</h4>
+  <div>
+    <button mat-raised-button color="primary" (click)="addNewProjectFromSelected()">
+      <mat-icon>add</mat-icon>New project from selected
     </button>
   </div>
 </section>

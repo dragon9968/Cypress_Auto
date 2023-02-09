@@ -17,6 +17,9 @@ import { MatDialog } from "@angular/material/dialog";
 import { AddTemplateDialogComponent } from "../../add-template-dialog/add-template-dialog.component";
 import { retrievedProjectsTemplate } from "../../../store/project/project.actions";
 import { ProjectService } from "../../../project/services/project.service";
+import { Router } from "@angular/router";
+import { ToastrService } from "ngx-toastr";
+import { RouteSegments } from "../../../core/enums/route-segments.enum";
 
 @Component({
   selector: 'app-tool-panel-edit',
@@ -59,7 +62,9 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
 
   constructor(
     private store: Store,
+    private router: Router,
     private dialog: MatDialog,
+    private toastr: ToastrService,
     public helpers: HelpersService,
     private projectService: ProjectService
   ) {
@@ -238,6 +243,24 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
         this.dialog.open(AddTemplateDialogComponent, { width: '450px', data: dialogData});
       }
     );
+  }
 
+  addNewProjectFromSelected() {
+    const nodeIds = this.activeNodes.map(node => node.data('node_id'));
+    const portGroupIds = this.activePGs.map(pg => pg.data('pg_id'));
+    if (nodeIds.length > 0 || portGroupIds.length > 0) {
+      const nodeDomainIds = nodeIds.length > 0 ? this.activeNodes.map(node => node.data('domain_id')) : [];
+      const portGroupDomainIds = portGroupIds.length > 0 ? this.activePGs.map(pg => pg.data('domain_id')) : [];
+      const domainIds = [...new Set([...nodeDomainIds, ...portGroupDomainIds])];
+      const jsonData = {
+        option: 'clone',
+        node_ids: nodeIds,
+        port_group_ids: portGroupIds,
+        domain_ids: domainIds
+      };
+      this.router.navigate([RouteSegments.ADD_PROJECT], { state: jsonData });
+    } else {
+      this.toastr.warning('Please select node(s), port group(s) to clone into new a project', 'Warning');
+    }
   }
 }

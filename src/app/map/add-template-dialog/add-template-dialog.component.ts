@@ -131,10 +131,10 @@ export class AddTemplateDialogComponent implements OnInit, OnDestroy {
 
 
   validateProject(collectionId: any) {
-    const dialogData = {
+    const jsonData = {
       pk: collectionId
     }
-    this.projectService.validateProject(dialogData).pipe(
+    this.projectService.validateProject(jsonData).pipe(
       catchError((e: any) => {
         this.toastr.error(e.error.message);
         this.dialog.open(ValidateProjectDialogComponent, {
