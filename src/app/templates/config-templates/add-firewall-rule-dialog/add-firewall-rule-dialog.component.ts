@@ -6,6 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 import { ConfigTemplateService } from 'src/app/core/services/config-template/config-template.service';
 import { PORT } from 'src/app/shared/contants/port.constant';
 import { retrievedConfigTemplates } from 'src/app/store/config-template/config-template.actions';
+import { HelpersService } from "../../../core/services/helpers/helpers.service";
 
 @Component({
   selector: 'app-add-firewall-rule-dialog',
@@ -21,6 +22,7 @@ export class AddFirewallRuleDialogComponent implements OnInit {
     private store: Store,
     public dialogRef: MatDialogRef<AddFirewallRuleDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
+    private helpersService: HelpersService
   ) {
     this.firewallRuleForm = new FormGroup({
       category: new FormControl({value: 'rule', disabled: false}),
@@ -106,18 +108,18 @@ export class AddFirewallRuleDialogComponent implements OnInit {
   }
 
   addFirewallRule() {
-    const jsonData = {
+    const jsonDataValue = {
       config_type: "firewall",
-      config_id: this.data.genData.id, 
+      config_id: this.data.genData.id,
       category: this.category?.value,
       name: this.name?.value,
       state: this.state?.value,
-      action: this.action?.value, 
+      action: this.action?.value,
       interface: this.interface?.value,
       protocol: this.protocol?.value,
       source: this.source?.value,
       source_port: this.sourcePort?.value,
-      source_port_custom: this.sourceCustomPort?.value, 
+      source_port_custom: this.sourceCustomPort?.value,
       destination: this.destination?.value,
       dest_port: this.destinationPort?.value,
       dest_port_custom: this.destCustomPort?.value,
@@ -125,6 +127,7 @@ export class AddFirewallRuleDialogComponent implements OnInit {
       target_port: this.targetPort?.value,
       target_port_custom: this.targetCustomPort?.value,
     }
+    const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.configTemplateService.addConfiguration(jsonData).subscribe({
       next: (rest) =>{
         this.toastr.success(`Added Firewall successfully`);

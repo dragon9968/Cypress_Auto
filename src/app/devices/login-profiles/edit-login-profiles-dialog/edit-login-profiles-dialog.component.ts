@@ -8,6 +8,7 @@ import { ToastrService } from 'ngx-toastr';
 import { LoginProfileService } from 'src/app/core/services/login-profile/login-profile.service';
 import { retrievedLoginProfiles } from 'src/app/store/login-profile/login-profile.actions';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
+import { HelpersService } from "../../../core/services/helpers/helpers.service";
 
 @Component({
   selector: 'app-edit-login-profiles-dialog',
@@ -32,6 +33,7 @@ export class EditLoginProfilesDialogComponent implements OnInit {
     private store: Store,
     public dialogRef: MatDialogRef<EditLoginProfilesDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
+    private helpersService: HelpersService
   ) { }
 
   get name() { return this.loginProfileEditForm.get('name') };
@@ -90,7 +92,7 @@ export class EditLoginProfilesDialogComponent implements OnInit {
 
   addLoginProfile() {
     if (this.loginProfileEditForm.valid) {
-      const jsonData = {
+      const jsonDataValue = {
         name: this.name?.value,
         description: this.description?.value,
         username: this.username?.value,
@@ -98,6 +100,7 @@ export class EditLoginProfilesDialogComponent implements OnInit {
         category: this.category?.value,
         extra_args: this.listExtraArgs
       }
+      const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.loginProfileService.add(jsonData).subscribe({
         next: (rest) => {
           this.toastr.success(`Add new Login Profile ${rest.result.name} successfully`);
@@ -113,7 +116,7 @@ export class EditLoginProfilesDialogComponent implements OnInit {
 
   updateLogin() {
     if (this.loginProfileEditForm.valid) {
-      const jsonData = {
+      const jsonDataValue = {
         name: this.name?.value,
         description: this.description?.value,
         username: this.username?.value,
@@ -121,6 +124,7 @@ export class EditLoginProfilesDialogComponent implements OnInit {
         category: this.category?.value,
         extra_args: this.listExtraArgs
       }
+      const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.loginProfileService.put(this.data.genData.id, jsonData).subscribe(response => {
         this.toastr.success(`Updated Login Profile ${response.result.name} successfully`);
         this.dialogRef.close();

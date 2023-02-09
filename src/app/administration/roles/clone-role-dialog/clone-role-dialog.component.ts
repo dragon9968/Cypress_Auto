@@ -6,6 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 import { RolesService } from 'src/app/core/services/roles/roles.service';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { retrievedRole } from 'src/app/store/user/user.actions';
+import { HelpersService } from "../../../core/services/helpers/helpers.service";
 
 @Component({
   selector: 'app-clone-role-dialog',
@@ -20,8 +21,9 @@ export class CloneRoleDialogComponent implements OnInit {
     private toastr: ToastrService,
     private store: Store,
     public dialogRef: MatDialogRef<CloneRoleDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
-  ) { 
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private helpersService: HelpersService
+  ) {
     this.cloneForm = new FormGroup({
       nameCtr: new FormControl('', [Validators.required])
     })
@@ -35,10 +37,11 @@ export class CloneRoleDialogComponent implements OnInit {
 
   cloneRole() {
     if (this.cloneForm.valid) {
-      const jsonData = {
+      const jsonDataValue = {
         pk: this.data.pk,
         name: this.nameCtr?.value
       }
+      const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.rolesService.clone(jsonData).subscribe({
         next: () => {
           this.toastr.success(`Clone Role successfully`);

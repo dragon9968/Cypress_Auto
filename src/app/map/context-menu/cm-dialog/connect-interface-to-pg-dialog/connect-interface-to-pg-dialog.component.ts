@@ -64,7 +64,7 @@ export class ConnectInterfaceToPgDialogComponent implements OnInit, OnDestroy {
 
   disconnectPortGroup() {
     const edgeData = this.interfaceCtr?.value;
-    const jsonData = {
+    const jsonDataValue = {
       order: edgeData?.order,
       name: edgeData?.name,
       description: edgeData?.description,
@@ -81,6 +81,7 @@ export class ConnectInterfaceToPgDialogComponent implements OnInit, OnDestroy {
       node_id: edgeData?.node_id,
       netmask_id: null,
     }
+    const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.interfaceService.put(edgeData.id, jsonData).subscribe(() => {
       const edge = this.data.cy.getElementById(edgeData.id);
       this.data.cy.remove(edge);

@@ -5,6 +5,7 @@ import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { ConfigTemplateService } from 'src/app/core/services/config-template/config-template.service';
 import { retrievedConfigTemplates } from 'src/app/store/config-template/config-template.actions';
+import { HelpersService } from "../../../core/services/helpers/helpers.service";
 
 @Component({
   selector: 'app-add-domain-membership-dialog',
@@ -19,13 +20,14 @@ export class AddDomainMembershipDialogComponent implements OnInit {
     private store: Store,
     public dialogRef: MatDialogRef<AddDomainMembershipDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
+    private helpersService: HelpersService
   ) {
     this.domainMemberForm = new FormGroup({
       joinDomain: new FormControl(false),
       ouPath: new FormControl(''),
     })
    }
-  
+
    get joinDomain() {
     return this.domainMemberForm.get('joinDomain');
    }
@@ -36,12 +38,13 @@ export class AddDomainMembershipDialogComponent implements OnInit {
   }
 
   addDomainMembership() {
-    const jsonData = {
+    const jsonDataValue = {
       config_type: "domain_membership",
       config_id: this.data.genData.id,
       join_domain: this.joinDomain?.value,
       ou_path: this.ouPath?.value
     }
+    const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.configTemplateService.addConfiguration(jsonData).subscribe({
       next: (rest) =>{
         this.toastr.success(`Add Domain Membership successfully`);

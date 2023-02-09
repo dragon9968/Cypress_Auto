@@ -188,7 +188,7 @@ export class AddEditMapprefDialogComponent {
   }
 
   addMapPref() {
-    const jsonData = {
+    const jsonDataValue = {
       name: this.name?.value,
       preferences: {
         group_box_color: this.gbColor,
@@ -216,6 +216,7 @@ export class AddEditMapprefDialogComponent {
       },
 
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.mapPrefService.add(jsonData).subscribe({
       next: (rest) => {
         this.toastr.success(`Added Preferences ${rest.result.name} successfully`)
@@ -229,7 +230,7 @@ export class AddEditMapprefDialogComponent {
   }
 
   updateMapPref() {
-    const jsonData = {
+    const jsonDataValue = {
       name: this.name?.value,
       preferences: {
         group_box_color: this.gbColor,
@@ -256,6 +257,7 @@ export class AddEditMapprefDialogComponent {
         edge_arrow_size: this.edgeArrowSizeCtr?.value,
       },
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.mapPrefService.put(this.data.genData.id, jsonData).subscribe({
       next: (rest) => {
         this.toastr.success(`Updated Preferences ${rest.result.name} successfully`);

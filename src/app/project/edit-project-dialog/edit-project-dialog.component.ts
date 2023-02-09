@@ -200,7 +200,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
       this.isDisableButton = true ? ((val.network === '') || (val.category === '')) : false
     })
     if (this.editProjectForm.valid && !this.isDisableButton) {
-      const jsonData = {
+      const jsonDataValue = {
         name: this.nameCtr?.value,
         description: this.descriptionCtr?.value,
         vlan_min: this.minVlanCtr?.value,
@@ -208,6 +208,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
         category: this.categoryCtr?.value,
         networks: items
       }
+      const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.projectService.put(this.data.genData.id, jsonData).pipe(
         catchError((e: any) => {
           this.toastr.error(e.error.message);

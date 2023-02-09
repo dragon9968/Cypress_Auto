@@ -707,6 +707,13 @@ export class HelpersService implements OnDestroy{
     return year + month + day + '-' + hour + minute + second;
   }
 
+  removeLeadingAndTrailingWhitespace(object: any) {
+    return Object.keys(object).reduce((acc: any, curr: any) => {
+      acc[curr] = typeof  object[curr] == 'string' ? object[curr].trim() : object[curr]
+      return acc;
+    }, {});
+  }
+
   validateAllFormFields(formGroup: FormGroup) {
     Object.keys(formGroup.controls).forEach(field => {
       const control = formGroup.get(field);

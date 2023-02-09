@@ -22,7 +22,8 @@ export class ExportRoleDialogComponent implements OnInit {
     private helpers: HelpersService,
     public dialogRef: MatDialogRef<ExportRoleDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-  ) { 
+    private helpersService: HelpersService
+  ) {
     this.exportForm = new FormGroup({
       fileNameCtr: new FormControl('', [Validators.required])
     })
@@ -36,14 +37,15 @@ export class ExportRoleDialogComponent implements OnInit {
     } else {
       this.fileNameCtr?.setValue('cro_user_roles')
     }
-    
+
   }
 
   exportRoles() {
-    const jsonData = {
+    const jsonDataValue = {
       pks: this.data.pks,
       file_name: this.fileNameCtr?.value
     }
+    const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
     let file = new Blob();
     var fileName = this.fileNameCtr?.value
     fileName = fileName.replace(/\s+/g, "_");

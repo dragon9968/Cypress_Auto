@@ -85,13 +85,14 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
     const category = this.categoryCtr?.value !== '' ? this.categoryCtr?.value: undefined;
     const subnetAllocation = this.subnetAllocationCtr?.value !== '' ? this.subnetAllocationCtr?.value: undefined;
     if (domainId || vlan || category || subnetAllocation) {
-      const jsonData = {
+      const jsonDataValue = {
         ids: ids,
         domain_id: domainId,
         vlan: vlan,
         category: category,
         subnet_allocation: subnetAllocation
       }
+      const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.portGroupService.editBulk(jsonData).subscribe((response: any) => {
         return forkJoin(this.data.genData.activePGs.map((pg: any) => {
           return this.portGroupService.get(pg.pg_id).pipe(map(pgData => {

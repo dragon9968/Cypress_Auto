@@ -7,6 +7,7 @@ import { catchError, throwError } from 'rxjs';
 import { ServerConnectService } from 'src/app/core/services/server-connect/server-connect.service';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { retrievedServerConnect } from 'src/app/store/server-connect/server-connect.actions';
+import { HelpersService } from "../../../core/services/helpers/helpers.service";
 
 @Component({
   selector: 'app-add-edit-connection-profiles',
@@ -29,6 +30,7 @@ export class AddEditConnectionProfilesComponent implements OnInit {
     private store: Store,
     public dialogRef: MatDialogRef<AddEditConnectionProfilesComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
+    private helpersService: HelpersService
   ) {
     this.isViewMode = this.data.mode == 'view';
     this.connectionForm =  new FormGroup({
@@ -123,7 +125,7 @@ export class AddEditConnectionProfilesComponent implements OnInit {
 
   onFileSelected(event: any): void {
     this.selectedFile = <File>event.target.files[0] ?? null;
-    
+
   }
 
   onSelectChangeDelete(event: any) {
@@ -136,7 +138,7 @@ export class AddEditConnectionProfilesComponent implements OnInit {
 
   addServerConnect() {
     if (this.connectionForm?.valid) {
-      const jsonData = {
+      const jsonDataValue = {
         name: this.name?.value,
         category: this.category?.value,
         server: this.server?.value,
@@ -150,6 +152,7 @@ export class AddEditConnectionProfilesComponent implements OnInit {
         username: this.username?.value,
         password: this.password?.value,
       }
+      const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
       if (this.category?.value === 'vmware_vcenter') {
         this.serverConnectService.add(jsonData).subscribe({
           next:(rest) => {
@@ -184,7 +187,7 @@ export class AddEditConnectionProfilesComponent implements OnInit {
   }
 
   updateServerConnect() {
-    const jsonData = {
+    const jsonDataValue = {
       name: this.name?.value,
       category: this.category?.value,
       server: this.server?.value,
@@ -197,6 +200,7 @@ export class AddEditConnectionProfilesComponent implements OnInit {
       username: this.username?.value,
       update_password: this.updatePassword?.value
     }
+    const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.serverConnectService.put(this.data.genData.id, jsonData).pipe(
       catchError((e: any) => {
         this.toastr.error(e.error.message);

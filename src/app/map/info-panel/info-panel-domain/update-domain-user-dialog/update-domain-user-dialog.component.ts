@@ -9,6 +9,7 @@ import { DomainUserService } from "../../../../core/services/domain-user/domain-
 import { validateNameExist } from "../../../../shared/validations/name-exist.validation";
 import { selectDomainUsers } from "../../../../store/domain-user/domain-user.selectors";
 import { retrievedIsChangeDomainUsers } from "../../../../store/domain-user-change/domain-user-change.actions";
+import { HelpersService } from "../../../../core/services/helpers/helpers.service";
 
 @Component({
   selector: 'app-update-domain-user-dialog',
@@ -27,7 +28,8 @@ export class UpdateDomainUserDialogComponent implements OnInit, OnDestroy {
     private toastr: ToastrService,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private dialogRef: MatDialogRef<UpdateDomainUserDialogComponent>,
-    private domainUserService: DomainUserService
+    private domainUserService: DomainUserService,
+    private helpersService: HelpersService
   ) {
     this.isViewMode = this.data.mode == 'view';
     this.selectDomainUsers$ = this.store.select(selectDomainUsers).subscribe(domainUsers => {
@@ -94,7 +96,7 @@ export class UpdateDomainUserDialogComponent implements OnInit, OnDestroy {
   }
 
   updateDomainUser() {
-    const jsonData = {
+    const jsonDataValue = {
       firstname: this.firstnameCtr?.value,
       lastname: this.lastnameCtr?.value,
       username: this.usernameCtr?.value,
@@ -108,6 +110,7 @@ export class UpdateDomainUserDialogComponent implements OnInit, OnDestroy {
       postal_code: this.postalCodeCtr?.value?.toString(),
       country: this.countryCtr?.value,
     }
+    const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.domainUserService.put(this.data.genData.id, jsonData).subscribe({
       next: response => {
         this.store.dispatch(retrievedIsChangeDomainUsers({isChangeDomainUsers: true}));

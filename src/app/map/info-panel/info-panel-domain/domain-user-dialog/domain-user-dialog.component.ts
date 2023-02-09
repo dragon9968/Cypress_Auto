@@ -10,6 +10,7 @@ import { DomainUserService } from "../../../../core/services/domain-user/domain-
 import { selectIsChangeDomainUsers } from "../../../../store/domain-user-change/domain-user-change.selectors";
 import { retrievedIsChangeDomainUsers } from "../../../../store/domain-user-change/domain-user-change.actions";
 import { ConfirmationDialogComponent } from "../../../../shared/components/confirmation-dialog/confirmation-dialog.component";
+import { HelpersService } from "../../../../core/services/helpers/helpers.service";
 
 @Component({
   selector: 'app-domain-user-dialog',
@@ -138,7 +139,8 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private toastr: ToastrService,
     private domainUserService: DomainUserService,
-    private infoPanelService: InfoPanelService
+    private infoPanelService: InfoPanelService,
+    private helpersService: HelpersService
   ) {
     this.domain = this.data.domain;
     this.rowData$ = of(this.convertDomainUsers(this.data.genData));
@@ -268,7 +270,7 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
       this.gridApi.forEachNode(rowNode => {
         if (this.rowsSelectedId.includes(rowNode.data.id)) {
           const domainUser = rowNode.data;
-          const jsonData = {
+          const jsonDataValue = {
             firstname: domainUser.firstname,
             lastname: domainUser.lastname,
             username: domainUser.username,
@@ -281,7 +283,8 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
             state_province: domainUser.state_province,
             postal_code: domainUser.postal_code,
             country: domainUser.country
-          }
+          } 
+          const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
           this.domainUserService.put(domainUser.id, jsonData).subscribe({
             next: () => {
               this.store.dispatch(retrievedIsChangeDomainUsers({ isChangeDomainUsers: true }));

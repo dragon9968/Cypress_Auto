@@ -5,6 +5,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { DomainService } from "../../../core/services/domain/domain.service";
 import { retrievedDomains } from "../../../store/domain/domain.actions";
+import { HelpersService } from "../../../core/services/helpers/helpers.service";
 
 @Component({
   selector: 'app-domain-bulk-edit-dialog',
@@ -19,7 +20,8 @@ export class DomainBulkEditDialogComponent implements OnInit {
     private toastr: ToastrService,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private dialogRef: MatDialogRef<DomainBulkEditDialogComponent>,
-    private domainService: DomainService
+    private domainService: DomainService,
+    private helpersService: HelpersService
   ) {
     this.domainBulkEditForm = new FormGroup({
       adminUserCtr: new FormControl(''),
@@ -38,11 +40,12 @@ export class DomainBulkEditDialogComponent implements OnInit {
     const adminUser = this.adminUserCtr?.value !== '' ? this.adminUserCtr?.value : undefined;
     const adminPassword = this.adminPasswordCtr?.value !== '' ? this.adminPasswordCtr?.value : undefined;
     if (adminUser || adminPassword) {
-      const jsonData = {
+      const jsonDataValue = {
         pks: pks,
         admin_user: this.adminUserCtr?.value !== '' ? this.adminUserCtr?.value : undefined,
         admin_password: this.adminPasswordCtr?.value !== '' ? this.adminPasswordCtr?.value : undefined
       }
+      const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.domainService.editBulk(jsonData).subscribe(response => {
         this.domainService.getDomainByCollectionId(this.data.genData.collectionId).subscribe(domains => {
           this.store.dispatch(retrievedDomains({ data: domains.result }));

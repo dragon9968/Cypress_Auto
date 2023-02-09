@@ -32,7 +32,8 @@ export class AddEditRoleDialogComponent implements OnInit {
     private toastr: ToastrService,
     private rolesService: RolesService,
     public dialogRef: MatDialogRef<AddEditRoleDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private helpersService: HelpersService
   ) {
     this.rolesForm = new FormGroup({
       nameCtr: new FormControl('', Validators.required)
@@ -51,11 +52,11 @@ export class AddEditRoleDialogComponent implements OnInit {
 
     if (this.data.mode === 'update') {
       this.data.genData.permissions.forEach((el: any) => {
-        const value  = this.listPermissions.filter(item => 
+        const value  = this.listPermissions.filter(item =>
           item.id === el.id
         )
         this.confirmed.push(value[0])
-      }) 
+      })
     } else {
       this.confirmed = [];
     }
@@ -70,9 +71,10 @@ export class AddEditRoleDialogComponent implements OnInit {
   addRole() {
     const [permissionItems, remove] = this.processPermisions();
     if (this.rolesForm.valid) {
-      const jsonData = {
+      const jsonDataValue = {
         name: this.nameCtr?.value
       }
+      const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.rolesService.add(jsonData).pipe(
         catchError((e: any) => {
           this.toastr.error(e.error.message);
@@ -95,9 +97,10 @@ export class AddEditRoleDialogComponent implements OnInit {
   updateRole() {
     const [permissionItems, remove] = this.processPermisions();
     if (this.rolesForm.valid) {
-      const jsonData = {
+      const jsonDataValue = {
         name: this.nameCtr?.value
       }
+      const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.rolesService.put(this.data.genData.id, jsonData).pipe(
         catchError((e: any) => {
           this.toastr.error(e.error.message);

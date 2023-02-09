@@ -88,7 +88,7 @@ export class InterfaceBulkEditDialogComponent implements OnInit {
     const isGateway =  this.isGatewayCtr?.value !== '' ? this.isGatewayCtr?.value : undefined;
     const isNat = this.isNatCtr?.value !== '' ? this.isNatCtr?.value : undefined;
     if ( status || direction || ipAllocation || dnsServer || gateway || isGateway || isNat ) {
-      const jsonData = {
+      const jsonDataValue = {
         ids: ids,
         status: status,
         direction: direction,
@@ -98,6 +98,7 @@ export class InterfaceBulkEditDialogComponent implements OnInit {
         is_gateway: isGateway,
         is_nat: isNat
       }
+      const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.interfaceService.editBulk(jsonData).subscribe(response => {
         let interfacesData: any[] = [];
         this.data.genData.activeEdges.map((edge: any) => {

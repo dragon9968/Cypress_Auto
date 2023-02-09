@@ -215,7 +215,7 @@ export class AddProjectComponent implements OnInit {
       this.isDisableButton = true ? ((val.network === '') || (val.category === '')) : false
     })
     if (this.projectForm.valid && !this.isDisableButton) {
-      const jsonData = {
+      const jsonDataValue = {
         name: this.name?.value,
         description: this.description?.value,
         category: this.category?.value,
@@ -231,6 +231,7 @@ export class AddProjectComponent implements OnInit {
         vlan_max: this.vlan_max?.value,
         networks: items
       }
+      const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
       if (!jsonData.template_id && !this.isDisableTemplate) {
         this.toastr.warning('The template field is required.')
       } else {

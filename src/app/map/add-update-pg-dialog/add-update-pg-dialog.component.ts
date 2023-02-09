@@ -122,7 +122,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
   }
 
   addPG() {
-    const jsonData = {
+    const jsonDataValue = {
       name: this.nameCtr?.value,
       vlan: this.vlanCtr?.value,
       category: this.categoryCtr?.value,
@@ -143,6 +143,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
         "text_bg_opacity": this.data.selectedMapPref.text_bg_opacity,
       } : undefined,
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.portGroupService.add(jsonData).pipe(
       catchError(err => {
         const errorMessage = err.error.message;
@@ -190,7 +191,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
 
   updatePG() {
     const ele = this.data.cy.getElementById(this.data.genData.id);
-    const jsonData = {
+    const jsonDataValue = {
       name: this.nameCtr?.value,
       vlan: this.vlanCtr?.value,
       category: this.categoryCtr?.value,
@@ -200,6 +201,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
       collection_id: this.data.genData.collection_id,
       logical_map_position: ele.position(),
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.portGroupService.put(this.data.genData.pg_id, jsonData).pipe(
       catchError(err => {
         const errorMessage = err.error.message;

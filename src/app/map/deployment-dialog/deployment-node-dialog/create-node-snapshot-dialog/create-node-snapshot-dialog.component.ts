@@ -38,13 +38,14 @@ export class CreateNodeSnapshotDialogComponent {
 
   create() {
     const connection = this.serverConnectionService.getConnection();
-    const jsonData = {
+    const jsonDataValue = {
       job_name: 'create_snapshot',
       category: 'node',
       pks: this.data.activeNodes.map((ele: any) => ele.data('node_id')).join(","),
       connection_id: connection ? connection.id : 0,
       snapshot_name: this.nameCtr?.value,
     };
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.taskService.add(jsonData).pipe(
       catchError((e: any) => {
         this.toastr.error(e.error.message);

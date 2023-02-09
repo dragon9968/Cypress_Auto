@@ -51,10 +51,11 @@ export class ExportProjectDialogComponent implements OnInit, OnDestroy {
   }
 
   exportProject() {
-    const jsonData = {
+    const jsonDataValue = {
       pks: this.data.pks,
       file_name: this.fileNameCtr?.value
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     let file = new Blob();
     var fileName = this.fileNameCtr?.value
     fileName = fileName.replace(/\s+/g, "_");

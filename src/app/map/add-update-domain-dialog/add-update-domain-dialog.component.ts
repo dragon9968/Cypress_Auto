@@ -60,12 +60,13 @@ export class AddUpdateDomainDialogComponent implements OnInit {
   }
 
   addDomain() {
-    const jsonData = {
+    const jsonDataValue = {
       name: this.nameCtr?.value,
       collection_id: this.data.genData.collection_id,
       admin_user: this.adminUserCtr?.value,
       admin_password: this.adminPasswordCtr?.value
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.domainService.add(jsonData).subscribe(response => {
       this.domainService.getDomainByCollectionId(response.result.collection_id).subscribe((data: any) => this.store.dispatch(retrievedDomains({ data: data.result })));
       this.groupService.getGroupByCollectionId(this.data.genData.collection_id).subscribe(groupData => this.store.dispatch(retrievedGroups({ data: groupData.result })))
@@ -75,11 +76,12 @@ export class AddUpdateDomainDialogComponent implements OnInit {
   }
 
   updateDomain() {
-    const jsonData = {
+    const jsonDataValue = {
       name: this.nameCtr?.value,
       admin_user: this.adminUserCtr?.value,
       admin_password: this.adminPasswordCtr?.value
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.domainService.put(this.data.genData.id, jsonData).subscribe(
       (response: any) => {
         this.domainService.getDomainByCollectionId(response.result.collection).subscribe(

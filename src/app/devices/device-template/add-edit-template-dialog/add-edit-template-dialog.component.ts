@@ -83,7 +83,7 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
   }
 
   addTemplate() {
-    const jsonData = {
+    const jsonDataValue = {
       display_name: this.displayName?.value,
       name: this.name?.value,
       category: this.category?.value,
@@ -91,6 +91,7 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
       icon_id: this.icon?.value.id,
       login_profile_id: this.loginProfile?.value.id
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.templateService.add(jsonData).subscribe({
       next: (rest) => {
         this.templateService.getAll().subscribe((data: any) => {
@@ -107,7 +108,7 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
   }
 
   updateTemplate() {
-    const jsonData = {
+    const jsonDataValue = {
       display_name: this.displayName?.value,
       name: this.name?.value,
       category: this.category?.value,
@@ -115,6 +116,7 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
       icon_id: this.icon?.value.id,
       login_profile_id: this.loginProfile?.value.id ? this.loginProfile?.value.id : null
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.templateService.put(this.data.genData.id, jsonData).subscribe({
       next: (rest) => {
         this.templateService.getAll().subscribe((data: any) => {

@@ -167,7 +167,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
     const configId = this.configTemplateCtr?.value;
     const loginProfileId = this.loginProfileCtr?.value.id;
     if (iconId || deviceId || templateId || domainId || folder || parentFolder || role || configId || loginProfileId) {
-      const jsonData = {
+      const jsonDataValue = {
         ids: ids,
         icon_id: iconId,
         device_id: deviceId,
@@ -178,6 +178,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
         role: role,
         login_profile_id: loginProfileId
       }
+      const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.nodeService.editBulk(jsonData).subscribe(response => {
         return forkJoin(this.data.genData.activeNodes.map((node: any) => {
           if (configId) {

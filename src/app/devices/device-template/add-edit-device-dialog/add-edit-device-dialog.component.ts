@@ -87,11 +87,12 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
   }
 
   addDevice() {
-    const jsonData = {
+    const jsonDataValue = {
       name: this.name?.value,
       category: this.category?.value,
       icon_id: this.icon?.value.id,
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.deviceService.add(jsonData).subscribe({
       next: (rest) => {
         this.dialogRef.close();
@@ -106,12 +107,13 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
 
   updateDevice() {
     const categoryAdd = this.listCategory.map(el => el.name)
-    const jsonData = {
+    const jsonDataValue = {
       id: this.data.genData.id,
       name: this.name?.value,
       icon_id: this.icon?.value.id,
       category: this.category?.value,
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.deviceService.put(jsonData).subscribe({
       next: (rest) => {
         this.deviceService.getAll().subscribe((data: any) => this.store.dispatch(retrievedDevices({data: data.result})));

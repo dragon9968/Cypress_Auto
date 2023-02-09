@@ -42,7 +42,7 @@ export class AddRouteDialogComponent implements OnInit {
   }
 
   addRoute() {
-    const jsonData = {
+    const jsonDataValue = {
       config_type: "static_route",
       config_id: this.data.genData.id,
       name: this.data.genData.name,
@@ -51,6 +51,7 @@ export class AddRouteDialogComponent implements OnInit {
       next_hop: this.nextHopCtr?.value,
       interface: this.interfaceCtr?.value,
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.configTemplateService.addConfiguration(jsonData).subscribe({
       next: (rest) => {
         this.toastr.success(`Add Route successfully`);

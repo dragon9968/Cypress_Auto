@@ -48,7 +48,8 @@ export class AddEditUserDialogComponent implements OnInit, OnDestroy {
     private toastr: ToastrService,
     private userService: UserService,
     public dialogRef: MatDialogRef<AddEditUserDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private helpersService: HelpersService
   ) {
     this.selectRole$ = this.store.select(selectRole).subscribe(data => {
       this.listRole = data;
@@ -62,10 +63,10 @@ export class AddEditUserDialogComponent implements OnInit, OnDestroy {
     this.usersForm = new FormGroup({
       firstNameCtr: new FormControl({value: '', disabled: this.isViewMode}, [Validators.required]),
       lastNameCtr: new FormControl({value: '', disabled: this.isViewMode}, [Validators.required]),
-      userNameCtr: new FormControl({value: '', disabled: this.isViewMode}, 
+      userNameCtr: new FormControl({value: '', disabled: this.isViewMode},
       [Validators.required, validateNameExist(() => this.listUser, this.data.mode, this.data.genData.id, "username")]),
       activeCtr: new FormControl({value: '', disabled: this.isViewMode}),
-      emailCtr: new FormControl({value: '', disabled: this.isViewMode}, 
+      emailCtr: new FormControl({value: '', disabled: this.isViewMode},
       [Validators.email, Validators.required, validateNameExist(() => this.listUser, this.data.mode, this.data.genData.id, "email")]),
       roleCtr: new FormControl({value: '', disabled: this.isViewMode}),
       passwordCtr: new FormControl({value: '', disabled: this.isViewMode}, [Validators.required]),
@@ -104,7 +105,7 @@ export class AddEditUserDialogComponent implements OnInit, OnDestroy {
       });
     }
   }
-  
+
   togglePassword() {
     this.showPassword = !this.showPassword;
   }
@@ -132,9 +133,9 @@ export class AddEditUserDialogComponent implements OnInit, OnDestroy {
     const input = event.input;
     if (value.trim()) {
       const matchValue = this.listRole.filter(val => val.name.toLowerCase() === value.toLowerCase());
-      const matchNotSelected = 
+      const matchNotSelected =
         this.roles === null
-        ? matchValue 
+        ? matchValue
         : matchValue.filter(val => !this.roles.find(el => el.id === val.id))
       if (matchNotSelected.length === 1) {
         this.roles.push(matchNotSelected[0])
@@ -155,7 +156,7 @@ export class AddEditUserDialogComponent implements OnInit, OnDestroy {
 
   addUser() {
     const role = this.roles.map(val => val.name)
-    const jsonData = {
+    const jsonDataValue = {
       first_name: this.firstNameCtr?.value,
       last_name: this.lastNameCtr?.value,
       username: this.userNameCtr?.value,
@@ -163,6 +164,7 @@ export class AddEditUserDialogComponent implements OnInit, OnDestroy {
       email: this.emailCtr?.value,
       password: this.passwordCtr?.value,
     }
+    const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.userService.add(jsonData).pipe(
       catchError((e: any) => {
         this.toastr.error(e.error.message);
@@ -183,7 +185,7 @@ export class AddEditUserDialogComponent implements OnInit, OnDestroy {
 
   updateUser() {
     const role = this.roles.map(val => val.name)
-    const jsonData = {
+    const jsonDataValue = {
       first_name: this.firstNameCtr?.value,
       last_name: this.lastNameCtr?.value,
       username: this.userNameCtr?.value,
@@ -192,6 +194,7 @@ export class AddEditUserDialogComponent implements OnInit, OnDestroy {
       password: this.passwordCtr?.value,
       update_password: ''
     }
+    const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.userService.put(this.data.genData.id, jsonData).pipe(
       catchError((e: any) => {
         this.toastr.error(e.error.message);

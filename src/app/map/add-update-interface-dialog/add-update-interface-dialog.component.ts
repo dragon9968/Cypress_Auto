@@ -146,7 +146,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
   }
 
   addInterface() {
-    const jsonData = {
+    const jsonDataValue = {
       order: this.orderCtr?.value,
       name: this.nameCtr?.value,
       description: this.descriptionCtr?.value,
@@ -174,6 +174,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
         "text_bg_opacity": this.data.selectedMapPref.text_bg_opacity,
       } : undefined,
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.interfaceService.add(jsonData).subscribe((respData: any) => {
       const portGroupId = respData.result.port_group_id;
       if (portGroupId) {
@@ -204,7 +205,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
   }
 
   updateInterface() {
-    const jsonData = {
+    const jsonDataValue = {
       order: this.orderCtr?.value,
       name: this.nameCtr?.value,
       description: this.descriptionCtr?.value,
@@ -221,6 +222,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
       node_id: this.data.genData.node_id,
       netmask_id: this.data.genData.netmask_id,
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.interfaceService.put(this.data.genData.interface_id, jsonData).subscribe((respData: any) => {
       const data = {
         ...this.data.genData,
@@ -240,7 +242,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
   }
 
   connectInterfaceToPG() {
-    const jsonData = {
+    const jsonDataValue = {
       order: this.orderCtr?.value,
       name: this.nameCtr?.value,
       description: this.descriptionCtr?.value,
@@ -257,6 +259,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
       node_id: this.data.genData.node_id,
       netmask_id: this.data.genData.netmask_id,
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.interfaceService.put(this.data.genData.interface_id, jsonData).subscribe((respData: any) => {
       const data = {
         ...this.data.genData,

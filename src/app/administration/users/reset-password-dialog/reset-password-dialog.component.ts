@@ -34,14 +34,15 @@ export class ResetPasswordDialogComponent implements OnInit {
     private toastr: ToastrService,
     private userService: UserService,
     public dialogRef: MatDialogRef<ResetPasswordDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private helpersService: HelpersService
   ) {
     this.resetPasswordForm = new FormGroup({
       passwordCtr: new FormControl({value: '', disabled: false}, [Validators.required]),
       confirmPasswordCtr: new FormControl({value: '', disabled: false})
     }, { validators: checkPasswords("reset") })
   }
-   
+
   get passwordCtr() { return this.resetPasswordForm.get('passwordCtr') }
   get confirmPasswordCtr() { return this.resetPasswordForm.get("confirmPasswordCtr") }
 
@@ -61,9 +62,10 @@ export class ResetPasswordDialogComponent implements OnInit {
   }
 
   resetPassword() {
-    const jsonData = {
+    const jsonDataValue = {
       update_password: this.passwordCtr?.value,
     }
+    const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.userService.put(this.data.genData.id, jsonData).pipe(
       catchError((e: any) => {
         this.toastr.error(e.error.message);

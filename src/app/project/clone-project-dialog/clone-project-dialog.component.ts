@@ -9,6 +9,7 @@ import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 import { retrievedProjects, retrievedProjectsTemplate } from 'src/app/store/project/project.actions';
 import { ProjectService } from '../services/project.service';
+import { HelpersService } from "../../core/services/helpers/helpers.service";
 
 @Component({
   selector: 'app-clone-project-dialog',
@@ -27,7 +28,8 @@ export class CloneProjectDialogComponent implements OnInit {
     private store: Store,
     private router: Router,
     public dialogRef: MatDialogRef<CloneProjectDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private helperService: HelpersService
   ) {
     this.cloneForm = new FormGroup({
       nameCtr: new FormControl(''),
@@ -56,11 +58,12 @@ export class CloneProjectDialogComponent implements OnInit {
 
   cloneProject() {
     if (this.cloneForm.valid) {
-      const jsonData = {
+      const jsonDataValue = {
         pk: this.projectId,
         category: this.categoryCtr?.value,
         name: this.nameCtr?.value
       }
+      const jsonData = this.helperService.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.projectService.cloneProject(jsonData).subscribe({
         next: () => {
           if (this.categoryCtr?.value === 'project') {

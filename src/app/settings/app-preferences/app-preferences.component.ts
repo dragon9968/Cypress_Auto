@@ -11,6 +11,7 @@ import { ipSubnetValidation } from 'src/app/shared/validations/ip-subnet.validat
 import { retrievedAppPref } from 'src/app/store/app-pref/app-pref.actions';
 import { selectAppPref } from 'src/app/store/app-pref/app-pref.selectors';
 import { selectMapPrefs } from 'src/app/store/map-pref/map-pref.selectors';
+import { HelpersService } from "../../core/services/helpers/helpers.service";
 
 @Component({
   selector: 'app-app-preferences',
@@ -30,7 +31,8 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
     private appPrefService: AppPrefService,
     public dialogRef: MatDialogRef<AppPreferencesComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-  ) { 
+    private helpersService: HelpersService
+  ) {
     this.selectMapPrefs$ = this.store.select(selectMapPrefs).subscribe((data: any) => {
       this.listMapPref = data;
     });
@@ -70,7 +72,7 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
   get managementNetworkCtr() { return this.appPrefForm.get('managementNetworkCtr'); }
   get managementNetworkIPsCtr() { return this.appPrefForm.get('managementNetworkIPsCtr'); }
   get dhcpServerCtr() { return this.appPrefForm.get('dhcpServerCtr'); }
-  
+
 
   ngOnInit(): void {
   }
@@ -96,7 +98,7 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
   }
 
   editAppPref() {
-    const jsonData = {
+    const jsonDataValue = {
       category: this.data.genData.category,
       name: this.data.genData.name,
       // session_timeout: this.sessionTimeoutCtr?.value,
@@ -109,6 +111,7 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
       management_reserved_ip: this.processForm(this.managementNetworkIPsCtr?.value),
       management_dhcp_lease: this.dhcpServerCtr?.value,
     }
+    const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.appPrefService.put(this.data.genData.id, jsonData).pipe(
       catchError((error: any) => {
         this.toastr.error(`Edit App Preferences failed due to ${error.messages}`, 'Error');
@@ -125,7 +128,7 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
     this.dialogRef.close();
   }
 
-  numericOnly(event: any): boolean { 
+  numericOnly(event: any): boolean {
     const charCode = (event.which) ? event.which : event.keyCode;
     if (charCode == 101 || charCode == 69 || charCode == 45 || charCode == 43) {
       return false;

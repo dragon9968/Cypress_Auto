@@ -82,7 +82,10 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
     private store: Store,
   ) {
     this.nodeAddForm = new FormGroup({
-      nameCtr: new FormControl('', [Validators.required, validateNameExist(() => this.nodes, this.data.mode, this.data.genData.node_id)]),
+      nameCtr: new FormControl('', [
+        Validators.required,
+        validateNameExist(() => this.nodes, this.data.mode, this.data.genData.node_id)
+      ]),
       notesCtr: new FormControl(''),
       iconCtr: new FormControl(''),
       categoryCtr: new FormControl({ value: '', disabled: this.isViewMode }),
@@ -252,7 +255,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   }
 
   addNode() {
-    const jsonData = {
+    const jsonDataValue = {
       name: this.nameCtr?.value,
       notes: this.notesCtr?.value,
       icon_id: this.iconCtr?.value.id,
@@ -282,6 +285,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
         "background-fit": "contain"
       } : undefined,
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.nodeService.add(jsonData).pipe(
       catchError((e: any) => {
         this.toastr.error('Add new node failed', 'Error');
@@ -321,7 +325,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
 
   updateNode() {
     const ele = this.data.cy.getElementById('node-' + this.data.genData.id);
-    const jsonData = {
+    const jsonDataValue = {
       name: this.nameCtr?.value,
       notes: this.notesCtr?.value,
       icon_id: this.iconCtr?.value.id,
@@ -338,6 +342,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
       collection_id: this.data.genData.collection_id,
       logical_map_position: ele.position(),
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.nodeService.put(this.data.genData.node_id, jsonData).pipe(
       catchError((e: any) => {
         this.toastr.error('Update node failed!', 'Error');

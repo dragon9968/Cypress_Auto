@@ -149,13 +149,14 @@ export class AddUpdateGroupDialogComponent implements OnInit {
   }
 
   addGroup() {
-    const jsonData = {
+    const jsonDataValue = {
       name: this.nameCtr?.value,
       category: this.categoryCtr?.value.id,
       description: this.descriptionCtr?.value,
       collection_id: this.data.collection_id,
       domain_id: this.categoryCtr?.value.id == 'domain' ? this.categoryIdCtr?.value.id : undefined
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.groupService.add(jsonData).subscribe(response => {
       this.toastr.success('Added Row');
       this.groupService.getGroupByCollectionId(this.data.collection_id).subscribe(
@@ -167,7 +168,7 @@ export class AddUpdateGroupDialogComponent implements OnInit {
   }
 
   updateGroup() {
-    const jsonData = {
+    const jsonDataValue = {
       name: this.nameCtr?.value,
       category: this.categoryCtr?.value.id,
       description: this.descriptionCtr?.value,
@@ -177,6 +178,7 @@ export class AddUpdateGroupDialogComponent implements OnInit {
       logical_map: {},
       physical_map: {},
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.groupService.put(this.data.genData.id, jsonData).subscribe(response => {
       this.toastr.success(`Updated for the ${response.result} successfully`);
       this.groupService.getGroupByCollectionId(this.data.collection_id).subscribe(
