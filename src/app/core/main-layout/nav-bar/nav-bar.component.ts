@@ -1,7 +1,7 @@
 import { Component, ElementRef, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconRegistry } from '@angular/material/icon';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { interval, Subject, Subscription, throwError } from 'rxjs';
 import { EditProjectDialogComponent } from 'src/app/project/edit-project-dialog/edit-project-dialog.component';
@@ -13,6 +13,7 @@ import { RouteSegments } from '../../enums/route-segments.enum';
 import { AuthService } from '../../services/auth/auth.service';
 import { selectIsOpen, selectProjectName } from 'src/app/store/project/project.selectors';
 import {
+  retrievedAllProjects,
   retrievedIsOpen,
   retrievedProjectName,
   retrievedProjects,
@@ -37,6 +38,7 @@ import { AboutComponent } from 'src/app/help/about/about.component';
 import { ValidateProjectDialogComponent } from 'src/app/project/validate-project-dialog/validate-project-dialog.component';
 import { retrievedUserProfile } from 'src/app/store/user-profile/user-profile.actions';
 import { CloneProjectDialogComponent } from 'src/app/project/clone-project-dialog/clone-project-dialog.component';
+import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-nav-bar',
@@ -63,6 +65,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   username: any;
   isAdmin = false;
   categoryProject: any;
+  isHiddenNavbar!: boolean;
 
   constructor(
     private authService: AuthService,
@@ -78,6 +81,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private serverConnectionService: ServerConnectService,
     private serverConnectService: ServerConnectService,
+    public breakpointObserver: BreakpointObserver
   ) {
     this.selectIsMapOpen$ = this.store.select(selectIsMapOpen).subscribe((isMapOpen: boolean) => {
       this.isMapOpen = isMapOpen;
@@ -125,6 +129,13 @@ export class NavBarComponent implements OnInit, OnDestroy {
       this.store.dispatch(retrievedIsOpen({ data: true }));
     }
     this.serverConnectService.getAll().subscribe((data: any) => this.store.dispatch(retrievedServerConnect({ data: data.result })));
+    this.breakpointObserver.observe(['(max-width: 1365px)']).subscribe((state: BreakpointState) =>{
+      if (state.matches) {
+        this.isHiddenNavbar = true;
+      } else {
+        this.isHiddenNavbar = false;
+      }
+    })
   }
 
   ngOnDestroy(): void {
@@ -168,8 +179,8 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   editProject() {
-    this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe(data => {
-      this.store.dispatch(retrievedProjects({data: data.result}));
+    this.projectService.getProjectByStatus(this.status).subscribe(data => {
+      this.store.dispatch(retrievedAllProjects({listAllProject: data.result}));
       this.projectService.get(this.collectionId).subscribe(resp => {
         const dialogData = {
           mode: 'update',

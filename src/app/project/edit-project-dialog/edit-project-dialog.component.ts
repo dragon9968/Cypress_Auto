@@ -21,7 +21,7 @@ import {
 import { ButtonRenderersComponent } from '../renderers/button-renderers-component';
 import { ProjectService } from '../services/project.service';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
-import { selectRecentProjects } from 'src/app/store/project/project.selectors';
+import { selectAllProjects, selectRecentProjects } from 'src/app/store/project/project.selectors';
 import { MatRadioChange } from '@angular/material/radio';
 import { selectUserProfile } from 'src/app/store/user-profile/user-profile.selectors';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
@@ -36,7 +36,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
   private gridApi!: GridApi;
   editProjectForm!: FormGroup;
   errorMessages = ErrorMessages;
-  selectProjects$ = new Subscription();
+  selectAllProjects$ = new Subscription();
   selectRecentProjects$ = new Subscription();
   selectProjectTemplate$ = new Subscription();
   selectUser$ = new Subscription();
@@ -127,8 +127,8 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
         });
       }
     })
-    this.projectService.getAll().subscribe((data: any) => {
-      this.listProjects = data.result;
+    this.selectAllProjects$ = this.store.select(selectAllProjects).subscribe(projects => {
+      this.listProjects = projects;
     });
 
     this.editProjectForm = new FormGroup({
@@ -142,7 +142,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
       sharedCtr: new FormControl(''),
       categoryCtr: new FormControl(''),
     })
-    this.selectProjects$ = this.store.select(selectRecentProjects).subscribe(recentProjects => {
+    this.selectRecentProjects$ = this.store.select(selectRecentProjects).subscribe(recentProjects => {
       if (recentProjects) {
         this.recentProjects = recentProjects;
       }
@@ -158,7 +158,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.selectProjects$.unsubscribe();
+    this.selectAllProjects$.unsubscribe();
     this.selectRecentProjects$.unsubscribe();
   }
 

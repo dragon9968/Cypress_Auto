@@ -45,11 +45,20 @@ $margin: 8px;
   font-size: 20px;
 }
 
+
 @media only screen and (max-width: 1500px) {
   .project-name-label {
     font-size: 13px;
     max-width: 130px;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+}
+
+@media only screen and (max-width: 1365px) {
+  .search {
+    width: 100%;
+    display: flex;
+    justify-content: center;
   }
 }

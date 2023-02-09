@@ -62,13 +62,23 @@ const routes: AppRoute[] = [
           ),
       },
       {
-        path: RouteSegments.TEMPLATES,
+        path: RouteSegments.PROJECTS_TEMPLATES,
         data: {
           permissionLevel: PermissionLevels.USER,
         },
         loadChildren: () =>
           import('../../project/project.module').then(
             (m) => m.ProjectModule
+          ),
+      },
+      {
+        path: RouteSegments.TEMPLATES,
+        data: {
+          permissionLevel: PermissionLevels.USER,
+        },
+        loadChildren: () =>
+        import('../../templates/templates.module').then(
+          (m) => m.TemplatesModule
           ),
       },
       {

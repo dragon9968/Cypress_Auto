@@ -41,7 +41,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   shareProject!: any[];
   isAdmin = true;
   projetcAdminUrl = `${this.routeSegments.ROOT + this.routeSegments.PROJECTS_ADMINISTRATION}`
-  templatePageUrl = `${this.routeSegments.ROOT + this.routeSegments.TEMPLATES}`
+  templatePageUrl = `${this.routeSegments.ROOT + this.routeSegments.PROJECTS_TEMPLATES}`
   projectPageUrl = `${this.routeSegments.ROOT + this.routeSegments.PROJECTS}`
 
   defaultColDef: ColDef = {
@@ -134,12 +134,24 @@ export class ProjectComponent implements OnInit, OnDestroy {
               newData.push(element)
             });
           }
-          this.rowData$ = of(newData)
+          if (this.gridApi) {
+            this.gridApi.setRowData(newData);
+          } else {
+            this.rowData$ = of(newData);
+          }
+          this.updateRow();
         }
       });
     } else {
       this.selectAllProjects$ = this.store.select(selectAllProjects).subscribe((data: any) => {
-        this.rowData$ = of(data)
+        if (data) {
+          if (this.gridApi) {
+            this.gridApi.setRowData(data);
+          } else {
+            this.rowData$ = of(data);
+          }
+          this.updateRow();
+        }
       })
     }
       iconRegistry.addSvgIcon('export-json', this.helpersService.setIconPath('/assets/icons/export-json-info-panel.svg'));
@@ -159,11 +171,22 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.selectProjects$.unsubscribe();
+    this.selectProjectTemplate$.unsubscribe();
   }
 
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
     this.gridApi.sizeColumnsToFit();
+  }
+
+  updateRow() {
+    if (this.gridApi && this.rowsSelectedId.length > 0) {
+      this.gridApi.forEachNode(rowNode => {
+        if (this.rowsSelectedId.includes(rowNode.data.id)) {
+          rowNode.setSelected(true);
+        }
+      })
+    }
   }
 
   onSelectionChanged() {
@@ -209,12 +232,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
       this.toastr.info('No row selected');
     } else if (this.rowsSelectedId.length === 1) {
         this.projectService.get(this.rowsSelectedId[0]).subscribe(data => {
-          this.projectService.getProjectByStatusAndCategory(this.status, `${data.result.category}`).subscribe((resp: any) => {
-            if (data.result.category === 'project') {
-              this.store.dispatch(retrievedProjects({data: resp.result}));
-            } else if (data.result.category === 'template') {
-              this.store.dispatch(retrievedProjectsTemplate({ template: resp.result }));
-            }
+          this.projectService.getProjectByStatus(this.status).subscribe(resp => {
+            this.store.dispatch(retrievedAllProjects({listAllProject: resp.result}));
             const dialogData = {
               mode: 'update',
               category: data.result.category,
