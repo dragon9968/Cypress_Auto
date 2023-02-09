@@ -8,6 +8,18 @@
 @import 'font-awesome/css/font-awesome.min.css';
 @import '~ngx-toastr/toastr';
 @import "~@ng-select/ng-select/themes/material.theme.css";
+@font-face {
+  font-display: swap;
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/assets/fonts/roboto-v30-latin-regular.eot');
+  src: url('/assets/fonts/roboto-v30-latin-regular.eot?#iefix') format('embedded-opentype'),
+       url('/assets/fonts/roboto-v30-latin-regular.woff2') format('woff2'),
+       url('/assets/fonts/roboto-v30-latin-regular.woff') format('woff'),
+       url('/assets/fonts/roboto-v30-latin-regular.ttf') format('truetype'),
+       url('/assets/fonts/roboto-v30-latin-regular.svg#Roboto') format('svg'); 
+}
 $tool-panel-width: 300px;
 $margin: 8px;
 
