@@ -264,7 +264,7 @@ export class AddProjectComponent implements OnInit {
             if (this.category?.value === 'project') {
               this.router.navigate([RouteSegments.PROJECTS]);
             } else {
-              this.router.navigate([RouteSegments.TEMPLATES]);
+              this.router.navigate([RouteSegments.PROJECTS_TEMPLATES]);
             }
         });
       }

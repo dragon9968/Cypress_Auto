@@ -209,20 +209,27 @@ export class NavBarComponent implements OnInit, OnDestroy {
         status: 'delete'
       }
       if (result) {
-        this.projectService.deleteOrRecoverProject(jsonData).subscribe({
-          next: (rest) => {
+        this.projectService.deleteOrRecoverProject(jsonData)
+          .pipe(
+            catchError(error => {
+              this.toastr.error('Delete project failed!', 'Error');
+              return throwError(() => error);
+            })
+          )
+          .subscribe( rest => {
+            const category = rest.result.category;
             this.toastr.success(`Delete Project successfully`);
             this.projectService.closeProject();
             this.store.dispatch(retrievedIsOpen({ data: false }));
-            this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe(
+            this.projectService.getProjectByStatusAndCategory(this.status, category).subscribe(
               (data: any) => this.store.dispatch(retrievedProjects({ data: data.result }))
             );
-            this.router.navigate([RouteSegments.PROJECTS]);
-          },
-          error: (error) => {
-            this.toastr.error(`Error while delete Project`);
-          }
-        })
+            if (category === 'project') {
+              this.router.navigate([RouteSegments.PROJECTS]);
+            } else {
+              this.router.navigate([RouteSegments.PROJECTS_TEMPLATES]);
+            }
+          })
       }
     });
   }
