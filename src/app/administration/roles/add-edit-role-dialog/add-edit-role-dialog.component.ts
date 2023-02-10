@@ -1,7 +1,6 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatIconRegistry } from '@angular/material/icon';
 import { Store } from '@ngrx/store';
 import { DualListComponent } from 'angular-dual-listbox';
 import { ToastrService } from 'ngx-toastr';
@@ -9,18 +8,21 @@ import { catchError, Subscription, throwError } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { RolesService } from 'src/app/core/services/roles/roles.service';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
-import { retrievedPermissions, retrievedRole } from 'src/app/store/user/user.actions';
-import { selectPermissions } from 'src/app/store/user/user.selectors';
+import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
+import { retrievedRole } from 'src/app/store/user/user.actions';
+import { selectPermissions, selectRole } from 'src/app/store/user/user.selectors';
 
 @Component({
   selector: 'app-add-edit-role-dialog',
   templateUrl: './add-edit-role-dialog.component.html',
   styleUrls: ['./add-edit-role-dialog.component.scss']
 })
-export class AddEditRoleDialogComponent implements OnInit {
+export class AddEditRoleDialogComponent implements OnInit, OnDestroy {
   rolesForm!: FormGroup;
   errorMessages = ErrorMessages;
   permissions$ = new Subscription();
+  selectRole$ = new Subscription();
+  listRole!: any[];
   listPermissions!: any[];
   selected: any;
   options: any;
@@ -35,9 +37,14 @@ export class AddEditRoleDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private helpersService: HelpersService
   ) {
+    this.selectRole$ = this.store.select(selectRole).subscribe(roleData => {
+      this.listRole = roleData;
+    })
+
     this.rolesForm = new FormGroup({
-      nameCtr: new FormControl('', Validators.required)
+      nameCtr: new FormControl('', [Validators.required, validateNameExist(() => this.listRole, this.data.mode, this.data.genData.id)])
     });
+
     this.permissions$ = this.store.select(selectPermissions).subscribe(data => {
       this.listPermissions = data;
       this.listPermissions = this.listPermissions.map(val => ({
@@ -67,6 +74,13 @@ export class AddEditRoleDialogComponent implements OnInit {
   ngOnInit(): void {
     this.nameCtr?.setValue(this.data.genData.name);
   }
+
+     
+  ngOnDestroy(): void {
+    this.selectRole$.unsubscribe();
+    this.permissions$.unsubscribe();
+  }
+
 
   addRole() {
     const [permissionItems, remove] = this.processPermisions();

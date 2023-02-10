@@ -1,5 +1,5 @@
 <mat-toolbar color="primary">
-    <div *ngIf="isHiddenNavbar && isMapOpen">
+    <div *ngIf="isHiddenNavbar">
         <button mat-icon-button [matMenuTriggerFor]="menu">
             <mat-icon>menu</mat-icon>
         </button>
@@ -17,7 +17,7 @@
         <img alt="App icon" src="favicon.ico" style="height: 40px; width: 55px">
         <span style="font-size: 24px;"><b style="color:#007bff;">Blue</b> Cloak</span>
     </a>
-    <a *ngIf="!isMapOpen || !isHiddenNavbar" mat-button [matMenuTriggerFor]="project" class="menu-btn" (click)="getCollectionId()">Project</a>
+    <a *ngIf="!isHiddenNavbar" mat-button [matMenuTriggerFor]="project" class="menu-btn" (click)="getCollectionId()">Project</a>
     <mat-menu #project="matMenu">
             <button mat-menu-item [matMenuTriggerFor]="new">
                 <mat-icon>create_new_folder</mat-icon>
@@ -82,7 +82,7 @@
                 <span>Close</span>
             </button>
     </mat-menu>
-    <a *ngIf="!isMapOpen || !isHiddenNavbar" mat-button [matMenuTriggerFor]="devices" class="menu-btn">Devices</a>
+    <a *ngIf="!isHiddenNavbar" mat-button [matMenuTriggerFor]="devices" class="menu-btn">Devices</a>
     <mat-menu #devices="matMenu">
             <button mat-menu-item [routerLink]="routeSegments.DEVICES_TEMPLATE">
                 <mat-icon>devices</mat-icon>
@@ -105,14 +105,14 @@
             <span>Icon</span>
         </button>
     </mat-menu>
-    <a *ngIf="!isMapOpen || !isHiddenNavbar" mat-button [matMenuTriggerFor]="templates" class="menu-btn">Templates</a>
+    <a *ngIf="!isHiddenNavbar" mat-button [matMenuTriggerFor]="templates" class="menu-btn">Templates</a>
     <mat-menu #templates="matMenu">
             <button mat-menu-item [routerLink]="routeSegments.CONFIG_TEMPLATES">
                 <mat-icon>source</mat-icon>
                 <span>Configuration Templates</span>
             </button>
     </mat-menu>
-    <a *ngIf="!isMapOpen || !isHiddenNavbar" mat-button [matMenuTriggerFor]="remote" class="menu-btn">Remote</a>
+    <a *ngIf="!isHiddenNavbar" mat-button [matMenuTriggerFor]="remote" class="menu-btn">Remote</a>
     <mat-menu #remote="matMenu">
             <button *ngIf="!isConnect && isOpen" mat-menu-item (click)="openConnectServerForm()">
                 <mat-icon>wifi</mat-icon>
@@ -127,7 +127,7 @@
                 <span>Connection Profiles</span>
             </button>
     </mat-menu>
-    <a *ngIf="!isMapOpen || !isHiddenNavbar" mat-button [matMenuTriggerFor]="settings" class="menu-btn">Settings</a>
+    <a *ngIf="!isHiddenNavbar" mat-button [matMenuTriggerFor]="settings" class="menu-btn">Settings</a>
     <mat-menu #settings="matMenu">
             <button mat-menu-item (click)="openAppPref()">
                 <mat-icon>settings</mat-icon>
@@ -138,7 +138,7 @@
                 <span>Map Preferences</span>
             </button>
     </mat-menu>
-    <a *ngIf="!isMapOpen || !isHiddenNavbar" mat-button [matMenuTriggerFor]="help" class="menu-btn">Help</a>
+    <a *ngIf="!isHiddenNavbar" mat-button [matMenuTriggerFor]="help" class="menu-btn">Help</a>
     <mat-menu #help="matMenu">
             <button mat-menu-item [routerLink]="routeSegments.USER_GUIDE">
                 <mat-icon>book</mat-icon>
@@ -149,7 +149,7 @@
                 <span>About</span>
             </button>
     </mat-menu>
-    <a *ngIf="(!isMapOpen || !isHiddenNavbar) && isAdmin" mat-button [matMenuTriggerFor]="administration" class="menu-btn">Administration</a>
+    <a *ngIf="!isHiddenNavbar && isAdmin" mat-button [matMenuTriggerFor]="administration" class="menu-btn">Administration</a>
     <mat-menu #administration="matMenu">
             <button mat-menu-item [routerLink]="routeSegments.LIST_USERS">
                 <mat-icon>person</mat-icon>
