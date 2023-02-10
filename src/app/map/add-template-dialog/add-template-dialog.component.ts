@@ -7,6 +7,7 @@ import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MapService } from "../../core/services/map/map.service";
 import { NodeService } from "../../core/services/node/node.service";
+import { GroupService } from "../../core/services/group/group.service";
 import { DomainService } from "../../core/services/domain/domain.service";
 import { HelpersService } from "../../core/services/helpers/helpers.service";
 import { ProjectService } from "../../project/services/project.service";
@@ -15,6 +16,7 @@ import { PortGroupService } from "../../core/services/portgroup/portgroup.servic
 import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
 import { ErrorMessages } from "../../shared/enums/error-messages.enum";
 import { retrievedNodes } from "../../store/node/node.actions";
+import { retrievedGroups } from "../../store/group/group.actions";
 import { retrievedDomains } from "../../store/domain/domain.actions";
 import { retrievedPortGroups } from "../../store/portgroup/portgroup.actions";
 import { selectProjectTemplate } from "../../store/project/project.selectors";
@@ -43,6 +45,7 @@ export class AddTemplateDialogComponent implements OnInit, OnDestroy {
     private dialogRef: MatDialogRef<AddTemplateDialogComponent>,
     private mapService: MapService,
     private nodeService: NodeService,
+    private groupService: GroupService,
     public helpersService: HelpersService,
     private domainService: DomainService,
     private projectService: ProjectService,
@@ -136,6 +139,9 @@ export class AddTemplateDialogComponent implements OnInit, OnDestroy {
     }
     this.projectService.validateProject(jsonData).pipe(
       catchError((e: any) => {
+        this.groupService.getGroupByCollectionId(collectionId).subscribe(groupRes =>
+          this.store.dispatch(retrievedGroups({ data: groupRes.result }))
+        )
         this.toastr.error(e.error.message);
         this.dialog.open(ValidateProjectDialogComponent, {
           autoFocus: false,
@@ -145,6 +151,9 @@ export class AddTemplateDialogComponent implements OnInit, OnDestroy {
         return throwError(() => e);
       })
     ).subscribe(response => {
+      this.groupService.getGroupByCollectionId(collectionId).subscribe(groupRes =>
+        this.store.dispatch(retrievedGroups({ data: groupRes.result }))
+      )
       this.toastr.success(response.message);
     });
   }
