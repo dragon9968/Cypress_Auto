@@ -709,7 +709,7 @@ export class HelpersService implements OnDestroy{
 
   removeLeadingAndTrailingWhitespace(object: any) {
     return Object.keys(object).reduce((acc: any, curr: any) => {
-      acc[curr] = typeof  object[curr] == 'string' ? object[curr].trim() : object[curr]
+      acc[curr] = typeof object[curr] == 'string' ? object[curr].trim() : object[curr]
       return acc;
     }, {});
   }
