@@ -160,6 +160,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
     this.filteredRoles = this.helpers.filterOptions(this.roleCtr, this.ROLES);
     this.helpers.setAutoCompleteValue(this.iconCtr, this.icons, this.data.genData.icon_id);
     this.nameCtr?.setValue(this.data.genData.name);
+    this.notesCtr?.setValue(this.data.genData.notes);
     this.categoryCtr?.setValue(this.data.genData.category);
     this.disableItems(this.categoryCtr?.value);
     this.helpers.setAutoCompleteValue(this.deviceCtr, this.devices, this.data.genData.device_id);
