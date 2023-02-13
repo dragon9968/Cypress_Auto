@@ -38,9 +38,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
   selectProjectTemplate$ = new Subscription();
   selectAllProjects$ = new Subscription();
   rowData$!: Observable<any[]>;
-  shareProject!: any[];
   isAdmin = true;
-  projetcAdminUrl = `${this.routeSegments.ROOT + this.routeSegments.PROJECTS_ADMINISTRATION}`
+  projectAdminUrl = `${this.routeSegments.ROOT + this.routeSegments.PROJECTS_ADMINISTRATION}`
   templatePageUrl = `${this.routeSegments.ROOT + this.routeSegments.PROJECTS_TEMPLATES}`
   projectPageUrl = `${this.routeSegments.ROOT + this.routeSegments.PROJECTS}`
 
@@ -54,7 +53,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
       checkboxSelection: true,
       suppressSizeToFit: true,
       width: 52,
-      hide: this.router.url !== this.projetcAdminUrl
+      hide: this.router.url !== this.projectAdminUrl
     },
     {
       field: 'id',
@@ -72,7 +71,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     {
       field: 'category',
       flex: 1,
-      hide: this.router.url !== this.projetcAdminUrl
+      hide: this.router.url !== this.projectAdminUrl
     },
     {
       headerName: 'Created By',
@@ -111,7 +110,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     const accessToken = this.authService.getAccessToken();
     const accessTokenPayload = this.helpersService.decodeToken(accessToken);
     const userId = accessTokenPayload.identity;
-    this.isAdmin = this.router.url === this.projetcAdminUrl
+    this.isAdmin = this.router.url === this.projectAdminUrl
     if (this.router.url === this.templatePageUrl) {
       this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(templateData => {
         if (templateData) {
@@ -123,23 +122,21 @@ export class ProjectComponent implements OnInit, OnDestroy {
     } else if (this.router.url === this.projectPageUrl) {
       this.selectProjects$ = this.store.select(selectProjects)
       .subscribe((data) => {
-        this.projectService.getShareProject(this.status, 'project').subscribe((resp: any) => {
-          this.shareProject = resp.result
-        })
         if (data) {
-          let newData = [...data]
-          newData = newData.filter((val: any) => val.created_by_fk === userId)
-          if (this.shareProject) {
-            Object.values(this.shareProject).forEach(element => {
-              newData.push(element)
-            });
-          }
-          if (this.gridApi) {
-            this.gridApi.setRowData(newData);
-          } else {
-            this.rowData$ = of(newData);
-          }
-          this.updateRow();
+          this.projectService.getShareProject(this.status, 'project').subscribe((resp: any) => {
+            const shareProject = resp.result;
+            let newData:any[];
+            newData = data.filter((val: any) => val.created_by_fk === userId);
+            if (shareProject) {
+              newData = [...newData, ...shareProject];
+            }
+            if (this.gridApi) {
+              this.gridApi.setRowData(newData);
+            } else {
+              this.rowData$ = of(newData);
+            }
+            this.updateRow();
+          })
         }
       });
     } else {
