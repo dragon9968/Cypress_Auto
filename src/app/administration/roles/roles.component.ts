@@ -79,7 +79,14 @@ export class RolesComponent implements OnInit {
     private store: Store,
   ) { 
     this.selectRole$ = this.store.select(selectRole).subscribe(roleData => {
-      this.rowData$ = of(roleData);
+      if (roleData) {
+        if (this.gridApi) {
+          this.gridApi.setRowData(roleData);
+        } else {
+          this.rowData$ = of(roleData);
+        }
+        this.updateRow();
+      }
     })
     
     iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json-info-panel.svg'));
@@ -227,7 +234,13 @@ export class RolesComponent implements OnInit {
     }
   }
 
-  onDelete() {
-
+  updateRow() {
+    if (this.gridApi && this.rowsSelectedId.length > 0) {
+      this.gridApi.forEachNode(rowNode => {
+        if (this.rowsSelectedId.includes(rowNode.data.id)) {
+          rowNode.setSelected(true);
+        }
+      })
+    }
   }
 }

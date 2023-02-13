@@ -51,7 +51,7 @@ export class AddEditRoleDialogComponent implements OnInit, OnDestroy {
         id: val.id,
         permission_id: val.permission_id,
         view_menu_id: val.view_menu_id,
-        name: val.permission.name.replace('_', ' ') + ' on ' + val.view_menu.name
+        permisionName: val.permission?.name + ' on ' + val.view_menu?.name
         })
       )
     })
