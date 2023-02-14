@@ -101,12 +101,13 @@ export class AddEditHardwareDialogComponent implements OnInit, OnDestroy {
 
   addHardware() {
     if (this.hardwareForm.valid) {
-      const jsonData = {
+      const jsonDataValue = {
         device_id: this.device?.value.id,
         template_id: this.template?.value.id,
         serial_number: this.serialNumber?.value,
         asset_tag: this.assetTag?.value
-      }
+      };
+      const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.hardwareService.add(jsonData).subscribe({
         next: (rest) =>{
           this.toastr.success(`Add new Hardware successfully`);
@@ -122,12 +123,13 @@ export class AddEditHardwareDialogComponent implements OnInit, OnDestroy {
 
   updateHardware() {
     if (this.hardwareForm.valid) {
-      const jsonData = {
+      const jsonDataValue = {
         device_id: this.device?.value.id,
         template_id: this.template?.value.id,
         serial_number: this.serialNumber?.value,
         asset_tag: this.assetTag?.value
       };
+      const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.hardwareService.put(this.data.genData.id, jsonData).subscribe({
         next: (rest) =>{
           this.toastr.success(`Update Hardware successfully`);

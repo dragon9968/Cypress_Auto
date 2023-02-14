@@ -4,6 +4,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
+import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { IconService } from 'src/app/core/services/icon/icon.service';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
@@ -32,6 +33,7 @@ export class AddEditIconDialogComponent implements OnInit {
     private iconService: IconService,
     private toastr: ToastrService,
     private store: Store,
+    private helpersService: HelpersService,
     public dialogRef: MatDialogRef<AddEditIconDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
@@ -81,7 +83,7 @@ export class AddEditIconDialogComponent implements OnInit {
     if (this.iconForm.valid) {
       const formData = new FormData();
       formData.append('file', this.selectedFile);
-      formData.append('name', this.name?.value)
+      formData.append('name', this.name?.value.trim())
       this.iconService.add(formData).subscribe({
           next:(rest) => {
             this.dialogRef.close();
@@ -110,7 +112,7 @@ export class AddEditIconDialogComponent implements OnInit {
     if (this.iconForm.valid) {
       const formData = new FormData();
       formData.append('file', this.selectedFile);
-      formData.append('name', this.name?.value);
+      formData.append('name', this.name?.value.trim());
       if (this.isChecked) {
         formData.append('checked', 'true');
       }
