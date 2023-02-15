@@ -113,11 +113,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.isAdmin = this.router.url === this.projectAdminUrl
     if (this.router.url === this.templatePageUrl) {
       this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(templateData => {
-        if (templateData) {
-          let newTemplateData = [...templateData]
-          newTemplateData = newTemplateData.filter((val: any) => val.created_by_fk === userId)
-          this.rowData$ = of(newTemplateData)
-        }
+        this.rowData$ = of(templateData)
       });
     } else if (this.router.url === this.projectPageUrl) {
       this.selectProjects$ = this.store.select(selectProjects)
