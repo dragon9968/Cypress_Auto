@@ -14,6 +14,10 @@
                 <input type="password" matInput formControlName="password">
             </mat-form-field>
         </p>
+        <p class="field-checkbox">
+            <label>Option:</label>
+            <mat-checkbox color="primary" formControlName="option">LDAP authentication.</mat-checkbox>
+        </p>
         <p *ngIf="error" class="error">
             {{ error }}
         </p>

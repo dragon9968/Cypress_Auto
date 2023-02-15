@@ -29,11 +29,11 @@ export class AuthService {
     private serverConnectionService: ServerConnectService
   ) {}
 
-  login(username: string, password: string) {
+  login(username: string, password: string, option: any) {
     return this.http.post<Tokens>(ApiPaths.LOGIN, {
       username: username,
       password: password,
-      provider: "db",
+      provider: option,
       refresh: true
     });
   }

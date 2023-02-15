@@ -28,6 +28,7 @@ export class LoginComponent implements OnInit {
         this.loginForm = new FormGroup({
             username: new FormControl('', Validators.required),
             password: new FormControl('', Validators.required),
+            option: new FormControl(''),
         });
     }
 
@@ -35,9 +36,11 @@ export class LoginComponent implements OnInit {
 
     get username() { return this.loginForm.get('username'); }
     get password() { return this.loginForm.get('password'); }
+    get option() { return this.loginForm.get('option'); }
 
     login() {
-        this.authService.login(this.username?.value, this.password?.value)
+        const option = this.option?.value ? "ldap" : "db";
+        this.authService.login(this.username?.value, this.password?.value, option)
             .pipe(catchError((e: any) => {
                 this.error = "Wrong username or password";
                 return throwError(() => e);
