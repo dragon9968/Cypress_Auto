@@ -68,7 +68,7 @@ export class AddEditUserDialogComponent implements OnInit, OnDestroy {
       activeCtr: new FormControl({value: '', disabled: this.isViewMode}),
       emailCtr: new FormControl({value: '', disabled: this.isViewMode},
       [Validators.email, Validators.required, validateNameExist(() => this.listUser, this.data.mode, this.data.genData.id, "email")]),
-      roleCtr: new FormControl({value: '', disabled: this.isViewMode}),
+      roleCtr: new FormControl({value: '', disabled: this.isViewMode}, [Validators.required]),
       passwordCtr: new FormControl({value: '', disabled: this.isViewMode}, [Validators.required]),
       confirmPasswordCtr: new FormControl({value: '', disabled: this.isViewMode}),
       loginCountCtr: new FormControl({value: '', disabled: this.isViewMode})
@@ -104,6 +104,11 @@ export class AddEditUserDialogComponent implements OnInit, OnDestroy {
       this.listRole = this.listRole.filter(value => value.id != el.id)
       });
     }
+    if (this.roles.length === 0) {
+      this.roleCtr?.setErrors({
+        required: this.errorMessages.FIELD_IS_REQUIRED
+      });
+    }
   }
 
   togglePassword() {
@@ -125,6 +130,11 @@ export class AddEditUserDialogComponent implements OnInit, OnDestroy {
       if ((this.data.mode === 'add') || (this.data.mode === 'update')) {
         this.listRole.unshift(role)
       }
+    }
+    if (this.roles.length === 0) {
+      this.roleCtr?.setErrors({
+        required: this.errorMessages.FIELD_IS_REQUIRED
+      });
     }
   }
 
