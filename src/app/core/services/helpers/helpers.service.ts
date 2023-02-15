@@ -488,8 +488,29 @@ export class HelpersService implements OnDestroy{
     return control.valueChanges.pipe(
       startWith(''),
       map((value: any | string) => {
-        const text = typeof value === 'string' ? value.toLowerCase() : value.name;
+        const typeOfValue = typeof value;
+        if (typeOfValue === 'object') {
+          return options;
+        }
+        const text = typeOfValue === 'string' ? value.toLowerCase() : value.name;
         const filteredOptions =  options?.filter((option: any) => option[optionColumn]?.toLowerCase().includes(text));
+        return filteredOptions.length > 0 ? filteredOptions : options;
+      }),
+    );
+  }
+
+  filterOptionsPortGroup(control: any, options: any[]) {
+    return control.valueChanges.pipe(
+      startWith(''),
+      map((value: any | string) => {
+        const typeOfValue = typeof value;
+        if (typeOfValue === 'object') {
+          return options;
+        }
+        const text = typeOfValue === 'string' ? value.toLowerCase() : value.name;
+        const filteredOptions = options?.filter((option: any) => option['name']?.toLowerCase().includes(text)
+                                                                || option['subnet']?.toLowerCase().includes(text)
+                                                                || option['vlan']?.toString().toLowerCase().includes(text));
         return filteredOptions.length > 0 ? filteredOptions : options;
       }),
     );

@@ -63,7 +63,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
     this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe((portGroups: any) => {
       this.portGroups = portGroups;
       this.portGroupCtr.setValidators([autoCompleteValidator(this.portGroups)]);
-      this.filteredPortGroups = this.helpers.filterOptions(this.portGroupCtr, this.portGroups);
+      this.filteredPortGroups = this.helpers.filterOptionsPortGroup(this.portGroupCtr, this.portGroups);
     });
     this.selectInterfaces$ = this.store.select(selectInterfaces).subscribe(interfaces => {
       if (interfaces) {
