@@ -1,6 +1,11 @@
 <form [formGroup]="loginProfileEditForm" (ngSubmit)="data.mode === 'add' ? addLoginProfile() : updateLogin()">
-  <h1 mat-dialog-title>{{data.mode === 'add' ? 'Add Login Profile' : data.mode === 'update' ? 'Edit Login Profiles':
-    'Login Profile Detail'}}</h1>
+  <div class="dialog-title">
+    <h1 mat-dialog-title>{{data.mode === 'add' ? 'Add Login Profile' : data.mode === 'update' ? 'Edit Login Profiles':
+      'Login Profile Detail'}}</h1>
+    <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+      <mat-icon>edit</mat-icon>
+    </button>
+  </div>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>

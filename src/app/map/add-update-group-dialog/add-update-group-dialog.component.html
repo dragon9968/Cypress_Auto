@@ -1,5 +1,10 @@
 <form [formGroup]="groupAddForm" (ngSubmit)="data.mode === 'add' ? addGroup() : updateGroup()">
-  <h1 mat-dialog-title>{{data.mode === 'add' ? 'Add New Group' : data.mode === 'update' ? 'Group Edit' : 'Group Info'}}</h1>
+  <div class="dialog-title">
+    <h1 mat-dialog-title>{{data.mode === 'add' ? 'Add New Group' : data.mode === 'update' ? 'Group Edit' : 'Group Info'}}</h1>
+    <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+      <mat-icon>edit</mat-icon>
+    </button>
+  </div>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
@@ -33,36 +38,39 @@
       <input matInput formControlName="descriptionCtr" placeholder="Description" [readonly]="isViewMode">
     </mat-form-field>
 
-    <mat-form-field *ngIf="isViewMode && data.mode !== 'add'" class="field">
+    <!-- <mat-form-field *ngIf="isViewMode && data.mode !== 'add'" class="field">
       <mat-label>Nodes</mat-label>
       <input matInput formControlName="nodesCtr" [readonly]="isViewMode">
-    </mat-form-field>
+    </mat-form-field> -->
 
     <ng-select
-      *ngIf="!isViewMode && data.mode !== 'add'"
+      *ngIf="data.mode !== 'add'"
       class="ng-select-nodes"
       formControlName="nodesCtr"
       [items]="nodes"
       [multiple]="true"
       bindLabel="name"
       bindValue="id"
-      placeholder="Nodes">
+      placeholder="Nodes"
+      [readonly]="isViewMode"
+      >
     </ng-select>
-
+<!-- 
     <mat-form-field *ngIf="isViewMode && data.mode !== 'add'" class="field">
       <mat-label>Port Groups</mat-label>
       <input matInput formControlName="portGroupsCtr" [readonly]="isViewMode">
-    </mat-form-field>
+    </mat-form-field> -->
 
     <ng-select
-      *ngIf="!isViewMode && data.mode !== 'add'"
+      *ngIf="data.mode !== 'add'"
       class="ng-select-port-groups"
       formControlName="portGroupsCtr"
       [items]="portGroups"
       [multiple]="true"
       bindLabel="name"
       bindValue="id"
-      placeholder="Port Groups">
+      placeholder="Port Groups"
+      [readonly]="isViewMode">
     </ng-select>
   </div>
 

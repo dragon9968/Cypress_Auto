@@ -1,5 +1,10 @@
 <form [formGroup]="iconForm" (ngSubmit)="data.mode === 'add' ? addIcon() : updateIcon()">
-  <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Icon' : data.mode === 'update' ? 'Edit Icon' : 'Show Icon'}}</h1>
+  <div class="dialog-title">
+    <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Icon' : data.mode === 'update' ? 'Edit Icon' : 'Show Icon'}}</h1>
+    <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+      <mat-icon>edit</mat-icon>
+    </button>
+  </div>
   <div mat-dialog-content>
     <mat-form-field class="field" *ngIf="data.mode === 'view'">
       <mat-label>Id</mat-label>

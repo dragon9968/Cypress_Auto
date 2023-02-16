@@ -202,6 +202,11 @@ ag-grid-angular .ag-cell-focus,
 }
 /* END TABLE STYLE COMMON */
 
+.dialog-title {
+  display: flex;
+  justify-content: space-between;
+}
+
 @media only screen and (max-width: 1500px) {
   .cy-panzoom {
     padding-top: 175px;

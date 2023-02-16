@@ -96,4 +96,12 @@ export class AddUpdateDomainDialogComponent implements OnInit {
   onCancel() {
     this.dialogRef.close();
   }
+
+  changeViewToEdit() {
+    this.data.mode = 'update';
+    this.isViewMode = false;
+    this.nameCtr?.enable();
+    this.adminUserCtr?.enable();
+    this.adminPasswordCtr?.enable();
+  }
 }

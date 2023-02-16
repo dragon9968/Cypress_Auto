@@ -1,6 +1,10 @@
 <form [formGroup]="nodeAddForm" (ngSubmit)="data.mode === 'add' ? addNode() : updateNode()">
-  <h1 mat-dialog-title>{{data.mode === 'add' ? 'Node Add' : data.mode === 'update' ? 'Node Edit Form' : 'Node Info'}}
-  </h1>
+  <div class="dialog-title">
+    <h1 mat-dialog-title>{{data.mode === 'add' ? 'Node Add' : data.mode === 'update' ? 'Node Edit Form' : 'Node Info'}}</h1>
+    <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+      <mat-icon>edit</mat-icon>
+    </button>
+  </div>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>

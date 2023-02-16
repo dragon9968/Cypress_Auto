@@ -237,4 +237,9 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
       });
     });
   }
+
+  changeViewToEdit() {
+    this.data.mode = 'update';
+    this.isViewMode = false;
+  }
 }

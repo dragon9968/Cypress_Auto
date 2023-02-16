@@ -213,7 +213,7 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
         mode: 'view',
         genData: configTemplateData.result
       }
-      this.dialog.open(ShowConfigTemplateDialogComponent, {
+      this.dialog.open(AddEditConfigTemplateComponent, {
         autoFocus: false,
         width: '450px',
         data: dialogData

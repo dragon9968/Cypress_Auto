@@ -231,4 +231,23 @@ export class AddEditConnectionProfilesComponent implements OnInit {
       }
     })
   }
+
+  changeViewToEdit() {
+    this.data.mode = 'update';
+    this.isViewMode = false;
+    this.name?.enable();
+    this.category?.enable();
+    this.server?.enable();
+    this.dataCenter?.enable();
+    this.cluster?.enable();
+    this.dataStore?.enable();
+    this.switch?.enable();
+    this.switchType?.enable();
+    this.managementNetwork?.enable();
+    this.username?.enable();
+    this.password?.enable();
+    this.updatePassword?.enable();
+    this.file?.enable();
+    this.certFile?.enable();
+  }
 }

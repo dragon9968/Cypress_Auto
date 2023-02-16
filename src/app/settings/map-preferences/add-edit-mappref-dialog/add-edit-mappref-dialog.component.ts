@@ -98,27 +98,29 @@ export class AddEditMapprefDialogComponent {
     this.selectMapPrefs$ = this.store.select(selectMapPrefs).subscribe((data: any) => {
       this.listMapPref = data;
       this.listDefaultMapPref = data.filter((el: any) => el.name === 'Default');
-      this.gbColor = this.listDefaultMapPref[0].group_box_color;
-      this.gbBorderColor = this.listDefaultMapPref[0].group_box_border_color;
-      this.pgColor = this.listDefaultMapPref[0].port_group_color;
-      this.edgeColor = this.listDefaultMapPref[0].edge_color;
-      this.textColor = this.listDefaultMapPref[0].text_color;
-      this.TextBG = this.listDefaultMapPref[0].text_bg_color;
-      this.gbOpacity?.setValue(this.listDefaultMapPref[0].group_box_opacity);
-      this.gbBorder?.setValue(this.listDefaultMapPref[0].group_box_border);
-      this.pgSizeCtr?.setValue(this.listDefaultMapPref[0].port_group_size);
-      this.edgeWidthCtr?.setValue(this.listDefaultMapPref[0].edge_width);
-      this.nodeSizeCtr?.setValue(this.listDefaultMapPref[0].node_size);
-      this.textSizeCtr?.setValue(this.listDefaultMapPref[0].text_size);
-      this.textHorizontalAlignmentCtr?.setValue(this.listDefaultMapPref[0].text_halign);
-      this.textVerticalAlignmentCtr?.setValue(this.listDefaultMapPref[0].text_valign);
-      this.textBgOpacityCtr?.setValue(this.listDefaultMapPref[0].text_bg_opacity);
-      this.defaultIconCtr?.setValue(this.data.genIcon[0]);
-      this.edgeArrowDirectionCtr?.setValue(this.listDefaultMapPref[0].edge_arrow_direction);
-      this.edgeArrowSizeCtr?.setValue(this.listDefaultMapPref[0].edge_arrow_size);
-      this.mapGridCtr?.setValue(this.listDefaultMapPref[0].grid_enabled);
-      this.snapToGridCtr?.setValue(this.listDefaultMapPref[0].grid_snap);
-      this.gridSpacingCtr?.setValue(this.listDefaultMapPref[0].grid_spacing);
+      if (this.data.mode === 'add') {
+        this.gbColor = this.listDefaultMapPref[0].group_box_color;
+        this.gbBorderColor = this.listDefaultMapPref[0].group_box_border_color;
+        this.pgColor = this.listDefaultMapPref[0].port_group_color;
+        this.edgeColor = this.listDefaultMapPref[0].edge_color;
+        this.textColor = this.listDefaultMapPref[0].text_color;
+        this.TextBG = this.listDefaultMapPref[0].text_bg_color;
+        this.gbOpacity?.setValue(this.listDefaultMapPref[0].group_box_opacity);
+        this.gbBorder?.setValue(this.listDefaultMapPref[0].group_box_border);
+        this.pgSizeCtr?.setValue(this.listDefaultMapPref[0].port_group_size);
+        this.edgeWidthCtr?.setValue(this.listDefaultMapPref[0].edge_width);
+        this.nodeSizeCtr?.setValue(this.listDefaultMapPref[0].node_size);
+        this.textSizeCtr?.setValue(this.listDefaultMapPref[0].text_size);
+        this.textHorizontalAlignmentCtr?.setValue(this.listDefaultMapPref[0].text_halign);
+        this.textVerticalAlignmentCtr?.setValue(this.listDefaultMapPref[0].text_valign);
+        this.textBgOpacityCtr?.setValue(this.listDefaultMapPref[0].text_bg_opacity);
+        this.defaultIconCtr?.setValue(this.data.genIcon[0]);
+        this.edgeArrowDirectionCtr?.setValue(this.listDefaultMapPref[0].edge_arrow_direction);
+        this.edgeArrowSizeCtr?.setValue(this.listDefaultMapPref[0].edge_arrow_size);
+        this.mapGridCtr?.setValue(this.listDefaultMapPref[0].grid_enabled);
+        this.snapToGridCtr?.setValue(this.listDefaultMapPref[0].grid_snap);
+        this.gridSpacingCtr?.setValue(this.listDefaultMapPref[0].grid_spacing);
+      }
     });
     this.selectIcons$ = this.store.select(selectIcons).subscribe((data: any) => {
       this.listIcons = data;
@@ -126,31 +128,8 @@ export class AddEditMapprefDialogComponent {
       this.filteredIcons = this.helpers.filterOptions(this.defaultIconCtr, this.listIcons);
     });
     this.isViewMode = this.data.mode == 'view';
-    if ((data.mode === 'update')) {
-      const icon = this.listIcons.filter(i => i.name === this.data.genData.default_icon)
-      this.name?.setValue(this.data.genData.name);
-      this.gbColor = this.data.genData.group_box_color;
-      this.gbOpacity?.setValue(this.data.genData.group_box_opacity);
-      this.gbBorder?.setValue(this.data.genData.group_box_border);
-      this.gbBorderColor = this.data.genData.group_box_border_color;
-      this.pgColor = this.data.genData.port_group_color;
-      this.pgSizeCtr?.setValue(this.data.genData.port_group_size);
-      this.edgeColor = this.data.genData.edge_color;
-      this.edgeWidthCtr?.setValue(this.data.genData.edge_width);
-      this.nodeSizeCtr?.setValue(this.data.genData.node_size);
-      this.textSizeCtr?.setValue(this.data.genData.text_size);
-      this.textColor = this.data.genData.text_color;
-      this.textHorizontalAlignmentCtr?.setValue(this.data.genData.text_halign);
-      this.textVerticalAlignmentCtr?.setValue(this.data.genData.text_valign);
-      this.TextBG = this.data.genData.text_bg_color;
-      this.textBgOpacityCtr?.setValue(this.data.genData.text_bg_opacity);
-      this.zoomSpeedCtr?.setValue(this.data.genData.zoom_speed);
-      this.defaultIconCtr?.setValue(icon[0]);
-      this.edgeArrowDirectionCtr?.setValue(this.data.genData.edge_arrow_direction);
-      this.edgeArrowSizeCtr?.setValue(this.data.genData.edge_arrow_size);
-      this.mapGridCtr?.setValue(this.data.genData.grid_enabled);
-      this.snapToGridCtr?.setValue(this.data.genData.grid_snap);
-      this.gridSpacingCtr?.setValue(this.data.genData.grid_spacing);
+    if ((this.data.mode === 'update')) {
+      this.setValueMap();
     }
     else if (data.mode == 'view') {
       this.name?.setValue(this.data.genData.name);
@@ -299,4 +278,36 @@ export class AddEditMapprefDialogComponent {
     this.TextBG = event;
   }
 
+  changeViewToEdit() {
+    this.data.mode = 'update';
+    this.isViewMode = false;
+    this.setValueMap();
+  }
+
+  setValueMap () {
+    const icon = this.listIcons.filter(i => i.name === this.data.genData.default_icon)
+    this.name?.setValue(this.data.genData.name);
+    this.gbColor = this.data.genData.group_box_color;
+    this.gbOpacity?.setValue(this.data.genData.group_box_opacity);
+    this.gbBorder?.setValue(this.data.genData.group_box_border);
+    this.gbBorderColor = this.data.genData.group_box_border_color;
+    this.pgColor = this.data.genData.port_group_color;
+    this.pgSizeCtr?.setValue(this.data.genData.port_group_size);
+    this.edgeColor = this.data.genData.edge_color;
+    this.edgeWidthCtr?.setValue(this.data.genData.edge_width);
+    this.nodeSizeCtr?.setValue(this.data.genData.node_size);
+    this.textSizeCtr?.setValue(this.data.genData.text_size);
+    this.textColor = this.data.genData.text_color;
+    this.textHorizontalAlignmentCtr?.setValue(this.data.genData.text_halign);
+    this.textVerticalAlignmentCtr?.setValue(this.data.genData.text_valign);
+    this.TextBG = this.data.genData.text_bg_color;
+    this.textBgOpacityCtr?.setValue(this.data.genData.text_bg_opacity);
+    this.zoomSpeedCtr?.setValue(this.data.genData.zoom_speed);
+    this.defaultIconCtr?.setValue(icon[0]);
+    this.edgeArrowDirectionCtr?.setValue(this.data.genData.edge_arrow_direction);
+    this.edgeArrowSizeCtr?.setValue(this.data.genData.edge_arrow_size);
+    this.mapGridCtr?.setValue(this.data.genData.grid_enabled);
+    this.snapToGridCtr?.setValue(this.data.genData.grid_snap);
+    this.gridSpacingCtr?.setValue(this.data.genData.grid_spacing);
+  }
 }

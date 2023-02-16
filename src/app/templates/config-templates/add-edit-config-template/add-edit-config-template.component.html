@@ -1,16 +1,75 @@
 <form [formGroup]="configTemplateForm" (ngSubmit)="data.mode === 'add' ? addConfigTemplate() : updateConfigTemplate()">
-  <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Config Template' : data.mode === 'update' ? 'Edit Config Template' : 'Config Template Detail' }}</h1>
+  <div class="dialog-title">
+    <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Config Template' : data.mode === 'update' ? 'Edit Config Template' : 'Show Config Template' }}</h1>
+    <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+      <mat-icon>edit</mat-icon>
+    </button>
+  </div>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
-      <input type="text" formControlName="name" matInput>
+      <input type="text" formControlName="name" matInput [readonly]="isViewMode">
       <mat-error *ngIf="name?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="name?.errors?.minlength || name?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH_50 }}</mat-error>
     </mat-form-field>
+    <mat-form-field *ngIf="data.mode === 'view'" class="field">
+      <mat-label>Category</mat-label>
+      <input type="text" formControlName="category" matInput [readonly]="isViewMode">
+    </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Description</mat-label>
-      <input type="text" formControlName="description" matInput>
+      <input type="text" formControlName="description" matInput [readonly]="isViewMode">
     </mat-form-field>
+    <div *ngIf="data.mode === 'view'" [hidden]="!(data.genData.configuration?.static_routes?.length > 0)">
+      <h3><strong><u>Static Routes</u></strong></h3>
+      <ul>
+        <li *ngFor="let value of staticRoles; let i = index">
+          interface:<b>{{value.interface}}</b>, route:<b>{{value.route}}</b>, next_hop:<b>{{value.next_hop}}</b>
+        <button id="static_route" type="button" mat-icon-button color="warn" (click)="edit(i, $event)"><mat-icon>delete</mat-icon></button>
+        </li>
+      </ul>
+    </div>
+    <div *ngIf="data.mode === 'view'" [hidden]="!data.genData.configuration?.join_domain">
+      <h3><strong><u>Domain Membership</u></strong></h3>
+      <ul>
+        <li>
+          Join domain:<b>{{joinDomain}}</b>
+          <button id="domain_membership" type="button" mat-icon-button color="warn" (click)="edit(0, $event)"><mat-icon>delete</mat-icon></button>
+        </li>
+        <li>
+          OU Path - <b>{{OuPath}}</b>
+          <button id="ou_path" type="button"  mat-icon-button color="warn" (click)="edit(0, $event)"><mat-icon>delete</mat-icon></button>
+        </li>
+      </ul>
+    </div>
+    <div *ngIf="data.mode === 'view'" [hidden]="!(data.genData.configuration?.firewall_rule?.length > 0)" class="firewall">
+      <h3><strong><u>Firewall Rules</u></strong></h3>
+      <ul>
+        <li *ngFor="let value of fileWallRule; let i=index">
+          [Name: {{ value.name }}, State: {{value.state}}, Action: {{ value.action }}, Interface: {{ value.interface}},
+          Protocol: {{value.protocol}}, Source: {{value.source}}, Source Port: {{value.source_port}}, Destination: {{value.destination}},
+          Destination Port: {{value.destination_port}}]
+
+          <button id="firewall_rule" type="button" mat-icon-button color="warn" (click)="edit(i, $event)"><mat-icon>delete</mat-icon></button>
+        </li>
+      </ul>
+      <ul>
+        <li *ngFor="let value of fileWallPort; let i = index">
+          [Name: {{ value.name }}, State: {{value.state}}, Interface: {{ value.interface}},
+          Destination: {{value.destination}}, Destination Port: {{value.destination_port}}, 
+          Target: {{value.target}}, Target Port: {{value.target_port}}]
+          <button id="firewall_rule" type="button" mat-icon-button color="warn" (click)="edit(i, $event)"><mat-icon>delete</mat-icon></button>
+        </li>
+      </ul>
+    </div>
+    <div *ngIf="data.mode === 'view'" [hidden]="!(data.genData.configuration?.role_services?.length > 0)" class="roles-or-services">
+      <h3><strong><u>Roles & Services</u></strong></h3>
+      <ul>
+        <li *ngFor="let value of rolesOrServices; let i = index">{{ value }}
+          <button id="role_services" type="button" mat-icon-button color="warn" (click)="edit(i, $event)"><mat-icon>delete</mat-icon></button>
+        </li>
+      </ul>
+    </div>
   </div>
   <div mat-dialog-actions [align]="'end'" class="create-btn">
     <button mat-raised-button type="button" (click)="onCancel()">{{data.mode === 'view' ? 'Close' : 'Cancel'}}</button>

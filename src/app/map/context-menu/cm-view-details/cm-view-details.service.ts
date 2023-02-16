@@ -13,20 +13,20 @@ export class CMViewDetailsService {
     private dialog: MatDialog,
   ) { }
 
-  getMenu(activeNodes: any, activePGs: any, activeEdges: any) {
+  getMenu(cy: any, activeNodes: any, activePGs: any, activeEdges: any) {
     return {
       id: "view_details",
       content: "View",
       selector: "node[label!='group_box'], edge",
       onClickFunction: (event: any) => {
-        this.openViewDetailForm(activeNodes, activePGs, activeEdges);
+        this.openViewDetailForm(cy, activeNodes, activePGs, activeEdges);
       },
       hasTrailingDivider: false,
       disabled: false,
     }
   }
 
-  openViewDetailForm(activeNodes: any, activePGs: any, activeEdges: any) {
+  openViewDetailForm(cy: any, activeNodes: any, activePGs: any, activeEdges: any) {
     const activeNodesLength = activeNodes.length;
     const activePGsLength = activePGs.length;
     const activeEdgesLength = activeEdges.length;
@@ -34,18 +34,21 @@ export class CMViewDetailsService {
       const dialogData = {
         mode: 'view',
         genData: activeEdges[0].data(),
+        cy
       }
       this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
     } else if (activePGsLength == 1 && activeNodesLength == 0 && activeEdgesLength == 0) {
       const dialogData = {
         mode: 'view',
         genData: activePGs[0].data(),
+        cy
       }
       this.dialog.open(AddUpdatePGDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
     } else if (activeNodesLength == 1 && activePGsLength == 0 && activeEdgesLength == 0) {
       const dialogData = {
         mode: 'view',
         genData: activeNodes[0].data(),
+        cy
       }
       this.dialog.open(AddUpdateNodeDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
     }

@@ -1,5 +1,10 @@
 <form [formGroup]="pgAddForm" (ngSubmit)="data.mode === 'add' ? addPG() : updatePG()">
-  <h1 mat-dialog-title>{{data.mode === 'add' ? 'Port Group Add' : data.mode === 'update' ? 'Port Group Edit' : 'Port Group Info'}}</h1>
+  <div class="dialog-title">
+    <h1 mat-dialog-title>{{data.mode === 'add' ? 'Port Group Add' : data.mode === 'update' ? 'Port Group Edit' : 'Port Group Info'}}</h1>
+    <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+      <mat-icon>edit</mat-icon>
+    </button>
+  </div>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>

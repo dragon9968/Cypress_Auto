@@ -152,6 +152,7 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
     const dialogData = {
       mode: 'view',
       genData: row.data,
+      cy: this.cy
     }
     this.dialog.open(AddUpdatePGDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
   }

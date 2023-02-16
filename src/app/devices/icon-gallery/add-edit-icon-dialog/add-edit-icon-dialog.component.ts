@@ -135,4 +135,12 @@ export class AddEditIconDialogComponent implements OnInit {
   onCancel() {
     this.dialogRef.close();
   }
+
+  changeViewToEdit() {
+    this.data.mode = 'update';
+    this.isViewMode = false;
+    this.name?.enable();
+    this.photo?.enable();
+    this.isHiddenDeleteButton = false;
+  }
 }

@@ -28,6 +28,7 @@ class CrossFieldErrorMatcher implements ErrorStateMatcher {
   styleUrls: ['./add-edit-user-dialog.component.scss']
 })
 export class AddEditUserDialogComponent implements OnInit, OnDestroy {
+  @ViewChild('chipList') chipList!: MatChipList;
   errorMessages = ErrorMessages;
   errorMatcher = new CrossFieldErrorMatcher();
   usersForm!: FormGroup;
@@ -221,5 +222,16 @@ export class AddEditUserDialogComponent implements OnInit, OnDestroy {
       });
       this.dialogRef.close();
     });
+  }
+
+  changeViewToEdit() {
+    this.data.mode = 'update';
+    this.isViewMode = false;
+    this.firstNameCtr?.enable();
+    this.lastNameCtr?.enable();
+    this.userNameCtr?.enable();
+    this.activeCtr?.enable();
+    this.emailCtr?.enable();
+    this.roleCtr?.enable();
   }
 }

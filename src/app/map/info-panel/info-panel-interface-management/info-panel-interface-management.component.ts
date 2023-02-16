@@ -169,6 +169,7 @@ export class InfoPanelInterfaceManagementComponent implements OnDestroy {
     const dialogData = {
       mode: 'view',
       genData: row.data,
+      cy: this.cy,
     };
     this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
   }

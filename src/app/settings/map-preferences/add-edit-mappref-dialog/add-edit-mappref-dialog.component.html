@@ -1,6 +1,11 @@
 <form [formGroup]="mapPrefForm" (ngSubmit)="data.mode === 'add' ? addMapPref() : updateMapPref()">
-  <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add New Preferences' : data.mode === 'update' ? 'Edit Map Preferences'
-    : 'Map Preference Detail' }}</h1>
+  <div class="dialog-title">
+    <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add New Preferences' : data.mode === 'update' ? 'Edit Map Preferences'
+      : 'Map Preference Detail' }}</h1>
+    <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+      <mat-icon>edit</mat-icon>
+    </button>
+  </div>
   <div mat-dialog-content *ngIf="data.mode === 'view'">
     <mat-form-field class="field">
       <mat-label>Name</mat-label>

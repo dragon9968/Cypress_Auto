@@ -310,4 +310,9 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
     this.gateways = interfaceList.map(ele => ele.ip);
     this.gatewayCtr?.setValue('');
   }
+
+  changeViewToEdit() {
+    this.data.mode = 'update';
+    this.isViewMode = false;
+  }
 }

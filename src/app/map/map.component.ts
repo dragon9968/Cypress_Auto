@@ -867,7 +867,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.cmActionsService.getEdgeActionsMenu(this.cy, this.activeEdges),
         this.cmRemoteService.getNodeRemoteMenu(this.activeNodes),
         this.cmRemoteService.getPortGroupRemoteMenu(this.activePGs),
-        this.cmViewDetailsService.getMenu(this.activeNodes, this.activePGs, this.activeEdges),
+        this.cmViewDetailsService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges),
         this.cmEditService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges),
         this.cmDeleteService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs),
         this.cmLockUnlockService.getLockMenu(this.cy, this.activeNodes, this.activePGs, this.activeMBs),

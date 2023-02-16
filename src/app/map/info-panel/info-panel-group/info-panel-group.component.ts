@@ -148,13 +148,16 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
   }
 
   onRowDoubleClicked(row: RowDoubleClickedEvent) {
-    const dialogData = {
-      mode: 'view',
-      genData: row.data,
-      collection_id: row.data.collection_id,
-      map_category: 'logical'
-    };
-    this.dialog.open(AddUpdateGroupDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+    this.groupService.get(row.data.id).subscribe(groupData => {
+      const dialogData = {
+        mode: 'view',
+        genData: groupData.result,
+        collection_id: groupData.result.collection_id,
+        map_category: 'logical'
+      };
+      this.dialog.open(AddUpdateGroupDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+    })
+    
   }
 
   selectedRows() {

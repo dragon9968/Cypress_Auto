@@ -133,4 +133,15 @@ export class EditLoginProfilesDialogComponent implements OnInit {
     }
   }
 
+  changeViewToEdit() {
+    this.data.mode = 'update';
+    this.isViewMode = false;
+    this.name?.enable();
+    this.description?.enable();
+    this.username?.enable();
+    this.password?.enable();
+    this.category?.enable();
+    this.extraArgs?.enable();
+  }
+
 }

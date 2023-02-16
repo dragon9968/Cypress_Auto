@@ -72,11 +72,11 @@ export class AddUpdateGroupDialogComponent implements OnInit {
         { value: '', disabled: this.isViewMode },
         [Validators.required, validateNameExist(() => this.groups, this.data.mode, this.data.genData.id)]
       ),
-      categoryCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      categoryCtr: new FormControl(''),
       categoryIdCtr: new FormControl(''),
       descriptionCtr: new FormControl(''),
-      nodesCtr: new FormControl({ value: '', disabled: this.isViewMode }),
-      portGroupsCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      nodesCtr: new FormControl(''),
+      portGroupsCtr: new FormControl(''),
     });
     this.filteredCategories = this.helpers.filterOptions(this.categoryCtr, this.CATEGORIES);
   }
@@ -115,8 +115,8 @@ export class AddUpdateGroupDialogComponent implements OnInit {
       this.helpers.setAutoCompleteValue(this.categoryCtr, this.CATEGORIES, this.data.genData.category);
     } else {
       this.categoryCtr?.setValue(this.CATEGORIES[0]);
-      this.nodesCtr?.setValue(this.data.genData.nodes);
-      this.portGroupsCtr?.setValue(this.data.genData.port_groups);
+      this.nodesCtr?.setValue(this.data.genData.nodes?.map((ele: any) => ele.id));
+      this.portGroupsCtr?.setValue(this.data.genData.port_groups?.map((ele: any) => ele.id));
     }
     this.groupAddForm.controls['categoryCtr'].valueChanges.subscribe(value => {
       switch (value.name) {
@@ -202,5 +202,14 @@ export class AddUpdateGroupDialogComponent implements OnInit {
       this.categoryChilds = this.devices;
     }
     this.filteredCategoryChild = this.helpers.filterOptions(this.categoryIdCtr, this.categoryChilds);
+  }
+
+  changeViewToEdit() {
+    this.data.mode = 'update';
+    this.isViewMode = false;
+    this.nameCtr?.enable();
+    this.nodesCtr?.setValue(this.data.genData.nodes?.map((ele: any) => ele.id));
+    this.portGroupsCtr?.setValue(this.data.genData.port_groups?.map((ele: any) => ele.id));
+    this.helpers.setAutoCompleteValue(this.categoryCtr, this.CATEGORIES, this.data.genData.category);
   }
 }

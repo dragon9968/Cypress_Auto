@@ -1,12 +1,17 @@
 <form [formGroup]="interfaceAddForm"
       (ngSubmit)="data.mode === 'add' ? addInterface() : data.mode === 'update' ? updateInterface() : connectInterfaceToPG()">
-  <h1 mat-dialog-title>
-    {{
-        data.mode === 'add' ? 'Edge Add'
-      : data.mode === 'update' ? 'Edge Edit'
-      : data.mode === 'connect' ? 'Connecting Interface to Port Group'
-      : 'Edge Info'
-    }}</h1>
+  <div class="dialog-title">
+    <h1 mat-dialog-title>
+      {{
+          data.mode === 'add' ? 'Edge Add'
+        : data.mode === 'update' ? 'Edge Edit'
+        : data.mode === 'connect' ? 'Connecting Interface to Port Group'
+        : 'Edge Info'
+      }}</h1>
+      <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+        <mat-icon>edit</mat-icon>
+      </button>
+  </div>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Order</mat-label>

@@ -142,5 +142,10 @@ export class AddEditHardwareDialogComponent implements OnInit, OnDestroy {
       });
     }
   }
+
+  changeToEdit() {
+    this.data.mode = 'edit';
+    this.isViewMode = false;
+  }
 }
 

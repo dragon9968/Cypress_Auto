@@ -369,4 +369,9 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
       });
     });
   }
+
+  changeViewToEdit() {
+    this.data.mode = 'edit';
+    this.isViewMode = false;
+  }
 }

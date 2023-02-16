@@ -1,5 +1,10 @@
 <form [formGroup]="connectionForm" (ngSubmit)="data.mode === 'add' ? addServerConnect() : updateServerConnect()">
-  <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Server Connect' : data.mode === 'update' ? 'Edit Server Connect' : 'Connection Detail' }}</h1>
+  <div class="dialog-title">
+    <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Server Connect' : data.mode === 'update' ? 'Edit Server Connect' : 'Connection Detail' }}</h1>
+    <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+      <mat-icon>edit</mat-icon>
+    </button>
+  </div>
   <div mat-dialog-content>
     <section>
       <div class="sub-title">Info</div>
