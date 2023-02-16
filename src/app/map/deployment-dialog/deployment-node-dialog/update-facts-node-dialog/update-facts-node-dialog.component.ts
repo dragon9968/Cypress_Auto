@@ -2,23 +2,23 @@ import { Store } from "@ngrx/store";
 import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
 import { FormGroup, FormControl } from "@angular/forms";
-import { Observable, Subscription, throwError } from "rxjs";
-import { Component, Inject, OnDestroy } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { Observable, Subscription, throwError } from "rxjs";
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ErrorMessages } from "../../../../shared/enums/error-messages.enum";
 import { TaskService } from "../../../../core/services/task/task.service";
 import { HelpersService } from "../../../../core/services/helpers/helpers.service";
 import { InfoPanelService } from "../../../../core/services/info-panel/info-panel.service";
 import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
-import { autoCompleteValidator } from "../../../../shared/validations/auto-complete.validation";
 import { selectLoginProfiles } from "../../../../store/login-profile/login-profile.selectors";
+import { autoCompleteValidator } from "../../../../shared/validations/auto-complete.validation";
 
 @Component({
   selector: 'app-update-facts-node-dialog',
   templateUrl: './update-facts-node-dialog.component.html',
   styleUrls: ['./update-facts-node-dialog.component.scss']
 })
-export class UpdateFactsNodeDialogComponent implements OnDestroy {
+export class UpdateFactsNodeDialogComponent implements OnInit, OnDestroy {
   updateFactsNodeForm: FormGroup;
   errorMessages = ErrorMessages;
   selectLoginProfiles$ = new Subscription();
@@ -52,6 +52,14 @@ export class UpdateFactsNodeDialogComponent implements OnDestroy {
         id: 0,
         name: 'Test Connection'
       }
+    }
+  }
+
+  ngOnInit(): void {
+    const activeNodes = this.data.activeNodes;
+    const loginProfileId = activeNodes.find((node: any) => node.data('login_profile_id'))?.data('login_profile_id');
+    if (loginProfileId) {
+      this.helpersService.setAutoCompleteValue(this.loginProfileCtr, this.loginProfiles, loginProfileId);
     }
   }
 

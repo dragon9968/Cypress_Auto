@@ -120,7 +120,7 @@ export class CMRemoteService {
               jobName: 'deploy_node',
               activeNodes
             };
-            this.dialog.open(AddUpdateNodeDeployDialogComponent, { width: '600px', data: dialogData });
+            this.dialog.open(AddUpdateNodeDeployDialogComponent, { width: '600px', data: dialogData, autoFocus: false });
           },
           hasTrailingDivider: true,
           disabled: false,
@@ -133,7 +133,7 @@ export class CMRemoteService {
             const dialogData = {
               activeNodes
             };
-            this.dialog.open(DeleteNodeDeployDialogComponent, { width: '600px', data: dialogData });
+            this.dialog.open(DeleteNodeDeployDialogComponent, { width: '600px', data: dialogData, autoFocus: false });
           },
           hasTrailingDivider: true,
           disabled: false,
@@ -147,7 +147,7 @@ export class CMRemoteService {
               jobName: 'update_node',
               activeNodes
             };
-            this.dialog.open(AddUpdateNodeDeployDialogComponent, { width: '600px', data: dialogData });
+            this.dialog.open(AddUpdateNodeDeployDialogComponent, { width: '600px', data: dialogData, autoFocus: false });
           },
           hasTrailingDivider: true,
           disabled: false,
@@ -249,7 +249,7 @@ export class CMRemoteService {
           selector: 'node[icon]',
           onClickFunction: () => {
             const dialogData = {
-              pks: activeNodes.map((node: any) => node.data('node_id')),
+              activeNodes,
               jobName: 'ping_test',
             }
             this.dialog.open(NodeToolsDialogComponent, { width: '450px', data: dialogData, autoFocus: false })
@@ -263,7 +263,7 @@ export class CMRemoteService {
           selector: 'node[icon]',
           onClickFunction: () => {
             const dialogData = {
-              pks: activeNodes.map((node: any) => node.data('node_id')),
+              activeNodes,
               jobName: 'shell_command',
             }
             this.dialog.open(NodeToolsDialogComponent, { width: '450px', data: dialogData, autoFocus: false })

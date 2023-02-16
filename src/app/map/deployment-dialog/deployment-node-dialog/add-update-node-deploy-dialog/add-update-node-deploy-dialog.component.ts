@@ -1,23 +1,23 @@
 import { Store } from "@ngrx/store";
 import { ToastrService } from 'ngx-toastr';
-import { Component, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormControl, FormGroup } from '@angular/forms';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { catchError, Observable, Subscription, throwError } from 'rxjs';
+import { ErrorMessages } from "../../../../shared/enums/error-messages.enum";
 import { TaskService } from 'src/app/core/services/task/task.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
+import { InfoPanelService } from "../../../../core/services/info-panel/info-panel.service";
+import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
 import { selectLoginProfiles } from "../../../../store/login-profile/login-profile.selectors";
 import { autoCompleteValidator } from "../../../../shared/validations/auto-complete.validation";
-import { InfoPanelService } from "../../../../core/services/info-panel/info-panel.service";
-import { ErrorMessages } from "../../../../shared/enums/error-messages.enum";
-import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
 
 @Component({
   selector: 'app-add-node-deploy-dialog',
   templateUrl: './add-update-node-deploy-dialog.component.html',
   styleUrls: ['./add-update-node-deploy-dialog.component.scss']
 })
-export class AddUpdateNodeDeployDialogComponent {
+export class AddUpdateNodeDeployDialogComponent implements OnInit, OnDestroy {
   deployNewNodeForm: FormGroup;
   selectLoginProfiles$ = new Subscription();
   loginProfiles: any[] = [];
@@ -44,6 +44,18 @@ export class AddUpdateNodeDeployDialogComponent {
       this.loginProfileCtr.setValidators([autoCompleteValidator(this.loginProfiles)]);
       this.filteredLoginProfiles = this.helpers.filterOptions(this.loginProfileCtr, this.loginProfiles);
     });
+  }
+
+  ngOnInit(): void {
+    const activeNodes = this.data.activeNodes;
+    const loginProfileId = activeNodes.find((node: any) => node.data('login_profile_id'))?.data('login_profile_id');
+    if (loginProfileId) {
+      this.helpers.setAutoCompleteValue(this.loginProfileCtr, this.loginProfiles, loginProfileId);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.selectLoginProfiles$.unsubscribe();
   }
 
   get isBackupVMCtr() { return this.deployNewNodeForm.get('isBackupVMCtr'); }

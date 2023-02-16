@@ -256,14 +256,14 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
     switch (nodeToolId) {
       case 'ping_test':
         dialogData = {
-          pks: this.activeNodes.map((node: any) => node.data('node_id')),
+          activeNodes: this.activeNodes,
           jobName: 'ping_test',
         }
         this.dialog.open(NodeToolsDialogComponent, { width: '450px', data: dialogData, autoFocus: false } )
         break;
       case 'shell_command':
         dialogData = {
-          pks: this.activeNodes.map((node: any) => node.data('node_id')),
+          activeNodes: this.activeNodes,
           jobName: 'shell_command',
         }
         this.dialog.open(NodeToolsDialogComponent, { width: '450px', data: dialogData, autoFocus: false })

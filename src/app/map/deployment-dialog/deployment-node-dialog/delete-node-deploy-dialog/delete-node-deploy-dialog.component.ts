@@ -2,9 +2,9 @@ import { Store } from "@ngrx/store";
 import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
 import { FormGroup, FormControl } from "@angular/forms";
-import { Observable, Subscription, throwError } from "rxjs";
-import { Component, Inject, OnDestroy } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { Observable, Subscription, throwError } from "rxjs";
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { TaskService } from "../../../../core/services/task/task.service";
 import { ErrorMessages } from "../../../../shared/enums/error-messages.enum";
 import { HelpersService } from "../../../../core/services/helpers/helpers.service";
@@ -18,7 +18,7 @@ import { selectLoginProfiles } from "../../../../store/login-profile/login-profi
   templateUrl: './delete-node-deploy-dialog.component.html',
   styleUrls: ['./delete-node-deploy-dialog.component.scss']
 })
-export class DeleteNodeDeployDialogComponent implements OnDestroy {
+export class DeleteNodeDeployDialogComponent implements OnInit, OnDestroy {
   deleteNodeDeployForm: FormGroup;
   selectLoginProfiles$ = new Subscription();
   loginProfiles: any[] = [];
@@ -52,6 +52,14 @@ export class DeleteNodeDeployDialogComponent implements OnDestroy {
         id: 0,
         name: 'Test Connection'
       }
+    }
+  }
+
+  ngOnInit(): void {
+    const activeNodes = this.data.activeNodes;
+    const loginProfileId = activeNodes.find((node: any) => node.data('login_profile_id'))?.data('login_profile_id');
+    if (loginProfileId) {
+      this.helperService.setAutoCompleteValue(this.loginProfileCtr, this.loginProfiles, loginProfileId);
     }
   }
 

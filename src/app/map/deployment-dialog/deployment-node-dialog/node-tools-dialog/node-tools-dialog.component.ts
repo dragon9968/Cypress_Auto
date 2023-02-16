@@ -6,12 +6,12 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { Observable, Subscription, throwError } from "rxjs";
 import { ErrorMessages } from "../../../../shared/enums/error-messages.enum";
-import { autoCompleteValidator } from "../../../../shared/validations/auto-complete.validation";
 import { ToolService } from "../../../../core/services/tool/tool.service";
 import { HelpersService } from "../../../../core/services/helpers/helpers.service";
 import { InfoPanelService } from "../../../../core/services/info-panel/info-panel.service";
 import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
 import { selectLoginProfiles } from "../../../../store/login-profile/login-profile.selectors";
+import { autoCompleteValidator } from "../../../../shared/validations/auto-complete.validation";
 
 @Component({
   selector: 'app-node-tools-dialog',
@@ -52,6 +52,11 @@ export class NodeToolsDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const activeNodes = this.data.activeNodes;
+    const loginProfileId = activeNodes.find((node: any) => node.data('login_profile_id'))?.data('login_profile_id');
+    if (loginProfileId) {
+      this.helpersService.setAutoCompleteValue(this.loginProfileCtr, this.loginProfiles, loginProfileId);
+    }
     if (this.isPingTest) {
       this.remoteHostCtr?.enable();
       this.shellCommandCtr?.disable();
@@ -69,7 +74,7 @@ export class NodeToolsDialogComponent implements OnInit {
     const connection = this.serviceConnectionService.getConnection();
     const connectionId = connection ? connection.id : 0;
     let jsonData: any = {
-      pks: this.data.pks,
+      pks: this.data.activeNodes.map((node: any) => node.data('node_id')),
       job_name: this.jobName,
       category: 'node',
       connection_id: connectionId,
