@@ -65,6 +65,10 @@ import { ContextMenuService } from './context-menu/context-menu.service';
 import { retrievedMapEdit } from "../store/map-edit/map-edit.actions";
 import { selectInterfaceIdConnectPG } from "../store/interface/interface.selectors";
 import { CMInterfaceService } from "./context-menu/cm-interface/cm-interface.service";
+import { GroupService } from "../core/services/group/group.service";
+import { retrievedNodes } from "../store/node/node.actions";
+import { retrievedGroups } from "../store/group/group.actions";
+import { ValidateProjectDialogComponent } from "../project/validate-project-dialog/validate-project-dialog.component";
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -90,9 +94,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   isOpenToolPanel = true;
   isDisableCancel = true;
   isDisableAddNode = true;
+  isDisableAddProjectTemplate = true;
   isDisableAddPG = false;
   isDisableAddImage = false;
   isAddNode = false;
+  isAddProjectTemplate = false;
   isAddPublicPG = false;
   isAddPrivatePG = false;
   isTemplateCategory = false;
@@ -112,8 +118,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   eles: any[] = [];
   isCustomizeNode = true;
   isCustomizePG = true;
+  isLayoutOnly = false;
   deviceId = '';
   templateId = '';
+  projectTemplateId = 0;
   selectedMapPref: any;
   portGroups!: any[];
   gateways!: any[];
@@ -150,6 +158,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   selectInterfaceIdConnectPG = new Subscription();
   selectMapFeatureSubject: Subject<MapState> = new ReplaySubject(1);
   destroy$: Subject<boolean> = new Subject<boolean>();
+  saveMapSubject: Subject<void> = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
@@ -165,6 +174,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     private configTemplateService: ConfigTemplateService,
     private loginProfileService: LoginProfileService,
     private nodeService: NodeService,
+    private groupService: GroupService,
     private portgroupService: PortGroupService,
     private interfaceService: InterfaceService,
     private dialog: MatDialog,
@@ -214,13 +224,16 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.selectMapEdit$ = this.store.select(selectMapEdit).subscribe((mapEdit: any) => {
       if (mapEdit) {
         this.isAddNode = mapEdit.isAddNode;
+        this.isAddProjectTemplate = mapEdit.isAddTemplateProject;
+        this.projectTemplateId = mapEdit.projectTemplateId ? mapEdit.projectTemplateId : this.projectTemplateId;
         this.templateId = mapEdit.templateId ? mapEdit.templateId : this.templateId;
         this.deviceId = mapEdit.deviceId ? mapEdit.deviceId : this.deviceId;
         this.isCustomizeNode = mapEdit.isCustomizeNode;
         this.isAddPublicPG = mapEdit.isAddPublicPG;
         this.isAddPrivatePG = mapEdit.isAddPrivatePG;
         this.isCustomizePG = mapEdit.isCustomizePG;
-        if (this.isAddNode || this.isAddPublicPG || this.isAddPrivatePG) {
+        this.isLayoutOnly = mapEdit.isLayoutOnly;
+        if (this.isAddNode || this.isAddPublicPG || this.isAddPrivatePG || this.isAddProjectTemplate) {
           this._disableMapEditButtons();
         } else {
           this._enableMapEditButtons();
@@ -302,6 +315,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.store.dispatch(retrievedMapEdit({ data: undefined }))
     this.deviceId = '';
     this.templateId = '';
+    this.projectTemplateId = 0;
   }
 
   private _disableMapEditButtons() {
@@ -309,10 +323,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.isDisableAddPG = true;
     this.isDisableAddImage = true;
     this.isDisableCancel = false;
+    this.isDisableAddProjectTemplate = true;
   }
 
   private _enableMapEditButtons() {
-    this.isDisableAddNode = !(!!this.templateId && !!this.deviceId);
+    this.isDisableAddNode = !(Boolean(this.templateId) && Boolean(this.deviceId));
+    this.isDisableAddProjectTemplate = !(Boolean(this.projectTemplateId));
     this.isDisableAddPG = false;
     this.isDisableAddImage = false;
     this.isDisableCancel = true;
@@ -592,6 +608,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             this._addNewPortGroup(genData, newNodeData, newNodePosition);
           }
         });
+    } else if (this.isAddProjectTemplate) {
+      this.addTemplateIntoCurrentProject(this.projectTemplateId, this.isLayoutOnly, newNodePosition);
     }
   }
 
@@ -746,7 +764,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     const elementsNoPosition = this.cy.elements().filter((ele: any) =>
       (ele.group() == 'nodes' && ele.position('x') === 0 && ele.position('y') === 0)
     );
-    if (elementsNoPosition.length >= 0) {
+    if (elementsNoPosition.length > 0) {
       this.cy.elements().filter((ele: any) => (ele.position('x') !== 0 && ele.position('y') !== 0)).lock();
       this.cy.layout({
           name: "cose",
@@ -1157,8 +1175,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.store.dispatch(retrievedInterfaceIdConnectPG({ interfaceIdConnectPG: undefined }));
   }
 
-
-
   searchMap(searchText: string) {
     searchText = searchText.trim();
     if (searchText) {
@@ -1227,4 +1243,88 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   openDashboard() {
     this.router.navigate([RouteSegments.DASHBOARD]);
   }
+
+  addTemplateIntoCurrentProject(projectTemplateId: Number, layoutOnly: Boolean, newPosition: any) {
+    const collectionId = this.projectService.getCollectionId();
+    const jsonData = {
+      collection_id: collectionId,
+      template_id: projectTemplateId,
+      layout_only: layoutOnly,
+      category: 'logical'
+    }
+    this.mapService.addTemplateIntoMap(jsonData).pipe(
+      catchError(error => {
+        this.toastr.error('Add items from template into project failed!', 'Error');
+        this.isAddProjectTemplate = false;
+        this._enableMapEditButtons();
+        return throwError(() => error);
+      })
+    ).subscribe(response => {
+      this.isAddProjectTemplate = false;
+      this._enableMapEditButtons();
+      const templateItems = response.result.map_items;
+      this.domainService.getDomainByCollectionId(collectionId).subscribe(domainRes => {
+        this.store.dispatch(retrievedDomains({ data: domainRes.result }));
+        this.infoPanelService.initInterfaceManagementStorage(collectionId);
+        this.infoPanelService.initPortGroupManagementStorage(collectionId);
+
+        this.nodeService.getNodesByCollectionId(collectionId).subscribe(nodeRes => {
+          this.store.dispatch(retrievedNodes({ data: nodeRes.result }));
+
+          this.portgroupService.getByCollectionId(collectionId).subscribe(pgRes => {
+            this.store.dispatch(retrievedPortGroups({ data: pgRes.result }));
+            const nodesNotManagement = templateItems.nodes.filter((node: any) => node.data.category !== 'management');
+            const isNodesHasPosition = nodesNotManagement.every((node: any) =>
+              (node.position && node.data.category != 'management') && node.position?.x !== 0 && node.position?.y !== 0
+            )
+            if (isNodesHasPosition) {
+              this.helpersService.addCYNodeAndEdge(this.cy, templateItems.nodes, templateItems.interfaces, newPosition);
+              this.saveMapSubject.next();
+            } else {
+              this.cy.elements().lock();
+              this.helpersService.addCYNodeAndEdge(this.cy, templateItems.nodes, templateItems.interfaces);
+              this.cy.layout({
+                name: "cose",
+                avoidOverlap: true,
+                nodeDimensionsIncludeLabels: true,
+                spacingFactor: 5,
+                fit: true,
+                animate: false,
+                padding: 150
+              }).run();
+              this.cy.elements().unlock();
+            }
+            this.toastr.success('Added items from template into project successfully', 'Success');
+            this.validateProject(collectionId);
+          })
+        })
+      })
+    })
+  }
+
+  validateProject(collectionId: any) {
+    const jsonData = {
+      pk: collectionId
+    }
+    this.projectService.validateProject(jsonData).pipe(
+      catchError((e: any) => {
+        this.groupService.getGroupByCollectionId(collectionId).subscribe(groupRes =>
+          this.store.dispatch(retrievedGroups({ data: groupRes.result }))
+        )
+        this.toastr.error(e.error.message);
+        this.dialog.open(ValidateProjectDialogComponent, {
+          autoFocus: false,
+          width: 'auto',
+          data: e.error.result
+        });
+        return throwError(() => e);
+      })
+    ).subscribe(response => {
+      this.groupService.getGroupByCollectionId(collectionId).subscribe(groupRes =>
+        this.store.dispatch(retrievedGroups({ data: groupRes.result }))
+      )
+      this.toastr.success(response.message);
+    });
+  }
+
 }

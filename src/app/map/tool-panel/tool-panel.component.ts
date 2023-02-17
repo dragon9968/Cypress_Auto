@@ -1,8 +1,8 @@
-import { Component, Input, OnDestroy } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
-import { catchError, Subscription, throwError } from 'rxjs';
+import { catchError, Observable, Subscription, throwError } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
@@ -24,7 +24,7 @@ import { retrievedGroups } from "../../store/group/group.actions";
   templateUrl: './tool-panel.component.html',
   styleUrls: ['./tool-panel.component.scss']
 })
-export class ToolPanelComponent implements OnDestroy {
+export class ToolPanelComponent implements OnInit, OnDestroy {
   @Input() cy: any;
   @Input() ur: any;
   @Input() config: any;
@@ -34,6 +34,7 @@ export class ToolPanelComponent implements OnDestroy {
   @Input() isDisableAddNode = true;
   @Input() isDisableAddPG = false;
   @Input() isDisableAddImage = false;
+  @Input() isDisableAddProjectTemplate = true;
   @Input() isTemplateCategory = false;
   @Input() activeNodes: any[] = [];
   @Input() activePGs: any[] = [];
@@ -42,6 +43,7 @@ export class ToolPanelComponent implements OnDestroy {
   @Input() activeMBs: any[] = [];
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterfaces: any[] = [];
+  @Input() saveMapSubject!: Observable<any>;
   updatedNodes: any[] = [];
   updatedInterfaces: any[] = [];
   updatedGroupBoxes: any[] = [];
@@ -55,6 +57,7 @@ export class ToolPanelComponent implements OnDestroy {
   selectMapContextMenu$ = new Subscription();
   selectGroups$ = new Subscription();
   selectNodes$ = new Subscription();
+  saveMap$ = new Subscription();
   isEdgeDirectionChecked!: boolean;
   isGroupBoxesChecked!: boolean;
   isMapGridChecked!: boolean;
@@ -107,7 +110,12 @@ export class ToolPanelComponent implements OnDestroy {
     this.selectNodes$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => this.nodes = nodes);
   }
 
+  ngOnInit(): void {
+    this.saveMap$ = this.saveMapSubject.subscribe(() => this.save());
+  }
+
   ngOnDestroy() {
+    this.saveMap$.unsubscribe();
     this.selectNodes$.unsubscribe();
     this.selectGroups$.unsubscribe();
     this.selectMapOption$.unsubscribe();
@@ -257,6 +265,7 @@ export class ToolPanelComponent implements OnDestroy {
         isAddNode: false,
         isAddPublicPG: false,
         isAddPrivatePG: false,
+        isAddProjectTemplate: false
       }
     }));
   }

@@ -53,6 +53,9 @@ $margin: 8px;
     margin-left: 5px;
 }
 
-.tab-section-template {
-  margin-bottom: calc($margin*2);
+.template-option {
+  line-height: normal;
+  &__text {
+    display: block;
+  }
 }

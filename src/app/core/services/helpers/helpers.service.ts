@@ -364,13 +364,18 @@ export class HelpersService implements OnDestroy{
     });
   }
 
-  addCYNodeAndEdge(cy: any, nodes: any[], edges: any[]) {
+  addCYNodeAndEdge(cy: any, nodes: any[], edges: any[], newPosition: any = {x: 0, y: 0}) {
     // Draw new nodes from the project template into the current project.
     nodes.map((node: any) => {
       if (node.data.elem_category == 'node') {
         node.data.icon = environment.apiBaseUrl + node.data.icon;
       }
-      this.addCYNode(cy, { newNodeData: node.data, newNodePosition: node.position });
+      node.data.updated = true;
+      let position = null;
+      if (node.position) {
+        position = { x: newPosition.x + node.position.x, y: newPosition.y + node.position.y }
+      }
+      this.addCYNode(cy, { newNodeData: node.data, newNodePosition: position });
     })
     // Draw new interfaces from the project template into the current project.
     edges.map((edge: any) => {

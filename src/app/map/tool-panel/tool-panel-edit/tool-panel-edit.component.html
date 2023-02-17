@@ -86,13 +86,41 @@
 </section>
 
 <mat-divider></mat-divider>
-<section class="tab-section tab-section-template">
+<section class="tab-section">
   <h4>Template</h4>
-  <div>
-    <button mat-raised-button color="primary" (click)="openAddTemplate()">
-      <mat-icon>add</mat-icon>Add Template
-    </button>
-  </div>
+  <form [formGroup]="addTemplateForm" (ngSubmit)="addTemplate()">
+    <mat-form-field class="tab-select-field">
+      <mat-label>Template</mat-label>
+      <input matInput
+             placeholder="Select a template"
+             formControlName="projectTemplateCtr"
+             [matAutocomplete]="autoProjectTemplate"
+      >
+      <mat-autocomplete #autoProjectTemplate="matAutocomplete"
+                        [displayWith]="helpers.optionDisplay"
+                        (optionSelected)="selectProjectTemplate()"
+      >
+        <mat-option *ngFor="let template of filteredProjectTemplates | async" [value]="template">
+          <div class="template-option">
+            <span class="template-option__text">{{ template.name }}</span>
+            <span class="template-option__text">{{ template.description }}</span>
+          </div>
+        </mat-option>
+      </mat-autocomplete>
+      <mat-error *ngIf="projectTemplateCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+    </mat-form-field>
+    <div class="tab-field">
+      <mat-checkbox formControlName="isLayoutOnlyCtr" [labelPosition]="'before'">Layout Only</mat-checkbox>
+      <button type="submit"
+              color="primary"
+              matTooltip="Add"
+              mat-raised-button
+              class="tab-field-btn"
+              [disabled]="isDisableAddProjectTemplate || projectTemplateCtr.invalid">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+  </form>
 </section>
 
 <mat-divider></mat-divider>
