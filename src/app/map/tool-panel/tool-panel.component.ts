@@ -18,6 +18,7 @@ import { GroupService } from "../../core/services/group/group.service";
 import { selectGroups } from "../../store/group/group.selectors";
 import { selectNodesByCollectionId } from "../../store/node/node.selectors";
 import { retrievedGroups } from "../../store/group/group.actions";
+import { selectPortGroups } from "../../store/portgroup/portgroup.selectors";
 
 @Component({
   selector: 'app-tool-panel',
@@ -51,6 +52,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   updatedNodeAndPGInGroups: any[] = [];
   groups: any[] = [];
   nodes: any[] = [];
+  portGroups: any[] = [];
   selectMapOption$ = new Subscription();
   selectMapPref$ = new Subscription();
   selectDefaultPreferences$ = new Subscription();
@@ -58,6 +60,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   selectGroups$ = new Subscription();
   selectNodes$ = new Subscription();
   saveMap$ = new Subscription();
+  selectPortGroup$ = new Subscription();
   isEdgeDirectionChecked!: boolean;
   isGroupBoxesChecked!: boolean;
   isMapGridChecked!: boolean;
@@ -108,6 +111,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     });
     this.selectGroups$ = this.store.select(selectGroups).subscribe(groups => this.groups = groups);
     this.selectNodes$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => this.nodes = nodes);
+    this.selectPortGroup$ = this.store.select(selectPortGroups).subscribe(portGroups => this.portGroups = portGroups);
   }
 
   ngOnInit(): void {
@@ -118,8 +122,9 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     this.saveMap$.unsubscribe();
     this.selectNodes$.unsubscribe();
     this.selectGroups$.unsubscribe();
-    this.selectMapOption$.unsubscribe();
     this.selectMapPref$.unsubscribe();
+    this.selectMapOption$.unsubscribe();
+    this.selectPortGroup$.unsubscribe();
     this.selectMapContextMenu$.unsubscribe();
     this.selectDefaultPreferences$.unsubscribe();
   }
@@ -178,11 +183,11 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     const formData = new FormData();
     formData.append('file', file, 'map_overview.png');
     this.mapService.uploadMapOverviewImage(formData)
-    .pipe(catchError((error: any) => {
-      this.toastr.error("Map Overview saved failed");
-      return throwError(() => error);
-    })
-    ).subscribe((resp: any) => {
+      .pipe(catchError((error: any) => {
+          this.toastr.error("Map Overview saved failed");
+          return throwError(() => error);
+        })
+      ).subscribe((resp: any) => {
       this.toastr.success("Map Overview saved");
     });
 
@@ -425,13 +430,22 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       const nodeIdsInGroup = group.nodes.map((node: any) => node.id);
       const nodeIdsInGroupElement = groupElement.children('[elem_category="node"]').map((node: any) => node.data('node_id'));
       const isNodesInGroupChange = JSON.stringify(nodeIdsInGroup.sort()) !== JSON.stringify(nodeIdsInGroupElement.sort());
-      if (isNodesInGroupChange) {
-        this.updatedNodeAndPGInGroups.push({
+      const portGroupIdsInGroup = group.port_groups.map((portGroup: any) => portGroup.id);
+      const portGroupIdsInGroupElement = groupElement.children('[elem_category="port_group"]').map((pg: any) => pg.data('pg_id'));
+      const isPortGroupsInGroupChange = JSON.stringify(portGroupIdsInGroup.sort()) !== JSON.stringify(portGroupIdsInGroupElement.sort())
+      if (isNodesInGroupChange || isPortGroupsInGroupChange) {
+        let item: any = {
           group_id: group.id,
           domain_id: group.domain_id,
           domain: group.domain,
-          nodes: nodeIdsInGroupElement
-        })
+        }
+        if (isNodesInGroupChange) {
+          item.nodes = nodeIdsInGroupElement;
+        }
+        if (isPortGroupsInGroupChange) {
+          item.port_groups = portGroupIdsInGroupElement;
+        }
+        this.updatedNodeAndPGInGroups.push(item);
       }
     })
   }
@@ -441,19 +455,33 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     this.updatedNodeAndPGInGroups.map(group => {
       const indexGroup = newGroups.findIndex((ele: any) => ele.id === group.group_id);
       let newGroup = newGroups[indexGroup];
-      let nodes: any[] = [];
-      group.nodes.map((nodeId: any) => {
-        // Update domain data for the nodes
-        const nodeEle = this.cy.getElementById(`node-${nodeId}`);
-        nodeEle.data('domain_id', group.domain_id);
-        nodeEle.data('domain', group.domain);
-        // Update the list of nodes in the group's storage
-        const node = this.nodes.find(node => node.id === nodeId)
-        nodes.push({id: nodeId, name: node.name})
-      });
-      newGroup.nodes = nodes;
+      let newNodes: any[] = [];
+      let newPortGroups: any[] = [];
+      const nodesInGroup = group.nodes;
+      const portGroupInGroup = group.port_groups;
+      if (nodesInGroup && nodesInGroup.length > 0) {
+        nodesInGroup.map((nodeId: any) => {
+          // Update domain data for the nodes
+          const nodeEle = this.cy.getElementById(`node-${nodeId}`);
+          nodeEle.data('domain_id', group.domain_id);
+          nodeEle.data('domain', group.domain);
+          // Update the list of nodes in the group's storage
+          const node = this.nodes.find(node => node.id === nodeId)
+          newNodes.push({id: nodeId, name: node.name})
+        });
+        newGroup.nodes = newNodes;
+      }
+      if (portGroupInGroup && portGroupInGroup.length > 0) {
+        portGroupInGroup.map((pgId: number) => {
+          const pgEle = this.cy.getElementById(`pg-${pgId}`);
+          pgEle.data('domain_id', group.domain_id);
+          pgEle.data('domain', group.domain);
+          const pg = this.portGroups.find(pg => pg.id === pgId);
+          newPortGroups.push({id: pgId, name: pg.name});
+        })
+        newGroup.port_groups = newPortGroups;
+      }
       newGroups.splice(indexGroup, 1, newGroup);
-      // TODO: Update the list of port groups in the group box storage
     })
     this.updatedNodeAndPGInGroups.splice(0);
     this.store.dispatch(retrievedGroups({ data: newGroups }));
