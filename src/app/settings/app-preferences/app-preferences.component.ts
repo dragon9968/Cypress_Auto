@@ -43,23 +43,23 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
       // sessionTimeoutCtr: new FormControl('', [Validators.required]),
       mapPrefCtr: new FormControl(''),
       publicNetworkCtr: new FormControl('', [Validators.required, ipSubnetValidation(true)]),
-      publicNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.preferences.network_space.public.network, "public"), ipSubnetValidation(false)]),
+      publicNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.public_network, "public"), ipSubnetValidation(false)]),
       privateNetworkCtr: new FormControl('', [Validators.required, ipSubnetValidation(true)]),
-      privateNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.preferences.network_space.private.network, "private"), ipSubnetValidation(false)]),
+      privateNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.private_network , "private"), ipSubnetValidation(false)]),
       managementNetworkCtr: new FormControl('', [Validators.required, ipSubnetValidation(true)]),
-      managementNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.preferences.network_space.management.network, "management"), ipSubnetValidation(false)]),
+      managementNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.management_network, "management"), ipSubnetValidation(false)]),
       dhcpServerCtr: new FormControl(''),
     });
     if (this.data) {
       // this.sessionTimeoutCtr?.setValue(this.data.genData.preferences.session_timeout);
-      this.mapPrefCtr?.setValue(this.data.genData.preferences.map_preferences);
-      this.publicNetworkCtr?.setValue(this.data.genData.preferences.network_space.public.network);
-      this.publicNetworkIPsCtr?.setValue(this.data.genData.preferences.network_space.public.reserved_ip.reserved_ip?.map((i: any) => i.ip.trim()).join(','));
-      this.privateNetworkCtr?.setValue(this.data.genData.preferences.network_space.private.network);
-      this.privateNetworkIPsCtr?.setValue(this.data.genData.preferences.network_space.private.reserved_ip.reserved_ip?.map((i: any) => i.ip.trim()).join(','));
-      this.managementNetworkCtr?.setValue(this.data.genData.preferences.network_space.management.network);
-      this.managementNetworkIPsCtr?.setValue(this.data.genData.preferences.network_space.management.reserved_ip.reserved_ip?.map((i: any) => i.ip.trim()).join(','));
-      this.dhcpServerCtr?.setValue(this.data.genData.preferences.management_dhcp_lease);
+      this.mapPrefCtr?.setValue(this.data.genData.map_preferences);
+      this.publicNetworkCtr?.setValue(this.data.genData.public_network);
+      this.publicNetworkIPsCtr?.setValue(this.data.genData.public_reserved_ip?.map((i: any) => i.ip.trim()).join(','));
+      this.privateNetworkCtr?.setValue(this.data.genData.private_network);
+      this.privateNetworkIPsCtr?.setValue(this.data.genData.private_reserved_ip?.map((i: any) => i.ip.trim()).join(','));
+      this.managementNetworkCtr?.setValue(this.data.genData.management_network);
+      this.managementNetworkIPsCtr?.setValue(this.data.genData.management_reserved_ip?.map((i: any) => i.ip.trim()).join(','));
+      this.dhcpServerCtr?.setValue(this.data.genData.management_dhcp_lease);
     }
   }
 

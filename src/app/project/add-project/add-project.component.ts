@@ -139,19 +139,19 @@ export class AddProjectComponent implements OnInit {
     this.selectAppPref$ = this.store.select(selectAppPref).subscribe((data: any)=> {
       if (data) {
         let pubNetwork = {
-          "network": data.preferences.public_network ? data.preferences.public_network : "10.0.0.0/8",
+          "network": data.public_network ? data.public_network : "10.0.0.0/8",
           "category": "public",
-          "reserved_ip": data.preferences.network_space.public.reserved_ip.reserved_ip
+          "reserved_ip": data.public_reserved_ip
         }
         let privNetwork = {
-          "network": data.preferences.network ? data.preferences.network : "192.168.0.0/16",
+          "network": data.private_network ? data.private_network : "192.168.0.0/16",
           "category": "private",
-          "reserved_ip": data.preferences.network_space.private.reserved_ip.reserved_ip
+          "reserved_ip": data.private_reserved_ip
         }
         let manNetwork = {
-          "network": data.preferences.management_network ? data.preferences.management_network : "172.16.0.0/22",
+          "network": data.management_network ? data.management_network : "172.16.0.0/22",
           "category": "management",
-          "reserved_ip": data.preferences.network_space.management.reserved_ip.reserved_ip
+          "reserved_ip": data.management_reserved_ip
         }
         this.rowData = [pubNetwork, privNetwork, manNetwork]
       }
