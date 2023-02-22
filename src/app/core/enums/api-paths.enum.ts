@@ -9,6 +9,8 @@ export enum ApiPaths {
   PROJECTS_DEVICE_COUNT = '/api/v1/project/device_count/',
   PROJECT_VALIDATE = '/api/v1/project/validate',
   PROJECT_RECENT = '/api/v1/project/recent',
+  PROJECT_LINK = '/api/v1/project/link',
+  PROJECT_UNLINK = '/api/v1/project/unlink',
   PROJECT_TEMPLATE = '/api/v1/project_template/',
   ICONS = '/api/v1/icon/',
   ICONS_ADD = '/api/v1/icon/add_icon',

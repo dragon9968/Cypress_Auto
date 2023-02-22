@@ -95,10 +95,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   isDisableCancel = true;
   isDisableAddNode = true;
   isDisableAddProjectTemplate = true;
+  isDisableLinkProject = true;
   isDisableAddPG = false;
   isDisableAddImage = false;
   isAddNode = false;
   isAddProjectTemplate = false;
+  isLinkProject = false;
   isAddPublicPG = false;
   isAddPrivatePG = false;
   isTemplateCategory = false;
@@ -122,6 +124,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   deviceId = '';
   templateId = '';
   projectTemplateId = 0;
+  linkProjectId = 0;
   selectedMapPref: any;
   portGroups!: any[];
   gateways!: any[];
@@ -224,6 +227,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.selectMapEdit$ = this.store.select(selectMapEdit).subscribe((mapEdit: any) => {
       if (mapEdit) {
         this.isAddNode = mapEdit.isAddNode;
+        this.isLinkProject = mapEdit.isLinkProject;
+        this.linkProjectId = mapEdit.linkProjectId ? mapEdit.linkProjectId : this.linkProjectId;
         this.isAddProjectTemplate = mapEdit.isAddTemplateProject;
         this.projectTemplateId = mapEdit.projectTemplateId ? mapEdit.projectTemplateId : this.projectTemplateId;
         this.templateId = mapEdit.templateId ? mapEdit.templateId : this.templateId;
@@ -233,7 +238,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.isAddPrivatePG = mapEdit.isAddPrivatePG;
         this.isCustomizePG = mapEdit.isCustomizePG;
         this.isLayoutOnly = mapEdit.isLayoutOnly;
-        if (this.isAddNode || this.isAddPublicPG || this.isAddPrivatePG || this.isAddProjectTemplate) {
+        if (this.isAddNode || this.isAddPublicPG || this.isAddPrivatePG || this.isAddProjectTemplate || this.isLinkProject) {
           this._disableMapEditButtons();
         } else {
           this._enableMapEditButtons();
@@ -316,6 +321,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.deviceId = '';
     this.templateId = '';
     this.projectTemplateId = 0;
+    this.linkProjectId = 0;
   }
 
   private _disableMapEditButtons() {
@@ -324,11 +330,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.isDisableAddImage = true;
     this.isDisableCancel = false;
     this.isDisableAddProjectTemplate = true;
+    this.isDisableLinkProject = true;
   }
 
   private _enableMapEditButtons() {
     this.isDisableAddNode = !(Boolean(this.templateId) && Boolean(this.deviceId));
     this.isDisableAddProjectTemplate = !(Boolean(this.projectTemplateId));
+    this.isDisableLinkProject = !(Boolean(this.linkProjectId));
     this.isDisableAddPG = false;
     this.isDisableAddImage = false;
     this.isDisableCancel = true;
@@ -610,6 +618,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         });
     } else if (this.isAddProjectTemplate) {
       this.addTemplateIntoCurrentProject(this.projectTemplateId, this.isLayoutOnly, newNodePosition);
+    } else if (this.isLinkProject) {
+      this.linkProject(this.linkProjectId, this.collectionId);
     }
   }
 
@@ -1299,6 +1309,26 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           })
         })
       })
+    })
+  }
+
+  linkProject(linkProjectId: number, projectId: any) {
+    const jsonData = {
+      project_id: projectId,
+      linked_project_id: linkProjectId
+    }
+    this.projectService.linkProject(jsonData).pipe(
+      catchError(error => {
+        this.isLinkProject = false;
+        this._enableMapEditButtons();
+        this.toastr.error('Link Project Failed!', 'Error');
+        return throwError(() => error)
+      })
+    ).subscribe(response => {
+      this.isLinkProject = false;
+      this._enableMapEditButtons();
+      // TODO: Add the project node and draw the node after linking the project
+      this.toastr.success('Link Project Successfully', 'Success')
     })
   }
 

@@ -14,12 +14,13 @@ import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.
 import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
 import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
 import { MatDialog } from "@angular/material/dialog";
-import { retrievedProjectsTemplate } from "../../../store/project/project.actions";
+import { retrievedProjects, retrievedProjectsTemplate } from "../../../store/project/project.actions";
 import { ProjectService } from "../../../project/services/project.service";
 import { Router } from "@angular/router";
 import { ToastrService } from "ngx-toastr";
 import { RouteSegments } from "../../../core/enums/route-segments.enum";
-import { selectProjectTemplate } from "../../../store/project/project.selectors";
+import { selectProjects, selectProjectTemplate } from "../../../store/project/project.selectors";
+import { AuthService } from "../../../core/services/auth/auth.service";
 
 @Component({
   selector: 'app-tool-panel-edit',
@@ -40,10 +41,12 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
   @Input() isDisableAddPG = false;
   @Input() isDisableAddImage = false;
   @Input() isDisableAddProjectTemplate = true;
+  @Input() isDisableLinkProject = true;
   status = 'active';
   category = 'template';
   nodeAddForm!: FormGroup;
   addTemplateForm: FormGroup;
+  linkProjectForm!: FormGroup;
   isCustomizePG = true;
   errorMessages = ErrorMessages;
   selectDevices$ = new Subscription();
@@ -51,10 +54,12 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
   selectMapImages$ = new Subscription();
   selectMapOption$ = new Subscription();
   selectMapPref$ = new Subscription();
+  selectProjects$ = new Subscription();
   selectProjectTemplate$ = new Subscription();
   devices!: any[];
   templates!: any[];
   mapImages!: any[];
+  projects!: any[];
   projectTemplates: any[] = [];
   filteredTemplatesByDevice!: any[];
   isGroupBoxesChecked!: boolean;
@@ -64,6 +69,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
   filteredTemplates!: Observable<any[]>;
   filteredMapImages!: Observable<any[]>;
   filteredProjectTemplates!: Observable<any[]>;
+  filteredProjects!: Observable<any[]>;
 
   constructor(
     private store: Store,
@@ -71,6 +77,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private toastr: ToastrService,
     public helpers: HelpersService,
+    private authService: AuthService,
     private projectService: ProjectService
   ) {
     this.nodeAddForm = new FormGroup({
@@ -82,6 +89,9 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
     this.addTemplateForm = new FormGroup({
       projectTemplateCtr: new FormControl(''),
       isLayoutOnlyCtr: new FormControl(''),
+    })
+    this.linkProjectForm = new FormGroup({
+      linkProjectCtr: new FormControl('')
     })
     this.selectDevices$ = this.store.select(selectDevices).subscribe((devices: any) => {
       if (devices) {
@@ -120,6 +130,25 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
         this.filteredProjectTemplates = this.helpers.filterOptions(this.projectTemplateCtr, this.projectTemplates)
       }
     });
+    this.selectProjects$ = this.store.select(selectProjects).subscribe(projectData => {
+      if (projectData) {
+        this.projectService.getShareProject(this.status, 'project').subscribe((resp: any) => {
+          const shareProject = resp.result;
+          let newProjectData: any[];
+          const accessToken = this.authService.getAccessToken();
+          const accessTokenPayload = this.helpers.decodeToken(accessToken);
+          const userId = accessTokenPayload.identity;
+          const collectionId = this.projectService.getCollectionId();
+          newProjectData = projectData.filter(project => project.created_by_fk === userId);
+          if (shareProject) {
+            newProjectData = [...newProjectData, ...shareProject];
+          }
+          newProjectData = newProjectData.filter(project => project.id !== collectionId);
+          this.projects = newProjectData;
+          this.filteredProjects = this.helpers.filterOptions(this.linkProjectCtr, this.projects);
+        })
+      }
+    })
   }
 
   get deviceCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('deviceCtr'), this.devices); }
@@ -130,16 +159,21 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
     return this.helpers.getAutoCompleteCtr(this.addTemplateForm.get('projectTemplateCtr'), this.projectTemplates);
   }
   get isLayoutOnlyCtr() { return this.addTemplateForm.get('isLayoutOnlyCtr'); }
+  get linkProjectCtr() { return this.helpers.getAutoCompleteCtr(this.linkProjectForm.get('linkProjectCtr'), this.projects) };
 
   ngOnInit(): void {
     this.templateCtr?.disable();
     this.projectService.getProjectByStatusAndCategory('active', 'template').subscribe(
       data => this.store.dispatch(retrievedProjectsTemplate({template: data.result}))
     );
+    this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe(
+      (data: any) => this.store.dispatch(retrievedProjects({ data: data.result }))
+    );
   }
 
   ngOnDestroy(): void {
     this.selectDevices$.unsubscribe();
+    this.selectProjects$.unsubscribe();
     this.selectTemplates$.unsubscribe();
     this.selectMapOption$.unsubscribe();
     this.selectMapImages$.unsubscribe();
@@ -225,6 +259,20 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
         isAddTemplateProject: true,
         isLayoutOnly: this.isLayoutOnlyCtr?.value != '',
         projectTemplateId: this.projectTemplateCtr?.value?.id
+      }
+    }));
+  }
+
+  selectProject() {
+    this.isDisableLinkProject = false;
+  }
+
+  linkProject() {
+    this.isDisableLinkProject = true;
+    this.store.dispatch(retrievedMapEdit({
+      data: {
+        isLinkProject: true,
+        linkProjectId: this.linkProjectCtr?.value?.id
       }
     }));
   }

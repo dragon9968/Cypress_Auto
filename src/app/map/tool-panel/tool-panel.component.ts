@@ -35,6 +35,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   @Input() isDisableAddNode = true;
   @Input() isDisableAddPG = false;
   @Input() isDisableAddImage = false;
+  @Input() isDisableLinkProject = true;
   @Input() isDisableAddProjectTemplate = true;
   @Input() isTemplateCategory = false;
   @Input() activeNodes: any[] = [];
