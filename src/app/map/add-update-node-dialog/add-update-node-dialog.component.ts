@@ -357,16 +357,16 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
         }
         this.nodeService.associate(configData).subscribe(respData => {
           this.store.dispatch(retrievedMapSelection({ data: true }));
+          this.nodeService.get(this.data.genData.node_id).subscribe(nodeData => {
+            this.helpers.updateNodesStorage(nodeData.result);
+            this._updateNodeOnMap(nodeData.result);
+            this.helpers.reloadGroupBoxes(this.data.cy);
+            this.dialogRef.close();
+            this.store.dispatch(retrievedMapSelection({ data: true }));
+            this.toastr.success('Node details updated!');
+          });
         });
       }
-      this.nodeService.get(this.data.genData.node_id).subscribe(nodeData => {
-        this.helpers.updateNodesStorage(nodeData.result);
-        this._updateNodeOnMap(nodeData.result);
-        this.helpers.reloadGroupBoxes(this.data.cy);
-        this.dialogRef.close();
-        this.store.dispatch(retrievedMapSelection({ data: true }));
-        this.toastr.success('Node details updated!');
-      });
     });
   }
 
