@@ -1,0 +1,4 @@
+<button mat-icon-button type="button" color="primary" (click)="onClick($event)">
+  <mat-icon *ngIf="!isCollapsed">keyboard_arrow_right</mat-icon>
+  <mat-icon *ngIf="isCollapsed">keyboard_arrow_down</mat-icon>
+</button>

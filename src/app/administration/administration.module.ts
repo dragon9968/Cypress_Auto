@@ -11,6 +11,7 @@ import { AddEditRoleDialogComponent } from './roles/add-edit-role-dialog/add-edi
 import { ExportRoleDialogComponent } from './roles/export-role-dialog/export-role-dialog.component';
 import { ImportRoleDialogComponent } from './roles/import-role-dialog/import-role-dialog.component';
 import { CloneRoleDialogComponent } from './roles/clone-role-dialog/clone-role-dialog.component';
+import { ActionRenderersComponent } from './action-renderers/action-renderers.component';
 
 
 @NgModule({
@@ -23,6 +24,7 @@ import { CloneRoleDialogComponent } from './roles/clone-role-dialog/clone-role-d
     ExportRoleDialogComponent,
     ImportRoleDialogComponent,
     CloneRoleDialogComponent,
+    ActionRenderersComponent,
   ],
   imports: [
     CommonModule,

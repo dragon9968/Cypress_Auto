@@ -11,6 +11,7 @@ import { RolesService } from 'src/app/core/services/roles/roles.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { retrievedPermissions, retrievedRole } from 'src/app/store/user/user.actions';
 import { selectRole } from 'src/app/store/user/user.selectors';
+import { ActionRenderersComponent } from '../action-renderers/action-renderers.component';
 import { AddEditRoleDialogComponent } from './add-edit-role-dialog/add-edit-role-dialog.component';
 import { CloneRoleDialogComponent } from './clone-role-dialog/clone-role-dialog.component';
 import { ExportRoleDialogComponent } from './export-role-dialog/export-role-dialog.component';
@@ -37,6 +38,15 @@ export class RolesComponent implements OnInit {
 
   columnDefs: ColDef[] = [
     {
+      headerName: '',
+      editable: false,
+      maxWidth: 90,
+      cellRenderer: ActionRenderersComponent,
+      cellRendererParams: {
+        onClick: this.setRowHeight.bind(this),
+      }
+    },
+    {
       headerCheckboxSelection: true,
       checkboxSelection: true,
       suppressSizeToFit: true,
@@ -50,23 +60,21 @@ export class RolesComponent implements OnInit {
     {
       field: 'permissions',
       flex: 1,
-      autoHeight: true,
+      // autoHeight: true,
       wrapText: true,
       cellRenderer: function(params: any) {
         if (params.value.length > 0){
-          let html_str = "<div style='text-align:left'>["
+          let html_str = "<div style='width: 30%; margin-left:auto; margin-right:auto;'><ul>"
           for(let i in params.value) {
-            let item_html = `${params.value[i].detail},`;
+            let item_html = `<li style='text-align: left'>${params.value[i].detail}</li>`;
             html_str += item_html;
           }
-          html_str = html_str.slice(0, html_str.lastIndexOf(','))
-          html_str += "]</div>"
+          html_str += "</ul></div>"
           return html_str;
         } else {
-          return "<div>[]</div>"
+          return
         }
-        // return `[${params.value.map((val: any) => val.detail).join(',')}]`;
-      }
+      },
     }
   ];
 
@@ -242,5 +250,20 @@ export class RolesComponent implements OnInit {
         }
       })
     }
+  }
+
+  setRowHeight(params: any) {
+    const rowDefault = params.rowData.node.data.permissions.length 
+    const row = rowDefault * 42 > 42 ? rowDefault * 42 : 42
+    this.gridApi!.forEachNode(function (rowNode) {
+      if (rowNode.data && rowNode.data.name === params.rowData.node.data.name) {
+        if (params.position) {
+          rowNode.setRowHeight(row);
+        } else {
+          rowNode.setRowHeight(42);
+        }
+      }
+    });
+    this.gridApi.onRowHeightChanged();
   }
 }
