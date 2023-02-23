@@ -149,7 +149,7 @@
                 <span>About</span>
             </button>
     </mat-menu>
-    <a *ngIf="!isHiddenNavbar && isAdmin" mat-button [matMenuTriggerFor]="administration" class="menu-btn">Administration</a>
+    <a *ngIf="!isHiddenNavbar" mat-button [matMenuTriggerFor]="administration" class="menu-btn">Administration</a>
     <mat-menu #administration="matMenu">
             <button mat-menu-item [routerLink]="routeSegments.LIST_USERS">
                 <mat-icon>person</mat-icon>
