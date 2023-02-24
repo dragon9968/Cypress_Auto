@@ -34,7 +34,7 @@
       <app-info-panel-domain [infoPanelheight]="style.height"></app-info-panel-domain>
     </mat-tab>
     <mat-tab label="Group">
-      <app-info-panel-group [infoPanelheight]="style.height"></app-info-panel-group>
+      <app-info-panel-group [activeNodes]="activeNodes" [activePGs]="activePGs" [activeEdges]="activeEdges" [infoPanelheight]="style.height"></app-info-panel-group>
     </mat-tab>
     <mat-tab label="Task List">
       <app-info-panel-task [infoPanelheight]="style.height"></app-info-panel-task>

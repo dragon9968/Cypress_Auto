@@ -185,7 +185,7 @@ export class AddUpdateGroupDialogComponent implements OnInit {
         groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
       )
       this.mapService.getMapData(this.data.map_category, this.data.collection_id).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
-      this.dialogRef.close();
+      this.dialogRef.close(true);
     })
   }
 

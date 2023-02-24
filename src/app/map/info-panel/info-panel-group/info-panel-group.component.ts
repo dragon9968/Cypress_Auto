@@ -20,6 +20,9 @@ import { AddUpdateGroupDialogComponent } from "../../add-update-group-dialog/add
 })
 export class InfoPanelGroupComponent implements OnInit, OnDestroy {
   @Input() infoPanelheight = '300px';
+  @Input() activeNodes: any[] = [];
+  @Input() activePGs: any[] = [];
+  @Input() activeEdges: any[] = [];
   private gridApi!: GridApi;
   mapCategory = '';
   collectionId: string = '0';
@@ -176,7 +179,14 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
           collection_id: groupData.result.collection_id,
           map_category: 'logical'
         };
-        this.dialog.open(AddUpdateGroupDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+        const dialogRef = this.dialog.open(AddUpdateGroupDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+        dialogRef.afterClosed().subscribe(result => {
+          if (result) {
+            this.activePGs.splice(0);
+            this.activeEdges.splice(0);
+            this.activeNodes.splice(0);
+          }
+        });
       })
     } else {
       this.toastr.info('Bulk edits do not apply to the Group.<br>Please select only one Group',
