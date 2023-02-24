@@ -12,6 +12,7 @@ import { ExportRoleDialogComponent } from './roles/export-role-dialog/export-rol
 import { ImportRoleDialogComponent } from './roles/import-role-dialog/import-role-dialog.component';
 import { CloneRoleDialogComponent } from './roles/clone-role-dialog/clone-role-dialog.component';
 import { ActionRenderersComponent } from './action-renderers/action-renderers.component';
+import { LDAPConfigurationComponent } from './ldap-configuration/ldap-configuration.component';
 
 
 @NgModule({
@@ -25,6 +26,7 @@ import { ActionRenderersComponent } from './action-renderers/action-renderers.co
     ImportRoleDialogComponent,
     CloneRoleDialogComponent,
     ActionRenderersComponent,
+    LDAPConfigurationComponent,
   ],
   imports: [
     CommonModule,

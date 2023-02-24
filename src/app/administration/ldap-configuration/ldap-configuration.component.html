@@ -1,0 +1,99 @@
+<form [formGroup]="configForm" (ngSubmit)="updateConfig()">
+  <h1 mat-dialog-title>Edit LDAP Configuration</h1>
+  <div mat-dialog-content>
+    <section>
+      <mat-form-field class="field">
+        <mat-label>Server Address and Port</mat-label>
+        <input type="text" formControlName="authLdapServerCtr" matInput>
+      </mat-form-field>
+      <div class="field-checkbox">
+        <label class="label">Enable TLS</label>
+        <mat-checkbox class="checkbox-field" formControlName="authLdapUseTlsCtr" color="primary"></mat-checkbox>
+      </div>
+      <div class="field-checkbox">
+        <label class="label">Allow Self Signed Cert</label>
+        <mat-checkbox class="checkbox-field" formControlName="authLdapAllowSelfSignedCtr" color="primary"></mat-checkbox>
+      </div>
+      <mat-form-field class="field">
+        <mat-label class="label">TLS Cert File Path</mat-label>
+        <input type="text" formControlName="authLdapTlsCacertfileCtr" matInput>
+      </mat-form-field>
+    </section>
+    <mat-divider></mat-divider>
+
+    <section>
+      <div class="field-checkbox">
+        <label class="label">Register User</label>
+        <mat-checkbox class="checkbox-field" formControlName="authUserRegistrationCtr" color="primary"></mat-checkbox>
+      </div>
+      <mat-form-field class="field">
+        <mat-label>Session lifetime in seconds</mat-label>
+        <input type="text" formControlName="permanentSessionLifetimeCtr" matInput>
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>User Registration Role</mat-label>
+        <input type="text" formControlName="authUserRegistrationRoleCtr" matInput>
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>LDAP First Name Field</mat-label>
+        <input type="text" formControlName="authLdapFirstnameFieldCtr" matInput>
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>LDAP Last name field</mat-label>
+        <input type="text" formControlName="authLdapLastnameFieldCtr" matInput>
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>LDAP email field</mat-label>
+        <input type="text" formControlName="authLdapEmailFieldCtr" matInput>
+      </mat-form-field>
+    </section>
+    <mat-divider></mat-divider>
+    <section>
+      <mat-form-field class="field">
+        <mat-label>LDAP Search Parameter</mat-label>
+        <input type="text" formControlName="authLdapSearchCtr" matInput>
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>LDAP Group Field</mat-label>
+        <input type="text" formControlName="authLdapGroupFieldCtr" matInput>
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>LDAP User UID Field</mat-label>
+        <input type="text" formControlName="authLdapUidFieldCtr" matInput>
+      </mat-form-field>
+    </section>
+    <mat-divider></mat-divider>
+    <section>
+      <mat-form-field class="field">
+        <mat-label>LDAP Bind User</mat-label>
+        <input type="text" formControlName="authLdapBindUserCtr" matInput>
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>LDAP Bind Password</mat-label>
+        <input [type]="showPassword ? 'text' : 'password'" formControlName="authLdapBindPasswordCtr" matInput>
+        <mat-icon matSuffix (click)="togglePassword()">{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </mat-form-field>
+    </section>
+    <mat-divider></mat-divider>
+    <section>
+      <mat-form-field class="field">
+        <mat-label>LDAP Base DN</mat-label>
+        <input type="text" formControlName="ldapBaseDnCtr" matInput>
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>LDAP Application User Group</mat-label>
+        <input type="text" formControlName="ldapDefaultUserGroupCtr" matInput>
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>LDAP Application Admin Group</mat-label>
+        <input type="text" formControlName="ldapDefaultAdminGroupCtr" matInput>
+      </mat-form-field>
+    </section>
+  </div>
+  <div mat-dialog-actions [align]="'end'" class="create-btn">
+    <button mat-raised-button type="button" (click)="onCancel()">Cancel </button>
+    <button mat-raised-button color="primary" [disabled]="!configForm.valid">
+     Update
+    </button>
+  </div>
+</form>

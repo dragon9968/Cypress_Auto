@@ -39,6 +39,7 @@ import { ValidateProjectDialogComponent } from 'src/app/project/validate-project
 import { retrievedUserProfile } from 'src/app/store/user-profile/user-profile.actions';
 import { CloneProjectDialogComponent } from 'src/app/project/clone-project-dialog/clone-project-dialog.component';
 import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
+import { LDAPConfigurationComponent } from 'src/app/administration/ldap-configuration/ldap-configuration.component';
 
 @Component({
   selector: 'app-nav-bar',
@@ -346,5 +347,9 @@ export class NavBarComponent implements OnInit, OnDestroy {
     ).subscribe(response => {
       this.toastr.success(response.message);
     });
+  }
+
+  openAdminConfig() {
+    this.dialog.open(LDAPConfigurationComponent, { width: '600px', autoFocus: false });
   }
 }

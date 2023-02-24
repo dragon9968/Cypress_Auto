@@ -177,6 +177,10 @@
                     <span>Supervisor</span>
                 </button>
             </mat-menu>
+            <button mat-menu-item (click)="openAdminConfig()">
+                <mat-icon>security</mat-icon>
+                <span>LDAP Authentication</span>
+            </button>
     </mat-menu>
     <div *ngIf="isMapOpen" class="search">
         <mat-form-field floatLabel="never" class="search-bar">
