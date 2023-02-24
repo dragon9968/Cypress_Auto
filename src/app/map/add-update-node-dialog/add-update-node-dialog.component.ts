@@ -339,7 +339,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
       role: this.roleCtr?.value.id,
       domain_id: this.domainCtr?.value.id,
       hostname: this.hostnameCtr?.value,
-      login_profile_id: this.loginProfileCtr?.value.id,
+      login_profile_id: this.loginProfileCtr?.value.id ? this.loginProfileCtr?.value.id : null,
       collection_id: this.data.genData.collection_id,
       logical_map_position: ele.position(),
     }

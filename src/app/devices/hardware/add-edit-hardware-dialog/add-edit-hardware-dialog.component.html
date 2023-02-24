@@ -1,7 +1,7 @@
 <form [formGroup]="hardwareForm" (ngSubmit)="data.mode === 'add' ? addHardware() : updateHardware()">
   <div class="dialog-title">
     <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Hardware' : data.mode === 'update' ? 'Edit Hardware' : 'Hardware Detail' }}</h1>
-    <button mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeToEdit()">
+    <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeToEdit()">
       <mat-icon>edit</mat-icon>
     </button>
   </div>
