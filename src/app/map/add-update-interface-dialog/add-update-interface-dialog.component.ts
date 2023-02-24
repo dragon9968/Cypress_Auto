@@ -9,13 +9,16 @@ import { DIRECTIONS } from 'src/app/shared/contants/directions.constant';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 import { selectPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { Store } from '@ngrx/store';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, throwError } from 'rxjs';
 import { selectInterfaces } from "../../store/map/map.selectors";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
 import { retrievedInterfacesManagement } from "../../store/interface/interface.actions";
+import { catchError } from "rxjs/operators";
+import { ProjectService } from "../../project/services/project.service";
+import { retrievedProjects } from "../../store/project/project.actions";
 
 @Component({
   selector: 'app-add-update-interface-dialog',
@@ -42,6 +45,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<AddUpdateInterfaceDialogComponent>,
     public helpers: HelpersService,
+    private projectService: ProjectService,
     private interfaceService: InterfaceService,
     private infoPanelService: InfoPanelService
   ) {
@@ -177,6 +181,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.interfaceService.add(jsonData).subscribe((respData: any) => {
       const portGroupId = respData.result.port_group_id;
+      const nodeData = this.data.cy.getElementById(`node-${this.data.genData.node_id}`).data();
       if (portGroupId) {
         const newEdgeData = this.data.newEdgeData;
         if (!newEdgeData.target.includes('node')) {
@@ -199,7 +204,33 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
         edge.style('target-arrow-shape', 'none');
         edge.style('source-arrow-shape', 'none');
       }
-      this.toastr.success('Edge details added!');
+      if (nodeData.category == 'project') {
+        const jsonData = {
+          project_id: nodeData.collection_id,
+          linked_project_id: nodeData.link_project_id
+        }
+        this.projectService.linkProject(jsonData).pipe(
+          catchError(err => {
+            this.toastr.error('Linked Project Failed!', 'Error');
+            return throwError(() => err);
+          })
+        ).subscribe(() => {
+          this.projectService.getProjectByStatusAndCategory('active', 'project').subscribe(
+            (data: any) => {
+              const projectNodeIdsAdded = this.data.cy.nodes().filter('[link_project_id > 0]').map((ele: any) => ele.data('link_project_id'));
+              const newProjects = [...data.result];
+              projectNodeIdsAdded.map((projectId: any) => {
+                const index = newProjects.findIndex(ele => ele.id === projectId);
+                newProjects.splice(index, 1);
+              })
+              this.store.dispatch(retrievedProjects({data: newProjects}));
+            }
+          );
+          this.toastr.success('Linked Project Successfully!', 'Success');
+        })
+      } else {
+        this.toastr.success('Edge details added!');
+      }
       this.dialogRef.close();
     });
   }

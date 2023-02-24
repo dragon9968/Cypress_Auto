@@ -7,6 +7,7 @@ import { AddUpdatePGDialogComponent } from '../../add-update-pg-dialog/add-updat
 import { NodeBulkEditDialogComponent } from "../../bulk-edit-dialog/node-bulk-edit-dialog/node-bulk-edit-dialog.component";
 import { PortGroupBulkEditDialogComponent } from "../../bulk-edit-dialog/port-group-bulk-edit-dialog/port-group-bulk-edit-dialog.component";
 import { InterfaceBulkEditDialogComponent } from "../../bulk-edit-dialog/interface-bulk-edit-dialog/interface-bulk-edit-dialog.component";
+import { ViewUpdateProjectNodeComponent } from "../cm-dialog/view-update-project-node/view-update-project-node.component";
 
 @Injectable({
   providedIn: 'root'
@@ -77,22 +78,37 @@ export class CMEditService {
       }
     } else if (activePGsLength == 0 && activeEdgesLength == 0) {
       if (activeNodesLength > 1) {
-        const nodeActiveIds = activeNodes.map((ele: any) => ele.data('node_id'));
-        const dialogData = {
-          genData: {
-            ids: nodeActiveIds,
-            activeNodes: activeNodes.map((ele: any) => ele.data())
-          },
-          cy
+        const isExistProjectNode = activeNodes.some((ele: any) => ele.data('category') == 'project');
+        if (isExistProjectNode) {
+          this.toastr.warning('Bulk edit does not support the project node!', 'Warning');
+        } else {
+          const nodeActiveIds = activeNodes.map((ele: any) => ele.data('node_id'));
+          const dialogData = {
+            genData: {
+              ids: nodeActiveIds,
+              activeNodes: activeNodes.map((ele: any) => ele.data())
+            },
+            cy
+          }
+          this.dialog.open(NodeBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
         }
-        this.dialog.open(NodeBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
       } else if (activeNodesLength == 1) {
-        const dialogData = {
-          mode: 'update',
-          genData: activeNodes[0].data(),
-          cy
+        const nodeCategory = activeNodes[0].data('category');
+        if (nodeCategory != 'project') {
+          const dialogData = {
+            mode: 'update',
+            genData: activeNodes[0].data(),
+            cy
+          }
+          this.dialog.open(AddUpdateNodeDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+        } else {
+          const dialogData = {
+            mode: 'update',
+            genData: activeNodes[0].data(),
+            cy
+          }
+          this.dialog.open(ViewUpdateProjectNodeComponent, { width: '450px', autoFocus: false, data: dialogData });
         }
-        this.dialog.open(AddUpdateNodeDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
       }
     } else {
       this.toastr.success("Cannot bulk edit for various of element types");

@@ -17,6 +17,7 @@ export class ContextMenuService {
     const activeMBsLength = activeMBs.length;
     // contextMenu.hideMenuItem('node_add');
     contextMenu.hideMenuItem('node_interface');
+    contextMenu.hideMenuItem('link_project');
     // contextMenu.hideMenuItem('pg_add');
     contextMenu.hideMenuItem('pg_interface');
     contextMenu.hideMenuItem('edge_add');
@@ -53,24 +54,31 @@ export class ContextMenuService {
       contextMenu.showMenuItem('delete');
       contextMenu.showMenuItem('lock_node');
       contextMenu.showMenuItem('unlock_node');
-      if (activePGsLength == 0 && activeEdgesLength == 0) {
-        if (activeNodesLength > 1) {
-          contextMenu.showMenuItem('node_actions');
-          contextMenu.showMenuItem('edit');
-          contextMenu.showMenuItem('node_remote');
-          contextMenu.hideMenuItem('web_console');
-        } else if (activeNodesLength == 1) {
-          // contextMenu.showMenuItem('node_add');
-          contextMenu.showMenuItem('node_interface');
-          contextMenu.showMenuItem('node_actions');
-          contextMenu.showMenuItem('view_details');
-          contextMenu.showMenuItem('edit');
-          contextMenu.showMenuItem('node_remote');
-          contextMenu.showMenuItem('web_console');
+      const nodeData = activeNodes[0].data()
+      if (nodeData.category === 'project' && activeNodesLength == 1) {
+        contextMenu.showMenuItem('link_project');
+        contextMenu.showMenuItem('view_details');
+        contextMenu.showMenuItem('edit');
+      } else {
+        if (activePGsLength == 0 && activeEdgesLength == 0) {
+          if (activeNodesLength > 1) {
+            contextMenu.showMenuItem('node_actions');
+            contextMenu.showMenuItem('edit');
+            contextMenu.showMenuItem('node_remote');
+            contextMenu.hideMenuItem('web_console');
+          } else if (activeNodesLength == 1) {
+            // contextMenu.showMenuItem('node_add');
+            contextMenu.showMenuItem('node_interface');
+            contextMenu.showMenuItem('node_actions');
+            contextMenu.showMenuItem('view_details');
+            contextMenu.showMenuItem('edit');
+            contextMenu.showMenuItem('node_remote');
+            contextMenu.showMenuItem('web_console');
+          }
+        } else if (activeEdgesLength > 0) {
+          contextMenu.hideMenuItem('lock_node');
+          contextMenu.hideMenuItem('unlock_node');
         }
-      } else if (activeEdgesLength > 0) {
-        contextMenu.hideMenuItem('lock_node');
-        contextMenu.hideMenuItem('unlock_node');
       }
     } else if (activePGsLength > 0) {
       contextMenu.showMenuItem('delete');

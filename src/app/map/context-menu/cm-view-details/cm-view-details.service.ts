@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { AddUpdateNodeDialogComponent } from 'src/app/map/add-update-node-dialog/add-update-node-dialog.component';
 import { AddUpdateInterfaceDialogComponent } from '../../add-update-interface-dialog/add-update-interface-dialog.component';
 import { AddUpdatePGDialogComponent } from '../../add-update-pg-dialog/add-update-pg-dialog.component';
+import { ViewUpdateProjectNodeComponent } from "../cm-dialog/view-update-project-node/view-update-project-node.component";
 
 @Injectable({
   providedIn: 'root'
@@ -45,12 +46,22 @@ export class CMViewDetailsService {
       }
       this.dialog.open(AddUpdatePGDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
     } else if (activeNodesLength == 1 && activePGsLength == 0 && activeEdgesLength == 0) {
-      const dialogData = {
-        mode: 'view',
-        genData: activeNodes[0].data(),
-        cy
+      const nodeCategory = activeNodes[0].data('category');
+      if (nodeCategory != 'project') {
+        const dialogData = {
+          mode: 'view',
+          genData: activeNodes[0].data(),
+          cy
+        }
+        this.dialog.open(AddUpdateNodeDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+      } else {
+        const dialogData = {
+          mode: 'view',
+          genData: activeNodes[0].data(),
+          cy
+        }
+        this.dialog.open(ViewUpdateProjectNodeComponent, { width: '450px', autoFocus: false, data: dialogData });
       }
-      this.dialog.open(AddUpdateNodeDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
     }
   }
 }

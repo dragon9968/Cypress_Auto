@@ -51,6 +51,7 @@ export enum ApiPaths {
   PORTGROUP_RANDOMIZE_SUBNET = '/api/v1/portgroup/randomize_subnet/',
   PORTGROUP_RANDOMIZE_SUBNET_BULK = '/api/v1/portgroup/randomize_subnet_bulk',
   PORTGROUP_VALIDATE = '/api/v1/portgroup/validate',
+  PORTGROUP_COMMON = '/api/v1/portgroup/common',
   INTERFACE_RANDOMIZE_IP = '/api/v1/interface/randomize_ip/',
   INTERFACE_RANDOMIZE_IP_BULK = '/api/v1/interface/randomize_ip_bulk',
   INTERFACE_VALIDATE = '/api/v1/interface/validate',

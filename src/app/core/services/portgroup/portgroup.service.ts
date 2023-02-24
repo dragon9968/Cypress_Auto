@@ -70,4 +70,8 @@ export class PortGroupService {
   randomizeSubnetBulk(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.PORTGROUP_RANDOMIZE_SUBNET_BULK, data);
   }
+
+  getPortGroupCommon(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.PORTGROUP_COMMON, data);
+  }
 }

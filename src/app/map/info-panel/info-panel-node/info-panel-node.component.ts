@@ -16,6 +16,7 @@ import { ConfirmationDialogComponent } from "../../../shared/components/confirma
 import { InfoPanelShowValidationNodesComponent } from "../info-panel-show-validation-nodes/info-panel-show-validation-nodes.component";
 import { AddUpdateNodeDialogComponent } from "../../add-update-node-dialog/add-update-node-dialog.component";
 import { NodeBulkEditDialogComponent } from "../../bulk-edit-dialog/node-bulk-edit-dialog/node-bulk-edit-dialog.component";
+import { ViewUpdateProjectNodeComponent } from "../../context-menu/cm-dialog/view-update-project-node/view-update-project-node.component";
 
 @Component({
   selector: 'app-info-panel-node',
@@ -209,11 +210,22 @@ export class InfoPanelNodeComponent implements OnDestroy {
   }
 
   onRowDoubleClicked(row: RowDoubleClickedEvent) {
-    const dialogData = {
-      mode: 'view',
-      genData: row.data,
+    const nodeCategory = row.data.category;
+    if (nodeCategory != 'project') {
+      const dialogData = {
+        mode: 'view',
+        genData: row.data,
+        cy: this.cy
+      }
+      this.dialog.open(AddUpdateNodeDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+    } else {
+      const dialogData = {
+        mode: 'view',
+        genData: row.data,
+        cy: this.cy
+      }
+      this.dialog.open(ViewUpdateProjectNodeComponent, { width: '450px', autoFocus: false, data: dialogData });
     }
-    this.dialog.open(AddUpdateNodeDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
   }
 
   cloneNodes() {
@@ -268,21 +280,36 @@ export class InfoPanelNodeComponent implements OnDestroy {
       this.toastr.info('No row selected');
     } else {
       if (this.rowsSelected.length == 1) {
-        const dialogData = {
-          mode: 'update',
-          genData: this.rowsSelected[0],
-          cy: this.cy
+        const nodeCategory = this.rowsSelected[0].category;
+        if (nodeCategory != 'project') {
+          const dialogData = {
+            mode: 'update',
+            genData: this.rowsSelected[0],
+            cy: this.cy
+          }
+          this.dialog.open(AddUpdateNodeDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+        } else {
+          const dialogData = {
+            mode: 'update',
+            genData: this.rowsSelected[0],
+            cy: this.cy
+          }
+          this.dialog.open(ViewUpdateProjectNodeComponent, { width: '450px', autoFocus: false, data: dialogData });
         }
-        this.dialog.open(AddUpdateNodeDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
       } else {
-        const dialogData = {
-          genData: {
-            ids: this.rowsSelectedId,
-            activeNodes: this.rowsSelected
-          },
-          cy: this.cy
+        const isExistProjectNode = this.rowsSelected.some(node => node.category == 'project');
+        if (isExistProjectNode) {
+          this.toastr.warning('Bulk edit does not support the project node!', 'Warning');
+        } else {
+          const dialogData = {
+            genData: {
+              ids: this.rowsSelectedId,
+              activeNodes: this.rowsSelected
+            },
+            cy: this.cy
+          }
+          this.dialog.open(NodeBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
         }
-        this.dialog.open(NodeBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
       }
     }
   }

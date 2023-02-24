@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { Store } from '@ngrx/store';
@@ -27,7 +27,7 @@ import { AuthService } from "../../../core/services/auth/auth.service";
   templateUrl: './tool-panel-edit.component.html',
   styleUrls: ['./tool-panel-edit.component.scss']
 })
-export class ToolPanelEditComponent implements OnInit, OnDestroy {
+export class ToolPanelEditComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() cy: any;
   @Input() config: any;
   @Input() activeNodes: any[] = [];
@@ -59,7 +59,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
   devices!: any[];
   templates!: any[];
   mapImages!: any[];
-  projects!: any[];
+  projects: any[] = [];
   projectTemplates: any[] = [];
   filteredTemplatesByDevice!: any[];
   isGroupBoxesChecked!: boolean;
@@ -166,8 +166,19 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
     this.projectService.getProjectByStatusAndCategory('active', 'template').subscribe(
       data => this.store.dispatch(retrievedProjectsTemplate({template: data.result}))
     );
+  }
+
+  ngAfterViewInit(): void {
     this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe(
-      (data: any) => this.store.dispatch(retrievedProjects({ data: data.result }))
+      (data: any) => {
+        const projectNodeIdsAdded = this.cy?.nodes().filter('[link_project_id > 0]').map((ele: any) => ele.data('link_project_id'));
+        const newProjects = [...data.result];
+        projectNodeIdsAdded.map((projectId: any) => {
+          const index = newProjects.findIndex(ele => ele.id === projectId);
+          newProjects.splice(index, 1);
+        })
+        this.store.dispatch(retrievedProjects({data: newProjects}));
+      }
     );
   }
 
@@ -267,11 +278,11 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
     this.isDisableLinkProject = false;
   }
 
-  linkProject() {
+  addProjectNode() {
     this.isDisableLinkProject = true;
     this.store.dispatch(retrievedMapEdit({
       data: {
-        isLinkProject: true,
+        isAddProjectNode: true,
         linkProjectId: this.linkProjectCtr?.value?.id
       }
     }));

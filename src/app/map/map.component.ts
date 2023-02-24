@@ -52,7 +52,7 @@ import { CommonService } from 'src/app/map/context-menu/cm-common-service/common
 import { ToolPanelStyleService } from 'src/app/core/services/tool-panel-style/tool-panel-style.service';
 import { ServerConnectService } from "../core/services/server-connect/server-connect.service";
 import { ProjectService } from "../project/services/project.service";
-import { retrievedVMStatus } from "../store/project/project.actions";
+import { retrievedProjects, retrievedVMStatus } from "../store/project/project.actions";
 import { ICON_PATH } from '../shared/contants/icon-path.constant';
 import { InfoPanelService } from '../core/services/info-panel/info-panel.service';
 import { retrievedInterfaceIdConnectPG } from "../store/interface/interface.actions";
@@ -69,6 +69,7 @@ import { GroupService } from "../core/services/group/group.service";
 import { retrievedNodes } from "../store/node/node.actions";
 import { retrievedGroups } from "../store/group/group.actions";
 import { ValidateProjectDialogComponent } from "../project/validate-project-dialog/validate-project-dialog.component";
+import { selectProjects } from "../store/project/project.selectors";
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -100,7 +101,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   isDisableAddImage = false;
   isAddNode = false;
   isAddProjectTemplate = false;
-  isLinkProject = false;
+  isAddProjectNode = false;
   isAddPublicPG = false;
   isAddPrivatePG = false;
   isTemplateCategory = false;
@@ -129,6 +130,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   portGroups!: any[];
   gateways!: any[];
   newEdgeData: any;
+  projects: any[] = [];
   e: any;
   inv: any;
   edgeNode: any;
@@ -158,6 +160,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   selectDomains$ = new Subscription();
   selectSearchText$ = new Subscription();
   selectIsConnect$ = new Subscription();
+  selectProjects$ = new Subscription();
   selectInterfaceIdConnectPG = new Subscription();
   selectMapFeatureSubject: Subject<MapState> = new ReplaySubject(1);
   destroy$: Subject<boolean> = new Subject<boolean>();
@@ -227,7 +230,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.selectMapEdit$ = this.store.select(selectMapEdit).subscribe((mapEdit: any) => {
       if (mapEdit) {
         this.isAddNode = mapEdit.isAddNode;
-        this.isLinkProject = mapEdit.isLinkProject;
+        this.isAddProjectNode = mapEdit.isAddProjectNode;
         this.linkProjectId = mapEdit.linkProjectId ? mapEdit.linkProjectId : this.linkProjectId;
         this.isAddProjectTemplate = mapEdit.isAddTemplateProject;
         this.projectTemplateId = mapEdit.projectTemplateId ? mapEdit.projectTemplateId : this.projectTemplateId;
@@ -238,7 +241,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.isAddPrivatePG = mapEdit.isAddPrivatePG;
         this.isCustomizePG = mapEdit.isCustomizePG;
         this.isLayoutOnly = mapEdit.isLayoutOnly;
-        if (this.isAddNode || this.isAddPublicPG || this.isAddPrivatePG || this.isAddProjectTemplate || this.isLinkProject) {
+        if (this.isAddNode || this.isAddPublicPG || this.isAddPrivatePG || this.isAddProjectTemplate || this.isAddProjectNode) {
           this._disableMapEditButtons();
         } else {
           this._enableMapEditButtons();
@@ -284,6 +287,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.selectInterfaceIdConnectPG = this.store.select(selectInterfaceIdConnectPG).subscribe(interfaceIdConnectPG => {
       this.interfaceIdConnectPG = interfaceIdConnectPG;
     })
+    this.selectProjects$ = this.store.select(selectProjects).subscribe(projects => this.projects = projects);
   }
 
   ngAfterViewInit(): void {
@@ -311,6 +315,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.selectIcons$.unsubscribe();
     this.selectDomains$.unsubscribe();
     this.selectSearchText$.unsubscribe();
+    this.selectIsConnect$.unsubscribe();
+    this.selectProjects$.unsubscribe();
     this.cy?.nodes().forEach((ele: any) => {
       this.helpersService.removeBadge(ele);
     });
@@ -407,11 +413,16 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       const el = this.cy.edges().filter(`[source=${src}][target=${targ}]`).length
       if (el > 0) {
         if (targ.includes('tempNode') && this.edgeNode) {
-          // Add a new edge without connecting to the port group
-          return this.interfaceService.genData(this.edgeNode.data().node_id, undefined)
-            .subscribe(genData => {
-              this._openAddUpdateInterfaceDialog(genData, this.newEdgeData);
-            });
+          if (this.edgeNode.data('category') == 'project') {
+            this.toastr.warning('Please select the common port group that has been highlighted to connect', 'Warning');
+            return;
+          } else {
+            // Add a new edge without connecting to the port group
+            return this.interfaceService.genData(this.edgeNode.data().node_id, undefined)
+              .subscribe(genData => {
+                this._openAddUpdateInterfaceDialog(genData, this.newEdgeData);
+              });
+          }
         } else if (!this.edgePortGroup) {
           // Add a new edge connecting to the port group with some of the edges already connected to this port group before.
           return this._addNewEdge($event);
@@ -618,8 +629,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         });
     } else if (this.isAddProjectTemplate) {
       this.addTemplateIntoCurrentProject(this.projectTemplateId, this.isLayoutOnly, newNodePosition);
-    } else if (this.isLinkProject) {
-      this.linkProject(this.linkProjectId, this.collectionId);
+    } else if (this.isAddProjectNode) {
+      this.addProjectNode(this.linkProjectId, this.collectionId, newNodePosition);
     }
   }
 
@@ -888,6 +899,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.cmGroupBoxService.getMoveToFrontMenu(),
         this.cmGroupBoxService.getMoveToBackMenu(),
         this.cmInterfaceService.getNodeInterfaceMenu(this.queueEdge.bind(this), this.cy, this.activeNodes),
+        this.cmInterfaceService.getLinkProjectMenu(this.queueEdge.bind(this), this.cy, this.activeNodes),
         this.cmInterfaceService.getPortGroupInterfaceMenu(this.queueEdge.bind(this)),
         this.cmAddService.getEdgeAddMenu(),
         this.cmActionsService.getNodeActionsMenu(this.cy, this.activeNodes),
@@ -1032,6 +1044,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   private _openAddUpdateInterfaceDialog(genData: any, newEdgeData: any) {
+    const nodeCategory = this.cy.getElementById(`node-${genData.node_id}`).data('category');
     const dialogData = {
       mode: 'add',
       collectionId: this.collectionId,
@@ -1041,9 +1054,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       cy: this.cy,
       genData,
       newEdgeData,
+      nodeCategory
     }
     const dialogRef = this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', data: dialogData });
     dialogRef.afterClosed().subscribe((_data: any) => {
+      if (nodeCategory == 'project') {
+        this.clearSearch();
+      }
       this.cy.unbind('mousemove');
       this.inv.remove();
       this.e.remove();
@@ -1312,23 +1329,74 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     })
   }
 
-  linkProject(linkProjectId: number, projectId: any) {
-    const jsonData = {
-      project_id: projectId,
-      linked_project_id: linkProjectId
-    }
-    this.projectService.linkProject(jsonData).pipe(
-      catchError(error => {
-        this.isLinkProject = false;
+  addProjectNode(linkProjectId: number, projectId: any, newNodePosition: any) {
+    this.projectService.get(linkProjectId).subscribe(linkProjectResponse => {
+      const linkProject = linkProjectResponse.result;
+      const jsonData = {
+        name: linkProject.name,
+        notes: linkProject.notes,
+        link_project_id: linkProjectId,
+        category: 'project',
+        collection_id: projectId,
+        logical_map_position: newNodePosition,
+        logical_map_style: {
+          height: '70',
+          width: '70',
+          text_size: '25',
+          text_color: '#000000',
+          text_halign: 'center',
+          text_valign: 'bottom',
+          text_bg_color: '#000000',
+          text_bg_opacity: 0,
+          'background-color': 'rgb(255,255,255)',
+          'background-image': '',
+          'background-fit': 'contain'
+        }
+      };
+      this.nodeService.add(jsonData).pipe(
+        catchError((resp: any) => {
+          this.isAddProjectNode = false;
+          this._enableMapEditButtons();
+          this.toastr.error('Add Project Node Failed!', 'Error');
+          if (resp.status == 422) {
+            const errorMsg: any[] = resp.error.message;
+            const m = Object.keys(errorMsg).map((key: any) => key + ': ' + errorMsg[key])
+            this.toastr.error(m.join(','));
+          }
+          return throwError(() => resp.message);
+        })
+      ).subscribe((respData: any) => {
+        this.isAddProjectNode = false;
+        this.linkProjectId = 0;
         this._enableMapEditButtons();
-        this.toastr.error('Link Project Failed!', 'Error');
-        return throwError(() => error)
-      })
-    ).subscribe(response => {
-      this.isLinkProject = false;
-      this._enableMapEditButtons();
-      // TODO: Add the project node and draw the node after linking the project
-      this.toastr.success('Link Project Successfully', 'Success')
+        this.nodeService.get(respData.id).subscribe(respData => {
+          const cyData = respData.result;
+          cyData.id = 'node-' + respData.id;
+          cyData.node_id = respData.id;
+          cyData.height = cyData.logical_map_style.height;
+          cyData.width = cyData.logical_map_style.width;
+          cyData.text_color = cyData.logical_map_style.text_color;
+          cyData.text_size = cyData.logical_map_style.text_size;
+          cyData.icon = environment.apiBaseUrl + '/static/img/icons/default_icon.png';
+          const newNodeData = {
+            'elem_category': 'node',
+            'type': 'project',
+            'zIndex': 999,
+            'background-opacity': 0,
+            'shape': 'roundrectangle',
+            'text-opacity': 1
+          }
+          this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData },  newNodePosition});
+          const projectNodeIdsAdded = this.cy.nodes().filter('[link_project_id > 0]').map((ele: any) => ele.data('link_project_id'));
+          const newProjects = [...this.projects];
+          projectNodeIdsAdded.map((projectId: any) => {
+            const index = newProjects.findIndex(ele => ele.id === projectId);
+            newProjects.splice(index, 1);
+          })
+          this.store.dispatch(retrievedProjects({data: newProjects}));
+          this.toastr.success('Link Project Successfully', 'Success')
+        });
+      });
     })
   }
 

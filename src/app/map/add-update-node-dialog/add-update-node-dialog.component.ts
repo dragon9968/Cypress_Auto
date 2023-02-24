@@ -188,6 +188,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
     this.selectDomains$.unsubscribe();
     this.selectConfigTemplates$.unsubscribe();
     this.selectLoginProfiles$.unsubscribe();
+    this.selectNodes$.unsubscribe();
   }
 
   private disableItems(category: string) {
@@ -325,7 +326,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   }
 
   updateNode() {
-    const ele = this.data.cy.getElementById('node-' + this.data.genData.id);
+    const ele = this.data.cy.getElementById(this.data.genData.id);
     const jsonDataValue = {
       name: this.nameCtr?.value,
       notes: this.notesCtr?.value,
@@ -371,7 +372,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   }
 
   changeViewToEdit() {
-    this.data.mode = 'edit';
+    this.data.mode = 'update';
     this.isViewMode = false;
   }
 }

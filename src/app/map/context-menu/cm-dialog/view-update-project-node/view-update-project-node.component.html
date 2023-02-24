@@ -1,0 +1,29 @@
+<form [formGroup]="projectNodeAddForm" (ngSubmit)="updateProjectNode()">
+  <div class="dialog-title">
+    <h1 mat-dialog-title>{{data.mode === 'update' ? 'Project Node Edit Form' : 'Project Node Info'}}</h1>
+    <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+      <mat-icon>edit</mat-icon>
+    </button>
+  </div>
+  <mat-dialog-content>
+    <mat-form-field class="field">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="nameCtr" [readonly]="isViewMode">
+      <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="nameCtr?.errors?.isExist">{{ errorMessages.NODE_NAME_EXIST }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Notes</mat-label>
+      <textarea matInput formControlName="notesCtr" [readonly]="isViewMode" rows="1"></textarea>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-raised-button type="button" mat-dialog-close>
+      {{data.mode === 'view' ? 'Close' : 'Cancel'}}
+    </button>
+    <button *ngIf="data.mode !== 'view'" mat-raised-button type="submit" color="primary"
+            [disabled]="projectNodeAddForm.invalid">
+      Update
+    </button>
+  </mat-dialog-actions>
+</form>

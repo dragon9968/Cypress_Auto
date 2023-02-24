@@ -533,11 +533,20 @@ export class HelpersService implements OnDestroy{
           'id': data.pg_id
         });
       } else if (data.elem_category == "node") {
-        this.deletedNodes.push({
-          'elem_category': data.elem_category,
-          'label': data.label,
-          'id': data.node_id
-        });
+        if (data.category == 'project') {
+          this.deletedNodes.push({
+            'link_project_id': data.link_project_id,
+            'elem_category': data.elem_category,
+            'label': data.label,
+            'id': data.node_id
+          });
+        } else {
+          this.deletedNodes.push({
+            'elem_category': data.elem_category,
+            'label': data.label,
+            'id': data.node_id
+          });
+        }
       } else if (data.elem_category == "group") {
         this.deletedNodes.push({
           'elem_category': data.elem_category,

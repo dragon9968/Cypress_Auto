@@ -19,6 +19,8 @@ import { selectGroups } from "../../store/group/group.selectors";
 import { selectNodesByCollectionId } from "../../store/node/node.selectors";
 import { retrievedGroups } from "../../store/group/group.actions";
 import { selectPortGroups } from "../../store/portgroup/portgroup.selectors";
+import { ProjectService } from "../../project/services/project.service";
+import { retrievedProjects } from "../../store/project/project.actions";
 
 @Component({
   selector: 'app-tool-panel',
@@ -78,6 +80,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     private mapService: MapService,
     private dialog: MatDialog,
     private groupService: GroupService,
+    private projectService: ProjectService,
     private helpersService: HelpersService,
     private commonService: CommonService
   ) {
@@ -212,6 +215,41 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         if (nodeDeletedIds.length > 0) {
           this.helpersService.removeNodesInStorage(nodeDeletedIds);
         }
+        const deletedNodesLinkProject = this.deletedNodes.filter(node => node.link_project_id);
+        if (deletedNodesLinkProject.length > 0) {
+          this.projectService.get(this.collectionId).subscribe(response => {
+            const project = response.result;
+            const linkedProjectIds = project.link_projects.map((ele: any) => ele.id);
+            deletedNodesLinkProject.map(ele => {
+              const isProjectLinked = linkedProjectIds.includes(ele.link_project_id)
+              if (isProjectLinked) {
+                const jsonData = {
+                  project_id: this.collectionId,
+                  linked_project_id: ele.link_project_id
+                }
+                this.projectService.unlinkProject(jsonData).pipe(
+                  catchError(err => {
+                    this.toastr.error('Unlink Project Failed!', 'Error');
+                    return throwError(() => err);
+                  })
+                ).subscribe(() => {
+                  this.toastr.success('Unlink Project Successfully', 'Success');
+                })
+              }
+            })
+            this.projectService.getProjectByStatusAndCategory('active', 'project').subscribe(
+              (data: any) => {
+                const projectNodeIdsAdded = this.cy.nodes().filter('[link_project_id > 0]').map((ele: any) => ele.data('link_project_id'));
+                const newProjects = [...data.result];
+                projectNodeIdsAdded.map((projectId: any) => {
+                  const index = newProjects.findIndex(ele => ele.id === projectId);
+                  newProjects.splice(index, 1);
+                })
+                this.store.dispatch(retrievedProjects({data: newProjects}));
+              }
+            );
+          })
+        }
       }
       this.deletedNodes.splice(0);
       this.deletedInterfaces.splice(0);
@@ -271,7 +309,8 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         isAddNode: false,
         isAddPublicPG: false,
         isAddPrivatePG: false,
-        isAddProjectTemplate: false
+        isAddProjectTemplate: false,
+        isAddProjectNode: false
       }
     }));
   }
