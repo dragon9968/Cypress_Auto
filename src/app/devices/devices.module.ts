@@ -8,8 +8,6 @@ import { EditLoginProfilesDialogComponent } from './login-profiles/edit-login-pr
 import { AddEditHardwareDialogComponent } from './hardware/add-edit-hardware-dialog/add-edit-hardware-dialog.component';
 import { DeviceCategoryComponent } from './device-category/device-category.component';
 import { AddUpdateDeviceCategoryDialogComponent } from './device-category/add-update-device-category-dialog/add-update-device-category-dialog.component';
-import { IconGalleryComponent } from './icon-gallery/icon-gallery.component';
-import { AddEditIconDialogComponent } from './icon-gallery/add-edit-icon-dialog/add-edit-icon-dialog.component';
 import { AddEditDeviceDialogComponent } from './device-template/add-edit-device-dialog/add-edit-device-dialog.component';
 import { AddEditTemplateDialogComponent } from './device-template/add-edit-template-dialog/add-edit-template-dialog.component';
 
@@ -23,8 +21,6 @@ import { AddEditTemplateDialogComponent } from './device-template/add-edit-templ
     AddEditHardwareDialogComponent,
     DeviceCategoryComponent,
     AddUpdateDeviceCategoryDialogComponent,
-    IconGalleryComponent,
-    AddEditIconDialogComponent,
     AddEditDeviceDialogComponent,
     AddEditTemplateDialogComponent,
   ],

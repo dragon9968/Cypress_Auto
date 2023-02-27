@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { SharedModule } from '../shared/shared.module';
-import { TemplatesRoutingModule } from './templates-routing.module';
+import { LibrariesRoutingModule } from './libraries-routing.module';
 import { ConfigTemplatesComponent } from './config-templates/config-templates.component';
 import { NetworkTemplatesComponent } from './network-templates/network-templates.component';
 import { AddEditConfigTemplateComponent } from './config-templates/add-edit-config-template/add-edit-config-template.component';
@@ -9,6 +9,10 @@ import { AddFirewallRuleDialogComponent } from './config-templates/add-firewall-
 import { AddDomainMembershipDialogComponent } from './config-templates/add-domain-membership-dialog/add-domain-membership-dialog.component';
 import { AddEditRolesServicesDialogComponent } from './config-templates/add-edit-roles-services-dialog/add-edit-roles-services-dialog.component';
 import { ShowConfigTemplateDialogComponent } from './config-templates/show-config-template-dialog/show-config-template-dialog.component';
+import { IconGalleryComponent } from './image/icon-gallery/icon-gallery.component';
+import { AddEditIconDialogComponent } from './image/icon-gallery/add-edit-icon-dialog/add-edit-icon-dialog.component';
+import { LookupFeaturesComponent } from './lookup/lookup-features/lookup-features.component';
+import { LookupNamesComponent } from './lookup/lookup-names/lookup-names.component';
 
 
 @NgModule({
@@ -20,11 +24,15 @@ import { ShowConfigTemplateDialogComponent } from './config-templates/show-confi
     AddFirewallRuleDialogComponent,
     AddDomainMembershipDialogComponent,
     AddEditRolesServicesDialogComponent,
-    ShowConfigTemplateDialogComponent
+    ShowConfigTemplateDialogComponent,
+    IconGalleryComponent,
+    AddEditIconDialogComponent,
+    LookupFeaturesComponent,
+    LookupNamesComponent
   ],
   imports: [
     SharedModule,
-    TemplatesRoutingModule
+    LibrariesRoutingModule
   ]
 })
-export class TemplatesModule { }
+export class LibrariesModule { }

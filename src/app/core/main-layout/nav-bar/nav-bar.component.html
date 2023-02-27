@@ -6,7 +6,7 @@
         <mat-menu #menu="matMenu" class="menu-small">
             <button mat-menu-item [matMenuTriggerFor]="project">Project</button>
             <button mat-menu-item [matMenuTriggerFor]="devices">Devices</button>
-            <button mat-menu-item [matMenuTriggerFor]="templates">Templates</button>
+            <button mat-menu-item [matMenuTriggerFor]="libraries">Libraries</button>
             <button mat-menu-item [matMenuTriggerFor]="remote">Remote</button>
             <button mat-menu-item [matMenuTriggerFor]="settings">Settings</button>
             <button mat-menu-item [matMenuTriggerFor]="help">Help</button>
@@ -100,17 +100,45 @@
             <mat-icon>groups</mat-icon>
             <span>Login Profiles</span>
         </button>
-        <button mat-menu-item [routerLink]="routeSegments.DEVICES + '/icon'">
+        <!-- <button mat-menu-item [routerLink]="routeSegments.DEVICES + '/icon'">
             <mat-icon svgIcon="plant-tree-icon"></mat-icon>
             <span>Icon</span>
-        </button>
+        </button> -->
     </mat-menu>
-    <a *ngIf="!isHiddenNavbar" mat-button [matMenuTriggerFor]="templates" class="menu-btn">Templates</a>
-    <mat-menu #templates="matMenu">
+    <a *ngIf="!isHiddenNavbar" mat-button [matMenuTriggerFor]="libraries" class="menu-btn">Libraries</a>
+    <mat-menu #libraries="matMenu">
             <button mat-menu-item [routerLink]="routeSegments.CONFIG_TEMPLATES">
                 <mat-icon>source</mat-icon>
                 <span>Configuration Templates</span>
             </button>
+            <button mat-menu-item [matMenuTriggerFor]="image">
+                <mat-icon>image</mat-icon>
+                <span>Image</span>
+            </button>
+            <mat-menu #image="matMenu">
+                <button mat-menu-item [routerLink]="routeSegments.LIBRATIES + '/icon'">
+                    <mat-icon svgIcon="plant-tree-icon"></mat-icon>
+                    <span>Icons</span>
+                </button>
+                <button mat-menu-item>
+                    <mat-icon>image</mat-icon>
+                    <span>Images</span>
+                </button>
+            </mat-menu>
+            <button mat-menu-item [matMenuTriggerFor]="lookup">
+                <mat-icon>location_searching</mat-icon>
+                <span>Lookup</span>
+            </button>
+            <mat-menu #lookup="matMenu">
+                <button mat-menu-item [routerLink]="routeSegments.LOOKUP_NAMES">
+                    <mat-icon>person</mat-icon>
+                    <span>Names</span>
+                </button>
+                <button mat-menu-item [routerLink]="routeSegments.LOOKUP_FEATURES">
+                    <mat-icon>featured_play_list</mat-icon>
+                    <span>Features</span>
+                </button>
+            </mat-menu>
     </mat-menu>
     <a *ngIf="!isHiddenNavbar" mat-button [matMenuTriggerFor]="remote" class="menu-btn">Remote</a>
     <mat-menu #remote="matMenu">
