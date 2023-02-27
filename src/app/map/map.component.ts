@@ -96,6 +96,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   isDisableCancel = true;
   isDisableAddNode = true;
   isDisableAddProjectTemplate = true;
+  isDisableNewFromSelected = false;
   isDisableLinkProject = true;
   isDisableAddPG = false;
   isDisableAddImage = false;
@@ -336,6 +337,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.isDisableAddImage = true;
     this.isDisableCancel = false;
     this.isDisableAddProjectTemplate = true;
+    this.isDisableNewFromSelected = true;
     this.isDisableLinkProject = true;
   }
 
@@ -343,6 +345,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.isDisableAddNode = !(Boolean(this.templateId) && Boolean(this.deviceId));
     this.isDisableAddProjectTemplate = !(Boolean(this.projectTemplateId));
     this.isDisableLinkProject = !(Boolean(this.linkProjectId));
+    this.isDisableNewFromSelected = false;
     this.isDisableAddPG = false;
     this.isDisableAddImage = false;
     this.isDisableCancel = true;

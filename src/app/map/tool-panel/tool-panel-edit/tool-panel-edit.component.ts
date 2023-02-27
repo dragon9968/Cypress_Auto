@@ -41,6 +41,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, AfterViewInit 
   @Input() isDisableAddPG = false;
   @Input() isDisableAddImage = false;
   @Input() isDisableAddProjectTemplate = true;
+  @Input() isDisableNewFromSelected = true;
   @Input() isDisableLinkProject = true;
   status = 'active';
   category = 'template';

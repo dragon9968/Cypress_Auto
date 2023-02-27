@@ -127,7 +127,7 @@
 <section class="tab-section">
   <h4>Clone selected to new project/template</h4>
   <div>
-    <button mat-raised-button color="primary" (click)="addNewProjectFromSelected()">
+    <button mat-raised-button color="primary" [disabled]="isDisableNewFromSelected" (click)="addNewProjectFromSelected()">
       <mat-icon>add</mat-icon>New project from selected
     </button>
   </div>
