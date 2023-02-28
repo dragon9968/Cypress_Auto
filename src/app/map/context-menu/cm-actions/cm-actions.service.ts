@@ -10,6 +10,7 @@ import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.serv
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { InfoPanelShowValidationNodesComponent } from '../../info-panel/info-panel-show-validation-nodes/info-panel-show-validation-nodes.component';
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
+import { environment } from "../../../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
@@ -175,7 +176,11 @@ export class CMActionsService {
           cyData.text_color = cyData.logical_map_style.text_color;
           cyData.text_size = cyData.logical_map_style.text_size;
           cyData.elem_category = "node";
-          cyData.icon = ICON_PATH + cyData.icon.photo;
+          if (cyData.category == 'project') {
+            cyData.icon = environment.apiBaseUrl + '/static/img/icons/default_icon.png';
+          } else {
+            cyData.icon = ICON_PATH + cyData.icon.photo;
+          }
           cyData.type = cyData.role;
           cyData.zIndex = 999;
           cyData['background-image'] = cyData.icon;

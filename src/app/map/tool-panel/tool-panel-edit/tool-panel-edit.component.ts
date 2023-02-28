@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { Store } from '@ngrx/store';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
@@ -104,7 +104,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, AfterViewInit 
     this.selectTemplates$ = this.store.select(selectTemplates).subscribe((templates: any) => {
       if (templates) {
         this.templates = templates;
-        this.templateCtr?.setValidators([autoCompleteValidator(this.templates, 'display_name')]);
+        this.templateCtr?.setValidators([autoCompleteValidator(this.templates, 'display_name'), Validators.required]);
         this.filteredTemplatesByDevice = templates
         this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice, 'display_name');
       }
@@ -112,7 +112,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, AfterViewInit 
     this.selectMapImages$ = this.store.select(selectMapImages).subscribe((mapImages: any) => {
       if (mapImages) {
         this.mapImages = mapImages;
-        this.mapImageCtr?.setValidators([autoCompleteValidator(this.mapImages)]);
+        this.mapImageCtr?.setValidators([autoCompleteValidator(this.mapImages), Validators.required]);
         this.filteredMapImages = this.helpers.filterOptions(this.mapImageCtr, this.mapImages);
       }
     });
@@ -127,7 +127,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, AfterViewInit 
     this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(projectTemplates => {
       if (projectTemplates != undefined) {
         this.projectTemplates = projectTemplates;
-        this.projectTemplateCtr.setValidators([autoCompleteValidator(this.projectTemplates)]);
+        this.projectTemplateCtr.setValidators([autoCompleteValidator(this.projectTemplates), Validators.required]);
         this.filteredProjectTemplates = this.helpers.filterOptions(this.projectTemplateCtr, this.projectTemplates)
       }
     });
@@ -146,6 +146,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, AfterViewInit 
           }
           newProjectData = newProjectData.filter(project => project.id !== collectionId);
           this.projects = newProjectData;
+          this.linkProjectCtr.setValidators([autoCompleteValidator(this.projects), Validators.required]);
           this.filteredProjects = this.helpers.filterOptions(this.linkProjectCtr, this.projects);
         })
       }
@@ -280,13 +281,18 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, AfterViewInit 
   }
 
   addProjectNode() {
-    this.isDisableLinkProject = true;
-    this.store.dispatch(retrievedMapEdit({
-      data: {
-        isAddProjectNode: true,
-        linkProjectId: this.linkProjectCtr?.value?.id
-      }
-    }));
+    const linkProjectId = this.linkProjectCtr?.value?.id;
+    if (linkProjectId > 0) {
+      this.isDisableLinkProject = true;
+      this.store.dispatch(retrievedMapEdit({
+        data: {
+          isAddProjectNode: true,
+          linkProjectId: linkProjectId
+        }
+      }));
+    } else {
+      this.toastr.warning('Please select a project to link!', 'Warning')
+    }
   }
 
   loadMapImage(bg: any) {
