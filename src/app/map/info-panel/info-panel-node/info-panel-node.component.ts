@@ -232,19 +232,24 @@ export class InfoPanelNodeComponent implements OnDestroy {
     if (this.rowsSelected.length === 0) {
       this.toastr.info('No row selected');
     } else {
-      const message = this.rowsSelected.length === 1 ? 'Clone this node?' : 'Clone these nodes?';
-      const dialogData = {
-        title: 'User confirmation needed',
-        message: message,
-        submitButtonName: 'OK'
-      }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
-      dialogConfirm.afterClosed().subscribe(confirm => {
-        if (confirm) {
-          const ids = this.rowsSelectedId;
-          this.cmActionsService.cloneNodes(this.cy, ids);
+      const isExistProjectNode = this.rowsSelected.some(node => node.category == 'project');
+      if (isExistProjectNode) {
+        this.toastr.warning('Project node(s) do not support clone!', 'Warning');
+      } else {
+        const message = this.rowsSelected.length === 1 ? 'Clone this node?' : 'Clone these nodes?';
+        const dialogData = {
+          title: 'User confirmation needed',
+          message: message,
+          submitButtonName: 'OK'
         }
-      })
+        const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
+        dialogConfirm.afterClosed().subscribe(confirm => {
+          if (confirm) {
+            const ids = this.rowsSelectedId;
+            this.cmActionsService.cloneNodes(this.cy, ids);
+          }
+        })
+      }
     }
   }
 

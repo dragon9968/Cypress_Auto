@@ -1337,7 +1337,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       const linkProject = linkProjectResponse.result;
       const jsonData = {
         name: linkProject.name,
-        notes: linkProject.notes,
+        notes: linkProject.description,
         link_project_id: linkProjectId,
         category: 'project',
         collection_id: projectId,

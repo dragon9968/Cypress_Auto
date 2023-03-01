@@ -39,8 +39,13 @@ export class CMActionsService {
           id: "clone_node",
           content: "Clone",
           onClickFunction: ($event: any) => {
-            const ids = activeNodes.map((ele: any) => ele.data('node_id'));
-            this.cloneNodes(cy, ids);
+            const isExistProjectNode = activeNodes.some(node => node.data('category') == 'project');
+            if (isExistProjectNode) {
+              this.toastr.warning('Project node(s) do not support clone!', 'Warning');
+            } else {
+              const ids = activeNodes.map((ele: any) => ele.data('node_id'));
+              this.cloneNodes(cy, ids);
+            }
           },
           hasTrailingDivider: true,
           disabled: false,
