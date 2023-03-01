@@ -197,8 +197,9 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
           datacenter: '',
           cluster: '',
           datastore: '',
+          datastore_cluster: '',
           switch: '',
-          switch_type: 'vswitch',
+          switch_type: 'dvswitch',
           management_network: '',
           username: '',
           password: ''

@@ -166,17 +166,6 @@
                 <span>Map Preferences</span>
             </button>
     </mat-menu>
-    <a *ngIf="!isHiddenNavbar" mat-button [matMenuTriggerFor]="help" class="menu-btn">Help</a>
-    <mat-menu #help="matMenu">
-            <button mat-menu-item [routerLink]="routeSegments.USER_GUIDE">
-                <mat-icon>book</mat-icon>
-                <span>User Guide</span>
-            </button>
-            <button mat-menu-item (click)="openAboutModal()">
-                <mat-icon>info</mat-icon>
-                <span>About</span>
-            </button>
-    </mat-menu>
     <a *ngIf="!isHiddenNavbar" mat-button [matMenuTriggerFor]="administration" class="menu-btn">Administration</a>
     <mat-menu #administration="matMenu">
             <button mat-menu-item [routerLink]="routeSegments.LIST_USERS">
@@ -208,6 +197,17 @@
             <button mat-menu-item (click)="openAdminConfig()">
                 <mat-icon>security</mat-icon>
                 <span>LDAP Authentication</span>
+            </button>
+    </mat-menu>
+    <a *ngIf="!isHiddenNavbar" mat-button [matMenuTriggerFor]="help" class="menu-btn">Help</a>
+    <mat-menu #help="matMenu">
+            <button mat-menu-item [routerLink]="routeSegments.USER_GUIDE">
+                <mat-icon>book</mat-icon>
+                <span>User Guide</span>
+            </button>
+            <button mat-menu-item (click)="openAboutModal()">
+                <mat-icon>info</mat-icon>
+                <span>About</span>
             </button>
     </mat-menu>
     <div *ngIf="isMapOpen" class="search">

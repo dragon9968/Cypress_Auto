@@ -1,6 +1,6 @@
 <form [formGroup]="connectionForm" (ngSubmit)="data.mode === 'add' ? addServerConnect() : updateServerConnect()">
   <div class="dialog-title">
-    <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Server Connect' : data.mode === 'update' ? 'Edit Server Connect' : 'Connection Detail' }}</h1>
+    <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add connection Profile' : data.mode === 'update' ? 'Edit Connection Profile' : 'Connection Detail' }}</h1>
     <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
       <mat-icon>edit</mat-icon>
     </button>
@@ -56,11 +56,14 @@
           <mat-label>Data Store</mat-label>
           <input type="text" formControlName="dataStore" matInput>
         </mat-form-field>
+        <div class="field">
+          <mat-checkbox formControlName="dataStore_cluster" labelPosition="before">Datastore Cluster</mat-checkbox>
+        </div>
         <div class="hint">
           <mat-form-field class="field">
             <mat-label>Switch</mat-label>
             <input type="text" formControlName="switch" matInput>
-            <mat-hint *ngIf="data.mode !== 'view'" align="start"><strong>Optional - For deployment to an existing DSwitch or VSwitch</strong></mat-hint>
+            <mat-hint *ngIf="data.mode !== 'view'" align="start"></mat-hint>
           </mat-form-field>
         </div>
         <mat-form-field class="field">
@@ -74,7 +77,7 @@
           <mat-form-field class="field">
             <mat-label>VM Management Network</mat-label>
             <input type="text" formControlName="managementNetwork" matInput>
-            <mat-hint *ngIf="data.mode !== 'view'" align="start"><strong>VM management network</strong></mat-hint>
+            <mat-hint *ngIf="data.mode !== 'view'" align="start"></mat-hint>
           </mat-form-field>
         </div>
       </div>
