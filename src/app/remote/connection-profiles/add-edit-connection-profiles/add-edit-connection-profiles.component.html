@@ -57,7 +57,8 @@
           <input type="text" formControlName="dataStore" matInput>
         </mat-form-field>
         <div class="field">
-          <mat-checkbox formControlName="dataStore_cluster" labelPosition="before">Datastore Cluster</mat-checkbox>
+          <label>Datastore Cluster</label>
+          <mat-checkbox formControlName="datastoreCluster" [(ngModel)]="isChecked"></mat-checkbox>
         </div>
         <div class="hint">
           <mat-form-field class="field">

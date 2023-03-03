@@ -40,7 +40,7 @@ export class AddEditConnectionProfilesComponent implements OnInit {
       dataCenter: new FormControl({value: '', disabled: this.isViewMode}),
       cluster: new FormControl({value: '', disabled: this.isViewMode}),
       dataStore: new FormControl({value: '', disabled: this.isViewMode}),
-      dataStore_cluster: new FormControl({value: false, disabled: this.isViewMode}),
+      datastoreCluster: new FormControl({value: false, disabled: this.isViewMode}),
       switch: new FormControl({value: '', disabled: this.isViewMode}),
       switchType: new FormControl({value: '', disabled: this.isViewMode}),
       managementNetwork: new FormControl({value: '', disabled: this.isViewMode}),
@@ -58,7 +58,7 @@ export class AddEditConnectionProfilesComponent implements OnInit {
    get dataCenter() { return this.connectionForm?.get('dataCenter'); }
    get cluster() { return this.connectionForm?.get('cluster'); }
    get dataStore() { return this.connectionForm?.get('dataStore'); }
-   get dataStore_cluster() { return this.connectionForm?.get('dataStore_cluster'); }
+   get datastoreCluster() { return this.connectionForm?.get('datastoreCluster'); }
    get switch() { return this.connectionForm?.get('switch'); }
    get switchType() { return this.connectionForm?.get('switchType'); }
    get managementNetwork() { return this.connectionForm?.get('managementNetwork'); }
@@ -77,7 +77,7 @@ export class AddEditConnectionProfilesComponent implements OnInit {
       this.dataCenter?.setValue(this.data.genData.parameters.datacenter === '' ? 'None' : this.data.genData.parameters.datacenter);
       this.cluster?.setValue(this.data.genData.parameters.cluster === '' ? 'None' : this.data.genData.parameters.cluster);
       this.dataStore?.setValue(this.data.genData.parameters.datastore === '' ? 'None' : this.data.genData.parameters.datastore);
-      this.dataStore_cluster?.setValue(this.data.genData.parameters.datastore_cluster === '' ? 'None' : this.data.genData.parameters.datastore_cluster);
+      this.datastoreCluster?.setValue(this.data.genData.parameters.datastore_cluster === '' ? 'false' : this.data.genData.parameters.datastore_cluster);
       this.switch?.setValue(this.data.genData.parameters.switch === '' ? 'None' : this.data.genData.parameters.switch);
       this.switchType?.setValue(this.data.genData.parameters.switch_type === '' ? 'None' : this.data.genData.parameters.switch_type);
       this.managementNetwork?.setValue(this.data.genData.parameters.management_network === '' ? 'None' : this.data.genData.parameters.management_network);
@@ -90,7 +90,7 @@ export class AddEditConnectionProfilesComponent implements OnInit {
         this.dataCenter?.setValue(this.data.genData.parameters.datacenter);
         this.cluster?.setValue(this.data.genData.parameters.cluster);
         this.dataStore?.setValue(this.data.genData.parameters.datastore);
-        this.dataStore_cluster?.setValue(this.data.genData.parameters.datastore_cluster);
+        this.datastoreCluster?.setValue(this.data.genData.parameters.datastore_cluster);
         this.switch?.setValue(this.data.genData.parameters.switch);
         this.switchType?.setValue(this.data.genData.parameters.switch_type);
         this.managementNetwork?.setValue(this.data.genData.parameters.management_network);
@@ -150,7 +150,7 @@ export class AddEditConnectionProfilesComponent implements OnInit {
         datacenter: this.dataCenter?.value,
         cluster: this.cluster?.value,
         datastore: this.dataStore?.value,
-        datastore_cluster: this.dataStore_cluster?.value,
+        datastore_cluster: this.datastoreCluster?.value,
         switch: this.switch?.value,
         switch_type: this.switchType?.value,
         management_network: this.managementNetwork?.value,
@@ -199,7 +199,7 @@ export class AddEditConnectionProfilesComponent implements OnInit {
       datacenter: this.dataCenter?.value,
       cluster: this.cluster?.value,
       datastore: this.dataStore?.value,
-      datastore_cluster: this.dataStore_cluster?.value,
+      datastore_cluster: this.datastoreCluster?.value,
       switch: this.switch?.value,
       switch_type: this.switchType?.value,
       management_network: this.managementNetwork?.value,
@@ -247,7 +247,7 @@ export class AddEditConnectionProfilesComponent implements OnInit {
     this.dataCenter?.enable();
     this.cluster?.enable();
     this.dataStore?.enable();
-    this.dataStore_cluster?.enable();
+    this.datastoreCluster?.enable();
     this.switch?.enable();
     this.switchType?.enable();
     this.managementNetwork?.enable();
