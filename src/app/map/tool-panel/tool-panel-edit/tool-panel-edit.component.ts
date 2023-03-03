@@ -138,7 +138,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, AfterViewInit 
           let newProjectData: any[];
           const accessToken = this.authService.getAccessToken();
           const accessTokenPayload = this.helpers.decodeToken(accessToken);
-          const userId = accessTokenPayload.identity;
+          const userId = accessTokenPayload.sub;
           const collectionId = this.projectService.getCollectionId();
           newProjectData = projectData.filter(project => project.created_by_fk === userId);
           if (shareProject) {

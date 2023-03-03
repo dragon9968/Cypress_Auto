@@ -33,7 +33,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   ) {
     const accessToken = this.authService.getAccessToken();
     const accessTokenPayload = this.helpersService.decodeToken(accessToken);
-    const userId = accessTokenPayload.identity;
+    const userId = accessTokenPayload.sub;
     this.selectRecentProjects = this.store.select(selectRecentProjects).subscribe(recentProjects => {
       if (recentProjects) {
         this.recentProjects = recentProjects;

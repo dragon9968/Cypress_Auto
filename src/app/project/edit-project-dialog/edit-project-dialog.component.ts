@@ -108,7 +108,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
     this.rowData = this.data.genData.networks
     const accessToken = this.authService.getAccessToken();
     const accessTokenPayload = this.helpers.decodeToken(accessToken);
-    const userId = accessTokenPayload.identity;
+    const userId = accessTokenPayload.sub;
     this.userService.getAll().subscribe(data => {
       this.listUser = data.result;
       this.listUser = this.listUser.filter(value => value.id != userId)

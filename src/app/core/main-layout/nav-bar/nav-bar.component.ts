@@ -110,7 +110,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
     })
     const accessToken = this.authService.getAccessToken();
     const accessTokenPayload = this.helpersService.decodeToken(accessToken);
-    const userId = accessTokenPayload.identity;
+    const userId = accessTokenPayload.sub;
     this.userService.get(userId).subscribe(respData => {
       this.username = respData.result.username;
       this.isAdmin = respData.result.roles[0].id === PermissionLevels.ADMIN;
