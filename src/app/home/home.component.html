@@ -6,7 +6,9 @@
       <mat-card-content>
         <section class="btn-areas">
           <ng-template [ngxPermissionsOnly]="['can_write on Project']">
+            <ng-template [ngxPermissionsOnly]="['can_read on Settings']">
             <button mat-raised-button color="primary" [routerLink]="routeSegments.PROJECTS + '/add' "><p>Create a<br>Project</p></button>
+          </ng-template>
           </ng-template>
           <ng-template [ngxPermissionsOnly]="['can_read on Project']">
             <button mat-raised-button color="primary" [routerLink]="routeSegments.PROJECTS">Open a<br>Project</button>

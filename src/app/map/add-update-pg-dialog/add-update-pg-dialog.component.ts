@@ -16,6 +16,7 @@ import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 import { selectPortGroupsManagement } from "../../store/portgroup/portgroup.selectors";
 import { retrievedPortGroupsManagement } from "../../store/portgroup/portgroup.actions";
+import { NgxPermissionsService } from "ngx-permissions";
 
 @Component({
   selector: 'app-add-update-pg-dialog',
@@ -42,6 +43,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
     public helpers: HelpersService,
     private portGroupService: PortGroupService,
     private infoPanelService: InfoPanelService,
+    private ngxPermissionsService: NgxPermissionsService,
   ) {
     this.pgAddForm = new FormGroup({
       nameCtr: new FormControl('', Validators.required),
@@ -79,6 +81,19 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
   get subnetCtr() { return this.pgAddForm.get('subnetCtr'); }
 
   ngOnInit(): void {
+    let permissions = this.ngxPermissionsService.getPermissions();
+    let isCanWriteProject = false
+    for (let p in permissions) {
+      if (p === "can_write on Project") {
+        isCanWriteProject = true
+      }
+    }
+
+    if (!isCanWriteProject) {
+      console.log('You are not authorized to view this page !')
+      this.toastr.warning('Not authorized!', 'Warning');
+      this.onCancel()
+    }
     this.nameCtr?.setValue(this.data.genData.name);
     this.vlanCtr?.setValue(this.data.genData.vlan);
     this.categoryCtr?.setValue(this.data.genData.category);

@@ -2,6 +2,8 @@ import { Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Router } from '@angular/router';
+import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { Store } from '@ngrx/store';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent, ValueSetterParams } from 'ag-grid-community';
@@ -25,6 +27,7 @@ import { selectAllProjects, selectRecentProjects } from 'src/app/store/project/p
 import { MatRadioChange } from '@angular/material/radio';
 import { selectUserProfile } from 'src/app/store/user-profile/user-profile.selectors';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
+import { NgxPermissionsService } from "ngx-permissions";
 
 @Component({
   selector: 'app-edit-project-dialog',
@@ -99,6 +102,8 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private projectService: ProjectService,
     private userService: UserService,
+    private ngxPermissionsService: NgxPermissionsService,
+    private router: Router,
     private store: Store,
     private toastr: ToastrService,
     private dialog: MatDialog,
@@ -170,6 +175,22 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
   get categoryCtr() { return this.editProjectForm.get('categoryCtr'); }
 
   ngOnInit(): void {
+    let permissions = this.ngxPermissionsService.getPermissions();
+    let isCanWriteProject = false
+    let isCanReadSettings = false
+    for (let p in permissions) {
+      if (p === "can_write on Project") {
+        isCanWriteProject = true
+      }
+      if (p === "can_read on Settings") {
+        isCanReadSettings = true
+      }
+    }
+    if (!isCanWriteProject || !isCanReadSettings) {
+      console.log('You are not authorized to view this page !')
+      this.toastr.warning('Not authorized!', 'Warning');
+      this.router.navigate([RouteSegments.ROOT]);
+    }
   }
 
   onGridReady(params: GridReadyEvent) {

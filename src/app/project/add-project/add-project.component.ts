@@ -21,6 +21,7 @@ import { selectAppPref } from 'src/app/store/app-pref/app-pref.selectors';
 import { retrievedAppPref } from 'src/app/store/app-pref/app-pref.actions';
 import { MatRadioChange } from '@angular/material/radio';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
+import { NgxPermissionsService } from "ngx-permissions";
 
 @Component({
   selector: 'app-add-project',
@@ -102,6 +103,7 @@ export class AddProjectComponent implements OnInit {
     private appPrefService: AppPrefService,
     private dialog: MatDialog,
     public helpers: HelpersService,
+    private ngxPermissionsService: NgxPermissionsService,
   ) {
 
     const state = this.router.getCurrentNavigation()?.extras.state;
@@ -159,6 +161,23 @@ export class AddProjectComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    let permissions = this.ngxPermissionsService.getPermissions();
+    let isCanWriteProject = false
+    let isCanReadSettings = false
+
+    for (let p in permissions) {
+      if (p === "can_write on Project") {
+        isCanWriteProject = true
+      }
+      if (p === "can_read on Settings") {
+        isCanReadSettings = true
+      }
+    }
+    if (!isCanWriteProject || !isCanReadSettings) {
+      console.log('You are not authorized to view this page !')
+      this.toastr.warning('Not authorized!', 'Warning');
+      this.router.navigate([RouteSegments.ROOT]);
+    }
     this.helpers.setAutoCompleteValue(this.template, this.projectTemplate, '');
     this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe(data => {
       this.store.dispatch(retrievedProjects({data: data.result}));
