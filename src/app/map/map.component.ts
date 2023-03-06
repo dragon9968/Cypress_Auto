@@ -1075,6 +1075,100 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  private _quickAddInterfaceLinkProject(genData: any, newEdgeData: any) {
+    const nodeData = this.cy.getElementById(`node-${genData.node_id}`).data();
+    const jsonData = {
+      project_id: nodeData.collection_id,
+      linked_project_id: nodeData.link_project_id
+    }
+    this.projectService.linkProject(jsonData).pipe(
+      catchError(err => {
+        this._unQueueLinkProject();
+        this.toastr.error('Linked Project Failed!', 'Error');
+        return throwError(() => err);
+      })
+    ).subscribe(() => {
+      this.projectService.getProjectByStatusAndCategory('active', 'project').subscribe(
+        (data: any) => {
+          this._unQueueLinkProject();
+          // Update the link project list
+          const projectNodeIdsAdded = this.cy.nodes().filter('[link_project_id > 0]').map((ele: any) => ele.data('link_project_id'));
+          const newProjects = [...data.result];
+          projectNodeIdsAdded.map((projectId: any) => {
+            const index = newProjects.findIndex(ele => ele.id === projectId);
+            newProjects.splice(index, 1);
+          })
+          this.store.dispatch(retrievedProjects({data: newProjects}));
+
+          // Draw interface link project
+          const jsonData = {
+            order: genData.order,
+            name: genData.name,
+            description: genData.description,
+            category: genData.category,
+            direction: genData.direction,
+            mac_address: genData.mac_address,
+            port_group_id: genData.port_group_id,
+            ip_allocation: genData.ip_allocation,
+            ip: genData.ip,
+            dns_server: genData.dns_server,
+            gateway: genData.gateway,
+            is_gateway: genData.is_gateway,
+            is_nat: genData.is_nat,
+            node_id: genData.node_id,
+            netmask_id: genData.netmask_id,
+            logical_map_style: {
+              'width': '4',
+              'color': '#000000',
+              'text_size': '25',
+              'text_color': '#000000',
+              'text_halign': 'center',
+              'text_valign': 'bottom',
+              'text_bg_color': '#000000',
+              'text_bg_opacity': 0,
+              'line-style': 'dotted'
+            }
+          }
+          this.interfaceService.add(jsonData).subscribe((respData: any) => {
+            if (!newEdgeData.target.includes('node')) {
+              newEdgeData.target = newEdgeData.target === `pg-${genData.port_group_id}` ? newEdgeData.target : `pg-${genData.port_group_id}`;
+            }
+            const id = respData.id;
+            const ip_str = respData.result.ip ? respData.result.ip : "";
+            const ip = ip_str.split(".");
+            const last_octet = ip.length == 4 ? "." + ip[3] : "";
+            const cyData = respData.result;
+            cyData.id = id;
+            cyData.interface_id = id;
+            cyData.ip_last_octet = last_octet;
+            cyData.width = cyData.logical_map_style.width;
+            cyData.text_color = cyData.logical_map_style.text_color;
+            cyData.text_size = cyData.logical_map_style.text_size;
+            cyData.color = cyData.logical_map_style.color;
+            this.helpersService.addCYEdge(this.cy, { ...newEdgeData, ...cyData });
+            const edge = this.cy.getElementById(cyData.id);
+            edge.style('target-arrow-shape', 'none');
+            edge.style('source-arrow-shape', 'none');
+            edge.style('line-style', 'dotted');
+          });
+        }
+      );
+      this.toastr.success('Linked Project Successfully!', 'Success');
+    })
+  }
+
+  private _unQueueLinkProject() {
+    this.clearSearch();
+    this.cy.unbind('mousemove');
+    this.inv.remove();
+    this.e.remove();
+    this.inv = null;
+    this.edgePortGroup = null;
+    this.edgeNode = null;
+    this.isAddEdge = false;
+    this._enableMapEditButtons();
+  }
+
   private _openConnectInterfaceToPGDialog(genData: any, newEdgeData: any) {
     const dialogData = {
       mode: 'connect',
@@ -1111,10 +1205,17 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       }
       this.e.move({ target: targ });
       this.newEdgeData.target = targ;
-      this.interfaceService.genData(this.edgeNode.data().node_id, this.edgePortGroup.data().pg_id)
-        .subscribe(genData => {
-          this._openAddUpdateInterfaceDialog(genData, this.newEdgeData);
-        });
+      if (this.edgeNode.data('category') != 'project') {
+        this.interfaceService.genData(this.edgeNode.data().node_id, this.edgePortGroup.data().pg_id)
+          .subscribe(genData => {
+            this._openAddUpdateInterfaceDialog(genData, this.newEdgeData);
+          });
+      } else {
+        this.interfaceService.genData(this.edgeNode.data().node_id, this.edgePortGroup.data().pg_id, 'link')
+          .subscribe(genData => {
+            this._quickAddInterfaceLinkProject(genData, this.newEdgeData)
+          })
+      }
     } else if (this.isAddTunnel) {
       this.cy.unbind('mousemove');
       this.isDisableCancel = false;

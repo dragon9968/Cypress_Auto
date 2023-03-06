@@ -10,14 +10,15 @@ export class InterfaceService {
 
   constructor(private http: HttpClient) { }
 
-  genData(nodeId: string, portgroupId: any): Observable<any> {
+  genData(nodeId: string, portgroupId: any, category = 'wired'): Observable<any> {
     return this.http.post<any>(ApiPaths.GEN_INTERFACE_DATA, {
       node_id: nodeId,
-      pg_id: portgroupId
+      pg_id: portgroupId,
+      category: category
     });
   }
 
-  genDataConnectPG(interfaceId: any , nodeId: string, portgroupId: any): Observable<any> {
+  genDataConnectPG(interfaceId: any, nodeId: string, portgroupId: any): Observable<any> {
     return this.http.post<any>(ApiPaths.GEN_INTERFACE_DATA_CONNECT_PG, {
       interface_id: interfaceId,
       node_id: nodeId,

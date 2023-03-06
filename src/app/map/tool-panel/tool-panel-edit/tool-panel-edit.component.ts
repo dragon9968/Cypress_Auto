@@ -7,7 +7,7 @@ import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { retrievedMapEdit } from 'src/app/store/map-edit/map-edit.actions';
 import { selectDevices } from 'src/app/store/device/device.selectors';
 import { selectTemplates } from 'src/app/store/template/template.selectors';
-import { Observable, Subscription } from 'rxjs';
+import { delay, Observable, Subscription } from 'rxjs';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
@@ -171,7 +171,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, AfterViewInit 
   }
 
   ngAfterViewInit(): void {
-    this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe(
+    this.projectService.getProjectByStatusAndCategory(this.status, 'project').pipe(delay(1000)).subscribe(
       (data: any) => {
         const projectNodeIdsAdded = this.cy?.nodes().filter('[link_project_id > 0]').map((ele: any) => ele.data('link_project_id'));
         const newProjects = [...data.result];

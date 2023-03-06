@@ -349,6 +349,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         text_bg_opacity: ele.style("text-background-opacity"),
         text_valign: ele.style("text-valign"),
         text_halign: ele.style("text-halign"),
+        'line-style': ele.style("line-style"),
         arrow_scale: data?.arrow_scale
       },
     };

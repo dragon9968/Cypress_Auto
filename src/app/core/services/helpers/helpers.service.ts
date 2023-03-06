@@ -271,6 +271,12 @@ export class HelpersService implements OnDestroy{
         },
       },
       {
+        selector: "[category='link']",
+        style: {
+          "line-style": (ele: any) => ele.data('line-style')
+        },
+      },
+      {
         selector: "[arrow_scale]",
         style: {
           "arrow-scale": (ele: any) => ele.data('arrow_scale'),
