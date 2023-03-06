@@ -316,7 +316,12 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
             pk: respData.id,
             config_ids: this.configTemplateCtr?.value
           }
-          this.nodeService.associate(configData).subscribe(respData => { });
+          this.nodeService.associate(configData).subscribe(respData => {
+            this.nodeService.get(cyData.node_id).subscribe(nodeData => {
+              this.data.genData.id = cyData.id;
+              this._updateNodeOnMap(nodeData.result);
+            })
+          });
         }
         this.helpers.reloadGroupBoxes(this.data.cy);
         this.toastr.success('Node details added!');
