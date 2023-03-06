@@ -3,15 +3,17 @@
     <mat-card-title class="table__title">Devices</mat-card-title>
     <div class="table__nav">
       <div class="table__nav--actions">
-        <button mat-button mat-mini-fab color="primary" matTooltip="Add" (click)="addDevices()">
-          <mat-icon>add</mat-icon>
-        </button>
-        <button mat-button mat-mini-fab color="primary" matTooltip="Edit" (click)="updateDevice()">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteDevice()">
-          <mat-icon>delete</mat-icon>
-        </button>
+        <ng-template [ngxPermissionsOnly]="['can_write on Devices']">
+          <button mat-button mat-mini-fab color="primary" matTooltip="Add" (click)="addDevices()">
+            <mat-icon>add</mat-icon>
+          </button>
+          <button mat-button mat-mini-fab color="primary" matTooltip="Edit" (click)="updateDevice()">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteDevice()">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </ng-template>
         <button mat-button mat-mini-fab color="primary" matTooltip="Export as JSON" (click)="exportDevice()">
           <mat-icon svgIcon="export-json"></mat-icon>
         </button>
@@ -48,15 +50,17 @@
     <mat-card-title class="table__title">Templates</mat-card-title>
     <div class="table__nav">
       <div class="table__nav--actions">
-        <button mat-button mat-mini-fab color="primary" matTooltip="Add" (click)="addTemplate()">
-          <mat-icon>add</mat-icon>
-        </button>
-        <button mat-button mat-mini-fab color="primary" matTooltip="Edit" (click)="updateTemplate()">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteTemplate()">
-          <mat-icon>delete</mat-icon>
-        </button>
+        <ng-template [ngxPermissionsOnly]="['can_write on Devices']">
+          <button mat-button mat-mini-fab color="primary" matTooltip="Add" (click)="addTemplate()">
+            <mat-icon>add</mat-icon>
+          </button>
+          <button mat-button mat-mini-fab color="primary" matTooltip="Edit" (click)="updateTemplate()">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteTemplate()">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </ng-template>
         <button mat-button mat-mini-fab color="primary" matTooltip="Export as JSON" (click)="exportTemplate()">
           <mat-icon svgIcon="export-json"></mat-icon>
         </button>

@@ -4,10 +4,12 @@ import { PermissionLevels } from '../core/enums/permission-levels.enum';
 import { PageNotFoundComponent } from '../core/page-not-found/page-not-found.component';
 import { RolesComponent } from './roles/roles.component';
 import { UsersComponent } from './users/users.component';
+import { AuthGuardAdmin } from "../core/guards/auth-admin.guard";
 
 const routes: Routes = [
   {
     path: '',
+    canActivateChild: [AuthGuardAdmin],
     data: {
       permissionLevel: PermissionLevels.ADMIN,
     },

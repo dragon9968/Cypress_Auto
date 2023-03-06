@@ -1,23 +1,29 @@
 <div class="home-container">
   <mat-card class="home-content">
     <mat-card-title><span>C</span>yber <span>R</span>ange <span>O</span>rchestrator</mat-card-title>
-    <mat-card-subtitle>Create or open a project to start.</mat-card-subtitle>
-    <mat-card-content>
-      <section class="btn-areas">
-        <button mat-raised-button color="primary" [routerLink]="routeSegments.PROJECTS + '/add' "><p>Create a<br>Project</p></button>
-        <button mat-raised-button color="primary" [routerLink]="routeSegments.PROJECTS">Open a<br>Project</button>
-      </section>
-      <section class="recent-project">
-        <h3 class="recent-project__title">Recent projects</h3>
-        <ul class="recent-project__list" *ngFor="let project of recentProjects">
-          <li class="recent-project-item">
-            <h4 class="recent-project-item__title" (click)="openProject(project.id)">{{ project.name }}</h4>
-            <h5 *ngIf="project.description" class="recent-project-item__desc">Description</h5>
-            <p class="recent-project-item__subtitle">{{ project.description }}</p>
-          </li>
-        </ul>
-        <p class="no-recent-project" *ngIf="recentProjects.length === 0">You've not opened any projects!</p>
-      </section>
-    </mat-card-content>
+    <ng-template [ngxPermissionsOnly]="['can_read on Project', 'can_write on Project']">
+      <mat-card-subtitle>Create or open a project to start.</mat-card-subtitle>
+      <mat-card-content>
+        <section class="btn-areas">
+          <ng-template [ngxPermissionsOnly]="['can_write on Project']">
+            <button mat-raised-button color="primary" [routerLink]="routeSegments.PROJECTS + '/add' "><p>Create a<br>Project</p></button>
+          </ng-template>
+          <ng-template [ngxPermissionsOnly]="['can_read on Project']">
+            <button mat-raised-button color="primary" [routerLink]="routeSegments.PROJECTS">Open a<br>Project</button>
+          </ng-template>
+        </section>
+        <section class="recent-project">
+          <h3 class="recent-project__title">Recent projects</h3>
+          <ul class="recent-project__list" *ngFor="let project of recentProjects">
+            <li class="recent-project-item">
+              <h4 class="recent-project-item__title" (click)="openProject(project.id)">{{ project.name }}</h4>
+              <h5 *ngIf="project.description" class="recent-project-item__desc">Description</h5>
+              <p class="recent-project-item__subtitle">{{ project.description }}</p>
+            </li>
+          </ul>
+          <p class="no-recent-project" *ngIf="recentProjects.length === 0">You've not opened any projects!</p>
+        </section>
+      </mat-card-content>
+    </ng-template>
   </mat-card>
 </div>

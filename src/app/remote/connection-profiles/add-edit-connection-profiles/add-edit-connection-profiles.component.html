@@ -1,9 +1,11 @@
 <form [formGroup]="connectionForm" (ngSubmit)="data.mode === 'add' ? addServerConnect() : updateServerConnect()">
   <div class="dialog-title">
     <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add connection Profile' : data.mode === 'update' ? 'Edit Connection Profile' : 'Connection Detail' }}</h1>
-    <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
-      <mat-icon>edit</mat-icon>
-    </button>
+    <ng-template [ngxPermissionsOnly]="['can_write on Settings']">
+      <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </ng-template>
   </div>
   <div mat-dialog-content>
     <section>

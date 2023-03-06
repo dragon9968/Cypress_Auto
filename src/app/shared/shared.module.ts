@@ -36,6 +36,7 @@ import { DragDropModule } from "@angular/cdk/drag-drop";
 import { MatButtonToggleModule } from "@angular/material/button-toggle";
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { AngularDualListBoxModule } from 'angular-dual-listbox';
+import { NgxPermissionsModule } from "ngx-permissions";
 
 
 const materialModules = [
@@ -92,7 +93,8 @@ const materialModules = [
     NgSelectModule,
     ...materialModules,
     ConfirmationDialogComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    NgxPermissionsModule
   ],
 })
 export class SharedModule {}

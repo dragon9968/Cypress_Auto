@@ -85,7 +85,7 @@ export class RolesComponent implements OnInit {
     iconRegistry: MatIconRegistry,
     private rolesService: RolesService,
     private store: Store,
-  ) { 
+  ) {
     this.selectRole$ = this.store.select(selectRole).subscribe(roleData => {
       if (roleData) {
         if (this.gridApi) {
@@ -96,7 +96,7 @@ export class RolesComponent implements OnInit {
         this.updateRow();
       }
     })
-    
+
     iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json-info-panel.svg'));
   }
 
@@ -253,7 +253,7 @@ export class RolesComponent implements OnInit {
   }
 
   setRowHeight(params: any) {
-    const rowDefault = params.rowData.node.data.permissions.length 
+    const rowDefault = params.rowData.node.data.permissions.length
     const row = rowDefault * 42 > 42 ? rowDefault * 42 : 42
     this.gridApi!.forEachNode(function (rowNode) {
       if (rowNode.data && rowNode.data.name === params.rowData.node.data.name) {

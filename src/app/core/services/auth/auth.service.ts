@@ -14,6 +14,7 @@ import { ToastrService } from "ngx-toastr";
 import { retrievedIsConnect } from "../../../store/server-connect/server-connect.actions";
 import { retrievedVMStatus } from "../../../store/project/project.actions";
 import { Store } from "@ngrx/store";
+import { NgxPermissionsService, NgxRolesService } from "ngx-permissions";
 
 @Injectable({
   providedIn: 'root',
@@ -26,7 +27,9 @@ export class AuthService {
     private toastr: ToastrService,
     private localStorageService: LocalStorageService,
     private projectService: ProjectService,
-    private serverConnectionService: ServerConnectService
+    private serverConnectionService: ServerConnectService,
+    private ngxRolesService: NgxRolesService,
+    private ngxPermissionsService: NgxPermissionsService,
   ) {}
 
   login(username: string, password: string, option: any) {
@@ -63,6 +66,11 @@ export class AuthService {
     return accessToken != null;
   }
 
+  isAdminRole() {
+    let roles = this.ngxRolesService.getRoles();
+    return Boolean(roles['Admin']);
+  }
+
   logout() {
     const connection = this.serverConnectionService.getConnection();
     if (connection) {
@@ -79,6 +87,8 @@ export class AuthService {
         this.toastr.info(`Disconnected from ${connection.name} server!`);
       })
     }
+    this.ngxRolesService.flushRolesAndPermissions();
+    this.ngxPermissionsService.flushPermissions();
     this.localStorageService.removeItem(LocalStorageKeys.ACCESS_TOKEN);
     this.localStorageService.removeItem(LocalStorageKeys.REFRESH_TOKEN);
     this.localStorageService.removeItem(LocalStorageKeys.CONNECTION);

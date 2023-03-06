@@ -17,6 +17,7 @@ import { CMLockUnlockService } from '../../context-menu/cm-lock-unlock/cm-lock-u
 import { selectMapSelection } from 'src/app/store/map-selection/map-selection.selectors';
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
+import { ErrorMessages } from "../../../shared/enums/error-messages.enum";
 
 @Component({
   selector: 'app-tool-panel-style',
@@ -32,6 +33,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   @Input() activeEdges: any[] = [];
   @Input() activeGBs: any[] = [];
   @Input() activeMBs: any[] = [];
+  errorMessages = ErrorMessages;
   mapPrefCtr = new FormControl();
   mapPrefs!: any[];
   nodeSize = 70;

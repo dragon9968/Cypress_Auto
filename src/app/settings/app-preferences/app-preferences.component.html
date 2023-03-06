@@ -90,8 +90,10 @@
   </div>
   <div mat-dialog-actions [align]="'end'" class="create-btn">
     <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
-    <button mat-raised-button color="primary" [disabled]="!appPrefForm.valid">
-      Save
-    </button>
+    <ng-template [ngxPermissionsOnly]="['can_write on Settings']">
+      <button mat-raised-button color="primary" [disabled]="!appPrefForm.valid">
+        Save
+      </button>
+    </ng-template>
   </div>
 </form>

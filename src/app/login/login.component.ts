@@ -8,6 +8,9 @@ import { catchError, throwError } from 'rxjs';
 import { ProjectService } from "../project/services/project.service";
 import { LocalStorageService } from "../core/storage/local-storage/local-storage.service";
 import { LocalStorageKeys } from "../core/storage/local-storage/local-storage-keys.enum";
+import { RolesService } from "../core/services/roles/roles.service";
+import { Store } from "@ngrx/store";
+import { NgxPermissionsService, NgxRolesService } from "ngx-permissions";
 
 @Component({
     selector: 'app-login',
@@ -19,11 +22,15 @@ export class LoginComponent implements OnInit {
     error: string | undefined;
 
     constructor(
+        private store: Store,
         private authService: AuthService,
         private toastr: ToastrService,
         private router: Router,
+        private rolesService: RolesService,
         private projectService: ProjectService,
-        private localStorageService: LocalStorageService
+        private localStorageService: LocalStorageService,
+        private permissionsService: NgxPermissionsService,
+        private ngxRolesService: NgxRolesService
     ) {
         this.loginForm = new FormGroup({
             username: new FormControl('', Validators.required),
@@ -51,6 +58,15 @@ export class LoginComponent implements OnInit {
                 }
                 this.authService.updateAccessToken(token.access_token);
                 this.authService.updateRefreshToken(token.refresh_token);
+                this.rolesService.getRolesUser().subscribe(response => {
+                  let permissions:any[] = []
+                  response.roles.map((role: any) => {
+                    this.ngxRolesService.addRole(role.name, role.permissions)
+                    permissions.push(...role.permissions)
+                  })
+                  const permissionsUnique:any[] = [...new Set(permissions)];
+                  this.permissionsService.loadPermissions(permissionsUnique);
+                })
                 this.router.navigate([RouteSegments.ROOT]);
             });
     }

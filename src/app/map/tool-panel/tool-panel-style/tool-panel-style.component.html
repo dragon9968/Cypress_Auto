@@ -183,10 +183,12 @@
             </mat-form-field>
         </div>
         <div class="tab-field z-index">
-            <button mat-raised-button type="submit" class="z-index-btn" color="primary" matTooltip="Update"
-                [disabled]="!positionForm.valid ">
+            <ng-template [ngxPermissionsOnly]="['can_write on Project']">
+              <button mat-raised-button type="submit" class="z-index-btn" color="primary" matTooltip="Update"
+                      [disabled]="!positionForm.valid ">
                 <mat-icon>check</mat-icon>
-            </button>
+              </button>
+            </ng-template>
             <button mat-raised-button class="z-index-btn" color="primary" matTooltip="Lock" (click)="lockNodes()">
                 <mat-icon>lock</mat-icon>
             </button>

@@ -2,9 +2,11 @@
   <div class="dialog-title">
     <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add New Preferences' : data.mode === 'update' ? 'Edit Map Preferences'
       : 'Map Preference Detail' }}</h1>
-    <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
-      <mat-icon>edit</mat-icon>
-    </button>
+    <ng-template [ngxPermissionsOnly]="['can_write on Settings']">
+      <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </ng-template>
   </div>
   <div mat-dialog-content *ngIf="data.mode === 'view'">
     <mat-form-field class="field">

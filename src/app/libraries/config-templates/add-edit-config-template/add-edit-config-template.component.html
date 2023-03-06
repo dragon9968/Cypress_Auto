@@ -1,9 +1,11 @@
 <form [formGroup]="configTemplateForm" (ngSubmit)="data.mode === 'add' ? addConfigTemplate() : updateConfigTemplate()">
   <div class="dialog-title">
     <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Config Template' : data.mode === 'update' ? 'Edit Config Template' : 'Show Config Template' }}</h1>
-    <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
-      <mat-icon>edit</mat-icon>
-    </button>
+    <ng-template [ngxPermissionsOnly]="['can_write on Libraries']">
+      <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </ng-template>
   </div>
   <div mat-dialog-content>
     <mat-form-field class="field">
@@ -56,7 +58,7 @@
       <ul>
         <li *ngFor="let value of fileWallPort; let i = index">
           [Name: {{ value.name }}, State: {{value.state}}, Interface: {{ value.interface}},
-          Destination: {{value.destination}}, Destination Port: {{value.destination_port}}, 
+          Destination: {{value.destination}}, Destination Port: {{value.destination_port}},
           Target: {{value.target}}, Target Port: {{value.target_port}}]
           <button id="firewall_rule" type="button" mat-icon-button color="warn" (click)="edit(i, $event)"><mat-icon>delete</mat-icon></button>
         </li>

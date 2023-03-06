@@ -2,27 +2,31 @@
   <mat-card-title class="table__title">Connection List</mat-card-title>
   <div class="table__nav">
     <div class="table__nav--actions">
-      <button mat-button mat-mini-fab color="primary" matTooltip="Add" (click)="addConnection()">
-        <mat-icon>add</mat-icon>
-      </button>
-      <button mat-button mat-mini-fab color="primary" matTooltip="Edit" (click)="updateConnection()">
-        <mat-icon>edit</mat-icon>
-      </button>
-      <button mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteConnection()">
-        <mat-icon>delete</mat-icon>
-      </button>
-      <button mat-button mat-mini-fab color="primary" matTooltip="Export as JSON" (click)="exportJson()">
-        <mat-icon svgIcon="export-json"></mat-icon>
-      </button>
-      <button mat-button mat-mini-fab color="primary" matTooltip="Login Check" (click)="loginCheck()">
-        <mat-icon>key</mat-icon>
-      </button>
-      <button mat-button mat-mini-fab color="primary" matTooltip="Ping Test" (click)="pingTest()">
-        <mat-icon>terminal</mat-icon>
-      </button>
-      <button mat-button mat-mini-fab color="primary" matTooltip="Clear Parameters" (click)="clearParameters()">
-        <mat-icon>delete_sweep</mat-icon>
-      </button>
+      <ng-template [ngxPermissionsOnly]="['can_write on Settings']">
+        <button mat-button mat-mini-fab color="primary" matTooltip="Add" (click)="addConnection()">
+          <mat-icon>add</mat-icon>
+        </button>
+        <button mat-button mat-mini-fab color="primary" matTooltip="Edit" (click)="updateConnection()">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteConnection()">
+          <mat-icon>delete</mat-icon>
+        </button>
+        <button mat-button mat-mini-fab color="primary" matTooltip="Login Check" (click)="loginCheck()">
+          <mat-icon>key</mat-icon>
+        </button>
+        <button mat-button mat-mini-fab color="primary" matTooltip="Ping Test" (click)="pingTest()">
+          <mat-icon>terminal</mat-icon>
+        </button>
+        <button mat-button mat-mini-fab color="primary" matTooltip="Clear Parameters" (click)="clearParameters()">
+          <mat-icon>delete_sweep</mat-icon>
+        </button>
+      </ng-template>
+      <ng-template [ngxPermissionsOnly]="['can_write on Settings']">
+        <button mat-button mat-mini-fab color="primary" matTooltip="Export as JSON" (click)="exportJson()">
+          <mat-icon svgIcon="export-json"></mat-icon>
+        </button>
+      </ng-template>
     </div>
     <div class="table__nav--search">
         <input

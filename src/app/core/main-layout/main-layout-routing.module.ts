@@ -7,6 +7,7 @@ import { PermissionLevels } from 'src/app/core/enums/permission-levels.enum';
 import { PageNotFoundComponent } from '../page-not-found/page-not-found.component';
 import { RouteSegments } from '../enums/route-segments.enum';
 import { UserProfileComponent } from 'src/app/user-profile/user-profile.component';
+import { AuthGuardAdmin } from '../guards/auth-admin.guard';
 
 const routes: AppRoute[] = [
   {
@@ -43,6 +44,7 @@ const routes: AppRoute[] = [
       },
       {
         path: RouteSegments.PROJECTS_ADMINISTRATION,
+        canActivateChild: [AuthGuardAdmin],
         data: {
           permissionLevel: PermissionLevels.ADMIN,
         },

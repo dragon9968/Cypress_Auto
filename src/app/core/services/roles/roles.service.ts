@@ -51,4 +51,8 @@ export class RolesService {
   clone(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.CLONE_ROLES, data);
   }
+
+  getRolesUser(): Observable<any> {
+    return this.http.get<any>(ApiPaths.ROLES_USER);
+  }
 }

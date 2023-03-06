@@ -2,18 +2,20 @@
   <mat-card-title class="table__title">List Users</mat-card-title>
   <div class="table__nav">
     <div class="table__nav--actions">
-      <button mat-mini-fab color="primary" matTooltip="Add" (click)="addUser()">
-        <mat-icon>add</mat-icon>
-      </button>
-      <button mat-mini-fab color="primary" matTooltip="Edit" (click)="editUser()">
-        <mat-icon>edit</mat-icon>
-      </button>
-      <button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteUser()">
-        <mat-icon>delete</mat-icon>
-      </button>
-      <button mat-mini-fab color="primary" matTooltip="Reset Password" (click)="resetPassword()">
-        <mat-icon>lock</mat-icon>
-      </button>
+      <ng-template [ngxPermissionsOnly]="['can_write on Security']">
+        <button mat-mini-fab color="primary" matTooltip="Add" (click)="addUser()">
+          <mat-icon>add</mat-icon>
+        </button>
+        <button mat-mini-fab color="primary" matTooltip="Edit" (click)="editUser()">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteUser()">
+          <mat-icon>delete</mat-icon>
+        </button>
+        <button mat-mini-fab color="primary" matTooltip="Reset Password" (click)="resetPassword()">
+          <mat-icon>lock</mat-icon>
+        </button>
+      </ng-template>
     </div>
     <div class="table__nav--search">
       <input
