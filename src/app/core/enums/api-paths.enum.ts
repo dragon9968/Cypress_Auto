@@ -113,5 +113,5 @@ export enum ApiPaths {
   USER_GUIDE = '/api/v1/guide/',
   USER_GUIDE_UPLOAD = '/api/v1/guide/upload',
   USER_GUIDE_DOWNLOAD = '/api/v1/guide/download_file',
-  LDAP_CONFIG = '/api/v1/ldap/'
+  LDAP_CONFIG = '/api/v1/admin/ldap'
 }

@@ -40,6 +40,7 @@ import { retrievedUserProfile } from 'src/app/store/user-profile/user-profile.ac
 import { CloneProjectDialogComponent } from 'src/app/project/clone-project-dialog/clone-project-dialog.component';
 import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
 import { LDAPConfigurationComponent } from 'src/app/administration/ldap-configuration/ldap-configuration.component';
+import { LdapConfigService } from '../../services/ldap-config/ldap-config.service';
 
 @Component({
   selector: 'app-nav-bar',
@@ -82,7 +83,8 @@ export class NavBarComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private serverConnectionService: ServerConnectService,
     private serverConnectService: ServerConnectService,
-    public breakpointObserver: BreakpointObserver
+    public breakpointObserver: BreakpointObserver,
+    private ldapConfigService: LdapConfigService,
   ) {
     this.selectIsMapOpen$ = this.store.select(selectIsMapOpen).subscribe((isMapOpen: boolean) => {
       this.isMapOpen = isMapOpen;
@@ -350,6 +352,11 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   openAdminConfig() {
-    this.dialog.open(LDAPConfigurationComponent, { width: '600px', autoFocus: false });
+    this.ldapConfigService.getAll().subscribe(data => {
+      const dialogData = {
+        genData: data.result
+      }
+      this.dialog.open(LDAPConfigurationComponent, { width: '600px', autoFocus: false, data: dialogData });
+    })
   }
 }

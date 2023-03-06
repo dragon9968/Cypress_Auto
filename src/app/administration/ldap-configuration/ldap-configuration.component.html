@@ -28,7 +28,7 @@
       </div>
       <mat-form-field class="field">
         <mat-label>Session lifetime in seconds</mat-label>
-        <input type="text" formControlName="permanentSessionLifetimeCtr" matInput>
+        <input type="number" formControlName="permanentSessionLifetimeCtr" (keypress)="numericOnly($event)" matInput>
       </mat-form-field>
       <mat-form-field class="field">
         <mat-label>User Registration Role</mat-label>

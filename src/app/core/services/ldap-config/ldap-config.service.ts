@@ -17,6 +17,6 @@ export class LdapConfigService {
   }
 
   updateConfig(data: any): Observable<any> {
-    return this.http.post<any>(ApiPaths.LDAP_CONFIG, data);
+    return this.http.put<any>(ApiPaths.LDAP_CONFIG, data);
   }
 }

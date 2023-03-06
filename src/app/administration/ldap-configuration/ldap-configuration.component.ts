@@ -39,6 +39,26 @@ export class LDAPConfigurationComponent implements OnInit {
       ldapDefaultUserGroupCtr: new FormControl(''),
       ldapDefaultAdminGroupCtr: new FormControl(''),
     })
+    if (this.data) {
+      this.authLdapServerCtr?.setValue(this.data.genData.auth_ldap_server)
+      this.authLdapUseTlsCtr?.setValue(this.data.genData.auth_ldap_use_tls)
+      this.authLdapAllowSelfSignedCtr?.setValue(this.data.genData.auth_ldap_allow_self_signed)
+      // this.authLdapTlsCacertfileCtr?.setValue(this.data.genData.auth_ldap_tls_cacertfile)
+      this.authUserRegistrationCtr?.setValue(this.data.genData.auth_user_registration)
+      this.permanentSessionLifetimeCtr?.setValue(this.data.genData.permanent_session_lifetime)
+      this.authUserRegistrationRoleCtr?.setValue(this.data.genData.auth_user_registration_role)
+      this.authLdapFirstnameFieldCtr?.setValue(this.data.genData.auth_ldap_firstname_field)
+      this.authLdapLastnameFieldCtr?.setValue(this.data.genData.auth_ldap_lastname_field)
+      this.authLdapEmailFieldCtr?.setValue(this.data.genData.auth_ldap_email_field)
+      this.authLdapSearchCtr?.setValue(this.data.genData.auth_ldap_search)
+      this.authLdapGroupFieldCtr?.setValue(this.data.genData.auth_ldap_group_field)
+      this.authLdapUidFieldCtr?.setValue(this.data.genData.auth_ldap_uid_field)
+      this.authLdapBindUserCtr?.setValue(this.data.genData.auth_ldap_bind_user)
+      this.ldapBaseDnCtr?.setValue(this.data.genData.ldap_base_dn)
+      this.ldapDefaultUserGroupCtr?.setValue(this.data.genData.ldap_default_user_group)
+      this.ldapDefaultAdminGroupCtr?.setValue(this.data.genData.ldap_default_admin_group)
+
+    }
    }
 
   get authLdapServerCtr() { return this.configForm.get('authLdapServerCtr'); }
@@ -77,9 +97,9 @@ export class LDAPConfigurationComponent implements OnInit {
         auth_ldap_server: this.authLdapServerCtr?.value,
         auth_ldap_use_tls: this.authLdapUseTlsCtr?.value,
         auth_ldap_allow_self_signed: this.authLdapAllowSelfSignedCtr?.value,
-        auth_ldap_tls_cacertfile: this.authLdapTlsCacertfileCtr?.value,
+        // auth_ldap_tls_cacertfile: this.authLdapTlsCacertfileCtr?.value,
         auth_user_registration: this.authUserRegistrationCtr?.value,
-        permanent_session_lifetime: this.permanentSessionLifetimeCtr?.value,
+        permanent_session_lifetime: this.permanentSessionLifetimeCtr?.value ? this.permanentSessionLifetimeCtr?.value : 1800,
         auth_user_registration_role: this.authUserRegistrationRoleCtr?.value,
         auth_ldap_firstname_field: this.authLdapFirstnameFieldCtr?.value,
         auth_ldap_lastname_field: this.authLdapLastnameFieldCtr?.value,
@@ -104,6 +124,12 @@ export class LDAPConfigurationComponent implements OnInit {
       })
     }
   }
-  
 
+  numericOnly(event: any): boolean {
+    const charCode = (event.which) ? event.which : event.keyCode;
+    if (charCode == 101 || charCode == 69 || charCode == 45 || charCode == 43) {
+      return false;
+    }
+    return true;
+  }
 }
