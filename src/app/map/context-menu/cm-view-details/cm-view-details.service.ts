@@ -53,7 +53,9 @@ export class CMViewDetailsService {
           genData: activeNodes[0].data(),
           cy
         }
-        this.dialog.open(AddUpdateNodeDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+        this.dialog.open(AddUpdateNodeDialogComponent,
+          { width: '1000px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal'}
+        );
       } else {
         const dialogData = {
           mode: 'view',

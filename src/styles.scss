@@ -18,7 +18,7 @@
        url('/assets/fonts/roboto-v30-latin-regular.woff2') format('woff2'),
        url('/assets/fonts/roboto-v30-latin-regular.woff') format('woff'),
        url('/assets/fonts/roboto-v30-latin-regular.ttf') format('truetype'),
-       url('/assets/fonts/roboto-v30-latin-regular.svg#Roboto') format('svg'); 
+       url('/assets/fonts/roboto-v30-latin-regular.svg#Roboto') format('svg');
 }
 $tool-panel-width: 300px;
 $margin: 8px;
@@ -210,5 +210,12 @@ ag-grid-angular .ag-cell-focus,
 @media only screen and (max-width: 1500px) {
   .cy-panzoom {
     padding-top: 175px;
+  }
+}
+
+/* Define class for the node form modal */
+.custom-node-form-modal {
+  mat-dialog-container {
+    background-color: #eaeaea;
   }
 }

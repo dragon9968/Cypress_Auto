@@ -2,13 +2,11 @@ $margin: 8px;
 
 .field {
     width: 100%;
-    align-items: center;
 }
 
 .category {
     width: 100%;
     align-items: center;
-    margin: $margin 0 12px 0;;
     display: flex;
 }
 
@@ -46,4 +44,47 @@ $margin: 8px;
 
 .mat-option {
     height: 60px;
+}
+
+.node {
+  display: flex;
+  &__left {
+    width: 50%;
+    margin-right: $margin;
+    background-color: #fff;
+    border-radius: calc($margin/2);
+    &__detail {
+      &--top {
+        padding: $margin;
+      }
+      &--bottom {
+        display: flex;
+        justify-content: space-between;
+        &__left, &__right {
+          width: 45%;
+          padding: $margin;
+        }
+      }
+    }
+  }
+  &__right {
+    width: 50%;
+    position: relative;
+    &__configuration {
+      background-color: #fff;
+      padding: 2px 8px 4px 8px;
+      border-radius: 4px;
+    }
+    &__interfaces {
+      width: 100%;
+      position: absolute;
+      bottom: 0;
+      &__table ag-grid-angular {
+        text-align: center;
+        .ag-header-cell-label {
+          justify-content: center;
+        }
+      }
+    }
+  }
 }

@@ -10,7 +10,7 @@ import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { ToastrService } from 'ngx-toastr';
 import { NodeService } from 'src/app/core/services/node/node.service';
 import { Store } from '@ngrx/store';
-import { catchError, Observable, Subscription, throwError } from 'rxjs';
+import { catchError, Observable, of, Subscription, throwError } from 'rxjs';
 import { selectIcons } from '../../store/icon/icon.selectors';
 import { selectDevices } from '../../store/device/device.selectors';
 import { selectTemplates } from '../../store/template/template.selectors';
@@ -24,6 +24,8 @@ import { selectNodesByCollectionId } from 'src/app/store/node/node.selectors';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 import { hostnameValidator } from 'src/app/shared/validations/hostname.validation';
 import { ErrorStateMatcher } from '@angular/material/core';
+import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
+import { InterfaceService } from "../../core/services/interface/interface.service";
 
 class CrossFieldErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -41,6 +43,7 @@ class CrossFieldErrorMatcher implements ErrorStateMatcher {
   styleUrls: ['./add-update-node-dialog.component.scss']
 })
 export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
+  private gridApi!: GridApi;
   nodeAddForm: FormGroup;
   errorMatcher = new CrossFieldErrorMatcher();
   ROLES = ROLES;
@@ -72,6 +75,47 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   filteredRoles!: Observable<any[]>;
   filteredConfigTemplates!: Observable<any[]>;
   filteredLoginProfiles!: Observable<any[]>;
+  rowData$!: Observable<any[]>;
+  public gridOptions: GridOptions = {
+    headerHeight: 48,
+    defaultColDef: {
+      sortable: true,
+      resizable: true,
+      singleClickEdit: true,
+      filter: true
+    },
+    rowSelection: 'multiple',
+    suppressRowDeselection: true,
+    suppressCellFocus: true,
+    enableCellTextSelection: true,
+    pagination: true,
+    paginationPageSize: 25,
+    suppressRowClickSelection: true,
+    animateRows: true,
+    rowData: [],
+    columnDefs: [
+      {
+        field: 'id',
+        hide: true
+      },
+      {
+        field: 'name',
+        headerName: 'Interface Name',
+        minWidth: 145,
+        flex: 1,
+      },
+      {
+        field: 'ip',
+        headerName: 'IP Address',
+        minWidth: 160,
+        flex: 1,
+      },
+      {
+        field: 'description',
+        flex: 1,
+      }
+    ]
+  };
 
   constructor(
     private nodeService: NodeService,
@@ -80,7 +124,9 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: any,
     public helpers: HelpersService,
     private store: Store,
+    private interfaceService: InterfaceService
   ) {
+    this.isViewMode = this.data.mode == 'view';
     this.nodeAddForm = new FormGroup({
       nameCtr: new FormControl('', [
         Validators.required,
@@ -137,7 +183,14 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
       this.filteredLoginProfiles = this.helpers.filterOptions(this.loginProfileCtr, this.loginProfiles);
     });
     this.selectNodes$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => this.nodes = nodes);
-    this.isViewMode = this.data.mode == 'view';
+    this.interfaceService.getByNode(this.data.genData.node_id).subscribe(response => {
+      const interfaceData = response.result;
+      if (this.gridApi) {
+        this.gridApi.setRowData(interfaceData);
+      } else {
+        this.rowData$ = of(interfaceData);
+      }
+    })
   }
 
   get nameCtr() { return this.nodeAddForm.get('nameCtr'); }
@@ -377,7 +430,13 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   }
 
   changeViewToEdit() {
+    this.configTemplateCtr?.enable();
+    this.categoryCtr?.enable();
     this.data.mode = 'update';
     this.isViewMode = false;
+  }
+
+  onGridReady(params: GridReadyEvent) {
+    this.gridApi = params.api;
   }
 }
