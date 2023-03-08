@@ -46,6 +46,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, AfterViewInit 
   status = 'active';
   category = 'template';
   nodeAddForm!: FormGroup;
+  mapImageForm!: FormGroup;
   addTemplateForm: FormGroup;
   linkProjectForm!: FormGroup;
   isCustomizePG = true;
@@ -84,9 +85,11 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, AfterViewInit 
     this.nodeAddForm = new FormGroup({
       deviceCtr: new FormControl(''),
       templateCtr: new FormControl(''),
-      mapImageCtr: new FormControl(''),
       isCustomizeNodeCtr: new FormControl(true)
     });
+    this.mapImageForm = new FormGroup({
+      mapImageCtr: new FormControl(''),
+    })
     this.addTemplateForm = new FormGroup({
       projectTemplateCtr: new FormControl(''),
       isLayoutOnlyCtr: new FormControl(''),
@@ -155,7 +158,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, AfterViewInit 
 
   get deviceCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('deviceCtr'), this.devices); }
   get templateCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('templateCtr'), this.templates); }
-  get mapImageCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('mapImageCtr'), this.mapImages); }
+  get mapImageCtr() { return this.helpers.getAutoCompleteCtr(this.mapImageForm.get('mapImageCtr'), this.mapImages); }
   get isCustomizeNodeCtr() { return this.nodeAddForm.get('isCustomizeNodeCtr'); }
   get projectTemplateCtr() {
     return this.helpers.getAutoCompleteCtr(this.addTemplateForm.get('projectTemplateCtr'), this.projectTemplates);
