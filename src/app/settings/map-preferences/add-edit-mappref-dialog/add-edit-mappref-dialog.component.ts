@@ -303,7 +303,9 @@ export class AddEditMapprefDialogComponent {
     this.TextBG = this.data.genData.text_bg_color;
     this.textBgOpacityCtr?.setValue(this.data.genData.text_bg_opacity);
     this.zoomSpeedCtr?.setValue(this.data.genData.zoom_speed);
-    this.defaultIconCtr?.setValue(icon[0]);
+    if (icon.length > 0) {
+      this.defaultIconCtr?.setValue(icon[0]);
+    }
     this.edgeArrowDirectionCtr?.setValue(this.data.genData.edge_arrow_direction);
     this.edgeArrowSizeCtr?.setValue(this.data.genData.edge_arrow_size);
     this.mapGridCtr?.setValue(this.data.genData.grid_enabled);

@@ -17,6 +17,9 @@ import { selectMapPrefs } from 'src/app/store/map-pref/map-pref.selectors';
 import { AddEditMapprefDialogComponent } from './add-edit-mappref-dialog/add-edit-mappref-dialog.component';
 import { ConfirmationDialogComponent } from "../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { catchError } from "rxjs/operators";
+import { NgxPermissionsService } from "ngx-permissions";
+import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-map-preferences',
@@ -123,7 +126,9 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
     iconRegistry: MatIconRegistry,
     private toastr: ToastrService,
     private helpers: HelpersService,
-    private iconService: IconService
+    private iconService: IconService,
+    private router: Router,
+    private ngxPermissionsService: NgxPermissionsService,
   ) {
     this.selectMapPrefs$ = this.store.select(selectMapPrefs).subscribe((data: any) => {
       if (data) {
@@ -148,6 +153,24 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    let permissions = this.ngxPermissionsService.getPermissions();
+
+    let isCanReadLibraries = false
+    let isCanReadSettings = false
+
+    for (let p in permissions) {
+      if (p === "can_read on Settings") {
+        isCanReadSettings = true
+      }
+      if (p === "can_read on Libraries") {
+        isCanReadLibraries = true
+      }
+    }
+    if (!isCanReadLibraries || !isCanReadSettings) {
+      console.log('You are not authorized to view this page !')
+      this.toastr.warning('Not authorized!', 'Warning');
+      this.router.navigate([RouteSegments.ROOT]);
+    }
     this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPrefs({data: data.result})));
     this.iconService.getAll().subscribe((data: any) => this.store.dispatch(retrievedIcons({data: data.result})));
   }
