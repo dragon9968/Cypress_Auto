@@ -70,6 +70,7 @@ import { retrievedNodes } from "../store/node/node.actions";
 import { retrievedGroups } from "../store/group/group.actions";
 import { ValidateProjectDialogComponent } from "../project/validate-project-dialog/validate-project-dialog.component";
 import { selectProjects } from "../store/project/project.selectors";
+import { NgxPermissionsService } from "ngx-permissions";
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -106,6 +107,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   isAddPublicPG = false;
   isAddPrivatePG = false;
   isTemplateCategory = false;
+  isCanWriteOnProject = false;
   mapCategory = '';
   collectionId = '0';
   nodes: any;
@@ -204,6 +206,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     private infoPanelService: InfoPanelService,
     private mapImageService: MapImageService,
     private contextMenuService: ContextMenuService,
+    private ngxPermissionsService: NgxPermissionsService,
   ) {
     navigator(cytoscape);
     gridGuide(cytoscape);
@@ -292,6 +295,14 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
+    let permissions = this.ngxPermissionsService.getPermissions();
+    for (let p in permissions) {
+      if (p === "can_write on Project") {
+        this.isCanWriteOnProject = true
+        break
+      }
+    }
+
     this.selectMapFeatureSubject.pipe(delay(1)).subscribe((map: MapState) => {
       if (map.mapProperties && map.defaultPreferences) {
         this.nodes = map.nodes;
@@ -901,23 +912,23 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       menuItems: [
         this.cmGroupBoxService.getMoveToFrontMenu(),
         this.cmGroupBoxService.getMoveToBackMenu(),
-        this.cmInterfaceService.getNodeInterfaceMenu(this.queueEdge.bind(this), this.cy, this.activeNodes),
+        this.cmInterfaceService.getNodeInterfaceMenu(this.queueEdge.bind(this), this.cy, this.activeNodes, this.isCanWriteOnProject),
         this.cmInterfaceService.getLinkProjectMenu(this.queueEdge.bind(this), this.cy, this.activeNodes),
         this.cmInterfaceService.getPortGroupInterfaceMenu(this.queueEdge.bind(this)),
         this.cmAddService.getEdgeAddMenu(),
-        this.cmActionsService.getNodeActionsMenu(this.cy, this.activeNodes),
+        this.cmActionsService.getNodeActionsMenu(this.cy, this.activeNodes, this.isCanWriteOnProject),
         this.cmActionsService.getPortGroupActionsMenu(this.cy, this.collectionId, this.activePGs),
         this.cmActionsService.getEdgeActionsMenu(this.cy, this.activeEdges),
         this.cmRemoteService.getNodeRemoteMenu(this.activeNodes),
         this.cmRemoteService.getPortGroupRemoteMenu(this.activePGs),
         this.cmViewDetailsService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges),
-        this.cmEditService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges),
-        this.cmDeleteService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs),
+        this.cmEditService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.isCanWriteOnProject),
+        this.cmDeleteService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs, this.isCanWriteOnProject),
         this.cmLockUnlockService.getLockMenu(this.cy, this.activeNodes, this.activePGs, this.activeMBs),
         this.cmLockUnlockService.getUnlockMenu(this.activeNodes, this.activePGs, this.activeMBs),
         this.cmGroupBoxService.getCollapseMenu(this.cy, this.activeGBs),
         this.cmGroupBoxService.getExpandMenu(this.cy, this.activeGBs),
-        this.cmMapService.getSaveChangesMenu(),
+        this.cmMapService.getSaveChangesMenu(this.isCanWriteOnProject),
         this.cmMapService.getUndoMenu(),
         this.cmMapService.getRedoMenu(),
         this.cmMapService.getDownloadMenu(),

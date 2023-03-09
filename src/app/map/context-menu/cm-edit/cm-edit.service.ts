@@ -20,7 +20,7 @@ export class CMEditService {
   ) {
   }
 
-  getMenu(cy: any, activeNodes: any, activePGs: any, activeEdges: any) {
+  getMenu(cy: any, activeNodes: any, activePGs: any, activeEdges: any, isCanWriteOnProject: boolean) {
     return {
       id: "edit",
       content: "Edit",
@@ -29,7 +29,7 @@ export class CMEditService {
         this.openEditForm(cy, activeNodes, activePGs, activeEdges);
       },
       hasTrailingDivider: false,
-      disabled: false,
+      disabled: !isCanWriteOnProject,
     }
   }
 

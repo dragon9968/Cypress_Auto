@@ -36,9 +36,11 @@
     <mat-tab label="Group">
       <app-info-panel-group [activeNodes]="activeNodes" [activePGs]="activePGs" [activeEdges]="activeEdges" [infoPanelheight]="style.height"></app-info-panel-group>
     </mat-tab>
-    <mat-tab label="Task List">
-      <app-info-panel-task [infoPanelheight]="style.height"></app-info-panel-task>
-    </mat-tab>
+    <ng-template [ngxPermissionsOnly]="['can_read on Tasks']">
+      <mat-tab label="Task List">
+        <app-info-panel-task [infoPanelheight]="style.height"></app-info-panel-task>
+      </mat-tab>
+    </ng-template>
   </mat-tab-group>
   <div class="resize-handle-top" mwlResizeHandle [resizeEdges]="{ top: true }"></div>
 </div>

@@ -81,19 +81,19 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
   get subnetCtr() { return this.pgAddForm.get('subnetCtr'); }
 
   ngOnInit(): void {
-    let permissions = this.ngxPermissionsService.getPermissions();
-    let isCanWriteProject = false
-    for (let p in permissions) {
-      if (p === "can_write on Project") {
-        isCanWriteProject = true
-      }
-    }
+    // let permissions = this.ngxPermissionsService.getPermissions();
+    // let isCanWriteProject = false
+    // for (let p in permissions) {
+    //   if (p === "can_write on Project") {
+    //     isCanWriteProject = true
+    //   }
+    // }
 
-    if (!isCanWriteProject) {
-      console.log('You are not authorized to view this page !')
-      this.toastr.warning('Not authorized!', 'Warning');
-      this.onCancel()
-    }
+    // if (!isCanWriteProject) {
+    //   console.log('You are not authorized to view this page !')
+    //   this.toastr.warning('Not authorized!', 'Warning');
+    //   this.onCancel()
+    // }
     this.nameCtr?.setValue(this.data.genData.name);
     this.vlanCtr?.setValue(this.data.genData.vlan);
     this.categoryCtr?.setValue(this.data.genData.category);

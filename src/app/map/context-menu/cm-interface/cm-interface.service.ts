@@ -24,7 +24,7 @@ export class CMInterfaceService {
     private portGroupService: PortGroupService
   ) { }
 
-  getNodeInterfaceMenu(queueEdge: Function, cy: any, activeNodes: any[]) {
+  getNodeInterfaceMenu(queueEdge: Function, cy: any, activeNodes: any[], isCanWriteOnProject: boolean) {
     const addInterface = {
       id: "add_new_interface",
       content: "New",
@@ -32,14 +32,14 @@ export class CMInterfaceService {
         queueEdge(event.target, event.position, "wired");
       },
       hasTrailingDivider: true,
-      disabled: false,
+      disabled: !isCanWriteOnProject,
     }
 
     const connectInterfaceToPortGroup = {
       id: "connect_interface_port_group",
       content: "Connect",
       hasTrailingDivider: true,
-      disabled: false,
+      disabled: !isCanWriteOnProject,
       onClickFunction: (event: any) => {
         const nodeId = activeNodes[0].data('node_id');
         const dialogData = {
@@ -60,7 +60,7 @@ export class CMInterfaceService {
       id: "disconnect_interface_port_group",
       content: "Disconnect",
       hasTrailingDivider: true,
-      disabled: false,
+      disabled: !isCanWriteOnProject,
       onClickFunction: (event: any) => {
         const nodeId = activeNodes[0].data('node_id');
         const dialogData = {

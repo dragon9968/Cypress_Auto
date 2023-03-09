@@ -28,7 +28,7 @@ export class CMActionsService {
     private infoPanelService: InfoPanelService
   ) { }
 
-  getNodeActionsMenu(cy: any, activeNodes: any[]) {
+  getNodeActionsMenu(cy: any, activeNodes: any[], isCanWriteOnProject: boolean) {
     return {
       id: "node_actions",
       content: "Actions",
@@ -48,7 +48,7 @@ export class CMActionsService {
             }
           },
           hasTrailingDivider: true,
-          disabled: false,
+          disabled: !isCanWriteOnProject,
         },
         {
           id: "validate_node",

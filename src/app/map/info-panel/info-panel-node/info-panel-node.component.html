@@ -1,13 +1,26 @@
 <div class="btn-actions-group">
-  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Clone" (click)="cloneNodes()">
-    <mat-icon>file_copy</mat-icon>
-  </button>
-  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteNodes()">
-    <mat-icon>delete_forever</mat-icon>
-  </button>
-  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Edit" (click)="editNodes()">
-    <mat-icon>edit</mat-icon>
-  </button>
+  <ng-template [ngxPermissionsOnly]="['can_write on Project']" [ngxPermissionsElse]="elseBlock">
+    <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Clone" (click)="cloneNodes()">
+      <mat-icon>file_copy</mat-icon>
+    </button>
+    <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteNodes()">
+      <mat-icon>delete_forever</mat-icon>
+    </button>
+    <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Edit" (click)="editNodes()">
+      <mat-icon>edit</mat-icon>
+    </button>
+  </ng-template>
+  <ng-template #elseBlock>
+    <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Clone" (click)="cloneNodes()" disabled="true">
+      <mat-icon>file_copy</mat-icon>
+    </button>
+    <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteNodes()" disabled="true">
+      <mat-icon>delete_forever</mat-icon>
+    </button>
+    <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Edit" (click)="editNodes()" disabled="true">
+      <mat-icon>edit</mat-icon>
+    </button>
+  </ng-template>
   <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Export as CSV" (click)="exportNodes('csv')">
     <mat-icon svgIcon="export-csv"></mat-icon>
   </button>

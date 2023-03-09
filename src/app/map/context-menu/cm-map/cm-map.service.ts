@@ -13,7 +13,7 @@ export class CMMapService {
     private helpersService: HelpersService,
   ) { }
 
-  getSaveChangesMenu() {
+  getSaveChangesMenu(isCanWriteOnProject: boolean) {
     return {
       id: "save_changes",
       content: "Save Changes",
@@ -22,7 +22,7 @@ export class CMMapService {
         this.store.dispatch(retrievedMapContextMenu({ data: { event: 'save' } }));
       },
       hasTrailingDivider: false,
-      disabled: false,
+      disabled: !isCanWriteOnProject,
     }
   }
 

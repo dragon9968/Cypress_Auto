@@ -8,9 +8,16 @@
         : data.mode === 'connect' ? 'Connecting Interface to Port Group'
         : 'Edge Info'
       }}</h1>
-      <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
-        <mat-icon>edit</mat-icon>
-      </button>
+      <ng-template [ngxPermissionsOnly]="['can_write on Project']" [ngxPermissionsElse]="elseBlock">
+        <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+          <mat-icon>edit</mat-icon>
+        </button>
+      </ng-template>
+      <ng-template #elseBlock>
+        <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()" disabled="true">
+          <mat-icon>edit</mat-icon>
+        </button>
+      </ng-template>
   </div>
   <div mat-dialog-content>
     <mat-form-field class="field">

@@ -1,13 +1,34 @@
 <div class="btn-actions-group">
- <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="delete()">
-    <mat-icon>delete_forever</mat-icon>
-  </button>
- <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Rerun" (click)="rerun()">
-    <mat-icon>replay</mat-icon>
-  </button>
- <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Revoke" (click)="revoke()">
-    <mat-icon>cancel</mat-icon>
-  </button>
+  <ng-template [ngxPermissionsOnly]="['can_write on Tasks']" [ngxPermissionsElse]="elseBlockDelete">
+    <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="delete()">
+      <mat-icon>delete_forever</mat-icon>
+    </button>
+  </ng-template>
+  <ng-template #elseBlockDelete>
+    <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="delete()" disabled="true">
+      <mat-icon>delete_forever</mat-icon>
+    </button>
+  </ng-template>
+  <ng-template [ngxPermissionsOnly]="['can_read on Tasks']" [ngxPermissionsElse]="elseBlockRerun">
+    <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Rerun" (click)="rerun()">
+      <mat-icon>replay</mat-icon>
+    </button>
+  </ng-template>
+  <ng-template #elseBlockRerun>
+    <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Rerun" (click)="rerun()" disabled="true">
+      <mat-icon>replay</mat-icon>
+    </button>
+  </ng-template>
+  <ng-template [ngxPermissionsOnly]="['can_read on Tasks']" [ngxPermissionsElse]="elseBlockRevoke">
+    <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Revoke" (click)="revoke()">
+      <mat-icon>cancel</mat-icon>
+    </button>
+  </ng-template>
+  <ng-template #elseBlockRevoke>
+    <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Revoke" (click)="revoke()" disabled="true">
+      <mat-icon>cancel</mat-icon>
+    </button>
+  </ng-template>
   <button mat-button mat-mini-fab class="btn-refresh" color="primary" matTooltip="Refresh table" (click)="refreshTask()">
     <mat-icon>autorenew</mat-icon>
   </button>

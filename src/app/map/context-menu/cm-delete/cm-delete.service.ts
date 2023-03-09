@@ -23,7 +23,7 @@ export class CMDeleteService {
     });
   }
 
-  getMenu(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[]) {
+  getMenu(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], isCanWriteOnProject: boolean) {
     return {
       id: "delete",
       content: "Delete",
@@ -32,7 +32,7 @@ export class CMDeleteService {
         this.commonService.delete(cy, activeNodes, activePGs, activeEdges, activeGBs);
       },
       hasTrailingDivider: true,
-      disabled: false,
+      disabled: !isCanWriteOnProject,
     }
   }
 }

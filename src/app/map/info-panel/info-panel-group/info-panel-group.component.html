@@ -1,13 +1,26 @@
 <div class="btn-actions-group">
-  <button mat-button mat-mini-fab class="btn-action-item" color="primary" matTooltip="Add new group" (click)="addGroup()">
-    <mat-icon>add</mat-icon>
-  </button>
-  <button mat-button mat-mini-fab class="btn-action-item" color="primary" matTooltip="Edit" (click)="editGroup()">
-    <mat-icon>edit</mat-icon>
-  </button>
-  <button mat-button mat-mini-fab class="btn-action-item" color="primary" matTooltip="Delete" (click)="deleteGroup()">
-    <mat-icon>delete</mat-icon>
-  </button>
+  <ng-template [ngxPermissionsOnly]="['can_write on Project']" [ngxPermissionsElse]="elseBlock">
+    <button mat-button mat-mini-fab class="btn-action-item" color="primary" matTooltip="Add new group" (click)="addGroup()">
+      <mat-icon>add</mat-icon>
+    </button>
+    <button mat-button mat-mini-fab class="btn-action-item" color="primary" matTooltip="Edit" (click)="editGroup()">
+      <mat-icon>edit</mat-icon>
+    </button>
+    <button mat-button mat-mini-fab class="btn-action-item" color="primary" matTooltip="Delete" (click)="deleteGroup()">
+      <mat-icon>delete</mat-icon>
+    </button>
+  </ng-template>
+  <ng-template #elseBlock>
+    <button mat-button mat-mini-fab class="btn-action-item" color="primary" matTooltip="Add new group" (click)="addGroup()" disabled="true">
+      <mat-icon>add</mat-icon>
+    </button>
+    <button mat-button mat-mini-fab class="btn-action-item" color="primary" matTooltip="Edit" (click)="editGroup()" disabled="true">
+      <mat-icon>edit</mat-icon>
+    </button>
+    <button mat-button mat-mini-fab class="btn-action-item" color="primary" matTooltip="Delete" (click)="deleteGroup()" disabled="true">
+      <mat-icon>delete</mat-icon>
+    </button>
+  </ng-template>
 </div>
 
 <div class="ag-theme-alpine info-panel-group" [style.height]="gridHeight">

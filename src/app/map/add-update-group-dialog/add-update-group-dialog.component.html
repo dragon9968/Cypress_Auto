@@ -1,9 +1,16 @@
 <form [formGroup]="groupAddForm" (ngSubmit)="data.mode === 'add' ? addGroup() : updateGroup()">
   <div class="dialog-title">
     <h1 mat-dialog-title>{{data.mode === 'add' ? 'Add New Group' : data.mode === 'update' ? 'Group Edit' : 'Group Info'}}</h1>
-    <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
-      <mat-icon>edit</mat-icon>
-    </button>
+    <ng-template [ngxPermissionsOnly]="['can_write on Project']" [ngxPermissionsElse]="elseBlock">
+      <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </ng-template>
+    <ng-template #elseBlock>
+      <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()" disabled="true">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </ng-template>
   </div>
   <div mat-dialog-content>
     <mat-form-field class="field">
@@ -55,7 +62,7 @@
       [readonly]="isViewMode"
       >
     </ng-select>
-<!-- 
+<!--
     <mat-form-field *ngIf="isViewMode && data.mode !== 'add'" class="field">
       <mat-label>Port Groups</mat-label>
       <input matInput formControlName="portGroupsCtr" [readonly]="isViewMode">
