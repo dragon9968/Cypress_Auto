@@ -178,7 +178,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, AfterViewInit 
       (data: any) => {
         const projectNodeIdsAdded = this.cy?.nodes().filter('[link_project_id > 0]').map((ele: any) => ele.data('link_project_id'));
         const newProjects = [...data.result];
-        projectNodeIdsAdded.map((projectId: any) => {
+        projectNodeIdsAdded?.map((projectId: any) => {
           const index = newProjects.findIndex(ele => ele.id === projectId);
           newProjects.splice(index, 1);
         })

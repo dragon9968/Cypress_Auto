@@ -4,7 +4,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { ProjectService } from "../project/services/project.service";
 import { selectProjects, selectRecentProjects } from "../store/project/project.selectors";
-import { retrievedProjects, retrievedRecentProjects } from "../store/project/project.actions";
+import { retrievedProjectName, retrievedProjects, retrievedRecentProjects } from "../store/project/project.actions";
 import { AuthService } from "../core/services/auth/auth.service";
 import { HelpersService } from "../core/services/helpers/helpers.service";
 import { ToastrService } from "ngx-toastr";
@@ -67,11 +67,12 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   openProject(projectId: any) {
     const listProjectId = this.listProject.map(val => val.id)
+    const project = this.recentProjects.filter(val => val.id === projectId);
+    const projectName = project.map(el => el.name)
     if (listProjectId.includes(projectId)) {
       this.projectService.openProject(projectId);
+      this.store.dispatch(retrievedProjectName({ projectName: projectName }));
     } else {
-      const project = this.recentProjects.filter(val => val.id === projectId);
-      const projectName = project.map(el => el.name)
       this.toastr.warning(`The user is not the owner of project ${projectName}. Cannot open the project ${projectName}`)
       this.router.navigate([RouteSegments.PROJECTS])
     }

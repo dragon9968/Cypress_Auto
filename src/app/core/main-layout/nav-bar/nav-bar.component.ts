@@ -11,7 +11,7 @@ import { selectIsMapOpen } from 'src/app/store/map/map.selectors';
 import { PermissionLevels } from '../../enums/permission-levels.enum';
 import { RouteSegments } from '../../enums/route-segments.enum';
 import { AuthService } from '../../services/auth/auth.service';
-import { selectIsOpen, selectProjectName } from 'src/app/store/project/project.selectors';
+import { selectIsOpen, selectProjectName, selectProjects } from 'src/app/store/project/project.selectors';
 import {
   retrievedAllProjects,
   retrievedIsOpen,
@@ -68,6 +68,10 @@ export class NavBarComponent implements OnInit, OnDestroy {
   isAdmin = false;
   categoryProject: any;
   isHiddenNavbar!: boolean;
+  projectNav: any[] = [];
+  selectProjects$ = new Subscription();
+  listShare: any[] = [];
+  listProject: any[] = [];
 
   constructor(
     private authService: AuthService,
@@ -86,19 +90,42 @@ export class NavBarComponent implements OnInit, OnDestroy {
     public breakpointObserver: BreakpointObserver,
     private ldapConfigService: LdapConfigService,
   ) {
+    const accessToken = this.authService.getAccessToken();
+    const accessTokenPayload = this.helpersService.decodeToken(accessToken);
+    const userId = accessTokenPayload.sub;
     this.selectIsMapOpen$ = this.store.select(selectIsMapOpen).subscribe((isMapOpen: boolean) => {
       this.isMapOpen = isMapOpen;
       if (isMapOpen) {
         this.searchByInterval();
       }
     });
+    this.selectProjects$ = this.store.select(selectProjects)
+      .subscribe((data) => {
+        if (data) {
+          this.projectService.getShareProject('active', 'project').subscribe((resp: any) => {
+            const shareProject = resp.result;
+            this.listProject = data.filter((val: any) => val.created_by_fk === userId);
+            if (shareProject) {
+              this.listProject = [...this.listProject, ...shareProject];
+            }
+          })
+        }
+      });
     this.selectIsOpen$ = this.store.select(selectIsOpen).subscribe(isOpen => {
       this.isOpen = isOpen;
       if (isOpen) {
         this.collectionId = this.projectService.getCollectionId();
         this.projectService.get(this.collectionId).subscribe(projectData => {
           this.categoryProject = projectData.result.category
-          this.store.dispatch(retrievedProjectName({ projectName: projectData.result.name }));
+          const pk = projectData.result.share.map((val: any) => val.id)
+          if (projectData.result.created_by_fk != userId && !pk.includes(userId) && this.router.url === '/map') {
+            this.toastr.warning(`The user is not the owner of project ${projectData.result.name}. Cannot open the project ${projectData.result.name}`);
+            this.store.dispatch(retrievedProjectName({ projectName: undefined }));
+            // this.store.dispatch(retrievedIsOpen({ data: false }));
+            this.router.navigate([RouteSegments.PROJECTS]);
+          } else {
+            this.store.dispatch(retrievedProjectName({ projectName: projectData.result.name }));
+          }
         });
       }
     });
@@ -110,9 +137,6 @@ export class NavBarComponent implements OnInit, OnDestroy {
       const connection = this.serverConnectionService.getConnection();
       this.connection = connection ? connection : { name: '', id: 0 };
     })
-    const accessToken = this.authService.getAccessToken();
-    const accessTokenPayload = this.helpersService.decodeToken(accessToken);
-    const userId = accessTokenPayload.sub;
     this.userService.get(userId).subscribe(respData => {
       this.username = respData.result.username;
       this.isAdmin = respData.result.roles[0].id === PermissionLevels.ADMIN;
@@ -329,7 +353,14 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   openProject(collectionId: string) {
-    this.projectService.openProject(collectionId);
+    const listProjectId = this.listProject.map(val => val.id)
+    if (listProjectId.includes(collectionId)) {
+      this.projectService.openProject(collectionId);
+    } else {
+      this.store.dispatch(retrievedProjectName({ projectName: undefined }));
+      this.toastr.warning(`The user is not the owner of project. Cannot open the project`)
+      this.router.navigate([RouteSegments.PROJECTS])
+    }
   }
 
   validateProject() {
