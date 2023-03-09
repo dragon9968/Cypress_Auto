@@ -31,9 +31,13 @@
               "src/styles.scss"
             ],
             "scripts": [
-            ],  
+              "node_modules/ace-builds/src-min/ace.js",
+              "node_modules/ace-builds/src-min/mode-json.js",
+              "node_modules/ace-builds/src-min/mode-html.js",
+              "node_modules/ace-builds/src-min/theme-textmate.js"
+            ],
             "allowedCommonJsDependencies": [
-              "cytoscape", 
+              "cytoscape",
               "src/app/shared/validations/ip-subnet.validation.ag-grid",
               "src/app/shared/validations/ip-subnet.validation"
             ]

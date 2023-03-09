@@ -1,4 +1,4 @@
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
@@ -26,6 +26,7 @@ import { hostnameValidator } from 'src/app/shared/validations/hostname.validatio
 import { ErrorStateMatcher } from '@angular/material/core';
 import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
 import { InterfaceService } from "../../core/services/interface/interface.service";
+import { ConfigTemplateService } from "../../core/services/config-template/config-template.service";
 
 class CrossFieldErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -42,7 +43,8 @@ class CrossFieldErrorMatcher implements ErrorStateMatcher {
   templateUrl: './add-update-node-dialog.component.html',
   styleUrls: ['./add-update-node-dialog.component.scss']
 })
-export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
+export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterViewInit {
+  @ViewChild("editor") editor: any;
   private gridApi!: GridApi;
   nodeAddForm: FormGroup;
   errorMatcher = new CrossFieldErrorMatcher();
@@ -116,6 +118,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
       }
     ]
   };
+  defaultConfig = {}
 
   constructor(
     private nodeService: NodeService,
@@ -124,7 +127,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: any,
     public helpers: HelpersService,
     private store: Store,
-    private interfaceService: InterfaceService
+    private interfaceService: InterfaceService,
+    private configTemplateService: ConfigTemplateService
   ) {
     this.isViewMode = this.data.mode == 'view';
     this.nodeAddForm = new FormGroup({
@@ -190,6 +194,20 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
       } else {
         this.rowData$ = of(interfaceData);
       }
+    })
+  }
+
+  ngAfterViewInit(): void {
+    this.editor.getEditor().setOptions({
+      tabSize: 2,
+      useWorker: false,
+      fontSize: '16px'
+    });
+    this.editor.mode = 'json';
+    this.editor.setTheme('textmate');
+    this.configTemplateService.get(this.data.genData.default_config_id).subscribe(res => {
+      this.defaultConfig = res.result._configuration;
+      this.editor.value = JSON.stringify(this.defaultConfig, null, 2);
     })
   }
 

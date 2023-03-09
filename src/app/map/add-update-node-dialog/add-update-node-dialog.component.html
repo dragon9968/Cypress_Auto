@@ -166,9 +166,18 @@
             </div>
           </ng-template>
         </ng-select>
+        <h3 class="title">Default Configuration</h3>
+        <div class="node__right__configuration__default">
+          <div *ngIf="isViewMode">
+            <ngx-json-viewer [json]="defaultConfig" [expanded]="false"></ngx-json-viewer>
+          </div>
+          <div [style.display]="isViewMode ? 'none' : 'block'">
+            <ace-editor #editor></ace-editor>
+          </div>
+        </div>
       </div>
       <div class="node__right__interfaces">
-        <div class="ag-theme-alpine node__right__interfaces__table" [style.height]="'300px'">
+        <div class="ag-theme-alpine node__right__interfaces__table" [style.height]="'225px'">
           <ag-grid-angular style="width: 100%; height: 100%;" [rowData]="rowData$ | async" [gridOptions]="gridOptions" (gridReady)="onGridReady($event)">
           </ag-grid-angular>
         </div>

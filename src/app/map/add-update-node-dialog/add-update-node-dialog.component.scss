@@ -74,6 +74,15 @@ $margin: 8px;
       background-color: #fff;
       padding: 2px 8px 4px 8px;
       border-radius: 4px;
+      &__default {
+        overflow-y: auto;
+        max-height: 165px;
+        ace-editor {
+          height: 165px;
+        }
+        ngx-json-viewer {
+        }
+      }
     }
     &__interfaces {
       width: 100%;
@@ -87,4 +96,9 @@ $margin: 8px;
       }
     }
   }
+}
+
+.title {
+  font: 500 15px/0px Roboto, "Helvetica Neue", sans-serif;
+  letter-spacing: normal;
 }

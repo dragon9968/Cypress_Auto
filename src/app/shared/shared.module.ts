@@ -37,6 +37,8 @@ import { MatButtonToggleModule } from "@angular/material/button-toggle";
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { AngularDualListBoxModule } from 'angular-dual-listbox';
 import { NgxPermissionsModule } from "ngx-permissions";
+import { NgxJsonViewerModule } from "ngx-json-viewer";
+import { AceEditorModule } from "ng2-ace-editor";
 
 
 const materialModules = [
@@ -94,7 +96,9 @@ const materialModules = [
     ...materialModules,
     ConfirmationDialogComponent,
     SpinnerComponent,
-    NgxPermissionsModule
+    NgxPermissionsModule,
+    NgxJsonViewerModule,
+    AceEditorModule
   ],
 })
 export class SharedModule {}
