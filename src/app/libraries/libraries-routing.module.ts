@@ -4,6 +4,7 @@ import { PermissionLevels } from '../core/enums/permission-levels.enum';
 import { PageNotFoundComponent } from '../core/page-not-found/page-not-found.component';
 import { ConfigTemplatesComponent } from './config-templates/config-templates.component';
 import { IconGalleryComponent } from './image/icon-gallery/icon-gallery.component';
+import { ImagesComponent } from './image/images/images.component';
 import { LookupFeaturesComponent } from './lookup/lookup-features/lookup-features.component';
 import { LookupNamesComponent } from './lookup/lookup-names/lookup-names.component';
 import { NetworkTemplatesComponent } from './network-templates/network-templates.component';
@@ -33,6 +34,13 @@ const routes: Routes = [
       {
         path: 'icon',
         component: IconGalleryComponent,
+        data: {
+          permissionLevel: PermissionLevels.USER,
+        }
+      },
+      {
+        path: 'image',
+        component: ImagesComponent,
         data: {
           permissionLevel: PermissionLevels.USER,
         }

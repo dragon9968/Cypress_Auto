@@ -41,7 +41,7 @@ import { CMGroupBoxService } from './context-menu/cm-groupbox/cm-groupbox.servic
 import { CMLockUnlockService } from './context-menu/cm-lock-unlock/cm-lock-unlock.service';
 import { CMRemoteService } from './context-menu/cm-remote/cm-remote.service';
 import { CMMapService } from './context-menu/cm-map/cm-map.service';
-import { IconService } from '../core/services/icon/icon.service';
+import { ImageService } from '../core/services/image/image.service';
 import { HardwareService } from '../core/services/hardware/hardware.service';
 import { DomainService } from '../core/services/domain/domain.service';
 import { LoginProfileService } from '../core/services/login-profile/login-profile.service';
@@ -173,7 +173,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     private store: Store,
     private helpersService: HelpersService,
     private mapService: MapService,
-    private iconService: IconService,
+    private imageService: ImageService,
     private deviceService: DeviceService,
     private templateService: TemplateService,
     private hardwareService: HardwareService,
@@ -268,7 +268,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.mapCategory = 'logical';
     this.collectionId = this.projectService.getCollectionId();
     this.mapService.getMapData(this.mapCategory, this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
-    this.iconService.getAll().subscribe((data: any) => this.store.dispatch(retrievedIcons({ data: data.result })));
+    this.imageService.getByCategory('icon').subscribe((data: any) => this.store.dispatch(retrievedIcons({ data: data.result })));
     this.deviceService.getAll().subscribe((data: any) => this.store.dispatch(retrievedDevices({ data: data.result })));
     this.templateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedTemplates({ data: data.result })));
     this.hardwareService.getAll().subscribe((data: any) => this.store.dispatch(retrievedHardwares({ data: data.result })));
@@ -276,7 +276,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
     this.loginProfileService.getAll().subscribe((data: any) => this.store.dispatch(retrievedLoginProfiles({ data: data.result })));
     this.portgroupService.getByCollectionId(this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedPortGroups({ data: data.result })));
-    this.mapImageService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapImages({ data: data.result })));
+    this.imageService.getByCategory('image').subscribe((data: any) => this.store.dispatch(retrievedMapImages({ data: data.result })));
     this.projectService.get(+this.collectionId).subscribe((data: any) => {
       this.isTemplateCategory = data.result.category === 'template';
       if (this.connectionId !== 0) {

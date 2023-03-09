@@ -1,0 +1,44 @@
+<form [formGroup]="imageForm" (ngSubmit)="data.mode === 'add' ? addImage() : updateImage()">
+  <div class="dialog-title">
+    <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Image' : data.mode === 'update' ? 'Edit Image' : 'Show Image'}}</h1>
+    <ng-template [ngxPermissionsOnly]="['can_write on Libraries']">
+      <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </ng-template>
+  </div>
+  <div mat-dialog-content>
+    <mat-form-field class="field" *ngIf="data.mode === 'view'">
+      <mat-label>Id</mat-label>
+      <input type="text" formControlName="id" matInput>
+    </mat-form-field>
+    <div *ngIf="data.mode === 'view'" class="image" >
+      <div>Image</div>
+      <img [src]="ICON_PATH + url_default" width="90px" height="auto">
+    </div>
+    <mat-form-field class="field">
+      <mat-label>Name</mat-label>
+      <input type="text" formControlName="name" matInput>
+      <mat-error *ngIf="name?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="name?.errors?.isExist">{{ errorMessages.NAME_EXISTS }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field" *ngIf="data.mode === 'view'">
+      <mat-label>Photo</mat-label>
+      <input type="text" formControlName="photo" matInput>
+    </mat-form-field>
+    <div>
+      <div [hidden]="isHiddenDeleteButton" *ngIf="!!url_default">
+        <div class="show-photo">
+          <img [src]="ICON_PATH + url_default" width="90px" height="auto">
+        </div>
+      </div>
+      <input *ngIf="data.mode !== 'view'" type="file" name='file' accept="image/*" (change)="onFileSelected($event)" formControlName="file">
+    </div>
+  </div>
+  <div mat-dialog-actions [align]="'end'" class="create-btn">
+    <button mat-raised-button type="button" (click)="onCancel()">{{data.mode === 'view' ? 'Close' : 'Cancel'}}</button>
+    <button *ngIf="data.mode !== 'view'" mat-raised-button color="primary" [disabled]="!imageForm.valid">
+     {{ data.mode === 'add' ? 'Create' : 'Update' }}
+    </button>
+  </div>
+</form>

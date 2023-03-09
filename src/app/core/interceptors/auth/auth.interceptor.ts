@@ -55,8 +55,8 @@ export class AuthInterceptor implements HttpInterceptor {
     const access_token = this.authService.getAccessToken();
     const refreshToken = this.authService.getRefreshToken();
     if (
-      req.url.includes(ApiPaths.ICONS_ADD) ||
-      req.url.includes(ApiPaths.ICONS_UPDATE) ||
+      req.url.includes(ApiPaths.IMAGE_ADD) ||
+      req.url.includes(ApiPaths.IMAGE_UPDATE) ||
       req.url.includes(ApiPaths.IMPORT_PROJECT) ||
       req.url.includes(ApiPaths.ADD_UPDATE_SERVER_CONNECT_FILE) ||
       req.url.includes(ApiPaths.USER_GUIDE_UPLOAD) ||

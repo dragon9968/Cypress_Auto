@@ -9,45 +9,45 @@ import { ImageService } from 'src/app/core/services/image/image.service';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
-import { retrievedIcons } from 'src/app/store/icon/icon.actions';
-import { selectIcons } from 'src/app/store/icon/icon.selectors';
+import { retrievedMapImages } from 'src/app/store/map-image/map-image.actions';
+import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
 
 @Component({
-  selector: 'app-add-edit-icon-dialog',
-  templateUrl: './add-edit-icon-dialog.component.html',
-  styleUrls: ['./add-edit-icon-dialog.component.scss']
+  selector: 'app-add-edit-images-dialog',
+  templateUrl: './add-edit-images-dialog.component.html',
+  styleUrls: ['./add-edit-images-dialog.component.scss']
 })
-export class AddEditIconDialogComponent implements OnInit {
+export class AddEditImagesDialogComponent implements OnInit {
   isViewMode = false;
   isChecked = false;
   isHiddenDeleteButton = false;
   selectedFile: any = null;
-  iconForm!: FormGroup;
+  imageForm!: FormGroup;
   errorMessages = ErrorMessages;
   ICON_PATH = ICON_PATH;
   url = null;
   url_default = null;
-  selectedIcon!: any[];
-  selectIcons$ = new Subscription();
+  selectedImage!: any[];
+  selectImages$ = new Subscription();
   constructor(
     private imageService: ImageService,
     private toastr: ToastrService,
     private store: Store,
     private helpersService: HelpersService,
-    public dialogRef: MatDialogRef<AddEditIconDialogComponent>,
+    public dialogRef: MatDialogRef<AddEditImagesDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
-    this.selectIcons$ = this.store.select(selectIcons).subscribe(nameIcon => {
-      this.selectedIcon = nameIcon;
+    this.selectImages$ = this.store.select(selectMapImages).subscribe(nameImage => {
+      this.selectedImage = nameImage;
     })
     this.isViewMode = this.data.mode == 'view';
-    this.iconForm = new FormGroup({
+    this.imageForm = new FormGroup({
       id: new FormControl({
         value: '', disabled: this.isViewMode
       }),
       name: new FormControl({
         value: '', disabled: this.isViewMode
-      }, [Validators.required, validateNameExist(() => this.selectedIcon, this.data.mode, this.data.genData.id)]),
+      }, [Validators.required, validateNameExist(() => this.selectedImage, this.data.mode, this.data.genData.id)]),
       photo: new FormControl({ value: '', disabled: this.isViewMode }),
       file: new FormControl('')
     })
@@ -59,10 +59,10 @@ export class AddEditIconDialogComponent implements OnInit {
     }
   }
 
-  get id() { return this.iconForm.get('id'); }
-  get name() { return this.iconForm.get('name'); }
-  get photo() { return this.iconForm.get('photo'); }
-  get file() { return this.iconForm.get('file'); }
+  get id() { return this.imageForm.get('id'); }
+  get name() { return this.imageForm.get('name'); }
+  get photo() { return this.imageForm.get('photo'); }
+  get file() { return this.imageForm.get('file'); }
 
   ngOnInit(): void {
     this.isHiddenDeleteButton = true;
@@ -77,17 +77,17 @@ export class AddEditIconDialogComponent implements OnInit {
     }
   }
 
-  addIcon() {
-    if (this.iconForm.valid) {
+  addImage() {
+    if (this.imageForm.valid) {
       const formData = new FormData();
       formData.append('file', this.selectedFile);
       formData.append('name', this.name?.value.trim())
-      formData.append('category', 'icon')
+      formData.append('category', 'image')
       this.imageService.add(formData).subscribe({
           next:(rest) => {
             this.dialogRef.close();
-            this.imageService.getByCategory('icon').subscribe((data: any) => this.store.dispatch(retrievedIcons({data: data.result})));
-            this.toastr.success(`Added Icon successfully`);
+            this.imageService.getByCategory('image').subscribe((data: any) => this.store.dispatch(retrievedMapImages({data: data.result})));
+            this.toastr.success(`Added Image successfully`);
           },
           error:(err) => {
             this.toastr.error(err.error.message);
@@ -107,12 +107,12 @@ export class AddEditIconDialogComponent implements OnInit {
     }
   }
 
-  updateIcon() {
-    if (this.iconForm.valid) {
+  updateImage() {
+    if (this.imageForm.valid) {
       const formData = new FormData();
       formData.append('file', this.selectedFile);
       formData.append('name', this.name?.value.trim());
-      formData.append('category', 'icon')
+      formData.append('category', 'image')
       if (this.isChecked) {
         formData.append('checked', 'true');
       }
@@ -122,11 +122,11 @@ export class AddEditIconDialogComponent implements OnInit {
       this.imageService.put(this.data.genData.id, formData).subscribe({
         next:(rest) => {
           this.dialogRef.close();
-          this.imageService.getAll().subscribe((data: any) => this.store.dispatch(retrievedIcons({data: data.result})));
-          this.toastr.success(`Update Icon successfully`);
+          this.imageService.getByCategory('image').subscribe((data: any) => this.store.dispatch(retrievedMapImages({data: data.result})));
+          this.toastr.success(`Update Image successfully`);
         },
         error:(err) => {
-          this.toastr.error(`Error while Update Icon`);
+          this.toastr.error(`Error while Update Image`);
         }
       });
     }

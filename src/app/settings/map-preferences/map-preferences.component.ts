@@ -7,7 +7,7 @@ import { ColDef, GridApi, GridReadyEvent, RowDoubleClickedEvent } from 'ag-grid-
 import { ToastrService } from 'ngx-toastr';
 import { Observable, of, Subscription, throwError } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
-import { IconService } from 'src/app/core/services/icon/icon.service';
+import { ImageService } from 'src/app/core/services/image/image.service';
 import { MapPrefService } from 'src/app/core/services/map-pref/map-pref.service';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { retrievedIcons } from 'src/app/store/icon/icon.actions';
@@ -126,7 +126,7 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
     iconRegistry: MatIconRegistry,
     private toastr: ToastrService,
     private helpers: HelpersService,
-    private iconService: IconService,
+    private imageService: ImageService,
     private router: Router,
     private ngxPermissionsService: NgxPermissionsService,
   ) {
@@ -172,7 +172,7 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
       this.router.navigate([RouteSegments.ROOT]);
     }
     this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPrefs({data: data.result})));
-    this.iconService.getAll().subscribe((data: any) => this.store.dispatch(retrievedIcons({data: data.result})));
+    this.imageService.getByCategory('icon').subscribe((data: any) => this.store.dispatch(retrievedIcons({data: data.result})));
   }
 
   onGridReady(params: GridReadyEvent) {

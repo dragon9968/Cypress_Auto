@@ -9,7 +9,7 @@ import { Observable, of, Subscription, throwError } from 'rxjs';
 import { DeviceCategoryService } from 'src/app/core/services/device-category/device-category.service';
 import { DeviceService } from 'src/app/core/services/device/device.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
-import { IconService } from 'src/app/core/services/icon/icon.service';
+import { ImageService } from 'src/app/core/services/image/image.service';
 import { LoginProfileService } from 'src/app/core/services/login-profile/login-profile.service';
 import { TemplateService } from 'src/app/core/services/template/template.service';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
@@ -158,7 +158,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
     private deviceService: DeviceService,
     private deviceCategoryService: DeviceCategoryService,
     private templateService: TemplateService,
-    private iconService: IconService,
+    private imageService: ImageService,
     private loginProfileService: LoginProfileService,
     private dialog: MatDialog,
     iconRegistry: MatIconRegistry,
@@ -195,7 +195,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.deviceService.getAll().subscribe((data: any) => this.store.dispatch(retrievedDevices({data: data.result})));
-    this.iconService.getAll().subscribe(data => {
+    this.imageService.getByCategory('icon').subscribe(data => {
       this.store.dispatch(retrievedIcons({data: data.result}));
     })
     this.loginProfileService.getAll().subscribe(data => {

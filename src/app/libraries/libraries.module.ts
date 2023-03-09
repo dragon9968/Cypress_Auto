@@ -13,6 +13,8 @@ import { IconGalleryComponent } from './image/icon-gallery/icon-gallery.componen
 import { AddEditIconDialogComponent } from './image/icon-gallery/add-edit-icon-dialog/add-edit-icon-dialog.component';
 import { LookupFeaturesComponent } from './lookup/lookup-features/lookup-features.component';
 import { LookupNamesComponent } from './lookup/lookup-names/lookup-names.component';
+import { ImagesComponent } from './image/images/images.component';
+import { AddEditImagesDialogComponent } from './image/images/add-edit-images-dialog/add-edit-images-dialog.component';
 
 
 @NgModule({
@@ -28,7 +30,9 @@ import { LookupNamesComponent } from './lookup/lookup-names/lookup-names.compone
     IconGalleryComponent,
     AddEditIconDialogComponent,
     LookupFeaturesComponent,
-    LookupNamesComponent
+    LookupNamesComponent,
+    ImagesComponent,
+    AddEditImagesDialogComponent
   ],
   imports: [
     SharedModule,
