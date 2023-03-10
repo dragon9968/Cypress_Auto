@@ -1,9 +1,10 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, throwError } from 'rxjs';
 import { LdapConfigService } from 'src/app/core/services/ldap-config/ldap-config.service';
+import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 
 @Component({
   selector: 'app-ldap-configuration',
@@ -13,6 +14,7 @@ import { LdapConfigService } from 'src/app/core/services/ldap-config/ldap-config
 export class LDAPConfigurationComponent implements OnInit {
   configForm!: FormGroup;
   public showPassword: boolean = false;
+  errorMessages = ErrorMessages;
   constructor(
     private toastr: ToastrService,
     private ldapConfigService: LdapConfigService,
@@ -25,7 +27,7 @@ export class LDAPConfigurationComponent implements OnInit {
       authLdapAllowSelfSignedCtr: new FormControl(''),
       authLdapTlsCacertfileCtr: new FormControl(''),
       authUserRegistrationCtr: new FormControl(true),
-      permanentSessionLifetimeCtr: new FormControl('1800'),
+      permanentSessionLifetimeCtr: new FormControl('1800', [Validators.required]),
       authUserRegistrationRoleCtr: new FormControl('Public'),
       authLdapFirstnameFieldCtr: new FormControl('cn'),
       authLdapLastnameFieldCtr: new FormControl('sn'),
@@ -40,11 +42,12 @@ export class LDAPConfigurationComponent implements OnInit {
       ldapDefaultAdminGroupCtr: new FormControl(''),
     })
     if (this.data) {
+      console.log(data)
       this.authLdapServerCtr?.setValue(this.data.genData.auth_ldap_server)
-      this.authLdapUseTlsCtr?.setValue(this.data.genData.auth_ldap_use_tls)
-      this.authLdapAllowSelfSignedCtr?.setValue(this.data.genData.auth_ldap_allow_self_signed)
+      this.authLdapUseTlsCtr?.setValue(this.data.genData.auth_ldap_use_tls === 'yes' ? true : false)
+      this.authLdapAllowSelfSignedCtr?.setValue(this.data.genData.auth_ldap_allow_self_signed === 'yes' ? true : false)
       // this.authLdapTlsCacertfileCtr?.setValue(this.data.genData.auth_ldap_tls_cacertfile)
-      this.authUserRegistrationCtr?.setValue(this.data.genData.auth_user_registration)
+      this.authUserRegistrationCtr?.setValue(this.data.genData.auth_user_registration === 'yes' ? true : false)
       this.permanentSessionLifetimeCtr?.setValue(this.data.genData.permanent_session_lifetime)
       this.authUserRegistrationRoleCtr?.setValue(this.data.genData.auth_user_registration_role)
       this.authLdapFirstnameFieldCtr?.setValue(this.data.genData.auth_ldap_firstname_field)
@@ -95,11 +98,11 @@ export class LDAPConfigurationComponent implements OnInit {
     if (this.configForm.valid) {
       const JsonData = {
         auth_ldap_server: this.authLdapServerCtr?.value,
-        auth_ldap_use_tls: this.authLdapUseTlsCtr?.value,
-        auth_ldap_allow_self_signed: this.authLdapAllowSelfSignedCtr?.value,
+        auth_ldap_use_tls: this.authLdapUseTlsCtr?.value ? 'yes' : 'no',
+        auth_ldap_allow_self_signed: this.authLdapAllowSelfSignedCtr?.value ? 'yes' : 'no',
         // auth_ldap_tls_cacertfile: this.authLdapTlsCacertfileCtr?.value,
-        auth_user_registration: this.authUserRegistrationCtr?.value,
-        permanent_session_lifetime: this.permanentSessionLifetimeCtr?.value ? this.permanentSessionLifetimeCtr?.value : 1800,
+        auth_user_registration: this.authUserRegistrationCtr?.value ? 'yes' : 'no',
+        permanent_session_lifetime: this.permanentSessionLifetimeCtr?.value,
         auth_user_registration_role: this.authUserRegistrationRoleCtr?.value,
         auth_ldap_firstname_field: this.authLdapFirstnameFieldCtr?.value,
         auth_ldap_lastname_field: this.authLdapLastnameFieldCtr?.value,

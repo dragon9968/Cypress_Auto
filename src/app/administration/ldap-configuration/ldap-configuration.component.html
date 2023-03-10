@@ -29,6 +29,7 @@
       <mat-form-field class="field">
         <mat-label>Session lifetime in seconds</mat-label>
         <input type="number" formControlName="permanentSessionLifetimeCtr" (keypress)="numericOnly($event)" matInput>
+        <mat-error *ngIf="permanentSessionLifetimeCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       </mat-form-field>
       <mat-form-field class="field">
         <mat-label>User Registration Role</mat-label>
