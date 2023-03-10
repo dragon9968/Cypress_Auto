@@ -61,7 +61,9 @@ export class AuthInterceptor implements HttpInterceptor {
       req.url.includes(ApiPaths.ADD_UPDATE_SERVER_CONNECT_FILE) ||
       req.url.includes(ApiPaths.USER_GUIDE_UPLOAD) ||
       req.url.includes(ApiPaths.SAVE_MAP_OVERVIEW) ||
-      req.url.includes(ApiPaths.IMPORT_ROLES) || 
+      req.url.includes(ApiPaths.IMPORT_ROLES) ||
+      req.url.includes(ApiPaths.LOOKUP_FEATURES_IMPORT) ||
+      req.url.includes(ApiPaths.UPDATE_FEATURE) ||
       req.url.includes(ApiPaths.LOOKUP_NAMES_IMPORT)
     ) {
       authReq = req.clone({ url });

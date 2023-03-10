@@ -15,6 +15,9 @@ import { LookupFeaturesComponent } from './lookup/lookup-features/lookup-feature
 import { LookupNamesComponent } from './lookup/lookup-names/lookup-names.component';
 import { ImagesComponent } from './image/images/images.component';
 import { AddEditImagesDialogComponent } from './image/images/add-edit-images-dialog/add-edit-images-dialog.component';
+import { AddEditLookupFeaturesDialogComponent } from './lookup/lookup-features/add-edit-lookup-features-dialog/add-edit-lookup-features-dialog.component';
+import { ImportLookupFeaturesDialogComponent } from './lookup/lookup-features/import-lookup-features-dialog/import-lookup-features-dialog.component';
+import { UpdateFeatureDialogComponent } from './lookup/lookup-features/update-feature-dialog/update-feature-dialog.component';
 import { AddEditLookupNamesDialogComponent } from './lookup/lookup-names/add-edit-lookup-names-dialog/add-edit-lookup-names-dialog.component';
 import { ImportLookupNamesDialogComponent } from './lookup/lookup-names/import-lookup-names-dialog/import-lookup-names-dialog.component';
 
@@ -35,6 +38,9 @@ import { ImportLookupNamesDialogComponent } from './lookup/lookup-names/import-l
     LookupNamesComponent,
     ImagesComponent,
     AddEditImagesDialogComponent,
+    AddEditLookupFeaturesDialogComponent,
+    ImportLookupFeaturesDialogComponent,
+    UpdateFeatureDialogComponent,
     AddEditLookupNamesDialogComponent,
     ImportLookupNamesDialogComponent
   ],
