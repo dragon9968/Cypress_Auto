@@ -122,7 +122,7 @@ export class AddEditIconDialogComponent implements OnInit {
       this.imageService.put(this.data.genData.id, formData).subscribe({
         next:(rest) => {
           this.dialogRef.close();
-          this.imageService.getAll().subscribe((data: any) => this.store.dispatch(retrievedIcons({data: data.result})));
+          this.imageService.getByCategory('icon').subscribe((data: any) => this.store.dispatch(retrievedIcons({data: data.result})));
           this.toastr.success(`Update Icon successfully`);
         },
         error:(err) => {
