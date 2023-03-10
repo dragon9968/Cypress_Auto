@@ -113,5 +113,8 @@ export enum ApiPaths {
   USER_GUIDE = '/api/v1/guide/',
   USER_GUIDE_UPLOAD = '/api/v1/guide/upload',
   USER_GUIDE_DOWNLOAD = '/api/v1/guide/download_file',
-  LDAP_CONFIG = '/api/v1/admin/ldap'
+  LDAP_CONFIG = '/api/v1/admin/ldap',
+  LOOKUP_NAMES = '/api/v1/lookupname/',
+  LOOKUP_NAMES_EXPORT = '/api/v1/lookupname/export',
+  LOOKUP_NAMES_IMPORT = '/api/v1/lookupname/import',
 }

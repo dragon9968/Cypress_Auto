@@ -15,6 +15,8 @@ import { LookupFeaturesComponent } from './lookup/lookup-features/lookup-feature
 import { LookupNamesComponent } from './lookup/lookup-names/lookup-names.component';
 import { ImagesComponent } from './image/images/images.component';
 import { AddEditImagesDialogComponent } from './image/images/add-edit-images-dialog/add-edit-images-dialog.component';
+import { AddEditLookupNamesDialogComponent } from './lookup/lookup-names/add-edit-lookup-names-dialog/add-edit-lookup-names-dialog.component';
+import { ImportLookupNamesDialogComponent } from './lookup/lookup-names/import-lookup-names-dialog/import-lookup-names-dialog.component';
 
 
 @NgModule({
@@ -32,7 +34,9 @@ import { AddEditImagesDialogComponent } from './image/images/add-edit-images-dia
     LookupFeaturesComponent,
     LookupNamesComponent,
     ImagesComponent,
-    AddEditImagesDialogComponent
+    AddEditImagesDialogComponent,
+    AddEditLookupNamesDialogComponent,
+    ImportLookupNamesDialogComponent
   ],
   imports: [
     SharedModule,

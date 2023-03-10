@@ -28,5 +28,6 @@ export enum ReducerKeys {
     MAP_PREFS = 'mapPrefs',
     USERS = 'users',
     USER_PROFILE = 'userProfile',
-    USER_GUIDE = 'userGuide'
+    USER_GUIDE = 'userGuide',
+    LOOKUP_NAMES = 'lookupNames'
 }

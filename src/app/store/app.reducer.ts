@@ -29,6 +29,7 @@ import { mapPrefReducer } from "./map-pref/map-pref.reducer";
 import { userReducer } from "./user/user.reducer";
 import { userGuideReducer } from "./user-guide/user-guide.reducer";
 import { userProfileReducer } from "./user-profile/user-profile.reducer";
+import { LookupNamesReducer } from "./lookup-names/lookup-names.reducer";
 
 export const reducers = {
     [ReducerKeys.MAP]: mapReducer,
@@ -61,4 +62,5 @@ export const reducers = {
     [ReducerKeys.USERS]: userReducer,
     [ReducerKeys.USER_PROFILE]: userProfileReducer,
     [ReducerKeys.USER_GUIDE]: userGuideReducer,
+    [ReducerKeys.LOOKUP_NAMES]: LookupNamesReducer
 }
