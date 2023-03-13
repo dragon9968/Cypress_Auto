@@ -44,12 +44,10 @@ export class LookupFeaturesComponent implements OnInit, OnDestroy {
     },
     {
       field: 'name',
-      sort: 'asc',
     },
     {
       headerName: "Display Name",
       field: 'display_name',
-      suppressSizeToFit: true,
     },
     {
       field: 'platform'

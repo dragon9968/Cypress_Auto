@@ -5,7 +5,7 @@ import { MatIconRegistry } from '@angular/material/icon';
 import { PageEvent } from '@angular/material/paginator';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
-import { catchError, Subscription, throwError } from 'rxjs';
+import { catchError, forkJoin, Subscription, throwError } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { ImageService } from 'src/app/core/services/image/image.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
@@ -152,28 +152,33 @@ export class ImagesComponent implements OnInit, OnDestroy {
     if (this.selectedImage.length === 0) {
       this.toastr.info('No row selected');
     } else {
-      this.selectedImage.map(imageId => {
-        const suffix = this.selectedImage.length === 1 ? 'this item' : 'these items';
-        const dialogData = {
-          title: 'User confirmation needed',
-          message: `Are you sure you want to delete ${suffix}?`,
-          submitButtonName: 'OK'
-        }
-        const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
-        dialogRef.afterClosed().subscribe(result => {
-          if (result) {
-            this.imageService.delete(imageId).pipe(
-              catchError((error: any) => {
-                this.toastr.error('Delete image failed!', 'Error');
-                return throwError(() => error);
+      const suffix = this.selectedImage.length === 1 ? 'this item' : 'these items';
+      const dialogData = {
+        title: 'User confirmation needed',
+        message: `Are you sure you want to delete ${suffix}?`,
+        submitButtonName: 'OK'
+      }
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          forkJoin(this.selectedImage.map(id => {
+            return this.imageService.delete(id).pipe(
+              catchError((response: any) => {
+                if (response.status == 400) {
+                  this.toastr.error(response.error.message.split(':')[1], 'Error');
+                } else {
+                  this.toastr.error('Delete image failed', 'Error');
+                }
+                return throwError(() => response.error);
               })
-            ).subscribe(() =>{
-              this.selectedImage = [];
-              this.imageService.getByCategory('image').subscribe((data: any) => this.store.dispatch(retrievedMapImages({data: data.result})));
-              this.toastr.success(`Delete successfully`);
-            })
-          }
-        })
+            );
+          })).subscribe(() =>{
+            this.imageService.getByCategory('image').subscribe((data: any) => this.store.dispatch(retrievedMapImages({data: data.result})));
+            this.toastr.success('Deleted image(s) successfully', 'Success');
+            this.selectedImage = [];
+            this.checked = false;
+          })
+        }
       })
     }
   }

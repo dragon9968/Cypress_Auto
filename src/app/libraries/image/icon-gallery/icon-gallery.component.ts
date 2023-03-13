@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconRegistry } from '@angular/material/icon';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
-import { Subscription, throwError } from 'rxjs';
+import { forkJoin, Subscription, throwError } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { ImageService } from 'src/app/core/services/image/image.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
@@ -153,7 +153,6 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
     if (this.selectedIcon.length === 0) {
       this.toastr.info('No row selected');
     } else {
-      this.selectedIcon.map(iconId => {
         const suffix = this.selectedIcon.length === 1 ? 'this item' : 'these items';
         const dialogData = {
           title: 'User confirmation needed',
@@ -163,19 +162,24 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
         const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
         dialogRef.afterClosed().subscribe(result => {
           if (result) {
-            this.imageService.delete(iconId).pipe(
-              catchError((error: any) => {
-                this.toastr.error('Delete icon failed!', 'Error');
-                return throwError(() => error);
+            forkJoin(this.selectedIcon.map(id => {
+              return this.imageService.delete(id).pipe(
+                catchError((response: any) => {
+                  if (response.status == 400) {
+                    this.toastr.error(response.error.message.split(':')[1], 'Error');
+                  } else {
+                    this.toastr.error('Delete icon failed', 'Error');
+                  }
+                  return throwError(() => response.error);
+                })
+              );
+               })).subscribe(() =>{
+                this.imageService.getByCategory('icon').subscribe((data: any) => this.store.dispatch(retrievedIcons({data: data.result})));
+                this.toastr.success('Deleted icon(s) successfully', 'Success');
+                this.selectedIcon = [];
               })
-            ).subscribe(() =>{
-              this.selectedIcon = [];
-              this.imageService.getByCategory('icon').subscribe((data: any) => this.store.dispatch(retrievedIcons({data: data.result})));
-              this.toastr.success(`Delete successfully`);
-            })
-          }
+            }
         })
-      })
     }
   }
 
