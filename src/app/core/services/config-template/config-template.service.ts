@@ -39,7 +39,7 @@ export class ConfigTemplateService {
   }
 
   getWinroles(): Observable<any> {
-    return this.http.get<any>(ApiPaths.GET_WINROLES);
+    return this.http.get<any>(ApiPaths.GET_FEATURES);
   }
 
   export(data: any): Observable<any> {
