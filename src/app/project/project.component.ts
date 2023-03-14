@@ -16,6 +16,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { EditProjectDialogComponent } from './edit-project-dialog/edit-project-dialog.component';
 import { ConfirmationDialogComponent } from '../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ExportProjectDialogComponent } from './export-project-dialog/export-project-dialog.component';
+import { UserService } from '../core/services/user/user.service';
+import { retrievedUser } from '../store/user/user.actions';
+import { selectUser } from '../store/user/user.selectors';
 
 @Component({
   selector: 'app-project',
@@ -36,8 +39,10 @@ export class ProjectComponent implements OnInit, OnDestroy {
   private gridApi!: GridApi;
   private selectProjects$ = new Subscription();
   selectProjectTemplate$ = new Subscription();
+  selectUser$ = new Subscription();
   selectAllProjects$ = new Subscription();
   rowData$!: Observable<any[]>;
+  listUsers: any[] = [];
   isAdmin = true;
   projectAdminUrl = `${this.routeSegments.ROOT + this.routeSegments.PROJECTS_ADMINISTRATION}`
   templatePageUrl = `${this.routeSegments.ROOT + this.routeSegments.PROJECTS_TEMPLATES}`
@@ -106,11 +111,15 @@ export class ProjectComponent implements OnInit, OnDestroy {
     private store: Store,
     private authService: AuthService,
     private helpersService: HelpersService,
+    private userService: UserService,
   ) {
     const accessToken = this.authService.getAccessToken();
     const accessTokenPayload = this.helpersService.decodeToken(accessToken);
     const userId = accessTokenPayload.sub;
     this.isAdmin = this.router.url === this.projectAdminUrl
+    this.selectUser$ = this.store.select(selectUser).subscribe((data: any) => {
+      this.listUsers = data;
+    });
     if (this.router.url === this.templatePageUrl) {
       this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(templateData => {
         this.rowData$ = of(templateData)
@@ -126,10 +135,16 @@ export class ProjectComponent implements OnInit, OnDestroy {
             if (shareProject) {
               newData = [...newData, ...shareProject];
             }
+            let projectData = newData.map((item) => {
+              const fullName = this.listUsers.filter(val => item.changed_by_fk === val.id)[0]
+              const changedByValue = fullName.first_name + ' ' + fullName.last_name;
+              return Object.assign({}, item, {changed_by: changedByValue})
+            })
+          
             if (this.gridApi) {
-              this.gridApi.setRowData(newData);
+              this.gridApi.setRowData(projectData);
             } else {
-              this.rowData$ = of(newData);
+              this.rowData$ = of(projectData);
             }
             this.updateRow();
           })
@@ -160,6 +175,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     } else {
       this.projectService.getProjectByStatus(this.status).subscribe((data: any) => this.store.dispatch(retrievedAllProjects({ listAllProject: data.result })));
     }
+    this.userService.getAll().subscribe(data => this.store.dispatch(retrievedUser({ data: data.result })))
   }
 
   ngOnDestroy(): void {
