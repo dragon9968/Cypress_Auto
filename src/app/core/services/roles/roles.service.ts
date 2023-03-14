@@ -55,4 +55,8 @@ export class RolesService {
   getRolesUser(): Observable<any> {
     return this.http.get<any>(ApiPaths.ROLES_USER);
   }
+
+  getRolesProtected(): Observable<any> {
+    return this.http.get<any>(ApiPaths.ROLES_PROTECTED);
+  }
 }

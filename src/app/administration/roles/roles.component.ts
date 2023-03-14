@@ -30,6 +30,7 @@ export class RolesComponent implements OnInit {
   rowsSelected: any[] = [];
   rowsSelectedId: any[] = [];
   selectRole$ = new Subscription();
+  rolesHasProtected: any[] = [];
 
   defaultColDef: ColDef = {
     sortable: true,
@@ -55,7 +56,16 @@ export class RolesComponent implements OnInit {
     {
       field: 'name',
       maxWidth: 200,
-      flex: 1
+      flex: 1,
+      cellRenderer: (params: any) => {
+        let eIconGui = document.createElement('span');
+        if (this.rolesHasProtected.indexOf(params.value) > -1) {
+          return  eIconGui.innerHTML = '<em class="material-icons" style="position: absolute; top:10px; left:0px;">lock</em>'  + ' ' + params.value;
+        }
+        else {
+          return params.value;
+        }
+      }
     },
     {
       field: 'permissions',
@@ -63,7 +73,7 @@ export class RolesComponent implements OnInit {
       // autoHeight: true,
       wrapText: true,
       cellRenderer: function(params: any) {
-        if (params.value.length > 0){
+        if (params.value.length > 0) {
           let html_str = "<div style='width: 30%; margin-left:auto; margin-right:auto;'><ul>"
           for(let i in params.value) {
             let item_html = `<li style='text-align: left'>${params.value[i].detail}</li>`;
@@ -103,6 +113,7 @@ export class RolesComponent implements OnInit {
   ngOnInit(): void {
     this.rolesService.getAll().subscribe(data => this.store.dispatch(retrievedRole({ role: data.result })));
     this.rolesService.getPermissions().subscribe(data => this.store.dispatch(retrievedPermissions({ permissions: data.result })));
+    this.rolesService.getRolesProtected().subscribe(data => this.rolesHasProtected = data.roles.map((role: any) => role.name));
   }
 
   onGridReady(params: GridReadyEvent) {
@@ -111,8 +122,23 @@ export class RolesComponent implements OnInit {
   }
 
   selectedRows() {
-    this.rowsSelected = this.gridApi.getSelectedRows();
-    this.rowsSelectedId = this.rowsSelected.map(el => el.id);
+    let selectedRows = this.gridApi.getSelectedRows()
+    let selectedRowsCount = selectedRows.length;
+
+    if (selectedRowsCount > 0) {
+      if (this.rolesHasProtected.indexOf(selectedRows[0]["name"]) > -1) {
+        this.toastr.warning('The [' + selectedRows[0]["name"] + '] role is currently protected', 'Warning')
+        this.gridApi.getSelectedNodes()[0].setSelected(false)
+      }
+      else {
+        this.rowsSelected = this.gridApi.getSelectedRows();
+        this.rowsSelectedId = this.rowsSelected.map(el => el.id);
+      }
+    }
+    else {
+      this.rowsSelected = this.gridApi.getSelectedRows();
+      this.rowsSelectedId = this.rowsSelected.map(el => el.id);
+    }
   }
 
   onQuickFilterInput(event: any) {

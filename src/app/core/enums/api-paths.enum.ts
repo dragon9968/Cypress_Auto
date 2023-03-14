@@ -60,6 +60,7 @@ export enum ApiPaths {
   ASSOCIATE_ROLE = '/api/v1/user/associate',
   ROLES = '/api/v1/roles/',
   ROLES_USER = '/api/v1/roles/user',
+  ROLES_PROTECTED = '/api/v1/roles/protected',
   EXPORT_ROLES = '/api/v1/roles/export',
   IMPORT_ROLES = '/api/v1/roles/import',
   CLONE_ROLES = '/api/v1/roles/clone',
