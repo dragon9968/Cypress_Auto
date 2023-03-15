@@ -96,6 +96,7 @@ export class RolesComponent implements OnInit {
     private rolesService: RolesService,
     private store: Store,
   ) {
+    this.rolesService.getRolesProtected().subscribe(data => this.rolesHasProtected = data.roles.map((role: any) => role.name));
     this.selectRole$ = this.store.select(selectRole).subscribe(roleData => {
       if (roleData) {
         if (this.gridApi) {
@@ -113,7 +114,6 @@ export class RolesComponent implements OnInit {
   ngOnInit(): void {
     this.rolesService.getAll().subscribe(data => this.store.dispatch(retrievedRole({ role: data.result })));
     this.rolesService.getPermissions().subscribe(data => this.store.dispatch(retrievedPermissions({ permissions: data.result })));
-    this.rolesService.getRolesProtected().subscribe(data => this.rolesHasProtected = data.roles.map((role: any) => role.name));
   }
 
   onGridReady(params: GridReadyEvent) {
