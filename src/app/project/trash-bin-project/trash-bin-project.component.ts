@@ -6,7 +6,8 @@ import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, of, Subscription } from 'rxjs';
-import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
+import { AuthService } from 'src/app/core/services/auth/auth.service';
+import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { retrievedProjects } from 'src/app/store/project/project.actions';
 import { selectProjects } from 'src/app/store/project/project.selectors';
@@ -41,7 +42,7 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
       suppressSizeToFit: true,
       width: 52
     },
-    { field: 'name'},
+    { field: 'name' },
     { field: 'description' },
     { field: 'status' },
     { field: 'category' }
@@ -52,12 +53,18 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
     private store: Store,
     private router: Router,
     private dialog: MatDialog,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private authService: AuthService,
+    private helpersService: HelpersService,
   ) {
     this.selectProjects$ = this.store.select(selectProjects)
-    .subscribe((data: any) => {
-      this.rowData$ = of(data)
-    });
+      .subscribe((data: any) => {
+        const accessToken = this.authService.getAccessToken();
+        const accessTokenPayload = this.helpersService.decodeToken(accessToken);
+        const userId = accessTokenPayload.sub;
+        const filteredProjectsByUserId = data.filter((val: any) => val.created_by_fk === userId);
+        this.rowData$ = of(filteredProjectsByUserId);
+      });
   }
 
   ngOnInit(): void {
@@ -117,7 +124,7 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
     }
     if (this.rowsSelectedId.length == 0) {
       this.toastr.info('No row selected');
-    }else {
+    } else {
       const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
       dialogRef.afterClosed().subscribe(result => {
         const jsonData = {
