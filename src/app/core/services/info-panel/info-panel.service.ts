@@ -690,40 +690,46 @@ export class InfoPanelService implements OnDestroy {
     })
   }
 
-  randomizeIpInterfaces(listInterfaces: any) {
+  randomizeIpInterfaces(listInterfaces: any[]) {
     this.checkIpAlocation(listInterfaces)
+    let pks;
     if (this.interfaceIds.length > 0) {
-      this.interfaceService.randomizeIpBulk({ pks: this.interfaceIds }).pipe(
-        catchError((error: any) => {
-          this.toastr.error(error.error.message);
-          return throwError(() => error.error.message);
-        })
-      ).subscribe(response => {
-        const data = response.result;
-        data.map((ele: any) => {
-          const element = this.cy.getElementById(ele.id);
-          const ip_str = ele.ip ? ele.ip : "";
-          const ip = ip_str.split(".");
-          const last_octet = ip.length == 4 ? "." + ip[3] : "";
-          element.data('ip', ip_str);
-          element.data('ip_last_octet', last_octet);
-        })
-        response.message.map((message: string) => {
-          this.toastr.success(message);
-        });
-        this.store.dispatch(retrievedMapSelection({ data: true }));
-      });
+      pks = this.interfaceIds
+    } else {
+      pks = listInterfaces
     }
+    this.interfaceService.randomizeIpBulk({ pks }).pipe(
+      catchError((error: any) => {
+        this.toastr.error(error.error.message);
+        return throwError(() => error.error.message);
+      })
+    ).subscribe(response => {
+      const data = response.result;
+      data.map((ele: any) => {
+        const element = this.cy.getElementById(ele.id);
+        const ip_str = ele.ip ? ele.ip : "";
+        const ip = ip_str.split(".");
+        const last_octet = ip.length == 4 ? "." + ip[3] : "";
+        element.data('ip', ip_str);
+        element.data('ip_last_octet', last_octet);
+      })
+      response.message.map((message: string) => {
+        this.toastr.success(message);
+      });
+      this.store.dispatch(retrievedMapSelection({ data: true }));
+    });
   }
 
-  checkIpAlocation(data: any) {
+  checkIpAlocation(data: any[]) {
     this.interfaceIds = []
     data.forEach((val: any) => {
       if (val.ip_allocation === 'static_manual') {
         this.toastr.warning(`Interface ${val.name}'s IP address of “static_manual” interfaces cannot be randomized.`)
       } else {
-        const ids = val.interface_id ? val.interface_id : val.id
-        this.interfaceIds.push(ids)
+        const id = val.interface_id ? val.interface_id : val.id
+        if (id) {
+          this.interfaceIds.push(id)
+        }
       }
     });
   }
