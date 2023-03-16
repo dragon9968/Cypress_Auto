@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
@@ -9,30 +9,31 @@ import { DIRECTIONS } from 'src/app/shared/contants/directions.constant';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 import { selectPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { Store } from '@ngrx/store';
-import { Observable, Subscription, throwError } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { selectInterfaces } from "../../store/map/map.selectors";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
 import { retrievedInterfacesManagement } from "../../store/interface/interface.actions";
-import { catchError } from "rxjs/operators";
 import { ProjectService } from "../../project/services/project.service";
-import { retrievedProjects } from "../../store/project/project.actions";
+import { selectMapOption } from "../../store/map-option/map-option.selectors";
 
 @Component({
   selector: 'app-add-update-interface-dialog',
   templateUrl: './add-update-interface-dialog.component.html',
   styleUrls: ['./add-update-interface-dialog.component.scss']
 })
-export class AddUpdateInterfaceDialogComponent implements OnInit {
+export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   interfaceAddForm: FormGroup;
   DIRECTIONS = DIRECTIONS;
   errorMessages = ErrorMessages;
   portGroups!: any[];
   isViewMode = false;
+  isEdgeDirectionChecked = false;
   selectPortGroups$ = new Subscription();
   selectInterfaces$ = new Subscription();
+  selectMapOption$ = new Subscription();
   gateways: any[] = [];
   interfaces: any[] = [];
   tabName = '';
@@ -76,6 +77,15 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
     })
     this.isViewMode = this.data.mode == 'view';
     this.tabName = this.data.tabName;
+    this.selectMapOption$ = this.store.select(selectMapOption).subscribe(mapOption => {
+      this.isEdgeDirectionChecked = mapOption.isEdgeDirectionChecked
+    })
+  }
+
+  ngOnDestroy(): void {
+    this.selectPortGroups$.unsubscribe();
+    this.selectMapOption$.unsubscribe();
+    this.selectInterfaces$.unsubscribe();
   }
 
   get orderCtr() { return this.interfaceAddForm.get('orderCtr'); }
@@ -93,13 +103,15 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
   get isNatCtr() { return this.interfaceAddForm.get('isNatCtr'); }
 
   ngOnInit(): void {
-    this.directionCtr.setValidators([autoCompleteValidator(this.DIRECTIONS)]);
+    let directionValue = this.isEdgeDirectionChecked ? this.data.genData.direction : this.data.genData.prev_direction;
+    directionValue = this.data.mode == 'add' ? '' : directionValue
+    this.directionCtr.setValidators([Validators.required, autoCompleteValidator(this.DIRECTIONS)]);
     this.filteredDirections = this.helpers.filterOptions(this.directionCtr, this.DIRECTIONS);
     this.orderCtr?.setValue(this.data.genData.order);
     this.nameCtr?.setValue(this.data.genData.name);
     this.descriptionCtr?.setValue(this.data.genData.description);
     this.categoryCtr?.setValue(this.data.genData.category);
-    this.helpers.setAutoCompleteValue(this.directionCtr, DIRECTIONS, this.data.genData.direction);
+    this.helpers.setAutoCompleteValue(this.directionCtr, DIRECTIONS, directionValue);
     this.macAddressCtr?.setValue(this.data.genData.mac_address);
     this.helpers.setAutoCompleteValue(this.portGroupCtr, this.portGroups, this.data.genData.port_group_id);
     this.ipAllocationCtr?.setValue(this.data.genData.ip_allocation);
@@ -199,9 +211,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
         cyData.text_size = cyData.logical_map_style.text_size;
         cyData.color = cyData.logical_map_style.color;
         this.helpers.addCYEdge(this.data.cy, { ...newEdgeData, ...cyData });
-        const edge = this.data.cy.getElementById(cyData.id);
-        edge.style('target-arrow-shape', 'none');
-        edge.style('source-arrow-shape', 'none');
+        this._showOrHideArrowDirectionOnEdge(cyData.id)
       }
       this.toastr.success('Edge details added!');
       this.dialogRef.close();
@@ -238,6 +248,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
         this.store.dispatch(retrievedInterfacesManagement({ data: newInterfacesManagement }));
       } else {
         this._updateInterfaceOnMap(data);
+        this._showOrHideArrowDirectionOnEdge(this.data.genData.interface_id)
         this.store.dispatch(retrievedMapSelection({ data: true }));
       }
       this.dialogRef.close();
@@ -299,9 +310,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
         cyData.text_size = cyData.logical_map_style.text_size;
         cyData.color = cyData.logical_map_style.color;
         this.helpers.addCYEdge(this.data.cy, { ...newEdgeData, ...cyData });
-        const edge = this.data.cy.getElementById(cyData.id);
-        edge.style('target-arrow-shape', 'none');
-        edge.style('source-arrow-shape', 'none');
+        this._showOrHideArrowDirectionOnEdge(cyData.id)
         this.store.dispatch(retrievedMapSelection({ data: true }));
       }
       this.dialogRef.close();
@@ -318,5 +327,14 @@ export class AddUpdateInterfaceDialogComponent implements OnInit {
   changeViewToEdit() {
     this.data.mode = 'update';
     this.isViewMode = false;
+  }
+
+  private _showOrHideArrowDirectionOnEdge(edgeId: any) {
+    const edge = this.data.cy.getElementById(edgeId);
+    if (!this.isEdgeDirectionChecked) {
+      const current_dir = edge.data('direction');
+      edge.data('prev_direction', current_dir);
+      edge.data('direction', 'none');
+    }
   }
 }

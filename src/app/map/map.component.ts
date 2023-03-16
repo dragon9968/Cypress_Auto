@@ -47,7 +47,7 @@ import { DomainService } from '../core/services/domain/domain.service';
 import { LoginProfileService } from '../core/services/login-profile/login-profile.service';
 import { SearchService } from '../core/services/search/search.service';
 import { MapService } from '../core/services/map/map.service';
-import { selectSearchText } from '../store/map-option/map-option.selectors';
+import { selectMapOption, selectSearchText } from '../store/map-option/map-option.selectors';
 import { CommonService } from 'src/app/map/context-menu/cm-common-service/common.service';
 import { ToolPanelStyleService } from 'src/app/core/services/tool-panel-style/tool-panel-style.service';
 import { ServerConnectService } from "../core/services/server-connect/server-connect.service";
@@ -151,6 +151,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   isBoxSelecting = false;
   isSearching = false;
   isSelectedProcessed = false;
+  isEdgeDirectionChecked = false;
   connectionId = 0;
   vmStatus!: boolean;
   boxSelectedNodes = new Set();
@@ -165,6 +166,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   selectIsConnect$ = new Subscription();
   selectProjects$ = new Subscription();
   selectInterfaceIdConnectPG = new Subscription();
+  selectMapOption$ = new Subscription();
   selectMapFeatureSubject: Subject<MapState> = new ReplaySubject(1);
   destroy$: Subject<boolean> = new Subject<boolean>();
   saveMapSubject: Subject<void> = new Subject<void>();
@@ -292,6 +294,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.interfaceIdConnectPG = interfaceIdConnectPG;
     })
     this.selectProjects$ = this.store.select(selectProjects).subscribe(projects => this.projects = projects);
+    this.selectMapOption$ = this.store.select(selectMapOption).subscribe(mapOption => {
+      if (mapOption != undefined) {
+        this.isEdgeDirectionChecked = mapOption.isEdgeDirectionChecked
+      }
+    })
   }
 
   ngAfterViewInit(): void {
@@ -340,6 +347,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.templateId = '';
     this.projectTemplateId = 0;
     this.linkProjectId = 0;
+    this.selectMapOption$.unsubscribe();
   }
 
   private _disableMapEditButtons() {
@@ -1158,9 +1166,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             cyData.color = cyData.logical_map_style.color;
             this.helpersService.addCYEdge(this.cy, { ...newEdgeData, ...cyData });
             const edge = this.cy.getElementById(cyData.id);
-            edge.style('target-arrow-shape', 'none');
-            edge.style('source-arrow-shape', 'none');
             edge.style('line-style', 'dotted');
+            if (!this.isEdgeDirectionChecked) {
+              const current_dir = edge.data('direction');
+              edge.data('prev_direction', current_dir);
+              edge.data('direction', 'none');
+            }
           });
         }
       );
