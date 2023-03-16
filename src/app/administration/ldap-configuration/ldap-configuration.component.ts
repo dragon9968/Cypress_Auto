@@ -42,11 +42,10 @@ export class LDAPConfigurationComponent implements OnInit {
       ldapDefaultAdminGroupCtr: new FormControl(''),
     })
     if (this.data) {
-      console.log(data)
       this.authLdapServerCtr?.setValue(this.data.genData.auth_ldap_server)
       this.authLdapUseTlsCtr?.setValue(this.data.genData.auth_ldap_use_tls === 'yes' ? true : false)
       this.authLdapAllowSelfSignedCtr?.setValue(this.data.genData.auth_ldap_allow_self_signed === 'yes' ? true : false)
-      // this.authLdapTlsCacertfileCtr?.setValue(this.data.genData.auth_ldap_tls_cacertfile)
+      this.authLdapTlsCacertfileCtr?.setValue(this.data.genData.auth_ldap_tls_cacertfile)
       this.authUserRegistrationCtr?.setValue(this.data.genData.auth_user_registration === 'yes' ? true : false)
       this.permanentSessionLifetimeCtr?.setValue(this.data.genData.permanent_session_lifetime)
       this.authUserRegistrationRoleCtr?.setValue(this.data.genData.auth_user_registration_role)
@@ -100,7 +99,7 @@ export class LDAPConfigurationComponent implements OnInit {
         auth_ldap_server: this.authLdapServerCtr?.value,
         auth_ldap_use_tls: this.authLdapUseTlsCtr?.value ? 'yes' : 'no',
         auth_ldap_allow_self_signed: this.authLdapAllowSelfSignedCtr?.value ? 'yes' : 'no',
-        // auth_ldap_tls_cacertfile: this.authLdapTlsCacertfileCtr?.value,
+        auth_ldap_tls_cacertfile: this.authLdapTlsCacertfileCtr?.value,
         auth_user_registration: this.authUserRegistrationCtr?.value ? 'yes' : 'no',
         permanent_session_lifetime: this.permanentSessionLifetimeCtr?.value,
         auth_user_registration_role: this.authUserRegistrationRoleCtr?.value,

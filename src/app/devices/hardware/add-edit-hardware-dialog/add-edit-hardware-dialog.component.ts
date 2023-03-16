@@ -45,6 +45,7 @@ export class AddEditHardwareDialogComponent implements OnInit, OnDestroy {
     public dialogRef: MatDialogRef<AddEditHardwareDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
+    this.isViewMode = this.data.mode == 'view';
     this.hardwareForm = new FormGroup({
       device: new FormControl({value: '', disabled: this.isViewMode}),
       template: new FormControl({value: '', disabled: this.isViewMode}),
@@ -66,7 +67,6 @@ export class AddEditHardwareDialogComponent implements OnInit, OnDestroy {
     this.selectHardwares$ = this.store.select(selectHardwares).subscribe(
       hardwares => this.hardwares = hardwares
     );
-    this.isViewMode = this.data.mode == 'view';
   }
 
   ngOnInit(): void {
@@ -143,9 +143,13 @@ export class AddEditHardwareDialogComponent implements OnInit, OnDestroy {
     }
   }
 
-  changeToEdit() {
+  changeViewToEdit() {
     this.data.mode = 'edit';
     this.isViewMode = false;
+    this.device?.enable();
+    this.template?.enable();
+    this.serialNumber?.enable();
+    this.assetTag?.enable()
   }
 }
 

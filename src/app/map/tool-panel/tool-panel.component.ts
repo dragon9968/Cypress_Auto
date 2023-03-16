@@ -203,6 +203,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       deletedInterfaces: this.deletedInterfaces,
       updatedGroupBoxes: this.updatedGroupBoxes,
       updatedNodeAndPGInGroups: this.updatedNodeAndPGInGroups,
+      updatedMapBackgrounds: this.updatedMapBackgrounds,
       updatedMapOptions
     }
     this.mapService.saveMap(this.collectionId, this.mapCategory, jsonData).pipe(
