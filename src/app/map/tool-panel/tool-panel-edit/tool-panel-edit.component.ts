@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { Store } from '@ngrx/store';
@@ -7,14 +7,14 @@ import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { retrievedMapEdit } from 'src/app/store/map-edit/map-edit.actions';
 import { selectDevices } from 'src/app/store/device/device.selectors';
 import { selectTemplates } from 'src/app/store/template/template.selectors';
-import { delay, Observable, Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
 import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
 import { MatDialog } from "@angular/material/dialog";
-import { retrievedProjects, retrievedProjectsTemplate } from "../../../store/project/project.actions";
+import { retrievedProjectsTemplate } from "../../../store/project/project.actions";
 import { ProjectService } from "../../../project/services/project.service";
 import { Router } from "@angular/router";
 import { ToastrService } from "ngx-toastr";
@@ -27,7 +27,7 @@ import { AuthService } from "../../../core/services/auth/auth.service";
   templateUrl: './tool-panel-edit.component.html',
   styleUrls: ['./tool-panel-edit.component.scss']
 })
-export class ToolPanelEditComponent implements OnInit, OnDestroy, AfterViewInit {
+export class ToolPanelEditComponent implements OnInit, OnDestroy {
   @Input() cy: any;
   @Input() config: any;
   @Input() activeNodes: any[] = [];
@@ -170,20 +170,6 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, AfterViewInit 
     this.templateCtr?.disable();
     this.projectService.getProjectByStatusAndCategory('active', 'template').subscribe(
       data => this.store.dispatch(retrievedProjectsTemplate({template: data.result}))
-    );
-  }
-
-  ngAfterViewInit(): void {
-    this.projectService.getProjectByStatusAndCategory(this.status, 'project').pipe(delay(1000)).subscribe(
-      (data: any) => {
-        const projectNodeIdsAdded = this.cy?.nodes().filter('[link_project_id > 0]').map((ele: any) => ele.data('link_project_id'));
-        const newProjects = [...data.result];
-        projectNodeIdsAdded?.map((projectId: any) => {
-          const index = newProjects.findIndex(ele => ele.id === projectId);
-          newProjects.splice(index, 1);
-        })
-        this.store.dispatch(retrievedProjects({data: newProjects}));
-      }
     );
   }
 

@@ -83,6 +83,7 @@ export class HelpersService implements OnDestroy{
         },
         locked: (ele: any) => ele.data('locked'),
       },
+
       {
         selector: '[text_color]',
         style: {
@@ -370,7 +371,7 @@ export class HelpersService implements OnDestroy{
     });
   }
 
-  addCYNodeAndEdge(cy: any, nodes: any[], edges: any[], newPosition: any = {x: 0, y: 0}) {
+  addCYNodeAndEdge(cy: any, nodes: any[], edges: any[], newPosition: any = {x: 0, y: 0}, projectNodeId = undefined) {
     // Draw new nodes from the project template into the current project.
     nodes.map((node: any) => {
       if (node.data.elem_category == 'node') {
@@ -381,7 +382,10 @@ export class HelpersService implements OnDestroy{
       if (node.position) {
         position = { x: newPosition.x + node.position.x, y: newPosition.y + node.position.y }
       }
-      this.addCYNode(cy, { newNodeData: node.data, newNodePosition: position });
+      const nodeEle = this.addCYNode(cy, { newNodeData: node.data, newNodePosition: position });
+      if (projectNodeId) {
+        nodeEle.move({ parent: `node-${projectNodeId}` });
+      }
     })
     // Draw new interfaces from the project template into the current project.
     edges.map((edge: any) => {
@@ -409,10 +413,12 @@ export class HelpersService implements OnDestroy{
     const gbs = this.groupBoxes.filter((gb: any) => gb.data.group_category == this.groupCategoryId);
     cy.add(gbs);
     cy.nodes().forEach((ele: any) => {
-      const data = ele.data();
-      if (data.elem_category != 'group') {
-        const g = data.groups.filter((gb: any) => gb.category == this.groupCategoryId);
-        if (g.length > 0) ele.move({ parent: 'group-' + g[0].id });
+      if (!Boolean(ele.data('parent_id'))) {
+        const data = ele.data();
+        if (data.elem_category != 'group') {
+          const g = data.groups.filter((gb: any) => gb.category == this.groupCategoryId);
+          if (g.length > 0) ele.move({ parent: 'group-' + g[0].id });
+        }
       }
     });
     let done = false;
@@ -467,6 +473,43 @@ export class HelpersService implements OnDestroy{
       const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
       return v.toString(16);
     });
+  }
+
+  collapseAndExpandProjectNodeEvent(projectNodes: any) {
+    // Set event collapse and expand
+    projectNodes.on('expandcollapse.aftercollapse', (event: any) => {
+      projectNodes.map((node: any) => {
+        node.data('width', '90px')
+        node.data('height', '90px')
+        node.data('new', false);
+        node.data('updated', true);
+        node.data('deleted', false);
+        node.data('collapsed', true);
+        node.data('lastPos', node.position())
+        node.style({
+          'background-opacity': '0',
+          'background-color': '#fff',
+          'background-image-opacity': 1,
+        });
+      })
+    })
+
+    projectNodes.on('expandcollapse.afterexpand', (event: any) => {
+      projectNodes.map((node: any) => {
+        node.data('width', '90px');
+        node.data('height', '90px');
+        node.data('new', false);
+        node.data('updated', true);
+        node.data('deleted', false);
+        node.data('collapsed', false);
+        node.data('lastPos', node.position());
+        node.style({
+          'background-opacity': '.20',
+          'background-color': '#00dcff',
+          'background-image-opacity': 0,
+        });
+      })
+    })
   }
 
   getOptionById(options: any, id: string) {

@@ -59,6 +59,8 @@ export class ContextMenuService {
         contextMenu.showMenuItem('link_project');
         contextMenu.showMenuItem('view_details');
         contextMenu.showMenuItem('edit');
+        contextMenu.showMenuItem('collapse_node');
+        contextMenu.showMenuItem('expand_node');
       } else {
         if (activePGsLength == 0 && activeEdgesLength == 0) {
           if (activeNodesLength > 1) {

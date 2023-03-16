@@ -71,6 +71,7 @@ import { retrievedGroups } from "../store/group/group.actions";
 import { ValidateProjectDialogComponent } from "../project/validate-project-dialog/validate-project-dialog.component";
 import { selectProjects } from "../store/project/project.selectors";
 import { NgxPermissionsService } from "ngx-permissions";
+import { CMProjectNodeService } from "./context-menu/cm-project-node/cm-project-node.service";
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -197,6 +198,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     private cmEditService: CMEditService,
     private cmDeleteService: CMDeleteService,
     private cmGroupBoxService: CMGroupBoxService,
+    private cmProjectNodeService: CMProjectNodeService,
     private cmLockUnlockService: CMLockUnlockService,
     private cmRemoteService: CMRemoteService,
     private cmMapService: CMMapService,
@@ -322,8 +324,24 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this._initMouseEvents();
         this._initContextMenu();
         this._initUndoRedo();
+        this._initDataLinkProjects();
+        this._initCollapseExpandProjectNode();
       }
     });
+  }
+
+  private _initDataLinkProjects() {
+    this.projectService.getProjectByStatusAndCategory('active', 'project').pipe(delay(1000)).subscribe(
+      (data: any) => {
+        const projectNodeIdsAdded = this.cy?.nodes().filter('[link_project_id > 0]').map((ele: any) => ele.data('link_project_id'));
+        const newProjects = [...data.result];
+        projectNodeIdsAdded?.map((projectId: any) => {
+          const index = newProjects.findIndex(ele => ele.id === projectId);
+          newProjects.splice(index, 1);
+        })
+        this.store.dispatch(retrievedProjects({data: newProjects}));
+      }
+    );
   }
 
   ngOnDestroy(): void {
@@ -384,8 +402,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         data.updated = true;
         data.deleted = false;
       }
-
     }
+
     if (data.label && data.label == 'group_box') {
       const expandCollapse = this.cy.expandCollapse('get');
       let gbNodes;
@@ -474,6 +492,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   private _selectNode($event: any) {
     const t = $event.target;
+    const isChildrenOfProjectNode = t.parent()?.data('category') == 'project';
+    if (isChildrenOfProjectNode) {
+      return;
+    }
     const d = t.data();
     if (this.isBoxSelecting || this.isSearching) { return; }
 
@@ -519,6 +541,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   private _selectEdge($event: any) {
     const t = $event.target;
+    const isChildrenOfProjectNode = t.connectedNodes().some((ele: any) => ele.parent()?.data('category') == 'project')
+    if (isChildrenOfProjectNode) {
+      return;
+    }
     const d = t.data()
     if (this.isBoxSelecting || this.isSearching) { return; }
     if (t.isEdge() && !this.activeEdges.includes(t)) {
@@ -820,7 +846,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         }).run();
       this.cy.elements().unlock();
     }
-
     // this.cy.nodeEditing({
     //   resizeToContentCueImage: "/static/img/resizeCue.svg",
     //   isNoControlsMode: (node: any) => {
@@ -833,6 +858,40 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     //   }
     // });
 
+  }
+
+  private _initCollapseExpandProjectNode() {
+    // Add parent for the elements related to the link project
+    const nodeRelatedLinkProject = this.cy.elements().filter((ele: any) =>
+      (ele.group() == 'nodes' && ele.data('parent_id'))
+    )
+    nodeRelatedLinkProject.forEach((node: any) => {
+      node.move({ parent: `node-${node.data('parent_id')}` });
+    })
+
+    // Set initial collapse and expand based on the project node data
+    const projectNodes = this.cy.nodes().filter('[category="project"]')
+    projectNodes.map((projectNode: any) => {
+      if (projectNode.data('collapsed')) {
+        this.cy.expandCollapse('get').collapseRecursively(projectNode, {});
+        projectNode.data('width', '90px');
+        projectNode.data('height', '90px');
+        projectNode.style({
+          'background-opacity': '0',
+          'background-color': '#fff',
+          'background-image-opacity': 1,
+        });
+      } else {
+        projectNode.style({
+          'background-opacity': '.20',
+          'background-color': '#00dcff',
+          'background-image-opacity': 0,
+        });
+      }
+    })
+
+    // Set events before and after the collapse and expand.
+    this.helpersService.collapseAndExpandProjectNodeEvent(projectNodes);
   }
 
   private _initUndoRedo() {
@@ -921,7 +980,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.cmGroupBoxService.getMoveToFrontMenu(),
         this.cmGroupBoxService.getMoveToBackMenu(),
         this.cmInterfaceService.getNodeInterfaceMenu(this.queueEdge.bind(this), this.cy, this.activeNodes, this.isCanWriteOnProject),
-        this.cmInterfaceService.getLinkProjectMenu(this.queueEdge.bind(this), this.cy, this.activeNodes),
+        this.cmProjectNodeService.getLinkProjectMenu(this.queueEdge.bind(this), this.cy, this.activeNodes),
         this.cmInterfaceService.getPortGroupInterfaceMenu(this.queueEdge.bind(this)),
         this.cmAddService.getEdgeAddMenu(),
         this.cmActionsService.getNodeActionsMenu(this.cy, this.activeNodes, this.isCanWriteOnProject),
@@ -936,6 +995,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.cmLockUnlockService.getUnlockMenu(this.activeNodes, this.activePGs, this.activeMBs),
         this.cmGroupBoxService.getCollapseMenu(this.cy, this.activeGBs),
         this.cmGroupBoxService.getExpandMenu(this.cy, this.activeGBs),
+        this.cmProjectNodeService.getCollapseNodeMenu(this.cy, this.activeNodes),
+        this.cmProjectNodeService.getExpandNodeMenu(this.cy, this.activeNodes),
         this.cmMapService.getSaveChangesMenu(this.isCanWriteOnProject),
         this.cmMapService.getUndoMenu(),
         this.cmMapService.getRedoMenu(),
@@ -1397,7 +1458,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.router.navigate([RouteSegments.DASHBOARD]);
   }
 
-  addTemplateIntoCurrentProject(projectTemplateId: Number, layoutOnly: Boolean, newPosition: any) {
+  addTemplateIntoCurrentProject(projectTemplateId: Number, layoutOnly: Boolean, newPosition: any, projectNodeId = undefined) {
     const collectionId = this.projectService.getCollectionId();
     const jsonData = {
       collection_id: collectionId,
@@ -1431,11 +1492,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
               (node.position && node.data.category != 'management') && node.position?.x !== 0 && node.position?.y !== 0
             )
             if (isNodesHasPosition) {
-              this.helpersService.addCYNodeAndEdge(this.cy, templateItems.nodes, templateItems.interfaces, newPosition);
+              this.helpersService.addCYNodeAndEdge(this.cy, templateItems.nodes, templateItems.interfaces, newPosition, projectNodeId);
               this.saveMapSubject.next();
             } else {
               this.cy.elements().lock();
-              this.helpersService.addCYNodeAndEdge(this.cy, templateItems.nodes, templateItems.interfaces);
+              this.helpersService.addCYNodeAndEdge(this.cy, templateItems.nodes, templateItems.interfaces, projectNodeId);
               this.cy.layout({
                 name: "cose",
                 avoidOverlap: true,
@@ -1447,13 +1508,52 @@ export class MapComponent implements AfterViewInit, OnDestroy {
               }).run();
               this.cy.elements().unlock();
             }
-            this.toastr.success('Added items from template into project successfully', 'Success');
+            let successMessage = 'Added items from template into project successfully'
+            if (projectNodeId) {
+              successMessage = 'Added items from link project into current project successfully'
+            }
+            this.toastr.success(successMessage, 'Success');
             this.validateProject(collectionId);
           })
         })
       })
     })
   }
+
+  addLinkProjectIntoCurrentProject(linkProjectId: Number, position: any, projectNodeId: any) {
+    const jsonData = {
+      link_project_id: linkProjectId,
+      position: position,
+      project_node_id: projectNodeId
+    }
+    this.mapService.getLinkProjectData(jsonData).pipe(
+      catchError(err => {
+        this.toastr.error('Add items from link project into current project failed!', 'Error');
+        return throwError(() => err);
+      })
+    ).subscribe(response => {
+      const data = response.result;
+      const nodes = data.nodes;
+      const edges = data.interfaces;
+      this.helpersService.addCYNodeAndEdge(this.cy, nodes, edges, {x: 0, y: 0}, projectNodeId);
+      const nodeEle = this.cy.getElementById(`node-${projectNodeId}`)
+      this.cy.expandCollapse('get').collapseRecursively(nodeEle, {});
+      nodeEle.data('width', '90px');
+      nodeEle.data('height', '90px');
+      nodeEle.data('lastPos', nodeEle.position());
+      nodeEle.data('collapsed', true);
+      nodeEle.data('updated', true);
+      nodeEle.data('deleted', false);
+      nodeEle.data('new', false);
+      nodeEle.style({
+        'background-opacity': '0',
+        'background-color': '#fff',
+        'background-image-opacity': 1,
+      });
+      this.toastr.success('Added items from link project into current project successfully', 'Success');
+    })
+  }
+
 
   addProjectNode(linkProjectId: number, projectId: any, newNodePosition: any) {
     this.projectService.get(linkProjectId).subscribe(linkProjectResponse => {
@@ -1465,6 +1565,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         category: 'project',
         collection_id: projectId,
         logical_map_position: newNodePosition,
+        logical_map_collapsed: true,
         logical_map_style: {
           height: '70',
           width: '70',
@@ -1483,7 +1584,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         catchError((resp: any) => {
           this.isAddProjectNode = false;
           this._enableMapEditButtons();
-          this.toastr.error('Add Project Node Failed!', 'Error');
+          this.toastr.error('Add project node failed!', 'Error');
           if (resp.status == 422) {
             const errorMsg: any[] = resp.error.message;
             const m = Object.keys(errorMsg).map((key: any) => key + ': ' + errorMsg[key])
@@ -1499,6 +1600,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           const cyData = respData.result;
           cyData.id = 'node-' + respData.id;
           cyData.node_id = respData.id;
+          cyData.collapsed = true;
           cyData.height = cyData.logical_map_style.height;
           cyData.width = cyData.logical_map_style.width;
           cyData.text_color = cyData.logical_map_style.text_color;
@@ -1512,7 +1614,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             'shape': 'roundrectangle',
             'text-opacity': 1
           }
-          this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData },  newNodePosition});
+          const nodeEle = this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData },  newNodePosition});
+
+          // Add collapse and expand event for new project node
+          this.helpersService.collapseAndExpandProjectNodeEvent(nodeEle);
+
+          // Update link projects storage
           const projectNodeIdsAdded = this.cy.nodes().filter('[link_project_id > 0]').map((ele: any) => ele.data('link_project_id'));
           const newProjects = [...this.projects];
           projectNodeIdsAdded.map((projectId: any) => {
@@ -1520,7 +1627,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             newProjects.splice(index, 1);
           })
           this.store.dispatch(retrievedProjects({data: newProjects}));
-          this.toastr.success('Link Project Successfully', 'Success')
+          this.toastr.success('Add project node successfully', 'Success');
+
+          // Add items in the link project into current project
+          this.addLinkProjectIntoCurrentProject(linkProjectId, newNodePosition, cyData.node_id);
         });
       });
     })

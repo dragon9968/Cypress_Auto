@@ -156,10 +156,18 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
 
   save() {
     this.cy.elements().forEach((ele: any) => {
-      if (ele.group() == "nodes") {
-        this.getUpdatedNodeOrPGOrGB(ele);
+      const isNotChildrenOfLinkProject = Boolean(ele.parent()?.data('category') != 'project');
+      if (ele.group() == "nodes" && isNotChildrenOfLinkProject) {
+        if (ele.data('category') == 'project') {
+          this.getUpdateProjectNode(ele);
+        } else {
+          this.getUpdatedNodeOrPGOrGB(ele);
+        }
       } else {
-        this.getUpdatedInterface(ele);
+        const isEdgeChildrenOfProjectNode = ele.connectedNodes().some((ele: any) => ele.parent()?.data('category') != 'project')
+        if (isEdgeChildrenOfProjectNode) {
+          this.getUpdatedInterface(ele);
+        }
       }
     });
 
@@ -403,6 +411,38 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     }
     this.updatedGroupBoxes.push(updatedGroupbox);
   }
+
+  getUpdateProjectNode(ele: any) {
+    const data = ele.data();
+    const {collapsedChildren, ...dataParent} = data;
+    const updatedNode = {
+      id: data.id,
+      position: ele.position(),
+      elem_category: data.elem_category,
+      map_style: {
+        height: ele.style("height"),
+        width: ele.style("width"),
+        text_size: ele.style("font-size"),
+        text_color: ele.style("color"),
+        text_bg_color: ele.style("text-background-color"),
+        text_bg_opacity: ele.style("text-background-opacity"),
+        text_valign: ele.style("text-valign"),
+        text_halign: ele.style("text-halign"),
+        'text-wrap': ele.style("text-wrap"),
+        'background-image': ele.style("background-image"),
+        'background-fit': ele.style("background-fit"),
+        color: ele.data("elem_category") == "port_group" ? ele.style("background-color") : undefined,
+        pg_color: ele.data("elem_category") == "port_group" ? data.pg_color : undefined,
+      },
+      label: data.label,
+      data: {
+        ...dataParent,
+        locked: ele.locked()
+      }
+    };
+    this.updatedNodes.push(updatedNode);
+  }
+
 
   getUpdatedNodeOrPG(ele: any, position: any) {
     const data = ele.data();
