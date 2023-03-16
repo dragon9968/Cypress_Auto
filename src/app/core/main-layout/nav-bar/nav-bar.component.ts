@@ -137,7 +137,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
       const connection = this.serverConnectionService.getConnection();
       this.connection = connection ? connection : { name: '', id: 0 };
     })
-    this.userService.get(userId).subscribe(respData => {
+    this.userService.get_profile().subscribe(respData => {
       this.username = respData.result.username;
       this.isAdmin = respData.result.roles[0].id === PermissionLevels.ADMIN;
       this.store.dispatch(retrievedUserProfile({ data: respData.result }));

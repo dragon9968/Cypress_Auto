@@ -18,6 +18,10 @@ export class UserService {
     return this.http.get<any>(ApiPaths.USER + id);
   }
 
+  get_profile(): Observable<any> {
+    return this.http.get<any>(ApiPaths.USER_PROFILE);
+  }
+
   add(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.USER, data);
   }
