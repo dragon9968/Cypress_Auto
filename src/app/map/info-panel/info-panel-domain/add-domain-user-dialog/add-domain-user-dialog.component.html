@@ -14,7 +14,7 @@
     </mat-form-field>
   </div>
   <div mat-dialog-actions [align]="'end'">
-    <button type="text" mat-raised-button (click)="onCancel()">Cancel</button>
+    <button type="button" mat-raised-button mat-dialog-close>Cancel</button>
     <button type="submit" mat-raised-button color="primary" [disabled]="!addDomainUserForm.valid">
       Save <mat-icon>save</mat-icon>
     </button>

@@ -65,7 +65,6 @@ export class NavBarComponent implements OnInit, OnDestroy {
   collectionId: any;
   projectName: any;
   username: any;
-  isAdmin = false;
   categoryProject: any;
   isHiddenNavbar!: boolean;
   projectNav: any[] = [];
@@ -139,7 +138,6 @@ export class NavBarComponent implements OnInit, OnDestroy {
     })
     this.userService.get_profile().subscribe(respData => {
       this.username = respData.result.username;
-      this.isAdmin = respData.result.roles[0].id === PermissionLevels.ADMIN;
       this.store.dispatch(retrievedUserProfile({ data: respData.result }));
     });
     iconRegistry.addSvgIcon('plant-tree-icon', this.helpersService.setIconPath('/assets/icons/plant-tree-icon.svg'));

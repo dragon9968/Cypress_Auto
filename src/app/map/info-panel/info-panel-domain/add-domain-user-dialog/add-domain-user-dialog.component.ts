@@ -35,10 +35,6 @@ export class AddDomainUserDialogComponent implements OnInit {
     this.userPasswordCtr?.setValue('P@ssw0rd123');
   }
 
-  onCancel() {
-    this.dialogRef.close()
-  }
-
   addDomainUsers() {
     const jsonDataValue = {
       domain_id: this.data.genData.domainId,
