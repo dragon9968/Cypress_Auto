@@ -166,6 +166,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.userService.getAll().subscribe(data => this.store.dispatch(retrievedUser({ data: data.result })));
     if (!this.isAdmin && this.router.url === this.projectPageUrl) {
       this.categoryPage = 'project'
       this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
@@ -175,7 +176,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
     } else {
       this.projectService.getProjectByStatus(this.status).subscribe((data: any) => this.store.dispatch(retrievedAllProjects({ listAllProject: data.result })));
     }
-    this.userService.getAll().subscribe(data => this.store.dispatch(retrievedUser({ data: data.result })))
   }
 
   ngOnDestroy(): void {

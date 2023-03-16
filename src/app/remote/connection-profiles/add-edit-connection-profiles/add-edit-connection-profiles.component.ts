@@ -77,7 +77,7 @@ export class AddEditConnectionProfilesComponent implements OnInit {
       this.dataCenter?.setValue(this.data.genData.parameters.datacenter === '' ? 'None' : this.data.genData.parameters.datacenter);
       this.cluster?.setValue(this.data.genData.parameters.cluster === '' ? 'None' : this.data.genData.parameters.cluster);
       this.dataStore?.setValue(this.data.genData.parameters.datastore === '' ? 'None' : this.data.genData.parameters.datastore);
-      this.datastoreCluster?.setValue(this.data.genData.parameters.datastore_cluster === '' ? 'false' : this.data.genData.parameters.datastore_cluster);
+      this.datastoreCluster?.setValue(this.data.genData.parameters.datastore_cluster);
       this.switch?.setValue(this.data.genData.parameters.switch === '' ? 'None' : this.data.genData.parameters.switch);
       this.switchType?.setValue(this.data.genData.parameters.switch_type === '' ? 'None' : this.data.genData.parameters.switch_type);
       this.managementNetwork?.setValue(this.data.genData.parameters.management_network === '' ? 'None' : this.data.genData.parameters.management_network);
@@ -166,7 +166,7 @@ export class AddEditConnectionProfilesComponent implements OnInit {
             this.dialogRef.close();
           },
           error:(err) => {
-            this.toastr.error(`Error while add connection ${err.result.name}`);
+            this.toastr.error(`Error while add connection`);
           }
         });
       } else {

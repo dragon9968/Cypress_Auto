@@ -32,7 +32,8 @@
           <img [src]="ICON_PATH + url_default" width="90px" height="auto">
         </div>
       </div>
-      <input *ngIf="data.mode !== 'view'" type="file" name='file' accept="image/*" (change)="onFileSelected($event)" formControlName="file">
+      <input *ngIf="data.mode !== 'view'" formControlName="fileCtr" type="file" name='file' accept="image/*" (change)="onFileSelected($event)">
+      <mat-error *ngIf="fileCtr?.hasError('isNotFile')">{{ errorMessages.IMAGE_FORMAT_FILE }}</mat-error>
     </div>
   </div>
   <div mat-dialog-actions [align]="'end'" class="create-btn">

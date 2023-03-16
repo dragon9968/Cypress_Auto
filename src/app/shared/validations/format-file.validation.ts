@@ -12,6 +12,8 @@ export function validateInputFile(format: string): ValidatorFn {
       return null
     } else if (format === 'json|csv' && (filename.endsWith('.json') || filename.endsWith('.csv'))) {
       return null
+    } else if (format === 'png|jpg' && (filename.endsWith('.png') || filename.endsWith('.jpg') || filename.endsWith('jpeg'))) {
+      return null
     } else {
       return { isNotFile: true }
     }

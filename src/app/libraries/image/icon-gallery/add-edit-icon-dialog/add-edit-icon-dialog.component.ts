@@ -8,6 +8,7 @@ import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { ImageService } from 'src/app/core/services/image/image.service';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
+import { validateInputFile } from 'src/app/shared/validations/format-file.validation';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 import { retrievedIcons } from 'src/app/store/icon/icon.actions';
 import { selectIcons } from 'src/app/store/icon/icon.selectors';
@@ -49,7 +50,7 @@ export class AddEditIconDialogComponent implements OnInit {
         value: '', disabled: this.isViewMode
       }, [Validators.required, validateNameExist(() => this.selectedIcon, this.data.mode, this.data.genData.id)]),
       photo: new FormControl({ value: '', disabled: this.isViewMode }),
-      file: new FormControl('')
+      fileCtr: new FormControl('')
     })
     if (this.data) {
       this.id?.setValue(this.data.genData.id);
@@ -62,7 +63,7 @@ export class AddEditIconDialogComponent implements OnInit {
   get id() { return this.iconForm.get('id'); }
   get name() { return this.iconForm.get('name'); }
   get photo() { return this.iconForm.get('photo'); }
-  get file() { return this.iconForm.get('file'); }
+  get fileCtr() { return this.iconForm.get('fileCtr'); }
 
   ngOnInit(): void {
     this.isHiddenDeleteButton = true;
@@ -72,8 +73,9 @@ export class AddEditIconDialogComponent implements OnInit {
         } else {
           this.isHiddenDeleteButton = true;
         }
+        this.fileCtr?.setValidators([validateInputFile('png|jpg')]);
     } else if (this.data.mode === 'add') {
-      this.file?.setValidators([Validators.required]);
+      this.fileCtr?.setValidators([Validators.required, validateInputFile('png|jpg')]);
     }
   }
 
