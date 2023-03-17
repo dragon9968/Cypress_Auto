@@ -13,7 +13,7 @@ import { CMActionsService } from "../../context-menu/cm-actions/cm-actions.servi
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
-import { InfoPanelShowValidationNodesComponent } from "../info-panel-show-validation-nodes/info-panel-show-validation-nodes.component";
+import { InfoPanelShowValidationResultsComponent } from "../../../shared/components/info-panel-show-validation-results/info-panel-show-validation-results.component";
 import { AddUpdateNodeDialogComponent } from "../../add-update-node-dialog/add-update-node-dialog.component";
 import { NodeBulkEditDialogComponent } from "../../bulk-edit-dialog/node-bulk-edit-dialog/node-bulk-edit-dialog.component";
 import { ViewUpdateProjectNodeComponent } from "../../context-menu/cm-dialog/view-update-project-node/view-update-project-node.component";
@@ -352,7 +352,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
       this.nodeService.validate({ pks }).pipe(
         catchError((e: any) => {
           this.toastr.error(e.error.message);
-          const dialogRef = this.dialog.open(InfoPanelShowValidationNodesComponent, {
+          this.dialog.open(InfoPanelShowValidationResultsComponent, {
             autoFocus: false,
             width: 'auto',
             data: e.error.result

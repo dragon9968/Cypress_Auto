@@ -39,6 +39,7 @@ import { AngularDualListBoxModule } from 'angular-dual-listbox';
 import { NgxPermissionsModule } from "ngx-permissions";
 import { NgxJsonViewerModule } from "ngx-json-viewer";
 import { AceEditorModule } from "ng2-ace-editor";
+import { InfoPanelShowValidationResultsComponent } from './components/info-panel-show-validation-results/info-panel-show-validation-results.component';
 
 
 const materialModules = [
@@ -73,7 +74,7 @@ const materialModules = [
 ];
 
 @NgModule({
-  declarations: [ConfirmationDialogComponent, SpinnerComponent],
+  declarations: [ConfirmationDialogComponent, SpinnerComponent, InfoPanelShowValidationResultsComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,

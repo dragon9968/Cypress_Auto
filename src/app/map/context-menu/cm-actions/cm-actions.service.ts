@@ -8,7 +8,7 @@ import { InterfaceService } from 'src/app/core/services/interface/interface.serv
 import { NodeService } from 'src/app/core/services/node/node.service';
 import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
-import { InfoPanelShowValidationNodesComponent } from '../../info-panel/info-panel-show-validation-nodes/info-panel-show-validation-nodes.component';
+import { InfoPanelShowValidationResultsComponent } from '../../../shared/components/info-panel-show-validation-results/info-panel-show-validation-results.component';
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { environment } from "../../../../environments/environment";
 
@@ -58,7 +58,7 @@ export class CMActionsService {
             this.nodeService.validate({ pks }).pipe(
               catchError((e: any) => {
                 this.toastr.error(e.error.message);
-                const dialogRef = this.dialog.open(InfoPanelShowValidationNodesComponent, {
+                this.dialog.open(InfoPanelShowValidationResultsComponent, {
                   autoFocus: false,
                   width: 'auto',
                   data: e.error.result
@@ -100,6 +100,11 @@ export class CMActionsService {
             this.portGroupService.validate({ pks }).pipe(
               catchError((e: any) => {
                 this.toastr.error(e.error.message);
+                this.dialog.open(InfoPanelShowValidationResultsComponent, {
+                  autoFocus: false,
+                  width: 'auto',
+                  data: e.error.result
+                });
                 return throwError(() => e);
               })
             ).subscribe(respData => {
@@ -149,6 +154,11 @@ export class CMActionsService {
             this.interfaceService.validate({ pks }).pipe(
               catchError((e: any) => {
                 this.toastr.error(e.error.message);
+                this.dialog.open(InfoPanelShowValidationResultsComponent, {
+                  autoFocus: false,
+                  width: 'auto',
+                  data: e.error.result
+                });
                 return throwError(() => e);
               })
             ).subscribe(respData => {

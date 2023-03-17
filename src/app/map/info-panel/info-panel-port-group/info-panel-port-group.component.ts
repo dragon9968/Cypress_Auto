@@ -16,6 +16,7 @@ import { retrievedMapSelection } from "src/app/store/map-selection/map-selection
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { AddUpdatePGDialogComponent } from "../../add-update-pg-dialog/add-update-pg-dialog.component";
 import { PortGroupBulkEditDialogComponent } from "../../bulk-edit-dialog/port-group-bulk-edit-dialog/port-group-bulk-edit-dialog.component";
+import { InfoPanelShowValidationResultsComponent } from "../../../shared/components/info-panel-show-validation-results/info-panel-show-validation-results.component";
 
 @Component({
   selector: 'app-info-panel-port-group',
@@ -293,6 +294,11 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
       this.portGroupService.validate({ pks: this.rowsSelectedId }).pipe(
         catchError((e: any) => {
           this.toastr.error(e.error.message);
+          this.dialog.open(InfoPanelShowValidationResultsComponent, {
+            autoFocus: false,
+            width: 'auto',
+            data: e.error.result
+          });
           return throwError(() => e);
         })
       ).subscribe(response => {

@@ -3,15 +3,15 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
-  selector: 'app-info-panel-show-validation-nodes',
-  templateUrl: './info-panel-show-validation-nodes.component.html',
-  styleUrls: ['./info-panel-show-validation-nodes.component.scss']
+  selector: 'app-info-panel-show-validation-results',
+  templateUrl: './info-panel-show-validation-results.component.html',
+  styleUrls: ['./info-panel-show-validation-results.component.scss']
 })
-export class InfoPanelShowValidationNodesComponent implements OnInit {
+export class InfoPanelShowValidationResultsComponent implements OnInit {
   validationResult!: SafeHtml;
   constructor(
     private sanitizer: DomSanitizer,
-    public dialogRef: MatDialogRef<InfoPanelShowValidationNodesComponent>,
+    public dialogRef: MatDialogRef<InfoPanelShowValidationResultsComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) { 
     this.validationResult = this.sanitizer.bypassSecurityTrustHtml(this.data);

@@ -35,7 +35,6 @@ import { DomainUserDialogComponent } from './info-panel/info-panel-domain/domain
 import { UpdateDomainUserDialogComponent } from './info-panel/info-panel-domain/update-domain-user-dialog/update-domain-user-dialog.component';
 import { AddDeletePGDeployDialogComponent } from './deployment-dialog/deployment-pg-dialog/add-delete-pg-deploy-dialog/add-delete-pg-deploy-dialog.component';
 import { UpdateFactsNodeDialogComponent } from './deployment-dialog/deployment-node-dialog/update-facts-node-dialog/update-facts-node-dialog.component';
-import { InfoPanelShowValidationNodesComponent } from './info-panel/info-panel-show-validation-nodes/info-panel-show-validation-nodes.component';
 import { InfoPanelPortGroupManagementComponent } from './info-panel/info-panel-port-group-management/info-panel-port-group-management.component';
 import { InfoPanelInterfaceManagementComponent } from './info-panel/info-panel-interface-management/info-panel-interface-management.component';
 import { NodeToolsDialogComponent } from './deployment-dialog/deployment-node-dialog/node-tools-dialog/node-tools-dialog.component';
@@ -79,7 +78,6 @@ import { ViewUpdateProjectNodeComponent } from './context-menu/cm-dialog/view-up
     UpdateDomainUserDialogComponent,
     AddDeletePGDeployDialogComponent,
     UpdateFactsNodeDialogComponent,
-    InfoPanelShowValidationNodesComponent,
     InfoPanelPortGroupManagementComponent,
     InfoPanelInterfaceManagementComponent,
     NodeToolsDialogComponent,

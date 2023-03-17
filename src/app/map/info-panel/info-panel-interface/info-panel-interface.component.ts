@@ -14,6 +14,7 @@ import { retrievedMapSelection } from "src/app/store/map-selection/map-selection
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { AddUpdateInterfaceDialogComponent } from "../../add-update-interface-dialog/add-update-interface-dialog.component";
 import { InterfaceBulkEditDialogComponent } from "../../bulk-edit-dialog/interface-bulk-edit-dialog/interface-bulk-edit-dialog.component";
+import { InfoPanelShowValidationResultsComponent } from "../../../shared/components/info-panel-show-validation-results/info-panel-show-validation-results.component";
 
 @Component({
   selector: 'app-info-panel-interface',
@@ -270,6 +271,11 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
       this.interfaceService.validate({ pks: this.rowsSelectedId }).pipe(
         catchError((error: any) => {
           this.toastr.error(error.error.message);
+          this.dialog.open(InfoPanelShowValidationResultsComponent, {
+            autoFocus: false,
+            width: 'auto',
+            data: error.error.result
+          });
           return throwError(() => error.error.message);
         })
       ).subscribe(response => {
