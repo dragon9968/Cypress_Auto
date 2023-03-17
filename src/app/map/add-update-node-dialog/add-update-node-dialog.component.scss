@@ -45,58 +45,60 @@ $margin: 8px;
 .mat-option {
     height: 60px;
 }
-
-.node {
-  display: flex;
-  &__left {
-    width: 50%;
-    margin-right: $margin;
-    background-color: #fff;
-    border-radius: calc($margin/2);
-    &__detail {
-      &--top {
-        padding: $margin;
-      }
-      &--bottom {
-        display: flex;
-        justify-content: space-between;
-        &__left, &__right {
-          width: 45%;
+.node-area {
+  max-height: 85vh;
+  .node {
+    display: flex;
+    &__left {
+      width: 50%;
+      margin-right: $margin;
+      background-color: #fff;
+      border-radius: calc($margin/2);
+      &__detail {
+        &--top {
           padding: $margin;
+        }
+        &--bottom {
+          display: flex;
+          justify-content: space-between;
+          &__left, &__right {
+            width: 45%;
+            padding: $margin;
+          }
+        }
+      }
+    }
+    &__right {
+      width: 50%;
+      &__configuration {
+        background-color: #fff;
+        padding: 2px 8px 4px 8px;
+        border-radius: 4px;
+        &__default {
+          overflow-y: auto;
+          max-height: 400px;
+          ace-editor {
+            height: 400px;
+          }
         }
       }
     }
   }
-  &__right {
-    width: 50%;
+  .interfaces {
+    width: 100%;
     position: relative;
-    &__configuration {
-      background-color: #fff;
-      padding: 2px 8px 4px 8px;
-      border-radius: 4px;
-      &__default {
-        overflow-y: auto;
-        max-height: 165px;
-        ace-editor {
-          height: 165px;
-        }
-        ngx-json-viewer {
-        }
-      }
-    }
-    &__interfaces {
-      width: 100%;
-      position: absolute;
-      bottom: 0;
-      &__table ag-grid-angular {
-        text-align: center;
-        .ag-header-cell-label {
-          justify-content: center;
-        }
+    bottom: 0;
+    margin-top: $margin;
+    &__table ag-grid-angular {
+      text-align: center;
+      .ag-header-cell-label {
+        justify-content: center;
       }
     }
   }
 }
+
+
 
 .title {
   font: 500 15px/0px Roboto, "Helvetica Neue", sans-serif;

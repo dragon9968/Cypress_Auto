@@ -113,6 +113,12 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
         flex: 1,
       },
       {
+        field: 'port_group.subnet',
+        headerName: 'Subnet',
+        minWidth: 160,
+        flex: 1,
+      },
+      {
         field: 'description',
         flex: 1,
       }

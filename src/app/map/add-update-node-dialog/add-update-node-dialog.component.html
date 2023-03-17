@@ -12,184 +12,186 @@
       </button>
     </ng-template>
   </div>
-  <mat-dialog-content class="node">
-    <section [style.width]="data.mode === 'add' ? '100%' : '50%'" class="node__left">
-      <div class="node__left__detail">
-        <div class="node__left__detail--top">
-          <mat-form-field class="field">
-            <mat-label>Name</mat-label>
-            <input matInput formControlName="nameCtr" [readonly]="isViewMode">
-            <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-            <mat-error *ngIf="nameCtr?.errors?.isExist">{{ errorMessages.NODE_NAME_EXIST }}</mat-error>
-          </mat-form-field>
-          <mat-form-field class="field">
-            <mat-label>Notes</mat-label>
-            <textarea matInput formControlName="notesCtr" [readonly]="isViewMode" rows="1"></textarea>
-          </mat-form-field>
-          <div class="category">
-            <label class="category-label">Category:</label>
-            <mat-radio-group class="category-group" formControlName="categoryCtr" (change)="onCategoryChange($event)">
-              <mat-radio-button class="category-items" value="vm">VM</mat-radio-button>
-              <mat-radio-button class="category-items" value="hw">HW</mat-radio-button>
-              <mat-radio-button class="category-items" value="other">Other</mat-radio-button>
-            </mat-radio-group>
-          </div>
-        </div>
-        <div class="node__left__detail--bottom">
-          <div class="node__left__detail--bottom__left">
+  <mat-dialog-content class="node-area">
+    <div class="node">
+      <section [style.width]="data.mode === 'add' ? '100%' : '50%'" class="node__left">
+        <div class="node__left__detail">
+          <div class="node__left__detail--top">
             <mat-form-field class="field">
-              <mat-label>Icon</mat-label>
-              <input matInput type="text" placeholder="Select an icon" formControlName="iconCtr" [matAutocomplete]="autoIcon"
-                     [readonly]="isViewMode">
-              <mat-autocomplete #autoIcon="matAutocomplete" [displayWith]="helpers.optionDisplay">
-                <mat-option *ngFor="let option of filteredIcons | async" [value]="option">
-                  <div class="option-text">
-                    <img [src]="ICON_PATH + option.photo" height="24" width="24">
-                    &nbsp;
-                    <span>{{ option.name }}</span>
-                  </div>
-                </mat-option>
-              </mat-autocomplete>
-              <mat-error *ngIf="iconCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+              <mat-label>Name</mat-label>
+              <input matInput formControlName="nameCtr" [readonly]="isViewMode">
+              <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+              <mat-error *ngIf="nameCtr?.errors?.isExist">{{ errorMessages.NODE_NAME_EXIST }}</mat-error>
             </mat-form-field>
             <mat-form-field class="field">
-              <mat-label>Device</mat-label>
-              <input matInput type="text" placeholder="Select a device" formControlName="deviceCtr"
-                     [matAutocomplete]="autoDevice" [readonly]="isViewMode" (change)="changeDevice()">
-              <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="helpers.optionDisplay"
-                                (optionSelected)="selectDevice($event)">
-                <mat-option *ngFor="let option of filteredDevices | async" [value]="option">
-                  <div class="option-text">
-                    <img [src]="ICON_PATH + option.icon?.photo" height="24" width="24">
-                    &nbsp;
-                    <span>{{ option.name }}</span>
-                  </div>
-                </mat-option>
-              </mat-autocomplete>
-              <mat-error *ngIf="deviceCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-              <mat-error *ngIf="deviceCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+              <mat-label>Notes</mat-label>
+              <textarea matInput formControlName="notesCtr" [readonly]="isViewMode" rows="1"></textarea>
             </mat-form-field>
-            <mat-form-field class="field">
-              <mat-label>Hardware</mat-label>
-              <input matInput type="text" placeholder="Select a hardware" formControlName="hardwareCtr"
-                     [matAutocomplete]="autoHardware" [readonly]="isViewMode">
-              <mat-autocomplete #autoHardware="matAutocomplete" [displayWith]="helpers.hardwareDisplay">
-                <mat-option *ngFor="let option of filteredHardwares | async" [value]="option" style="height: 60px !important;">
-                  <div class="hardware-option-text">
-                    <span class="option-text-items"><b>{{ option.device?.name }} {{ option.template?.name }}</b></span>
-                    <span class="option-text-items">Serial #: {{ option.serial_number }}</span>
-                    <span class="option-text-items">Asset Tag: {{ option.asset_tag }}</span>
-                  </div>
-                </mat-option>
-              </mat-autocomplete>
-              <mat-error *ngIf="hardwareCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-              <mat-error *ngIf="hardwareCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
-            </mat-form-field>
-            <mat-form-field class="field">
-              <mat-label>Parent Folder</mat-label>
-              <input matInput formControlName="parentFolderCtr" [readonly]="isViewMode">
-            </mat-form-field>
-            <mat-form-field class="field">
-              <mat-label>Domain</mat-label>
-              <input matInput type="text" placeholder="Select a domain" formControlName="domainCtr"
-                     [matAutocomplete]="autoDomain" [readonly]="isViewMode">
-              <mat-autocomplete #autoDomain="matAutocomplete" [displayWith]="helpers.optionDisplay">
-                <mat-option *ngFor="let option of filteredDomains | async" [value]="option">
-                  {{ option.name }}
-                </mat-option>
-              </mat-autocomplete>
-              <mat-error *ngIf="domainCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-              <mat-error *ngIf="domainCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
-            </mat-form-field>
-          </div>
-          <div class="node__left__detail--bottom__right">
-            <mat-form-field class="field">
-              <mat-label>Role</mat-label>
-              <input matInput type="text" placeholder="Select a role" formControlName="roleCtr" [matAutocomplete]="autoRole"
-                     [readonly]="isViewMode">
-              <mat-autocomplete #autoRole="matAutocomplete" [displayWith]="helpers.optionDisplay">
-                <mat-option *ngFor="let option of filteredRoles | async" [value]="option">
-                  {{ option.name }}
-                </mat-option>
-              </mat-autocomplete>
-              <mat-error *ngIf="roleCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-              <mat-error *ngIf="roleCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
-            </mat-form-field>
-            <mat-form-field class="field">
-              <mat-label>Template</mat-label>
-              <input matInput type="text" placeholder="Select a template" formControlName="templateCtr"
-                     [matAutocomplete]="autoTemplate" [readonly]="isViewMode">
-              <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helpers.templateDisplay">
-                <mat-option *ngFor="let option of filteredTemplates | async" [value]="option">
-                  <div class="option-text">
-                    <img [src]="ICON_PATH + option.icon?.photo" height="24" width="24">
-                    &nbsp;
-                    <span>{{ option.display_name }}</span>
-                  </div>
-                </mat-option>
-              </mat-autocomplete>
-              <mat-error *ngIf="templateCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-              <mat-error *ngIf="templateCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
-            </mat-form-field>
-            <mat-form-field class="field">
-              <mat-label>Login Profile</mat-label>
-              <input matInput type="text" placeholder="Assign a login profile" formControlName="loginProfileCtr"
-                     [matAutocomplete]="autoLoginProfile" [readonly]="isViewMode">
-              <mat-autocomplete #autoLoginProfile="matAutocomplete" [displayWith]="helpers.optionDisplay">
-                <mat-option *ngFor="let option of filteredLoginProfiles | async" [value]="option" style="height: 60px !important;">
-                  <div class="login-profiles-option-text">
-                    <span class="option-text-items"><b>{{ option.name }}</b></span>
-                    <span class="option-text-items">Username: {{ option.username }}</span>
-                    <span class="option-text-items">Password: {{ option.password }}</span>
-                  </div>
-                </mat-option>
-              </mat-autocomplete>
-              <mat-error *ngIf="loginProfileCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
-            </mat-form-field>
-            <mat-form-field class="field">
-              <mat-label>Folder</mat-label>
-              <input matInput formControlName="folderCtr" [readonly]="isViewMode">
-              <mat-error *ngIf="folderCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-            </mat-form-field>
-            <mat-form-field class="field">
-              <mat-label>Hostname</mat-label>
-              <input matInput formControlName="hostnameCtr" [readonly]="isViewMode" [errorStateMatcher]="errorMatcher">
-              <mat-error *ngIf="hostnameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-              <mat-error *ngIf="nodeAddForm.errors?.['isNotMatchLength']">{{ nodeAddForm.errors.message }}</mat-error>
-              <mat-error *ngIf="nodeAddForm.errors?.['isNotMatchPattern']">{{ nodeAddForm.errors.message }}</mat-error>
-            </mat-form-field>
-          </div>
-        </div>
-      </div>
-    </section>
-    <section *ngIf="data.mode !== 'add'" class="node__right">
-      <div class="node__right__configuration">
-        <ng-select formControlName="configTemplateCtr" [items]="configTemplates"
-                   [multiple]="true" bindLabel="name" bindValue="id" placeholder="Configurations">
-          <ng-template ng-option-tmp let-item="item" let-index="index">
-            <div class="configurations-option-text">
-              <span class="option-text-items"><b>{{ item.name }}</b></span>
-              <span class="option-text-items">{{ item.description }}</span>
+            <div class="category">
+              <label class="category-label">Category:</label>
+              <mat-radio-group class="category-group" formControlName="categoryCtr" (change)="onCategoryChange($event)">
+                <mat-radio-button class="category-items" value="vm">VM</mat-radio-button>
+                <mat-radio-button class="category-items" value="hw">HW</mat-radio-button>
+                <mat-radio-button class="category-items" value="other">Other</mat-radio-button>
+              </mat-radio-group>
             </div>
-          </ng-template>
-        </ng-select>
-        <h3 class="title">Default Configuration</h3>
-        <div class="node__right__configuration__default">
-          <div *ngIf="isViewMode">
-            <ngx-json-viewer [json]="defaultConfig" [expanded]="false"></ngx-json-viewer>
           </div>
-          <div [style.display]="isViewMode ? 'none' : 'block'">
-            <ace-editor #editor></ace-editor>
+          <div class="node__left__detail--bottom">
+            <div class="node__left__detail--bottom__left">
+              <mat-form-field class="field">
+                <mat-label>Icon</mat-label>
+                <input matInput type="text" placeholder="Select an icon" formControlName="iconCtr" [matAutocomplete]="autoIcon"
+                       [readonly]="isViewMode">
+                <mat-autocomplete #autoIcon="matAutocomplete" [displayWith]="helpers.optionDisplay">
+                  <mat-option *ngFor="let option of filteredIcons | async" [value]="option">
+                    <div class="option-text">
+                      <img [src]="ICON_PATH + option.photo" height="24" width="24">
+                      &nbsp;
+                      <span>{{ option.name }}</span>
+                    </div>
+                  </mat-option>
+                </mat-autocomplete>
+                <mat-error *ngIf="iconCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+              </mat-form-field>
+              <mat-form-field class="field">
+                <mat-label>Device</mat-label>
+                <input matInput type="text" placeholder="Select a device" formControlName="deviceCtr"
+                       [matAutocomplete]="autoDevice" [readonly]="isViewMode" (change)="changeDevice()">
+                <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="helpers.optionDisplay"
+                                  (optionSelected)="selectDevice($event)">
+                  <mat-option *ngFor="let option of filteredDevices | async" [value]="option">
+                    <div class="option-text">
+                      <img [src]="ICON_PATH + option.icon?.photo" height="24" width="24">
+                      &nbsp;
+                      <span>{{ option.name }}</span>
+                    </div>
+                  </mat-option>
+                </mat-autocomplete>
+                <mat-error *ngIf="deviceCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+                <mat-error *ngIf="deviceCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+              </mat-form-field>
+              <mat-form-field class="field">
+                <mat-label>Hardware</mat-label>
+                <input matInput type="text" placeholder="Select a hardware" formControlName="hardwareCtr"
+                       [matAutocomplete]="autoHardware" [readonly]="isViewMode">
+                <mat-autocomplete #autoHardware="matAutocomplete" [displayWith]="helpers.hardwareDisplay">
+                  <mat-option *ngFor="let option of filteredHardwares | async" [value]="option" style="height: 60px !important;">
+                    <div class="hardware-option-text">
+                      <span class="option-text-items"><b>{{ option.device?.name }} {{ option.template?.name }}</b></span>
+                      <span class="option-text-items">Serial #: {{ option.serial_number }}</span>
+                      <span class="option-text-items">Asset Tag: {{ option.asset_tag }}</span>
+                    </div>
+                  </mat-option>
+                </mat-autocomplete>
+                <mat-error *ngIf="hardwareCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+                <mat-error *ngIf="hardwareCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+              </mat-form-field>
+              <mat-form-field class="field">
+                <mat-label>Parent Folder</mat-label>
+                <input matInput formControlName="parentFolderCtr" [readonly]="isViewMode">
+              </mat-form-field>
+              <mat-form-field class="field">
+                <mat-label>Domain</mat-label>
+                <input matInput type="text" placeholder="Select a domain" formControlName="domainCtr"
+                       [matAutocomplete]="autoDomain" [readonly]="isViewMode">
+                <mat-autocomplete #autoDomain="matAutocomplete" [displayWith]="helpers.optionDisplay">
+                  <mat-option *ngFor="let option of filteredDomains | async" [value]="option">
+                    {{ option.name }}
+                  </mat-option>
+                </mat-autocomplete>
+                <mat-error *ngIf="domainCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+                <mat-error *ngIf="domainCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+              </mat-form-field>
+            </div>
+            <div class="node__left__detail--bottom__right">
+              <mat-form-field class="field">
+                <mat-label>Role</mat-label>
+                <input matInput type="text" placeholder="Select a role" formControlName="roleCtr" [matAutocomplete]="autoRole"
+                       [readonly]="isViewMode">
+                <mat-autocomplete #autoRole="matAutocomplete" [displayWith]="helpers.optionDisplay">
+                  <mat-option *ngFor="let option of filteredRoles | async" [value]="option">
+                    {{ option.name }}
+                  </mat-option>
+                </mat-autocomplete>
+                <mat-error *ngIf="roleCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+                <mat-error *ngIf="roleCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+              </mat-form-field>
+              <mat-form-field class="field">
+                <mat-label>Template</mat-label>
+                <input matInput type="text" placeholder="Select a template" formControlName="templateCtr"
+                       [matAutocomplete]="autoTemplate" [readonly]="isViewMode">
+                <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helpers.templateDisplay">
+                  <mat-option *ngFor="let option of filteredTemplates | async" [value]="option">
+                    <div class="option-text">
+                      <img [src]="ICON_PATH + option.icon?.photo" height="24" width="24">
+                      &nbsp;
+                      <span>{{ option.display_name }}</span>
+                    </div>
+                  </mat-option>
+                </mat-autocomplete>
+                <mat-error *ngIf="templateCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+                <mat-error *ngIf="templateCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+              </mat-form-field>
+              <mat-form-field class="field">
+                <mat-label>Login Profile</mat-label>
+                <input matInput type="text" placeholder="Assign a login profile" formControlName="loginProfileCtr"
+                       [matAutocomplete]="autoLoginProfile" [readonly]="isViewMode">
+                <mat-autocomplete #autoLoginProfile="matAutocomplete" [displayWith]="helpers.optionDisplay">
+                  <mat-option *ngFor="let option of filteredLoginProfiles | async" [value]="option" style="height: 60px !important;">
+                    <div class="login-profiles-option-text">
+                      <span class="option-text-items"><b>{{ option.name }}</b></span>
+                      <span class="option-text-items">Username: {{ option.username }}</span>
+                      <span class="option-text-items">Password: {{ option.password }}</span>
+                    </div>
+                  </mat-option>
+                </mat-autocomplete>
+                <mat-error *ngIf="loginProfileCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+              </mat-form-field>
+              <mat-form-field class="field">
+                <mat-label>Folder</mat-label>
+                <input matInput formControlName="folderCtr" [readonly]="isViewMode">
+                <mat-error *ngIf="folderCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+              </mat-form-field>
+              <mat-form-field class="field">
+                <mat-label>Hostname</mat-label>
+                <input matInput formControlName="hostnameCtr" [readonly]="isViewMode" [errorStateMatcher]="errorMatcher">
+                <mat-error *ngIf="hostnameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+                <mat-error *ngIf="nodeAddForm.errors?.['isNotMatchLength']">{{ nodeAddForm.errors.message }}</mat-error>
+                <mat-error *ngIf="nodeAddForm.errors?.['isNotMatchPattern']">{{ nodeAddForm.errors.message }}</mat-error>
+              </mat-form-field>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="node__right__interfaces">
-        <div class="ag-theme-alpine node__right__interfaces__table" [style.height]="'225px'">
-          <ag-grid-angular style="width: 100%; height: 100%;" [rowData]="rowData$ | async" [gridOptions]="gridOptions" (gridReady)="onGridReady($event)">
-          </ag-grid-angular>
+      </section>
+      <section *ngIf="data.mode !== 'add'" class="node__right">
+        <div class="node__right__configuration">
+          <ng-select formControlName="configTemplateCtr" [items]="configTemplates"
+                     [multiple]="true" bindLabel="name" bindValue="id" placeholder="Configurations">
+            <ng-template ng-option-tmp let-item="item" let-index="index">
+              <div class="configurations-option-text">
+                <span class="option-text-items"><b>{{ item.name }}</b></span>
+                <span class="option-text-items">{{ item.description }}</span>
+              </div>
+            </ng-template>
+          </ng-select>
+          <h3 class="title">Default Configuration</h3>
+          <div class="node__right__configuration__default">
+            <div *ngIf="isViewMode">
+              <ngx-json-viewer [json]="defaultConfig" [expanded]="false"></ngx-json-viewer>
+            </div>
+            <div [style.display]="isViewMode ? 'none' : 'block'">
+              <ace-editor #editor></ace-editor>
+            </div>
+          </div>
         </div>
+      </section>
+    </div>
+    <div *ngIf="data.mode !== 'add'" class="interfaces">
+      <div class="ag-theme-alpine interfaces__table" [style.height]="'225px'">
+        <ag-grid-angular style="width: 100%; height: 100%;" [rowData]="rowData$ | async" [gridOptions]="gridOptions" (gridReady)="onGridReady($event)">
+        </ag-grid-angular>
       </div>
-    </section>
+    </div>
   </mat-dialog-content>
   <div mat-dialog-actions [align]="'end'">
     <button mat-raised-button type="button" (click)="onCancel()">

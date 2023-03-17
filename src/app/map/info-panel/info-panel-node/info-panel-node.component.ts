@@ -217,7 +217,9 @@ export class InfoPanelNodeComponent implements OnDestroy {
         genData: row.data,
         cy: this.cy
       }
-      this.dialog.open(AddUpdateNodeDialogComponent, { width: '1000px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' });
+      this.dialog.open(AddUpdateNodeDialogComponent,
+        { width: '1000px', height: '900px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
+      );
     } else {
       const dialogData = {
         mode: 'view',
@@ -293,7 +295,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
             cy: this.cy
           }
           this.dialog.open(AddUpdateNodeDialogComponent,
-            { width: '1000px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
+            { width: '1000px', height: '900px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
           );
         } else {
           const dialogData = {
