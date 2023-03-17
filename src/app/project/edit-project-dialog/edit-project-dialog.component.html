@@ -30,8 +30,8 @@
             </mat-chip-list>
             <mat-autocomplete #autoOption="matAutocomplete" [displayWith]="helpers.optionDisplay"
               (optionSelected)="selectShared($event)">
-              <mat-option *ngFor="let option of listUser" [value]="option">
-                <span>{{ option.first_name }} {{ option.last_name }}</span>
+              <mat-option *ngFor="let option of filteredListUser | async" [value]="option">
+                <span>{{ option.full_name }}</span>
               </mat-option>
             </mat-autocomplete>
           </mat-form-field>

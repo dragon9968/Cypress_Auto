@@ -8,7 +8,7 @@ import { Store } from '@ngrx/store';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent, ValueSetterParams } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
-import { catchError, Subscription, throwError } from 'rxjs';
+import { catchError, Observable, Subscription, throwError } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { UserService } from 'src/app/core/services/user/user.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
@@ -50,6 +50,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
   isDisableButton = false;
   rowData!: any[];
   listUser!: any[];
+  filteredListUser!: Observable<any[]>;
   usersData!: any[];
   listShared: any[] = [];
   isLoading = false;
@@ -115,8 +116,9 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
     const accessTokenPayload = this.helpers.decodeToken(accessToken);
     const userId = accessTokenPayload.sub;
     this.userService.getAll().subscribe(data => {
-      this.listUser = data.result;
-      this.listUser = this.listUser.filter(value => value.id != userId)
+      data.result.forEach((u: any) => u.full_name = u.first_name + ' ' + u.last_name);
+      this.listUser = data.result.filter((value: any) => value.id != userId)
+      this.filteredListUser = this.helpers.filterOptions(this.sharedCtr, this.listUser, 'full_name');
       this.usersData = data.result;
       if (this.data) {
         this.nameCtr?.setValue(this.data.genData.name);
@@ -128,6 +130,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
           this.listShared.push(el)
           if (this.listUser) {
             this.listUser = this.listUser.filter(value => value.username != el.username)
+            this.filteredListUser = this.helpers.filterOptions(this.sharedCtr, this.listUser, 'full_name');
           }
         });
       }
@@ -276,6 +279,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
     if (index >= 0) {
       this.listShared.splice(index, 1);
       this.listUser.unshift(option)
+      this.filteredListUser = this.helpers.filterOptions(this.sharedCtr, this.listUser, 'full_name');
     }
   }
 
@@ -283,6 +287,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
     this.listShared.push(event.option.value)
     Object.values(this.listShared).forEach(val => {
       this.listUser = this.listUser.filter(value => value.username != val.username)
+      this.filteredListUser = this.helpers.filterOptions(this.sharedCtr, this.listUser, 'full_name');
     });
   }
 
@@ -331,5 +336,6 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
         });
       }
     }
+    this.filteredListUser = this.helpers.filterOptions(this.sharedCtr, this.listUser, 'full_name');
   }
 }
