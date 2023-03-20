@@ -105,6 +105,9 @@ export class AddEditConnectionProfilesComponent implements OnInit {
             this.isHiddenDeleteButton = false;
           }
         }
+        else if (this.data.genData.category === 'thundermoth') {
+          this.isHiddenField = true;
+        }
         if (this.data.mode === 'add') {
           this.password?.setValidators([Validators.required]);
         }
