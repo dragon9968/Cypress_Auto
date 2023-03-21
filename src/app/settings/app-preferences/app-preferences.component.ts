@@ -52,7 +52,7 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
     });
     if (this.data) {
       // this.sessionTimeoutCtr?.setValue(this.data.genData.preferences.session_timeout);
-      this.mapPrefCtr?.setValue(this.data.genData.map_preferences);
+      this.mapPrefCtr?.setValue(this.data.genData.default_map_pref);
       this.publicNetworkCtr?.setValue(this.data.genData.public_network);
       this.publicNetworkIPsCtr?.setValue(this.data.genData.public_reserved_ip?.map((i: any) => i.ip.trim()).join(','));
       this.privateNetworkCtr?.setValue(this.data.genData.private_network);
@@ -102,7 +102,7 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
       category: this.data.genData.category,
       name: this.data.genData.name,
       // session_timeout: this.sessionTimeoutCtr?.value,
-      map_preferences: this.mapPrefCtr?.value,
+      default_map_prefs: this.mapPrefCtr?.value,
       public_network: this.publicNetworkCtr?.value,
       public_reserved_ip: this.processForm(this.publicNetworkIPsCtr?.value),
       private_network: this.privateNetworkCtr?.value,
