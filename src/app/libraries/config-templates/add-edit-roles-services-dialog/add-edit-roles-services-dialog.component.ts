@@ -33,7 +33,7 @@ export class AddEditRolesServicesDialogComponent implements OnInit {
     this.roleServicesForm = new FormGroup({
       roles: new FormControl('')
     })
-    this.configTemplateService.getWinroles().subscribe(data => {
+    this.configTemplateService.getWinRoles().subscribe(data => {
       this.rolesList = data;
       this.roles.setValidators([autoCompleteValidator(this.rolesList)]);
       this.filteredRoles = this.helpers.filterOptions(this.roles, this.rolesList);

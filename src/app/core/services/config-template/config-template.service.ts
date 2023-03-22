@@ -38,7 +38,7 @@ export class ConfigTemplateService {
     return this.http.post<any>(ApiPaths.ADD_CONFIG_TEMPLATES, data)
   }
 
-  getWinroles(): Observable<any> {
+  getWinRoles(): Observable<any> {
     return this.http.get<any>(ApiPaths.GET_FEATURES);
   }
 
@@ -48,5 +48,13 @@ export class ConfigTemplateService {
 
   deleteConfiguration(id: string, data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.DELETE_CONFIG_TEMPLATES + id, data);
+  }
+
+  getNodeDefaultConfiguration(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.GET_NODE_CONFIGURATION_DEFAULT, data);
+  }
+
+  putNodeDefaultConfig(data: any): Observable<any> {
+    return this.http.put<any>(ApiPaths.UPDATE_NODE_CONFIGURATION_DEFAULT, data)
   }
 }

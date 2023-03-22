@@ -69,7 +69,7 @@ export class AddFirewallRuleDialogComponent implements OnInit {
       this.sourcePort?.disable();
       this.target?.enable();
       this.targetPort?.enable();
-    }else {
+    } else {
       this.action?.enable();
       this.protocol?.enable();
       this.sourcePort?.enable();

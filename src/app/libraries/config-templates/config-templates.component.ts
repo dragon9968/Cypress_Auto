@@ -18,7 +18,6 @@ import { AddRouteDialogComponent } from "./add-route-dialog/add-route-dialog.com
 import { AddFirewallRuleDialogComponent } from "./add-firewall-rule-dialog/add-firewall-rule-dialog.component";
 import { AddDomainMembershipDialogComponent } from "./add-domain-membership-dialog/add-domain-membership-dialog.component";
 import { AddEditRolesServicesDialogComponent } from "./add-edit-roles-services-dialog/add-edit-roles-services-dialog.component";
-import { ShowConfigTemplateDialogComponent } from "./show-config-template-dialog/show-config-template-dialog.component";
 
 @Component({
   selector: 'app-config-templates',

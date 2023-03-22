@@ -124,7 +124,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       }
     ]
   };
-  defaultConfig = {}
+  defaultConfig: any = {}
 
   constructor(
     private nodeService: NodeService,
@@ -204,17 +204,23 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   }
 
   ngAfterViewInit(): void {
-    this.editor.getEditor().setOptions({
-      tabSize: 2,
-      useWorker: false,
-      fontSize: '16px'
-    });
-    this.editor.mode = 'json';
-    this.editor.setTheme('textmate');
-    this.configTemplateService.get(this.data.genData.default_config_id).subscribe(res => {
-      this.defaultConfig = res.result._configuration;
-      this.editor.value = JSON.stringify(this.defaultConfig, null, 2);
-    })
+    if (this.data.mode !== 'add') {
+      this.editor.getEditor().setOptions({
+        tabSize: 2,
+        useWorker: false,
+        fontSize: '16px'
+      });
+      this.editor.mode = 'json';
+      this.editor.setTheme('textmate');
+      const data = {
+        config_id: this.data.genData.default_config_id,
+        node_id: this.data.genData.node_id
+      }
+      this.configTemplateService.getNodeDefaultConfiguration(data).subscribe(res => {
+        this.defaultConfig = res.configuration;
+        this.editor.value = JSON.stringify(this.defaultConfig, null, 2);
+      })
+    }
   }
 
   get nameCtr() { return this.nodeAddForm.get('nameCtr'); }
@@ -439,17 +445,48 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
           config_ids: this.configTemplateCtr?.value
         }
         this.nodeService.associate(configData).subscribe(respData => {
-          this.store.dispatch(retrievedMapSelection({ data: true }));
-          this.nodeService.get(this.data.genData.node_id).subscribe(nodeData => {
-            this.helpers.updateNodesStorage(nodeData.result);
-            this._updateNodeOnMap(nodeData.result);
-            this.helpers.reloadGroupBoxes(this.data.cy);
-            this.dialogRef.close();
-            this.store.dispatch(retrievedMapSelection({ data: true }));
-            this.toastr.success('Node details updated!');
-          });
+          const isUpdateConfigDefault = JSON.stringify(this.defaultConfig, null, 2) !== this.editor.value;
+          if (isUpdateConfigDefault) {
+            const isNodeConfigDataFormatted = this._validateDefaultNodeConfig()
+            if (isNodeConfigDataFormatted) {
+              const configDefaultNode = {
+                node_id: this.data.genData.node_id,
+                config_id: this.data.genData.default_config_id,
+                ...JSON.parse(this.editor.value)
+              }
+              this.configTemplateService.putNodeDefaultConfig(configDefaultNode).subscribe(res => {
+                this._updateNodeOnMapAndStorage();
+              })
+            }
+          } else {
+            this._updateNodeOnMapAndStorage();
+          }
         });
       }
+    });
+  }
+
+  private _validateDefaultNodeConfig() {
+    try {
+      const configData = JSON.parse(this.editor.value)
+      return true;
+    } catch (error: any) {
+      this.toastr.warning(`The default configuration is not the correct format JSON: <br> ${error.message}`,
+        'Waring', { enableHtml: true }
+      )
+      return false;
+    }
+  }
+
+  private _updateNodeOnMapAndStorage() {
+    this.store.dispatch(retrievedMapSelection({ data: true }));
+    this.nodeService.get(this.data.genData.node_id).subscribe(nodeData => {
+      this.helpers.updateNodesStorage(nodeData.result);
+      this._updateNodeOnMap(nodeData.result);
+      this.helpers.reloadGroupBoxes(this.data.cy);
+      this.dialogRef.close();
+      this.store.dispatch(retrievedMapSelection({ data: true }));
+      this.toastr.success('Node details updated!');
     });
   }
 

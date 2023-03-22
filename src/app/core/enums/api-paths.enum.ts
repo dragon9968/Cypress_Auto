@@ -24,6 +24,8 @@ export enum ApiPaths {
   DOMAINS_CREATE_USERS = '/api/v1/domain/create_user',
   DOMAINS_VALIDATE = '/api/v1/domain/validate',
   CONFIG_TEMPLATES = '/api/v1/configtemplate/',
+  GET_NODE_CONFIGURATION_DEFAULT = '/api/v1/configtemplate/get_config',
+  UPDATE_NODE_CONFIGURATION_DEFAULT = '/api/v1/configtemplate/update_node_config',
   LOGIN_PROFILES = '/api/v1/loginprofile/',
   NODE = '/api/v1/node/',
   NODE_SNAPSHOTS = '/api/v1/map/get_vm_snapshots',
