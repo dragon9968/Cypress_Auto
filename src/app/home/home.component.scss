@@ -8,7 +8,7 @@ $margin: 8px;
 }
 
 .home-content {
-  width: 550px;
+  width: 350px;
   margin: 10px auto;
   text-align: center;
   height: auto;
@@ -16,17 +16,17 @@ $margin: 8px;
 }
 
 button {
-  border: 1px solid;
-  width: 100px;
-  height: 100px;
-  margin: 0 30px;
+  // border: 1px solid;
+  width: 60px;
+  height: 60px;
+  margin: 5px 5px;
   line-height: 25px;
   font-size: 16px;
 }
 
 mat-card-title {
   font-weight: 500;
-  font-size: 28px;
+  font-size: 24px;
 }
 
 mat-card-subtitle {
@@ -40,20 +40,23 @@ span {
 }
 
 .btn-areas {
-  margin-bottom: calc($margin*4);
+  padding-top: 20px;
+  padding-bottom: 20px;
+  // margin-bottom: calc($margin*2);
 }
 
 .recent-project {
   margin: 0 calc($margin*2);
   &__title {
-    text-align: left;
+    text-align: center;
   }
   &__list {
-    padding-left: calc($margin*3);
+    // padding-left: calc($margin*3);
     margin-bottom: 0;
     .recent-project-item {
+      border: solid 1px #ececec;
       text-align: left;
-      margin-bottom: calc($margin*2);
+      margin-bottom: $margin;
       &__title {
         margin: 0;
         color: #235999;

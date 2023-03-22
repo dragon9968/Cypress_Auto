@@ -102,7 +102,7 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
       category: this.data.genData.category,
       name: this.data.genData.name,
       // session_timeout: this.sessionTimeoutCtr?.value,
-      default_map_prefs: this.mapPrefCtr?.value,
+      default_map_pref: this.mapPrefCtr?.value,
       public_network: this.publicNetworkCtr?.value,
       public_reserved_ip: this.processForm(this.publicNetworkIPsCtr?.value),
       private_network: this.privateNetworkCtr?.value,

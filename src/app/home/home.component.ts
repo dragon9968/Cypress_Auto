@@ -9,6 +9,8 @@ import { AuthService } from "../core/services/auth/auth.service";
 import { HelpersService } from "../core/services/helpers/helpers.service";
 import { ToastrService } from "ngx-toastr";
 import { Router } from "@angular/router";
+import { ImportProjectDialogComponent } from 'src/app/project/import-project-dialog/import-project-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-home',
@@ -30,6 +32,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private projectService: ProjectService,
     private toastr: ToastrService,
     private router: Router,
+    private dialog: MatDialog,
   ) {
     const accessToken = this.authService.getAccessToken();
     const accessTokenPayload = this.helpersService.decodeToken(accessToken);
@@ -51,6 +54,13 @@ export class HomeComponent implements OnInit, OnDestroy {
           })
         }
       });
+  }
+
+  importProject() {
+    const dialogRef = this.dialog.open(ImportProjectDialogComponent, {
+      autoFocus: false,
+      width: '450px',
+    });
   }
 
   ngOnInit(): void {
