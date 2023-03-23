@@ -76,6 +76,7 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
     ele.data('groups', data.groups);
     ele.data('domain', data.domain);
     ele.data('domain_id', data.domain_id);
+    ele.data('subnet', data.subnet);
   }
 
   updatePortGroupBulk() {
@@ -104,17 +105,23 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
             }
           }));
         }))
-          .subscribe((resData: any) => {
-            if (resData[0]) {
-              const newPGsManagement = this.infoPanelService.getNewPortGroupsManagement(resData);
-              this.store.dispatch(retrievedPortGroupsManagement({ data: newPGsManagement }));
-            } else {
-              this.helpers.reloadGroupBoxes(this.data.cy);
-              this.store.dispatch(retrievedMapSelection({ data: true }));
-            }
-            this.dialogRef.close();
-            this.toastr.success(response.message, 'Success');
+          .subscribe(() => {
+            return forkJoin(this.data.genData.activePGs.map((pg: any) => {
+              return this.portGroupService.get(pg.pg_id).pipe(map(pgData => {
+                this._updatePGOnMap(pgData.result);
+              }))
+            })).subscribe((resData: any) => {
+              if (resData[0]) {
+                const newPGsManagement = this.infoPanelService.getNewPortGroupsManagement(resData);
+                this.store.dispatch(retrievedPortGroupsManagement({ data: newPGsManagement }));
+              } else {
+                this.helpers.reloadGroupBoxes(this.data.cy);
+                this.store.dispatch(retrievedMapSelection({ data: true }));
+              }
+              this.dialogRef.close();
+              this.toastr.success(response.message, 'Success');
           });
+        });
       });
     } else {
       this.dialogRef.close();
