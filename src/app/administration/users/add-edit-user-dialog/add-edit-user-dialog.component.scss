@@ -11,3 +11,10 @@
 mat-divider {
   padding-bottom: 15px;
 }
+
+::ng-deep div[data-lastpass-icon-root] {
+  display: none;
+}
+::ng-deep div.css-1obar3y {
+  display: none!important;
+}

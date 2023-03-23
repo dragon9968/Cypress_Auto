@@ -18,3 +18,7 @@
 ::ng-deep ng-dropdown-panel {
   position: relative !important;
 }
+
+::ng-deep div[data-lastpass-icon-root] {
+  display: none;
+}

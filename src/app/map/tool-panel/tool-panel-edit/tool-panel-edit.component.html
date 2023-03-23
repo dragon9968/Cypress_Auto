@@ -4,7 +4,7 @@
     <form [formGroup]="nodeAddForm" (ngSubmit)="addNode()">
       <mat-form-field class="tab-select-field">
         <mat-label>Device</mat-label>
-        <input matInput type="text" placeholder="Select Device" formControlName="deviceCtr" [matAutocomplete]="autoDevice"
+        <input disableAutoFill matInput type="text" placeholder="Select Device" formControlName="deviceCtr" [matAutocomplete]="autoDevice"
 	  (change)="changeDevice()">
         <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="helpers.optionDisplay"
 	  (optionSelected)="selectDevice($event)">
@@ -20,7 +20,7 @@
       </mat-form-field>
       <mat-form-field class="tab-select-field">
         <mat-label>Template/Model</mat-label>
-        <input matInput type="text" placeholder="Select Template/Model" formControlName="templateCtr"
+        <input disableAutoFill matInput type="text" placeholder="Select Template/Model" formControlName="templateCtr"
 	  [matAutocomplete]="autoTemplate" (change)="changeTemplate()">
         <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helpers.templateDisplay"
 	  (optionSelected)="selectTemplate($event)">
@@ -73,7 +73,7 @@
       <form [formGroup]="mapImageForm" (ngSubmit)="addImage()">
       <mat-form-field class="inline-select-field">
         <mat-label>Image</mat-label>
-        <input matInput type="text" placeholder="Select Image" [formControl]="mapImageCtr" [matAutocomplete]="autoImage">
+        <input disableAutoFill matInput type="text" placeholder="Select Image" [formControl]="mapImageCtr" [matAutocomplete]="autoImage">
         <mat-autocomplete #autoImage="matAutocomplete" [displayWith]="helpers.optionDisplay">
 	        <mat-option *ngFor="let option of filteredMapImages | async" [value]="option"> {{ option.name }} </mat-option>
         </mat-autocomplete>

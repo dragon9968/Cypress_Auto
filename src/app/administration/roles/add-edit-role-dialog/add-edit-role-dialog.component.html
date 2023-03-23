@@ -3,7 +3,7 @@
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
-      <input type="text" formControlName="nameCtr" matInput>
+      <input disableAutoFill type="text" formControlName="nameCtr" matInput>
       <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="nameCtr?.errors?.isExist">{{ errorMessages.NAME_EXISTS }}</mat-error>
     </mat-form-field>

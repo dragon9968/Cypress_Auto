@@ -1,4 +1,4 @@
-<form [formGroup]="usersForm" (ngSubmit)="data.mode === 'add' ? addUser() : updateUser()">
+<form [formGroup]="usersForm" autocomplete="off" (ngSubmit)="data.mode === 'add' ? addUser() : updateUser()">
   <div class="dialog-title">
     <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add User' : data.mode === 'update' ? 'Edit User' : 'Show User' }}</h1>
     <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
@@ -8,19 +8,19 @@
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>First Name</mat-label>
-      <input type="text" formControlName="firstNameCtr" matInput>
+      <input autocomplete="off" disableAutoFill type="text" formControlName="firstNameCtr" matInput>
       <mat-hint *ngIf="data.mode !== 'view'">Write the user first name or names</mat-hint>
       <mat-error *ngIf="firstNameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Last Name</mat-label>
-      <input type="text" formControlName="lastNameCtr" matInput>
+      <input disableAutoFill type="text" formControlName="lastNameCtr" matInput>
       <mat-hint *ngIf="data.mode !== 'view'">Write the user last name</mat-hint>
       <mat-error *ngIf="lastNameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>User Name</mat-label>
-      <input type="text" formControlName="userNameCtr" matInput>
+      <input disableAutoFill type="text" formControlName="userNameCtr" matInput>
       <mat-hint *ngIf="data.mode !== 'view'">Username valid for authentication on DB or LDAP, unused for OID auth</mat-hint>
       <mat-error *ngIf="userNameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="userNameCtr?.errors?.isExist">{{ errorMessages.NAME_EXISTS }}</mat-error>
@@ -39,7 +39,7 @@
     </div>
     <mat-form-field class="field">
       <mat-label>Email</mat-label>
-      <input type="text" formControlName="emailCtr" matInput>
+      <input disableAutoFill type="text" formControlName="emailCtr" matInput>
       <mat-hint *ngIf="data.mode !== 'view'">The user's email, this will also be used for OID auth</mat-hint>
       <mat-error *ngIf="emailCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="emailCtr?.errors?.isExist">{{ errorMessages.MAIL_EXISTS }}</mat-error>
@@ -75,14 +75,14 @@
     </mat-form-field>
     <mat-form-field class="field" *ngIf="data.mode === 'add'">
       <mat-label>Password</mat-label>
-      <input [type]="showPassword ? 'text' : 'password'" formControlName="passwordCtr" matInput>
+      <input autocomplete="new-password" disableAutoFill [type]="showPassword ? 'text' : 'password'" formControlName="passwordCtr" matInput>
       <mat-icon matSuffix (click)="togglePassword()">{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
       <mat-hint *ngIf="data.mode !== 'view'">Please use a good password policy, this application does not check this for you</mat-hint>
       <mat-error *ngIf="passwordCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field" *ngIf="data.mode === 'add'">
       <mat-label>Confirm Password</mat-label>
-      <input [type]="showConfirmPassword ? 'text' : 'password'" formControlName="confirmPasswordCtr" [errorStateMatcher]="errorMatcher" matInput>
+      <input disableAutoFill [type]="showConfirmPassword ? 'text' : 'password'" formControlName="confirmPasswordCtr" [errorStateMatcher]="errorMatcher" matInput>
       <mat-icon matSuffix (click)="toggleConfirmPassword()">{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
       <mat-hint *ngIf="data.mode !== 'view'">Please rewrite the user's password to confirm</mat-hint>
       <mat-error *ngIf="usersForm?.errors?.['isNotMatch']">{{ errorMessages.PASSWORD_NOT_MATCH}}</mat-error>

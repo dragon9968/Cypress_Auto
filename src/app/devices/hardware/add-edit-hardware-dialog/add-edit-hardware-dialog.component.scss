@@ -11,3 +11,7 @@
 mat-option {
   height: 30px;
 }
+
+::ng-deep div[data-lastpass-icon-root] {
+  display: none;
+}

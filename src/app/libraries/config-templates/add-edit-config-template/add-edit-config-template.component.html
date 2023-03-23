@@ -10,17 +10,17 @@
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
-      <input type="text" formControlName="name" matInput [readonly]="isViewMode">
+      <input disableAutoFill type="text" formControlName="name" matInput [readonly]="isViewMode">
       <mat-error *ngIf="name?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="name?.errors?.minlength || name?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH_50 }}</mat-error>
     </mat-form-field>
     <mat-form-field *ngIf="data.mode === 'view'" class="field">
       <mat-label>Category</mat-label>
-      <input type="text" formControlName="category" matInput [readonly]="isViewMode">
+      <input disableAutoFill type="text" formControlName="category" matInput [readonly]="isViewMode">
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Description</mat-label>
-      <input type="text" formControlName="description" matInput [readonly]="isViewMode">
+      <input disableAutoFill type="text" formControlName="description" matInput [readonly]="isViewMode">
     </mat-form-field>
     <div *ngIf="data.mode === 'view'" [hidden]="!(data.genData.configuration?.static_routes?.length > 0)">
       <h3><strong><u>Static Routes</u></strong></h3>

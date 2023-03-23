@@ -18,3 +18,7 @@
 .delete-file {
   padding-left: 5px;
 }
+
+::ng-deep div[data-lastpass-icon-root] {
+  display: none;
+}

@@ -19,3 +19,10 @@
   flex-direction: column;
   font-family: 'Roboto', sans-serif;
 }
+
+::ng-deep div[data-lastpass-icon-root] {
+  display: none;
+}
+::ng-deep div.css-1obar3y {
+  display: none!important;
+}

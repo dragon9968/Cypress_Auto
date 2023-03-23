@@ -40,6 +40,7 @@ import { NgxPermissionsModule } from "ngx-permissions";
 import { NgxJsonViewerModule } from "ngx-json-viewer";
 import { AceEditorModule } from "ng2-ace-editor";
 import { InfoPanelShowValidationResultsComponent } from './components/info-panel-show-validation-results/info-panel-show-validation-results.component';
+import { SetAttributeDirective } from './directive/set-attribute.directive';
 
 
 const materialModules = [
@@ -74,7 +75,7 @@ const materialModules = [
 ];
 
 @NgModule({
-  declarations: [ConfirmationDialogComponent, SpinnerComponent, InfoPanelShowValidationResultsComponent],
+  declarations: [ConfirmationDialogComponent, SpinnerComponent, InfoPanelShowValidationResultsComponent, SetAttributeDirective],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -99,7 +100,8 @@ const materialModules = [
     SpinnerComponent,
     NgxPermissionsModule,
     NgxJsonViewerModule,
-    AceEditorModule
+    AceEditorModule,
+    SetAttributeDirective
   ],
 })
 export class SharedModule {}

@@ -9,3 +9,6 @@ $margin: 8px;
   margin: $margin 0;
 }
 
+::ng-deep div[data-lastpass-icon-root] {
+  display: none;
+}

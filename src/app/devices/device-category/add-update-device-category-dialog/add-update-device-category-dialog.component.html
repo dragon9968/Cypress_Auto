@@ -2,7 +2,7 @@
   <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Device Category' : 'Edit Device Category'}}</h1>
   <mat-dialog-content>
     <mat-form-field class="field">
-      <input type="text" matInput formControlName="nameCtr" placeholder="Name">
+      <input disableAutoFill type="text" matInput formControlName="nameCtr" placeholder="Name">
       <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessage.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="nameCtr?.errors?.isExist">{{ errorMessage.DEVICE_CATEGORY_NAME_EXIST }}</mat-error>
     </mat-form-field>

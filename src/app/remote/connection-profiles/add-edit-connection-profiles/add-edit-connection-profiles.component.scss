@@ -118,3 +118,7 @@ mat-divider{
 .checkbox-field mat-checkbox {
   flex: 1;
 }
+
+::ng-deep div[data-lastpass-icon-root] {
+  display: none;
+}

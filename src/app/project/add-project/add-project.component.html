@@ -10,14 +10,14 @@
           <mat-card-content>
             <mat-form-field class="field" appearance="outline">
               <mat-label>Name</mat-label>
-              <input type="text" formControlName="name" matInput required>
+              <input disableAutoFill type="text" formControlName="name" matInput required>
               <mat-error *ngIf="name?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
               <mat-error *ngIf="name?.errors?.minlength || name?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH_50 }}</mat-error>
               <mat-error *ngIf="name?.errors?.isExist">{{ errorMessages.NAME_EXISTS }}</mat-error>
             </mat-form-field>
             <mat-form-field class="field" appearance="outline">
               <mat-label>Description</mat-label>
-              <input formControlName="description" type="text" matInput>
+              <input disableAutoFill formControlName="description" type="text" matInput>
             </mat-form-field>
             <div class="form-option">
               <section class="category-option">

@@ -45,3 +45,7 @@
 .option-text-items {
   display: block;
 }
+
+::ng-deep div[data-lastpass-icon-root] {
+  display: none;
+}

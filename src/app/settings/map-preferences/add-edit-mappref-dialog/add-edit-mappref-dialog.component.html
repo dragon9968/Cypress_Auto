@@ -11,7 +11,7 @@
   <div mat-dialog-content *ngIf="data.mode === 'view'">
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
-      <input type="text" formControlName="name" matInput [readonly]="isViewMode">
+      <input disableAutoFill type="text" formControlName="name" matInput [readonly]="isViewMode">
     </mat-form-field>
     <div class="tab-field" disabled>
       <label class="label">Group Box Defaults</label>

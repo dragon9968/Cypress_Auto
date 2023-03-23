@@ -3,11 +3,11 @@
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Display Name</mat-label>
-      <input type="text" formControlName="displayName" matInput>
+      <input disableAutoFill type="text" formControlName="displayName" matInput>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
-      <input type="text" formControlName="name" matInput>
+      <input disableAutoFill type="text" formControlName="name" matInput>
       <mat-error *ngIf="name?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="name?.errors?.minlength || name?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH_50
         }}</mat-error>
@@ -25,7 +25,7 @@
 
     <mat-form-field class="field">
       <mat-label>Icon</mat-label>
-      <input matInput type="text" [formControl]="icon" [matAutocomplete]="autoIcon">
+      <input disableAutoFill matInput type="text" [formControl]="icon" [matAutocomplete]="autoIcon">
       <mat-autocomplete #autoIcon="matAutocomplete" [displayWith]="helpers.optionDisplay">
         <mat-option *ngFor="let option of filteredIcons | async" [value]="option">
           <div class="option-text">
@@ -40,7 +40,7 @@
 
     <mat-form-field class="field">
       <mat-label>Login Profile</mat-label>
-      <input matInput type="text" [formControl]="loginProfile" [matAutocomplete]="autoLoginProfile">
+      <input disableAutoFill matInput type="text" [formControl]="loginProfile" [matAutocomplete]="autoLoginProfile">
       <mat-autocomplete #autoLoginProfile="matAutocomplete" [displayWith]="helpers.optionDisplay">
         <mat-option *ngFor="let option of filteredLoginProfiles | async" [value]="option" style="height: 60px !important;">
           <div class="login-profiles-option-text">

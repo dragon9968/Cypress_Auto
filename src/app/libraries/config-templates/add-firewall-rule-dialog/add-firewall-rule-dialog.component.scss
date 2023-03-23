@@ -1,3 +1,7 @@
 .field {
   width: 100%;
 }
+
+::ng-deep div[data-lastpass-icon-root] {
+  display: none;
+}

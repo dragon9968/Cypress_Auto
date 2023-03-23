@@ -10,3 +10,7 @@
 .features-section {
   font-family: 'Roboto', sans-serif;
 }
+
+::ng-deep div[data-lastpass-icon-root] {
+  display: none;
+}

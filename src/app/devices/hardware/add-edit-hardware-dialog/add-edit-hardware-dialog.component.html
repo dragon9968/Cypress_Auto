@@ -10,7 +10,7 @@
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Device</mat-label>
-      <input [readonly]="data.mode === 'view'" matInput type="text" placeholder="Select a device" [formControl]="device" [matAutocomplete]="autoDevice">
+      <input disableAutoFill [readonly]="data.mode === 'view'" matInput type="text" placeholder="Select a device" [formControl]="device" [matAutocomplete]="autoDevice">
       <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="helpers.optionDisplay"
         (optionSelected)="selectDevice($event)">
         <mat-option *ngFor="let option of filteredDevices | async" [value]="option">
@@ -26,7 +26,7 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Template</mat-label>
-      <input [readonly]="data.mode === 'view'" matInput type="text" placeholder="Select a template" [formControl]="template"
+      <input disableAutoFill [readonly]="data.mode === 'view'" matInput type="text" placeholder="Select a template" [formControl]="template"
         [matAutocomplete]="autoTemplate">
       <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helpers.templateDisplay">
         <mat-option *ngFor="let option of filteredTemplates | async" [value]="option">
@@ -42,13 +42,13 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Serial Number</mat-label>
-      <input [readonly]="data.mode === 'view'" type="text" formControlName="serialNumber" matInput>
+      <input disableAutoFill [readonly]="data.mode === 'view'" type="text" formControlName="serialNumber" matInput>
       <mat-error *ngIf="serialNumber?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="serialNumber?.errors?.isExist">{{ errorMessages.SERIAL_NUMBER_EXIST }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Asset Tag</mat-label>
-      <input [readonly]="data.mode === 'view'" type="text" formControlName="assetTag" matInput>
+      <input disableAutoFill [readonly]="data.mode === 'view'" type="text" formControlName="assetTag" matInput>
     </mat-form-field>
   </div>
   <div mat-dialog-actions [align]="'end'" class="create-btn">

@@ -15,7 +15,7 @@
     <section>
       <mat-form-field class="field">
         <mat-label>Name</mat-label>
-        <input type="text" formControlName="name" matInput>
+        <input disableAutoFill type="text" formControlName="name" matInput>
       </mat-form-field>
       <mat-form-field class="field">
         <mat-label>Category</mat-label>
@@ -43,13 +43,13 @@
       <div *ngIf="data.mode === 'view'">
         <mat-form-field class="field">
           <mat-label>Cert File</mat-label>
-          <input type="text" formControlName="certFile" matInput>
+          <input disableAutoFill type="text" formControlName="certFile" matInput>
         </mat-form-field>
       </div>
       <div [hidden]="isHiddenField">
         <mat-form-field class="field">
           <mat-label>Datacenter</mat-label>
-          <input type="text" formControlName="dataCenter" matInput>
+          <input disableAutoFill type="text" formControlName="dataCenter" matInput>
         </mat-form-field>
         <mat-form-field class="field">
           <mat-label>Cluster</mat-label>
@@ -57,7 +57,7 @@
         </mat-form-field>
         <mat-form-field class="field">
           <mat-label>Data Store</mat-label>
-          <input type="text" formControlName="dataStore" matInput>
+          <input disableAutoFill type="text" formControlName="dataStore" matInput>
         </mat-form-field>
         <div class="checkbox-field">
           <label>Datastore Cluster</label>
@@ -66,7 +66,7 @@
         <div class="hint">
           <mat-form-field class="field">
             <mat-label>Switch</mat-label>
-            <input type="text" formControlName="switch" matInput>
+            <input disableAutoFill type="text" formControlName="switch" matInput>
             <mat-hint *ngIf="data.mode !== 'view'" align="start"></mat-hint>
           </mat-form-field>
         </div>
@@ -90,7 +90,7 @@
           <label class="label-cert-file" for="file">Cert File</label>
           <div class="input-cert-file">
             <div [hidden]="isHiddenDeleteButton">
-              <input class="show_file" type="text" formControlName="certFile" matInput>
+              <input disableAutoFill class="show_file" type="text" formControlName="certFile" matInput>
               <mat-checkbox class="delete_file" (change)="onSelectChangeDelete($event)">Delete</mat-checkbox>
             </div>
             <input class="file" formControlName="file" type="file" name='file' (change)="onFileSelected($event)">
@@ -105,13 +105,13 @@
     <section>
       <mat-form-field class="field">
         <mat-label>User Name</mat-label>
-        <input type="text" formControlName="username" matInput>
+        <input disableAutoFill type="text" formControlName="username" matInput>
         <mat-error *ngIf="username?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       </mat-form-field>
       <div *ngIf="data.mode !== 'view'">
         <mat-form-field class="field" *ngIf="data.mode === 'add'">
           <mat-label>Password</mat-label>
-          <input [type]="showPassword ? 'text' : 'password'" formControlName="password" matInput>
+          <input autocomplete="new-password" [type]="showPassword ? 'text' : 'password'" formControlName="password" matInput>
           <mat-icon matSuffix (click)="togglePassword()">{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
           <mat-error *ngIf="password?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
         </mat-form-field>

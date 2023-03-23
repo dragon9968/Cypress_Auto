@@ -81,3 +81,7 @@ label {
 .randomize-label {
   padding-right: 23px;
 }
+
+::ng-deep div[data-lastpass-icon-root] {
+  display: none;
+}
