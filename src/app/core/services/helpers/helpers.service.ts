@@ -602,6 +602,12 @@ export class HelpersService implements OnDestroy{
           'label': data.label,
           'id': data.group_id
         });
+      } else if (data.elem_category == 'bg_image') {
+        this.deletedNodes.push({
+          'elem_category': data.elem_category,
+          'label': data.label,
+          'id': data.map_image_id
+        })
       }
 
       node.edges().forEach((ele: any) => {

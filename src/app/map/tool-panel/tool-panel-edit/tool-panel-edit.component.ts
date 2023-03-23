@@ -11,7 +11,7 @@ import { Observable, Subscription } from 'rxjs';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
-import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
+import { selectImages } from 'src/app/store/map-image/map-image.selectors';
 import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
 import { MatDialog } from "@angular/material/dialog";
 import { retrievedProjectsTemplate } from "../../../store/project/project.actions";
@@ -39,7 +39,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
   @Input() deletedInterfaces: any[] = [];
   @Input() isDisableAddNode = true;
   @Input() isDisableAddPG = false;
-  @Input() isDisableAddImage = false;
+  @Input() isDisableAddImage = true;
   @Input() isDisableAddProjectTemplate = true;
   @Input() isDisableNewFromSelected = true;
   @Input() isDisableLinkProject = true;
@@ -53,7 +53,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
   errorMessages = ErrorMessages;
   selectDevices$ = new Subscription();
   selectTemplates$ = new Subscription();
-  selectMapImages$ = new Subscription();
+  selectImages$ = new Subscription();
   selectMapOption$ = new Subscription();
   selectMapPref$ = new Subscription();
   selectProjects$ = new Subscription();
@@ -112,9 +112,9 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
         this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice, 'display_name');
       }
     });
-    this.selectMapImages$ = this.store.select(selectMapImages).subscribe((mapImages: any) => {
-      if (mapImages) {
-        this.mapImages = mapImages;
+    this.selectImages$ = this.store.select(selectImages).subscribe((images: any) => {
+      if (images) {
+        this.mapImages = images;
         this.mapImageCtr?.setValidators([autoCompleteValidator(this.mapImages), Validators.required]);
         this.filteredMapImages = this.helpers.filterOptions(this.mapImageCtr, this.mapImages);
       }
@@ -178,9 +178,9 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
     this.selectProjects$.unsubscribe();
     this.selectTemplates$.unsubscribe();
     this.selectMapOption$.unsubscribe();
-    this.selectMapImages$.unsubscribe();
     this.selectMapPref$.unsubscribe();
     this.selectProjectTemplate$.unsubscribe();
+    this.selectImages$.unsubscribe();
   }
 
   disableTemplate(deviceId: string) {
@@ -243,11 +243,27 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
     }));
   }
 
+  selectMapImage() {
+    this.isDisableAddImage = false;
+  }
+
   addImage() {
-    const mapImage = this.mapImages.filter(image => image.id === this.mapImageCtr.value.id)[0];
-    const background = new Image();
-    background.src = ICON_PATH + mapImage.photo;
-    background.addEventListener("load", this.loadMapImage.bind(this, background));
+      const mapImage = this.mapImages.filter(image => image.id === this.mapImageCtr.value.id)[0];
+      const background = new Image();
+      background.src = ICON_PATH + mapImage.photo;
+      if (background.src) {
+        this.isDisableAddImage = true;
+        this.store.dispatch(retrievedMapEdit({
+          data: {
+            isAddMapImage: true,
+            backgroundImage: background,
+            mapImage: mapImage,
+          }
+        }));
+      } else {
+        this.toastr.warning('Please select a image!', 'Warning')
+      }
+      // background.addEventListener("load", this.loadMapImage.bind(this, background));
   }
 
   selectProjectTemplate() {
@@ -284,49 +300,49 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
     }
   }
 
-  loadMapImage(bg: any) {
-    if (this.config.gb_exists) {
-      if (!(this.cy.getElementById('default.test'))) {
-        const gb = {
-          data: Object.assign({
-            id: 'default.test',
-            domain_id: this.config.default_domain_id,
-            label: "group_box"
-          }, {
-            "group_color": this.helpers.fullColorHex(this.selectedMapPref.group_box_color),
-            "group_opacity": this.selectedMapPref.group_box_opacity,
-            "border-width": "4",
-            "text-valign": "top",
-            "zIndex": 997
-          }),
-          position: {
-            x: 0,
-            y: 0
-          },
-          group: "nodes",
-          removed: false,
-          selected: false,
-        };
-        this.cy.add(gb);
-      }
-    }
-    this.cy.add({
-      group: "nodes",
-      data: {
-        "label": "map_background",
-        "elem_category": "bg_image",
-        "new": true,
-        "updated": false,
-        "deleted": false,
-        "src": bg.src,
-        "zIndex": 998,
-        "width": bg.width,
-        "height": bg.height,
-        "locked": false
-      },
-      position: { x: 0, y: 0 }
-    })[0];
-  }
+  // loadMapImage(bg: any) {
+  //   if (this.config.gb_exists) {
+  //     if (!(this.cy.getElementById('default.test'))) {
+  //       const gb = {
+  //         data: Object.assign({
+  //           id: 'default.test',
+  //           domain_id: this.config.default_domain_id,
+  //           label: "group_box"
+  //         }, {
+  //           "group_color": this.helpers.fullColorHex(this.selectedMapPref.group_box_color),
+  //           "group_opacity": this.selectedMapPref.group_box_opacity,
+  //           "border-width": "4",
+  //           "text-valign": "top",
+  //           "zIndex": 997
+  //         }),
+  //         position: {
+  //           x: 0,
+  //           y: 0
+  //         },
+  //         group: "nodes",
+  //         removed: false,
+  //         selected: false,
+  //       };
+  //       this.cy.add(gb);
+  //     }
+  //   }
+  //   this.cy.add({
+  //     group: "nodes",
+  //     data: {
+  //       "label": "map_background",
+  //       "elem_category": "bg_image",
+  //       "new": true,
+  //       "updated": false,
+  //       "deleted": false,
+  //       "src": bg.src,
+  //       "zIndex": 998,
+  //       "width": bg.width,
+  //       "height": bg.height,
+  //       "locked": false
+  //     },
+  //     position: { x: 0, y: 0 }
+  //   })[0];
+  // }
 
   addNewProjectFromSelected() {
     const nodeIds = this.activeNodes.map(node => node.data('node_id'));

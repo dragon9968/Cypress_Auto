@@ -59,7 +59,7 @@ import { retrievedInterfaceIdConnectPG } from "../store/interface/interface.acti
 import { retrievedMapSelection } from '../store/map-selection/map-selection.actions';
 import { selectIsConnect } from "../store/server-connect/server-connect.selectors";
 import { MapImageService } from '../core/services/map-image/map-image.service';
-import { retrievedMapImages } from '../store/map-image/map-image.actions';
+import { retrievedImages, retrievedMapImages } from '../store/map-image/map-image.actions';
 import { RouteSegments } from "../core/enums/route-segments.enum";
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { retrievedMapEdit } from "../store/map-edit/map-edit.actions";
@@ -101,12 +101,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   isDisableNewFromSelected = false;
   isDisableLinkProject = true;
   isDisableAddPG = false;
-  isDisableAddImage = false;
+  isDisableAddImage = true;
   isAddNode = false;
   isAddProjectTemplate = false;
   isAddProjectNode = false;
   isAddPublicPG = false;
   isAddPrivatePG = false;
+  isAddMapImage = false;
   isTemplateCategory = false;
   isCanWriteOnProject = false;
   mapCategory = '';
@@ -130,6 +131,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   templateId = '';
   projectTemplateId = 0;
   linkProjectId = 0;
+  mapImage: any;
+  backgroundImage: any;
   selectedMapPref: any;
   portGroups!: any[];
   gateways!: any[];
@@ -240,6 +243,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.isAddNode = mapEdit.isAddNode;
         this.isAddProjectNode = mapEdit.isAddProjectNode;
         this.linkProjectId = mapEdit.linkProjectId ? mapEdit.linkProjectId : this.linkProjectId;
+        this.mapImage = mapEdit.mapImage;
+        this.backgroundImage = mapEdit.backgroundImage;
         this.isAddProjectTemplate = mapEdit.isAddTemplateProject;
         this.projectTemplateId = mapEdit.projectTemplateId ? mapEdit.projectTemplateId : this.projectTemplateId;
         this.templateId = mapEdit.templateId ? mapEdit.templateId : this.templateId;
@@ -249,7 +254,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.isAddPrivatePG = mapEdit.isAddPrivatePG;
         this.isCustomizePG = mapEdit.isCustomizePG;
         this.isLayoutOnly = mapEdit.isLayoutOnly;
-        if (this.isAddNode || this.isAddPublicPG || this.isAddPrivatePG || this.isAddProjectTemplate || this.isAddProjectNode) {
+        this.isAddMapImage = mapEdit.isAddMapImage;
+        if (this.isAddNode || this.isAddPublicPG || this.isAddPrivatePG || this.isAddProjectTemplate || this.isAddProjectNode || this.isAddMapImage) {
           this._disableMapEditButtons();
         } else {
           this._enableMapEditButtons();
@@ -283,7 +289,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
     this.loginProfileService.getAll().subscribe((data: any) => this.store.dispatch(retrievedLoginProfiles({ data: data.result })));
     this.portgroupService.getByCollectionId(this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedPortGroups({ data: data.result })));
-    this.imageService.getByCategory('image').subscribe((data: any) => this.store.dispatch(retrievedMapImages({ data: data.result })));
+    this.imageService.getByCategory('image').subscribe((data: any) => this.store.dispatch(retrievedImages({ data: data.result })));
+    this.mapImageService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapImages({ mapImage: data.result })));
     this.projectService.get(+this.collectionId).subscribe((data: any) => {
       this.isTemplateCategory = data.result.category === 'template';
       if (this.connectionId !== 0) {
@@ -679,7 +686,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.addTemplateIntoCurrentProject(this.projectTemplateId, this.isLayoutOnly, newNodePosition);
     } else if (this.isAddProjectNode) {
       this.addProjectNode(this.linkProjectId, this.collectionId, newNodePosition);
+    } else if (this.isAddMapImage){
+      this.addImage(this.backgroundImage, this.collectionId, newNodePosition);
     }
+    
   }
 
   private _nodeEditing() {
@@ -812,6 +822,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       ele.locked = ele.data.locked
       if (ele.data.elem_category == 'node') {
         ele.data.icon = environment.apiBaseUrl + ele.data.icon;
+      } else if (ele.data.elem_category == 'bg_image') {
+        ele.data.src = environment.apiBaseUrl + ele.data.image;
       }
     });
     this.cy = cytoscape({
@@ -990,7 +1002,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.cmRemoteService.getPortGroupRemoteMenu(this.activePGs),
         this.cmViewDetailsService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges),
         this.cmEditService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.isCanWriteOnProject),
-        this.cmDeleteService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs, this.isCanWriteOnProject),
+        this.cmDeleteService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs, this.activeMBs, this.isCanWriteOnProject),
         this.cmLockUnlockService.getLockMenu(this.cy, this.activeNodes, this.activePGs, this.activeMBs),
         this.cmLockUnlockService.getUnlockMenu(this.activeNodes, this.activePGs, this.activeMBs),
         this.cmGroupBoxService.getCollapseMenu(this.cy, this.activeGBs),
@@ -1658,6 +1670,73 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.store.dispatch(retrievedGroups({ data: groupRes.result }))
       )
       this.toastr.success(response.message);
+    });
+  }
+
+  addImage(bg: any, projectId: any, newNodePosition: any) {
+    const jsonData = {
+      name: this.helpersService.createUUID(),
+      project_id: projectId,
+      image_id: this.mapImage.id,
+      logical_map_position: newNodePosition,
+      logical_map_locked: false,
+      logical_map_style: {
+        height: bg.height,
+        width: bg.width,
+        text_size: '25',
+        text_color: '#000000',
+        text_halign: 'center',
+        text_valign: 'bottom',
+        text_bg_color: '#000000',
+        src: bg.src,
+        text_bg_opacity: 0,
+        label: "map_background",
+        elem_category: "bg_image", 
+        'background-fit': 'contain'
+      }
+    }
+    this.mapImageService.add(jsonData).pipe(
+      catchError((resp: any) => {
+        this.isAddMapImage = false;
+        this._enableMapEditButtons();
+        this.toastr.error('Add map image failed!', 'Error');
+        if (resp.status == 422) {
+          const errorMsg: any[] = resp.error.message;
+          const m = Object.keys(errorMsg).map((key: any) => key + ': ' + errorMsg[key])
+          this.toastr.error(m.join(','));
+        }
+        return throwError(() => resp.message);
+      })
+    ).subscribe(response => {
+      this.isAddMapImage = false;
+      this._enableMapEditButtons();
+      this.mapImageService.get(response.id).subscribe(respData => {
+        const cyData = respData.result;
+        cyData.id = 'map_image-' + respData.id;
+        cyData.map_image_id = respData.id;
+        cyData.collapsed = true;
+        cyData.height = cyData.logical_map_style.height;
+        cyData.width = cyData.logical_map_style.width;
+        cyData.text_color = cyData.logical_map_style.text_color;
+        cyData.text_size = cyData.logical_map_style.text_size;
+        const newNodeData = {
+          "label": "map_background",
+            "elem_category": "bg_image",
+            "new": true,
+            "updated": false,
+            "deleted": false,
+            "src": ICON_PATH + cyData.image.photo,
+            "zIndex": 998,
+            "width": bg.width,
+            "height": bg.height,
+            "locked": false
+        }
+        const nodeEle = this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData },  newNodePosition});
+
+        // Add collapse and expand event for new project node
+        this.helpersService.collapseAndExpandProjectNodeEvent(nodeEle);
+        this.toastr.success('Add map image successfully', 'Success');
+      });
     });
   }
 

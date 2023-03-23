@@ -5,7 +5,7 @@ import { Store } from '@ngrx/store';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, of, Subscription } from 'rxjs';
+import { catchError, Observable, of, Subscription, throwError } from 'rxjs';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
@@ -62,7 +62,7 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
         const accessToken = this.authService.getAccessToken();
         const accessTokenPayload = this.helpersService.decodeToken(accessToken);
         const userId = accessTokenPayload.sub;
-        const filteredProjectsByUserId = data.filter((val: any) => val.created_by_fk === userId);
+        const filteredProjectsByUserId = data?.filter((val: any) => val.created_by_fk === userId);
         this.rowData$ = of(filteredProjectsByUserId);
       });
   }

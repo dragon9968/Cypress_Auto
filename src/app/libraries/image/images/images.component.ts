@@ -10,7 +10,7 @@ import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { ImageService } from 'src/app/core/services/image/image.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
-import { retrievedMapImages } from 'src/app/store/map-image/map-image.actions';
+import { retrievedImages, retrievedMapImages } from 'src/app/store/map-image/map-image.actions';
 import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
 import { AddEditImagesDialogComponent } from './add-edit-images-dialog/add-edit-images-dialog.component';
 
@@ -85,7 +85,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
    }
 
   ngOnInit(): void {
-    this.imageService.getByCategory('image').subscribe((data: any) => this.store.dispatch(retrievedMapImages({data: data.result})));
+    this.imageService.getByCategory('image').subscribe((data: any) => this.store.dispatch(retrievedImages({data: data.result})));
   }
 
   ngOnDestroy(): void {
@@ -173,7 +173,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
               })
             );
           })).subscribe(() =>{
-            this.imageService.getByCategory('image').subscribe((data: any) => this.store.dispatch(retrievedMapImages({data: data.result})));
+            this.imageService.getByCategory('image').subscribe((data: any) => this.store.dispatch(retrievedImages({data: data.result})));
             this.toastr.success('Deleted image(s) successfully', 'Success');
             this.selectedImage = [];
             this.checked = false;

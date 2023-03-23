@@ -74,13 +74,13 @@
       <mat-form-field class="inline-select-field">
         <mat-label>Image</mat-label>
         <input disableAutoFill matInput type="text" placeholder="Select Image" [formControl]="mapImageCtr" [matAutocomplete]="autoImage">
-        <mat-autocomplete #autoImage="matAutocomplete" [displayWith]="helpers.optionDisplay">
+        <mat-autocomplete #autoImage="matAutocomplete" [displayWith]="helpers.optionDisplay" (optionSelected)="selectMapImage()">
 	        <mat-option *ngFor="let option of filteredMapImages | async" [value]="option"> {{ option.name }} </mat-option>
         </mat-autocomplete>
         <mat-error *ngIf="mapImageCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
         <mat-error *ngIf="mapImageCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
       </mat-form-field>
-      <button mat-raised-button color="primary" class="add-inline-btn" matTooltip="Add" [disabled]="isDisableAddImage || !mapImageForm.valid">
+      <button mat-raised-button color="primary" type="submit" class="add-inline-btn" matTooltip="Add" [disabled]="isDisableAddImage || !mapImageForm.valid">
         <mat-icon>add</mat-icon>
       </button>
       </form>

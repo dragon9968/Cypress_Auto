@@ -10,7 +10,7 @@ import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { validateInputFile } from 'src/app/shared/validations/format-file.validation';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
-import { retrievedMapImages } from 'src/app/store/map-image/map-image.actions';
+import { retrievedImages, retrievedMapImages } from 'src/app/store/map-image/map-image.actions';
 import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
 
 @Component({
@@ -88,7 +88,7 @@ export class AddEditImagesDialogComponent implements OnInit {
       this.imageService.add(formData).subscribe({
           next:(rest) => {
             this.dialogRef.close();
-            this.imageService.getByCategory('image').subscribe((data: any) => this.store.dispatch(retrievedMapImages({data: data.result})));
+            this.imageService.getByCategory('image').subscribe((data: any) => this.store.dispatch(retrievedImages({data: data.result})));
             this.toastr.success(`Added Image successfully`);
           },
           error:(err) => {
@@ -124,7 +124,7 @@ export class AddEditImagesDialogComponent implements OnInit {
       this.imageService.put(this.data.genData.id, formData).subscribe({
         next:(rest) => {
           this.dialogRef.close();
-          this.imageService.getByCategory('image').subscribe((data: any) => this.store.dispatch(retrievedMapImages({data: data.result})));
+          this.imageService.getByCategory('image').subscribe((data: any) => this.store.dispatch(retrievedImages({data: data.result})));
           this.toastr.success(`Update Image successfully`);
         },
         error:(err) => {

@@ -111,7 +111,7 @@ export enum ApiPaths {
   TEMPLATES_EXPORT = '/api/v1/template/export',
   PROJECT_TEMPLATE_ADD = '/api/v1/map/add_template',
   GET_LINK_PROJECT_DATA = '/api/v1/map/get_link_project_data',
-  MAP_IMAGE = '/api/v1/mapimage/',
+  MAP_IMAGE = '/api/v1/map_image/',
   APP_VERSION = '/api/v1/app/version',
   USER_GUIDE = '/api/v1/guide/',
   USER_GUIDE_UPLOAD = '/api/v1/guide/upload',

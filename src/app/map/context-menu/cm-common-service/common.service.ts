@@ -22,7 +22,7 @@ export class CommonService {
     });
   }
 
-  delete(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[]) {
+  delete(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], activeMBs: any[]) {
     [...activeEdges].forEach((edge: any) => {
       const sourceData = cy.getElementById(edge.data('source')).data();
       const targetData = cy.getElementById(edge.data('target')).data();
@@ -46,6 +46,10 @@ export class CommonService {
       activePGs.splice(0);
       activeGBs.splice(0);
     });
+    [...activeMBs].forEach((mbs: any) => {
+      this.ur?.do('removeNode', mbs);
+      activeMBs.splice(0);
+    })
     this.store.dispatch(retrievedMapSelection({data: true}));
   }
 

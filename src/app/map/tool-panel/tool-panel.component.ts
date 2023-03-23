@@ -36,7 +36,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   @Input() isDisableCancel = true;
   @Input() isDisableAddNode = true;
   @Input() isDisableAddPG = false;
-  @Input() isDisableAddImage = false;
+  @Input() isDisableAddImage = true;
   @Input() isDisableLinkProject = true;
   @Input() isDisableAddProjectTemplate = true;
   @Input() isDisableNewFromSelected = true;
@@ -481,6 +481,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   getUpdatedMapBackground(ele: any, position: any) {
     const data = ele.data();
     const updatedMapBackground: any = {
+      map_image_id: ele.data('map_image_id'),
       position,
       map_style: {
         width: ele.style('width'),
@@ -494,9 +495,9 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         text_valign: ele.style("text-valign"),
         text_halign: ele.style("text-halign"),
         label: "map_background",
-        elem_category: "bg_image",
-        locked: ele.locked()
-      }
+        elem_category: "bg_image"
+      },
+      locked: ele.locked()
     };
     if (data.in_groupbox) {
       updatedMapBackground.domain = data.domain;
