@@ -7,7 +7,6 @@ import { catchError, Observable, Subscription, throwError } from 'rxjs';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
-import { ProjectService } from "../../project/services/project.service";
 import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
 import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
 import { selectDomains } from 'src/app/store/domain/domain.selectors';
@@ -143,7 +142,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
       category: this.categoryCtr?.value,
       domain_id: this.domainCtr?.value.id,
       subnet_allocation: this.subnetAllocationCtr?.value,
-      subnet: this.subnetCtr?.value,
+      subnet: this.subnetAllocationCtr?.value == 'static_auto' ? this.data.genData.subnet : this.subnetCtr?.value,
       collection_id: this.data.collectionId,
       logical_map_position: this.data.newNodePosition,
       logical_map_style: (this.data.mode == 'add') ? {
@@ -212,7 +211,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
       category: this.categoryCtr?.value,
       domain_id: this.domainCtr?.value.id,
       subnet_allocation: this.subnetAllocationCtr?.value,
-      subnet: this.subnetCtr?.value,
+      subnet: this.subnetAllocationCtr?.value == 'static_auto' ? undefined : this.subnetCtr?.value,
       collection_id: this.data.genData.collection_id,
       logical_map_position: ele.position(),
     }
