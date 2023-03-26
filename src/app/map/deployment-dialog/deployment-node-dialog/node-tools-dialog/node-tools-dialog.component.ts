@@ -5,8 +5,8 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { Observable, Subscription, throwError } from "rxjs";
+import { TaskService } from "../../../../core/services/task/task.service";
 import { ErrorMessages } from "../../../../shared/enums/error-messages.enum";
-import { ToolService } from "../../../../core/services/tool/tool.service";
 import { HelpersService } from "../../../../core/services/helpers/helpers.service";
 import { InfoPanelService } from "../../../../core/services/info-panel/info-panel.service";
 import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
@@ -32,7 +32,7 @@ export class NodeToolsDialogComponent implements OnInit {
     private toastr: ToastrService,
     private dialogRef: MatDialogRef<NodeToolsDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private toolService: ToolService,
+    private taskService: TaskService,
     public helpersService: HelpersService,
     private infoPanelService: InfoPanelService,
     private serviceConnectionService: ServerConnectService
@@ -74,7 +74,7 @@ export class NodeToolsDialogComponent implements OnInit {
     const connection = this.serviceConnectionService.getConnection();
     const connectionId = connection ? connection.id : 0;
     let jsonData: any = {
-      pks: this.data.activeNodes.map((node: any) => node.data('node_id')),
+      pks: this.data.activeNodes.map((node: any) => node.data('node_id')).join(","),
       job_name: this.jobName,
       category: 'node',
       connection_id: connectionId,
@@ -85,7 +85,7 @@ export class NodeToolsDialogComponent implements OnInit {
     } else {
       jsonData['shell_command'] = this.shellCommandCtr?.value;
     }
-    this.toolService.add(jsonData).pipe(
+    this.taskService.add(jsonData).pipe(
       catchError(error => {
         this.toastr.error('Failed to add task', 'Error');
         return throwError(() => error);
