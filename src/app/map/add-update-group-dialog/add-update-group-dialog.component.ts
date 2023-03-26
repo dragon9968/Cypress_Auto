@@ -109,14 +109,14 @@ export class AddUpdateGroupDialogComponent implements OnInit {
   ngOnInit(): void {
     this.nameCtr?.setValue(this.data.genData.name);
     this.descriptionCtr?.setValue(this.data.genData.description);
-    if (this.data.mode == 'update') {
-      this.nodesCtr?.setValue(this.data.genData.nodes?.map((ele: any) => ele.id));
-      this.portGroupsCtr?.setValue(this.data.genData.port_groups?.map((ele: any) => ele.id));
-      this.helpers.setAutoCompleteValue(this.categoryCtr, this.CATEGORIES, this.data.genData.category);
-    } else {
+    if (this.data.mode == 'add') {
       this.categoryCtr?.setValue(this.CATEGORIES[0]);
       this.nodesCtr?.setValue(this.data.genData.nodes?.map((ele: any) => ele.id));
       this.portGroupsCtr?.setValue(this.data.genData.port_groups?.map((ele: any) => ele.id));
+    } else {
+      this.nodesCtr?.setValue(this.data.genData.nodes?.map((ele: any) => ele.id));
+      this.portGroupsCtr?.setValue(this.data.genData.port_groups?.map((ele: any) => ele.id));
+      this.helpers.setAutoCompleteValue(this.categoryCtr, this.CATEGORIES, this.data.genData.category);
     }
     this.groupAddForm.controls['categoryCtr'].valueChanges.subscribe(value => {
       switch (value.name) {

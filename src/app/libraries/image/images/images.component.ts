@@ -10,8 +10,8 @@ import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { ImageService } from 'src/app/core/services/image/image.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
-import { retrievedImages, retrievedMapImages } from 'src/app/store/map-image/map-image.actions';
-import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
+import { retrievedImages } from 'src/app/store/map-image/map-image.actions';
+import { selectImages } from 'src/app/store/map-image/map-image.selectors';
 import { AddEditImagesDialogComponent } from './add-edit-images-dialog/add-edit-images-dialog.component';
 
 @Component({
@@ -47,7 +47,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
     iconRegistry: MatIconRegistry,
     private breakpointObserver: BreakpointObserver
   ) {
-    this.selectedImage$ = this.store.select(selectMapImages).subscribe((images: any) => {
+    this.selectedImage$ = this.store.select(selectImages).subscribe((images: any) => {
       if (images) {
         this.listImages = images;
         this.totalSize = this.listImages.length;

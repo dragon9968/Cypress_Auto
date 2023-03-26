@@ -10,8 +10,8 @@ import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { validateInputFile } from 'src/app/shared/validations/format-file.validation';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
-import { retrievedImages, retrievedMapImages } from 'src/app/store/map-image/map-image.actions';
-import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
+import { retrievedImages } from 'src/app/store/map-image/map-image.actions';
+import { selectImages } from 'src/app/store/map-image/map-image.selectors';
 
 @Component({
   selector: 'app-add-edit-images-dialog',
@@ -38,7 +38,7 @@ export class AddEditImagesDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<AddEditImagesDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
-    this.selectImages$ = this.store.select(selectMapImages).subscribe(nameImage => {
+    this.selectImages$ = this.store.select(selectImages).subscribe(nameImage => {
       this.selectedImage = nameImage;
     })
     this.isViewMode = this.data.mode == 'view';
