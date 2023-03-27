@@ -2,7 +2,7 @@
   <mat-card class="project-content">
     <mat-card-title class="project-title">New Project</mat-card-title>
     <mat-card-content>
-      <form [formGroup]="projectForm">
+      <form [formGroup]="projectForm" data-cy="projectForm" (ngSubmit)="addProject()">
         <mat-card class="info-group">
           <mat-card-header>
             <mat-card-title>Info</mat-card-title>
@@ -142,7 +142,7 @@
         </div>
         <mat-card-actions [align]="'end'" class="create-btn">
           <button mat-raised-button type="button" (click)="cancelProject()">Cancel</button>
-          <button mat-raised-button type="button" color="primary" [disabled]="!projectForm.valid" (click)="addProject()">Create</button>
+          <button mat-raised-button type="submit" color="primary" [disabled]="!projectForm.valid">Create</button>
         </mat-card-actions>
       </form>
     </mat-card-content>

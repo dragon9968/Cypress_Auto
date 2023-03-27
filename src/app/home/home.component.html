@@ -7,20 +7,20 @@
         <section class="btn-areas">
           <ng-template [ngxPermissionsOnly]="['can_write on Project']">
             <ng-template [ngxPermissionsOnly]="['can_read on Settings']">
-              <button mat-mini-fab color="primary" [routerLink]="routeSegments.PROJECTS + '/add' "><mat-icon>create_new_folder</mat-icon></button>
+              <button data-cy="btn-create-new" mat-mini-fab color="primary" matTooltip="Create new project" [routerLink]="routeSegments.PROJECTS + '/add' "><mat-icon>create_new_folder</mat-icon></button>
             </ng-template>
           </ng-template>
           <ng-template [ngxPermissionsOnly]="['can_read on Project']">
-            <button mat-mini-fab color="primary" [routerLink]="routeSegments.PROJECTS"><mat-icon>folder-open</mat-icon></button>
+            <button mat-mini-fab color="primary" matTooltip="Open projects" [routerLink]="routeSegments.PROJECTS"><mat-icon>folder-open</mat-icon></button>
           </ng-template>
           <ng-template [ngxPermissionsOnly]="['can_write on Project']">
             <ng-template [ngxPermissionsOnly]="['can_read on Project']">
-              <button mat-mini-fab color="primary" (click)="importProject()"><mat-icon>import_export</mat-icon></button>
+              <button mat-mini-fab color="primary" matTooltip="Import Project" (click)="importProject()"><mat-icon>import_export</mat-icon></button>
             </ng-template>
           </ng-template>
           <p>Create a new, open or import a project to get started.</p>
         </section>
-        
+
         <section class="recent-project" *ngIf="recentProjects.length >= 1">
           <mat-divider></mat-divider>
           <h3 class="recent-project__title">Open Recent</h3>
