@@ -475,40 +475,36 @@ export class HelpersService implements OnDestroy{
     });
   }
 
-  collapseAndExpandProjectNodeEvent(projectNodes: any) {
+  collapseAndExpandProjectNodeEvent(projectNode: any) {
     // Set event collapse and expand
-    projectNodes.on('expandcollapse.aftercollapse', (event: any) => {
-      projectNodes.map((node: any) => {
-        node.data('width', '90px')
-        node.data('height', '90px')
-        node.data('new', false);
-        node.data('updated', true);
-        node.data('deleted', false);
-        node.data('collapsed', true);
-        node.data('lastPos', node.position())
-        node.style({
-          'background-opacity': '0',
-          'background-color': '#fff',
-          'background-image-opacity': 1,
-        });
-      })
+    projectNode.on('expandcollapse.aftercollapse', (event: any) => {
+      projectNode.data('width', '90px')
+      projectNode.data('height', '90px')
+      projectNode.data('new', false);
+      projectNode.data('updated', true);
+      projectNode.data('deleted', false);
+      projectNode.data('collapsed', true);
+      projectNode.data('lastPos', projectNode.position())
+      projectNode.style({
+        'background-opacity': '0',
+        'background-color': '#fff',
+        'background-image-opacity': 1,
+      });
     })
 
-    projectNodes.on('expandcollapse.afterexpand', (event: any) => {
-      projectNodes.map((node: any) => {
-        node.data('width', '90px');
-        node.data('height', '90px');
-        node.data('new', false);
-        node.data('updated', true);
-        node.data('deleted', false);
-        node.data('collapsed', false);
-        node.data('lastPos', node.position());
-        node.style({
-          'background-opacity': '.20',
-          'background-color': '#00dcff',
-          'background-image-opacity': 0,
-        });
-      })
+    projectNode.on('expandcollapse.afterexpand', (event: any) => {
+      projectNode.data('width', '90px');
+      projectNode.data('height', '90px');
+      projectNode.data('new', false);
+      projectNode.data('updated', true);
+      projectNode.data('deleted', false);
+      projectNode.data('collapsed', false);
+      projectNode.data('lastPos', projectNode.position());
+      projectNode.style({
+        'background-opacity': '.20',
+        'background-color': '#00dcff',
+        'background-image-opacity': 0,
+      });
     })
   }
 

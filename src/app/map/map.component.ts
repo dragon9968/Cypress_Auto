@@ -689,7 +689,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     } else if (this.isAddMapImage){
       this.addImage(this.backgroundImage, this.collectionId, newNodePosition);
     }
-    
+
   }
 
   private _nodeEditing() {
@@ -903,7 +903,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     })
 
     // Set events before and after the collapse and expand.
-    this.helpersService.collapseAndExpandProjectNodeEvent(projectNodes);
+    projectNodes.map((projectNode: any) => {
+      this.helpersService.collapseAndExpandProjectNodeEvent(projectNode);
+    })
   }
 
   private _initUndoRedo() {
@@ -1691,7 +1693,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         src: bg.src,
         text_bg_opacity: 0,
         label: "map_background",
-        elem_category: "bg_image", 
+        elem_category: "bg_image",
         'background-fit': 'contain'
       }
     }
