@@ -1,7 +1,7 @@
 import { Store } from "@ngrx/store";
 import { ToastrService } from "ngx-toastr";
 import { FormControl, FormGroup } from "@angular/forms";
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { DIRECTIONS } from "../../../shared/contants/directions.constant";
 import { STATUS } from "../../../shared/contants/status.constant";
@@ -12,22 +12,25 @@ import { InfoPanelService } from "../../../core/services/info-panel/info-panel.s
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { retrievedInterfacesManagement } from "../../../store/interface/interface.actions";
-import { Observable } from "rxjs";
+import { Observable, Subscription } from "rxjs";
+import { selectMapOption } from "../../../store/map-option/map-option.selectors";
 
 @Component({
   selector: 'app-interface-bulk-edit-dialog',
   templateUrl: './interface-bulk-edit-dialog.component.html',
   styleUrls: ['./interface-bulk-edit-dialog.component.scss']
 })
-export class InterfaceBulkEditDialogComponent implements OnInit {
+export class InterfaceBulkEditDialogComponent implements OnInit, OnDestroy {
   interfaceBulkEditForm: FormGroup;
   DIRECTIONS = DIRECTIONS;
   STATUS = STATUS;
   errorMessages = ErrorMessages;
+  isEdgeDirectionChecked = false;
   mapCategory = '';
   collectionId = '0';
   filteredStatus!: Observable<any[]>;
   filteredDirections!: Observable<any[]>;
+  selectMapOption$ = new Subscription();
 
   constructor(
     private store: Store,
@@ -47,6 +50,9 @@ export class InterfaceBulkEditDialogComponent implements OnInit {
       isGatewayCtr: new FormControl(''),
       isNatCtr: new FormControl('')
     });
+    this.selectMapOption$ = this.store.select(selectMapOption).subscribe(mapOption => {
+      this.isEdgeDirectionChecked = mapOption.isEdgeDirectionChecked
+    })
   }
 
   get statusCtr() { return this.interfaceBulkEditForm.get('statusCtr'); }
@@ -61,6 +67,10 @@ export class InterfaceBulkEditDialogComponent implements OnInit {
     this.filteredStatus = this.helpers.filterOptions(this.statusCtr, this.STATUS);
     this.directionCtr.setValidators([autoCompleteValidator(this.DIRECTIONS)]);
     this.filteredDirections = this.helpers.filterOptions(this.directionCtr, this.DIRECTIONS);
+  }
+
+  ngOnDestroy(): void {
+    this.selectMapOption$.unsubscribe();
   }
 
   private _updateInterfaceOnMap(data: any) {
@@ -110,6 +120,12 @@ export class InterfaceBulkEditDialogComponent implements OnInit {
             interfacesData.push(data);
           } else {
             this._updateInterfaceOnMap(data);
+            const edgeEle = this.data.cy.getElementById(edge.id);
+            if (!this.isEdgeDirectionChecked) {
+              const current_dir = edgeEle.data('direction');
+              edgeEle.data('prev_direction', current_dir);
+              edgeEle.data('direction', 'none');
+            }
           }
         });
         if (interfacesData.length > 0) {
