@@ -132,7 +132,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   projectTemplateId = 0;
   linkProjectId = 0;
   mapImage: any;
-  backgroundImage: any;
+  imageWidth: any;
+  imageHeight: any;
+  imageUrl: any;
   selectedMapPref: any;
   portGroups!: any[];
   gateways!: any[];
@@ -244,7 +246,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.isAddProjectNode = mapEdit.isAddProjectNode;
         this.linkProjectId = mapEdit.linkProjectId ? mapEdit.linkProjectId : this.linkProjectId;
         this.mapImage = mapEdit.mapImage;
-        this.backgroundImage = mapEdit.backgroundImage;
+        this.imageWidth = mapEdit.imageWidth;
+        this.imageHeight = mapEdit.imageHeight;
+        this.imageUrl = mapEdit.imageUrl;
         this.isAddProjectTemplate = mapEdit.isAddTemplateProject;
         this.projectTemplateId = mapEdit.projectTemplateId ? mapEdit.projectTemplateId : this.projectTemplateId;
         this.templateId = mapEdit.templateId ? mapEdit.templateId : this.templateId;
@@ -687,7 +691,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     } else if (this.isAddProjectNode) {
       this.addProjectNode(this.linkProjectId, this.collectionId, newNodePosition);
     } else if (this.isAddMapImage){
-      this.addImage(this.backgroundImage, this.collectionId, newNodePosition);
+      this.addImage(this.imageWidth, this.imageHeight, this.imageUrl, this.collectionId, newNodePosition);
     }
 
   }
@@ -1675,7 +1679,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  addImage(bg: any, projectId: any, newNodePosition: any) {
+  addImage(width: any, height: any, url: any, projectId: any, newNodePosition: any) {
     const jsonData = {
       name: this.helpersService.createUUID(),
       project_id: projectId,
@@ -1683,14 +1687,14 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       logical_map_position: newNodePosition,
       logical_map_locked: false,
       logical_map_style: {
-        height: bg.height,
-        width: bg.width,
+        height: height !== 0 ? height : 100,
+        width: width !== 0 ? width : 100,
         text_size: '25',
         text_color: '#000000',
         text_halign: 'center',
         text_valign: 'bottom',
         text_bg_color: '#000000',
-        src: bg.src,
+        src: url,
         text_bg_opacity: 0,
         label: "map_background",
         elem_category: "bg_image",
@@ -1729,8 +1733,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             "deleted": false,
             "src": ICON_PATH + cyData.image.photo,
             "zIndex": 998,
-            "width": bg.width,
-            "height": bg.height,
+            "width": width,
+            "height": height,
             "locked": false
         }
         const nodeEle = this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData },  newNodePosition});

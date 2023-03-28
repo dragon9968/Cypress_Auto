@@ -251,18 +251,22 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
       const mapImage = this.mapImages.filter(image => image.id === this.mapImageCtr.value.id)[0];
       const background = new Image();
       background.src = ICON_PATH + mapImage.photo;
-      if (background.src) {
+      let width: any;
+      let height: any;
+      background.onload = () => {
+        width = background.width;
+        height = background.height;
         this.isDisableAddImage = true;
         this.store.dispatch(retrievedMapEdit({
           data: {
             isAddMapImage: true,
-            backgroundImage: background,
+            imageWidth: width,
+            imageHeight: height,
+            imageUrl: background.src,
             mapImage: mapImage,
           }
         }));
-      } else {
-        this.toastr.warning('Please select a image!', 'Warning')
-      }
+      };
       // background.addEventListener("load", this.loadMapImage.bind(this, background));
   }
 
