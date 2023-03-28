@@ -31,7 +31,11 @@ export class AppComponent implements OnInit {
     if (this.authService.isLoggedIn()) {
       this.rolesService.getRolesUser().pipe(
         catchError(err => {
-          this.toastr.error('Get roles for the user failed!', 'Error');
+          if (err.status === 401) {
+            this.toastr.info('The session login has expired!', 'Info');
+          } else {
+            this.toastr.error('Get roles for the user failed!', 'Error');
+          }
           return throwError(() => err);
         })
       ).subscribe(response => {
