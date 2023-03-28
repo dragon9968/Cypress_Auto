@@ -1579,7 +1579,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         category: 'project',
         collection_id: projectId,
         logical_map_position: newNodePosition,
-        logical_map_collapsed: true,
         logical_map_style: {
           height: '70',
           width: '70',
@@ -1591,7 +1590,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           text_bg_opacity: 0,
           'background-color': 'rgb(255,255,255)',
           'background-image': '',
-          'background-fit': 'contain'
+          'background-fit': 'contain',
+          collapsed: true
         }
       };
       this.nodeService.add(jsonData).pipe(
