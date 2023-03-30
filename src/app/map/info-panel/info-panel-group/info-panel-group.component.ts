@@ -81,7 +81,12 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
         headerName: 'Port Groups',
         minWidth: 300,
         flex: 1,
-      }
+      },
+      {
+        field: 'map_images',
+        minWidth: 300,
+        flex: 1,
+      },
     ]
   };
 
@@ -106,7 +111,8 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
             domain: ele.domain?.name,
             category: ele.category,
             nodes: '[' + ele.nodes?.map((nodeData: any) => nodeData.name).join(', ') + ']',
-            port_groups: '[' + ele.port_groups?.map((pgData: any) => pgData.name).join(', ') + ']'
+            port_groups: '[' + ele.port_groups?.map((pgData: any) => pgData.name).join(', ') + ']',
+            map_images: '[' + ele.map_images?.map((mapImageData: any) => mapImageData.name).join(', ') + ']',
           }
         })
         if (this.gridApi) {

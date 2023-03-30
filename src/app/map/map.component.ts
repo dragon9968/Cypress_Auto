@@ -295,7 +295,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.loginProfileService.getAll().subscribe((data: any) => this.store.dispatch(retrievedLoginProfiles({ data: data.result })));
     this.portgroupService.getByCollectionId(this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedPortGroups({ data: data.result })));
     this.imageService.getByCategory('image').subscribe((data: any) => this.store.dispatch(retrievedImages({ data: data.result })));
-    this.mapImageService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapImages({ mapImage: data.result })));
+    this.mapImageService.getMapImageByCollectionId(+this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedMapImages({ mapImage: data.result })));
     this.projectService.get(+this.collectionId).subscribe((data: any) => {
       this.isTemplateCategory = data.result.category === 'template';
       if (this.connectionId !== 0) {

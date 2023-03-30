@@ -14,6 +14,14 @@ export class MapImageService {
     return this.http.get<any>(ApiPaths.MAP_IMAGE);
   }
 
+  getMapImageByCollectionId(collectionId: number): Observable<any> {
+    return this.http.get<any>(ApiPaths.MAP_IMAGE, {
+      params: {
+        q: '(filters:!((col:project_id,opr:eq,value:' + collectionId + ')),keys:!(list_columns),page:0,page_size:1000)'
+      }
+    });
+  }
+
   get(id: string): Observable<any> {
     return this.http.get<any>(ApiPaths.MAP_IMAGE + id);
   }

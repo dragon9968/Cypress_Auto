@@ -79,6 +79,19 @@
       placeholder="Port Groups"
       [readonly]="isViewMode">
     </ng-select>
+
+
+    <ng-select
+      *ngIf="data.mode !== 'add'"
+      class="ng-select-map-images"
+      formControlName="mapImagesCtr"
+      [items]="mapImages"
+      [multiple]="true"
+      bindLabel="name"
+      bindValue="id"
+      placeholder="Map Images"
+      [readonly]="isViewMode">
+    </ng-select>
   </div>
 
   <div mat-dialog-actions [align]="'end'">

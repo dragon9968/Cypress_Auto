@@ -21,6 +21,7 @@ import { retrievedGroups } from "../../store/group/group.actions";
 import { selectPortGroups } from "../../store/portgroup/portgroup.selectors";
 import { ProjectService } from "../../project/services/project.service";
 import { retrievedProjects } from "../../store/project/project.actions";
+import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
 
 @Component({
   selector: 'app-tool-panel',
@@ -57,12 +58,14 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   groups: any[] = [];
   nodes: any[] = [];
   portGroups: any[] = [];
+  mapImages: any[] = [];
   selectMapOption$ = new Subscription();
   selectMapPref$ = new Subscription();
   selectDefaultPreferences$ = new Subscription();
   selectMapContextMenu$ = new Subscription();
   selectGroups$ = new Subscription();
   selectNodes$ = new Subscription();
+  selectMapImages$ = new Subscription();
   saveMap$ = new Subscription();
   selectPortGroup$ = new Subscription();
   isEdgeDirectionChecked!: boolean;
@@ -117,6 +120,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     this.selectGroups$ = this.store.select(selectGroups).subscribe(groups => this.groups = groups);
     this.selectNodes$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => this.nodes = nodes);
     this.selectPortGroup$ = this.store.select(selectPortGroups).subscribe(portGroups => this.portGroups = portGroups);
+    this.selectMapImages$ = this.store.select(selectMapImages).subscribe(mapImage => this.mapImages = mapImage);
   }
 
   ngOnInit(): void {
@@ -132,6 +136,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     this.selectPortGroup$.unsubscribe();
     this.selectMapContextMenu$.unsubscribe();
     this.selectDefaultPreferences$.unsubscribe();
+    this.selectMapImages$.unsubscribe();
   }
 
   download() {
@@ -517,7 +522,12 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       const portGroupIdsInGroup = group.port_groups.map((portGroup: any) => portGroup.id);
       const portGroupIdsInGroupElement = groupElement.children('[elem_category="port_group"]').map((pg: any) => pg.data('pg_id'));
       const isPortGroupsInGroupChange = JSON.stringify(portGroupIdsInGroup.sort()) !== JSON.stringify(portGroupIdsInGroupElement.sort())
-      if (isNodesInGroupChange || isPortGroupsInGroupChange) {
+      const mapImageIdsInGroup = group.map_images.map((image: any) => image.id);
+      const mapImageIdsInGroupElement = groupElement.children('[elem_category="bg_image"]').map((image: any) => image.data('map_image_id'));
+      const isMapImageIdsInGroupChange = JSON.stringify(mapImageIdsInGroup.sort()) !== JSON.stringify(mapImageIdsInGroupElement.sort())
+
+
+      if (isNodesInGroupChange || isPortGroupsInGroupChange || isMapImageIdsInGroupChange) {
         let item: any = {
           group_id: group.id,
           domain_id: group.domain_id,
@@ -528,6 +538,9 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         }
         if (isPortGroupsInGroupChange) {
           item.port_groups = portGroupIdsInGroupElement;
+        }
+        if (isMapImageIdsInGroupChange) {
+          item.map_images = mapImageIdsInGroupElement;
         }
         this.updatedNodeAndPGInGroups.push(item);
       }
@@ -541,8 +554,10 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       let newGroup = newGroups[indexGroup];
       let newNodes: any[] = [];
       let newPortGroups: any[] = [];
+      let newMapImages: any[] = [];
       const nodesInGroup = group.nodes;
       const portGroupInGroup = group.port_groups;
+      const mapImagesInGroup = group.map_images;
       if (nodesInGroup && nodesInGroup.length > 0) {
         nodesInGroup.map((nodeId: any) => {
           // Update domain data for the nodes
@@ -564,6 +579,15 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
           newPortGroups.push({id: pgId, name: pg.name});
         })
         newGroup.port_groups = newPortGroups;
+      }
+
+      if (mapImagesInGroup && mapImagesInGroup.length > 0) {
+        mapImagesInGroup.map((mapImageId: number) => {
+          const mapImageEle = this.cy.getElementById(`map_image-${mapImageId}`);
+          const mapImage = this.portGroups.find(el => el.id === mapImageId);
+          newMapImages.push({id: mapImageId, name: mapImage.name});
+        })
+        newGroup.map_images = newMapImages;
       }
       newGroups.splice(indexGroup, 1, newGroup);
     })

@@ -19,6 +19,7 @@ import { CATEGORIES } from 'src/app/shared/contants/categories.constant';
 import { ROLES } from 'src/app/shared/contants/roles.constant';
 import { retrievedMap } from 'src/app/store/map/map.actions';
 import { MapService } from 'src/app/core/services/map/map.service';
+import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
 
 @Component({
   selector: 'app-add-update-group-dialog',
@@ -35,6 +36,7 @@ export class AddUpdateGroupDialogComponent implements OnInit {
   selectDevice$ = new Subscription();
   selectRoles$ = new Subscription();
   selectTemplates$ = new Subscription();
+  selectMapImages$ = new Subscription();
   template!: any[];
   ROLES = ROLES;
   CATEGORIES = CATEGORIES;
@@ -45,6 +47,7 @@ export class AddUpdateGroupDialogComponent implements OnInit {
   domains!: any[];
   devices!: any[];
   roles!: any[];
+  mapImages!: any[];
   categoryName: string = 'custom';
   isHiddenCategoryChild: boolean = true;
   categoryChilds!: any[];
@@ -66,6 +69,7 @@ export class AddUpdateGroupDialogComponent implements OnInit {
     this.selectDomains$ = this.store.select(selectDomains).subscribe(domainData => this.domains = domainData);
     this.selectDevice$ = this.store.select(selectDevices).subscribe(deviceData => this.devices = deviceData);
     this.selectGroup$ = this.store.select(selectGroups).subscribe(groups => this.groups = groups);
+    this.selectMapImages$ = this.store.select(selectMapImages).subscribe(mapImage => this.mapImages = mapImage);
     this.isViewMode = this.data.mode == 'view';
     this.groupAddForm = new FormGroup({
       nameCtr: new FormControl(
@@ -77,6 +81,7 @@ export class AddUpdateGroupDialogComponent implements OnInit {
       descriptionCtr: new FormControl(''),
       nodesCtr: new FormControl(''),
       portGroupsCtr: new FormControl(''),
+      mapImagesCtr: new FormControl(''),
     });
     this.filteredCategories = this.helpers.filterOptions(this.categoryCtr, this.CATEGORIES);
   }
@@ -105,6 +110,10 @@ export class AddUpdateGroupDialogComponent implements OnInit {
     return this.groupAddForm.get('portGroupsCtr');
   };
 
+  get mapImagesCtr() {
+    return this.groupAddForm.get('mapImagesCtr');
+  };
+
 
   ngOnInit(): void {
     this.nameCtr?.setValue(this.data.genData.name);
@@ -113,10 +122,12 @@ export class AddUpdateGroupDialogComponent implements OnInit {
       this.categoryCtr?.setValue(this.CATEGORIES[0]);
       this.nodesCtr?.setValue(this.data.genData.nodes?.map((ele: any) => ele.id));
       this.portGroupsCtr?.setValue(this.data.genData.port_groups?.map((ele: any) => ele.id));
+      this.mapImagesCtr?.setValue(this.data.genData.map_images?.map((ele: any) => ele.id));
     } else {
       this.nodesCtr?.setValue(this.data.genData.nodes?.map((ele: any) => ele.id));
       this.portGroupsCtr?.setValue(this.data.genData.port_groups?.map((ele: any) => ele.id));
       this.helpers.setAutoCompleteValue(this.categoryCtr, this.CATEGORIES, this.data.genData.category);
+      this.mapImagesCtr?.setValue(this.data.genData.map_images?.map((ele: any) => ele.id));
     }
     this.groupAddForm.controls['categoryCtr'].valueChanges.subscribe(value => {
       switch (value.name) {
@@ -175,6 +186,7 @@ export class AddUpdateGroupDialogComponent implements OnInit {
       collection_id: this.data.collection_id,
       nodes: this.nodes.filter(ele => this.nodesCtr?.value.includes(ele.id)),
       port_groups: this.portGroups.filter(ele => this.portGroupsCtr?.value.includes(ele.id)),
+      map_images: this.mapImages.filter(ele => this.mapImagesCtr?.value.includes(ele.id)),
       logical_map: {},
       physical_map: {},
     }

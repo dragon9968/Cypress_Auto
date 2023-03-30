@@ -42,7 +42,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   selectUser$ = new Subscription();
   selectAllProjects$ = new Subscription();
   rowData$!: Observable<any[]>;
-  listUsers: any[] = [];
+  listUsers!: any[];
   isAdmin = true;
   projectAdminUrl = `${this.routeSegments.ROOT + this.routeSegments.PROJECTS_ADMINISTRATION}`
   templatePageUrl = `${this.routeSegments.ROOT + this.routeSegments.PROJECTS_TEMPLATES}`
@@ -117,9 +117,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
     const accessTokenPayload = this.helpersService.decodeToken(accessToken);
     const userId = accessTokenPayload.sub;
     this.isAdmin = this.router.url === this.projectAdminUrl
-    this.selectUser$ = this.store.select(selectUser).subscribe((data: any) => {
-      this.listUsers = data;
-    });
     if (this.router.url === this.templatePageUrl) {
       this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(templateData => {
         this.rowData$ = of(templateData)
@@ -130,23 +127,26 @@ export class ProjectComponent implements OnInit, OnDestroy {
         if (data) {
           this.projectService.getShareProject(this.status, 'project').subscribe((resp: any) => {
             const shareProject = resp.result;
-            let newData:any[];
-            newData = data.filter((val: any) => val.created_by_fk === userId);
+            let filteredProjectsByUserId: any[];
+            filteredProjectsByUserId = data.filter((val: any) => val.created_by_fk === userId);
             if (shareProject) {
-              newData = [...newData, ...shareProject];
+              filteredProjectsByUserId = [...filteredProjectsByUserId, ...shareProject];
             }
-            let projectData = newData.map((item) => {
-              const fullName = this.listUsers.filter(val => item.changed_by_fk === val.id)[0]
-              const changedByValue = fullName.first_name + ' ' + fullName.last_name;
-              return Object.assign({}, item, {changed_by: changedByValue})
-            })
-          
-            if (this.gridApi) {
-              this.gridApi.setRowData(projectData);
-            } else {
-              this.rowData$ = of(projectData);
-            }
-            this.updateRow();
+            this.userService.getAll().subscribe(userData => {
+              this.listUsers = userData.result;
+              let projectData = filteredProjectsByUserId.map((item) => {
+                const fullName = this.listUsers.filter(val => item.changed_by_fk === val.id)[0]
+                const changedByValue = fullName.first_name + ' ' + fullName.last_name;
+                return Object.assign({}, item, {changed_by: changedByValue})
+              })
+            
+              if (this.gridApi) {
+                this.gridApi.setRowData(projectData);
+              } else {
+                this.rowData$ = of(projectData);
+              }
+              this.updateRow();
+            });
           })
         }
       });
