@@ -158,6 +158,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   isSearching = false;
   isSelectedProcessed = false;
   isEdgeDirectionChecked = false;
+  isGroupBoxesChecked = false;
   connectionId = 0;
   vmStatus!: boolean;
   boxSelectedNodes = new Set();
@@ -310,6 +311,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe(mapOption => {
       if (mapOption != undefined) {
         this.isEdgeDirectionChecked = mapOption.isEdgeDirectionChecked
+        this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked
       }
     })
   }
@@ -704,6 +706,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     console.log('cdndDrop');
   }
 
+  private _cdndOut(event: any, dropTarget: any) {
+    if (this.isGroupBoxesChecked && this.helpersService.isParentOfOneChild(dropTarget)) {
+      this.helpersService.removeParent(dropTarget);
+    }
+  }
+
   private _keyDown($event: any) {
     if ($event.which === 46) {
       const selecteds = this.cy.$(":selected");
@@ -810,7 +818,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       },
       cdnd_enable_options: {
         grabbedNode: (_node: any) => true,
-        dropTarget: (_node: any) => true,
+        dropTarget: (_node: any) => {
+          return this.isGroupBoxesChecked;
+        },
         dropSibling: (_node: any) => true,
         newParentNode: (_grabbedNode: any, _dropSibling: any) => ({}),
         overThreshold: 10,
@@ -986,6 +996,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
                                           this.activeEdges, this.activeGBs, this.activeMBs, this.connectionId, this.isTemplateCategory));
     this.cy.on("nodeediting.resizeend", this._nodeEditing.bind(this));
     this.cy.on('cdnddrop', this._cdndDrop.bind(this));
+    this.cy.on('cdndout', this._cdndOut.bind(this));
     this.cy.on("noderesize.resizeend", (_e: any, _type: any) => {
       document.body.style.cursor = "initial";
     });

@@ -406,7 +406,15 @@ export class HelpersService implements OnDestroy{
       });
       cy.remove(gb);
     });
+    const gbsTemplate = cy.nodes().filter(this.isGroupBoxCreatedFromCdnd)
+    gbsTemplate.forEach((gb: any) => {
+      this.removeParent(gb)
+    })
     return true;
+  }
+
+  isGroupBoxCreatedFromCdnd(node: any) {
+    return Object.values(node.classes()).includes('cdnd-new-parent')
   }
 
   addGroupBoxes(cy: any) {
@@ -617,8 +625,21 @@ export class HelpersService implements OnDestroy{
         }
       });
     }
-    // this._info_panel.remove_row(data.id);
     return node.remove();
+  }
+
+  isParentOfOneChild(node: any) {
+    return (node.isParent() && (node.children().length === 1 && node.data('elem_category') != 'group')) ||
+           (node.children().length === 0 && node.data('elem_category') == 'group')
+  }
+
+  removeParent(parent: any) {
+    parent.children().move({parent: null})
+    parent.remove();
+  }
+
+  removeParentsOfOneChild(cy: any) {
+    cy.nodes().filter(this.isParentOfOneChild).forEach(this.removeParent)
   }
 
   restoreNode(node: any){
