@@ -447,14 +447,14 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
         this.nodeService.associate(configData).subscribe(respData => {
           const isUpdateConfigDefault = JSON.stringify(this.defaultConfig, null, 2) !== this.editor.value;
           if (isUpdateConfigDefault) {
-            const isNodeConfigDataFormatted = this._validateDefaultNodeConfig()
+            const isNodeConfigDataFormatted = this.helpers.validateJSONFormat(this.editor.value)
             if (isNodeConfigDataFormatted) {
               const configDefaultNode = {
                 node_id: this.data.genData.node_id,
                 config_id: this.data.genData.default_config_id,
                 ...JSON.parse(this.editor.value)
               }
-              this.configTemplateService.putNodeDefaultConfig(configDefaultNode).subscribe(res => {
+              this.configTemplateService.putConfiguration(configDefaultNode).subscribe(res => {
                 this._updateNodeOnMapAndStorage();
               })
             }
@@ -464,18 +464,6 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
         });
       }
     });
-  }
-
-  private _validateDefaultNodeConfig() {
-    try {
-      const configData = JSON.parse(this.editor.value)
-      return true;
-    } catch (error: any) {
-      this.toastr.warning(`The default configuration is not the correct format JSON: <br> ${error.message}`,
-        'Waring', { enableHtml: true }
-      )
-      return false;
-    }
   }
 
   private _updateNodeOnMapAndStorage() {

@@ -54,7 +54,7 @@ export class ConfigTemplateService {
     return this.http.post<any>(ApiPaths.GET_NODE_CONFIGURATION_DEFAULT, data);
   }
 
-  putNodeDefaultConfig(data: any): Observable<any> {
-    return this.http.put<any>(ApiPaths.UPDATE_NODE_CONFIGURATION_DEFAULT, data)
+  putConfiguration(data: any): Observable<any> {
+    return this.http.put<any>(ApiPaths.CONFIG_TEMPLATE_UPDATE_CONFIGURATION, data)
   }
 }

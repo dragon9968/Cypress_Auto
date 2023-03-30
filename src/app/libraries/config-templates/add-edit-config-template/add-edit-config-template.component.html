@@ -7,76 +7,39 @@
       </button>
     </ng-template>
   </div>
-  <div mat-dialog-content>
-    <mat-form-field class="field">
-      <mat-label>Name</mat-label>
-      <input disableAutoFill type="text" formControlName="name" matInput [readonly]="isViewMode">
-      <mat-error *ngIf="name?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-      <mat-error *ngIf="name?.errors?.minlength || name?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH_50 }}</mat-error>
-    </mat-form-field>
-    <mat-form-field *ngIf="data.mode === 'view'" class="field">
-      <mat-label>Category</mat-label>
-      <input disableAutoFill type="text" formControlName="category" matInput [readonly]="isViewMode">
-    </mat-form-field>
-    <mat-form-field class="field">
-      <mat-label>Description</mat-label>
-      <input disableAutoFill type="text" formControlName="description" matInput [readonly]="isViewMode">
-    </mat-form-field>
-    <div *ngIf="data.mode === 'view'" [hidden]="!(data.genData.configuration?.static_routes?.length > 0)">
-      <h3><strong><u>Static Routes</u></strong></h3>
-      <ul>
-        <li *ngFor="let value of staticRoles; let i = index">
-          interface:<b>{{value.interface}}</b>, route:<b>{{value.route}}</b>, next_hop:<b>{{value.next_hop}}</b>
-        <button id="static_route" type="button" mat-icon-button color="warn" (click)="edit(i, $event)"><mat-icon>delete</mat-icon></button>
-        </li>
-      </ul>
+  <mat-dialog-content class="configuration-template">
+    <div class="configuration-template__field">
+      <mat-form-field class="field">
+        <mat-label>Name</mat-label>
+        <input disableAutoFill type="text" formControlName="name" matInput [readonly]="isViewMode">
+        <mat-error *ngIf="name?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+        <mat-error *ngIf="name?.errors?.minlength || name?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH_50 }}</mat-error>
+      </mat-form-field>
+      <mat-form-field *ngIf="data.mode === 'view'" class="field">
+        <mat-label>Category</mat-label>
+        <input disableAutoFill type="text" formControlName="category" matInput [readonly]="isViewMode">
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>Description</mat-label>
+        <input disableAutoFill type="text" formControlName="description" matInput [readonly]="isViewMode">
+      </mat-form-field>
     </div>
-    <div *ngIf="data.mode === 'view'" [hidden]="!data.genData.configuration?.join_domain">
-      <h3><strong><u>Domain Membership</u></strong></h3>
-      <ul>
-        <li>
-          Join domain:<b>{{joinDomain}}</b>
-          <button id="domain_membership" type="button" mat-icon-button color="warn" (click)="edit(0, $event)"><mat-icon>delete</mat-icon></button>
-        </li>
-        <li>
-          OU Path - <b>{{OuPath}}</b>
-          <button id="ou_path" type="button"  mat-icon-button color="warn" (click)="edit(0, $event)"><mat-icon>delete</mat-icon></button>
-        </li>
-      </ul>
-    </div>
-    <div *ngIf="data.mode === 'view'" [hidden]="!(data.genData.configuration?.firewall_rule?.length > 0)" class="firewall">
-      <h3><strong><u>Firewall Rules</u></strong></h3>
-      <ul>
-        <li *ngFor="let value of fileWallRule; let i=index">
-          [Name: {{ value.name }}, State: {{value.state}}, Action: {{ value.action }}, Interface: {{ value.interface}},
-          Protocol: {{value.protocol}}, Source: {{value.source}}, Source Port: {{value.source_port}}, Destination: {{value.destination}},
-          Destination Port: {{value.destination_port}}]
-
-          <button id="firewall_rule" type="button" mat-icon-button color="warn" (click)="edit(i, $event)"><mat-icon>delete</mat-icon></button>
-        </li>
-      </ul>
-      <ul>
-        <li *ngFor="let value of fileWallPort; let i = index">
-          [Name: {{ value.name }}, State: {{value.state}}, Interface: {{ value.interface}},
-          Destination: {{value.destination}}, Destination Port: {{value.destination_port}},
-          Target: {{value.target}}, Target Port: {{value.target_port}}]
-          <button id="firewall_rule" type="button" mat-icon-button color="warn" (click)="edit(i, $event)"><mat-icon>delete</mat-icon></button>
-        </li>
-      </ul>
-    </div>
-    <div *ngIf="data.mode === 'view'" [hidden]="!(data.genData.configuration?.role_services?.length > 0)" class="roles-or-services">
-      <h3><strong><u>Roles & Services</u></strong></h3>
-      <ul>
-        <li *ngFor="let value of rolesOrServices; let i = index">{{ value }}
-          <button id="role_services" type="button" mat-icon-button color="warn" (click)="edit(i, $event)"><mat-icon>delete</mat-icon></button>
-        </li>
-      </ul>
-    </div>
-  </div>
-  <div mat-dialog-actions [align]="'end'" class="create-btn">
+    <section *ngIf="data.mode !== 'add'">
+      <h3 class="configuration-template__title">Configuration</h3>
+      <div [ngClass]="isViewMode ? 'configuration-template__add' : 'configuration-template__edit'">
+        <div *ngIf="isViewMode">
+          <ngx-json-viewer [json]="defaultConfig" [expanded]="true"></ngx-json-viewer>
+        </div>
+        <div [style.display]="isViewMode ? 'none' : 'block'">
+          <ace-editor #editor></ace-editor>
+        </div>
+      </div>
+    </section>
+  </mat-dialog-content>
+  <mat-dialog-actions [align]="'end'">
     <button mat-raised-button type="button" (click)="onCancel()">{{data.mode === 'view' ? 'Close' : 'Cancel'}}</button>
     <button *ngIf="data.mode !== 'view'" mat-raised-button color="primary" [disabled]="!configTemplateForm.valid">
      {{ data.mode === 'add' ? 'Create' : 'Update' }}
     </button>
-  </div>
+  </mat-dialog-actions>
 </form>

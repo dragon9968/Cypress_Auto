@@ -900,4 +900,16 @@ export class HelpersService implements OnDestroy{
     })
     this.store.dispatch(retrievedNodes({ data: newNodes }));
   }
+
+  validateJSONFormat(json: any) {
+    try {
+      const configData = JSON.parse(json)
+      return true;
+    } catch (error: any) {
+      this.toastr.warning(`The default configuration is not the correct format JSON: <br> ${error.message}`,
+        'Waring', { enableHtml: true }
+      )
+      return false;
+    }
+  }
 }

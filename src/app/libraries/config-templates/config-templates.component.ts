@@ -214,8 +214,10 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
       }
       this.dialog.open(AddEditConfigTemplateComponent, {
         autoFocus: false,
-        width: '450px',
-        data: dialogData
+        width: '600px',
+        height: '810px',
+        data: dialogData,
+        panelClass: 'custom-node-form-modal'
       });
     })
   }
@@ -231,8 +233,10 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
         }
         this.dialog.open(AddEditConfigTemplateComponent, {
           autoFocus: false,
-          width: '450px',
-          data: dialogData
+          width: '600px',
+          height: '810px',
+          data: dialogData,
+          panelClass: 'custom-node-form-modal'
         });
       })
     } else {
