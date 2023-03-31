@@ -148,6 +148,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   inv: any;
   edgeNode: any;
   edgePortGroup: any;
+  maxWidthMapImage: any;
+  maxHeightMapImage: any;
   isAddEdge: any;
   isAddTunnel: any;
   isConnectToPG: any;
@@ -970,6 +972,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.ur.action("removeNode", this.helpersService.removeNode.bind(this), this.helpersService.restoreNode.bind(this));
     this.ur.action("removeEdge", this.helpersService.removeEdge.bind(this), this.helpersService.restoreEdge.bind(this));
     this.ur.action("changeNodeSize", this.toolPanelStyleService.changeNodeSize.bind(this.commonService), this.toolPanelStyleService.restoreNodeSize.bind(this.commonService));
+    this.ur.action("changeMapImageSize", this.toolPanelStyleService.changeMapImageSize.bind(this.commonService), this.toolPanelStyleService.restoreMapImageSize.bind(this.commonService));
     this.ur.action("changTextColor", this.toolPanelStyleService.changTextColor.bind(this.commonService).bind(this.commonService), this.toolPanelStyleService.restoreTextColor.bind(this.commonService).bind(this.commonService));
     this.ur.action("changeTextSize", this.toolPanelStyleService.changeTextSize.bind(this.commonService).bind(this.commonService), this.toolPanelStyleService.restoreTextSize.bind(this.commonService).bind(this.commonService));
     this.ur.action("changePGColor", this.toolPanelStyleService.changePGColor.bind(this.commonService).bind(this.commonService), this.toolPanelStyleService.restorePGColor.bind(this.commonService).bind(this.commonService));
@@ -1717,10 +1720,14 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         text_valign: 'bottom',
         text_bg_color: '#000000',
         src: url,
+        zIndex: 998,
         text_bg_opacity: 0,
         label: "map_background",
         elem_category: "bg_image",
-        'background-fit': 'contain'
+        'background-fit': 'contain',
+        "scale_image": 100,
+        original_width: width !== 0 ? width : 100,
+        original_height: height !== 0 ? height : 100,
       }
     }
     this.mapImageService.add(jsonData).pipe(
@@ -1757,10 +1764,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             "zIndex": 998,
             "width": width,
             "height": height,
-            "locked": false
+            "locked": false,
+            "scale_image": 100,
+            "original_width": width,
+            "original_height": height,
         }
         const nodeEle = this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData },  newNodePosition});
-
         // Add collapse and expand event for new project node
         this.helpersService.collapseAndExpandProjectNodeEvent(nodeEle);
         this.toastr.success('Add map image successfully', 'Success');

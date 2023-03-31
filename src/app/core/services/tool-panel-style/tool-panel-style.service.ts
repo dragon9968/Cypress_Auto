@@ -100,6 +100,42 @@ export class ToolPanelStyleService {
     return data;
   }
 
+
+  changeMapImageSize(data: any) {
+    data.activeMBs?.forEach((ele: any) => {
+      data.oldMapImageSize = ele.data("scale_image")
+      data.oldMapImageWidth = ele.data("width")
+      data.oldMapImageHeight = ele.data("height")
+      if (ele.data("elem_category") === "bg_image") {
+        const originalWidth = ele.data("original_width");
+        const originalHeight = ele.data("original_height")
+        ele.data('width', (data.newMapImageSize * originalWidth) / 100);
+        ele.data('height', (data.newMapImageSize * originalHeight) / 100);
+        ele.data('scale_image', data.newMapImageSize)
+        const d = ele.data();
+        if (!d.new) {
+          d.updated = true;
+        }
+      }
+    })
+    return data; 
+  }
+
+  restoreMapImageSize(data: any) {
+    data.activeMBs.forEach((ele: any) => {
+      if (ele.data("elem_category") === "bg_image") {
+        ele.data("width", data.oldMapImageWidth);
+        ele.data("height", data.oldMapImageHeight);
+        ele.data('scale_image', data.oldMapImageSize);
+        const d = ele.data();
+        if (!d.new) {
+          d.updated = true;
+        }
+      }
+    });
+    return data;
+  }
+
   changePGColor(data: any) {
     data.activePGs?.forEach((ele: any) => {
       data.oldPGColor = ele.data("color");

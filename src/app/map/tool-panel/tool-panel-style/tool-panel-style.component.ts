@@ -37,6 +37,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   mapPrefCtr = new FormControl();
   mapPrefs!: any[];
   nodeSize = 70;
+  mapImageSize: any;
   edgeColor = '#000000';
   edgeSize = 2;
   arrowSize = 3;
@@ -59,6 +60,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   isHideEdge: boolean = true;
   isHideGBs: boolean = true;
   isHideMBs: boolean = true;
+  isHideIndex: boolean = true;
   vAlignSelect!: string;
   hAlignSelect!: string;
   arrowActivated?: string;
@@ -103,6 +105,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
         this.isHideGBs = this.activeGBs.length == 0;
         this.isHideMBs = this.activeMBs.length == 0;
         this.isHideText = this.activeNodes.length + this.activePGs.length + this.activeEdges.length + this.activeGBs.length == 0;
+        this.isHideIndex = this.activeNodes.length + this.activePGs.length + this.activeEdges.length + this.activeGBs.length + this.activeMBs.length == 0;
         if (this.activeNodes.length >= 1) {
           const data = this.activeNodes[0].data();
           this.nodeSize = this.removePx(data.height);
@@ -142,6 +145,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
           const ele = this.cy.getElementById(data.id);
           this.xCtr?.setValue(ele.position().x.toFixed(2));
           this.yCtr?.setValue(ele.position().y.toFixed(2));
+          this.mapImageSize = ele.data('scale_image')
           this._setPropertiesCommon(data);
         }
         this.store.dispatch(retrievedMapSelection({ data: false }));
@@ -329,12 +333,12 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
       const label = ele.data('label');
       if (label == 'map_background') {
         if (this.config.gb_exists) {
-          const g = ele.parent();
-          if (g.data('zIndex') == -998) {
+          // const g = ele.parent();
+          if (ele.data('zIndex') == -998) {
             this.toastr.warning('group box zIndex out of bounds');
             return;
           }
-          g.data('zIndex', g.data('zIndex') - 1);
+          ele.data('zIndex', ele.data('zIndex') - 1);
         }
       } else {
         if (ele.data('zIndex') == -998) {
@@ -352,6 +356,11 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
 
   unlockNodes() {
     this.cmLockUnlockService.unlockNodes(this.activeNodes, this.activePGs, this.activeMBs);
+  }
+
+  setMapImageSize(size: any) {
+    this.mapImageSize = size.value <= 200 ? size.value : 200;
+    this.commonService.changeMapImageSize(size, this.activeMBs);
   }
 
   updatePosition() {

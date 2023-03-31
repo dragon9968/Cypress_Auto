@@ -19,7 +19,7 @@
     </div>
 </section>
 
-<section class="tab-section" [hidden]="isHideText">
+<section class="tab-section" [hidden]="isHideIndex">
     <mat-divider></mat-divider>
     <h4>Z-Index</h4>
     <div class="tab-field z-index">
@@ -167,6 +167,16 @@
 
 <section class="tab-section"
     [hidden]="!((activeNodes.length + activePGs.length + activeMBs.length) == 1 && isHideEdge)">
+    <mat-divider></mat-divider>
+    <div  [hidden]="!(activeMBs.length == 1 && isHideEdge)">
+        <h4>Size</h4>
+        <div class="tab-field">
+            <label class="control-label">Size</label>
+            <mat-slider class="slider" step="1" min="20" max="200" [(ngModel)]="mapImageSize"
+                (change)="setMapImageSize($event)"></mat-slider>
+            <label class="control-label">{{ mapImageSize }}%</label>
+        </div>
+    </div>
     <mat-divider></mat-divider>
     <h4>Position</h4>
     <form [formGroup]="positionForm" (ngSubmit)="updatePosition()">

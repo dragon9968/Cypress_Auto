@@ -500,7 +500,10 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         text_valign: ele.style("text-valign"),
         text_halign: ele.style("text-halign"),
         label: "map_background",
-        elem_category: "bg_image"
+        elem_category: "bg_image",
+        scale_image: ele.data("scale_image"),
+        original_width: ele.data("original_width"),
+        original_height: ele.data("original_height"),
       },
       locked: ele.locked()
     };

@@ -58,6 +58,11 @@ export class CommonService {
     this.ur?.do('changeNodeSize', { activeNodes, newNodeSize });
   }
 
+  changeMapImageSize(size: any, activeMBs: any[]) {
+    const newMapImageSize = size.value;
+    this.ur?.do('changeMapImageSize', { activeMBs, newMapImageSize})
+  }
+
   textColor(color: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[]) {
     const hexPattern = '#d{0,}';
     const hexColor = color;
