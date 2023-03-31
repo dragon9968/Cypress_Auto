@@ -421,6 +421,21 @@ export class HelpersService implements OnDestroy {
     return true;
   }
 
+  removeGroupBox(cy: any, groupBoxId: any) {
+    const groupBox = cy.getElementById(`group-${groupBoxId}`)
+    if (groupBox) {
+      const data = groupBox.data();
+      if (data.collapsedChildren) {
+        cy.expandCollapse('get').expandRecursively(groupBox, {});
+      }
+      const gbNodes = groupBox.children();
+      gbNodes.forEach((node: any) => {
+        node.move({ 'parent': null });
+      });
+      cy.remove(groupBox);
+    }
+  }
+
   isGroupBoxCreatedFromCdnd(node: any) {
     return Object.values(node.classes()).includes('cdnd-new-parent')
   }

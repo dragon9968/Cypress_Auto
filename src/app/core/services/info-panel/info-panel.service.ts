@@ -1,7 +1,7 @@
 import { Store } from "@ngrx/store";
 import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
-import { Subscription, throwError } from "rxjs";
+import { forkJoin, of, Subscription, throwError } from "rxjs";
 import { Injectable, Input, OnDestroy } from '@angular/core';
 import { MapService } from "../map/map.service";
 import { GroupService } from "../group/group.service";
@@ -9,8 +9,10 @@ import { DomainService } from "../domain/domain.service";
 import { ProjectService } from "../../../project/services/project.service";
 import { UserTaskService } from "../user-task/user-task.service";
 import { PortGroupService } from "../portgroup/portgroup.service";
+import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { InterfaceService } from "../interface/interface.service";
 import { DomainUserService } from "../domain-user/domain-user.service";
+import { retrievedMap } from "../../../store/map/map.actions";
 import { ServerConnectService } from "../server-connect/server-connect.service";
 import { selectVMStatus } from "../../../store/project/project.selectors";
 import { selectMapOption } from "../../../store/map-option/map-option.selectors";
@@ -65,6 +67,7 @@ export class InfoPanelService implements OnDestroy {
     private portGroupService: PortGroupService,
     private groupService: GroupService,
     private domainService: DomainService,
+    private helperServices: HelpersService,
     private userTaskService: UserTaskService,
     private projectService: ProjectService,
     private domainUserService: DomainUserService,
@@ -173,6 +176,24 @@ export class InfoPanelService implements OnDestroy {
           ids.map(id => this.deleteDomain(id));
           break;
         case 'group':
+          forkJoin(ids.map(id => {
+            this.groupService.delete(id).pipe(
+              catchError(err => {
+                this.toastr.error('Delete group failed', 'Error');
+                return throwError(() => err)
+              })
+            )
+            return of(id)
+          })).subscribe(response => {
+            ids.map(id => {
+              this.helperServices.removeGroupBox(this.cy, id)
+            })
+            const collectionId = this.projectService.getCollectionId();
+            this.groupService.getGroupByCollectionId(collectionId).subscribe(data => {
+              this.store.dispatch(retrievedGroups({ data: data.result }));
+            })
+            this.mapService.getMapData('logical', collectionId).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
+          })
           ids.map(id => this.deleteGroup(id));
           break;
         case 'domainUser':
