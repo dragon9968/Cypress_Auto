@@ -11,6 +11,7 @@ import { InfoPanelService } from "../../../../core/services/info-panel/info-pane
 import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
 import { selectLoginProfiles } from "../../../../store/login-profile/login-profile.selectors";
 import { autoCompleteValidator } from "../../../../shared/validations/auto-complete.validation";
+import { RemoteCategories } from "../../../../core/enums/remote-categories.enum";
 
 @Component({
   selector: 'app-add-node-deploy-dialog',
@@ -67,7 +68,7 @@ export class AddUpdateNodeDeployDialogComponent implements OnInit, OnDestroy {
   }
 
   deployNodeAddUpdate() {
-    const connection = this.serverConnectionService.getConnection();
+    const connection = this.serverConnectionService.getConnection(this.data.category);
     const jsonData = {
       connection_id: connection ? connection.id : 0,
       job_name: this.data.jobName,

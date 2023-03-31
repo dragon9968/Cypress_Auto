@@ -15,11 +15,12 @@ import { ProjectService } from "../../project/services/project.service";
 import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
 import { ServerConnectService } from "../../core/services/server-connect/server-connect.service";
 import { retrievedMap } from "../../store/map/map.actions";
-import { selectIsConnect } from "../../store/server-connect/server-connect.selectors";
+import { selectIsHypervisorConnect } from "../../store/server-connect/server-connect.selectors";
 import { selectMapFeature } from "../../store/map/map.selectors";
-import { retrievedIsConnect } from "../../store/server-connect/server-connect.actions";
+import { retrievedIsHypervisorConnect } from "../../store/server-connect/server-connect.actions";
 import { selectDashboard, selectVMStatus } from "../../store/project/project.selectors";
 import { retrievedDashboard, retrievedIsOpen, retrievedVMStatus } from "../../store/project/project.actions";
+import { RemoteCategories } from "../../core/enums/remote-categories.enum";
 
 @Component({
   selector: 'app-network-map',
@@ -37,7 +38,7 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
   vmStatusChecked: any;
   selectMap$ = new Subscription();
   selectVMStatus$ = new Subscription();
-  selectIsConnect$ = new Subscription();
+  selectIsHypervisorConnect$ = new Subscription();
   selectDashboard$ = new Subscription();
   styleExists: any;
   cleared: any;
@@ -47,7 +48,7 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
   defaultPreferences: any;
   dashboard: any;
   isMaximize = true;
-  isConnect = false;
+  isHypervisorConnect = false;
   connection = {
     name: 'Test Connection',
     id: 0
@@ -70,15 +71,15 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
     this.mapService.getMapData(this.category, this.collectionId).subscribe(
       (data: any) => this.store.dispatch(retrievedMap({ data }))
     );
-    const connection = this.serverConnectionService.getConnection();
+    const connection = this.serverConnectionService.getConnection(RemoteCategories.HYPERVISOR);
     this.connection = connection ? connection : this.connection;
-    this.selectIsConnect$ = this.store.select(selectIsConnect).subscribe(isConnect => {
-      if (isConnect !== undefined) {
-        this.isConnect = isConnect;
+    this.selectIsHypervisorConnect$ = this.store.select(selectIsHypervisorConnect).subscribe(isHypervisorConnect => {
+      if (isHypervisorConnect !== undefined) {
+        this.isHypervisorConnect = isHypervisorConnect;
       }
     })
     this.selectVMStatus$ = this.store.select(selectVMStatus).subscribe(vmStatusChecked => {
-      if (this.isConnect && vmStatusChecked !== undefined) {
+      if (this.isHypervisorConnect && vmStatusChecked !== undefined) {
         this.vmStatusChecked = vmStatusChecked;
         if (this.vmStatusChecked) {
           this.infoPanelService.changeVMStatusOnMap(+this.collectionId, this.connection.id);
@@ -101,7 +102,7 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
       }
     })
     if (this.connection && this.connection.id !== 0) {
-      this.store.dispatch(retrievedIsConnect({ data: true }));
+      this.store.dispatch(retrievedIsHypervisorConnect({ data: true }));
     }
     if (this.dashboard?.map) {
       this.selectMap$ = this.store.select(selectMapFeature).subscribe((map: MapState) => {
@@ -122,7 +123,7 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.selectMap$.unsubscribe();
     this.selectVMStatus$.unsubscribe();
-    this.selectIsConnect$.unsubscribe();
+    this.selectIsHypervisorConnect$.unsubscribe();
     this.selectDashboard$.unsubscribe();
   }
 

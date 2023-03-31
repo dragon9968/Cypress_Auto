@@ -1,6 +1,6 @@
-<section *ngIf="isConnect; else isNotConnect" class="tab-remote remote-list">
+<section *ngIf="isHyperConnect" class="tab-remote remote-list">
   <section class="remote-item">
-    <h4 class="remote-item__title">Remote Server</h4>
+    <h4 class="remote-item__title">Hypervisor</h4>
     <div class="remote-item__field">
       <mat-label class="remote-item__field--label">Name <span>:</span></mat-label>
       <span class="remote-item__field--content">{{ connectionName }}</span>
@@ -42,86 +42,11 @@
         <mat-icon small>autorenew</mat-icon>
       </button>
     </div>
-    <!-- <div *ngIf="isConnect && vmStatusChecked" class="remote-item__field">
-      <mat-label class="remote-item__field--label">Refresh<span>:</span></mat-label>
-      <button mat-mini-fab class="btn-refresh" color="primary"
-              matTooltip="Refresh Map Status" (click)="refreshVMStatus()">
-        <mat-icon small>autorenew</mat-icon>
-      </button>
-    </div> -->
   </section>
-  <!-- <section *ngIf="activeNodes.length !== 0 || activePGs.length !== 0" class="remote-item">
-    <h4 class="remote-item__title">Deployment</h4>
-    <div *ngIf="activeNodes.length !== 0" class="remote-item__field">
-      <mat-label class="remote-item__field--label">Node Tasks<span>:</span></mat-label>
-      <span class="remote-item__field--content deployment">
-        <form class="deployment--item" [formGroup]="nodeTaskForm" (ngSubmit)="goNodeTask()">
-          <mat-form-field class="field">
-              <mat-label>Node Task</mat-label>
-              <input matInput placeholder="Select a task"
-                     formControlName="nodeTaskCtr"
-                     [matAutocomplete]="autoTask">
-              <mat-autocomplete #autoTask="matAutocomplete" [displayWith]="helpersService.optionDisplay">
-                <mat-option *ngFor="let task of filteredNodeTasks | async" [value]="task">
-                  {{ task.name }}
-                </mat-option>
-              </mat-autocomplete>
-              <mat-error *ngIf="nodeTaskCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-              <mat-error *ngIf="nodeTaskCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
-            </mat-form-field>
-          <button mat-raised-button type="submit" color="primary" [disabled]="nodeTaskForm.invalid">Go</button>
-        </form>
-      </span>
-    </div>
-    <div *ngIf="activeNodes.length !== 0" class="remote-item__field">
-      <mat-label class="remote-item__field--label">Node Tools<span>:</span></mat-label>
-      <span class="remote-item__field--content deployment">
-        <form class="deployment--item" [formGroup]="nodeToolForm" (ngSubmit)="goNodeTool()">
-          <mat-form-field class="field">
-            <mat-label> Node Tool</mat-label>
-            <input matInput placeholder="Select a tool"
-                   formControlName="toolCtr"
-                   [matAutocomplete]="autoTool">
-            <mat-autocomplete #autoTool="matAutocomplete" [displayWith]="helpersService.optionDisplay">
-              <mat-option *ngFor="let tool of filteredTools | async" [value]="tool">
-                {{ tool.name }}
-              </mat-option>
-            </mat-autocomplete>
-            <mat-error *ngIf="toolCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-            <mat-error *ngIf="toolCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
-          </mat-form-field>
-          <button mat-raised-button type="submit" color="primary" [disabled]="nodeToolForm.invalid">Go</button>
-        </form>
-      </span>
-    </div>
-    <div *ngIf="activePGs.length !== 0" class="remote-item__field">
-      <mat-label class="remote-item__field--label">Port Group Tasks<span>:</span></mat-label>
-      <span class="remote-item__field--content deployment">
-        <form class="deployment--item" [formGroup]="portGroupTaskFrom" (ngSubmit)="goPGTask()">
-          <mat-form-field class="field">
-            <mat-label>Port Group Task</mat-label>
-            <input matInput placeholder="Select a task"
-                   formControlName="pgTaskCtr"
-                   [matAutocomplete]="autoTask">
-            <mat-autocomplete #autoTask="matAutocomplete" [displayWith]="helpersService.optionDisplay">
-              <mat-option *ngFor="let task of filteredTasks | async" [value]="task">
-                {{ task.name }}
-              </mat-option>
-            </mat-autocomplete>
-            <mat-error *ngIf="pgTaskCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-            <mat-error *ngIf="pgTaskCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
-          </mat-form-field>
-          <button mat-raised-button type="submit" color="primary" [disabled]="portGroupTaskFrom.invalid">Go</button>
-        </form>
-      </span>
-    </div>
-  </section>
-</section> -->
-
   <section *ngIf="activeNodes.length !== 0 || activePGs.length !== 0" class="tab-section">
-    <h4 class="remote-item__title">Deployment</h4>
+    <h4 class="remote-item__title">Hypervisor Deployment</h4>
     <div *ngIf="activeNodes.length !== 0">
-      <form [formGroup]="nodeTaskForm" (ngSubmit)="goNodeTask()" class="tab-form">
+      <form [formGroup]="nodeTaskForm" (ngSubmit)="goNodeTask('vmware_vcenter')" class="tab-form">
         <mat-form-field class="tab-select-field">
           <mat-label>Node Task</mat-label>
           <input matInput placeholder="Select a task"
@@ -139,9 +64,9 @@
       </form>
     </div>
     <div *ngIf="activeNodes.length !== 0">
-      <form class="tab-form" [formGroup]="nodeToolForm" (ngSubmit)="goNodeTool()">
+      <form class="tab-form" [formGroup]="nodeToolForm" (ngSubmit)="goNodeTool('vmware_vcenter')">
         <mat-form-field class="tab-select-field">
-          <mat-label> Node Tool</mat-label>
+          <mat-label>Node Tool</mat-label>
           <input matInput placeholder="Select a tool"
                   formControlName="toolCtr"
                   [matAutocomplete]="autoTool">
@@ -157,7 +82,7 @@
       </form>
     </div>
     <div *ngIf="activePGs.length !== 0">
-      <form class="tab-form" [formGroup]="portGroupTaskFrom" (ngSubmit)="goPGTask()">
+      <form class="tab-form" [formGroup]="portGroupTaskFrom" (ngSubmit)="goPGTask('vmware_vcenter')">
         <mat-form-field class="tab-select-field">
           <mat-label>Port Group Task</mat-label>
           <input matInput placeholder="Select a task"
@@ -177,6 +102,102 @@
   </section>
 </section>
 
-<ng-template #isNotConnect>
-  <h4 class="remote-item__title">No Connection</h4>
-</ng-template>
+<section *ngIf="isDatasourceConnect" class="tab-remote remote-list">
+  <section class="remote-item">
+    <h4 class="remote-item__title">Datasource</h4>
+    <div class="remote-item__field">
+      <mat-label class="remote-item__field--label">Server <span>:</span></mat-label>
+      <span class="remote-item__field--content">{{ connectionDatasourceUsername }}</span>
+    </div>
+    <div class="remote-item__field">
+      <mat-label class="remote-item__field--label">Username<span>:</span></mat-label>
+      <span class="remote-item__field--content">{{ connectionDatasourceServer }}</span>
+    </div>
+  </section>
+</section>
+
+<section *ngIf="isConfiguratorConnect" class="tab-remote remote-list">
+  <section class="remote-item">
+    <h4 class="remote-item__title">Configurator</h4>
+    <div class="remote-item__field">
+      <mat-label class="remote-item__field--label">Server <span>:</span></mat-label>
+      <span class="remote-item__field--content">{{ connectionConfiguratorServer }}</span>
+    </div>
+    <div class="remote-item__field">
+      <mat-label class="remote-item__field--label">Username<span>:</span></mat-label>
+      <span class="remote-item__field--content">{{ connectionConfiguratorUsername }}</span>
+    </div>
+    <div class="remote-item__field">
+      <mat-label class="remote-item__field--label">Status<span>:</span></mat-label>
+      <mat-slide-toggle [(ngModel)]="vmStatusChecked" color="primary" (change)="toggleVMStatus($event)">
+      </mat-slide-toggle>
+      <button mat-mini-fab class="btn-refresh" color="primary"
+              matTooltip="Refresh Map Status" (click)="refreshVMStatus()">
+        <mat-icon small>autorenew</mat-icon>
+      </button>
+    </div>
+  </section>
+  <section *ngIf="activeNodes.length !== 0 || activePGs.length !== 0" class="tab-section">
+    <h4 class="remote-item__title">Configurator Deployment</h4>
+    <div *ngIf="activeNodes.length !== 0">
+      <form [formGroup]="nodeTaskForm" (ngSubmit)="goNodeTask('configurator')" class="tab-form">
+        <mat-form-field class="tab-select-field">
+          <mat-label>Node Task</mat-label>
+          <input matInput placeholder="Select a task"
+                 formControlName="nodeTaskCtr"
+                 [matAutocomplete]="autoTask">
+          <mat-autocomplete #autoTask="matAutocomplete" [displayWith]="helpersService.optionDisplay">
+            <mat-option *ngFor="let task of filteredNodeTasks | async" [value]="task">
+              {{ task.name }}
+            </mat-option>
+          </mat-autocomplete>
+          <mat-error *ngIf="nodeTaskCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+          <mat-error *ngIf="nodeTaskCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+        </mat-form-field>
+        <button mat-raised-button class="tab-select-btn" type="submit" color="primary" [disabled]="nodeTaskForm.invalid">Go</button>
+      </form>
+    </div>
+    <div *ngIf="activeNodes.length !== 0">
+      <form class="tab-form" [formGroup]="nodeToolForm" (ngSubmit)="goNodeTool('configurator')">
+        <mat-form-field class="tab-select-field">
+          <mat-label>Node Tool</mat-label>
+          <input matInput placeholder="Select a tool"
+                 formControlName="toolCtr"
+                 [matAutocomplete]="autoTool">
+          <mat-autocomplete #autoTool="matAutocomplete" [displayWith]="helpersService.optionDisplay">
+            <mat-option *ngFor="let tool of filteredTools | async" [value]="tool">
+              {{ tool.name }}
+            </mat-option>
+          </mat-autocomplete>
+          <mat-error *ngIf="toolCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+          <mat-error *ngIf="toolCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+        </mat-form-field>
+        <button mat-raised-button class="tab-select-btn" type="submit" color="primary" [disabled]="nodeToolForm.invalid">Go</button>
+      </form>
+    </div>
+    <div *ngIf="activePGs.length !== 0">
+      <form class="tab-form" [formGroup]="portGroupTaskFrom" (ngSubmit)="goPGTask('configurator')">
+        <mat-form-field class="tab-select-field">
+          <mat-label>Port Group Task</mat-label>
+          <input matInput placeholder="Select a task"
+                 formControlName="pgTaskCtr"
+                 [matAutocomplete]="autoTask">
+          <mat-autocomplete #autoTask="matAutocomplete" [displayWith]="helpersService.optionDisplay">
+            <mat-option *ngFor="let task of filteredTasks | async" [value]="task">
+              {{ task.name }}
+            </mat-option>
+          </mat-autocomplete>
+          <mat-error *ngIf="pgTaskCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+          <mat-error *ngIf="pgTaskCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+        </mat-form-field>
+        <button mat-raised-button class="tab-select-btn" type="submit" color="primary" [disabled]="portGroupTaskFrom.invalid">Go</button>
+      </form>
+    </div>
+  </section>
+</section>
+
+<section *ngIf="!isHyperConnect && !isDatasourceConnect && !isConfiguratorConnect" class="tab-remote remote-list">
+  <section class="remote-item">
+    <h4 class="remote-item__title">No Connection</h4>
+  </section>
+</section>

@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconRegistry } from '@angular/material/icon';
 import { Router } from '@angular/router';
@@ -30,10 +30,14 @@ import { AppPrefService } from '../../services/app-pref/app-pref.service';
 import { MapPrefService } from '../../services/map-pref/map-pref.service';
 import { retrievedMapPrefs } from 'src/app/store/map-pref/map-pref.actions';
 import { UserService } from '../../services/user/user.service';
-import { selectIsConnect } from 'src/app/store/server-connect/server-connect.selectors';
+import {
+  selectIsConfiguratorConnect,
+  selectIsHypervisorConnect,
+  selectIsDatasourceConnect
+} from 'src/app/store/server-connect/server-connect.selectors';
 import { ServerConnectService } from '../../services/server-connect/server-connect.service';
 import { ServerConnectDialogComponent } from 'src/app/map/tool-panel/tool-panel-remote/server-connect-dialog/server-connect-dialog.component';
-import { retrievedIsConnect, retrievedServerConnect } from 'src/app/store/server-connect/server-connect.actions';
+import { retrievedServerConnect} from 'src/app/store/server-connect/server-connect.actions';
 import { AboutComponent } from 'src/app/help/about/about.component';
 import { ValidateProjectDialogComponent } from 'src/app/project/validate-project-dialog/validate-project-dialog.component';
 import { retrievedUserProfile } from 'src/app/store/user-profile/user-profile.actions';
@@ -41,6 +45,7 @@ import { CloneProjectDialogComponent } from 'src/app/project/clone-project-dialo
 import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
 import { LDAPConfigurationComponent } from 'src/app/administration/ldap-configuration/ldap-configuration.component';
 import { LdapConfigService } from '../../services/ldap-config/ldap-config.service';
+import { RemoteCategories } from "../../enums/remote-categories.enum";
 
 @Component({
   selector: 'app-nav-bar',
@@ -59,15 +64,17 @@ export class NavBarComponent implements OnInit, OnDestroy {
   status = 'active';
   selectIsMapOpen$ = new Subscription();
   destroy$: Subject<boolean> = new Subject<boolean>();
-  selectIsConnect$ = new Subscription();
-  isConnect = false;
-  connection = { name: '', id: 0 }
+  selectIsHypervisorConnect$ = new Subscription();
+  selectIsDatasourceConnect$ = new Subscription();
+  selectIsConfiguratorConnect$ = new Subscription();
+  isHypervisorConnect = false;
+  isDatasourceConnect = false;
+  isConfiguratorConnect = false;
   collectionId: any;
   projectName: any;
   username: any;
   categoryProject: any;
   isHiddenNavbar!: boolean;
-  projectNav: any[] = [];
   selectProjects$ = new Subscription();
   listShare: any[] = [];
   listProject: any[] = [];
@@ -82,13 +89,15 @@ export class NavBarComponent implements OnInit, OnDestroy {
     private store: Store,
     private helpersService: HelpersService,
     private appPrefService: AppPrefService,
-    iconRegistry: MatIconRegistry,
+    private iconRegistry: MatIconRegistry,
     private userService: UserService,
     private serverConnectionService: ServerConnectService,
     private serverConnectService: ServerConnectService,
     public breakpointObserver: BreakpointObserver,
     private ldapConfigService: LdapConfigService,
   ) {
+    this.iconRegistry.addSvgIcon('connected', this.helpersService.setIconPath('/assets/icons/nav/connected.svg'));
+    this.iconRegistry.addSvgIcon('disconnected', this.helpersService.setIconPath('/assets/icons/nav/disconnected.svg'));
     const accessToken = this.authService.getAccessToken();
     const accessTokenPayload = this.helpersService.decodeToken(accessToken);
     const userId = accessTokenPayload.sub;
@@ -131,10 +140,14 @@ export class NavBarComponent implements OnInit, OnDestroy {
     this.selectProjectName$ = this.store.select(selectProjectName).subscribe(
       projectName => this.projectName = projectName
     )
-    this.selectIsConnect$ = this.store.select(selectIsConnect).subscribe(isConnect => {
-      this.isConnect = isConnect;
-      const connection = this.serverConnectionService.getConnection();
-      this.connection = connection ? connection : { name: '', id: 0 };
+    this.selectIsHypervisorConnect$ = this.store.select(selectIsHypervisorConnect).subscribe(isHypervisorConnect => {
+      this.isHypervisorConnect = isHypervisorConnect;
+    })
+    this.selectIsDatasourceConnect$ = this.store.select(selectIsDatasourceConnect).subscribe(isDatasourceConnect => {
+      this.isDatasourceConnect = isDatasourceConnect;
+    })
+    this.selectIsConfiguratorConnect$ = this.store.select(selectIsConfiguratorConnect).subscribe(isConfiguratorConnect => {
+      this.isConfiguratorConnect = isConfiguratorConnect
     })
     this.userService.get_profile().subscribe(respData => {
       this.username = respData.result.username;
@@ -146,10 +159,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.collectionId = this.projectService.getCollectionId();
-    const connection = this.serverConnectionService.getConnection();
-    if (connection && connection.id !== 0) {
-      this.store.dispatch(retrievedIsConnect({ data: true }));
-    }
+    this.helpersService.initialConnectionStatus();
     if (this.collectionId) {
       this.store.dispatch(retrievedIsOpen({ data: true }));
     }
@@ -166,7 +176,9 @@ export class NavBarComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.selectIsMapOpen$.unsubscribe();
     this.selectIsOpen$.unsubscribe();
-    this.selectIsConnect$.unsubscribe();
+    this.selectIsHypervisorConnect$.unsubscribe();
+    this.selectIsDatasourceConnect$.unsubscribe();
+    this.selectIsConfiguratorConnect$.unsubscribe();
     this.selectProjectName$.unsubscribe();
     this.destroy$.next(true);
     this.destroy$.unsubscribe();
@@ -321,26 +333,28 @@ export class NavBarComponent implements OnInit, OnDestroy {
     })
   }
 
-  openConnectServerForm() {
+  openConnectServerForm(connectionCategory: string) {
     const dialogData = {
-      genData: this.connection
+      connectionCategory: connectionCategory
     }
     this.dialog.open(ServerConnectDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
   }
 
-  disconnectServer() {
+  disconnectServer(category: string) {
+    const connection = this.serverConnectService.getConnection(category);
     const jsonData = {
-      pk: this.connection.id,
+      pk: connection.id,
     }
-    this.serverConnectionService.disconnect(jsonData)
+    this.serverConnectionService.disconnect(category, jsonData)
       .subscribe({
         next: response => {
-          this.store.dispatch(retrievedIsConnect({ data: false }));
+          this.serverConnectService.removeConnection(category);
+          this.helpersService.changeConnectionStatus(category, false);
           this.store.dispatch(retrievedVMStatus({ vmStatus: undefined }));
-          this.toastr.info(`Disconnected from ${this.connection.name} server!`);
+          this.toastr.info(`Disconnected from ${connection.name} server!`, 'Info');
         },
         error: err => {
-          this.toastr.error('Could not to disconnect from Server', 'Error');
+          this.toastr.error('Could not to disconnect from server', 'Error');
           return throwError(() => err.error.message);
         }
       })

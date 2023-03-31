@@ -12,6 +12,7 @@ import { InfoPanelService } from "../../../../core/services/info-panel/info-pane
 import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
 import { autoCompleteValidator } from "../../../../shared/validations/auto-complete.validation";
 import { selectLoginProfiles } from "../../../../store/login-profile/login-profile.selectors";
+import { RemoteCategories } from "../../../../core/enums/remote-categories.enum";
 
 @Component({
   selector: 'app-delete-node-deploy-dialog',
@@ -44,7 +45,7 @@ export class DeleteNodeDeployDialogComponent implements OnInit, OnDestroy {
       this.loginProfileCtr.setValidators([autoCompleteValidator(this.loginProfiles)]);
       this.filteredLoginProfiles = this.helperService.filterOptions(this.loginProfileCtr, this.loginProfiles);
     });
-    const connection = this.serverConnectionService.getConnection();
+    const connection = this.serverConnectionService.getConnection(this.data.category);
     if (connection) {
       this.connection = connection;
     } else {

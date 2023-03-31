@@ -7,9 +7,14 @@ import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { HelpersService } from "../../../../core/services/helpers/helpers.service";
 import { ProjectService } from "../../../../project/services/project.service";
 import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
-import { retrievedIsConnect } from "../../../../store/server-connect/server-connect.actions";
+import {
+  retrievedIsConfiguratorConnect,
+  retrievedIsHypervisorConnect,
+  retrievedIsDatasourceConnect
+} from "../../../../store/server-connect/server-connect.actions";
 import { retrievedVMStatus } from "../../../../store/project/project.actions";
 import { selectServerConnects } from "../../../../store/server-connect/server-connect.selectors";
+import { RemoteCategories } from "../../../../core/enums/remote-categories.enum";
 
 @Component({
   selector: 'app-server-connect-dialog',
@@ -22,6 +27,7 @@ export class ServerConnectDialogComponent implements OnInit, OnDestroy {
   selectServerConnect$ = new Subscription();
   collectionId!: number;
   filteredServerConnect!: Observable<any[]>;
+  connectionServerName = '';
 
   constructor(
     private store: Store,
@@ -35,8 +41,9 @@ export class ServerConnectDialogComponent implements OnInit, OnDestroy {
     this.serverConnectForm = new FormGroup({
       serverConnectCtr: new FormControl('')
     });
+    this.connectionServerName = this.data.connectionCategory == 'vmware_vcenter' ? 'Hypervisor' : this.data.connectionCategory == 'datasource' ? 'Datasource' : 'Configurator';
     this.selectServerConnect$ = this.store.select(selectServerConnects).subscribe(serverConnect => {
-      this.serverConnect = serverConnect;
+      this.serverConnect = serverConnect.filter(connection => connection.category === this.data.connectionCategory);
       this.filteredServerConnect = this.helpers.filterOptions(this.serverConnectCtr, this.serverConnect);
     });
   }
@@ -60,8 +67,8 @@ export class ServerConnectDialogComponent implements OnInit, OnDestroy {
     this.serverConnectionService.connect(jsonData)
       .subscribe({
         next: response => {
-          this.serverConnectionService.setConnection(JSON.stringify(response.result));
-          this.store.dispatch(retrievedIsConnect({ data: true }));
+          this.serverConnectionService.setConnection(this.data.connectionCategory, response.result);
+          this.helpers.changeConnectionStatus(this.data.connectionCategory, true);
           this.projectService.get(+this.collectionId).subscribe((data: any) => {
             this.store.dispatch(retrievedVMStatus({ vmStatus: data.result.configuration.vm_status }));
           })

@@ -9,6 +9,7 @@ import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { InfoPanelService } from "../../../../core/services/info-panel/info-panel.service";
 import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
+import { RemoteCategories } from "../../../../core/enums/remote-categories.enum";
 
 
 @Component({
@@ -44,7 +45,7 @@ export class DeleteNodeSnapshotDialogComponent {
   }
 
   deleteSnapshot() {
-    const connection = this.serverConnectionService.getConnection();
+    const connection = this.serverConnectionService.getConnection(this.data.category);
     const jsonData = {
       job_name: 'delete_snapshot',
       category: 'node',

@@ -26,7 +26,7 @@ export class AddDeletePGDeployDialogComponent {
   }
 
   addDeletePortGroupDeploy() {
-    const connection = this.serverConnectionService.getConnection();
+    const connection = this.serverConnectionService.getConnection(this.data.category);
     const jsonData = {
       job_name: this.data.jobName,
       category: 'port_group',

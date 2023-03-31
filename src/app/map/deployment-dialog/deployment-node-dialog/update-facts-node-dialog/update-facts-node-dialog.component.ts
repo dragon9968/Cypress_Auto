@@ -12,6 +12,7 @@ import { InfoPanelService } from "../../../../core/services/info-panel/info-pane
 import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
 import { selectLoginProfiles } from "../../../../store/login-profile/login-profile.selectors";
 import { autoCompleteValidator } from "../../../../shared/validations/auto-complete.validation";
+import { RemoteCategories } from "../../../../core/enums/remote-categories.enum";
 
 @Component({
   selector: 'app-update-facts-node-dialog',
@@ -44,7 +45,7 @@ export class UpdateFactsNodeDialogComponent implements OnInit, OnDestroy {
       this.loginProfileCtr.setValidators([autoCompleteValidator(this.loginProfiles)]);
       this.filteredLoginProfiles = this.helpersService.filterOptions(this.loginProfileCtr, this.loginProfiles);
     });
-    const connection = this.serverConnectionService.getConnection();
+    const connection = this.serverConnectionService.getConnection(this.data.category);
     if (connection) {
       this.connection = connection;
     } else {
@@ -70,7 +71,7 @@ export class UpdateFactsNodeDialogComponent implements OnInit, OnDestroy {
   }
 
   updateFactsNode() {
-    const connection = this.serverConnectionService.getConnection();
+    const connection = this.serverConnectionService.getConnection(RemoteCategories.HYPERVISOR);
     const jsonData = {
       connection_id: connection ? connection.id : 0,
       category: 'node',

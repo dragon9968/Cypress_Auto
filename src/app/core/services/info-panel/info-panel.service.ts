@@ -1,23 +1,20 @@
 import { Store } from "@ngrx/store";
-import { MatDialog } from "@angular/material/dialog";
 import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
 import { Subscription, throwError } from "rxjs";
 import { Injectable, Input, OnDestroy } from '@angular/core';
 import { MapService } from "../map/map.service";
-import { NodeService } from "../node/node.service";
 import { GroupService } from "../group/group.service";
 import { DomainService } from "../domain/domain.service";
 import { ProjectService } from "../../../project/services/project.service";
-import { HelpersService } from "../helpers/helpers.service";
 import { UserTaskService } from "../user-task/user-task.service";
 import { PortGroupService } from "../portgroup/portgroup.service";
 import { InterfaceService } from "../interface/interface.service";
 import { DomainUserService } from "../domain-user/domain-user.service";
+import { ServerConnectService } from "../server-connect/server-connect.service";
 import { selectVMStatus } from "../../../store/project/project.selectors";
 import { selectMapOption } from "../../../store/map-option/map-option.selectors";
 import { retrievedGroups } from "../../../store/group/group.actions";
-import { selectIsConnect } from "../../../store/server-connect/server-connect.selectors";
 import { retrievedDomains } from "../../../store/domain/domain.actions";
 import { selectDomainUsers } from "../../../store/domain-user/domain-user.selectors";
 import { retrievedUserTasks } from "../../../store/user-task/user-task.actions";
@@ -28,9 +25,9 @@ import { retrievedIsChangeDomainUsers } from "../../../store/domain-user-change/
 import { retrievedPortGroupsManagement } from "../../../store/portgroup/portgroup.actions";
 import { retrievedInterfacesManagement } from "../../../store/interface/interface.actions";
 import { selectPortGroups, selectPortGroupsManagement } from "../../../store/portgroup/portgroup.selectors";
-import { retrievedIsConnect } from "src/app/store/server-connect/server-connect.actions";
+import { retrievedIsHypervisorConnect } from "src/app/store/server-connect/server-connect.actions";
 import { retrievedVMStatus } from "src/app/store/project/project.actions";
-import { ServerConnectService } from "../server-connect/server-connect.service";
+import { RemoteCategories } from "../../enums/remote-categories.enum";
 @Injectable({
   providedIn: 'root'
 })
@@ -42,7 +39,6 @@ export class InfoPanelService implements OnDestroy {
   selectPortGroup$ = new Subscription();
   selectDomainUser$ = new Subscription();
   selectVMStatus$ = new Subscription();
-  selectIsConnect$ = new Subscription();
   selectPortGroupsManagement$ = new Subscription();
   selectInterfacesManagement$ = new Subscription();
   nodes!: any[];
@@ -52,7 +48,6 @@ export class InfoPanelService implements OnDestroy {
   interfacesManagement: any[] = [];
   vmStatus!: boolean;
   isGroupBoxesChecked!: boolean;
-  isConnect!: boolean;
   statusColorLookup = {
     off: '#D63222', //red
     on: '#44D62C', // green
@@ -84,7 +79,6 @@ export class InfoPanelService implements OnDestroy {
     this.selectPortGroup$ = this.store.select(selectPortGroups).subscribe(portGroups => this.portGroups = portGroups);
     this.selectDomainUser$ = this.store.select(selectDomainUsers).subscribe(domainUsers => this.domainUsers = domainUsers);
     this.selectVMStatus$ = this.store.select(selectVMStatus).subscribe(vmStatus => this.vmStatus = vmStatus);
-    this.selectIsConnect$ = this.store.select(selectIsConnect).subscribe(isConnect => this.isConnect = isConnect);
     this.selectPortGroupsManagement$ = this.store.select(selectPortGroupsManagement).subscribe(
       portGroupsData => this.portGroupsManagement = portGroupsData
     )
@@ -99,7 +93,6 @@ export class InfoPanelService implements OnDestroy {
     this.selectPortGroup$.unsubscribe();
     this.selectDomainUser$.unsubscribe();
     this.selectVMStatus$.unsubscribe();
-    this.selectIsConnect$.unsubscribe();
     this.selectPortGroupsManagement$.unsubscribe();
   }
 
@@ -480,19 +473,19 @@ export class InfoPanelService implements OnDestroy {
       .pipe(
         catchError((e: any) => {
           this.toastr.error(e.error.message);
-          const connection = this.serverConnectionService.getConnection();
+          const connection = this.serverConnectionService.getConnection(RemoteCategories.HYPERVISOR);
           if (connection) {
             const jsonData = {
               pk: connection.id,
             }
-            this.serverConnectionService.disconnect(jsonData).pipe(
+            this.serverConnectionService.disconnect(RemoteCategories.HYPERVISOR, jsonData).pipe(
               catchError(err => {
                 this.toastr.error('Could not to disconnect from Server', 'Error');
                 return throwError(() => err.error.message);
               })).subscribe(() => {
-                this.store.dispatch(retrievedIsConnect({ data: false }));
+                this.store.dispatch(retrievedIsHypervisorConnect({ data: false }));
                 this.store.dispatch(retrievedVMStatus({ vmStatus: undefined }));
-                this.toastr.info(`Disconnected from ${connection.name} server!`);
+                this.toastr.info(`Disconnected from ${connection.name} server!`, 'Info');
               })
           }
           return throwError(() => e);
@@ -568,14 +561,6 @@ export class InfoPanelService implements OnDestroy {
       return false;
     }
     return result;
-  }
-
-  initVMStatus(collectionId: number, connectionId: number) {
-    if (this.isConnect && this.vmStatus) {
-      this.changeVMStatusOnMap(collectionId, connectionId);
-    } else {
-      this.removeMapStatusOnMap();
-    }
   }
 
   initPortGroupManagementStorage(collectionId: string, category = 'management') {
@@ -715,7 +700,7 @@ export class InfoPanelService implements OnDestroy {
         });
         this.store.dispatch(retrievedMapSelection({ data: true }));
       });
-    } 
+    }
   }
 
   checkIpAlocation(data: any[]) {

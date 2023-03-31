@@ -1,14 +1,39 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
+import { Store } from "@ngrx/store";
+import { Subscription } from "rxjs";
+import {
+  selectIsConfiguratorConnect,
+  selectIsHypervisorConnect
+} from "../../store/server-connect/server-connect.selectors";
 
 @Injectable({
   providedIn: 'root'
 })
-export class ContextMenuService {
+export class ContextMenuService implements OnDestroy{
 
-  constructor() { }
+  selectIsHypervisorConnect$ = new Subscription()
+  selectIsConfiguratorConnect$ = new Subscription()
+  isHypervisorConnect = false;
+  isConfiguratorConnect = false;
+
+  constructor(
+    private store: Store
+  ) {
+    this.selectIsHypervisorConnect$ = this.store.select(selectIsHypervisorConnect).subscribe(isHypervisorConnect => {
+      this.isHypervisorConnect = isHypervisorConnect
+    })
+    this.selectIsConfiguratorConnect$ = this.store.select(selectIsConfiguratorConnect).subscribe(isConfiguratorConnect => {
+      this.isConfiguratorConnect = isConfiguratorConnect
+    })
+  }
+
+  ngOnDestroy(): void {
+    this.selectIsHypervisorConnect$.unsubscribe();
+    this.selectIsConfiguratorConnect$.unsubscribe();
+  }
 
   showContextMenu(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], activeMBs: any[],
-                  connectionId: any, isTemplateCategory: any) {
+                  isTemplateCategory: any) {
     const contextMenu = cy.contextMenus('get');
     const activeNodesLength = activeNodes.length;
     const activePGsLength = activePGs.length;
@@ -116,7 +141,7 @@ export class ContextMenuService {
         }
       }
     }
-    if (!connectionId || connectionId == 0 || isTemplateCategory) {
+    if ((!this.isHypervisorConnect && !this.isConfiguratorConnect) || isTemplateCategory) {
       contextMenu.hideMenuItem('node_remote');
       contextMenu.hideMenuItem('pg_remote');
     }

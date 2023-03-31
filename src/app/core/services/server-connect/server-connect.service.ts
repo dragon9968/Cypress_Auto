@@ -59,18 +59,33 @@ export class ServerConnectService {
     return this.http.post<any>(ApiPaths.CONNECT_TO_SERVER, data);
   }
 
-  disconnect(data: any): Observable<any> {
-    if (this.getConnection()) {
-      this.localStorageService.removeItem(LocalStorageKeys.CONNECTION);
-    }
+  disconnect(category: string, data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.DISCONNECT_FROM_SERVER, data);
   }
 
-  getConnection(): any {
-    return JSON.parse(<any>this.localStorageService.getItem(LocalStorageKeys.CONNECTION));
+  removeConnection(category: string) {
+    const connections = this.getAllConnection()
+    if (connections) {
+      delete connections[category]
+      this.localStorageService.setItem(LocalStorageKeys.CONNECTIONS, JSON.stringify(connections));
+    }
   }
 
-  setConnection(connection: string) {
-    this.localStorageService.setItem(LocalStorageKeys.CONNECTION, connection);
+  getAllConnection() {
+    return JSON.parse(<any>this.localStorageService.getItem(LocalStorageKeys.CONNECTIONS))
+  }
+
+  getConnection(category: string): any {
+    const connections = this.getAllConnection();
+    if (connections) {
+      return connections[category];
+    }
+    return connections
+  }
+
+  setConnection(category: string, connection: any) {
+    let connections = this.getAllConnection() ? this.getAllConnection() : {};
+    connections[category] = connection;
+    this.localStorageService.setItem(LocalStorageKeys.CONNECTIONS, JSON.stringify(connections));
   }
 }

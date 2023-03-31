@@ -12,6 +12,7 @@ import { InfoPanelService } from "../../../../core/services/info-panel/info-pane
 import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
 import { selectLoginProfiles } from "../../../../store/login-profile/login-profile.selectors";
 import { autoCompleteValidator } from "../../../../shared/validations/auto-complete.validation";
+import { RemoteCategories } from "../../../../core/enums/remote-categories.enum";
 
 @Component({
   selector: 'app-node-tools-dialog',
@@ -71,7 +72,7 @@ export class NodeToolsDialogComponent implements OnInit {
   get loginProfileCtr() { return this.helpersService.getAutoCompleteCtr(this.nodeToolsForm.get('loginProfileCtr'), this.loginProfiles) }
 
   goNodeTool() {
-    const connection = this.serviceConnectionService.getConnection();
+    const connection = this.serviceConnectionService.getConnection(this.data.category);
     const connectionId = connection ? connection.id : 0;
     let jsonData: any = {
       pks: this.data.activeNodes.map((node: any) => node.data('node_id')).join(","),

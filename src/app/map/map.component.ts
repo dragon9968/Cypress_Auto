@@ -57,7 +57,10 @@ import { ICON_PATH } from '../shared/contants/icon-path.constant';
 import { InfoPanelService } from '../core/services/info-panel/info-panel.service';
 import { retrievedInterfaceIdConnectPG } from "../store/interface/interface.actions";
 import { retrievedMapSelection } from '../store/map-selection/map-selection.actions';
-import { selectIsConnect } from "../store/server-connect/server-connect.selectors";
+import {
+  selectIsConfiguratorConnect,
+  selectIsHypervisorConnect
+} from "../store/server-connect/server-connect.selectors";
 import { MapImageService } from '../core/services/map-image/map-image.service';
 import { retrievedImages, retrievedMapImages } from '../store/map-image/map-image.actions';
 import { RouteSegments } from "../core/enums/route-segments.enum";
@@ -72,6 +75,7 @@ import { ValidateProjectDialogComponent } from "../project/validate-project-dial
 import { selectProjects } from "../store/project/project.selectors";
 import { NgxPermissionsService } from "ngx-permissions";
 import { CMProjectNodeService } from "./context-menu/cm-project-node/cm-project-node.service";
+import { RemoteCategories } from "../core/enums/remote-categories.enum";
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -159,7 +163,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   isSelectedProcessed = false;
   isEdgeDirectionChecked = false;
   isGroupBoxesChecked = false;
-  connectionId = 0;
   vmStatus!: boolean;
   boxSelectedNodes = new Set();
   interfaceIdConnectPG!: any;
@@ -170,7 +173,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   selectIcons$ = new Subscription();
   selectDomains$ = new Subscription();
   selectSearchText$ = new Subscription();
-  selectIsConnect$ = new Subscription();
+  selectIsHypervisorConnect$ = new Subscription();
+  selectIsConfiguratorConnect$ = new Subscription();
+  isHypervisorConnect = false;
+  isConfiguratorConnect = false;
   selectProjects$ = new Subscription();
   selectInterfaceIdConnectPG = new Subscription();
   selectMapOption$ = new Subscription();
@@ -277,10 +283,14 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.clearSearch();
       }
     });
-    this.selectIsConnect$ = this.store.select(selectIsConnect).subscribe(isConnect => {
-      if (isConnect !== undefined) {
-        const connection = this.serverConnectService.getConnection();
-        this.connectionId = connection ? connection?.id : 0;
+    this.selectIsHypervisorConnect$ = this.store.select(selectIsHypervisorConnect).subscribe(isHypervisorConnect => {
+      if (isHypervisorConnect !== undefined) {
+        this.isHypervisorConnect = isHypervisorConnect
+      }
+    })
+    this.selectIsConfiguratorConnect$ = this.store.select(selectIsConfiguratorConnect).subscribe(isConfiguratorConnect => {
+      if (isConfiguratorConnect !== undefined) {
+        this.isConfiguratorConnect = isConfiguratorConnect
       }
     })
     this.mapCategory = 'logical';
@@ -298,7 +308,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.mapImageService.getMapImageByCollectionId(+this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedMapImages({ mapImage: data.result })));
     this.projectService.get(+this.collectionId).subscribe((data: any) => {
       this.isTemplateCategory = data.result.category === 'template';
-      if (this.connectionId !== 0) {
+      if (this.isHypervisorConnect || this.isConfiguratorConnect) {
         this.vmStatus = data.result.configuration.vm_status;
         this.store.dispatch(retrievedVMStatus({ vmStatus: data.result.configuration.vm_status }));
       }
@@ -365,7 +375,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.selectIcons$.unsubscribe();
     this.selectDomains$.unsubscribe();
     this.selectSearchText$.unsubscribe();
-    this.selectIsConnect$.unsubscribe();
+    this.selectIsHypervisorConnect$.unsubscribe();
+    this.selectIsConfiguratorConnect$.unsubscribe();
     this.selectProjects$.unsubscribe();
     this.cy?.nodes().forEach((ele: any) => {
       this.helpersService.removeBadge(ele);
@@ -548,7 +559,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       }
     }
     this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
-                                            this.activeMBs, this.connectionId, this.isTemplateCategory);
+                                            this.activeMBs, this.isTemplateCategory);
     this.store.dispatch(retrievedMapSelection({ data: true }));
   }
 
@@ -569,7 +580,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       }
     }
     this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
-                                            this.activeMBs, this.connectionId, this.isTemplateCategory);
+                                            this.activeMBs, this.isTemplateCategory);
     this.store.dispatch(retrievedMapSelection({ data: true }));
   }
 
@@ -991,9 +1002,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.cy.on("box", this._boxCheck.bind(this));
     this.cy.on("click", this._click.bind(this));
     this.cy.on("cxttap", "node", () => this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs,
-                                          this.activeEdges, this.activeGBs, this.activeMBs, this.connectionId, this.isTemplateCategory));
+                                          this.activeEdges, this.activeGBs, this.activeMBs, this.isTemplateCategory));
     this.cy.on("cxttap", "edge", () => this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs,
-                                          this.activeEdges, this.activeGBs, this.activeMBs, this.connectionId, this.isTemplateCategory));
+                                          this.activeEdges, this.activeGBs, this.activeMBs, this.isTemplateCategory));
     this.cy.on("nodeediting.resizeend", this._nodeEditing.bind(this));
     this.cy.on('cdnddrop', this._cdndDrop.bind(this));
     this.cy.on('cdndout', this._cdndOut.bind(this));

@@ -11,11 +11,18 @@ import { ToastrService } from 'ngx-toastr';
 import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
 import { retrievedNodes } from "../../../store/node/node.actions";
 import { environment } from "../../../../environments/environment";
+import { RemoteCategories } from "../../enums/remote-categories.enum";
+import {
+  retrievedIsConfiguratorConnect,
+  retrievedIsHypervisorConnect,
+  retrievedIsDatasourceConnect
+} from "../../../store/server-connect/server-connect.actions";
+import { ServerConnectService } from "../server-connect/server-connect.service";
 
 @Injectable({
   providedIn: 'root'
 })
-export class HelpersService implements OnDestroy{
+export class HelpersService implements OnDestroy {
   selectMapOption$ = new Subscription();
   selectGroupBoxes$ = new Subscription();
   selectNodes$ = new Subscription();
@@ -32,7 +39,8 @@ export class HelpersService implements OnDestroy{
 
   constructor(private store: Store,
               private toastr: ToastrService,
-              private domSanitizer: DomSanitizer) {
+              private domSanitizer: DomSanitizer,
+              private serverConnectionService: ServerConnectService) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
         this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
@@ -910,6 +918,37 @@ export class HelpersService implements OnDestroy{
         'Waring', { enableHtml: true }
       )
       return false;
+    }
+  }
+
+  changeConnectionStatus(category: string, status: boolean) {
+    switch (category) {
+      case RemoteCategories.HYPERVISOR:
+        this.store.dispatch(retrievedIsHypervisorConnect({ data: status }));
+        break;
+      case RemoteCategories.DATASOURCE:
+        this.store.dispatch(retrievedIsDatasourceConnect({ data: status }));
+        break;
+      case RemoteCategories.CONFIGURATOR:
+        this.store.dispatch(retrievedIsConfiguratorConnect({ data: status}));
+        break;
+      default:
+        this.toastr.warning('The connection category is not match', 'Warning')
+    }
+  }
+
+  initialConnectionStatus() {
+    const connectionHypervisor = this.serverConnectionService.getConnection(RemoteCategories.HYPERVISOR);
+    if (connectionHypervisor && connectionHypervisor.id !== 0) {
+      this.store.dispatch(retrievedIsHypervisorConnect({ data: true }));
+    }
+    const connectionDatasource = this.serverConnectionService.getConnection(RemoteCategories.DATASOURCE);
+    if (connectionDatasource && connectionDatasource.id !== 0) {
+      this.store.dispatch(retrievedIsDatasourceConnect({ data: true }));
+    }
+    const connectionConfigurator = this.serverConnectionService.getConnection(RemoteCategories.CONFIGURATOR);
+    if (connectionConfigurator && connectionConfigurator.id !== 0) {
+      this.store.dispatch(retrievedIsConfiguratorConnect({ data: true }));
     }
   }
 }

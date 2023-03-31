@@ -7,6 +7,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { InfoPanelService } from "../../../../core/services/info-panel/info-panel.service";
 import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
+import { RemoteCategories } from "../../../../core/enums/remote-categories.enum";
 
 @Component({
   selector: 'app-create-node-snapshot-dialog',
@@ -37,7 +38,7 @@ export class CreateNodeSnapshotDialogComponent {
   }
 
   create() {
-    const connection = this.serverConnectionService.getConnection();
+    const connection = this.serverConnectionService.getConnection(this.data.category);
     const jsonDataValue = {
       job_name: 'create_snapshot',
       category: 'node',

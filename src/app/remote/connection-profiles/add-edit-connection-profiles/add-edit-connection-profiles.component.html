@@ -21,8 +21,8 @@
         <mat-label>Category</mat-label>
         <mat-select (ngModelChange)="onSelectChange($event)" formControlName="category">
           <mat-option value="vmware_vcenter">VMWare vCenter</mat-option>
-          <!-- <mat-option value="datasource">Datasource</mat-option> -->
-          <mat-option value="thundermoth">ThunderMoth</mat-option>
+           <mat-option value="datasource">Datasource</mat-option>
+          <mat-option value="configurator">Configurator</mat-option>
         </mat-select>
         <mat-error *ngIf="category?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       </mat-form-field>

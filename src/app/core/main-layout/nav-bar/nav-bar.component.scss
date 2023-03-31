@@ -38,6 +38,21 @@ $margin: 8px;
 .project-name a {
   padding: 0 calc($margin/2);
 }
+.remote-item {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  &__title {
+    width: 85px;
+  }
+  &__btn {
+    width: 140px;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+  }
+}
+
 
 ::ng-deep .menu-small {
   width: 400px;

@@ -10,6 +10,7 @@ import { HelpersService } from "../../../../core/services/helpers/helpers.servic
 import { InfoPanelService } from "../../../../core/services/info-panel/info-panel.service";
 import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
 import { autoCompleteValidator } from "../../../../shared/validations/auto-complete.validation";
+import { RemoteCategories } from "../../../../core/enums/remote-categories.enum";
 
 
 @Component({
@@ -40,7 +41,7 @@ export class RevertNodeSnapshotDialogComponent {
   get nameCtr() { return this.helperService.getAutoCompleteCtr(this.revertNodeSnapshotForm.get('nameCtr'), this.data.names) };
 
   revertSnapshot() {
-    const connection = this.serverConnectionService.getConnection();
+    const connection = this.serverConnectionService.getConnection(this.data.category);
     const jsonData = {
       job_name: 'revert_snapshot',
       category: 'node',

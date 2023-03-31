@@ -1,4 +1,6 @@
 export interface ServerConnectState {
   serverConnects: any[],
-  isConnect: boolean
+  isHypervisorConnect: boolean,
+  isDatasourceConnect: boolean,
+  isConfiguratorConnect: boolean
 }
