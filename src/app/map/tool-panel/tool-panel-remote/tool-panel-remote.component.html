@@ -26,9 +26,13 @@
       <span class="remote-item__field--content">{{ connectionSwitch }}</span>
     </div>
     <div class="remote-item__field">
+      <mat-label class="remote-item__field--label">Datastore <span>:</span></mat-label>
+      <span class="remote-item__field--content">{{ connectionDatastore }}</span>
+    </div>
+    <!-- <div class="remote-item__field">
       <mat-label class="remote-item__field--label">Switch Type<span>:</span> </mat-label>
       <span class="remote-item__field--content">{{ connectionSwitchType }}</span>
-    </div>
+    </div> -->
     <div class="remote-item__field">
       <mat-label class="remote-item__field--label">Username<span>:</span></mat-label>
       <span class="remote-item__field--content">{{ userName }}</span>
@@ -43,7 +47,7 @@
       </button>
     </div>
   </section>
-  <section *ngIf="activeNodes.length !== 0 || activePGs.length !== 0" class="tab-section">
+  <!-- <section *ngIf="activeNodes.length !== 0 || activePGs.length !== 0" class="tab-section">
     <h4 class="remote-item__title">Hypervisor Deployment</h4>
     <div *ngIf="activeNodes.length !== 0">
       <form [formGroup]="nodeTaskForm" (ngSubmit)="goNodeTask('vmware_vcenter')" class="tab-form">
@@ -99,12 +103,16 @@
         <button mat-raised-button class="tab-select-btn" type="submit" color="primary" [disabled]="portGroupTaskFrom.invalid">Go</button>
       </form>
     </div>
-  </section>
+  </section> -->
 </section>
 
 <section *ngIf="isDatasourceConnect" class="tab-remote remote-list">
   <section class="remote-item">
     <h4 class="remote-item__title">Datasource</h4>
+    <div class="remote-item__field">
+      <mat-label class="remote-item__field--label">Name <span>:</span></mat-label>
+      <span class="remote-item__field--content">{{ connectionDatasourceName }}</span>
+    </div>
     <div class="remote-item__field">
       <mat-label class="remote-item__field--label">Server <span>:</span></mat-label>
       <span class="remote-item__field--content">{{ connectionDatasourceUsername }}</span>
@@ -120,6 +128,10 @@
   <section class="remote-item">
     <h4 class="remote-item__title">Configurator</h4>
     <div class="remote-item__field">
+      <mat-label class="remote-item__field--label">Name <span>:</span></mat-label>
+      <span class="remote-item__field--content">{{ connectionConfiguratorName }}</span>
+    </div>
+    <div class="remote-item__field">
       <mat-label class="remote-item__field--label">Server <span>:</span></mat-label>
       <span class="remote-item__field--content">{{ connectionConfiguratorServer }}</span>
     </div>
@@ -127,7 +139,7 @@
       <mat-label class="remote-item__field--label">Username<span>:</span></mat-label>
       <span class="remote-item__field--content">{{ connectionConfiguratorUsername }}</span>
     </div>
-    <div class="remote-item__field">
+    <!-- <div class="remote-item__field">
       <mat-label class="remote-item__field--label">Status<span>:</span></mat-label>
       <mat-slide-toggle [(ngModel)]="vmStatusChecked" color="primary" (change)="toggleVMStatus($event)">
       </mat-slide-toggle>
@@ -135,12 +147,12 @@
               matTooltip="Refresh Map Status" (click)="refreshVMStatus()">
         <mat-icon small>autorenew</mat-icon>
       </button>
-    </div>
+    </div> -->
   </section>
   <section *ngIf="activeNodes.length !== 0 || activePGs.length !== 0" class="tab-section">
-    <h4 class="remote-item__title">Configurator Deployment</h4>
+    <h4 class="remote-item__title">Deployment</h4>
     <div *ngIf="activeNodes.length !== 0">
-      <form [formGroup]="nodeTaskForm" (ngSubmit)="goNodeTask('configurator')" class="tab-form">
+      <form [formGroup]="nodeTaskForm" (ngSubmit)="goNodeTask('vmware_vcenter')" class="tab-form">
         <mat-form-field class="tab-select-field">
           <mat-label>Node Task</mat-label>
           <input matInput placeholder="Select a task"

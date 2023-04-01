@@ -62,8 +62,11 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
   connectionCluster = '';
   connectionSwitch = '';
   connectionSwitchType = '';
+  connectionDatastore = '';
+  connectionDatasourceName = '';
   connectionDatasourceUsername = '';
   connectionDatasourceServer = '';
+  connectionConfiguratorName = '';
   connectionConfiguratorUsername = '';
   connectionConfiguratorServer = '';
   userName = '';
@@ -104,6 +107,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
         this.isDatasourceConnect = isDatasourceConnect;
         let connection = this.serverConnectionService.getConnection(RemoteCategories.DATASOURCE);
         connection = connection ? connection : { name: '', id: 0 };
+        this.connectionDatasourceName = connection.name;
         this.connectionDatasourceUsername = connection.parameters?.username;
         this.connectionDatasourceServer = connection.parameters?.server;
       }
@@ -113,6 +117,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
         this.isConfiguratorConnect = isConfiguratorConnect;
         let connection = this.serverConnectionService.getConnection(RemoteCategories.CONFIGURATOR);
         connection = connection ? connection : { name: '', id: 0 };
+        this.connectionConfiguratorName = connection.name;
         this.connectionConfiguratorUsername = connection.parameters?.username;
         this.connectionConfiguratorServer = connection.parameters?.server;
       }
@@ -193,6 +198,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
       this.connectionCluster = connection.parameters?.cluster;
       this.connectionSwitch = connection.parameters?.switch;
       this.connectionSwitchType = connection.parameters?.switch_type;
+      this.connectionDatastore = connection.parameters?.datastore;
       this.userName = connection.parameters?.username;
     }
   }
@@ -286,6 +292,14 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
         };
         this.dialog.open(UpdateFactsNodeDialogComponent,{ width: '600px', data: dialogData, autoFocus: false });
         break;
+      case 'remote_config':
+          dialogData = {
+            jobName: 'remote_config',
+            activeNodes: this.activeNodes,
+            category
+          };
+          this.dialog.open(AddUpdateNodeDeployDialogComponent,{ width: '600px', data: dialogData, autoFocus: false });
+          break;
       default:
         this.toastr.warning('Please select a node before adding the task', 'Warning');
     }

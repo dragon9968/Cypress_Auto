@@ -38,5 +38,9 @@ export const NODE_TASKS = [
   {
     id: 'update_facts',
     name : 'Update Facts'
+  },
+  {
+    id: 'remote_config',
+    name : 'Remote Config'
   }
 ]

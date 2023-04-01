@@ -69,8 +69,12 @@ export class AddUpdateNodeDeployDialogComponent implements OnInit, OnDestroy {
 
   deployNodeAddUpdate() {
     const connection = this.serverConnectionService.getConnection(this.data.category);
+    const configurator = this.serverConnectionService.getConnection("configurator");
+    const datasource = this.serverConnectionService.getConnection("datasource");
     const jsonData = {
-      connection_id: connection ? connection.id : 0,
+      hypervisor_id: connection ? connection.id : 0,
+      configurator_id: configurator ? configurator.id : 0,
+      datasource_id: datasource ? datasource.id : 0,
       job_name: this.data.jobName,
       category: 'node',
       pks: this.data.activeNodes.map((ele: any) => ele.data('node_id')).join(","),
