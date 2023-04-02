@@ -82,6 +82,18 @@ export class AddEditConnectionProfilesComponent implements OnInit {
       this.switchType?.setValue(this.data.genData.parameters.switch_type === '' ? 'None' : this.data.genData.parameters.switch_type);
       this.managementNetwork?.setValue(this.data.genData.parameters.management_network === '' ? 'None' : this.data.genData.parameters.management_network);
       this.username?.setValue(this.data.genData.parameters.username === '' ? 'None' : this.data.genData.parameters.username);
+      if (this.data.genData.category === 'datasource') {
+        this.isHiddenField = true;
+        // this.certFile?.setValue(this.data.genData.parameters.cert_file);
+        // if (this.data.genData.parameters.cert_file === '') {
+        //   this.isHiddenDeleteButton = true;
+        // } else {
+        //   this.isHiddenDeleteButton = false;
+        // }
+      }
+      else if (this.data.genData.category === 'configurator') {
+        this.isHiddenField = true;
+      }
     } else {
         this.isHiddenDeleteButton = true;
         this.name?.setValue(this.data.genData.name)
@@ -98,14 +110,14 @@ export class AddEditConnectionProfilesComponent implements OnInit {
         this.password?.setValue(this.data.genData.parameters.password);
         if (this.data.genData.category === 'datasource') {
           this.isHiddenField = true;
-          this.certFile?.setValue(this.data.genData.parameters.cert_file);
-          if (this.data.genData.parameters.cert_file === '') {
-            this.isHiddenDeleteButton = true;
-          } else {
-            this.isHiddenDeleteButton = false;
-          }
+          // this.certFile?.setValue(this.data.genData.parameters.cert_file);
+          // if (this.data.genData.parameters.cert_file === '') {
+          //   this.isHiddenDeleteButton = true;
+          // } else {
+          //   this.isHiddenDeleteButton = false;
+          // }
         }
-        else if (this.data.genData.category === 'thundermoth') {
+        else if (this.data.genData.category === 'configurator') {
           this.isHiddenField = true;
         }
         if (this.data.mode === 'add') {

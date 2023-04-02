@@ -40,12 +40,12 @@
           <mat-error *ngIf="server?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
         </mat-form-field>
       </div>
-      <div *ngIf="data.mode === 'view'">
+      <!-- <div *ngIf="data.mode === 'view'">
         <mat-form-field class="field">
           <mat-label>Cert File</mat-label>
           <input disableAutoFill type="text" formControlName="certFile" matInput>
         </mat-form-field>
-      </div>
+      </div> -->
       <div [hidden]="isHiddenField">
         <mat-form-field class="field">
           <mat-label>Datacenter</mat-label>
