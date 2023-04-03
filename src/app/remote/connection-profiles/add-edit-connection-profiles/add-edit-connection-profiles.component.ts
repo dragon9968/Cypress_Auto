@@ -44,6 +44,8 @@ export class AddEditConnectionProfilesComponent implements OnInit {
       switch: new FormControl({value: '', disabled: this.isViewMode}),
       switchType: new FormControl({value: '', disabled: this.isViewMode}),
       managementNetwork: new FormControl({value: '', disabled: this.isViewMode}),
+      version: new FormControl({value: '', disabled: this.isViewMode}),
+      uuid: new FormControl({value: '', disabled: this.isViewMode}),
       username: new FormControl({value: '', disabled: this.isViewMode}, [Validators.required]),
       password: new FormControl({value: '', disabled: this.isViewMode}),
       updatePassword: new FormControl({value: '', disabled: this.isViewMode}),
@@ -62,6 +64,8 @@ export class AddEditConnectionProfilesComponent implements OnInit {
    get switch() { return this.connectionForm?.get('switch'); }
    get switchType() { return this.connectionForm?.get('switchType'); }
    get managementNetwork() { return this.connectionForm?.get('managementNetwork'); }
+   get version() { return this.connectionForm?.get('version'); }
+   get uuid() { return this.connectionForm?.get('uuid'); }
    get username() { return this.connectionForm?.get('username'); }
    get password() { return this.connectionForm?.get('password'); }
    get updatePassword() {return this.connectionForm?.get('updatePassword');}
@@ -81,6 +85,8 @@ export class AddEditConnectionProfilesComponent implements OnInit {
       this.switch?.setValue(this.data.genData.parameters.switch === '' ? 'None' : this.data.genData.parameters.switch);
       this.switchType?.setValue(this.data.genData.parameters.switch_type === '' ? 'None' : this.data.genData.parameters.switch_type);
       this.managementNetwork?.setValue(this.data.genData.parameters.management_network === '' ? 'None' : this.data.genData.parameters.management_network);
+      this.version?.setValue(this.data.genData.parameters.version === '' ? 'None' : this.data.genData.parameters.version);
+      this.uuid?.setValue(this.data.genData.parameters.uuid === '' ? 'None' : this.data.genData.parameters.uuid);
       this.username?.setValue(this.data.genData.parameters.username === '' ? 'None' : this.data.genData.parameters.username);
       if (this.data.genData.category === 'datasource') {
         this.isHiddenField = true;

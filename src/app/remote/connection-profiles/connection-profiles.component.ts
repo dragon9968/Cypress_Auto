@@ -50,14 +50,23 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
     { field: 'category' },
     {
       headerName: 'Connection',
-      field: 'parameters.status',
+      field: 'status',
       cellRenderer: ConnectionStatusRendererComponent,
       sortable: false
     },
     {
       headerName: 'Server',
-      field: 'parameters.server',
-    }
+      field: 'server',
+    },
+    { 
+      headerName: 'User ID',
+      field: 'username' 
+    },
+    { field: 'version' },
+    { 
+      headerName: "UUID",
+      field: 'uuid' 
+    },
   ];
   constructor(
     private serverConnectService: ServerConnectService,

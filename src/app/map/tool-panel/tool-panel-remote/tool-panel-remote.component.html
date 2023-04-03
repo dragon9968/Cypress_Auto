@@ -149,6 +149,8 @@
       </button>
     </div> -->
   </section>
+</section>
+<section *ngIf="isConfiguratorConnect || isHyperConnect">
   <section *ngIf="activeNodes.length !== 0 || activePGs.length !== 0" class="tab-section">
     <h4 class="remote-item__title">Deployment</h4>
     <div *ngIf="activeNodes.length !== 0">
@@ -156,8 +158,8 @@
         <mat-form-field class="tab-select-field">
           <mat-label>Node Task</mat-label>
           <input matInput placeholder="Select a task"
-                 formControlName="nodeTaskCtr"
-                 [matAutocomplete]="autoTask">
+                  formControlName="nodeTaskCtr"
+                  [matAutocomplete]="autoTask">
           <mat-autocomplete #autoTask="matAutocomplete" [displayWith]="helpersService.optionDisplay">
             <mat-option *ngFor="let task of filteredNodeTasks | async" [value]="task">
               {{ task.name }}
@@ -170,12 +172,12 @@
       </form>
     </div>
     <div *ngIf="activeNodes.length !== 0">
-      <form class="tab-form" [formGroup]="nodeToolForm" (ngSubmit)="goNodeTool('configurator')">
+      <form class="tab-form" [formGroup]="nodeToolForm" (ngSubmit)="goNodeTool('vmware_vcenter')">
         <mat-form-field class="tab-select-field">
           <mat-label>Node Tool</mat-label>
           <input matInput placeholder="Select a tool"
-                 formControlName="toolCtr"
-                 [matAutocomplete]="autoTool">
+                  formControlName="toolCtr"
+                  [matAutocomplete]="autoTool">
           <mat-autocomplete #autoTool="matAutocomplete" [displayWith]="helpersService.optionDisplay">
             <mat-option *ngFor="let tool of filteredTools | async" [value]="tool">
               {{ tool.name }}
@@ -188,12 +190,12 @@
       </form>
     </div>
     <div *ngIf="activePGs.length !== 0">
-      <form class="tab-form" [formGroup]="portGroupTaskFrom" (ngSubmit)="goPGTask('configurator')">
+      <form class="tab-form" [formGroup]="portGroupTaskFrom" (ngSubmit)="goPGTask('vmware_vcenter')">
         <mat-form-field class="tab-select-field">
           <mat-label>Port Group Task</mat-label>
           <input matInput placeholder="Select a task"
-                 formControlName="pgTaskCtr"
-                 [matAutocomplete]="autoTask">
+                  formControlName="pgTaskCtr"
+                  [matAutocomplete]="autoTask">
           <mat-autocomplete #autoTask="matAutocomplete" [displayWith]="helpersService.optionDisplay">
             <mat-option *ngFor="let task of filteredTasks | async" [value]="task">
               {{ task.name }}

@@ -84,6 +84,14 @@
             <mat-hint *ngIf="data.mode !== 'view'" align="start"></mat-hint>
           </mat-form-field>
         </div>
+        <mat-form-field class="field">
+          <mat-label>Version</mat-label>
+          <input disableAutoFill type="text" formControlName="version" matInput>
+        </mat-form-field>
+        <mat-form-field class="field">
+          <mat-label>UUID</mat-label>
+          <input disableAutoFill type="text" formControlName="uuid" matInput>
+        </mat-form-field>
       </div>
       <!-- <div [hidden]="!isHiddenField">
         <div class="cert-file">
@@ -104,19 +112,19 @@
     <mat-divider></mat-divider>
     <section>
       <mat-form-field class="field">
-        <mat-label>User Name</mat-label>
+        <mat-label>ID</mat-label>
         <input disableAutoFill type="text" formControlName="username" matInput>
         <mat-error *ngIf="username?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       </mat-form-field>
       <div *ngIf="data.mode !== 'view'">
         <mat-form-field class="field" *ngIf="data.mode === 'add'">
-          <mat-label>Password</mat-label>
+          <mat-label>Password/API Key</mat-label>
           <input autocomplete="new-password" [type]="showPassword ? 'text' : 'password'" formControlName="password" matInput>
           <mat-icon matSuffix (click)="togglePassword()">{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
           <mat-error *ngIf="password?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
         </mat-form-field>
         <mat-form-field class="field" *ngIf="data.mode === 'update'">
-          <mat-label>Update Password</mat-label>
+          <mat-label>Update Password/API Key</mat-label>
           <input type="password" formControlName="updatePassword" matInput>
         </mat-form-field>
       </div>
