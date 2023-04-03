@@ -55,7 +55,7 @@ export class CMEditService {
           genData: activeEdges[0].data(),
           cy
         }
-        this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+        this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '650px', autoFocus: false, data: dialogData });
       }
     } else if (activeNodesLength == 0 && activeEdgesLength == 0) {
       if (activePGsLength > 1) {

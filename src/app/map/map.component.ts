@@ -1182,7 +1182,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       newEdgeData,
       nodeCategory
     }
-    const dialogRef = this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', data: dialogData });
+    const dialogRef = this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '650px', data: dialogData });
     dialogRef.afterClosed().subscribe((_data: any) => {
       if (nodeCategory == 'project') {
         this.clearSearch();

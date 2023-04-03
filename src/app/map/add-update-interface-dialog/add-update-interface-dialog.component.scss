@@ -8,22 +8,27 @@ $margin: 8px;
 .category {
     width: 100%;
     align-items: center;
-    margin: $margin 0;
+    padding: $margin;
     display: flex;
 }
 
 .category-group {
-    width: 100%;
+    width: 60%;
     display: flex;
     justify-content: center;
 }
 
 .category-label {
-    width: 200px;
+    width: 40%;
+    font-family: 'Roboto', sans-serif;
 }
 
 .category-items {
     margin: 0 $margin;
+}
+
+.checkbox-field {
+    padding: $margin 0;
 }
 
 .option-text {
@@ -41,4 +46,16 @@ $margin: 8px;
 
 .mat-option {
     height: 60px;
+}
+
+.interface-content {
+    height: 49vh;
+    &__top, &__bottom {
+        display: flex;
+        justify-content: space-between;
+        &__left, &__right{
+            width: 45%;
+            padding: $margin;
+        }
+    }
 }

@@ -37,7 +37,7 @@ export class CMViewDetailsService {
         genData: activeEdges[0].data(),
         cy
       }
-      this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+      this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '650px', autoFocus: false, data: dialogData });
     } else if (activePGsLength == 1 && activeNodesLength == 0 && activeEdgesLength == 0) {
       const dialogData = {
         mode: 'view',

@@ -64,6 +64,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       gatewayCtr: new FormControl(''),
       isGatewayCtr: new FormControl({ value: '', disabled: this.isViewMode }),
       isNatCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      netMaskCtr: new FormControl({ value: '', disabled: this.isViewMode }),
     });
     this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe((portGroups: any) => {
       this.portGroups = portGroups;
@@ -101,8 +102,10 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   get gatewayCtr() { return this.interfaceAddForm.get('gatewayCtr') }
   get isGatewayCtr() { return this.interfaceAddForm.get('isGatewayCtr'); }
   get isNatCtr() { return this.interfaceAddForm.get('isNatCtr'); }
+  get netMaskCtr() { return this.interfaceAddForm.get('netMaskCtr'); }
 
   ngOnInit(): void {
+    console.log(this.data.genData)
     let directionValue = this.isEdgeDirectionChecked ? this.data.genData.direction : this.data.genData.prev_direction;
     directionValue = this.data.mode == 'add' ? '' : directionValue
     this.directionCtr.setValidators([Validators.required, autoCompleteValidator(this.DIRECTIONS)]);
@@ -120,6 +123,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     this.gatewayCtr?.setValue(this.data.genData.gateway?.gateway ? this.data.genData.gateway.gateway : this.data.genData.gateway);
     this.isGatewayCtr?.setValue(this.data.genData.is_gateway);
     this.isNatCtr?.setValue(this.data.genData.is_nat);
+    this.netMaskCtr?.setValue(this.data.genData.netmask);
     this._disableItems(this.ipAllocationCtr?.value);
   }
 
