@@ -221,8 +221,6 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
       this.domainService.export(jsonData).subscribe(response => {
         if (format === 'json') {
           file = new Blob([response.data], { type: 'application/json' });
-        } else if (format === 'csv') {
-          file = new Blob([response.data], { type: 'text/csv;charset=utf-8;' })
         }
         const fileName = response.filename;
         this.helpers.downloadBlob(fileName, file);
