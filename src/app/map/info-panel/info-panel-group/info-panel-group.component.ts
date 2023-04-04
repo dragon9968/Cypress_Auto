@@ -84,6 +84,7 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
       },
       {
         field: 'map_images',
+        headerName: 'Map Images',
         minWidth: 300,
         flex: 1,
       },

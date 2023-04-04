@@ -536,7 +536,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       const isMapImageIdsInGroupChange = JSON.stringify(mapImageIdsInGroup.sort()) !== JSON.stringify(mapImageIdsInGroupElement.sort())
 
 
-      if (isNodesInGroupChange || isPortGroupsInGroupChange || isMapImageIdsInGroupChange) {
+      if ((isNodesInGroupChange || isPortGroupsInGroupChange || isMapImageIdsInGroupChange) && this.isGroupBoxesChecked) {
         let item: any = {
           group_id: group.id,
           domain_id: group.domain_id,
@@ -593,7 +593,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       if (mapImagesInGroup && mapImagesInGroup.length > 0) {
         mapImagesInGroup.map((mapImageId: number) => {
           const mapImageEle = this.cy.getElementById(`map_image-${mapImageId}`);
-          const mapImage = this.portGroups.find(el => el.id === mapImageId);
+          const mapImage = this.mapImages.find(el => el.id === mapImageId);
           newMapImages.push({id: mapImageId, name: mapImage.name});
         })
         newGroup.map_images = newMapImages;
