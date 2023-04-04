@@ -105,7 +105,6 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   get netMaskCtr() { return this.interfaceAddForm.get('netMaskCtr'); }
 
   ngOnInit(): void {
-    console.log(this.data.genData)
     let directionValue = this.isEdgeDirectionChecked ? this.data.genData.direction : this.data.genData.prev_direction;
     directionValue = this.data.mode == 'add' ? '' : directionValue
     this.directionCtr.setValidators([Validators.required, autoCompleteValidator(this.DIRECTIONS)]);
@@ -125,6 +124,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     this.isNatCtr?.setValue(this.data.genData.is_nat);
     this.netMaskCtr?.setValue(this.data.genData.netmask);
     this._disableItems(this.ipAllocationCtr?.value);
+    this.netMaskCtr?.disable();
   }
 
   private _disableItems(subnetAllocation: string) {

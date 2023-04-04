@@ -13,18 +13,19 @@ $margin: 8px;
 }
 
 .category-group {
-    width: 60%;
+    width: 75%;
     display: flex;
-    justify-content: center;
+    justify-content: left;
 }
 
 .category-label {
-    width: 40%;
+    width: 25%;
     font-family: 'Roboto', sans-serif;
 }
 
 .category-items {
     margin: 0 $margin;
+    flex: 1;
 }
 
 .checkbox-field {

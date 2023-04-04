@@ -95,7 +95,7 @@
     <div class="interface-content__bottom">
       <div class="interface-content__bottom__left">
         <mat-form-field class="field">
-          <mat-label>IP</mat-label>
+          <mat-label>IP Address</mat-label>
           <input matInput formControlName="ipCtr" [readonly]="isViewMode">
           <mat-error *ngIf="ipCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
         </mat-form-field>
@@ -108,9 +108,9 @@
         </div>
       </div>
       <div class="interface-content__bottom__right">
-        <mat-form-field *ngIf="data.mode == 'view'" class="field">
+        <mat-form-field class="field">
           <mat-label>Netmask</mat-label>
-          <input matInput formControlName="netMaskCtr" [readonly]="isViewMode">
+          <input matInput formControlName="netMaskCtr" [readonly]="true">
         </mat-form-field>
         <mat-form-field class="field">
           <mat-label>DNS Server</mat-label>
