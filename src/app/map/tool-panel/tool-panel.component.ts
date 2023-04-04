@@ -148,13 +148,19 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '600px', data: dialogData });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        const text = this.cy.png({
-          output: "blob",
-          bg: "#ffffff",
-          full: false,
-        });
-        const file = new Blob([text], { type: "image/png" });
-        this.helpersService.downloadBlob("download_map.png", file);
+        try {
+          const text = this.cy.png({
+            output: "blob",
+            bg: "#ffffff",
+            full: false,
+          });
+          const file = new Blob([text], { type: "image/png" });
+          this.helpersService.downloadBlob("download_map.png", file);
+          this.toastr.success('Download map successfully', 'Success')
+        } catch (err) {
+          this.toastr.error('Download map failed', 'Error')
+          throwError(() => err)
+        }
       }
     });
   }
