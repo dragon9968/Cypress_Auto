@@ -166,9 +166,21 @@ export class InfoPanelNodeComponent implements OnDestroy {
         flex: 1
       },
       {
-        field: 'configuration_show',
+        field: 'configs',
         headerName: 'Configuration',
-        cellRenderer: (param: any) => param.value,
+        cellRenderer: function(params: any) {
+          if (params.value.length > 0) {
+            let html_str = "<div style='text-align:left;'><ul>"
+            for(let i in params.value) {
+              let item_html = `<li style='text-align: left'>${params.value[i].name}</li>`;
+              html_str += item_html;
+            }
+            html_str += "</ul></div>"
+            return html_str;
+          } else {
+            return
+          }
+        },
         autoHeight: true,
         minWidth: 120,
         flex: 1
