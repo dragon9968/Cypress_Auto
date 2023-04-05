@@ -9,3 +9,21 @@
   background-color: #c71414;
   color: #fff;
 }
+
+.task {
+  display: flex;
+  &__info {
+    width: 50%;
+  }
+  &__result {
+    margin-left: 5px;
+    width: 48%;
+    &__editor {
+      overflow-y: auto;
+      max-height: 600px;
+      ace-editor {
+        height: 600px;
+      }
+    }
+  }
+}
