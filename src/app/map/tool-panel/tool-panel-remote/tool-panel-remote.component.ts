@@ -9,6 +9,7 @@ import { NodeService } from "../../../core/services/node/node.service";
 import { ProjectService } from "src/app/project/services/project.service";
 import { CMRemoteService } from "../../context-menu/cm-remote/cm-remote.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
+import { SearchService } from "src/app/core/services/search/search.service";
 import { ServerConnectService } from "../../../core/services/server-connect/server-connect.service";
 import { NODE_TASKS } from "../../../shared/contants/node-tasks.constant";
 import { NODE_TOOLS } from "../../../shared/contants/node-tools.constant";
@@ -32,6 +33,7 @@ import { CreateNodeSnapshotDialogComponent } from "../../deployment-dialog/deplo
 import { DeleteNodeSnapshotDialogComponent } from "../../deployment-dialog/deployment-node-dialog/delete-node-snapshot-dialog/delete-node-snapshot-dialog.component";
 import { RevertNodeSnapshotDialogComponent } from "../../deployment-dialog/deployment-node-dialog/revert-node-snapshot-dialog/revert-node-snapshot-dialog.component";
 import { AddUpdateNodeDeployDialogComponent } from "../../deployment-dialog/deployment-node-dialog/add-update-node-deploy-dialog/add-update-node-deploy-dialog.component";
+
 
 @Component({
   selector: 'app-tool-panel-remote',
@@ -92,6 +94,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
     private cmRemoteService: CMRemoteService,
     private infoPanelService: InfoPanelService,
     private serverConnectionService: ServerConnectService,
+    private searchService: SearchService
   ) {
     this.collectionId = this.projectService.getCollectionId();
     this.selectIsHypervisorConnect$ = this.store.select(selectIsHypervisorConnect).subscribe(isHypervisorConnect => {
@@ -365,4 +368,22 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
         this.toastr.warning('Please select a port group before adding the task', 'Warning');
     }
   }
+
+  queryES() {
+    let connection = this.serverConnectionService.getConnection(RemoteCategories.DATASOURCE);
+    const data = {
+      connect_id: connection.id,
+      pks: this.activeNodes.map((ele: any) => ele.data('node_id'))
+    }
+    this.searchService.queryES(data)
+      .subscribe({
+        next: response => {
+          this.toastr.success(response.message, 'Submitted query task');
+        },
+        error: err => {
+          this.toastr.error('Error during query', 'Error');
+        }
+      })  
+  }
+
 }

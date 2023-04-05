@@ -123,4 +123,5 @@ export enum ApiPaths {
   LOOKUP_NAMES = '/api/v1/lookupname/',
   LOOKUP_NAMES_EXPORT = '/api/v1/lookupname/export',
   LOOKUP_NAMES_IMPORT = '/api/v1/lookupname/import',
+  ELASTICSEARCH_QUERY = '/api/v1/search/es_task'
 }

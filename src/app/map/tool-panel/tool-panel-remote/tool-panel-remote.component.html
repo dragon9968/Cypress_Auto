@@ -115,12 +115,18 @@
     </div>
     <div class="remote-item__field">
       <mat-label class="remote-item__field--label">Server <span>:</span></mat-label>
-      <span class="remote-item__field--content">{{ connectionDatasourceUsername }}</span>
+      <span class="remote-item__field--content">{{ connectionDatasourceServer }}</span>
     </div>
     <div class="remote-item__field">
       <mat-label class="remote-item__field--label">Username<span>:</span></mat-label>
-      <span class="remote-item__field--content">{{ connectionDatasourceServer }}</span>
+      <span class="remote-item__field--content">{{ connectionDatasourceUsername }}</span>
     </div>
+  </section>
+  <section *ngIf="activeNodes.length !== 0" class="tab-section">
+    <button mat-raised-button color="primary" class="add-pg-btn" matTooltip="Query" (click)="queryES()">
+        <mat-icon>search</mat-icon>
+        <span>Query</span>
+      </button>
   </section>
 </section>
 

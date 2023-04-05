@@ -14,4 +14,8 @@ export class SearchService {
     const params = new HttpParams().set('collection_id', collectionId);
     return this.http.post<any>(ApiPaths.SEARCH, data,{ params });
   }
+
+  queryES(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.ELASTICSEARCH_QUERY, data);
+  }
 }
