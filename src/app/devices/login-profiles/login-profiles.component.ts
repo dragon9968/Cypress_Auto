@@ -127,19 +127,6 @@ export class LoginProfilesComponent implements OnInit, OnDestroy {
     this.gridApi.setQuickFilter(event.target.value);
   }
 
-  exportCSV() {
-    if (this.rowsSelected.length === 0) {
-      this.toastr.info('No row selected');
-    } else {
-      let file = new Blob();
-      this.loginProfileService.exportCSV(this.rowsSelectedId).subscribe(response => {
-        file = new Blob([response], {type: 'text/csv;charset=utf-8;'});
-        this.helpers.downloadBlob('LoginProfile-Export.csv', file);
-        this.toastr.success(`Exported Login Profile as ${'csv'.toUpperCase()} file successfully`);
-      })
-    }
-  }
-
   exportJson() {
     if (this.rowsSelectedId.length == 0) {
       this.toastr.info('No row selected');

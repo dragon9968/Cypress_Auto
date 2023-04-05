@@ -335,8 +335,6 @@ export class InfoPanelNodeComponent implements OnDestroy {
       this.nodeService.export(format, jsonData).subscribe(response => {
         if (format === 'json') {
           file = new Blob([JSON.stringify(response, null, 4)], { type: 'application/json' });
-        } else if (format === 'csv') {
-          file = new Blob([response], { type: 'text/csv;charset=utf-8;' });
         }
         this.helpers.downloadBlob(fileName, file);
         this.toastr.success(`Exported node as ${format.toUpperCase()} file successfully`);
