@@ -74,7 +74,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   projectName: any;
   username: any;
   categoryProject: any;
-  isHiddenNavbar!: boolean;
+  isSmallScreen!: boolean;
   selectProjects$ = new Subscription();
   listShare: any[] = [];
   listProject: any[] = [];
@@ -166,9 +166,9 @@ export class NavBarComponent implements OnInit, OnDestroy {
     this.serverConnectService.getAll().subscribe((data: any) => this.store.dispatch(retrievedServerConnect({ data: data.result })));
     this.breakpointObserver.observe(['(max-width: 1365px)']).subscribe((state: BreakpointState) =>{
       if (state.matches) {
-        this.isHiddenNavbar = true;
+        this.isSmallScreen = true;
       } else {
-        this.isHiddenNavbar = false;
+        this.isSmallScreen = false;
       }
     })
   }

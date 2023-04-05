@@ -1,24 +1,276 @@
 <mat-toolbar color="primary">
-    <div *ngIf="isHiddenNavbar">
+
+    <!-- Block of code to use for small screens -->
+    <div *ngIf="isSmallScreen">
         <button mat-icon-button [matMenuTriggerFor]="menu">
             <mat-icon>menu</mat-icon>
         </button>
         <mat-menu #menu="matMenu" class="menu-small">
+          <ng-template [ngxPermissionsOnly]="['can_read on Project', 'can_write on Project']">
             <button mat-menu-item [matMenuTriggerFor]="project">Project</button>
+            <mat-menu #project="matMenu">
+              <ng-template [ngxPermissionsOnly]="['can_write on Project']">
+                <ng-template [ngxPermissionsOnly]="['can_read on Settings']">
+                <button mat-menu-item [matMenuTriggerFor]="new">
+                  <mat-icon>create_new_folder</mat-icon>
+                  <span>New</span>
+                </button>
+                <mat-menu #new="matMenu">
+                  <button mat-menu-item [routerLink]="routeSegments.ADD_PROJECT">
+                    <mat-icon>create_new_folder</mat-icon>
+                    <span>New</span>
+                  </button>
+                  <button mat-menu-item [disabled]="!isOpen" (click)="cloneProject()">
+                    <mat-icon>file_copy</mat-icon>
+                    <span>Clone</span>
+                  </button>
+                </mat-menu>
+                </ng-template>
+              </ng-template>
+              <ng-template [ngxPermissionsOnly]="['can_read on Project']">
+                <button mat-menu-item [matMenuTriggerFor]="open">
+                  <mat-icon>create_new_folder</mat-icon>
+                  <span>Open</span>
+                </button>
+                <mat-menu #open="matMenu">
+                  <button mat-menu-item [routerLink]="routeSegments.PROJECTS">
+                    <mat-icon>folder_open</mat-icon>
+                    <span>Project</span>
+                  </button>
+                  <button mat-menu-item [routerLink]="routeSegments.PROJECTS_TEMPLATES">
+                    <mat-icon>folder_open</mat-icon>
+                    <span>Template</span>
+                  </button>
+                </mat-menu>
+              </ng-template>
+              <ng-template [ngxPermissionsOnly]="['can_write on Project']">
+                <button mat-menu-item [disabled]="!isOpen" (click)="editProject()">
+                  <mat-icon>edit</mat-icon>
+                  <span>Edit</span>
+                </button>
+              </ng-template>
+              <ng-template [ngxPermissionsOnly]="['can_read on Project', 'can_write on Project']">
+                  <button mat-menu-item [matMenuTriggerFor]="exportimport">
+                    <mat-icon>create_new_folder</mat-icon>
+                    <span>Export/Import</span>
+                  </button>
+              </ng-template>
+              <mat-menu #exportimport="matMenu">
+                  <ng-template [ngxPermissionsOnly]="['can_write on Project']">
+                    <button mat-menu-item (click)="importProject()">
+                      <mat-icon>add_circle_outline</mat-icon>
+                      <span>Import</span>
+                    </button>
+                  </ng-template>
+                <ng-template [ngxPermissionsOnly]="['can_read on Project']">
+                  <button mat-menu-item [disabled]="!isOpen" (click)="exportProject()">
+                    <mat-icon>download</mat-icon>
+                    <span>Export</span>
+                  </button>
+                </ng-template>
+              </mat-menu>
+              <ng-template [ngxPermissionsOnly]="['can_write on Project']">
+                <button mat-menu-item [disabled]="!isOpen" (click)="deleteProject()">
+                  <mat-icon>delete</mat-icon>
+                  <span>Delete</span>
+                </button>
+                <button mat-menu-item [routerLink]="routeSegments.TRASH_PROJECT">
+                  <mat-icon svgIcon="icons8-trash-can"></mat-icon>
+                  <span>Trash Bin</span>
+                </button>
+              </ng-template>
+              <ng-template [ngxPermissionsOnly]="['can_read on Project']">
+                <button mat-menu-item [disabled]="!isOpen" (click)="validateProject()" data-cy="btn-nav-project-validate">
+                  <mat-icon>check</mat-icon>
+                  <span>Validate</span>
+                </button>
+                <button mat-menu-item [disabled]="!isOpen" (click)="closeProject()">
+                  <mat-icon>folder_delete</mat-icon>
+                  <span>Close</span>
+                </button>
+              </ng-template>
+            </mat-menu>
+          </ng-template>
+          <ng-template [ngxPermissionsOnly]="['can_read on Devices']">
             <button mat-menu-item [matMenuTriggerFor]="devices">Devices</button>
+            <mat-menu #devices="matMenu">
+              <button mat-menu-item [routerLink]="routeSegments.DEVICES_TEMPLATE">
+                <mat-icon>devices</mat-icon>
+                <span>Device/Template</span>
+              </button>
+              <button mat-menu-item [routerLink]="routeSegments.DEVICES_CATEGORY">
+                <mat-icon>dvr</mat-icon>
+                <span>Device Category</span>
+              </button>
+              <button mat-menu-item [routerLink]="routeSegments.HARDWARE">
+                <mat-icon>router</mat-icon>
+                <span>Hardware</span>
+              </button>
+              <button mat-menu-item [routerLink]="routeSegments.DEVICES + '/login_profiles'">
+                <mat-icon>groups</mat-icon>
+                <span>Login Profiles</span>
+              </button>
+              <!--
+              <button mat-menu-item [routerLink]="routeSegments.DEVICES + '/icon'">
+                  <mat-icon svgIcon="plant-tree-icon"></mat-icon>
+                  <span>Icon</span>
+              </button>
+              -->
+            </mat-menu>
+          </ng-template>
+          <ng-template [ngxPermissionsOnly]="['can_read on Libraries']">
             <button mat-menu-item [matMenuTriggerFor]="libraries">Libraries</button>
+            <mat-menu #libraries="matMenu">
+              <button mat-menu-item [routerLink]="routeSegments.CONFIG_TEMPLATES">
+                <mat-icon>source</mat-icon>
+                <span>Configuration Templates</span>
+              </button>
+              <button mat-menu-item [matMenuTriggerFor]="image">
+                <mat-icon>image</mat-icon>
+                <span>Image</span>
+              </button>
+              <mat-menu #image="matMenu">
+                <button mat-menu-item [routerLink]="routeSegments.LIBRATIES + '/icon'">
+                  <mat-icon svgIcon="plant-tree-icon"></mat-icon>
+                  <span>Icons</span>
+                </button>
+                <button mat-menu-item [routerLink]="routeSegments.LIBRATIES + '/image'">
+                  <mat-icon>image</mat-icon>
+                  <span>Images</span>
+                </button>
+              </mat-menu>
+              <button mat-menu-item [matMenuTriggerFor]="lookup">
+                <mat-icon>location_searching</mat-icon>
+                <span>Lookup</span>
+              </button>
+              <mat-menu #lookup="matMenu">
+                <button mat-menu-item [routerLink]="routeSegments.LOOKUP_NAMES">
+                  <mat-icon>person</mat-icon>
+                  <span>Names</span>
+                </button>
+                <button mat-menu-item [routerLink]="routeSegments.LOOKUP_FEATURES">
+                  <mat-icon>featured_play_list</mat-icon>
+                  <span>Features</span>
+                </button>
+              </mat-menu>
+            </mat-menu>
+          </ng-template>
+          <ng-template [ngxPermissionsOnly]="['can_read on Settings', 'can_write on Settings']">
             <button mat-menu-item [matMenuTriggerFor]="remote">Remote</button>
+            <mat-menu #remote="matMenu">
+              <ng-template [ngxPermissionsOnly]="['can_write on Settings']">
+                <button mat-menu-item [matMenuTriggerFor]="remoteList">
+                  <mat-icon>wifi</mat-icon>
+                  <span>Connect</span>
+                </button>
+                <mat-menu #remoteList="matMenu">
+                  <button mat-menu-item class="remote-item">
+                    <span class="remote-item__title">Hypervisor</span>
+                    <button mat-raised-button class="remote-item__btn" *ngIf="!isHypervisorConnect && isOpen" (click)="openConnectServerForm('vmware_vcenter')">
+                      <mat-icon svgIcon="disconnected"></mat-icon>
+                      <span>Connect</span>
+                    </button>
+                    <button mat-raised-button class="remote-item__btn" *ngIf="isHypervisorConnect" (click)="disconnectServer('vmware_vcenter')">
+                      <mat-icon svgIcon="connected"></mat-icon>
+                      <span>Disconnect</span>
+                    </button>
+                  </button>
+    
+                  <button mat-menu-item class="remote-item">
+                    <span class="remote-item__title">Datasource</span>
+                    <button mat-raised-button class="remote-item__btn" *ngIf="!isDatasourceConnect && isOpen" (click)="openConnectServerForm('datasource')">
+                      <mat-icon svgIcon="disconnected"></mat-icon>
+                      <span>Connect</span>
+                    </button>
+                    <button mat-raised-button class="remote-item__btn" *ngIf="isDatasourceConnect" (click)="disconnectServer('datasource')">
+                      <mat-icon svgIcon="connected"></mat-icon>
+                      <span>Disconnect</span>
+                    </button>
+                  </button>
+    
+                  <button mat-menu-item class="remote-item">
+                    <span class="remote-item__title">Configurator</span>
+                    <button mat-raised-button class="remote-item__btn" *ngIf="!isConfiguratorConnect && isOpen" (click)="openConnectServerForm('configurator')">
+                      <mat-icon svgIcon="disconnected"></mat-icon>
+                      <span>Connect</span>
+                    </button>
+                    <button mat-raised-button class="remote-item__btn" *ngIf="isConfiguratorConnect" (click)="disconnectServer('configurator')">
+                      <mat-icon svgIcon="connected"></mat-icon>
+                      <span>Disconnect</span>
+                    </button>
+                  </button>
+                </mat-menu>
+    
+              </ng-template>
+              <ng-template [ngxPermissionsOnly]="['can_read on Settings']">
+              <button mat-menu-item [routerLink]="routeSegments.CONNECTION_PROFILES">
+                <mat-icon>power</mat-icon>
+                <span>Connection Profiles</span>
+              </button>
+            </ng-template>
+            </mat-menu>
+          </ng-template>
+          <ng-template [ngxPermissionsOnly]="['can_read on Settings']">
             <button mat-menu-item [matMenuTriggerFor]="settings">Settings</button>
+            <mat-menu #settings="matMenu">
+              <button mat-menu-item (click)="openAppPref()">
+                <mat-icon>settings</mat-icon>
+                <span>App Preferences</span>
+              </button>
+              <button mat-menu-item [routerLink]="routeSegments.MAP_PREFERENCES">
+                <mat-icon>settings</mat-icon>
+                <span>Map Preferences</span>
+              </button>
+            </mat-menu>
+          </ng-template>
             <button mat-menu-item [matMenuTriggerFor]="help">Help</button>
-            <button mat-menu-item [matMenuTriggerFor]="administration">Administration</button>
+          <ng-template [ngxPermissionsOnly]="['can_write on Security']">
+            <ng-template [ngxPermissionsOnly]="['can_read on Security']">
+              <button mat-menu-item [matMenuTriggerFor]="administration">Administration</button>
+              <mat-menu #administration="matMenu">
+                <button mat-menu-item [routerLink]="routeSegments.LIST_USERS">
+                  <mat-icon>person</mat-icon>
+                  <span>Users</span>
+                </button>
+                <button mat-menu-item [routerLink]="routeSegments.ROLES">
+                  <mat-icon>supervised_user_circle</mat-icon>
+                  <span>Roles</span>
+                </button>
+                <button mat-menu-item [routerLink]="routeSegments.PROJECTS_ADMINISTRATION">
+                  <mat-icon>folder</mat-icon>
+                  <span>Projects</span>
+                </button>
+                <button mat-menu-item [matMenuTriggerFor]="services">
+                  <mat-icon>create_new_folder</mat-icon>
+                  <span>Services</span>
+                </button>
+                <mat-menu #services="matMenu">
+                  <button mat-menu-item>
+                    <mat-icon>ac_unit</mat-icon>
+                    <span>Flower</span>
+                  </button>
+                  <button mat-menu-item>
+                    <mat-icon>supervisor_account</mat-icon>
+                    <span>Supervisor</span>
+                  </button>
+                </mat-menu>
+                <button mat-menu-item (click)="openAdminConfig()">
+                  <mat-icon>security</mat-icon>
+                  <span>LDAP Authentication</span>
+                </button>
+              </mat-menu>
+            </ng-template>
+          </ng-template>
         </mat-menu>
     </div>
     <a mat-button [routerLink]="routeSegments.ROOT" class="home-btn">
         <img alt="App icon" src="favicon.ico" style="height: 40px; width: 55px">
         <span style="font-size: 24px;"><b style="color:#007bff;">Blue</b> Cloak</span>
     </a>
+
+    <!-- Block of code to use for large screens -->
     <ng-template [ngxPermissionsOnly]="['can_read on Project', 'can_write on Project']">
-      <a *ngIf="!isHiddenNavbar" mat-button [matMenuTriggerFor]="project" class="menu-btn" (click)="getCollectionId()"
+      <a *ngIf="!isSmallScreen" mat-button [matMenuTriggerFor]="project" class="menu-btn" (click)="getCollectionId()"
         data-cy="btn-nav-project">
         Project
       </a>
@@ -106,9 +358,8 @@
       </mat-menu>
     </ng-template>
     <ng-template [ngxPermissionsOnly]="['can_read on Devices']">
-      <a *ngIf="!isHiddenNavbar" mat-button [matMenuTriggerFor]="devices" class="menu-btn">Devices</a>
+      <a *ngIf="!isSmallScreen" mat-button [matMenuTriggerFor]="devices" class="menu-btn">Devices</a>
       <mat-menu #devices="matMenu">
-
           <button mat-menu-item [routerLink]="routeSegments.DEVICES_TEMPLATE">
             <mat-icon>devices</mat-icon>
             <span>Device/Template</span>
@@ -134,7 +385,7 @@
       </mat-menu>
     </ng-template>
     <ng-template [ngxPermissionsOnly]="['can_read on Libraries']">
-      <a *ngIf="!isHiddenNavbar" mat-button [matMenuTriggerFor]="libraries" class="menu-btn">Libraries</a>
+      <a *ngIf="!isSmallScreen" mat-button [matMenuTriggerFor]="libraries" class="menu-btn">Libraries</a>
       <mat-menu #libraries="matMenu">
           <button mat-menu-item [routerLink]="routeSegments.CONFIG_TEMPLATES">
             <mat-icon>source</mat-icon>
@@ -171,7 +422,7 @@
       </mat-menu>
     </ng-template>
     <ng-template [ngxPermissionsOnly]="['can_read on Settings', 'can_write on Settings']">
-      <a *ngIf="!isHiddenNavbar" mat-button [matMenuTriggerFor]="remote" class="menu-btn">Remote</a>
+      <a *ngIf="!isSmallScreen" mat-button [matMenuTriggerFor]="remote" class="menu-btn">Remote</a>
       <mat-menu #remote="matMenu">
           <ng-template [ngxPermissionsOnly]="['can_write on Settings']">
             <button mat-menu-item [matMenuTriggerFor]="remoteList">
@@ -226,7 +477,7 @@
       </mat-menu>
     </ng-template>
     <ng-template [ngxPermissionsOnly]="['can_read on Settings']">
-      <a *ngIf="!isHiddenNavbar" mat-button [matMenuTriggerFor]="settings" class="menu-btn">Settings</a>
+      <a *ngIf="!isSmallScreen" mat-button [matMenuTriggerFor]="settings" class="menu-btn">Settings</a>
       <mat-menu #settings="matMenu">
           <button mat-menu-item (click)="openAppPref()">
             <mat-icon>settings</mat-icon>
@@ -240,7 +491,7 @@
     </ng-template>
   <ng-template [ngxPermissionsOnly]="['can_write on Security']">
     <ng-template [ngxPermissionsOnly]="['can_read on Security']">
-      <a *ngIf="!isHiddenNavbar" mat-button [matMenuTriggerFor]="administration" class="menu-btn">Administration</a>
+      <a *ngIf="!isSmallScreen" mat-button [matMenuTriggerFor]="administration" class="menu-btn">Administration</a>
       <mat-menu #administration="matMenu">
           <button mat-menu-item [routerLink]="routeSegments.LIST_USERS">
             <mat-icon>person</mat-icon>
@@ -275,7 +526,7 @@
       </mat-menu>
     </ng-template>
   </ng-template>
-  <a *ngIf="!isHiddenNavbar" mat-button [matMenuTriggerFor]="help" class="menu-btn">Help</a>
+  <a *ngIf="!isSmallScreen" mat-button [matMenuTriggerFor]="help" class="menu-btn">Help</a>
     <mat-menu #help="matMenu">
             <button mat-menu-item [routerLink]="routeSegments.USER_GUIDE">
                 <mat-icon>book</mat-icon>
