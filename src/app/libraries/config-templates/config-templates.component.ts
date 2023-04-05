@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconRegistry } from '@angular/material/icon';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Store } from '@ngrx/store';
 import { catchError } from "rxjs/operators";
 import { AgGridAngular } from 'ag-grid-angular';
@@ -123,7 +122,6 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private toastr: ToastrService,
     private helpers: HelpersService,
-    private domSanitizer: DomSanitizer,
     iconRegistry: MatIconRegistry,
 
   ) {
@@ -137,8 +135,8 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
         this.updateRow();
       }
     });
-    iconRegistry.addSvgIcon('export-csv', this._setPath('/assets/icons/export-csv.svg'));
-    iconRegistry.addSvgIcon('export-json', this._setPath('/assets/icons/export-json.svg'));
+    iconRegistry.addSvgIcon('export-csv', this.helpers.setIconPath('/assets/icons/export-csv.svg'));
+    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
    }
 
   ngOnInit(): void {
@@ -172,10 +170,6 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
 
   onQuickFilterInput(event: any) {
     this.gridApi.setQuickFilter(event.target.value);
-  }
-
-  private _setPath(url: string): SafeResourceUrl {
-    return this.domSanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
   addConfigTemplate() {
@@ -214,7 +208,7 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
       }
       this.dialog.open(AddEditConfigTemplateComponent, {
         autoFocus: false,
-        width: '600px',
+        width: '1000px',
         height: '810px',
         data: dialogData,
         panelClass: 'custom-node-form-modal'
@@ -233,7 +227,7 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
         }
         this.dialog.open(AddEditConfigTemplateComponent, {
           autoFocus: false,
-          width: '600px',
+          width: '1000px',
           height: '810px',
           data: dialogData,
           panelClass: 'custom-node-form-modal'

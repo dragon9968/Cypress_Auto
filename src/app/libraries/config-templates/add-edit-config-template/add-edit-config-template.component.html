@@ -1,6 +1,6 @@
 <form [formGroup]="configTemplateForm" (ngSubmit)="data.mode === 'add' ? addConfigTemplate() : updateConfigTemplate()">
   <div class="dialog-title">
-    <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Config Template' : data.mode === 'update' ? 'Edit Config Template' : 'Show Config Template' }}</h1>
+    <h1 mat-dialog-title class="add-config-title">{{ data.mode === 'add' ? 'Add Config Template' : data.mode === 'update' ? 'Edit Config Template' : 'Show Config Template' }}</h1>
     <ng-template [ngxPermissionsOnly]="['can_write on Libraries']">
       <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
         <mat-icon>edit</mat-icon>
@@ -8,25 +8,212 @@
     </ng-template>
   </div>
   <mat-dialog-content class="configuration-template">
-    <div class="configuration-template__field">
-      <mat-form-field class="field">
-        <mat-label>Name</mat-label>
-        <input disableAutoFill type="text" formControlName="name" matInput [readonly]="isViewMode">
-        <mat-error *ngIf="name?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-        <mat-error *ngIf="name?.errors?.minlength || name?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH_50 }}</mat-error>
-      </mat-form-field>
-      <mat-form-field *ngIf="data.mode === 'view'" class="field">
-        <mat-label>Category</mat-label>
-        <input disableAutoFill type="text" formControlName="category" matInput [readonly]="isViewMode">
-      </mat-form-field>
-      <mat-form-field class="field">
-        <mat-label>Description</mat-label>
-        <input disableAutoFill type="text" formControlName="description" matInput [readonly]="isViewMode">
-      </mat-form-field>
-    </div>
-    <section *ngIf="data.mode !== 'add'">
+    <section class="configuration-template__left" [style.width]="isAddMode ? '100%' : '50%'">
+      <h3 *ngIf="!isAddMode" class="configuration-template__title">Information</h3>
+      <div class="configuration-template__left__info">
+        <mat-form-field class="field">
+          <mat-label>Name</mat-label>
+          <input disableAutoFill type="text" formControlName="name" matInput [readonly]="isViewMode">
+          <mat-error *ngIf="name?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+          <mat-error *ngIf="name?.errors?.minlength || name?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH_50 }}</mat-error>
+        </mat-form-field>
+        <mat-form-field *ngIf="data.mode === 'view'" class="field">
+          <mat-label>Category</mat-label>
+          <input disableAutoFill type="text" formControlName="category" matInput [readonly]="isViewMode">
+        </mat-form-field>
+        <mat-form-field class="field">
+          <mat-label>Description</mat-label>
+          <input disableAutoFill type="text" formControlName="description" matInput [readonly]="isViewMode">
+        </mat-form-field>
+      </div>
+      <div *ngIf="!isAddMode" class="configuration-template__left__actions-add">
+        <form class="configuration-template__left__actions-add__form--show" [formGroup]="actionsAddForm" (ngSubmit)="showAddConfigForm()">
+          <mat-form-field class="configuration-template__left__actions-add__form--show--field">
+            <mat-label>Add Configuration Type</mat-label>
+            <input matInput placeholder="Select a add type"
+                   formControlName="addTypeCtr"
+                   [matAutocomplete]="autoActionsAdd">
+            <mat-autocomplete #autoActionsAdd="matAutocomplete" [displayWith]="helpersService.optionDisplay"
+                              (optionSelected)="selectAddType($event)">
+              <mat-option *ngFor="let addType of filteredAddActions | async" [value]="addType">
+                {{ addType.name }}
+              </mat-option>
+            </mat-autocomplete>
+            <mat-error *ngIf="addTypeCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+            <mat-error *ngIf="addTypeCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+          </mat-form-field>
+          <button mat-raised-button type="submit" color="primary" class="btn-show-form" [disabled]="actionsAddForm.invalid">
+            Show Form
+          </button>
+          <button mat-raised-button type="button" color="primary" [disabled]="actionsAddForm.invalid" (click)="hideAddForm()">
+            <mat-icon>cancel</mat-icon>
+          </button>
+        </form>
+        <div class="configuration-template__left__actions-add__form--add">
+          <!-- Add Route -->
+          <form *ngIf="isAddRoute" [formGroup]="configForm" (ngSubmit)="addRoute()">
+            <mat-dialog-content>
+              <mat-form-field class="field">
+                <mat-label>Route</mat-label>
+                <input disableAutoFill type="text" formControlName="routeCtr" matInput>
+                <mat-error *ngIf="routeCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+              </mat-form-field>
+              <mat-form-field class="field">
+                <mat-label>Next Hop</mat-label>
+                <input disableAutoFill type="text" formControlName="nextHopCtr" matInput>
+                <mat-error *ngIf="nextHopCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+              </mat-form-field>
+              <mat-form-field class="field">
+                <mat-label>Interface</mat-label>
+                <input disableAutoFill type="text" formControlName="interfaceCtr" matInput>
+                <mat-error *ngIf="interfaceCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+              </mat-form-field>
+            </mat-dialog-content>
+            <mat-dialog-actions [align]="'end'">
+              <button mat-raised-button color="primary" type="submit" [disabled]="!configForm.valid">Add</button>
+            </mat-dialog-actions>
+          </form>
+          <!-- Add Firewall Rule -->
+          <form *ngIf="isAddFirewallRule" class="fw-form" [formGroup]="firewallRuleForm" (ngSubmit)="addFirewallRule()">
+            <mat-dialog-content class="fw-form__content">
+              <section class="fw-form__content__item">
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Category</mat-label>
+                  <mat-select formControlName="categoryFirewallRuleCtr" (selectionChange)="onCategoryChange($event)">
+                    <mat-option value="rule">Rule</mat-option>
+                    <mat-option value="port_forward">Port Forward</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Name</mat-label>
+                  <input disableAutoFill type="text" formControlName="nameFirewallRuleCtr" matInput>
+                </mat-form-field>
+                <mat-form-field class="fw-form--field">
+                  <mat-label>State</mat-label>
+                  <mat-select formControlName="stateCtr">
+                    <mat-option value="present">Present</mat-option>
+                    <mat-option value="absent">Absent</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Action</mat-label>
+                  <mat-select formControlName="actionCtr">
+                    <mat-option value="pass">Pass</mat-option>
+                    <mat-option value="block">Block</mat-option>
+                    <mat-option value="reject">Reject</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Interface</mat-label>
+                  <mat-select formControlName="interfaceFirewallCtr">
+                    <mat-option value="eth0">eth0</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </section>
+              <section class="fw-form__content__item">
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Protocol</mat-label>
+                  <mat-select formControlName="protocolCtr">
+                    <mat-option value="any">Any</mat-option>
+                    <mat-option value="tcp">TCP</mat-option>
+                    <mat-option value="udp">UDP</mat-option>
+                    <mat-option value="tcp/udp">TCP/UDP</mat-option>
+                    <mat-option value="icmp">ICMP</mat-option>
+                    <mat-option value="igmp">IGMP</mat-option>
+                    <mat-option value="ospf">OSPF</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Source</mat-label>
+                  <input disableAutoFill type="text" formControlName="sourceCtr" matInput>
+                </mat-form-field>
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Source Port</mat-label>
+                  <mat-select formControlName="sourcePortCtr" (selectionChange)="onChangeSourcePort($event)">
+                    <mat-option *ngFor="let option of PORT" [value]="option.id"> {{ option.name }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Source Custom Port</mat-label>
+                  <input disableAutoFill type="text" formControlName="sourceCustomPortCtr" matInput>
+                </mat-form-field>
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Destination</mat-label>
+                  <input disableAutoFill type="text" formControlName="destinationCtr" matInput>
+                </mat-form-field>
+              </section>
+              <section class="fw-form__content__item">
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Destination Port</mat-label>
+                  <mat-select formControlName="destinationPortCtr" (selectionChange)="onChangeDestinationPort($event)"  >
+                    <mat-option *ngFor="let option of PORT" [value]="option.id"> {{ option.name }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Dest Custom Port</mat-label>
+                  <input disableAutoFill type="text" formControlName="destCustomPortCtr" matInput>
+                </mat-form-field>
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Target</mat-label>
+                  <input type="text" formControlName="targetCtr" matInput>
+                </mat-form-field>
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Target Port</mat-label>
+                  <mat-select formControlName="targetPortCtr" (selectionChange)="onChangeTargetPort($event)"  >
+                    <mat-option *ngFor="let option of PORT" [value]="option.id"> {{ option.name }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Target Custom Port</mat-label>
+                  <input disableAutoFill type="text" formControlName="targetCustomPortCtr" matInput>
+                </mat-form-field>
+              </section>
+            </mat-dialog-content>
+            <div mat-dialog-actions [align]="'end'" class="fw-form__btn-submit">
+              <button mat-raised-button type="submit" color="primary" [disabled]="!firewallRuleForm.valid">Add</button>
+            </div>
+          </form>
+          <!-- Add Domain Membership -->
+          <form *ngIf="isAddDomainMembership" [formGroup]="domainMemberForm" (ngSubmit)="addDomainMembership()">
+            <mat-dialog-content class="domain-membership-form">
+              <section class="domain-membership-form__join-domain">
+                <label>Join Domain</label>
+                <mat-checkbox formControlName="joinDomainCtr"></mat-checkbox>
+              </section>
+              <mat-form-field class="field">
+                <mat-label>OU Path</mat-label>
+                <input disableAutoFill type="text" formControlName="ouPathCtr" matInput>
+              </mat-form-field>
+            </mat-dialog-content>
+            <mat-dialog-actions [align]="'end'">
+              <button mat-raised-button type="submit" color="primary" [disabled]="!domainMemberForm.valid">Add</button>
+            </mat-dialog-actions>
+          </form>
+          <!-- Add Roles & Service -->
+          <form *ngIf="isAddRolesAndService" class="roles-service-form" [formGroup]="roleServicesForm" (ngSubmit)="addRoleServices()">
+            <mat-dialog-content>
+<!--              <mat-label>Device</mat-label>-->
+              <ng-select
+                class="ng-select-roles-service"
+                formControlName="rolesCtr"
+                [items]="rolesAndService"
+                [multiple]="true"
+                bindLabel="name"
+                bindValue="name"
+                placeholder="Select roles or services"
+              >
+              </ng-select>
+            </mat-dialog-content>
+            <mat-dialog-actions [align]="'end'">
+              <button mat-raised-button type="submit" color="primary" [disabled]="roleServicesForm.invalid">Add</button>
+            </mat-dialog-actions>
+          </form>
+        </div>
+      </div>
+    </section>
+    <section class="configuration-template__right" *ngIf="data.mode !== 'add'">
       <h3 class="configuration-template__title">Configuration</h3>
-      <div [ngClass]="isViewMode ? 'configuration-template__add' : 'configuration-template__edit'">
+      <div [ngClass]="isViewMode ? 'configuration-template__right__view' : 'configuration-template__right__edit'">
         <div *ngIf="isViewMode">
           <ngx-json-viewer [json]="defaultConfig" [expanded]="true"></ngx-json-viewer>
         </div>
