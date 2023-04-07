@@ -5,6 +5,7 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dial
 import { UserTaskService } from "../../../../core/services/user-task/user-task.service";
 import { InfoPanelService } from "../../../../core/services/info-panel/info-panel.service";
 import { ConfirmationDialogComponent } from "../../../../shared/components/confirmation-dialog/confirmation-dialog.component";
+import { AceEditorComponent } from "ng2-ace-editor";
 
 @Component({
   selector: 'app-show-user-task-dialog',
@@ -12,7 +13,7 @@ import { ConfirmationDialogComponent } from "../../../../shared/components/confi
   styleUrls: ['./show-user-task-dialog.component.scss']
 })
 export class ShowUserTaskDialogComponent implements OnInit, AfterViewInit {
-  @ViewChild("editor") editor: any;
+  @ViewChild("editor") editor!: AceEditorComponent;
   showUserTaskForm: FormGroup;
   textareaRows = 1;
 
@@ -79,6 +80,7 @@ export class ShowUserTaskDialogComponent implements OnInit, AfterViewInit {
     this.editor.mode = 'text';
     this.editor.setTheme('textmate');
     this.editor.value = this.data.genData.task_result;
+    this.editor.getEditor().setShowPrintMargin(false);
     this.editor.setReadOnly(true);
   }
 
