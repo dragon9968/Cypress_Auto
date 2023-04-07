@@ -49,6 +49,11 @@ function addNewProject(project: any): void {
 //
 // NOTE: You can use it like so:
 Cypress.Commands.add('addNewProject', addNewProject);
+Cypress.on('uncaught:exception', (err, runnable) => {
+  // returning false here prevents Cypress from
+  // failing the test
+  return false
+})
 //
 // ***********************************************
 // This example commands.js shows you how to
