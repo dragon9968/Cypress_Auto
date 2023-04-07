@@ -133,12 +133,4 @@ export class ProjectService {
     return this.http.get<any>(ApiPaths.PROJECT_RECENT);
   }
 
-  linkProject(data: any): Observable<any> {
-    return this.http.post<any>(ApiPaths.PROJECT_LINK, data)
-  }
-
-  unlinkProject(data: any): Observable<any> {
-    return this.http.post<any>(ApiPaths.PROJECT_UNLINK, data)
-  }
-
 }

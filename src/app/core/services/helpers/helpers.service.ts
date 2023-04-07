@@ -18,6 +18,7 @@ import {
   retrievedIsDatasourceConnect
 } from "../../../store/server-connect/server-connect.actions";
 import { ServerConnectService } from "../server-connect/server-connect.service";
+import { retrievedProjects } from "../../../store/project/project.actions";
 
 @Injectable({
   providedIn: 'root'
@@ -200,8 +201,8 @@ export class HelpersService implements OnDestroy {
         selector: ':parent',
         style: {
           'content': (ele: any) => ele.data('name'),
-          'background-opacity': (ele: any) => ele.data('group_opacity'),
-          'background-color': (ele: any) => ele.data('color'),
+          'background-opacity': (ele: any) => ele.data('group_opacity') ? ele.data('group_opacity') : 1,
+          'background-color': (ele: any) => ele.data('color') ? ele.data('color') : '#00dcff',
           "z-index-compare": "manual"
         }
       },
@@ -217,8 +218,8 @@ export class HelpersService implements OnDestroy {
         selector: 'node.cy-expand-collapse-collapsed-node',
         style: {
           'content': (ele: any) => ele.data('id'),
-          'background-color': (ele: any) => ele.data('color'),
-          'background-opacity': (ele: any) => ele.data('group_opacity'),
+          'background-color': (ele: any) => ele.data('color') ? ele.data('color') : '#00dcff',
+          'background-opacity': (ele: any) => ele.data('group_opacity') ? ele.data('group_opacity') : 1,
           "z-index-compare": "manual",
           'shape': 'rectangle',
         }
@@ -379,7 +380,7 @@ export class HelpersService implements OnDestroy {
     });
   }
 
-  addCYNodeAndEdge(cy: any, nodes: any[], edges: any[], newPosition: any = {x: 0, y: 0}, projectNodeId = undefined) {
+  addCYNodeAndEdge(cy: any, nodes: any[], edges: any[], newPosition: any = {x: 0, y: 0}, mapLinkId = undefined) {
     // Draw new nodes from the project template into the current project.
     nodes.map((node: any) => {
       if (node.data.elem_category == 'node') {
@@ -391,8 +392,8 @@ export class HelpersService implements OnDestroy {
         position = { x: newPosition.x + node.position.x, y: newPosition.y + node.position.y }
       }
       const nodeEle = this.addCYNode(cy, { newNodeData: node.data, newNodePosition: position });
-      if (projectNodeId) {
-        nodeEle.move({ parent: `node-${projectNodeId}` });
+      if (mapLinkId) {
+        nodeEle.move({ parent: `project-link-${mapLinkId}` });
       }
     })
     // Draw new interfaces from the project template into the current project.
@@ -506,32 +507,32 @@ export class HelpersService implements OnDestroy {
     });
   }
 
-  collapseAndExpandProjectNodeEvent(projectNode: any) {
+  collapseAndExpandMapLinkNodeEvent(mapLinkNode: any) {
     // Set event collapse and expand
-    projectNode.on('expandcollapse.aftercollapse', (event: any) => {
-      projectNode.data('width', '90px')
-      projectNode.data('height', '90px')
-      projectNode.data('new', false);
-      projectNode.data('updated', true);
-      projectNode.data('deleted', false);
-      projectNode.data('collapsed', true);
-      projectNode.data('lastPos', projectNode.position())
-      projectNode.style({
+    mapLinkNode.on('expandcollapse.aftercollapse', (event: any) => {
+      mapLinkNode.data('width', '90px')
+      mapLinkNode.data('height', '90px')
+      mapLinkNode.data('new', false);
+      mapLinkNode.data('updated', true);
+      mapLinkNode.data('deleted', false);
+      mapLinkNode.data('collapsed', true);
+      mapLinkNode.data('lastPos', mapLinkNode.position())
+      mapLinkNode.style({
         'background-opacity': '0',
         'background-color': '#fff',
         'background-image-opacity': 1,
       });
     })
 
-    projectNode.on('expandcollapse.afterexpand', (event: any) => {
-      projectNode.data('width', '90px');
-      projectNode.data('height', '90px');
-      projectNode.data('new', false);
-      projectNode.data('updated', true);
-      projectNode.data('deleted', false);
-      projectNode.data('collapsed', false);
-      projectNode.data('lastPos', projectNode.position());
-      projectNode.style({
+    mapLinkNode.on('expandcollapse.afterexpand', (event: any) => {
+      mapLinkNode.data('width', '90px');
+      mapLinkNode.data('height', '90px');
+      mapLinkNode.data('new', false);
+      mapLinkNode.data('updated', true);
+      mapLinkNode.data('deleted', false);
+      mapLinkNode.data('collapsed', false);
+      mapLinkNode.data('lastPos', mapLinkNode.position());
+      mapLinkNode.style({
         'background-opacity': '.20',
         'background-color': '#00dcff',
         'background-image-opacity': 0,
@@ -609,20 +610,11 @@ export class HelpersService implements OnDestroy {
           'id': data.pg_id
         });
       } else if (data.elem_category == "node") {
-        if (data.category == 'project') {
-          this.deletedNodes.push({
-            'link_project_id': data.link_project_id,
-            'elem_category': data.elem_category,
-            'label': data.label,
-            'id': data.node_id
-          });
-        } else {
-          this.deletedNodes.push({
-            'elem_category': data.elem_category,
-            'label': data.label,
-            'id': data.node_id
-          });
-        }
+        this.deletedNodes.push({
+          'elem_category': data.elem_category,
+          'label': data.label,
+          'id': data.node_id
+        });
       } else if (data.elem_category == "group") {
         this.deletedNodes.push({
           'elem_category': data.elem_category,
@@ -635,6 +627,12 @@ export class HelpersService implements OnDestroy {
           'label': data.label,
           'id': data.map_image_id
         })
+      } else if (data.elem_category == 'map_link') {
+        this.deletedNodes.push({
+          'linked_project_id': data.linked_project_id,
+          'elem_category': data.elem_category,
+          'id': data.map_link_id
+        });
       }
 
       node.edges().forEach((ele: any) => {
@@ -965,5 +963,14 @@ export class HelpersService implements OnDestroy {
     if (connectionConfigurator && connectionConfigurator.id !== 0) {
       this.store.dispatch(retrievedIsConfiguratorConnect({ data: true }));
     }
+  }
+
+  updateProjectLinksStorage(cy: any, newProjects: any[]) {
+    const projectNodeIdsAdded = cy?.nodes().filter('[elem_category="map_link"]').map((ele: any) => ele.data('linked_project_id'));
+    projectNodeIdsAdded?.map((projectId: any) => {
+      const index = newProjects.findIndex(ele => ele.id === projectId);
+      newProjects.splice(index, 1);
+    })
+    this.store.dispatch(retrievedProjects({data: newProjects}));
   }
 }

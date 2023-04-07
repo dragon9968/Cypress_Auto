@@ -22,7 +22,7 @@ export class CommonService {
     });
   }
 
-  delete(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], activeMBs: any[]) {
+  delete(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], activeMBs: any[], activeMapLinks: any[]) {
     [...activeEdges].forEach((edge: any) => {
       const sourceData = cy.getElementById(edge.data('source')).data();
       const targetData = cy.getElementById(edge.data('target')).data();
@@ -33,7 +33,7 @@ export class CommonService {
         activeEdges.splice(0);
       }
     });
-    activeNodes.concat(activePGs, activeGBs).forEach((node: any) => {
+    activeNodes.concat(activePGs, activeGBs, activeMapLinks).forEach((node: any) => {
       this.ur?.do('removeNode', node);
       if (this.isGroupBoxesChecked) {
         cy.nodes().filter('[label="group_box"]').forEach((gb: any) => {
@@ -45,6 +45,7 @@ export class CommonService {
       activeNodes.splice(0);
       activePGs.splice(0);
       activeGBs.splice(0);
+      activeMapLinks.splice(0);
     });
     [...activeMBs].forEach((mbs: any) => {
       this.ur?.do('removeNode', mbs);

@@ -8,8 +8,7 @@ import { Store } from "@ngrx/store";
 import { HelpersService } from "../../../../core/services/helpers/helpers.service";
 import { validateNameExist } from "../../../../shared/validations/name-exist.validation";
 import { selectNodesByCollectionId } from "../../../../store/node/node.selectors";
-import { retrievedMapSelection } from "../../../../store/map-selection/map-selection.actions";
-import { NodeService } from "../../../../core/services/node/node.service";
+import { MapLinkService } from "../../../../core/services/map-link/map-link.service";
 
 @Component({
   selector: 'app-view-update-project-node',
@@ -26,7 +25,7 @@ export class ViewUpdateProjectNodeComponent implements OnInit, OnDestroy {
     private store: Store,
     private toastr: ToastrService,
     public helpers: HelpersService,
-    private nodeService: NodeService,
+    private mapLinkService: MapLinkService,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<ViewUpdateProjectNodeComponent>
   ) {
@@ -53,34 +52,21 @@ export class ViewUpdateProjectNodeComponent implements OnInit, OnDestroy {
     this.selectNodes$.unsubscribe();
   }
 
-  private _updateProjectNodeOnMap(data: any) {
-    const ele = this.data.cy.getElementById(this.data.genData.id);
-    ele.data('name', data.name);
-    ele.data('notes', data.notes);
-  }
-
   updateProjectNode() {
-    const ele = this.data.cy.getElementById('node-' + this.data.genData.id);
+    const ele = this.data.cy.getElementById(this.data.genData.id);
     const jsonDataValue = {
-      name: this.nameCtr?.value,
-      notes: this.notesCtr?.value,
-      logical_map_position: ele.position(),
+      name: this.nameCtr?.value
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.nodeService.put(this.data.genData.node_id, jsonData).pipe(
+    this.mapLinkService.put(this.data.genData.map_link_id, jsonData).pipe(
       catchError((e: any) => {
-        this.toastr.error('Update Project Node failed!', 'Error');
+        this.toastr.error('Update project link failed!', 'Error');
         return throwError(() => e);
       })
-    ).subscribe((_respData: any) => {
-      this.store.dispatch(retrievedMapSelection({ data: true }));
-      this.nodeService.get(this.data.genData.node_id).subscribe(nodeData => {
-        this.helpers.updateNodesStorage(nodeData.result);
-        this._updateProjectNodeOnMap(nodeData.result);
-        this.dialogRef.close();
-        this.store.dispatch(retrievedMapSelection({ data: true }));
-        this.toastr.success('Project Node details updated!', 'Success');
-      });
+    ).subscribe((response: any) => {
+      ele.data('name', response.result.name);
+      this.dialogRef.close();
+      this.toastr.success('Updated project link successfully!', 'Success');
     });
   }
 

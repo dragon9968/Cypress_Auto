@@ -1,6 +1,6 @@
 <form [formGroup]="projectNodeAddForm" (ngSubmit)="updateProjectNode()">
   <div class="dialog-title">
-    <h1 mat-dialog-title>{{data.mode === 'update' ? 'Project Node Edit Form' : 'Project Node Info'}}</h1>
+    <h1 mat-dialog-title>{{data.mode === 'update' ? 'Project Link Edit Form' : 'Project Link Info'}}</h1>
     <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
       <mat-icon>edit</mat-icon>
     </button>

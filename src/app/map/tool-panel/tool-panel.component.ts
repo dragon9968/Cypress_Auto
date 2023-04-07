@@ -20,7 +20,6 @@ import { selectNodesByCollectionId } from "../../store/node/node.selectors";
 import { retrievedGroups } from "../../store/group/group.actions";
 import { selectPortGroups } from "../../store/portgroup/portgroup.selectors";
 import { ProjectService } from "../../project/services/project.service";
-import { retrievedProjects } from "../../store/project/project.actions";
 import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
 
 @Component({
@@ -47,6 +46,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   @Input() activeEdges: any[] = [];
   @Input() activeGBs: any[] = [];
   @Input() activeMBs: any[] = [];
+  @Input() activeMapLinks: any[] = [];
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterfaces: any[] = [];
   @Input() saveMapSubject!: Observable<any>;
@@ -167,15 +167,15 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
 
   save() {
     this.cy.elements().forEach((ele: any) => {
-      const isNotChildrenOfLinkProject = Boolean(ele.parent()?.data('category') != 'project');
+      const isNotChildrenOfLinkProject = Boolean(ele.parent()?.data('elem_category') != 'map_link');
       if (ele.group() == "nodes" && isNotChildrenOfLinkProject) {
-        if (ele.data('category') == 'project') {
-          this.getUpdateProjectNode(ele);
+        if (ele.data('elem_category') == 'map_link') {
+          this.getUpdateMapLinkNode(ele);
         } else {
           this.getUpdatedNodeOrPGOrGB(ele);
         }
       } else {
-        const isEdgeChildrenOfProjectNode = ele.connectedNodes().some((ele: any) => ele.parent()?.data('category') != 'project')
+        const isEdgeChildrenOfProjectNode = ele.connectedNodes().some((ele: any) => ele.parent()?.data('elem_category') != 'map_link')
         if (isEdgeChildrenOfProjectNode) {
           this.getUpdatedInterface(ele);
         }
@@ -236,40 +236,14 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         if (nodeDeletedIds.length > 0) {
           this.helpersService.removeNodesInStorage(nodeDeletedIds);
         }
-        const deletedNodesLinkProject = this.deletedNodes.filter(node => node.link_project_id);
+        const deletedNodesLinkProject = this.deletedNodes.filter(node => node.linked_project_id);
         if (deletedNodesLinkProject.length > 0) {
-          this.projectService.get(this.collectionId).subscribe(response => {
-            const project = response.result;
-            const linkedProjectIds = project.link_projects.map((ele: any) => ele.id);
-            deletedNodesLinkProject.map(ele => {
-              const isProjectLinked = linkedProjectIds.includes(ele.link_project_id)
-              if (isProjectLinked) {
-                const jsonData = {
-                  project_id: this.collectionId,
-                  linked_project_id: ele.link_project_id
-                }
-                this.projectService.unlinkProject(jsonData).pipe(
-                  catchError(err => {
-                    this.toastr.error('Unlink Project Failed!', 'Error');
-                    return throwError(() => err);
-                  })
-                ).subscribe(() => {
-                  this.toastr.success('Unlink Project Successfully', 'Success');
-                })
-              }
-            })
-            this.projectService.getProjectByStatusAndCategory('active', 'project').subscribe(
-              (data: any) => {
-                const projectNodeIdsAdded = this.cy.nodes().filter('[link_project_id > 0]').map((ele: any) => ele.data('link_project_id'));
-                const newProjects = [...data.result];
-                projectNodeIdsAdded.map((projectId: any) => {
-                  const index = newProjects.findIndex(ele => ele.id === projectId);
-                  newProjects.splice(index, 1);
-                })
-                this.store.dispatch(retrievedProjects({data: newProjects}));
-              }
-            );
-          })
+          this.toastr.success('Unlink Project Successfully', 'Success');
+          this.projectService.getProjectByStatusAndCategory('active', 'project').subscribe(
+            (data: any) => {
+              this.helpersService.updateProjectLinksStorage(this.cy, data.result);
+            }
+          );
         }
       }
       this.deletedNodes.splice(0);
@@ -423,7 +397,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     this.updatedGroupBoxes.push(updatedGroupbox);
   }
 
-  getUpdateProjectNode(ele: any) {
+  getUpdateMapLinkNode(ele: any) {
     const data = ele.data();
     const {collapsedChildren, ...dataParent} = data;
     const updatedNode = {

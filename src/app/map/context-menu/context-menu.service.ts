@@ -33,13 +33,14 @@ export class ContextMenuService implements OnDestroy{
   }
 
   showContextMenu(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], activeMBs: any[],
-                  isTemplateCategory: any) {
+                  activeMapLinks: any[], isTemplateCategory: any) {
     const contextMenu = cy.contextMenus('get');
     const activeNodesLength = activeNodes.length;
     const activePGsLength = activePGs.length;
     const activeEdgesLength = activeEdges.length;
     const activeGBsLength = activeGBs.length;
     const activeMBsLength = activeMBs.length;
+    const activeMapLinksLength = activeMapLinks.length;
     // contextMenu.hideMenuItem('node_add');
     contextMenu.hideMenuItem('node_interface');
     contextMenu.hideMenuItem('link_project');
@@ -79,33 +80,24 @@ export class ContextMenuService implements OnDestroy{
       contextMenu.showMenuItem('delete');
       contextMenu.showMenuItem('lock_node');
       contextMenu.showMenuItem('unlock_node');
-      const nodeData = activeNodes[0].data()
-      if (nodeData.category === 'project' && activeNodesLength == 1) {
-        contextMenu.showMenuItem('link_project');
-        contextMenu.showMenuItem('view_details');
-        contextMenu.showMenuItem('edit');
-        contextMenu.showMenuItem('collapse_node');
-        contextMenu.showMenuItem('expand_node');
-      } else {
-        if (activePGsLength == 0 && activeEdgesLength == 0) {
-          if (activeNodesLength > 1) {
-            contextMenu.showMenuItem('node_actions');
-            contextMenu.showMenuItem('edit');
-            contextMenu.showMenuItem('node_remote');
-            contextMenu.hideMenuItem('web_console');
-          } else if (activeNodesLength == 1) {
-            // contextMenu.showMenuItem('node_add');
-            contextMenu.showMenuItem('node_interface');
-            contextMenu.showMenuItem('node_actions');
-            contextMenu.showMenuItem('view_details');
-            contextMenu.showMenuItem('edit');
-            contextMenu.showMenuItem('node_remote');
-            contextMenu.showMenuItem('web_console');
-          }
-        } else if (activeEdgesLength > 0) {
-          contextMenu.hideMenuItem('lock_node');
-          contextMenu.hideMenuItem('unlock_node');
+      if (activePGsLength == 0 && activeEdgesLength == 0) {
+        if (activeNodesLength > 1) {
+          contextMenu.showMenuItem('node_actions');
+          contextMenu.showMenuItem('edit');
+          contextMenu.showMenuItem('node_remote');
+          contextMenu.hideMenuItem('web_console');
+        } else if (activeNodesLength == 1) {
+          // contextMenu.showMenuItem('node_add');
+          contextMenu.showMenuItem('node_interface');
+          contextMenu.showMenuItem('node_actions');
+          contextMenu.showMenuItem('view_details');
+          contextMenu.showMenuItem('edit');
+          contextMenu.showMenuItem('node_remote');
+          contextMenu.showMenuItem('web_console');
         }
+      } else if (activeEdgesLength > 0) {
+        contextMenu.hideMenuItem('lock_node');
+        contextMenu.hideMenuItem('unlock_node');
       }
     } else if (activePGsLength > 0) {
       contextMenu.showMenuItem('delete');
@@ -139,6 +131,17 @@ export class ContextMenuService implements OnDestroy{
           contextMenu.showMenuItem('view_details');
           contextMenu.showMenuItem('edit');
         }
+      }
+    } else if (activeMapLinksLength > 0) {
+      contextMenu.showMenuItem('delete');
+      contextMenu.showMenuItem('lock_node');
+      contextMenu.showMenuItem('unlock_node');
+      if (activeMapLinksLength == 1) {
+        contextMenu.showMenuItem('link_project');
+        contextMenu.showMenuItem('view_details');
+        contextMenu.showMenuItem('edit');
+        contextMenu.showMenuItem('collapse_node');
+        contextMenu.showMenuItem('expand_node');
       }
     }
     if ((!this.isHypervisorConnect && !this.isConfiguratorConnect) || isTemplateCategory) {

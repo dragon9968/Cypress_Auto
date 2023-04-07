@@ -222,48 +222,33 @@ export class InfoPanelNodeComponent implements OnDestroy {
   }
 
   onRowDoubleClicked(row: RowDoubleClickedEvent) {
-    const nodeCategory = row.data.category;
-    if (nodeCategory != 'project') {
-      const dialogData = {
-        mode: 'view',
-        genData: row.data,
-        cy: this.cy
-      }
-      this.dialog.open(AddUpdateNodeDialogComponent,
-        { width: '1000px', height: '900px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
-      );
-    } else {
-      const dialogData = {
-        mode: 'view',
-        genData: row.data,
-        cy: this.cy
-      }
-      this.dialog.open(ViewUpdateProjectNodeComponent, { width: '450px', autoFocus: false, data: dialogData });
+    const dialogData = {
+      mode: 'view',
+      genData: row.data,
+      cy: this.cy
     }
+    this.dialog.open(AddUpdateNodeDialogComponent,
+      { width: '1000px', height: '900px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
+    );
   }
 
   cloneNodes() {
     if (this.rowsSelected.length === 0) {
       this.toastr.info('No row selected');
     } else {
-      const isExistProjectNode = this.rowsSelected.some(node => node.category == 'project');
-      if (isExistProjectNode) {
-        this.toastr.warning('Project node(s) do not support clone!', 'Warning');
-      } else {
-        const message = this.rowsSelected.length === 1 ? 'Clone this node?' : 'Clone these nodes?';
-        const dialogData = {
-          title: 'User confirmation needed',
-          message: message,
-          submitButtonName: 'OK'
-        }
-        const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
-        dialogConfirm.afterClosed().subscribe(confirm => {
-          if (confirm) {
-            const ids = this.rowsSelectedId;
-            this.cmActionsService.cloneNodes(this.cy, ids);
-          }
-        })
+      const message = this.rowsSelected.length === 1 ? 'Clone this node?' : 'Clone these nodes?';
+      const dialogData = {
+        title: 'User confirmation needed',
+        message: message,
+        submitButtonName: 'OK'
       }
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
+      dialogConfirm.afterClosed().subscribe(confirm => {
+        if (confirm) {
+          const ids = this.rowsSelectedId;
+          this.cmActionsService.cloneNodes(this.cy, ids);
+        }
+      })
     }
   }
 
@@ -299,38 +284,23 @@ export class InfoPanelNodeComponent implements OnDestroy {
       this.toastr.info('No row selected');
     } else {
       if (this.rowsSelected.length == 1) {
-        const nodeCategory = this.rowsSelected[0].category;
-        if (nodeCategory != 'project') {
-          const dialogData = {
-            mode: 'update',
-            genData: this.rowsSelected[0],
-            cy: this.cy
-          }
-          this.dialog.open(AddUpdateNodeDialogComponent,
-            { width: '1000px', height: '900px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
-          );
-        } else {
-          const dialogData = {
-            mode: 'update',
-            genData: this.rowsSelected[0],
-            cy: this.cy
-          }
-          this.dialog.open(ViewUpdateProjectNodeComponent, { width: '450px', autoFocus: false, data: dialogData });
+        const dialogData = {
+          mode: 'update',
+          genData: this.rowsSelected[0],
+          cy: this.cy
         }
+        this.dialog.open(AddUpdateNodeDialogComponent,
+          { width: '1000px', height: '900px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
+        );
       } else {
-        const isExistProjectNode = this.rowsSelected.some(node => node.category == 'project');
-        if (isExistProjectNode) {
-          this.toastr.warning('Bulk edit does not support the project node!', 'Warning');
-        } else {
-          const dialogData = {
-            genData: {
-              ids: this.rowsSelectedId,
-              activeNodes: this.rowsSelected
-            },
-            cy: this.cy
-          }
-          this.dialog.open(NodeBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+        const dialogData = {
+          genData: {
+            ids: this.rowsSelectedId,
+            activeNodes: this.rowsSelected
+          },
+          cy: this.cy
         }
+        this.dialog.open(NodeBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
       }
     }
   }

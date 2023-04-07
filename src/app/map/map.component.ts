@@ -76,6 +76,7 @@ import { selectProjects } from "../store/project/project.selectors";
 import { NgxPermissionsService } from "ngx-permissions";
 import { CMProjectNodeService } from "./context-menu/cm-project-node/cm-project-node.service";
 import { RemoteCategories } from "../core/enums/remote-categories.enum";
+import { MapLinkService } from "../core/services/map-link/map-link.service";
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -160,6 +161,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   activeEdges: any[] = [];
   activeGBs: any[] = [];
   activeMBs: any[] = [];
+  activeMapLinks: any[] = [];
   isBoxSelecting = false;
   isSearching = false;
   isSelectedProcessed = false;
@@ -200,6 +202,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     private configTemplateService: ConfigTemplateService,
     private loginProfileService: LoginProfileService,
     private nodeService: NodeService,
+    private mapLinkService: MapLinkService,
     private groupService: GroupService,
     private portgroupService: PortGroupService,
     private interfaceService: InterfaceService,
@@ -358,13 +361,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private _initDataLinkProjects() {
     this.projectService.getProjectByStatusAndCategory('active', 'project').pipe(delay(1000)).subscribe(
       (data: any) => {
-        const projectNodeIdsAdded = this.cy?.nodes().filter('[link_project_id > 0]').map((ele: any) => ele.data('link_project_id'));
-        const newProjects = [...data.result];
-        projectNodeIdsAdded?.map((projectId: any) => {
-          const index = newProjects.findIndex(ele => ele.id === projectId);
-          newProjects.splice(index, 1);
-        })
-        this.store.dispatch(retrievedProjects({data: newProjects}));
+        this.helpersService.updateProjectLinksStorage(this.cy, data.result)
       }
     );
   }
@@ -479,7 +476,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       const el = this.cy.edges().filter(`[source=${src}][target=${targ}]`).length
       if (el > 0) {
         if (targ.includes('tempNode') && this.edgeNode) {
-          if (this.edgeNode.data('category') == 'project') {
+          if (this.edgeNode.data('elem_category') == 'map_link') {
             this.toastr.warning('Please select the common port group that has been highlighted to connect', 'Warning');
             return;
           } else {
@@ -518,7 +515,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   private _selectNode($event: any) {
     const t = $event.target;
-    const isChildrenOfProjectNode = t.parent()?.data('category') == 'project';
+    const isChildrenOfProjectNode = t.parent()?.data('elem_category') == 'map_link';
     if (isChildrenOfProjectNode) {
       return;
     }
@@ -550,6 +547,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.activeNodes.push(t);
       } else if (d.elem_category == 'port_group' && !this.activePGs.includes(t)) {
         this.activePGs.push(t);
+      } else if (d.elem_category == 'map_link' && !this.activeMapLinks.includes(t)) {
+        this.activeMapLinks.push(t)
       }
       if (!d.new) {
         if (this.activeNodes.length == 0) {
@@ -561,13 +560,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       }
     }
     this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
-                                            this.activeMBs, this.isTemplateCategory);
+                                            this.activeMBs, this.activeMapLinks, this.isTemplateCategory);
     this.store.dispatch(retrievedMapSelection({ data: true }));
   }
 
   private _selectEdge($event: any) {
     const t = $event.target;
-    const isChildrenOfProjectNode = t.connectedNodes().some((ele: any) => ele.parent()?.data('category') == 'project')
+    const isChildrenOfProjectNode = t.connectedNodes().some((ele: any) => ele.parent()?.data('elem_category') == 'map_link')
     if (isChildrenOfProjectNode) {
       return;
     }
@@ -582,7 +581,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       }
     }
     this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
-                                            this.activeMBs, this.isTemplateCategory);
+                                            this.activeMBs, this.activeMapLinks , this.isTemplateCategory);
     this.store.dispatch(retrievedMapSelection({ data: true }));
   }
 
@@ -606,10 +605,15 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         const index = this.activePGs.indexOf(t);
         this.activePGs.splice(index, 1);
       }
-    } else {
+    } else if (t.data('elem_category') == 'node') {
       if (this.activeNodes.includes(t)) {
         const index = this.activeNodes.indexOf(t);
         this.activeNodes.splice(index, 1);
+      }
+    } else {
+      if (this.activeMapLinks.includes(t)) {
+        const index = this.activeMapLinks.indexOf(t);
+        this.activeMapLinks.splice(index, 1);
       }
     }
     this.store.dispatch(retrievedMapSelection({ data: true }));
@@ -847,7 +851,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       .concat(this.mapBackgrounds)));
     this.eles.forEach(ele => {
       ele.locked = ele.data.locked
-      if (ele.data.elem_category == 'node') {
+      if (ele.data.elem_category == 'node' || ele.data.elem_category == 'map_link') {
         ele.data.icon = environment.apiBaseUrl + ele.data.icon;
       } else if (ele.data.elem_category == 'bg_image') {
         ele.data.src = environment.apiBaseUrl + ele.data.image;
@@ -905,23 +909,23 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       (ele.group() == 'nodes' && ele.data('parent_id'))
     )
     nodeRelatedLinkProject.forEach((node: any) => {
-      node.move({ parent: `node-${node.data('parent_id')}` });
+      node.move({ parent: `project-link-${node.data('parent_id')}` });
     })
 
     // Set initial collapse and expand based on the project node data
-    const projectNodes = this.cy.nodes().filter('[category="project"]')
-    projectNodes.map((projectNode: any) => {
-      if (projectNode.data('collapsed')) {
-        this.cy.expandCollapse('get').collapseRecursively(projectNode, {});
-        projectNode.data('width', '90px');
-        projectNode.data('height', '90px');
-        projectNode.style({
+    const mapLinkNodes = this.cy.nodes().filter('[elem_category="map_link"]')
+    mapLinkNodes.map((mapLinkNode: any) => {
+      if (mapLinkNode.data('collapsed')) {
+        this.cy.expandCollapse('get').collapseRecursively(mapLinkNode, {});
+        mapLinkNode.data('width', '90px');
+        mapLinkNode.data('height', '90px');
+        mapLinkNode.style({
           'background-opacity': '0',
           'background-color': '#fff',
           'background-image-opacity': 1,
         });
       } else {
-        projectNode.style({
+        mapLinkNode.style({
           'background-opacity': '.20',
           'background-color': '#00dcff',
           'background-image-opacity': 0,
@@ -930,8 +934,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     })
 
     // Set events before and after the collapse and expand.
-    projectNodes.map((projectNode: any) => {
-      this.helpersService.collapseAndExpandProjectNodeEvent(projectNode);
+    mapLinkNodes.map((mapLinkNode: any) => {
+      this.helpersService.collapseAndExpandMapLinkNodeEvent(mapLinkNode);
     })
   }
 
@@ -1005,9 +1009,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.cy.on("box", this._boxCheck.bind(this));
     this.cy.on("click", this._click.bind(this));
     this.cy.on("cxttap", "node", () => this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs,
-                                          this.activeEdges, this.activeGBs, this.activeMBs, this.isTemplateCategory));
+                                          this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks, this.isTemplateCategory));
     this.cy.on("cxttap", "edge", () => this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs,
-                                          this.activeEdges, this.activeGBs, this.activeMBs, this.isTemplateCategory));
+                                          this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks, this.isTemplateCategory));
     this.cy.on("nodeediting.resizeend", this._nodeEditing.bind(this));
     this.cy.on('cdnddrop', this._cdndDrop.bind(this));
     this.cy.on('cdndout', this._cdndOut.bind(this));
@@ -1023,7 +1027,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.cmGroupBoxService.getMoveToFrontMenu(),
         this.cmGroupBoxService.getMoveToBackMenu(),
         this.cmInterfaceService.getNodeInterfaceMenu(this.queueEdge.bind(this), this.cy, this.activeNodes, this.isCanWriteOnProject),
-        this.cmProjectNodeService.getLinkProjectMenu(this.queueEdge.bind(this), this.cy, this.activeNodes),
+        this.cmProjectNodeService.getLinkProjectMenu(this.queueEdge.bind(this), this.cy, this.activeMapLinks),
         this.cmInterfaceService.getPortGroupInterfaceMenu(this.queueEdge.bind(this)),
         this.cmAddService.getEdgeAddMenu(),
         this.cmActionsService.getNodeActionsMenu(this.cy, this.activeNodes, this.isCanWriteOnProject),
@@ -1031,15 +1035,16 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.cmActionsService.getEdgeActionsMenu(this.cy, this.activeEdges),
         this.cmRemoteService.getNodeRemoteMenu(this.activeNodes),
         this.cmRemoteService.getPortGroupRemoteMenu(this.activePGs),
-        this.cmViewDetailsService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges),
-        this.cmEditService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.isCanWriteOnProject),
-        this.cmDeleteService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs, this.activeMBs, this.isCanWriteOnProject),
-        this.cmLockUnlockService.getLockMenu(this.cy, this.activeNodes, this.activePGs, this.activeMBs),
-        this.cmLockUnlockService.getUnlockMenu(this.activeNodes, this.activePGs, this.activeMBs),
+        this.cmViewDetailsService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeMapLinks),
+        this.cmEditService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeMapLinks, this.isCanWriteOnProject),
+        this.cmDeleteService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
+                                     this.activeMBs,this.activeMapLinks, this.isCanWriteOnProject),
+        this.cmLockUnlockService.getLockMenu(this.cy, this.activeNodes, this.activePGs, this.activeMBs, this.activeMapLinks),
+        this.cmLockUnlockService.getUnlockMenu(this.activeNodes, this.activePGs, this.activeMBs, this.activeMapLinks),
         this.cmGroupBoxService.getCollapseMenu(this.cy, this.activeGBs),
         this.cmGroupBoxService.getExpandMenu(this.cy, this.activeGBs),
-        this.cmProjectNodeService.getCollapseNodeMenu(this.cy, this.activeNodes),
-        this.cmProjectNodeService.getExpandNodeMenu(this.cy, this.activeNodes),
+        this.cmProjectNodeService.getCollapseNodeMenu(this.cy, this.activeMapLinks),
+        this.cmProjectNodeService.getExpandNodeMenu(this.cy, this.activeMapLinks),
         this.cmMapService.getSaveChangesMenu(this.isCanWriteOnProject),
         this.cmMapService.getUndoMenu(),
         this.cmMapService.getRedoMenu(),
@@ -1170,7 +1175,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   private _openAddUpdateInterfaceDialog(genData: any, newEdgeData: any) {
-    const nodeCategory = this.cy.getElementById(`node-${genData.node_id}`).data('category');
     const dialogData = {
       mode: 'add',
       collectionId: this.collectionId,
@@ -1179,14 +1183,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       selectedMapPref: this.selectedMapPref,
       cy: this.cy,
       genData,
-      newEdgeData,
-      nodeCategory
+      newEdgeData
     }
     const dialogRef = this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '650px', data: dialogData });
     dialogRef.afterClosed().subscribe((_data: any) => {
-      if (nodeCategory == 'project') {
-        this.clearSearch();
-      }
       this.cy.unbind('mousemove');
       this.inv.remove();
       this.e.remove();
@@ -1199,88 +1199,68 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   private _quickAddInterfaceLinkProject(genData: any, newEdgeData: any) {
-    const nodeData = this.cy.getElementById(`node-${genData.node_id}`).data();
+    const nodeData = this.cy.getElementById(`project-link-${genData.node_id}`).data();
     const jsonData = {
-      project_id: nodeData.collection_id,
-      linked_project_id: nodeData.link_project_id
+      order: genData.order,
+      name: genData.name,
+      description: genData.description,
+      category: genData.category,
+      direction: genData.direction,
+      mac_address: genData.mac_address,
+      port_group_id: genData.port_group_id,
+      ip_allocation: genData.ip_allocation,
+      ip: genData.ip,
+      dns_server: genData.dns_server,
+      gateway: genData.gateway,
+      is_gateway: genData.is_gateway,
+      is_nat: genData.is_nat,
+      map_link_id: nodeData.map_link_id,
+      netmask_id: genData.netmask_id,
+      logical_map_style: {
+        'width': '4',
+        'color': '#000000',
+        'text_size': '25',
+        'text_color': '#000000',
+        'text_halign': 'center',
+        'text_valign': 'bottom',
+        'text_bg_color': '#000000',
+        'text_bg_opacity': 0,
+        'line-style': 'dotted'
+      }
     }
-    this.projectService.linkProject(jsonData).pipe(
-      catchError(err => {
-        this._unQueueLinkProject();
-        this.toastr.error('Linked Project Failed!', 'Error');
-        return throwError(() => err);
-      })
-    ).subscribe(() => {
-      this.projectService.getProjectByStatusAndCategory('active', 'project').subscribe(
-        (data: any) => {
+    this.interfaceService.add(jsonData).pipe(
+        catchError(err => {
           this._unQueueLinkProject();
-          // Update the link project list
-          const projectNodeIdsAdded = this.cy.nodes().filter('[link_project_id > 0]').map((ele: any) => ele.data('link_project_id'));
-          const newProjects = [...data.result];
-          projectNodeIdsAdded.map((projectId: any) => {
-            const index = newProjects.findIndex(ele => ele.id === projectId);
-            newProjects.splice(index, 1);
-          })
-          this.store.dispatch(retrievedProjects({data: newProjects}));
-
-          // Draw interface link project
-          const jsonData = {
-            order: genData.order,
-            name: genData.name,
-            description: genData.description,
-            category: genData.category,
-            direction: genData.direction,
-            mac_address: genData.mac_address,
-            port_group_id: genData.port_group_id,
-            ip_allocation: genData.ip_allocation,
-            ip: genData.ip,
-            dns_server: genData.dns_server,
-            gateway: genData.gateway,
-            is_gateway: genData.is_gateway,
-            is_nat: genData.is_nat,
-            node_id: genData.node_id,
-            netmask_id: genData.netmask_id,
-            logical_map_style: {
-              'width': '4',
-              'color': '#000000',
-              'text_size': '25',
-              'text_color': '#000000',
-              'text_halign': 'center',
-              'text_valign': 'bottom',
-              'text_bg_color': '#000000',
-              'text_bg_opacity': 0,
-              'line-style': 'dotted'
-            }
-          }
-          this.interfaceService.add(jsonData).subscribe((respData: any) => {
-            if (!newEdgeData.target.includes('node')) {
-              newEdgeData.target = newEdgeData.target === `pg-${genData.port_group_id}` ? newEdgeData.target : `pg-${genData.port_group_id}`;
-            }
-            const id = respData.id;
-            const ip_str = respData.result.ip ? respData.result.ip : "";
-            const ip = ip_str.split(".");
-            const last_octet = ip.length == 4 ? "." + ip[3] : "";
-            const cyData = respData.result;
-            cyData.id = id;
-            cyData.interface_id = id;
-            cyData.ip_last_octet = last_octet;
-            cyData.width = cyData.logical_map_style.width;
-            cyData.text_color = cyData.logical_map_style.text_color;
-            cyData.text_size = cyData.logical_map_style.text_size;
-            cyData.color = cyData.logical_map_style.color;
-            this.helpersService.addCYEdge(this.cy, { ...newEdgeData, ...cyData });
-            const edge = this.cy.getElementById(cyData.id);
-            edge.style('line-style', 'dotted');
-            if (!this.isEdgeDirectionChecked) {
-              const current_dir = edge.data('direction');
-              edge.data('prev_direction', current_dir);
-              edge.data('direction', 'none');
-            }
-          });
-        }
-      );
-      this.toastr.success('Linked Project Successfully!', 'Success');
-    })
+          this.toastr.error('Linked Project Failed!', 'Error');
+          return throwError(() => err);
+        })
+    ).subscribe((respData: any) => {
+      this._unQueueLinkProject();
+      if (!newEdgeData.target.includes('node')) {
+        newEdgeData.target = newEdgeData.target === `pg-${genData.port_group_id}` ? newEdgeData.target : `pg-${genData.port_group_id}`;
+      }
+      const id = respData.id;
+      const ip_str = respData.result.ip ? respData.result.ip : "";
+      const ip = ip_str.split(".");
+      const last_octet = ip.length == 4 ? "." + ip[3] : "";
+      const cyData = respData.result;
+      cyData.id = id;
+      cyData.interface_id = id;
+      cyData.ip_last_octet = last_octet;
+      cyData.width = cyData.logical_map_style.width;
+      cyData.text_color = cyData.logical_map_style.text_color;
+      cyData.text_size = cyData.logical_map_style.text_size;
+      cyData.color = cyData.logical_map_style.color;
+      this.helpersService.addCYEdge(this.cy, { ...newEdgeData, ...cyData });
+      const edge = this.cy.getElementById(cyData.id);
+      edge.style('line-style', 'dotted');
+      if (!this.isEdgeDirectionChecked) {
+        const current_dir = edge.data('direction');
+        edge.data('prev_direction', current_dir);
+        edge.data('direction', 'none');
+      }
+    });
+    this.toastr.success('Linked Project Successfully!', 'Success');
   }
 
   private _unQueueLinkProject() {
@@ -1331,13 +1311,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       }
       this.e.move({ target: targ });
       this.newEdgeData.target = targ;
-      if (this.edgeNode.data('category') != 'project') {
+      if (this.edgeNode.data('elem_category') != 'map_link') {
         this.interfaceService.genData(this.edgeNode.data().node_id, this.edgePortGroup.data().pg_id)
           .subscribe(genData => {
             this._openAddUpdateInterfaceDialog(genData, this.newEdgeData);
           });
       } else {
-        this.interfaceService.genData(this.edgeNode.data().node_id, this.edgePortGroup.data().pg_id, 'link')
+        this.interfaceService.genData(this.edgeNode.data('map_link_id'), this.edgePortGroup.data('pg_id'), 'link')
           .subscribe(genData => {
             this._quickAddInterfaceLinkProject(genData, this.newEdgeData)
           })
@@ -1563,11 +1543,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     })
   }
 
-  addLinkProjectIntoCurrentProject(linkProjectId: Number, position: any, projectNodeId: any) {
+  addLinkProjectIntoCurrentProject(linkProjectId: Number, position: any, mapLinkId: any) {
     const jsonData = {
       link_project_id: linkProjectId,
       position: position,
-      project_node_id: projectNodeId
+      map_link_id: mapLinkId
     }
     this.mapService.getLinkProjectData(jsonData).pipe(
       catchError(err => {
@@ -1578,8 +1558,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       const data = response.result;
       const nodes = data.nodes;
       const edges = data.interfaces;
-      this.helpersService.addCYNodeAndEdge(this.cy, nodes, edges, {x: 0, y: 0}, projectNodeId);
-      const nodeEle = this.cy.getElementById(`node-${projectNodeId}`)
+      this.helpersService.addCYNodeAndEdge(this.cy, nodes, edges, {x: 0, y: 0}, mapLinkId);
+      const nodeEle = this.cy.getElementById(`project-link-${mapLinkId}`)
       this.cy.expandCollapse('get').collapseRecursively(nodeEle, {});
       nodeEle.data('width', '90px');
       nodeEle.data('height', '90px');
@@ -1603,10 +1583,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       const linkProject = linkProjectResponse.result;
       const jsonData = {
         name: linkProject.name,
-        notes: linkProject.description,
-        link_project_id: linkProjectId,
-        category: 'project',
-        collection_id: projectId,
+        linked_project_id: linkProjectId,
+        project_id: projectId,
         logical_map_position: newNodePosition,
         logical_map_style: {
           height: '70',
@@ -1621,13 +1599,14 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           'background-image': '',
           'background-fit': 'contain',
           collapsed: true
-        }
+        },
+        logical_map_locked: false
       };
-      this.nodeService.add(jsonData).pipe(
+      this.mapLinkService.add(jsonData).pipe(
         catchError((resp: any) => {
           this.isAddProjectNode = false;
           this._enableMapEditButtons();
-          this.toastr.error('Add project node failed!', 'Error');
+          this.toastr.error('Add project link failed!', 'Error');
           if (resp.status == 422) {
             const errorMsg: any[] = resp.error.message;
             const m = Object.keys(errorMsg).map((key: any) => key + ': ' + errorMsg[key])
@@ -1635,47 +1614,38 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           }
           return throwError(() => resp.message);
         })
-      ).subscribe((respData: any) => {
+      ).subscribe(response => {
         this.isAddProjectNode = false;
         this.linkProjectId = 0;
         this._enableMapEditButtons();
-        this.nodeService.get(respData.id).subscribe(respData => {
-          const cyData = respData.result;
-          cyData.id = 'node-' + respData.id;
-          cyData.node_id = respData.id;
-          cyData.collapsed = true;
-          cyData.height = cyData.logical_map_style.height;
-          cyData.width = cyData.logical_map_style.width;
-          cyData.text_color = cyData.logical_map_style.text_color;
-          cyData.text_size = cyData.logical_map_style.text_size;
-          cyData.icon = environment.apiBaseUrl + '/static/img/icons/default_icon.png';
-          const newNodeData = {
-            'elem_category': 'node',
-            'type': 'project',
-            'zIndex': 999,
-            'background-opacity': 0,
-            'shape': 'roundrectangle',
-            'text-opacity': 1
-          }
-          const nodeEle = this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData },  newNodePosition});
+        const mapLinkData = response.result;
+        mapLinkData.id = 'project-link-' + response.id;
+        mapLinkData.map_link_id = response.id;
+        mapLinkData.collapsed = mapLinkData.logical_map_style.collapsed;
+        mapLinkData.height = mapLinkData.logical_map_style.height;
+        mapLinkData.width = mapLinkData.logical_map_style.width;
+        mapLinkData.text_color = mapLinkData.logical_map_style.text_color;
+        mapLinkData.text_size = mapLinkData.logical_map_style.text_size;
+        mapLinkData.icon = environment.apiBaseUrl + '/static/img/icons/default_icon.png';
+        const newNodeData = {
+          'elem_category': 'map_link',
+          'zIndex': 999,
+          'background-opacity': 0,
+          'shape': 'roundrectangle',
+          'text-opacity': 1
+        }
+        const nodeEle = this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...mapLinkData },  newNodePosition});
 
-          // Add collapse and expand event for new project node
-          this.helpersService.collapseAndExpandProjectNodeEvent(nodeEle);
+        // Add collapse and expand event for new project node
+        this.helpersService.collapseAndExpandMapLinkNodeEvent(nodeEle);
 
-          // Update link projects storage
-          const projectNodeIdsAdded = this.cy.nodes().filter('[link_project_id > 0]').map((ele: any) => ele.data('link_project_id'));
-          const newProjects = [...this.projects];
-          projectNodeIdsAdded.map((projectId: any) => {
-            const index = newProjects.findIndex(ele => ele.id === projectId);
-            newProjects.splice(index, 1);
-          })
-          this.store.dispatch(retrievedProjects({data: newProjects}));
-          this.toastr.success('Add project node successfully', 'Success');
+        // Update link projects storage
+        this.helpersService.updateProjectLinksStorage(this.cy, [...this.projects]);
+        this.toastr.success('Add project link successfully', 'Success');
 
-          // Add items in the link project into current project
-          this.addLinkProjectIntoCurrentProject(linkProjectId, newNodePosition, cyData.node_id);
-        });
-      });
+        // Add items in the link project into current project
+        this.addLinkProjectIntoCurrentProject(linkProjectId, newNodePosition, mapLinkData.map_link_id);
+      })
     })
   }
 
@@ -1771,7 +1741,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         }
         const nodeEle = this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData },  newNodePosition});
         // Add collapse and expand event for new project node
-        this.helpersService.collapseAndExpandProjectNodeEvent(nodeEle);
+        this.helpersService.collapseAndExpandMapLinkNodeEvent(nodeEle);
         this.toastr.success('Add map image successfully', 'Success');
       });
     });

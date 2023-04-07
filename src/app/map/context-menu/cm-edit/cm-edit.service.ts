@@ -20,25 +20,33 @@ export class CMEditService {
   ) {
   }
 
-  getMenu(cy: any, activeNodes: any, activePGs: any, activeEdges: any, isCanWriteOnProject: boolean) {
+  getMenu(cy: any, activeNodes: any, activePGs: any, activeEdges: any, activeMapLinks: any, isCanWriteOnProject: boolean) {
     return {
       id: "edit",
       content: "Edit",
-      selector: "node[label!='group_box'], node[label='map_background'], edge",
+      selector: "node[label!='group_box'], node[label='map_background'], edge, node[elem_category='map_link']",
       onClickFunction: (event: any) => {
-        this.openEditForm(cy, activeNodes, activePGs, activeEdges);
+        this.openEditForm(cy, activeNodes, activePGs, activeEdges, activeMapLinks);
       },
       hasTrailingDivider: false,
       disabled: !isCanWriteOnProject,
     }
   }
 
-  openEditForm(cy: any, activeNodes: any, activePGs: any, activeEdges: any) {
+  openEditForm(cy: any, activeNodes: any, activePGs: any, activeEdges: any, activeMapLinks: any) {
     const activeNodesLength = activeNodes.length;
     const activePGsLength = activePGs.length;
     const activeEdgesLength = activeEdges.length;
+    const activeMapLinksLength = activeMapLinks.length;
 
-    if (activeNodesLength == 0 && activePGsLength == 0) {
+    if (activeMapLinksLength == 1) {
+      const dialogData = {
+        mode: 'update',
+        genData: activeMapLinks[0].data(),
+        cy
+      }
+      this.dialog.open(ViewUpdateProjectNodeComponent, { width: '450px', autoFocus: false, data: dialogData });
+    } else if (activeNodesLength == 0 && activePGsLength == 0) {
       if (activeEdgesLength > 1) {
         const edgeActiveIds = activeEdges.map((ele: any) => ele.data('interface_id'));
         const dialogData = {
@@ -78,41 +86,26 @@ export class CMEditService {
       }
     } else if (activePGsLength == 0 && activeEdgesLength == 0) {
       if (activeNodesLength > 1) {
-        const isExistProjectNode = activeNodes.some((ele: any) => ele.data('category') == 'project');
-        if (isExistProjectNode) {
-          this.toastr.warning('Bulk edit does not support the project node!', 'Warning');
-        } else {
-          const nodeActiveIds = activeNodes.map((ele: any) => ele.data('node_id'));
-          const dialogData = {
-            genData: {
-              ids: nodeActiveIds,
-              activeNodes: activeNodes.map((ele: any) => ele.data())
-            },
-            cy
-          }
-          this.dialog.open(NodeBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+        const nodeActiveIds = activeNodes.map((ele: any) => ele.data('node_id'));
+        const dialogData = {
+          genData: {
+            ids: nodeActiveIds,
+            activeNodes: activeNodes.map((ele: any) => ele.data())
+          },
+          cy
         }
+        this.dialog.open(NodeBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
       } else if (activeNodesLength == 1) {
-        const nodeCategory = activeNodes[0].data('category');
-        if (nodeCategory != 'project') {
-          const dialogData = {
-            mode: 'update',
-            genData: activeNodes[0].data(),
-            cy
-          }
-          this.dialog.open(AddUpdateNodeDialogComponent,
-            { width: '1000px', height: '900px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
-          );
-        } else {
-          const dialogData = {
-            mode: 'update',
-            genData: activeNodes[0].data(),
-            cy
-          }
-          this.dialog.open(ViewUpdateProjectNodeComponent, { width: '450px', autoFocus: false, data: dialogData });
+        const dialogData = {
+          mode: 'update',
+          genData: activeNodes[0].data(),
+          cy
         }
+        this.dialog.open(AddUpdateNodeDialogComponent,
+          { width: '1000px', height: '900px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
+        );
       }
-    } else {
+    } else  {
       this.toastr.success("Cannot bulk edit for various of element types");
     }
   }

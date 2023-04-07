@@ -33,6 +33,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   @Input() activeEdges: any[] = [];
   @Input() activeGBs: any[] = [];
   @Input() activeMBs: any[] = [];
+  @Input() activeMapLinks: any[] = [];
   errorMessages = ErrorMessages;
   mapPrefCtr = new FormControl();
   mapPrefs!: any[];
@@ -353,11 +354,11 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   }
 
   lockNodes() {
-    this.cmLockUnlockService.lockNodes(this.cy, this.activeNodes, this.activePGs, this.activeMBs);
+    this.cmLockUnlockService.lockNodes(this.cy, this.activeNodes, this.activePGs, this.activeMBs, this.activeMapLinks);
   }
 
   unlockNodes() {
-    this.cmLockUnlockService.unlockNodes(this.activeNodes, this.activePGs, this.activeMBs);
+    this.cmLockUnlockService.unlockNodes(this.activeNodes, this.activePGs, this.activeMBs, this.activeMapLinks);
   }
 
   setMapImageSize(size: any) {

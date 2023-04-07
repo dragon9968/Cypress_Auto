@@ -23,13 +23,14 @@ export class CMDeleteService {
     });
   }
 
-  getMenu(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], activeMBs: any[], isCanWriteOnProject: boolean) {
+  getMenu(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], activeMBs: any[],
+          activeMapLinks: any[], isCanWriteOnProject: boolean) {
     return {
       id: "delete",
       content: "Delete",
       selector: "node[label!='group_box'], edge",
       onClickFunction: (event: any) => {
-        this.commonService.delete(cy, activeNodes, activePGs, activeEdges, activeGBs, activeMBs);
+        this.commonService.delete(cy, activeNodes, activePGs, activeEdges, activeGBs, activeMBs, activeMapLinks);
       },
       hasTrailingDivider: true,
       disabled: !isCanWriteOnProject,

@@ -12,34 +12,34 @@ export class CMLockUnlockService {
     private helpersService: HelpersService,
   ) { }
 
-  getLockMenu(cy: any, activeNodes: any[], activePGs: any[], activeMBs: any[]) {
+  getLockMenu(cy: any, activeNodes: any[], activePGs: any[], activeMBs: any[], activeMapLinks: any[]) {
     return {
       id: "lock_node",
       content: "Lock",
       selector: "node",
       onClickFunction: (event: any) => {
-        this.lockNodes(cy, activeNodes, activePGs, activeMBs);
+        this.lockNodes(cy, activeNodes, activePGs, activeMBs, activeMapLinks);
       },
       hasTrailingDivider: false,
       disabled: false,
     }
   }
 
-  getUnlockMenu(activeNodes: any[], activePGs: any[], activeMBs: any[]) {
+  getUnlockMenu(activeNodes: any[], activePGs: any[], activeMBs: any[], activeMapLinks: any[]) {
     return {
       id: "unlock_node",
       content: "Unlock",
       selector: "node",
       onClickFunction: (event: any) => {
-        this.unlockNodes(activeNodes, activePGs, activeMBs);
+        this.unlockNodes(activeNodes, activePGs, activeMBs, activeMapLinks);
       },
       hasTrailingDivider: true,
       disabled: false,
     }
   }
 
-  lockNodes(cy: any, activeNodes: any[], activePGs: any[], activeMBs: any[]) {
-    activeNodes.concat(activePGs, activeMBs).forEach((ele: any) => {
+  lockNodes(cy: any, activeNodes: any[], activePGs: any[], activeMBs: any[], activeMapLinks: any[]) {
+    activeNodes.concat(activePGs, activeMBs, activeMapLinks).forEach((ele: any) => {
       if (ele.locked()) {
         this.toastr.warning('Already locked');
       }
@@ -55,8 +55,8 @@ export class CMLockUnlockService {
     });
   }
 
-  unlockNodes(activeNodes: any[], activePGs: any[], activeMBs: any[]) {
-    activeNodes.concat(activePGs, activeMBs).forEach((ele: any) => {
+  unlockNodes(activeNodes: any[], activePGs: any[], activeMBs: any[], activeMapLinks: any[]) {
+    activeNodes.concat(activePGs, activeMBs, activeMapLinks).forEach((ele: any) => {
       if (!(ele.locked())) {
         this.toastr.warning('Already Unlocked');
       }

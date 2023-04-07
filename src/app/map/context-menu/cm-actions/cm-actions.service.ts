@@ -39,13 +39,8 @@ export class CMActionsService {
           id: "clone_node",
           content: "Clone",
           onClickFunction: ($event: any) => {
-            const isExistProjectNode = activeNodes.some(node => node.data('category') == 'project');
-            if (isExistProjectNode) {
-              this.toastr.warning('Project node(s) do not support clone!', 'Warning');
-            } else {
-              const ids = activeNodes.map((ele: any) => ele.data('node_id'));
-              this.cloneNodes(cy, ids);
-            }
+            const ids = activeNodes.map((ele: any) => ele.data('node_id'));
+            this.cloneNodes(cy, ids);
           },
           hasTrailingDivider: true,
           disabled: !isCanWriteOnProject,
@@ -191,11 +186,7 @@ export class CMActionsService {
           cyData.text_color = cyData.logical_map_style.text_color;
           cyData.text_size = cyData.logical_map_style.text_size;
           cyData.elem_category = "node";
-          if (cyData.category == 'project') {
-            cyData.icon = environment.apiBaseUrl + '/static/img/icons/default_icon.png';
-          } else {
-            cyData.icon = ICON_PATH + cyData.icon.photo;
-          }
+          cyData.icon = ICON_PATH + cyData.icon.photo;
           cyData.type = cyData.role;
           cyData.zIndex = 999;
           cyData['background-image'] = cyData.icon;
