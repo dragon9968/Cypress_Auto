@@ -78,7 +78,7 @@ export class NodeToolsDialogComponent implements OnInit {
       pks: this.data.activeNodes.map((node: any) => node.data('node_id')).join(","),
       job_name: this.jobName,
       category: 'node',
-      connection_id: connectionId,
+      hypervisor_id: connectionId,
       login_profile_id: this.loginProfileCtr?.value?.id
     };
     if (this.isPingTest) {

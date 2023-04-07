@@ -13,11 +13,11 @@
 .task {
   display: flex;
   &__info {
-    width: 50%;
+    width: 30%;
   }
   &__result {
     margin-left: 5px;
-    width: 48%;
+    width: 69%;
     &__editor {
       overflow-y: auto;
       max-height: 600px;

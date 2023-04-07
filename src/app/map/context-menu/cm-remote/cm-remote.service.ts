@@ -341,7 +341,8 @@ export class CMRemoteService implements OnDestroy{
             const dialogData = {
               jobName: 'create_pg',
               activePGs,
-              message: 'Deploy this port group?'
+              message: 'Deploy this port group?',
+              category: this.connectionCategory
             };
             this.dialog.open(AddDeletePGDeployDialogComponent, { width: '450px', data: dialogData });
           },
@@ -356,7 +357,8 @@ export class CMRemoteService implements OnDestroy{
             const dialogData = {
               jobName: 'delete_pg',
               activePGs,
-              message: 'Delete port group(s)?'
+              message: 'Delete port group(s)?',
+              category: this.connectionCategory
             };
             this.dialog.open(AddDeletePGDeployDialogComponent, { width: '450px', data: dialogData });
           },
@@ -371,7 +373,8 @@ export class CMRemoteService implements OnDestroy{
             const dialogData = {
               jobName: 'update_pg',
               activePGs,
-              message: 'Update port group(s)?'
+              message: 'Update port group(s)?',
+              category: this.connectionCategory
             };
             this.dialog.open(AddDeletePGDeployDialogComponent, { width: '450px', data: dialogData });
           },
@@ -394,7 +397,7 @@ export class CMRemoteService implements OnDestroy{
 
   add_task(category: string, jobName: string, pks: string, connectionCategory: string) {
     let connection = this.serverConnectionService.getConnection(connectionCategory);
-    const jsonData = { job_name: jobName, category, pks, connection_id: connection ? connection?.id : 0 };
+    const jsonData = { job_name: jobName, category, pks, hypervisor_id: connection ? connection?.id : 0 };
     this.taskService.add(jsonData).pipe(
       catchError((e: any) => {
         this.toastr.error(e.error.message);

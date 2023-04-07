@@ -73,7 +73,7 @@ export class UpdateFactsNodeDialogComponent implements OnInit, OnDestroy {
   updateFactsNode() {
     const connection = this.serverConnectionService.getConnection(RemoteCategories.HYPERVISOR);
     const jsonData = {
-      connection_id: connection ? connection.id : 0,
+      hypervisor_id: connection ? connection.id : 0,
       category: 'node',
       job_name: 'update_facts',
       pks: this.data.activeNodes.map((ele: any) => ele.data('node_id')).join(','),

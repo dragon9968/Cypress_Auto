@@ -31,7 +31,7 @@ export class AddDeletePGDeployDialogComponent {
       job_name: this.data.jobName,
       category: 'port_group',
       pks: this.data.activePGs.map((ele: any) => ele.data('pg_id')).join(','),
-      connection_id: connection ? connection.id : 0,
+      hypervisor_id: connection ? connection.id : 0,
     }
     this.taskService.add(jsonData).pipe(
       catchError((err: any) => {

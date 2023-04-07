@@ -75,7 +75,7 @@ export class ShowUserTaskDialogComponent implements OnInit, AfterViewInit {
     this.editor.getEditor().setOptions({
       tabSize: 2,
       useWorker: false,
-      fontSize: '16px'
+      fontSize: '12px'
     });
     this.editor.mode = 'text';
     this.editor.setTheme('textmate');
