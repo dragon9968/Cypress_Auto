@@ -94,6 +94,7 @@ export class AddEditMapprefDialogComponent {
       defaultIconCtr: new FormControl({ value: '', disabled: false }),
       edgeArrowDirectionCtr: new FormControl({ value: '', disabled: this.isViewMode }),
       edgeArrowSizeCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      mapImageSizeCtr: new FormControl({ value: '', disabled: this.isViewMode }),
     });
     this.selectMapPrefs$ = this.store.select(selectMapPrefs).subscribe((data: any) => {
       this.listMapPref = data;
@@ -120,6 +121,7 @@ export class AddEditMapprefDialogComponent {
         this.mapGridCtr?.setValue(this.listDefaultMapPref[0].grid_enabled);
         this.snapToGridCtr?.setValue(this.listDefaultMapPref[0].grid_snap);
         this.gridSpacingCtr?.setValue(this.listDefaultMapPref[0].grid_spacing);
+        this.mapImageSizeCtr?.setValue(this.listDefaultMapPref[0].scale_image);
       }
     });
     this.selectIcons$ = this.store.select(selectIcons).subscribe((data: any) => {
@@ -161,6 +163,7 @@ export class AddEditMapprefDialogComponent {
   get mapGridCtr() { return this.mapPrefForm.get('mapGridCtr') }
   get snapToGridCtr() { return this.mapPrefForm.get('snapToGridCtr') }
   get gridSpacingCtr() { return this.mapPrefForm.get('gridSpacingCtr') }
+  get mapImageSizeCtr() { return this.mapPrefForm.get('mapImageSizeCtr') }
 
   onCancel() {
     this.dialogRef.close();
@@ -191,6 +194,7 @@ export class AddEditMapprefDialogComponent {
       default_icon: this.defaultIconCtr?.value.name,
       edge_arrow_direction: this.edgeArrowDirectionCtr?.value,
       edge_arrow_size: this.edgeArrowSizeCtr?.value,
+      scale_image: this.mapImageSizeCtr?.value
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.mapPrefService.add(jsonData).subscribe({
@@ -230,6 +234,7 @@ export class AddEditMapprefDialogComponent {
       default_icon: this.defaultIconCtr?.value.name,
       edge_arrow_direction: this.edgeArrowDirectionCtr?.value,
       edge_arrow_size: this.edgeArrowSizeCtr?.value,
+      scale_image: this.mapImageSizeCtr?.value
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.mapPrefService.put(this.data.genData.id, jsonData).subscribe({
@@ -306,5 +311,6 @@ export class AddEditMapprefDialogComponent {
     this.mapGridCtr?.setValue(this.data.genData.grid_enabled);
     this.snapToGridCtr?.setValue(this.data.genData.grid_snap);
     this.gridSpacingCtr?.setValue(this.data.genData.grid_spacing);
+    this.mapImageSizeCtr?.setValue(this.data.genData.scale_image)
   }
 }

@@ -208,6 +208,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
     const newGBOpacity = this.selectedMapPref.group_box_opacity;
     const newGBBorderType = this.selectedMapPref.group_box_border;
     const newGBBorderColor = this.selectedMapPref.group_box_border_color;
+    const newMapImageSize = this.selectedMapPref.scale_image;
     this.ur.do("changTextColor", { activeEles, newTextColor });
     this.ur.do("changeTextSize", { activeEles, newTextSize });
     this.ur.do("changeTextBGColor", { activeEles, newTextBGColor });
@@ -225,6 +226,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
     this.ur.do("changeGBOpacity", { activeGBs: this.activeGBs, newGBOpacity });
     this.ur.do("changeGBType", { activeGBs: this.activeGBs, newGBBorderType });
     this.ur.do("changeGBBorderColor", { activeGBs: this.activeGBs, newGBBorderColor });
+    this.ur.do("changeMapImageSize", { activeMBs: this.activeMBs, newMapImageSize });
     this.store.dispatch(retrievedMapSelection({ data: true }));
   }
 

@@ -26,7 +26,6 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
   rowsSelected: any[] = [];
   rowsSelectedId: any[] = [];
   status = 'delete';
-  isLoading = false;
   isSubmitBtnDisabled: boolean = true;
   private gridApi!: GridApi;
   private selectProjects$ = new Subscription();
@@ -131,17 +130,15 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
           pk: this.rowsSelectedId,
         }
         if (result) {
-          this.isLoading = true;
           this.projectService.permanentDeteleProject(jsonData).subscribe({
             next: (rest) => {
               this.toastr.success(`Permanent delete Project successfully`);
               this.projectService.getProjectByStatus(this.status).subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
-              this.isLoading = false;
               this.clearRowSelected();
             },
             error: (error) => {
               this.toastr.error(`Error while Permanent delete Project`);
-              this.isLoading = false;
+
             }
           })
         }

@@ -167,6 +167,10 @@
       <label class="label">Edge Arrow Size</label>
       <mat-slider class="slider" formControlName="edgeArrowSizeCtr" step="1" min="0" max="50"></mat-slider>
     </div>
+    <div class="tab-field">
+      <label class="label">Map Image Size</label>
+      <mat-slider class="slider" formControlName="mapImageSizeCtr" step="1" min="20" max="200"></mat-slider>
+    </div>
   </div>
   <div mat-dialog-actions [align]="'end'" class="create-btn">
     <button mat-raised-button type="button" (click)="onCancel()">{{data.mode === 'view' ? 'Close' : 'Cancel'}}</button>

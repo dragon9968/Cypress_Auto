@@ -119,7 +119,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.isAdmin = this.router.url === this.projectAdminUrl
     if (this.router.url === this.templatePageUrl) {
       this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(templateData => {
-        this.rowData$ = of(templateData)
+        this.processUpdateChangedByField(templateData);
       });
     } else if (this.router.url === this.projectPageUrl) {
       this.selectProjects$ = this.store.select(selectProjects)
@@ -132,33 +132,14 @@ export class ProjectComponent implements OnInit, OnDestroy {
             if (shareProject) {
               filteredProjectsByUserId = [...filteredProjectsByUserId, ...shareProject];
             }
-            this.userService.getAll().subscribe(userData => {
-              this.listUsers = userData.result;
-              let projectData = filteredProjectsByUserId.map((item) => {
-                const fullName = this.listUsers.filter(val => item.changed_by_fk === val.id)[0]
-                const changedByValue = fullName.first_name + ' ' + fullName.last_name;
-                return Object.assign({}, item, {changed_by: changedByValue})
-              })
-            
-              if (this.gridApi) {
-                this.gridApi.setRowData(projectData);
-              } else {
-                this.rowData$ = of(projectData);
-              }
-              this.updateRow();
-            });
+            this.processUpdateChangedByField(filteredProjectsByUserId);
           })
         }
       });
     } else {
       this.selectAllProjects$ = this.store.select(selectAllProjects).subscribe((data: any) => {
         if (data) {
-          if (this.gridApi) {
-            this.gridApi.setRowData(data);
-          } else {
-            this.rowData$ = of(data);
-          }
-          this.updateRow();
+          this.processUpdateChangedByField(data);
         }
       })
     }
@@ -306,6 +287,24 @@ export class ProjectComponent implements OnInit, OnDestroy {
       }
       this.dialog.open(ExportProjectDialogComponent, { autoFocus: false, width: '400px', data: dialogData });
     }
+  }
+
+  processUpdateChangedByField(data: any) {
+    this.userService.getAll().subscribe(userData => {
+      this.listUsers = userData.result;
+      let projectData = data.map((item: any) => {
+        const fullName = this.listUsers.filter(val => item.changed_by_fk === val.id)[0]
+        const changedByValue = fullName.first_name + ' ' + fullName.last_name;
+        return Object.assign({}, item, {changed_by: changedByValue})
+      })
+    
+      if (this.gridApi) {
+        this.gridApi.setRowData(projectData);
+      } else {
+        this.rowData$ = of(projectData);
+      }
+      this.updateRow();
+    });
   }
 
 }
