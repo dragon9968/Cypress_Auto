@@ -56,7 +56,8 @@
     </div>
     <div class="tab-field">
       <label class="label">Group Box Opacity</label>
-      <mat-slider class="slider" formControlName="gbOpacity" step="0.01" min="0" max="1"></mat-slider>
+      <mat-slider class="slider" formControlName="gbOpacity" step="0.01" min="0" max="1" (change)="setGroupBoxOpacity($event)"></mat-slider>
+      <label>{{ textGBOpacityLabel }}%</label>
     </div>
     <mat-form-field class="field">
       <mat-label>Group Box Border</mat-label>
@@ -77,8 +78,9 @@
     <div class="tab-field">
       <label class="label">Port Group Size</label>
       <div>
-        <mat-slider class="slider" formControlName="pgSizeCtr" step="1" min="0" max="100"></mat-slider>
+        <mat-slider class="slider" formControlName="pgSizeCtr" step="1" min="0" max="100" (change)="setPgSize($event)"></mat-slider>
       </div>
+      <label>{{ textPGSizeLabel }}px</label>
     </div>
     <div class="tab-field">
       <label class="label" for="edgeColor">Edge Color </label>
@@ -87,15 +89,18 @@
     </div>
     <div class="tab-field">
       <label class="label">Edge Width</label>
-      <mat-slider class="slider" formControlName="edgeWidthCtr" step="1" min="0" max="100"></mat-slider>
+      <mat-slider class="slider" formControlName="edgeWidthCtr" step="1" min="0" max="100" (change)="setEdgeWidth($event)"></mat-slider>
+      <label>{{ textEdgeWidthLabel }}px</label>
     </div>
     <div class="tab-field">
       <label class="label">Node Size</label>
-      <mat-slider class="slider" formControlName="nodeSizeCtr" step="1" min="0" max="100"></mat-slider>
+      <mat-slider class="slider" formControlName="nodeSizeCtr" step="1" min="0" max="100" (change)="setNodeSize($event)"></mat-slider>
+      <label>{{ textNodeSizeLabel }}px</label>
     </div>
     <div class="tab-field">
       <label class="label">Text Size</label>
-      <mat-slider class="slider" formControlName="textSizeCtr" step="1" min="0" max="100"></mat-slider>
+      <mat-slider class="slider" formControlName="textSizeCtr" step="1" min="0" max="100" (change)="setTextSize($event)"></mat-slider>
+      <label>{{ textSizeLabel }}px</label>
     </div>
     <div class="tab-field">
       <label class="label" for="textColor">Text Color </label>
@@ -123,7 +128,8 @@
     </div>
     <div class="tab-field">
       <label class="label">Text Background Opacity</label>
-      <mat-slider class="slider" formControlName="textBgOpacityCtr" step="0.01" min="0" max="1"></mat-slider>
+      <mat-slider class="slider" formControlName="textBgOpacityCtr" step="0.01" min="0" max="1" (change)="setTextBGOpacity($event)"></mat-slider>
+      <label>{{ textBGOpacityLabel }}%</label>
     </div>
     <div class="tab-field">
       <label class="label">Map Grid</label>
@@ -131,7 +137,8 @@
     </div>
     <div class="tab-field">
       <label class="label">Grid Spacing</label>
-      <mat-slider class="slider" formControlName="gridSpacingCtr" step="1" min="50" max="250"></mat-slider>
+      <mat-slider class="slider" formControlName="gridSpacingCtr" step="1" min="50" max="250" (change)="setGridSpacing($event)"></mat-slider>
+      <label>{{ textGridSpacingLabel }}px</label>
     </div>
     <div class="checkbox">
       <label class="label">Snap to Grid</label>
@@ -165,11 +172,13 @@
     </mat-form-field>
     <div class="tab-field">
       <label class="label">Edge Arrow Size</label>
-      <mat-slider class="slider" formControlName="edgeArrowSizeCtr" step="1" min="0" max="50"></mat-slider>
+      <mat-slider class="slider" formControlName="edgeArrowSizeCtr" step="1" min="0" max="50" (change)="setEdgeArrowSize($event)"></mat-slider>
+      <label>{{ textEdgeArrowSizeLabel }}px</label>
     </div>
     <div class="tab-field">
       <label class="label">Map Image Size</label>
-      <mat-slider class="slider" formControlName="mapImageSizeCtr" step="1" min="20" max="200"></mat-slider>
+      <mat-slider class="slider" formControlName="mapImageSizeCtr" step="1" min="20" max="200" (change)="setMapImageSize($event)"></mat-slider>
+      <label>{{ textMapImageSizeLabel }}%</label>
     </div>
   </div>
   <div mat-dialog-actions [align]="'end'" class="create-btn">

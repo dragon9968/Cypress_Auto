@@ -30,6 +30,15 @@ export class AddEditMapprefDialogComponent {
   isViewMode = false;
   gbColor = '#000000';
   groupBoxOpacity = 0.2;
+  textGBOpacityLabel = 0;
+  textPGSizeLabel: any;
+  textEdgeWidthLabel: any;
+  textNodeSizeLabel: any;
+  textSizeLabel: any;
+  textBGOpacityLabel: any;
+  textGridSpacingLabel: any;
+  textEdgeArrowSizeLabel: any;
+  textMapImageSizeLabel: any;
   gbBorderColor = '#000000';
   pgColor = '#000000';
   edgeColor = '#000000';
@@ -122,6 +131,7 @@ export class AddEditMapprefDialogComponent {
         this.snapToGridCtr?.setValue(this.listDefaultMapPref[0].grid_snap);
         this.gridSpacingCtr?.setValue(this.listDefaultMapPref[0].grid_spacing);
         this.mapImageSizeCtr?.setValue(this.listDefaultMapPref[0].scale_image);
+        this._setPropertiesCommon(this.listDefaultMapPref[0]);
       }
     });
     this.selectIcons$ = this.store.select(selectIcons).subscribe((data: any) => {
@@ -167,6 +177,18 @@ export class AddEditMapprefDialogComponent {
 
   onCancel() {
     this.dialogRef.close();
+  }
+
+  private _setPropertiesCommon(data: any) {
+    this.textGBOpacityLabel = data.group_box_opacity ? Math.round(data.group_box_opacity * 100) : 0;
+    this.textPGSizeLabel = data.port_group_size;
+    this.textEdgeWidthLabel = data.edge_width;
+    this.textNodeSizeLabel = data.node_size;
+    this.textSizeLabel = data.text_size;
+    this.textBGOpacityLabel = data.text_bg_opacity ? Math.round(data.text_bg_opacity * 100) : 0;
+    this.textEdgeArrowSizeLabel = data.edge_arrow_size;
+    this.textGridSpacingLabel = data.grid_spacing;
+    this.textMapImageSizeLabel = data.scale_image;
   }
 
   addMapPref() {
@@ -254,8 +276,40 @@ export class AddEditMapprefDialogComponent {
     this.gbColor = event;
   }
 
-  setGroupBoxOpacity(event: any) {
-    this.groupBoxOpacity = event;
+  setGroupBoxOpacity(size: any) {
+    this.textGBOpacityLabel = size.value ? Math.round(size.value * 100) : 0;
+  }
+
+  setPgSize(size: any) {
+    this.textPGSizeLabel = size.value;
+  }
+
+  setEdgeWidth(size: any) {
+    this.textEdgeWidthLabel = size.value;
+  }
+
+  setNodeSize(size: any) {
+    this.textNodeSizeLabel = size.value;
+  }
+
+  setTextSize(size: any) {
+    this.textSizeLabel = size.value;
+  }
+
+  setTextBGOpacity(size: any) {
+    this.textBGOpacityLabel = size.value ? Math.round(size.value * 100) : 0;
+  }
+
+  setGridSpacing(size: any) {
+    this.textGridSpacingLabel = size.value;
+  }
+
+  setEdgeArrowSize(size: any) {
+    this.textEdgeArrowSizeLabel = size.value;
+  }
+
+  setMapImageSize(size: any) {
+    this.textMapImageSizeLabel = size.value;
   }
 
   setGbBorderColor(event: any) {
@@ -311,6 +365,7 @@ export class AddEditMapprefDialogComponent {
     this.mapGridCtr?.setValue(this.data.genData.grid_enabled);
     this.snapToGridCtr?.setValue(this.data.genData.grid_snap);
     this.gridSpacingCtr?.setValue(this.data.genData.grid_spacing);
-    this.mapImageSizeCtr?.setValue(this.data.genData.scale_image)
+    this.mapImageSizeCtr?.setValue(this.data.genData.scale_image);
+    this._setPropertiesCommon(this.data.genData);
   }
 }
