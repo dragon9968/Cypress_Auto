@@ -32,7 +32,7 @@
             <mat-label>Add Configuration Type</mat-label>
             <input matInput placeholder="Select a add type"
                    formControlName="addTypeCtr"
-                   [matAutocomplete]="autoActionsAdd">
+                   [matAutocomplete]="autoActionsAdd" [readonly]="isViewMode">
             <mat-autocomplete #autoActionsAdd="matAutocomplete" [displayWith]="helpersService.optionDisplay"
                               (optionSelected)="selectAddType($event)">
               <mat-option *ngFor="let addType of filteredAddActions | async" [value]="addType">
@@ -42,10 +42,10 @@
             <mat-error *ngIf="addTypeCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
             <mat-error *ngIf="addTypeCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
           </mat-form-field>
-          <button mat-raised-button type="submit" color="primary" class="btn-show-form" [disabled]="actionsAddForm.invalid">
+          <button mat-raised-button type="submit" color="primary" class="btn-show-form" [disabled]="actionsAddForm.invalid || data.mode != 'update'">
             Show Form
           </button>
-          <button mat-raised-button type="button" color="primary" [disabled]="actionsAddForm.invalid" (click)="hideAddForm()">
+          <button mat-raised-button type="button" color="primary" [disabled]="actionsAddForm.invalid || data.mode != 'update'" (click)="hideAddForm()">
             <mat-icon>cancel</mat-icon>
           </button>
         </form>
@@ -130,7 +130,7 @@
                 <mat-form-field class="fw-form--field">
                   <mat-label>Source Port</mat-label>
                   <mat-select formControlName="sourcePortCtr" (selectionChange)="onChangeSourcePort($event)">
-                    <mat-option *ngFor="let option of PORT" [value]="option.id"> {{ option.name }}</mat-option>
+                    <mat-option *ngFor="let option of PORT" [value]="option.name"> {{ option.name }}</mat-option>
                   </mat-select>
                 </mat-form-field>
                 <mat-form-field class="fw-form--field">
@@ -146,7 +146,7 @@
                 <mat-form-field class="fw-form--field">
                   <mat-label>Destination Port</mat-label>
                   <mat-select formControlName="destinationPortCtr" (selectionChange)="onChangeDestinationPort($event)"  >
-                    <mat-option *ngFor="let option of PORT" [value]="option.id"> {{ option.name }}</mat-option>
+                    <mat-option *ngFor="let option of PORT" [value]="option.name"> {{ option.name }}</mat-option>
                   </mat-select>
                 </mat-form-field>
                 <mat-form-field class="fw-form--field">

@@ -116,6 +116,13 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
         }
         this.configTemplateService.getNodeDefaultConfiguration(data).subscribe(res => {
           this.defaultConfig = res.configuration;
+          this.defaultConfig.firewall_rule = this.defaultConfig.firewall_rule.map(({action, category, destination, destination_port, ...obj}: any) => ({
+            action: action,
+            category: category,
+            destination: destination,
+            dest_port: destination_port,
+            ...obj,
+          })) 
           this.editor.value = JSON.stringify(this.defaultConfig, null, 2);
         })
       }, 0)
