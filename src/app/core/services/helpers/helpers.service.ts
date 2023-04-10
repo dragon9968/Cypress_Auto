@@ -19,6 +19,7 @@ import {
 } from "../../../store/server-connect/server-connect.actions";
 import { ServerConnectService } from "../server-connect/server-connect.service";
 import { retrievedProjects } from "../../../store/project/project.actions";
+import { PortGroupService } from "../portgroup/portgroup.service";
 
 @Injectable({
   providedIn: 'root'
@@ -41,7 +42,8 @@ export class HelpersService implements OnDestroy {
   constructor(private store: Store,
               private toastr: ToastrService,
               private domSanitizer: DomSanitizer,
-              private serverConnectionService: ServerConnectService) {
+              private serverConnectionService: ServerConnectService,
+              private portGroupService: PortGroupService) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
         this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
@@ -909,6 +911,22 @@ export class HelpersService implements OnDestroy {
     } else {
       this.store.dispatch(retrievedNodes({ data: newNodes.concat(newNode) }));
     }
+  }
+
+  updatePGOnMap(cy: any, portGroupId: any) {
+    this.portGroupService.get(portGroupId).subscribe(response => {
+      const data = response.result;
+      const ele = cy.getElementById(`pg-${data.id}`);
+      ele.data('name', data.name);
+      ele.data('vlan', data.vlan);
+      ele.data('category', data.category);
+      ele.data('subnet_allocation', data.subnet_allocation);
+      ele.data('subnet', data.subnet);
+      ele.data('groups', data.groups);
+      ele.data('domain', data.domain);
+      ele.data('domain_id', data.domain_id);
+      ele.data('interfaces', data.interfaces);
+    })
   }
 
   removeNodesInStorage(nodeIds: any[]) {

@@ -125,6 +125,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
     ele.data('groups', data.groups);
     ele.data('domain', data.domain);
     ele.data('domain_id', data.domain_id);
+    ele.data('interfaces', data.interfaces);
   }
 
   onSubnetAllocationChange($event: MatRadioChange) {

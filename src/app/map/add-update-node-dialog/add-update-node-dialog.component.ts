@@ -307,6 +307,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     ele.data('hostname', data.hostname);
     ele.data('login_profile_id', data.login_profile_id);
     ele.data('login_profile_show', data.login_profile_show);
+    ele.data('login_profile', data.login_profile?.name);
     ele.data('configs', data.configs);
     ele.data('configuration_show', data.configuration_show);
     ele.data('groups', data.groups);

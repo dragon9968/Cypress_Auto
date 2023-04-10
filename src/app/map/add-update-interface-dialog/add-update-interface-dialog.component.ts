@@ -18,6 +18,7 @@ import { InfoPanelService } from "../../core/services/info-panel/info-panel.serv
 import { retrievedInterfacesManagement } from "../../store/interface/interface.actions";
 import { ProjectService } from "../../project/services/project.service";
 import { selectMapOption } from "../../store/map-option/map-option.selectors";
+import { PortGroupService } from "../../core/services/portgroup/portgroup.service";
 
 @Component({
   selector: 'app-add-update-interface-dialog',
@@ -48,7 +49,8 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     public helpers: HelpersService,
     private projectService: ProjectService,
     private interfaceService: InterfaceService,
-    private infoPanelService: InfoPanelService
+    private infoPanelService: InfoPanelService,
+    private portGroupService: PortGroupService
   ) {
     this.interfaceAddForm = new FormGroup({
       orderCtr: new FormControl('',[Validators.required, Validators.pattern('^[0-9]*$')]),
@@ -216,6 +218,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         cyData.color = cyData.logical_map_style.color;
         this.helpers.addCYEdge(this.data.cy, { ...newEdgeData, ...cyData });
         this._showOrHideArrowDirectionOnEdge(cyData.id)
+        this.helpers.updatePGOnMap(this.data.cy, portGroupId)
       }
       this.toastr.success('Edge details added!');
       this.dialogRef.close();

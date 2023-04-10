@@ -74,6 +74,9 @@ export class InfoPanelNodeComponent implements OnDestroy {
         if (ele.data('hardware')?.serial_number) {
           ele.data('hardware', ele.data('hardware')?.serial_number)
         }
+        if (ele.data('login_profile')?.name) {
+          ele.data('login_profile', ele.data('login_profile')?.name)
+        }
         return ele.data();
       })
       if (this.gridApi != null) {
@@ -159,9 +162,8 @@ export class InfoPanelNodeComponent implements OnDestroy {
         flex: 1
       },
       {
-        field: 'login_profile_show',
+        field: 'login_profile',
         headerName: 'Login Profile',
-        cellRenderer: (param: any) => param.value,
         minWidth: 120,
         flex: 1
       },
