@@ -1,20 +1,16 @@
 import { Store } from "@ngrx/store";
 import { ToastrService } from "ngx-toastr";
-import { FormControl, FormGroup } from "@angular/forms";
+import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Observable, Subscription, throwError } from "rxjs";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { HelpersService } from "../../../../core/services/helpers/helpers.service";
 import { ProjectService } from "../../../../project/services/project.service";
 import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
-import {
-  retrievedIsConfiguratorConnect,
-  retrievedIsHypervisorConnect,
-  retrievedIsDatasourceConnect
-} from "../../../../store/server-connect/server-connect.actions";
 import { retrievedVMStatus } from "../../../../store/project/project.actions";
 import { selectServerConnects } from "../../../../store/server-connect/server-connect.selectors";
-import { RemoteCategories } from "../../../../core/enums/remote-categories.enum";
+import { ErrorMessages } from "../../../../shared/enums/error-messages.enum";
+import { autoCompleteValidator } from "../../../../shared/validations/auto-complete.validation";
 
 @Component({
   selector: 'app-server-connect-dialog',
@@ -28,6 +24,7 @@ export class ServerConnectDialogComponent implements OnInit, OnDestroy {
   collectionId!: number;
   filteredServerConnect!: Observable<any[]>;
   connectionServerName = '';
+  errorMessages = ErrorMessages;
 
   constructor(
     private store: Store,
@@ -48,11 +45,13 @@ export class ServerConnectDialogComponent implements OnInit, OnDestroy {
     });
   }
 
-  get serverConnectCtr() { return this.serverConnectForm.get('serverConnectCtr'); };
+  get serverConnectCtr() { return this.helpers.getAutoCompleteCtr(this.serverConnectForm.get('serverConnectCtr'), this.serverConnect); };
 
   ngOnInit(): void {
     this.collectionId = this.projectService.getCollectionId();
+    this.helpers.setAutoCompleteValue(this.serverConnectCtr, this.serverConnect, this.serverConnect[0].id);
     this.serverConnectCtr?.setValue(this.serverConnect[0]);
+    this.serverConnectCtr?.setValidators([Validators.required, autoCompleteValidator(this.serverConnect)])
   }
 
   ngOnDestroy(): void {

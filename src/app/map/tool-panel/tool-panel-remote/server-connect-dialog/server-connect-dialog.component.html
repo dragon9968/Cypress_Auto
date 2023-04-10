@@ -9,6 +9,8 @@
           {{ option.name }}
         </mat-option>
       </mat-autocomplete>
+      <mat-error *ngIf="serverConnectCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="serverConnectCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
     </mat-form-field>
   </div>
   <div mat-dialog-actions [align]="'end'">
