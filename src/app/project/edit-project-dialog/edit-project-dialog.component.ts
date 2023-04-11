@@ -53,7 +53,6 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
   filteredListUser!: Observable<any[]>;
   usersData!: any[];
   listShared: any[] = [];
-  isLoading = false;
   status = 'active';
   defaultColDef: ColDef = {
     sortable: true,
@@ -112,9 +111,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
     this.rowData = this.data.genData.networks
-    const accessToken = this.authService.getAccessToken();
-    const accessTokenPayload = this.helpers.decodeToken(accessToken);
-    const userId = accessTokenPayload.sub;
+    const userId = this.authService.getUserId();
     this.userService.getAll().subscribe(data => {
       data.result.forEach((u: any) => u.full_name = u.first_name + ' ' + u.last_name);
       this.listUser = data.result.filter((value: any) => value.id != userId)

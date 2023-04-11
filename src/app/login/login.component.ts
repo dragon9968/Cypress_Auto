@@ -56,6 +56,9 @@ export class LoginComponent implements OnInit {
                 if (this.projectService.getCollectionId()) {
                   this.localStorageService.removeItem(LocalStorageKeys.COLLECTION_ID);
                 }
+                if (this.authService.getUserId()) {
+                    this.localStorageService.removeItem(LocalStorageKeys.USER_ID);
+                }
                 this.authService.updateAccessToken(token.access_token);
                 this.authService.updateRefreshToken(token.refresh_token);
                 this.rolesService.getRolesUser().subscribe(response => {

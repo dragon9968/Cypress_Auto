@@ -113,9 +113,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     private helpersService: HelpersService,
     private userService: UserService,
   ) {
-    const accessToken = this.authService.getAccessToken();
-    const accessTokenPayload = this.helpersService.decodeToken(accessToken);
-    const userId = accessTokenPayload.sub;
+    const userId = this.authService.getUserId();
     this.isAdmin = this.router.url === this.projectAdminUrl
     if (this.router.url === this.templatePageUrl) {
       this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(templateData => {

@@ -6,7 +6,6 @@ import { ProjectService } from "../project/services/project.service";
 import { selectProjects, selectRecentProjects } from "../store/project/project.selectors";
 import { retrievedProjectName, retrievedProjects, retrievedRecentProjects } from "../store/project/project.actions";
 import { AuthService } from "../core/services/auth/auth.service";
-import { HelpersService } from "../core/services/helpers/helpers.service";
 import { ToastrService } from "ngx-toastr";
 import { Router } from "@angular/router";
 import { ImportProjectDialogComponent } from 'src/app/project/import-project-dialog/import-project-dialog.component';
@@ -27,16 +26,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   listProject: any[] = [];
   constructor(
     private authService: AuthService,
-    private helpersService: HelpersService,
     private store: Store,
     private projectService: ProjectService,
     private toastr: ToastrService,
     private router: Router,
     private dialog: MatDialog,
   ) {
-    const accessToken = this.authService.getAccessToken();
-    const accessTokenPayload = this.helpersService.decodeToken(accessToken);
-    const userId = accessTokenPayload.sub;
+    const userId = this.authService.getUserId();
     this.selectRecentProjects = this.store.select(selectRecentProjects).subscribe(recentProjects => {
       if (recentProjects) {
         this.recentProjects = recentProjects;

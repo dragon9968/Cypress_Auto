@@ -5,4 +5,5 @@ export type LocalStorageData = {
   [LocalStorageKeys.REFRESH_TOKEN]: string;
   [LocalStorageKeys.CONNECTIONS]: string;
   [LocalStorageKeys.COLLECTION_ID]: string;
+  [LocalStorageKeys.USER_ID]: string;
 };

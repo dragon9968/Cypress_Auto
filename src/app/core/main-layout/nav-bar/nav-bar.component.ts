@@ -73,6 +73,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   collectionId: any;
   projectName: any;
   username: any;
+  userId: any;
   categoryProject: any;
   isSmallScreen!: boolean;
   selectProjects$ = new Subscription();
@@ -100,36 +101,26 @@ export class NavBarComponent implements OnInit, OnDestroy {
     this.iconRegistry.addSvgIcon('disconnected', this.helpersService.setIconPath('/assets/icons/nav/disconnected.svg'));
     const accessToken = this.authService.getAccessToken();
     const accessTokenPayload = this.helpersService.decodeToken(accessToken);
-    const userId = accessTokenPayload.sub;
+    this.userId = accessTokenPayload.sub;
+    this.authService.updateUserId(this.userId)
     this.selectIsMapOpen$ = this.store.select(selectIsMapOpen).subscribe((isMapOpen: boolean) => {
       this.isMapOpen = isMapOpen;
       if (isMapOpen) {
         this.searchByInterval();
       }
     });
-    this.selectProjects$ = this.store.select(selectProjects)
-      .subscribe((data) => {
-        if (data) {
-          this.projectService.getShareProject('active', 'project').subscribe((resp: any) => {
-            const shareProject = resp.result;
-            this.listProject = data.filter((val: any) => val.created_by_fk === userId);
-            if (shareProject) {
-              this.listProject = [...this.listProject, ...shareProject];
-            }
-          })
-        }
-      });
     this.selectIsOpen$ = this.store.select(selectIsOpen).subscribe(isOpen => {
       this.isOpen = isOpen;
       if (isOpen) {
         this.collectionId = this.projectService.getCollectionId();
         this.projectService.get(this.collectionId).subscribe(projectData => {
           this.categoryProject = projectData.result.category
-          const pk = projectData.result.share.map((val: any) => val.id)
-          if (projectData.result.created_by_fk != userId && !pk.includes(userId) && this.router.url === '/map') {
+          const sharedProjectId = projectData.result.share.map((val: any) => val.id)
+          if (projectData.result.created_by_fk != this.userId && !sharedProjectId.includes(this.userId) && this.router.url === '/map') {
             this.toastr.warning(`The user is not the owner of project ${projectData.result.name}. Cannot open the project ${projectData.result.name}`);
+            this.projectService.closeProject();
             this.store.dispatch(retrievedProjectName({ projectName: undefined }));
-            // this.store.dispatch(retrievedIsOpen({ data: false }));
+            this.store.dispatch(retrievedIsOpen({ data: false }));
             this.router.navigate([RouteSegments.PROJECTS]);
           } else {
             this.store.dispatch(retrievedProjectName({ projectName: projectData.result.name }));
@@ -365,14 +356,27 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   openProject(collectionId: string) {
-    const listProjectId = this.listProject.map(val => val.id)
-    if (listProjectId.includes(collectionId)) {
-      this.projectService.openProject(collectionId);
-    } else {
-      this.store.dispatch(retrievedProjectName({ projectName: undefined }));
-      this.toastr.warning(`The user is not the owner of project. Cannot open the project`)
-      this.router.navigate([RouteSegments.PROJECTS])
-    }
+    this.projectService.getProjectByStatus(this.status).subscribe((data: any) => {
+      if (data.result) {
+          this.projectService.getShareProject('active', 'project').subscribe((resp: any) => {
+            const shareProject = resp.result;
+            this.listProject = data.result.filter((val: any) => val.created_by_fk === this.userId);
+            if (shareProject) {
+              this.listProject = [...this.listProject, ...shareProject];
+            }
+            const listProjectId = this.listProject.map(val => val.id)
+            if (listProjectId.includes(collectionId)) {
+              this.projectService.openProject(collectionId);
+            } else {
+              this.projectService.closeProject();
+              this.store.dispatch(retrievedProjectName({ projectName: undefined }));
+              this.store.dispatch(retrievedIsOpen({ data: false }));
+              this.toastr.warning(`The user is not the owner of project. Cannot open the project`)
+              this.router.navigate([RouteSegments.PROJECTS])
+            }
+          })
+        }
+    });
   }
 
   validateProject() {

@@ -68,6 +68,14 @@ export class AuthService {
     return this.localStorageService.getItem(LocalStorageKeys.REFRESH_TOKEN);
   }
 
+  updateUserId(userId: string) {
+    return this.localStorageService.setItem(LocalStorageKeys.USER_ID, userId);
+  }
+
+  getUserId(): any {
+    return this.localStorageService.getItem(LocalStorageKeys.USER_ID);
+  }
+
   isLoggedIn(): boolean {
     const accessToken = this.getAccessToken();
     return accessToken != null;
@@ -114,6 +122,7 @@ export class AuthService {
     this.localStorageService.removeItem(LocalStorageKeys.ACCESS_TOKEN);
     this.localStorageService.removeItem(LocalStorageKeys.REFRESH_TOKEN);
     this.localStorageService.removeItem(LocalStorageKeys.CONNECTIONS);
+    this.localStorageService.removeItem(LocalStorageKeys.USER_ID);
   }
 
 }

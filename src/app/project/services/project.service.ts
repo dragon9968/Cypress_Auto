@@ -20,7 +20,7 @@ export class ProjectService {
     private router: Router,
     private http: HttpClient,
     private localStorageService: LocalStorageService,
-    private helpersService: HelpersService
+    private helpersService: HelpersService,
   ) { }
 
   getAll(): Observable<any> {

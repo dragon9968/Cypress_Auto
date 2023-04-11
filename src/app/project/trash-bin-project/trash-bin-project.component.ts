@@ -7,7 +7,6 @@ import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, Observable, of, Subscription, throwError } from 'rxjs';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
-import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { retrievedProjects } from 'src/app/store/project/project.actions';
 import { selectProjects } from 'src/app/store/project/project.selectors';
@@ -54,13 +53,10 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private toastr: ToastrService,
     private authService: AuthService,
-    private helpersService: HelpersService,
   ) {
+    const userId = this.authService.getUserId();
     this.selectProjects$ = this.store.select(selectProjects)
       .subscribe((data: any) => {
-        const accessToken = this.authService.getAccessToken();
-        const accessTokenPayload = this.helpersService.decodeToken(accessToken);
-        const userId = accessTokenPayload.sub;
         const filteredProjectsByUserId = data?.filter((val: any) => val.created_by_fk === userId);
         this.rowData$ = of(filteredProjectsByUserId);
       });
