@@ -1088,7 +1088,20 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       domain_id: genData.domain_id,
       hostname: genData.hostname,
       collection_id: this.collectionId,
-      logical_map_position: newNodePosition
+      logical_map_position: newNodePosition,
+      logical_map_style: {
+        "height": this.selectedMapPref.node_size,
+        "width": this.selectedMapPref.node_size,
+        "text_size": this.selectedMapPref.text_size,
+        "text_color": this.selectedMapPref.text_color,
+        "text_halign": this.selectedMapPref.text_halign,
+        "text_valign": this.selectedMapPref.text_valign,
+        "text_bg_color": this.selectedMapPref.text_bg_color,
+        "text_bg_opacity": this.selectedMapPref.text_bg_opacity,
+        "background-color": "rgb(255,255,255)",
+        "background-image": "",
+        "background-fit": "contain"
+      },
     };
     this.nodeService.add(jsonData).pipe(
       catchError((resp: any) => {
@@ -1150,7 +1163,18 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       subnet_allocation: genData.subnet_allocation,
       subnet: genData.subnet,
       collection_id: this.collectionId,
-      logical_map_position: newNodePosition
+      logical_map_position: newNodePosition,
+      logical_map_style: {
+        "height": this.selectedMapPref.port_group_size,
+        "width": this.selectedMapPref.port_group_size,
+        "color": this.selectedMapPref.port_group_color,
+        "text_size": this.selectedMapPref.text_size,
+        "text_color": this.selectedMapPref.text_color,
+        "text_halign": this.selectedMapPref.text_halign,
+        "text_valign": this.selectedMapPref.text_valign,
+        "text_bg_color": this.selectedMapPref.text_bg_color,
+        "text_bg_opacity": this.selectedMapPref.text_bg_opacity,
+      },
     };
     this.portgroupService.add(jsonData).subscribe((respData: any) => {
       this.portgroupService.get(respData.id).subscribe(respData => {
