@@ -130,7 +130,7 @@
                 <mat-form-field class="fw-form--field">
                   <mat-label>Source Port</mat-label>
                   <mat-select formControlName="sourcePortCtr" (selectionChange)="onChangeSourcePort($event)">
-                    <mat-option *ngFor="let option of PORT" [value]="option.name"> {{ option.name }}</mat-option>
+                    <mat-option *ngFor="let option of PORT" [value]="option.id"> {{ option.name }}</mat-option>
                   </mat-select>
                 </mat-form-field>
                 <mat-form-field class="fw-form--field">
@@ -146,7 +146,7 @@
                 <mat-form-field class="fw-form--field">
                   <mat-label>Destination Port</mat-label>
                   <mat-select formControlName="destinationPortCtr" (selectionChange)="onChangeDestinationPort($event)"  >
-                    <mat-option *ngFor="let option of PORT" [value]="option.name"> {{ option.name }}</mat-option>
+                    <mat-option *ngFor="let option of PORT" [value]="option.id"> {{ option.name }}</mat-option>
                   </mat-select>
                 </mat-form-field>
                 <mat-form-field class="fw-form--field">
