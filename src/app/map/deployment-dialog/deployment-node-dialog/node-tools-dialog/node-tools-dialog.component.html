@@ -1,8 +1,8 @@
-<form [formGroup]="nodeToolsForm" (ngSubmit)="goNodeTool()">
+<form [formGroup]="nodeToolsForm" (ngSubmit)="goNodeTool()" autocomplete="off">
   <h1 mat-dialog-title>{{ isPingTest ? "Ping Test Form" : "Shell Command Form" }}</h1>
   <mat-dialog-content>
     <mat-form-field class="field">
-      <input type="text" matInput formControlName="loginProfileCtr" placeholder="Assign a login profile" [matAutocomplete]="autoLoginProfile">
+      <input autocomplete="off" id="node-tool-loginprofile" type="text" matInput formControlName="loginProfileCtr" placeholder="Assign a login profile" [matAutocomplete]="autoLoginProfile">
       <mat-autocomplete #autoLoginProfile="matAutocomplete" [displayWith]="helpersService.optionDisplay">
         <mat-option *ngFor="let option of filteredLoginProfiles | async" [value]="option" style="height: 60px !important;">
           <div class="login-profiles-option-text">
@@ -16,12 +16,12 @@
     </mat-form-field>
     <mat-form-field *ngIf="isPingTest" class="field">
       <mat-label>Remote Host</mat-label>
-      <input type="text" matInput formControlName="remoteHostCtr" placeholder="Please input a remote host">
+      <input autocomplete="off" id="node-tool-host" type="text" matInput formControlName="remoteHostCtr" placeholder="Please input a remote host">
       <mat-error *ngIf="remoteHostCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
     <mat-form-field *ngIf="!isPingTest" class="field">
       <mat-label>Command</mat-label>
-      <input type="text" matInput formControlName="shellCommandCtr" placeholder="Please input a command">
+      <input autocomplete="off" id="node-tool-command" type="text" matInput formControlName="shellCommandCtr" placeholder="Please input a command">
       <mat-error *ngIf="shellCommandCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
   </mat-dialog-content>

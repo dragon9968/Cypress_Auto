@@ -1,4 +1,4 @@
-<form [formGroup]="mapPrefForm" (ngSubmit)="data.mode === 'add' ? addMapPref() : updateMapPref()">
+<form [formGroup]="mapPrefForm" (ngSubmit)="data.mode === 'add' ? addMapPref() : updateMapPref()" autocomplete="off">
   <div class="dialog-title">
     <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add New Preferences' : data.mode === 'update' ? 'Edit Map Preferences'
       : 'Map Preference Detail' }}</h1>
@@ -11,7 +11,7 @@
   <div mat-dialog-content *ngIf="data.mode === 'view'">
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
-      <input disableAutoFill type="text" formControlName="name" matInput [readonly]="isViewMode">
+      <input autocomplete="off" id="mappref-name" type="text" formControlName="name" matInput [readonly]="isViewMode">
     </mat-form-field>
     <div class="tab-field" disabled>
       <label class="label">Group Box Defaults</label>

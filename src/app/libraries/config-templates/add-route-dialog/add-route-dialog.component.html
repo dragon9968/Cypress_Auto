@@ -3,17 +3,17 @@
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Route</mat-label>
-      <input disableAutoFill type="text" formControlName="routeCtr" matInput>
+      <input  type="text" formControlName="routeCtr" matInput>
       <mat-error *ngIf="routeCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Next Hop</mat-label>
-      <input disableAutoFill type="text" formControlName="nextHopCtr" matInput>
+      <input  type="text" formControlName="nextHopCtr" matInput>
       <mat-error *ngIf="nextHopCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Interface</mat-label>
-      <input disableAutoFill type="text" formControlName="interfaceCtr" matInput>
+      <input  type="text" formControlName="interfaceCtr" matInput>
       <mat-error *ngIf="interfaceCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
   </div>

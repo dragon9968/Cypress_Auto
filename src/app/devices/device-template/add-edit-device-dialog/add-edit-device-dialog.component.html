@@ -1,9 +1,9 @@
-<form [formGroup]="deviceForm" (ngSubmit)="data.mode === 'add' ? addDevice() : updateDevice()">
+<form [formGroup]="deviceForm" (ngSubmit)="data.mode === 'add' ? addDevice() : updateDevice()" autocomplete="off">
   <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Device' : 'Update Device'}}</h1>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
-      <input disableAutoFill type="text" formControlName="name" matInput>
+      <input autocomplete="off" id="device-name" type="text" formControlName="name" matInput>
       <mat-error *ngIf="name?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="name?.errors?.isExist">{{ errorMessages.NAME_EXISTS }}</mat-error>
     </mat-form-field>
@@ -19,7 +19,7 @@
 
     <mat-form-field class="field">
       <mat-label>Icon</mat-label>
-      <input disableAutoFill matInput type="text" [formControl]="icon" [matAutocomplete]="autoIcon">
+      <input autocomplete="off" id="device-icon" matInput type="text" [formControl]="icon" [matAutocomplete]="autoIcon">
       <mat-autocomplete #autoIcon="matAutocomplete" [displayWith]="helpers.optionDisplay">
         <mat-option *ngFor="let option of filteredIcons | async" [value]="option">
           <div class="option-text">

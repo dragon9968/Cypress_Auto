@@ -1,9 +1,9 @@
-<form [formGroup]="createNodeSnapshotForm" (ngSubmit)="create()">
+<form [formGroup]="createNodeSnapshotForm" (ngSubmit)="create()" autocomplete="off">
   <h1 mat-dialog-title>Create Snapshot Form</h1>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
-      <input matInput formControlName="nameCtr">
+      <input autocomplete="off" id="create-nodesnapshot-name"  matInput formControlName="nameCtr">
     </mat-form-field>
   </div>
   <div mat-dialog-actions [align]="'end'">

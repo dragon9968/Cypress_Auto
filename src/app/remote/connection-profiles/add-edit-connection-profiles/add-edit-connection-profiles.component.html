@@ -1,4 +1,4 @@
-<form [formGroup]="connectionForm" (ngSubmit)="data.mode === 'add' ? addServerConnect() : updateServerConnect()">
+<form [formGroup]="connectionForm" (ngSubmit)="data.mode === 'add' ? addServerConnect() : updateServerConnect()" autocomplete="off">
   <div class="dialog-title">
     <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add connection Profile' : data.mode === 'update' ? 'Edit Connection Profile' : 'Connection Detail' }}</h1>
     <ng-template [ngxPermissionsOnly]="['can_write on Settings']">
@@ -15,7 +15,7 @@
     <section>
       <mat-form-field class="field">
         <mat-label>Name</mat-label>
-        <input disableAutoFill type="text" formControlName="name" matInput>
+        <input autocomplete="off" id="connection-name" type="text" formControlName="name" matInput>
       </mat-form-field>
       <mat-form-field class="field">
         <mat-label>Category</mat-label>
@@ -35,7 +35,7 @@
       <div class="hint">
         <mat-form-field class="field">
           <mat-label>Server</mat-label>
-          <input type="text" formControlName="server" matInput>
+          <input autocomplete="off" id="connection-server" type="text" formControlName="server" matInput>
           <mat-hint *ngIf="data.mode !== 'view'" align="start"><strong>IP address or FQDN of hypervisor</strong></mat-hint>
           <mat-error *ngIf="server?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
         </mat-form-field>
@@ -43,21 +43,21 @@
       <!-- <div *ngIf="data.mode === 'view'">
         <mat-form-field class="field">
           <mat-label>Cert File</mat-label>
-          <input disableAutoFill type="text" formControlName="certFile" matInput>
+          <input  type="text" formControlName="certFile" matInput>
         </mat-form-field>
       </div> -->
       <div [hidden]="isHiddenField">
         <mat-form-field class="field">
           <mat-label>Datacenter</mat-label>
-          <input disableAutoFill type="text" formControlName="dataCenter" matInput>
+          <input autocomplete="off" id="connection-datacenter" type="text" formControlName="dataCenter" matInput>
         </mat-form-field>
         <mat-form-field class="field">
           <mat-label>Cluster</mat-label>
-          <input type="text" formControlName="cluster" matInput>
+          <input autocomplete="off" id="connection-cluster" type="text" formControlName="cluster" matInput>
         </mat-form-field>
         <mat-form-field class="field">
           <mat-label>Data Store</mat-label>
-          <input disableAutoFill type="text" formControlName="dataStore" matInput>
+          <input autocomplete="off" id="connection-datastore" type="text" formControlName="dataStore" matInput>
         </mat-form-field>
         <div class="checkbox-field">
           <label>Datastore Cluster</label>
@@ -66,7 +66,7 @@
         <div class="hint">
           <mat-form-field class="field">
             <mat-label>Switch</mat-label>
-            <input disableAutoFill type="text" formControlName="switch" matInput>
+            <input autocomplete="off" id="connection-switch" type="text" formControlName="switch" matInput>
             <mat-hint *ngIf="data.mode !== 'view'" align="start"></mat-hint>
           </mat-form-field>
         </div>
@@ -80,17 +80,17 @@
         <div class="hint">
           <mat-form-field class="field">
             <mat-label>VM Management Network</mat-label>
-            <input type="text" formControlName="managementNetwork" matInput>
+            <input autocomplete="off" id="connection-management-network" type="text" formControlName="managementNetwork" matInput>
             <mat-hint *ngIf="data.mode !== 'view'" align="start"></mat-hint>
           </mat-form-field>
         </div>
         <mat-form-field class="field">
           <mat-label>Version</mat-label>
-          <input disableAutoFill type="text" formControlName="version" matInput>
+          <input autocomplete="off" id="connection-version" type="text" formControlName="version" matInput>
         </mat-form-field>
         <mat-form-field class="field">
           <mat-label>UUID</mat-label>
-          <input disableAutoFill type="text" formControlName="uuid" matInput>
+          <input autocomplete="off" id="connection-uuid" type="text" formControlName="uuid" matInput>
         </mat-form-field>
       </div>
       <!-- <div [hidden]="!isHiddenField">
@@ -98,7 +98,7 @@
           <label class="label-cert-file" for="file">Cert File</label>
           <div class="input-cert-file">
             <div [hidden]="isHiddenDeleteButton">
-              <input disableAutoFill class="show_file" type="text" formControlName="certFile" matInput>
+              <input  class="show_file" type="text" formControlName="certFile" matInput>
               <mat-checkbox class="delete_file" (change)="onSelectChangeDelete($event)">Delete</mat-checkbox>
             </div>
             <input class="file" formControlName="file" type="file" name='file' (change)="onFileSelected($event)">
@@ -113,7 +113,7 @@
     <section>
       <mat-form-field class="field">
         <mat-label>ID</mat-label>
-        <input disableAutoFill type="text" formControlName="username" matInput>
+        <input autocomplete="off" id="connection-username" type="text" formControlName="username" matInput>
         <mat-error *ngIf="username?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       </mat-form-field>
       <div *ngIf="data.mode !== 'view'">

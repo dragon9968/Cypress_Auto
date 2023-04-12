@@ -5,7 +5,7 @@
       <div class="section-sub">
         <mat-form-field class="fields">
           <mat-label>Name</mat-label>
-          <input type="text" formControlName="nameCtr" matInput required>
+          <input autocomplete="off" id="editproject-name" type="text" formControlName="nameCtr" matInput required>
           <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
           <mat-error *ngIf="nameCtr?.errors?.minlength || nameCtr?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH_50
             }}</mat-error>
@@ -13,7 +13,7 @@
         </mat-form-field>
         <mat-form-field class="fields">
           <mat-label>Description</mat-label>
-          <input formControlName="descriptionCtr" type="text" matInput>
+          <input autocomplete="off" id="editproject-description" formControlName="descriptionCtr" type="text" matInput>
         </mat-form-field>
         <div [hidden]="categoryCtr?.value != 'project'">
           <mat-form-field class="fields">
@@ -25,7 +25,7 @@
                   <mat-icon>cancel</mat-icon>
                 </button>
               </mat-chip>
-              <input matInput type="text" placeholder="Select Value" [formControl]="sharedCtr"
+              <input autocomplete="off" id="editproject-shared" matInput type="text" placeholder="Select Value" [formControl]="sharedCtr"
                 [matAutocomplete]="autoOption" [matChipInputFor]="chipList">
             </mat-chip-list>
             <mat-autocomplete #autoOption="matAutocomplete" [displayWith]="helpers.optionDisplay"
@@ -40,13 +40,13 @@
       <div class="section-sub">
         <mat-form-field class="fields">
           <mat-label>Min VLAN</mat-label>
-          <input formControlName="minVlanCtr" type="number" (keypress)="numericOnly($event)" matInput>
+          <input autocomplete="off" id="editproject-minvlan" formControlName="minVlanCtr" type="number" (keypress)="numericOnly($event)" matInput>
           <mat-error *ngIf="minVlanCtr?.hasError('min') || minVlanCtr?.hasError('max') || minVlanCtr?.errors?.required">{{
             errorMessages.MIN_MAX_VALUE_1_4093 }}</mat-error>
         </mat-form-field>
         <mat-form-field class="fields">
           <mat-label>Max VLAN</mat-label>
-          <input formControlName="maxVlanCtr" type="number" (keypress)="numericOnly($event)" matInput>
+          <input autocomplete="off" id="editproject-maxvlan" formControlName="maxVlanCtr" type="number" (keypress)="numericOnly($event)" matInput>
           <mat-error *ngIf="maxVlanCtr?.hasError('min') || maxVlanCtr?.hasError('max') || maxVlanCtr?.errors?.required">{{
             errorMessages.MIN_MAX_VALUE_2_4094 }}</mat-error>
         </mat-form-field>

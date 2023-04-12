@@ -1,9 +1,9 @@
-<form [formGroup]="nodeBulkEditForm" (ngSubmit)="updateNodeBulk()">
+<form [formGroup]="nodeBulkEditForm" (ngSubmit)="updateNodeBulk()" autocomplete="off">
   <h1 mat-dialog-title>Node Bulk Edit Form</h1>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Icon</mat-label>
-      <input matInput type="text" placeholder="Select an icon" formControlName="iconCtr" [matAutocomplete]="autoIcon">
+      <input autocomplete="off" id="nodebulk-icon" matInput type="text" placeholder="Select an icon" formControlName="iconCtr" [matAutocomplete]="autoIcon">
       <mat-autocomplete #autoIcon="matAutocomplete" [displayWith]="helpers.optionDisplay">
         <mat-option *ngFor="let option of filteredIcons | async" [value]="option">
           <div class="option-text">
@@ -16,7 +16,7 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Device</mat-label>
-      <input matInput type="text" placeholder="Select a device" formControlName="deviceCtr"
+      <input autocomplete="off" id="nodebulk-device" matInput type="text" placeholder="Select a device" formControlName="deviceCtr"
              [matAutocomplete]="autoDevice">
       <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="helpers.optionDisplay"
                         (optionSelected)="selectDevice($event)">
@@ -31,7 +31,7 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Template</mat-label>
-      <input matInput type="text" placeholder="Select a template" formControlName="templateCtr"
+      <input autocomplete="off" id="nodebulk-template" matInput type="text" placeholder="Select a template" formControlName="templateCtr"
              [matAutocomplete]="autoTemplate">
       <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helpers.templateDisplay">
         <mat-option *ngFor="let option of filteredTemplates | async" [value]="option">
@@ -45,7 +45,7 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Domain</mat-label>
-      <input matInput type="text" placeholder="Select a domain" formControlName="domainCtr"
+      <input autocomplete="off" id="nodebulk-domain" matInput type="text" placeholder="Select a domain" formControlName="domainCtr"
              [matAutocomplete]="autoDomain">
       <mat-autocomplete #autoDomain="matAutocomplete" [displayWith]="helpers.optionDisplay">
         <mat-option *ngFor="let option of filteredDomains | async" [value]="option">
@@ -56,15 +56,15 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Folder</mat-label>
-      <input matInput formControlName="folderCtr">
+      <input autocomplete="off" id="nodebulk-folder" matInput formControlName="folderCtr">
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Parent Folder</mat-label>
-      <input matInput formControlName="parentFolderCtr">
+      <input autocomplete="off" id="nodebulk-parentfolder" matInput formControlName="parentFolderCtr">
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Role</mat-label>
-      <input matInput type="text" placeholder="Select a role" formControlName="roleCtr" [matAutocomplete]="autoRole">
+      <input autocomplete="off" id="nodebulk-role" matInput type="text" placeholder="Select a role" formControlName="roleCtr" [matAutocomplete]="autoRole">
       <mat-autocomplete #autoRole="matAutocomplete" [displayWith]="helpers.optionDisplay">
         <mat-option *ngFor="let option of filteredRoles | async" [value]="option">
           {{ option.name }}
@@ -83,7 +83,7 @@
     </ng-select>
     <mat-form-field class="field">
       <mat-label>Login Profile</mat-label>
-      <input matInput type="text" placeholder="Assign a login profile" formControlName="loginProfileCtr"
+      <input autocomplete="off" id="nodebulk-loginprofile" matInput type="text" placeholder="Assign a login profile" formControlName="loginProfileCtr"
              [matAutocomplete]="autoLoginProfile">
       <mat-autocomplete #autoLoginProfile="matAutocomplete" [displayWith]="helpers.optionDisplay">
         <mat-option class="login-profiles-option" *ngFor="let option of filteredLoginProfiles | async" [value]="option" height="80">

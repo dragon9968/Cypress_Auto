@@ -1,4 +1,4 @@
-<form [formGroup]="appPrefForm" (ngSubmit)="editAppPref()">
+<form [formGroup]="appPrefForm" (ngSubmit)="editAppPref()" autocomplete="off">
   <h1 mat-dialog-title>App Preferences</h1>
   <div mat-dialog-content>
     <!-- <section>
@@ -32,14 +32,14 @@
     <section>
       <mat-form-field class="field">
         <mat-label>Public Network</mat-label>
-        <input  disableAutoFill type="text" matInput formControlName="publicNetworkCtr">
+        <input autocomplete="off" id="apppref-public-network" type="text" matInput formControlName="publicNetworkCtr">
         <mat-hint>Set default network space for public network</mat-hint>
         <mat-error *ngIf="publicNetworkCtr?.errors?.isNotMatchIP">{{ publicNetworkCtr?.errors?.value }}</mat-error>
         <mat-error *ngIf="publicNetworkCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       </mat-form-field>
       <mat-form-field class="field">
         <mat-label>Public Network Reserved IPs</mat-label>
-        <input disableAutoFill type="text" matInput formControlName="publicNetworkIPsCtr">
+        <input autocomplete="off" id="apppref-public-networkips" type="text" matInput formControlName="publicNetworkIPsCtr">
         <mat-error *ngIf="publicNetworkIPsCtr?.errors?.isNotMatch">{{ errorMessages.IP_IN_NETWORK }}</mat-error>
         <mat-error *ngIf="publicNetworkIPsCtr?.errors?.isNotMatchIP">{{ publicNetworkIPsCtr?.errors?.value }}</mat-error>
       </mat-form-field>
@@ -51,14 +51,14 @@
     <section>
       <mat-form-field class="field">
         <mat-label>Private Network</mat-label>
-        <input disableAutoFill type="text" matInput formControlName="privateNetworkCtr">
+        <input autocomplete="off" id="apppref-private-network" type="text" matInput formControlName="privateNetworkCtr">
         <mat-hint>Set default network space for private network</mat-hint>
         <mat-error *ngIf="privateNetworkCtr?.errors?.isNotMatchIP">{{ privateNetworkCtr?.errors?.value }}</mat-error>
         <mat-error *ngIf="privateNetworkCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       </mat-form-field>
       <mat-form-field class="field">
         <mat-label>Private Network Reserved IPs</mat-label>
-        <input disableAutoFill type="text" matInput formControlName="privateNetworkIPsCtr">
+        <input autocomplete="off" id="apppref-private-networkips" type="text" matInput formControlName="privateNetworkIPsCtr">
         <mat-error *ngIf="privateNetworkIPsCtr?.errors?.isNotMatch">{{ errorMessages.IP_IN_NETWORK }}</mat-error>
         <mat-error *ngIf="privateNetworkIPsCtr?.errors?.isNotMatchIP">{{ privateNetworkIPsCtr?.errors?.value }}</mat-error>
       </mat-form-field>
@@ -70,20 +70,20 @@
     <section>
       <mat-form-field class="field">
         <mat-label>Management Network</mat-label>
-        <input disableAutoFill type="text" matInput formControlName="managementNetworkCtr">
+        <input autocomplete="off" id="apppref-management-network" type="text" matInput formControlName="managementNetworkCtr">
         <mat-hint>Set default network space for management network</mat-hint>
         <mat-error *ngIf="managementNetworkCtr?.errors?.isNotMatchIP">{{ managementNetworkCtr?.errors?.value }}</mat-error>
         <mat-error *ngIf="managementNetworkCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       </mat-form-field>
       <mat-form-field class="field">
         <mat-label>Management Network Reserved IPs</mat-label>
-        <input disableAutoFill type="text" matInput formControlName="managementNetworkIPsCtr">
+        <input autocomplete="off" id="apppref-management-networkips" type="text" matInput formControlName="managementNetworkIPsCtr">
         <mat-error *ngIf="managementNetworkIPsCtr?.errors?.isNotMatch">{{ errorMessages.IP_IN_NETWORK }}</mat-error>
         <mat-error *ngIf="managementNetworkIPsCtr?.errors?.isNotMatchIP">{{ managementNetworkIPsCtr?.errors?.value }}</mat-error>
       </mat-form-field>
       <mat-form-field class="field">
         <mat-label>DHCP Server</mat-label>
-        <input disableAutoFill type="text" matInput formControlName="dhcpServerCtr">
+        <input autocomplete="off" id="apppref-dhcp" type="text" matInput formControlName="dhcpServerCtr">
         <mat-hint>DHCP lease file path</mat-hint>
       </mat-form-field>
     </section>

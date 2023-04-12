@@ -1,8 +1,9 @@
-<form [formGroup]="deleteNodeDeployForm" (ngSubmit)="deleteNodeDeployed()">
+<form [formGroup]="deleteNodeDeployForm" (ngSubmit)="deleteNodeDeployed()" autocomplete="off" >
   <h1 mat-dialog-title>Delete node from remote server {{ connection.name}}?</h1>
   <mat-dialog-content>
     <mat-form-field class="field">
       <input
+        autocomplete="off" id="delete-deploy-loginprofile" 
         matInput
         type="text"
         formControlName="loginProfileCtr"

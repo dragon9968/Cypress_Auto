@@ -1,9 +1,9 @@
-<form [formGroup]="interfaceBulkEditForm" (ngSubmit)="updateInterfaceBulk()">
+<form [formGroup]="interfaceBulkEditForm" (ngSubmit)="updateInterfaceBulk()" autocomplete="off">
   <h1 mat-dialog-title>Interface Bulk Edit Form</h1>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Status</mat-label>
-      <input matInput type="text" placeholder="Select a status" formControlName="statusCtr"
+      <input autocomplete="off" id="interfacebulk-status" matInput type="text" placeholder="Select a status" formControlName="statusCtr"
              [matAutocomplete]="autoStatus">
       <mat-autocomplete #autoStatus="matAutocomplete"
                         [displayWith]="helpers.optionDisplay">
@@ -14,7 +14,7 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Direction</mat-label>
-      <input matInput type="text" placeholder="Select a direction" formControlName="directionCtr"
+      <input autocomplete="off" id="interfacebulk-direction" matInput type="text" placeholder="Select a direction" formControlName="directionCtr"
              [matAutocomplete]="autoDirection">
       <mat-autocomplete #autoDirection="matAutocomplete" [displayWith]="helpers.optionDisplay">
         <mat-option *ngFor="let option of filteredDirections | async" [value]="option">
@@ -33,11 +33,11 @@
     </div>
     <mat-form-field class="field">
       <mat-label>DNS Server</mat-label>
-      <input matInput type="text" formControlName="dnsServerCtr">
+      <input autocomplete="off" id="interfacebulk-server" matInput type="text" formControlName="dnsServerCtr">
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Gateway</mat-label>
-      <input matInput type="text" formControlName="gatewayCtr">
+      <input autocomplete="off" id="interfacebulk-gateway" matInput type="text" formControlName="gatewayCtr">
     </mat-form-field>
     <div class="field field-checkbox">
       <mat-checkbox formControlName="isGatewayCtr" labelPosition="before">Is Gateway</mat-checkbox>

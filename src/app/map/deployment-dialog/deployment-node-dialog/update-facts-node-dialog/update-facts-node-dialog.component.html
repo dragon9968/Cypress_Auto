@@ -1,9 +1,10 @@
-<form [formGroup]="updateFactsNodeForm" (ngSubmit)="updateFactsNode()">
+<form [formGroup]="updateFactsNodeForm" (ngSubmit)="updateFactsNode()" autocomplete="off">
   <h1 mat-dialog-title>Update facts node from remote server {{ connection.name }}?</h1>
   <mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Assign a login profile</mat-label>
       <input
+        autocomplete="off" id="factsnode-login-profile"
         matInput
         type="text"
         formControlName="loginProfileCtr"

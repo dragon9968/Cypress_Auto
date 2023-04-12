@@ -1,10 +1,10 @@
 <ng-template [ngxPermissionsOnly]="['can_write on Project']" [ngxPermissionsElse]="elseBlock">
   <section class="tab-section">
     <h4>Node</h4>
-    <form [formGroup]="nodeAddForm" (ngSubmit)="addNode()">
+    <form [formGroup]="nodeAddForm" (ngSubmit)="addNode()" autocomplete="off">
       <mat-form-field class="tab-select-field">
         <mat-label>Device</mat-label>
-        <input disableAutoFill matInput type="text" placeholder="Select Device" formControlName="deviceCtr" [matAutocomplete]="autoDevice"
+        <input autocomplete="off" id="toolpanel-device" matInput type="text" placeholder="Select Device" formControlName="deviceCtr" [matAutocomplete]="autoDevice"
 	  (change)="changeDevice()">
         <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="helpers.optionDisplay"
 	  (optionSelected)="selectDevice($event)">
@@ -20,7 +20,7 @@
       </mat-form-field>
       <mat-form-field class="tab-select-field">
         <mat-label>Template/Model</mat-label>
-        <input disableAutoFill matInput type="text" placeholder="Select Template/Model" formControlName="templateCtr"
+        <input autocomplete="off" id="toolpanel-template" matInput type="text" placeholder="Select Template/Model" formControlName="templateCtr"
 	  [matAutocomplete]="autoTemplate" (change)="changeTemplate()">
         <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helpers.templateDisplay"
 	  (optionSelected)="selectTemplate($event)">
@@ -70,10 +70,10 @@
   <section class="tab-section">
     <h4>Images</h4>
     <div>
-      <form [formGroup]="mapImageForm" (ngSubmit)="addImage()">
+      <form [formGroup]="mapImageForm" (ngSubmit)="addImage()" autocomplete="off">
       <mat-form-field class="inline-select-field">
         <mat-label>Image</mat-label>
-        <input disableAutoFill matInput type="text" placeholder="Select Image" [formControl]="mapImageCtr" [matAutocomplete]="autoImage">
+        <input autocomplete="off" id="toolpanel-image" matInput type="text" placeholder="Select Image" [formControl]="mapImageCtr" [matAutocomplete]="autoImage">
         <mat-autocomplete #autoImage="matAutocomplete" [displayWith]="helpers.optionDisplay" (optionSelected)="selectMapImage()">
 	        <mat-option *ngFor="let option of filteredMapImages | async" [value]="option"> {{ option.name }} </mat-option>
         </mat-autocomplete>
@@ -90,11 +90,11 @@
   <mat-divider></mat-divider>
   <section class="tab-section">
     <h4>Project</h4>
-    <form [formGroup]="linkProjectForm" (ngSubmit)="addProjectNode()">
+    <form [formGroup]="linkProjectForm" (ngSubmit)="addProjectNode()" autocomplete="off">
       <div>
         <mat-form-field class="inline-select-field">
 	  <mat-label>Link Project</mat-label>
-	  <input matInput
+	  <input matInput autocomplete="off" id="toolpanel-linkproject"
 	         placeholder="Select a project"
 	         formControlName="linkProjectCtr"
 	         [matAutocomplete]="autoProject"
@@ -124,10 +124,10 @@
     </form>
     
     <mat-divider></mat-divider>
-    <form [formGroup]="addTemplateForm" (ngSubmit)="addTemplate()">
+    <form [formGroup]="addTemplateForm" (ngSubmit)="addTemplate()" autocomplete="off">
       <mat-form-field class="tab-select-field">
         <mat-label>Template</mat-label>
-        <input matInput
+        <input autocomplete="off" id="toolpanel-linkproject" matInput
 	       placeholder="Select a template"
 	       formControlName="projectTemplateCtr"
 	       [matAutocomplete]="autoProjectTemplate"

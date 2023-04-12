@@ -1,4 +1,4 @@
-<form [formGroup]="nodeAddForm" (ngSubmit)="data.mode === 'add' ? addNode() : updateNode()">
+<form [formGroup]="nodeAddForm" (ngSubmit)="data.mode === 'add' ? addNode() : updateNode()" autocomplete="off">
   <div class="dialog-title">
     <h1 mat-dialog-title>{{data.mode === 'add' ? 'Node Add' : data.mode === 'update' ? 'Node Edit Form' : 'Node Info'}}</h1>
     <ng-template [ngxPermissionsOnly]="['can_write on Project']" [ngxPermissionsElse]="elseBlock">
@@ -19,7 +19,7 @@
           <div class="node__left__detail--top">
             <mat-form-field class="field">
               <mat-label>Name</mat-label>
-              <input matInput formControlName="nameCtr" [readonly]="isViewMode">
+              <input autocomplete="off" id="node-name" matInput formControlName="nameCtr" [readonly]="isViewMode">
               <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
               <mat-error *ngIf="nameCtr?.errors?.isExist">{{ errorMessages.NODE_NAME_EXIST }}</mat-error>
             </mat-form-field>
@@ -40,7 +40,7 @@
             <div class="node__left__detail--bottom__left">
               <mat-form-field class="field">
                 <mat-label>Icon</mat-label>
-                <input matInput type="text" placeholder="Select an icon" formControlName="iconCtr" [matAutocomplete]="autoIcon"
+                <input autocomplete="off" id="node-icon" matInput type="text" placeholder="Select an icon" formControlName="iconCtr" [matAutocomplete]="autoIcon"
                        [readonly]="isViewMode">
                 <mat-autocomplete #autoIcon="matAutocomplete" [displayWith]="helpers.optionDisplay">
                   <mat-option *ngFor="let option of filteredIcons | async" [value]="option">
@@ -55,7 +55,7 @@
               </mat-form-field>
               <mat-form-field class="field">
                 <mat-label>Device</mat-label>
-                <input matInput type="text" placeholder="Select a device" formControlName="deviceCtr"
+                <input autocomplete="off" id="node-device" matInput type="text" placeholder="Select a device" formControlName="deviceCtr"
                        [matAutocomplete]="autoDevice" [readonly]="isViewMode" (change)="changeDevice()">
                 <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="helpers.optionDisplay"
                                   (optionSelected)="selectDevice($event)">
@@ -72,7 +72,7 @@
               </mat-form-field>
               <mat-form-field class="field">
                 <mat-label>Hardware</mat-label>
-                <input matInput type="text" placeholder="Select a hardware" formControlName="hardwareCtr"
+                <input autocomplete="off" id="node-hardware" matInput type="text" placeholder="Select a hardware" formControlName="hardwareCtr"
                        [matAutocomplete]="autoHardware" [readonly]="isViewMode">
                 <mat-autocomplete #autoHardware="matAutocomplete" [displayWith]="helpers.hardwareDisplay">
                   <mat-option *ngFor="let option of filteredHardwares | async" [value]="option" style="height: 60px !important;">
@@ -88,11 +88,11 @@
               </mat-form-field>
               <mat-form-field class="field">
                 <mat-label>Parent Folder</mat-label>
-                <input matInput formControlName="parentFolderCtr" [readonly]="isViewMode">
+                <input autocomplete="off" id="node-parent-folder" matInput formControlName="parentFolderCtr" [readonly]="isViewMode">
               </mat-form-field>
               <mat-form-field class="field">
                 <mat-label>Domain</mat-label>
-                <input matInput type="text" placeholder="Select a domain" formControlName="domainCtr"
+                <input autocomplete="off" id="node-domain" matInput type="text" placeholder="Select a domain" formControlName="domainCtr"
                        [matAutocomplete]="autoDomain" [readonly]="isViewMode">
                 <mat-autocomplete #autoDomain="matAutocomplete" [displayWith]="helpers.optionDisplay">
                   <mat-option *ngFor="let option of filteredDomains | async" [value]="option">
@@ -106,7 +106,7 @@
             <div class="node__left__detail--bottom__right">
               <mat-form-field class="field">
                 <mat-label>Role</mat-label>
-                <input matInput type="text" placeholder="Select a role" formControlName="roleCtr" [matAutocomplete]="autoRole"
+                <input autocomplete="off" id="node-role" matInput type="text" placeholder="Select a role" formControlName="roleCtr" [matAutocomplete]="autoRole"
                        [readonly]="isViewMode">
                 <mat-autocomplete #autoRole="matAutocomplete" [displayWith]="helpers.optionDisplay">
                   <mat-option *ngFor="let option of filteredRoles | async" [value]="option">
@@ -118,7 +118,7 @@
               </mat-form-field>
               <mat-form-field class="field">
                 <mat-label>Template</mat-label>
-                <input matInput type="text" placeholder="Select a template" formControlName="templateCtr"
+                <input autocomplete="off" id="node-template" matInput type="text" placeholder="Select a template" formControlName="templateCtr"
                        [matAutocomplete]="autoTemplate" [readonly]="isViewMode">
                 <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helpers.templateDisplay">
                   <mat-option *ngFor="let option of filteredTemplates | async" [value]="option">
@@ -134,7 +134,7 @@
               </mat-form-field>
               <mat-form-field class="field">
                 <mat-label>Login Profile</mat-label>
-                <input matInput type="text" placeholder="Assign a login profile" formControlName="loginProfileCtr"
+                <input autocomplete="off" id="node-login-profile" matInput type="text" placeholder="Assign a login profile" formControlName="loginProfileCtr"
                        [matAutocomplete]="autoLoginProfile" [readonly]="isViewMode">
                 <mat-autocomplete #autoLoginProfile="matAutocomplete" [displayWith]="helpers.optionDisplay">
                   <mat-option *ngFor="let option of filteredLoginProfiles | async" [value]="option" style="height: 60px !important;">
@@ -149,12 +149,12 @@
               </mat-form-field>
               <mat-form-field class="field">
                 <mat-label>Folder</mat-label>
-                <input matInput formControlName="folderCtr" [readonly]="isViewMode">
+                <input autocomplete="off" id="node-folder" matInput formControlName="folderCtr" [readonly]="isViewMode">
                 <mat-error *ngIf="folderCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
               </mat-form-field>
               <mat-form-field class="field">
                 <mat-label>Hostname</mat-label>
-                <input matInput formControlName="hostnameCtr" [readonly]="isViewMode" [errorStateMatcher]="errorMatcher">
+                <input autocomplete="off" id="node-hostname" matInput formControlName="hostnameCtr" [readonly]="isViewMode" [errorStateMatcher]="errorMatcher">
                 <mat-error *ngIf="hostnameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
                 <mat-error *ngIf="nodeAddForm.errors?.['isNotMatchLength']">{{ nodeAddForm.errors.message }}</mat-error>
                 <mat-error *ngIf="nodeAddForm.errors?.['isNotMatchPattern']">{{ nodeAddForm.errors.message }}</mat-error>

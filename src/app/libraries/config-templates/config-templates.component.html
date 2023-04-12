@@ -20,10 +20,12 @@
     <div class="table__nav--search">
       <input
         matInput
+        name="configsearch" id="search-config"
         type="search"
         [(ngModel)]="quickFilterValue"
         placeholder="Search..."
         (input)="onQuickFilterInput($event)"
+        
       >
     </div>
   </div>
