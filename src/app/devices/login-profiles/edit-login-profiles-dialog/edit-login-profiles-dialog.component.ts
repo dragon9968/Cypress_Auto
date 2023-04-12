@@ -40,6 +40,7 @@ export class EditLoginProfilesDialogComponent implements OnInit {
   get description() { return this.loginProfileEditForm.get('description') };
   get username() { return this.loginProfileEditForm.get('username') };
   get password() { return this.loginProfileEditForm.get('password') };
+  get updatePassword() { return this.loginProfileEditForm.get('updatePassword') };
   get category() { return this.loginProfileEditForm.get('category') };
   get extraArgs() { return this.loginProfileEditForm.get('extraArgs') };
 
@@ -49,7 +50,8 @@ export class EditLoginProfilesDialogComponent implements OnInit {
       name: [{ value: '', disabled: this.isViewMode }, [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
       description: [{ value: '', disabled: this.isViewMode }],
       username: [{ value: '', disabled: this.isViewMode }, Validators.required],
-      password: [{ value: '', disabled: this.isViewMode }, Validators.required],
+      password: [{ value: '', disabled: this.isViewMode }],
+      updatePassword: [{ value: '', disabled: this.isViewMode }],
       category: [{ value: 'local', disabled: this.isViewMode }],
       extraArgs: [{ value: '', disabled: this.isViewMode }],
     });
@@ -62,6 +64,9 @@ export class EditLoginProfilesDialogComponent implements OnInit {
       this.data.genData.extra_args.forEach((el: any) => {
         this.listExtraArgs.push(el);
       });
+    }
+    if (this.data.mode === 'add') {
+      this.password?.setValidators([Validators.required]);
     }
   }
 
@@ -120,7 +125,7 @@ export class EditLoginProfilesDialogComponent implements OnInit {
         name: this.name?.value,
         description: this.description?.value,
         username: this.username?.value,
-        password: this.password?.value,
+        update_password: this.updatePassword?.value,
         category: this.category?.value,
         extra_args: this.listExtraArgs
       }
@@ -139,7 +144,7 @@ export class EditLoginProfilesDialogComponent implements OnInit {
     this.name?.enable();
     this.description?.enable();
     this.username?.enable();
-    this.password?.enable();
+    this.updatePassword?.enable();
     this.category?.enable();
     this.extraArgs?.enable();
   }

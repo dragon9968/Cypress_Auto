@@ -25,10 +25,14 @@
       <input disableAutoFill type="text" formControlName="username" matInput [readonly]="isViewMode">
       <mat-error *ngIf="username?.hasError('required')">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
-    <mat-form-field class="field">
+    <mat-form-field *ngIf="data.mode != 'update'" class="field">
       <mat-label>Password</mat-label>
       <input disableAutoFill type="text" formControlName="password" matInput [readonly]="isViewMode">
       <mat-error *ngIf="username?.hasError('required')">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+    <mat-form-field *ngIf="data.mode == 'update'" class="field">
+      <mat-label>Update Password</mat-label>
+      <input disableAutoFill type="password" formControlName="updatePassword" matInput [readonly]="isViewMode">
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Category</mat-label>
