@@ -37,7 +37,7 @@
       </mat-form-field>
       <div class="tab-field">
         <mat-checkbox formControlName="isCustomizeNodeCtr">Customize</mat-checkbox>
-        <button mat-raised-button type="submit" color="primary" class="tab-field-btn" matTooltip="Add" [disabled]="isDisableAddNode || !nodeAddForm.valid ">
+        <button mat-raised-button data-cy="btn-add-node" type="submit" color="primary" class="tab-field-btn" matTooltip="Add" [disabled]="isDisableAddNode || !nodeAddForm.valid ">
 	  <mat-icon>add</mat-icon>
         </button>
       </div>
@@ -122,7 +122,7 @@
         </button>
       </div>
     </form>
-    
+
     <mat-divider></mat-divider>
     <form [formGroup]="addTemplateForm" (ngSubmit)="addTemplate()" autocomplete="off">
       <mat-form-field class="tab-select-field">
@@ -166,7 +166,7 @@
         <mat-icon>add</mat-icon>
       </button>
     </div>
-    
+
   </section>
   <mat-divider></mat-divider>
 </ng-template>

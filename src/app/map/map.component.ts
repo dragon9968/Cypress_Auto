@@ -75,7 +75,6 @@ import { ValidateProjectDialogComponent } from "../project/validate-project-dial
 import { selectProjects } from "../store/project/project.selectors";
 import { NgxPermissionsService } from "ngx-permissions";
 import { CMProjectNodeService } from "./context-menu/cm-project-node/cm-project-node.service";
-import { RemoteCategories } from "../core/enums/remote-categories.enum";
 import { MapLinkService } from "../core/services/map-link/map-link.service";
 
 const navigator = require('cytoscape-navigator');

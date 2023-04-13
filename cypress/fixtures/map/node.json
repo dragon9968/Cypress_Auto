@@ -1,0 +1,15 @@
+{
+  "name": "win-client-5-e2e",
+  "notes": "E2E - Create new node",
+  "icon_name": "Windows Client",
+  "category": "vm",
+  "device_name": "Windows Client",
+  "template_name": "Windows 10 21H2 x64",
+  "folder": "/e2e-folder",
+  "parent_folder": "E2E - New project 21",
+  "role": "windows_client",
+  "domain_id": 1,
+  "hostname": "linux-client-4",
+  "is_customize_node": true,
+  "logical_map_position": {"x": 300, "y": 300}
+}
