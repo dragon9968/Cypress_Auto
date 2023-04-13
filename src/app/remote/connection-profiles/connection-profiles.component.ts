@@ -31,6 +31,7 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
   rowData$!: Observable<any[]>;
   quickFilterValue = '';
   private selectServerConnect$ = new Subscription();
+  serverConnection: any[] = [];
   defaultColDef: ColDef = {
     sortable: true,
     resizable: true
@@ -58,14 +59,14 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
       headerName: 'Server',
       field: 'server',
     },
-    { 
+    {
       headerName: 'User ID',
-      field: 'username' 
+      field: 'username'
     },
     { field: 'version' },
-    { 
+    {
       headerName: "UUID",
-      field: 'uuid' 
+      field: 'uuid'
     },
   ];
   constructor(
@@ -78,6 +79,7 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
     private dialog: MatDialog,
   ) {
     this.selectServerConnect$ = this.store.select(selectServerConnects).subscribe((data: any) => {
+      this.serverConnection = data;
       if (this.gridApi) {
         this.gridApi.setRowData(data)
       } else {
@@ -148,13 +150,8 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
           return throwError(() => error);
         })
       ).subscribe(response => {
-        if (response) {
-          if (response.status_msg == "success") {
-            this.toastr.success(response.message, 'Success');
-          } else {
-            this.toastr.error(response.message, 'Error');
-          }
-        }
+        const pingTests = response.result;
+        this.updateConnectionStatusInStorage('ping_test', pingTests, this.serverConnection);
       });
     }
   }
@@ -165,17 +162,12 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
     } else {
       this.serverConnectService.loginCheck(this.rowsSelectedId).pipe(
         catchError(error => {
-          this.toastr.error('Login check failed', 'Error');
+          this.toastr.error('Login Check failed', 'Error');
           return throwError(() => error);
         })
       ).subscribe(response => {
-        if (response) {
-          if (response.status_msg == "success") {
-            this.toastr.success(response.message, 'Success');
-          } else {
-            this.toastr.error(response.message, 'Error');
-          }
-        }
+        const loginChecks = response.result;
+        this.updateConnectionStatusInStorage('login_check', loginChecks, this.serverConnection);
       });
     }
   }
@@ -294,5 +286,28 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
     this.rowsSelectedId = [];
     this.rowsSelected = [];
     this.id = undefined;
+  }
+
+  updateConnectionStatusInStorage(typeAction: string, newConnectionStatus: any[], currentConnections: any[]) {
+    const newServerConnections = JSON.parse(JSON.stringify(currentConnections))
+    newConnectionStatus.map((newConnection: any) => {
+      const connection = newServerConnections.find((connection: any) => connection.id === newConnection.id)
+      connection.status = newConnection.status
+      newServerConnections.splice(newServerConnections.indexOf(connection), 1, connection)
+      if (newConnection.status == 'Good') {
+        if (typeAction == 'ping_test') {
+          this.toastr.success(`${newConnection.msg}`, 'Success')
+        } else {
+          this.toastr.success(`Login Check for ${newConnection.name} successfully`, 'Success')
+        }
+      } else {
+        if (typeAction == 'ping_test') {
+          this.toastr.success(`${newConnection.msg}`, 'Error')
+        } else {
+          this.toastr.error(`Login Check for ${newConnection.name} failed`, 'Error')
+        }
+      }
+    })
+    this.store.dispatch(retrievedServerConnect({data: newServerConnections}))
   }
 }
