@@ -383,7 +383,7 @@ export class HelpersService implements OnDestroy {
   }
 
   addCYNodeAndEdge(cy: any, nodes: any[], edges: any[], newPosition: any = {x: 0, y: 0}, mapLinkId = undefined) {
-    // Draw new nodes from the project template into the current project.
+    // Draw new nodes from the other project into the current project.
     nodes.map((node: any) => {
       if (node.data.elem_category == 'node') {
         node.data.icon = environment.apiBaseUrl + node.data.icon;
@@ -398,7 +398,7 @@ export class HelpersService implements OnDestroy {
         nodeEle.move({ parent: `project-link-${mapLinkId}` });
       }
     })
-    // Draw new interfaces from the project template into the current project.
+    // Draw new interfaces from the other project into the current project.
     edges.map((edge: any) => {
       this.addCYEdge(cy, edge.data);
     })
@@ -447,7 +447,7 @@ export class HelpersService implements OnDestroy {
     const gbs = this.groupBoxes.filter((gb: any) => gb.data.group_category == this.groupCategoryId);
     cy.add(gbs);
     cy.nodes().forEach((ele: any) => {
-      if (!Boolean(ele.data('parent_id'))) {
+      if (!Boolean(ele.data('parent_id')) && ele.data('elem_category') != 'map_link') {
         const data = ele.data();
         if (data.elem_category != 'group') {
           const g = data.groups.filter((gb: any) => gb.category == this.groupCategoryId);

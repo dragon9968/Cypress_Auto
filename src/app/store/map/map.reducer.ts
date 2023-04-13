@@ -13,8 +13,7 @@ export const mapReducer = createReducer(
     defaultPreferences: data.map_properties.default_preferences,
     nodes: data.map_items.nodes,
     interfaces: data.map_items.interfaces,
-    groupBoxes: data.map_items.group_boxes,
-    mapBackgrounds: data.map_items.map_backgrounds,
+    groupBoxes: data.map_items.group_boxes
   })),
   on(retrievedIsMapOpen, (state, { data }) => ({
     ...state,

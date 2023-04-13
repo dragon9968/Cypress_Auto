@@ -122,7 +122,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   groupBoxes: any;
   icons!: any[];
   domains!: any[];
-  mapBackgrounds: any;
   mapProperties: any;
   defaultPreferences: any;
   config: any;
@@ -324,10 +323,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     })
     this.selectProjects$ = this.store.select(selectProjects).subscribe(projects => this.projects = projects);
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe(mapOption => {
-      if (mapOption != undefined) {
-        this.isEdgeDirectionChecked = mapOption.isEdgeDirectionChecked
-        this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked
-      }
+      this.isEdgeDirectionChecked = mapOption?.isEdgeDirectionChecked != undefined ? mapOption.isEdgeDirectionChecked : false;
+      this.isGroupBoxesChecked = mapOption?.isGroupBoxesChecked != undefined ? mapOption.isGroupBoxesChecked : false;
     })
   }
 
@@ -345,7 +342,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.nodes = map.nodes;
         this.interfaces = map.interfaces;
         this.groupBoxes = map.groupBoxes;
-        this.mapBackgrounds = map.mapBackgrounds;
         this.mapProperties = map.mapProperties;
         this.defaultPreferences = map.defaultPreferences;
         this._initCytoscape();
@@ -353,7 +349,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this._initContextMenu();
         this._initUndoRedo();
         this._initDataLinkProjects();
-        this._initCollapseExpandProjectNode();
+        this._initCollapseExpandMapLink();
       }
     });
   }
@@ -834,7 +830,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       info_panel: {
       },
       cdnd_enable_options: {
-        grabbedNode: (_node: any) => true,
+        grabbedNode: (_node: any) => !Boolean(_node.data('parent_id')),
         dropTarget: (_node: any) => {
           return this.isGroupBoxesChecked;
         },
@@ -846,9 +842,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     }
     this.styleExists = this.config.styleExists;
     this.cleared = this.config.cleared;
-    this.eles = JSON.parse(JSON.stringify(this.nodes
-      .concat(this.interfaces)
-      .concat(this.mapBackgrounds)));
+    this.eles = JSON.parse(JSON.stringify(this.nodes.concat(this.interfaces)));
     this.eles.forEach(ele => {
       ele.locked = ele.data.locked
       if (ele.data.elem_category == 'node' || ele.data.elem_category == 'map_link') {
@@ -903,12 +897,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   }
 
-  private _initCollapseExpandProjectNode() {
-    // Add parent for the elements related to the link project
-    const nodeRelatedLinkProject = this.cy.elements().filter((ele: any) =>
+  private _initCollapseExpandMapLink() {
+    // Add parent for the elements related to the map link
+    const nodeRelatedMapLink = this.cy.elements().filter((ele: any) =>
       (ele.group() == 'nodes' && ele.data('parent_id'))
     )
-    nodeRelatedLinkProject.forEach((node: any) => {
+    nodeRelatedMapLink.forEach((node: any) => {
       node.move({ parent: `project-link-${node.data('parent_id')}` });
     })
 
@@ -1660,14 +1654,14 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         }
         const nodeEle = this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...mapLinkData },  newNodePosition});
 
-        // Add collapse and expand event for new project node
+        // Add collapse and expand event for new map link project
         this.helpersService.collapseAndExpandMapLinkNodeEvent(nodeEle);
 
         // Update link projects storage
         this.helpersService.updateProjectLinksStorage(this.cy, [...this.projects]);
         this.toastr.success('Add project link successfully', 'Success');
 
-        // Add items in the link project into current project
+        // Add items in the map link project into current project
         this.addLinkProjectIntoCurrentProject(linkProjectId, newNodePosition, mapLinkData.map_link_id);
       })
     })
@@ -1750,22 +1744,20 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         cyData.text_size = cyData.logical_map_style.text_size;
         const newNodeData = {
           "label": "map_background",
-            "elem_category": "bg_image",
-            "new": true,
-            "updated": false,
-            "deleted": false,
-            "src": ICON_PATH + cyData.image.photo,
-            "zIndex": 998,
-            "width": width,
-            "height": height,
-            "locked": false,
-            "scale_image": 100,
-            "original_width": width,
-            "original_height": height,
+          "elem_category": "bg_image",
+          "new": true,
+          "updated": false,
+          "deleted": false,
+          "src": ICON_PATH + cyData.image.photo,
+          "zIndex": 998,
+          "width": width,
+          "height": height,
+          "locked": false,
+          "scale_image": 100,
+          "original_width": width,
+          "original_height": height,
         }
-        const nodeEle = this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData },  newNodePosition});
-        // Add collapse and expand event for new project node
-        this.helpersService.collapseAndExpandMapLinkNodeEvent(nodeEle);
+        this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData },  newNodePosition});
         this.toastr.success('Add map image successfully', 'Success');
       });
     });

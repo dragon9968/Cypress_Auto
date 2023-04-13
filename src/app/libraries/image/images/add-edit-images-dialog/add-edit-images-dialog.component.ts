@@ -4,7 +4,6 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
-import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { ImageService } from 'src/app/core/services/image/image.service';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
@@ -34,7 +33,6 @@ export class AddEditImagesDialogComponent implements OnInit {
     private imageService: ImageService,
     private toastr: ToastrService,
     private store: Store,
-    private helpersService: HelpersService,
     public dialogRef: MatDialogRef<AddEditImagesDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {

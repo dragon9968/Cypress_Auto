@@ -44,7 +44,6 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
   cleared: any;
   nodes: any[] = [];
   interfaces: any[] = [];
-  mapBackgrounds: any[] = [];
   defaultPreferences: any;
   dashboard: any;
   isMaximize = true;
@@ -109,7 +108,6 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
         if (map.defaultPreferences) {
           this.nodes = map.nodes;
           this.interfaces = map.interfaces;
-          this.mapBackgrounds = map.mapBackgrounds;
           this.defaultPreferences = map.defaultPreferences;
           this._initCytoscapeNetworkMap();
           if (this.connection && this.connection.id !== 0 && this.vmStatusChecked) {
@@ -142,9 +140,7 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
     }
     this.styleExists = this.config.styleExists;
     this.cleared = this.config.cleared;
-    this.eles = JSON.parse(JSON.stringify(this.nodes
-      .concat(this.interfaces)
-      .concat(this.mapBackgrounds)));
+    this.eles = JSON.parse(JSON.stringify(this.nodes.concat(this.interfaces)));
     this.eles.forEach((ele: any) => {
       ele.locked = ele.data.locked
       if (ele.data.elem_category == 'node') {

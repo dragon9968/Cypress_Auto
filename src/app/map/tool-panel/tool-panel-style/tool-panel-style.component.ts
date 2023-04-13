@@ -379,5 +379,6 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
     ele.position('x', +this.xCtr?.value);
     ele.position('y', +this.yCtr?.value);
     ele.data('updated', true);
+    this.toastr.success('Updated element\'s position on map successfully', 'Success');
   }
 }
