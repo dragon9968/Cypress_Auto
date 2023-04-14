@@ -14,6 +14,7 @@ import { AddEditIconDialogComponent } from './add-edit-icon-dialog/add-edit-icon
 import { PageEvent } from "@angular/material/paginator";
 import { catchError } from "rxjs/operators";
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { WIDTH_DIALOG } from 'src/app/shared/contants/image.constant';
 
 @Component({
   selector: 'app-icon-gallery',
@@ -122,7 +123,7 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
     }
     this.dialog.open(AddEditIconDialogComponent, {
       autoFocus: false,
-      width: '450px',
+      width: WIDTH_DIALOG,
       data: dialogData
     });
   }
@@ -138,7 +139,7 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
         }
         this.dialog.open(AddEditIconDialogComponent, {
           autoFocus: false,
-          width: '450px',
+          width: WIDTH_DIALOG,
           data: dialogData
         });
       });

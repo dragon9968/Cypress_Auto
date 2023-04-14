@@ -25,5 +25,6 @@ export enum ErrorMessages {
   VLAN_RANGE_VALUE_0_4095 = 'Must be greater than or equal to 0 and less than or equal to 4095',
   PDF_MD_FORMAT_FILE = 'PDF or Markdown file only!',
   MAIL_INVALID = 'This email in invalid',
-  IMAGE_FORMAT_FILE = 'The imported file is invalid, please import a file from a PNG, JPG/JPEG format'
+  IMAGE_FORMAT_FILE = 'The imported file is invalid, please import a file from a PNG, JPG/JPEG format',
+  IMAGE_SIZE = 'The uploaded file likely exceeded the maximum file size (5 MB)'
 }

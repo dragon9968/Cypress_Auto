@@ -8,6 +8,7 @@ import { ImageService } from 'src/app/core/services/image/image.service';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { validateInputFile } from 'src/app/shared/validations/format-file.validation';
+import { imageSizeValidator } from 'src/app/shared/validations/image-size.validation';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 import { retrievedImages } from 'src/app/store/map-image/map-image.actions';
 import { selectImages } from 'src/app/store/map-image/map-image.selectors';
@@ -98,12 +99,14 @@ export class AddEditImagesDialogComponent implements OnInit {
 
   onFileSelected(event: any): void {
     this.selectedFile = <File>event.target.files[0] ?? null;
-    if (event.target.files) {
-      var reader = new FileReader();
+    if (event.target.files[0]) {
+      let reader = new FileReader();
       reader.readAsDataURL(this.selectedFile)
       reader.onload = (e: any) => {
-        this.url = event.target.result;
-      }
+        this.url = e.target.result;
+        this.fileCtr?.setValidators([Validators.required, validateInputFile('png|jpg'), imageSizeValidator(this.selectedFile)]);
+        this.fileCtr?.updateValueAndValidity();
+        }
     }
   }
 

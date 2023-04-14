@@ -13,6 +13,7 @@ import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { retrievedImages } from 'src/app/store/map-image/map-image.actions';
 import { selectImages } from 'src/app/store/map-image/map-image.selectors';
 import { AddEditImagesDialogComponent } from './add-edit-images-dialog/add-edit-images-dialog.component';
+import { WIDTH_DIALOG } from 'src/app/shared/contants/image.constant';
 
 @Component({
   selector: 'app-images',
@@ -121,7 +122,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
     }
     this.dialog.open(AddEditImagesDialogComponent, {
       autoFocus: false,
-      width: '450px',
+      width: WIDTH_DIALOG,
       data: dialogData
     });
   }
@@ -137,7 +138,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
         }
         this.dialog.open(AddEditImagesDialogComponent, {
           autoFocus: false,
-          width: '450px',
+          width: WIDTH_DIALOG,
           data: dialogData
         });
       });
