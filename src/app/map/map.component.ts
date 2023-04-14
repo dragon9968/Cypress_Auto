@@ -147,8 +147,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   inv: any;
   edgeNode: any;
   edgePortGroup: any;
-  maxWidthMapImage: any;
-  maxHeightMapImage: any;
   isAddEdge: any;
   isAddTunnel: any;
   isConnectToPG: any;
@@ -325,6 +323,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.isEdgeDirectionChecked = mapOption?.isEdgeDirectionChecked != undefined ? mapOption.isEdgeDirectionChecked : false;
       this.isGroupBoxesChecked = mapOption?.isGroupBoxesChecked != undefined ? mapOption.isGroupBoxesChecked : false;
     })
+    this.projectService.getProjectByStatusAndCategory('active', 'project').subscribe(
+      (response: any) => this.store.dispatch(retrievedProjects({data: response.result}))
+    );
   }
 
   ngAfterViewInit(): void {
@@ -347,18 +348,23 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this._initMouseEvents();
         this._initContextMenu();
         this._initUndoRedo();
-        this._initDataLinkProjects();
         this._initCollapseExpandMapLink();
+        this._initDataLinkProjects();
       }
     });
   }
 
   private _initDataLinkProjects() {
-    this.projectService.getProjectByStatusAndCategory('active', 'project').pipe(delay(1000)).subscribe(
-      (data: any) => {
-        this.helpersService.updateProjectLinksStorage(this.cy, data.result)
-      }
-    );
+    setTimeout(() => {
+      const newProjects = [...this.projects]
+      const mapsLinked = this.nodes.filter((node: any) => node.data.elem_category == 'map_link' && !Boolean(node.data.parent_id))
+      const mapLinkNodeIdsAdded = mapsLinked.map((mapLink: any) => mapLink.data.linked_project_id)
+      mapLinkNodeIdsAdded.map((projectId: any) => {
+        const index = newProjects.findIndex(ele => ele.id === projectId);
+        newProjects.splice(index, 1);
+      })
+      this.store.dispatch(retrievedProjects({data: newProjects}));
+    }, 0)
   }
 
   ngOnDestroy(): void {
@@ -906,7 +912,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     })
 
     // Set initial collapse and expand based on the project node data
-    const mapLinkNodes = this.cy.nodes().filter('[elem_category="map_link"]')
+    const mapLinkNodes = this.cy.nodes().filter((node: any) => node.data('elem_category') == 'map_link' && !Boolean(node.data('parent_id')))
     mapLinkNodes.map((mapLinkNode: any) => {
       if (mapLinkNode.data('collapsed')) {
         this.cy.expandCollapse('get').collapseRecursively(mapLinkNode, {});

@@ -11,7 +11,7 @@ import { selectIsMapOpen } from 'src/app/store/map/map.selectors';
 import { PermissionLevels } from '../../enums/permission-levels.enum';
 import { RouteSegments } from '../../enums/route-segments.enum';
 import { AuthService } from '../../services/auth/auth.service';
-import { selectIsOpen, selectProjectName, selectProjects } from 'src/app/store/project/project.selectors';
+import { selectIsOpen, selectProjectName } from 'src/app/store/project/project.selectors';
 import {
   retrievedAllProjects,
   retrievedIsOpen,

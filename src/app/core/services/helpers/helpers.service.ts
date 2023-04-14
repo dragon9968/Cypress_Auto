@@ -385,7 +385,7 @@ export class HelpersService implements OnDestroy {
   addCYNodeAndEdge(cy: any, nodes: any[], edges: any[], newPosition: any = {x: 0, y: 0}, mapLinkId = undefined) {
     // Draw new nodes from the other project into the current project.
     nodes.map((node: any) => {
-      if (node.data.elem_category == 'node') {
+      if (node.data.elem_category == 'node' || node.data.elem_category == 'map_link') {
         node.data.icon = environment.apiBaseUrl + node.data.icon;
       }
       node.data.updated = true;
@@ -398,6 +398,7 @@ export class HelpersService implements OnDestroy {
         nodeEle.move({ parent: `project-link-${mapLinkId}` });
       }
     })
+
     // Draw new interfaces from the other project into the current project.
     edges.map((edge: any) => {
       this.addCYEdge(cy, edge.data);
