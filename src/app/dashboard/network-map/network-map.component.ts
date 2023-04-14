@@ -169,6 +169,7 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
       wheelSensitivity: 0.2,
     });
     this.infoPanelService.cy = this.cy;
+    this.helpersService.randomPositionForElementsNoPosition(this.cy)
   }
 
   toggleVMStatus($event: any) {

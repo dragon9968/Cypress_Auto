@@ -872,22 +872,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     });
 
     // Random position for the nodes if the map has layout preset however the nodes don't have the position
-    const elementsNoPosition = this.cy.elements().filter((ele: any) =>
-      (ele.group() == 'nodes' && ele.position('x') === 0 && ele.position('y') === 0)
-    );
-    if (elementsNoPosition.length > 0) {
-      this.cy.elements().filter((ele: any) => (ele.position('x') !== 0 && ele.position('y') !== 0)).lock();
-      this.cy.layout({
-          name: "cose",
-          avoidOverlap: true,
-          nodeDimensionsIncludeLabels: true,
-          spacingFactor: 5,
-          fit: true,
-          animate: false,
-          padding: 150
-        }).run();
-      this.cy.elements().unlock();
-    }
+    this.helpersService.randomPositionForElementsNoPosition(this.cy)
     // this.cy.nodeEditing({
     //   resizeToContentCueImage: "/static/img/resizeCue.svg",
     //   isNoControlsMode: (node: any) => {
