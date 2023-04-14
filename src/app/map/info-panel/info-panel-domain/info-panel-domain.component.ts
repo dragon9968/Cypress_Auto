@@ -1,12 +1,10 @@
 import { Store } from "@ngrx/store";
 import { MatDialog } from "@angular/material/dialog";
-import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
-import { ActivatedRoute } from "@angular/router";
 import { MatIconRegistry } from "@angular/material/icon";
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Observable, of, Subscription, throwError } from "rxjs";
-import { GridApi, GridOptions, GridReadyEvent, RowDoubleClickedEvent } from "ag-grid-community";
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Observable, Subscription } from "rxjs";
+import { GridApi, GridOptions, RowDoubleClickedEvent } from "ag-grid-community";
 import { DomainService } from "../../../core/services/domain/domain.service";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { ProjectService } from "../../../project/services/project.service";
@@ -19,6 +17,7 @@ import { ConfirmationDialogComponent } from "../../../shared/components/confirma
 import { AddDomainUserDialogComponent } from "./add-domain-user-dialog/add-domain-user-dialog.component";
 import { DomainBulkEditDialogComponent } from "../../bulk-edit-dialog/domain-bulk-edit-dialog/domain-bulk-edit-dialog.component";
 import { AddUpdateDomainDialogComponent } from "../../add-update-domain-dialog/add-update-domain-dialog.component";
+import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
 
 @Component({
   selector: 'app-info-panel-domain',
@@ -26,17 +25,14 @@ import { AddUpdateDomainDialogComponent } from "../../add-update-domain-dialog/a
   styleUrls: ['./info-panel-domain.component.scss']
 })
 export class InfoPanelDomainComponent implements OnInit, OnDestroy {
+  @ViewChild(InfoPanelTableComponent) infoPanelTableComponent: InfoPanelTableComponent | undefined;
+  
   @Input() infoPanelheight = '300px';
-  private gridApi!: GridApi;
   collectionId: string = '0';
   selectDomains$ = new Subscription();
-  rowsSelected: any[] = [];
-  rowsSelectedId: any[] = [];
   domains!: any;
-  isClickAction = false;
-  rowData$!: Observable<any[]>;
   tabName = 'domain';
-  public gridOptions: GridOptions = {
+  gridOptions: GridOptions = {
     headerHeight: 48,
     defaultColDef: {
       sortable: true,
@@ -84,9 +80,16 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
     ]
   };
 
+  onRowDoubleClicked(row: RowDoubleClickedEvent) {
+    const dialogData = {
+      mode: 'view',
+      genData: row.data
+    };
+    this.dialog.open(AddUpdateDomainDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+  }
+
   constructor(
     private store: Store,
-    private route: ActivatedRoute,
     private dialog: MatDialog,
     private toastr: ToastrService,
     private iconRegister: MatIconRegistry,
@@ -100,12 +103,8 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
     this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
       if (domains) {
         this.domains = domains;
-        if (this.gridApi) {
-          this.gridApi.setRowData(domains);
-        } else {
-          this.rowData$ = of(domains);
-        }
-        this.updateRowDomainInfoPanel();
+        this.infoPanelTableComponent?.setRowData(domains);
+        this.infoPanelTableComponent?.setRowActive(this.infoPanelTableComponent?.rowsSelectedId);
       }
     });
   }
@@ -114,31 +113,9 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
     this.selectDomains$.unsubscribe();
   }
 
-  get gridHeight() {
-    const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
-    return infoPanelHeightNumber >= 300 ? (infoPanelHeightNumber - 100) + 'px' : '200px';
-  }
-
   ngOnInit(): void {
     this.collectionId = this.projectService.getCollectionId();
     this.domainService.getDomainByCollectionId(this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedDomains({ data: data.result })));
-  }
-
-  onGridReady(params: GridReadyEvent) {
-    this.gridApi = params.api;
-  }
-
-  onRowDoubleClicked(row: RowDoubleClickedEvent) {
-    const dialogData = {
-      mode: 'view',
-      genData: row.data
-    };
-    this.dialog.open(AddUpdateDomainDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-  }
-
-  selectedRows() {
-    this.rowsSelected = this.gridApi.getSelectedRows();
-    this.rowsSelectedId = this.rowsSelected.map(ele => ele.id);
   }
 
   addDomain() {
@@ -155,22 +132,22 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
   }
 
   addDomainUser() {
-    if (this.rowsSelectedId.length === 0) {
+    if (this.infoPanelTableComponent?.rowsSelectedId.length === 0) {
       this.toastr.info('Please select the domain for creating users');
     } else {
       const dialogData = {
-        genData: { domainId: this.rowsSelectedId }
+        genData: { domainId: this.infoPanelTableComponent?.rowsSelectedId }
       }
       this.dialog.open(AddDomainUserDialogComponent, { width: '600px', data: dialogData });
     }
   }
 
   editDomain() {
-    if (this.rowsSelected.length == 0) {
+    if (this.infoPanelTableComponent?.rowsSelected.length == 0) {
       this.toastr.info('No row selected');
-    } else if (this.rowsSelected.length == 1) {
-      this.domains.find((ele: any) => ele.id === this.rowsSelected[0].id)
-      this.domainService.get(this.rowsSelected[0].id).subscribe(domainData => {
+    } else if (this.infoPanelTableComponent?.rowsSelected.length == 1) {
+      this.domains.find((ele: any) => ele.id === this.infoPanelTableComponent?.rowsSelected[0].id)
+      this.domainService.get(this.infoPanelTableComponent?.rowsSelected[0].id).subscribe(domainData => {
         const dialogData = {
           mode: 'update',
           genData: domainData.result
@@ -180,7 +157,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
     } else {
       const dialogData = {
         genData: {
-          pks: this.rowsSelectedId,
+          pks: this.infoPanelTableComponent?.rowsSelectedId,
           collectionId: this.collectionId
         }
       }
@@ -189,10 +166,10 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
   }
 
   deleteDomain() {
-    if (this.rowsSelectedId.length === 0) {
+    if (this.infoPanelTableComponent?.rowsSelectedId.length === 0) {
       this.toastr.info('No row selected');
     } else {
-      const item = this.rowsSelectedId.length === 1 ? 'this' : 'these';
+      const item = this.infoPanelTableComponent?.rowsSelectedId.length === 1 ? 'this' : 'these';
       const dialogData = {
         title: 'User confirmation needed',
         message: `Are you sure you want to delete ${item}?`,
@@ -201,7 +178,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '450px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
-          this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.rowsSelectedId);
+          this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.infoPanelTableComponent?.rowsSelectedId);
           this.clearRowSelected();
         }
       })
@@ -210,11 +187,11 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
   }
 
   exportDomain(format: string) {
-    if (this.rowsSelectedId.length === 0) {
+    if (this.infoPanelTableComponent?.rowsSelectedId.length === 0) {
       this.toastr.info('No row selected');
     } else {
       const jsonData = {
-        domain_id: this.rowsSelectedId,
+        domain_id: this.infoPanelTableComponent?.rowsSelectedId,
         format: format
       }
       let file = new Blob();
@@ -230,39 +207,15 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
   }
 
   validateDomain() {
-    if (this.rowsSelected.length == 0) {
-      this.toastr.info('No row selected');
-    } else {
-      const jsonData = {
-        domain_id: this.rowsSelectedId
-      }
-      this.domainService.validate(jsonData).pipe(
-        catchError((e: any) => {
-          this.toastr.error(e.error.message);
-          return throwError(() => e);
-        })
-      ).subscribe(response => {
-        this.toastr.success(response.message);
-      })
-    }
-  }
-
-  updateRowDomainInfoPanel() {
-    if (this.rowsSelectedId.length > 0 && this.gridApi) {
-      this.gridApi.forEachNode(rowNode => {
-        if (this.rowsSelectedId.includes(rowNode.data.id)) {
-          rowNode.setSelected(true);
-        }
-      })
-    }
+    this.infoPanelTableComponent?.validate();
   }
 
   openDomainUsers() {
-    if (this.rowsSelectedId.length === 1) {
-      this.domainUserService.getDomainUserByDomainId(this.rowsSelectedId[0]).subscribe(data => {
+    if (this.infoPanelTableComponent?.rowsSelectedId.length === 1) {
+      this.domainUserService.getDomainUserByDomainId(this.infoPanelTableComponent?.rowsSelectedId[0]).subscribe(data => {
         const dialogData = {
           genData: data.result,
-          domain: this.rowsSelected[0]
+          domain: this.infoPanelTableComponent?.rowsSelected[0]
         }
         this.dialog.open(DomainUserDialogComponent,
           { width: `${screen.width}px`, height: `${screen.height * .85}px`, data: dialogData });
@@ -273,8 +226,6 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
   }
 
   clearRowSelected() {
-    this.rowsSelected = [];
-    this.rowsSelectedId = [];
-    this.gridApi.deselectAll();
+    this.infoPanelTableComponent?.deselectAll();
   }
 }

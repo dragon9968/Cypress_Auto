@@ -2,17 +2,16 @@ import { Store } from "@ngrx/store";
 import { takeUntil } from "rxjs/operators";
 import { MatDialog } from "@angular/material/dialog";
 import { ToastrService } from "ngx-toastr";
-import { MatIconRegistry } from "@angular/material/icon";
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { interval, Observable, of, Subject, Subscription } from "rxjs";
-import { ColumnApi, GridApi, GridOptions, GridReadyEvent, RowDoubleClickedEvent } from "ag-grid-community";
-import { HelpersService } from "../../../core/services/helpers/helpers.service";
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { interval, Subject, Subscription } from "rxjs";
+import { GridOptions, RowDoubleClickedEvent } from "ag-grid-community";
 import { UserTaskService } from "../../../core/services/user-task/user-task.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { selectUserTasks } from "../../../store/user-task/user-task.selectors";
 import { retrievedUserTasks } from "../../../store/user-task/user-task.actions";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { ShowUserTaskDialogComponent } from "./show-user-task-dialog/show-user-task-dialog.component";
+import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
 
 @Component({
   selector: 'app-info-panel-task',
@@ -20,20 +19,15 @@ import { ShowUserTaskDialogComponent } from "./show-user-task-dialog/show-user-t
   styleUrls: ['./info-panel-task.component.scss']
 })
 export class InfoPanelTaskComponent implements OnInit, OnDestroy {
+  @ViewChild(InfoPanelTableComponent) infoPanelTableComponent: InfoPanelTableComponent | undefined;
+  
   @Input() infoPanelheight = '300px';
-  private gridApi!: GridApi;
-  private gridColumnApi!: ColumnApi;
   selectUserTasks$ = new Subscription();
-  rowsSelected: any[] = [];
-  rowsSelectedId: any[] = [];
   userTasks!: any[];
-  rowData$!: Observable<any>;
-  isClickAction = false;
   tabName = 'userTask';
   nodesIdRendered: any[] = [];
-  destroy$: Subject<boolean> = new Subject<boolean>();
-
-  public gridOptions: GridOptions = {
+  destroy$: Subject<boolean> = new Subject<boolean>()
+  gridOptions: GridOptions = {
     headerHeight: 48,
     defaultColDef: {
       sortable: true,
@@ -93,33 +87,36 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
         flex: 1
       }
     ]
+  };
+
+  onRowDoubleClicked(row: RowDoubleClickedEvent) {
+    this.userTaskService.get(row.data.id).subscribe(response => {
+      const dialogData = {
+        mode: 'postTask',
+        genData: response.result
+      };
+      this.dialog.open(ShowUserTaskDialogComponent, {
+        width: `${screen.width}px`,
+        autoFocus: false,
+        data: dialogData
+      });
+    })
   }
 
   constructor(
     private store: Store,
     private dialog: MatDialog,
     private toastr: ToastrService,
-    private iconRegister: MatIconRegistry,
-    private helperService: HelpersService,
     private userTaskService: UserTaskService,
     private infoPanelService: InfoPanelService
   ) {
     this.selectUserTasks$ = this.store.select(selectUserTasks).pipe(takeUntil(this.destroy$)).subscribe(userTasks => {
       if (userTasks) {
         this.userTasks = userTasks;
-        if (this.gridApi) {
-          this.gridApi.setRowData(userTasks);
-        } else {
-          this.rowData$ = of(userTasks);
-        }
-        this.setRowActive();
+        this.infoPanelTableComponent?.setRowData(userTasks);
+        this.infoPanelTableComponent?.setRowActive(this.infoPanelTableComponent?.rowsSelectedId);
       }
     })
-  }
-
-  get gridHeight() {
-    const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
-    return infoPanelHeightNumber >= 300 ? (infoPanelHeightNumber-100) + 'px' : '200px';
   }
 
   ngOnInit(): void {
@@ -136,10 +133,10 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
   }
 
   delete() {
-    if (this.rowsSelectedId.length === 0) {
+    if (this.infoPanelTableComponent?.rowsSelectedId.length === 0) {
       this.toastr.info('No row selected');
     } else {
-      const item = this.rowsSelectedId.length === 1 ? 'this' : 'these';
+      const item = this.infoPanelTableComponent?.rowsSelectedId.length === 1 ? 'this' : 'these';
       const dialogData = {
         title: 'User confirmation needed',
         message: `Are you sure you want to delete ${item}?`,
@@ -147,8 +144,8 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
       }
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
       dialogConfirm.afterClosed().subscribe(confirm => {
-        if (confirm) {
-          this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.rowsSelectedId);
+        if (confirm && this.infoPanelTableComponent) {
+          this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.infoPanelTableComponent.rowsSelectedId);
           this.clearRowSelected();
         }
       })
@@ -156,10 +153,10 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
   }
 
   rerun() {
-    if (this.rowsSelectedId.length === 0) {
+    if (this.infoPanelTableComponent?.rowsSelectedId.length === 0) {
       this.toastr.info('No row selected');
     } else {
-      const message = this.rowsSelectedId.length === 1 ? 'Rerun this task?' : 'Rerun these tasks?';
+      const message = this.infoPanelTableComponent?.rowsSelectedId.length === 1 ? 'Rerun this task?' : 'Rerun these tasks?';
       const dialogData = {
         title: 'User confirmation needed',
         message: message,
@@ -167,15 +164,15 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
       }
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
       dialogConfirm.afterClosed().subscribe(confirm => {
-        if (confirm) {
-          this.infoPanelService.rerunTask(this.rowsSelectedId);
+        if (confirm && this.infoPanelTableComponent) {
+          this.infoPanelService.rerunTask(this.infoPanelTableComponent.rowsSelectedId);
         }
       });
     }
   }
 
   revoke() {
-    if (this.rowsSelectedId.length === 0) {
+    if (this.infoPanelTableComponent?.rowsSelectedId.length === 0) {
       this.toastr.info('No row selected');
     } else {
       const dialogData = {
@@ -187,7 +184,7 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
           let taskPendingId: any[] = []
-          this.rowsSelected.map(task => {
+          this.infoPanelTableComponent?.rowsSelected.map(task => {
             if (task.task_state === 'PENDING') {
               taskPendingId.push(task.id);
             } else {
@@ -201,38 +198,6 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
         }
       });
     }
-  }
-
-  onGridReady(params: GridReadyEvent) {
-    this.gridApi = params.api;
-    this.gridColumnApi = params.columnApi;
-    this.sortData();
-  }
-
-  onRowDoubleClicked(row: RowDoubleClickedEvent) {
-    this.userTaskService.get(row.data.id).subscribe(response => {
-      const dialogData = {
-        mode: 'postTask',
-        genData: response.result
-      };
-      this.dialog.open(ShowUserTaskDialogComponent, {
-        width: `${screen.width}px`,
-        autoFocus: false,
-        data: dialogData
-      });
-    })
-  }
-
-  selectedRows() {
-    this.rowsSelected = this.gridApi.getSelectedRows();
-    this.rowsSelectedId = this.rowsSelected.map(ele => ele.id);
-  }
-
-  sortData() {
-    this.gridColumnApi.applyColumnState({
-      state: [{colId: 'id', sort: 'desc'}],
-      defaultState: {sort: null}
-    })
   }
 
   refreshTask() {
@@ -253,38 +218,15 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
     })
   }
 
-  setRowActive() {
-    if (this.rowsSelectedId.length > 0 && this.gridApi) {
-      this.gridApi.forEachNode(row => {
-        if (this.rowsSelectedId.includes(row.data.id)) {
-          row.setSelected(true);
-        }
-      })
-    }
-  }
-
   clearRowSelected() {
-    this.rowsSelectedId = [];
-    this.rowsSelected = [];
-    this.gridApi.deselectAll();
+    this.infoPanelTableComponent?.deselectAll();
   }
 
   getTaskRendered() {
-    if (this.gridApi) {
-      return this.gridApi.getRenderedNodes().map(rowNode => rowNode.data.id);
-    } else {
-      return [];
-    }
+    return this.infoPanelTableComponent ? this.infoPanelTableComponent.getTaskRendered() : [];
   }
 
   setNodeDataRefresh(tasks: any) {
-    tasks.map((taskNew: any) => {
-      taskNew.start_time = taskNew.start_time ? taskNew.start_time.replace('T', ' ') : null;
-      this.gridApi?.forEachNode(rowNode => {
-        if (rowNode.data.id === taskNew.id) {
-          rowNode.setData(taskNew);
-        }
-      })
-    })
+    this.infoPanelTableComponent?.setNodeDataRefresh(tasks);
   }
 }

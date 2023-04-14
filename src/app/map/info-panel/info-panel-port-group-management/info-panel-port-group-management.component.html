@@ -32,8 +32,4 @@
     <mat-icon>check</mat-icon>
   </button>
 </div>
-<div class="ag-theme-alpine info-panel-pg" [style.height]="gridHeight">
-  <ag-grid-angular style="width: 100%; height: 100%;" [gridOptions]="gridOptions" (gridReady)="onGridReady($event)"
-                   [rowData]="rowData$ | async" (rowSelected)="selectedRows()">
-  </ag-grid-angular>
-</div>
+<app-info-panel-table [cy]="cy" [infoPanelheight]="infoPanelheight" [gridOptions]="gridOptions" [tabName]="tabName"></app-info-panel-table>

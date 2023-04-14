@@ -99,12 +99,11 @@ export class InfoPanelService implements OnDestroy {
     this.selectPortGroupsManagement$.unsubscribe();
   }
 
-  deleteInfoPanelAssociateMap(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[],
-    deletedNodes: any[], deletedInterfaces: any[], tabName: string, id: any) {
+  deleteInfoPanelAssociateMap(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], tabName: string, id: any) {
     let idName = '';
     if (tabName == 'node') {
       idName = 'node_id';
-    } else if (tabName == 'portGroup') {
+    } else if (tabName == 'portgroup') {
       idName = 'pg_id';
     } else if (tabName == 'edge') {
       idName = 'interface_id';

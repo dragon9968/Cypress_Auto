@@ -3,7 +3,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { ToastrService } from "ngx-toastr";
 import { ActivatedRoute } from "@angular/router";
 import { Observable, of, Subscription } from "rxjs";
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { GridApi, GridOptions, GridReadyEvent, RowDoubleClickedEvent } from "ag-grid-community";
 import { GroupService } from "../../../core/services/group/group.service";
 import { ProjectService } from "../../../project/services/project.service";
@@ -12,6 +12,7 @@ import { selectGroups } from "../../../store/group/group.selectors";
 import { retrievedGroups } from "../../../store/group/group.actions";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { AddUpdateGroupDialogComponent } from "../../add-update-group-dialog/add-update-group-dialog.component";
+import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
 
 @Component({
   selector: 'app-info-panel-group',
@@ -19,21 +20,19 @@ import { AddUpdateGroupDialogComponent } from "../../add-update-group-dialog/add
   styleUrls: ['./info-panel-group.component.scss']
 })
 export class InfoPanelGroupComponent implements OnInit, OnDestroy {
+  @ViewChild(InfoPanelTableComponent) infoPanelTableComponent: InfoPanelTableComponent | undefined;
+
   @Input() infoPanelheight = '300px';
   @Input() activeNodes: any[] = [];
   @Input() activePGs: any[] = [];
   @Input() activeEdges: any[] = [];
-  private gridApi!: GridApi;
   mapCategory = '';
   collectionId: string = '0';
   selectGroups$ = new Subscription();
-  rowData$!: Observable<any[]>;
-  rowsSelected!: any[];
-  rowsSelectedId: any[] = [];
   groups!: any[];
   tabName = 'group';
 
-  public gridOptions: GridOptions = {
+  gridOptions: GridOptions = {
     headerHeight: 48,
     defaultColDef: {
       sortable: true,
@@ -91,9 +90,21 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
     ]
   };
 
+  onRowDoubleClicked(row: RowDoubleClickedEvent) {
+    this.groupService.get(row.data.id).subscribe(groupData => {
+      const dialogData = {
+        mode: 'view',
+        genData: groupData.result,
+        collection_id: groupData.result.collection_id,
+        map_category: 'logical'
+      };
+      this.dialog.open(AddUpdateGroupDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+    })
+    
+  }
+
   constructor(
     private store: Store,
-    private route: ActivatedRoute,
     private dialog: MatDialog,
     private toastr: ToastrService,
     private groupService: GroupService,
@@ -115,20 +126,11 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
             port_groups: '[' + ele.port_groups?.map((pgData: any) => pgData.name).join(', ') + ']',
             map_images: '[' + ele.map_images?.map((mapImageData: any) => mapImageData.name).join(', ') + ']',
           }
-        })
-        if (this.gridApi) {
-          this.gridApi.setRowData(groupDataAg);
-        } else {
-          this.rowData$ = of(groupDataAg);
-        }
-        this.setRowActive();
+        });
+        this.infoPanelTableComponent?.setRowData(groupDataAg);
+        this.infoPanelTableComponent?.setRowActive(this.infoPanelTableComponent?.rowsSelectedId);
       }
     })
-  }
-
-  get gridHeight() {
-    const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
-    return infoPanelHeightNumber >= 300 ? (infoPanelHeightNumber-100) + 'px' : '200px';
   }
 
   ngOnInit(): void {
@@ -153,33 +155,11 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
     this.dialog.open(AddUpdateGroupDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
   }
 
-  onGridReady(params: GridReadyEvent) {
-    this.gridApi = params.api;
-  }
-
-  onRowDoubleClicked(row: RowDoubleClickedEvent) {
-    this.groupService.get(row.data.id).subscribe(groupData => {
-      const dialogData = {
-        mode: 'view',
-        genData: groupData.result,
-        collection_id: groupData.result.collection_id,
-        map_category: 'logical'
-      };
-      this.dialog.open(AddUpdateGroupDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-    })
-    
-  }
-
-  selectedRows() {
-    this.rowsSelected = this.gridApi.getSelectedRows();
-    this.rowsSelectedId = this.rowsSelected.map(ele => ele.id);
-  }
-
   editGroup() {
-    if (this.rowsSelectedId.length === 0) {
+    if (this.infoPanelTableComponent?.rowsSelectedId.length === 0) {
       this.toastr.info('No row selected');
-    } else if (this.rowsSelectedId.length === 1) {
-      this.groupService.get(this.rowsSelectedId[0]).subscribe(groupData => {
+    } else if (this.infoPanelTableComponent?.rowsSelectedId.length === 1) {
+      this.groupService.get(this.infoPanelTableComponent?.rowsSelectedId[0]).subscribe(groupData => {
         const dialogData = {
           mode: 'update',
           genData: groupData.result,
@@ -202,10 +182,10 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
   }
 
   deleteGroup() {
-    if (this.rowsSelectedId.length === 0) {
+    if (this.infoPanelTableComponent?.rowsSelectedId.length === 0) {
       this.toastr.info('No row selected');
     } else {
-      const item = this.rowsSelectedId.length === 1 ? 'this' : 'these';
+      const item = this.infoPanelTableComponent?.rowsSelectedId.length === 1 ? 'this' : 'these';
       const dialogData = {
         title: 'User confirmation needed',
         message: `Are you sure you want to delete ${item}?`,
@@ -214,7 +194,7 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
-          this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.rowsSelectedId);
+          this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.infoPanelTableComponent?.rowsSelectedId);
           this.clearRowSelected();
         }
       })
@@ -222,19 +202,8 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
     }
   }
 
-  setRowActive() {
-    if (this.rowsSelectedId.length > 0 && this.gridApi) {
-      this.gridApi.forEachNode(rowNode => {
-        if (this.rowsSelectedId.includes(rowNode.data.id)) {
-          rowNode.setSelected(true);
-        }
-      })
-    }
-  }
 
   clearRowSelected() {
-    this.rowsSelected = [];
-    this.rowsSelectedId = [];
-    this.gridApi.deselectAll();
+    this.infoPanelTableComponent?.deselectAll();
   }
 }

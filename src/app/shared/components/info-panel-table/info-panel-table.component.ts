@@ -1,0 +1,232 @@
+import { Component, Input } from '@angular/core';
+import { GridApi, GridReadyEvent } from "ag-grid-community";
+import { InfoPanelShowValidationResultsComponent } from '../info-panel-show-validation-results/info-panel-show-validation-results.component';
+import { catchError, throwError } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
+import { MatDialog } from '@angular/material/dialog';
+import { NodeService } from 'src/app/core/services/node/node.service';
+import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
+import { AddUpdateNodeDialogComponent } from 'src/app/map/add-update-node-dialog/add-update-node-dialog.component';
+import { AddUpdatePGDialogComponent } from 'src/app/map/add-update-pg-dialog/add-update-pg-dialog.component';
+import { NodeBulkEditDialogComponent } from 'src/app/map/bulk-edit-dialog/node-bulk-edit-dialog/node-bulk-edit-dialog.component';
+import { PortGroupBulkEditDialogComponent } from 'src/app/map/bulk-edit-dialog/port-group-bulk-edit-dialog/port-group-bulk-edit-dialog.component';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { Store } from '@ngrx/store';
+import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
+import { InfoPanelService } from 'src/app/core/services/info-panel/info-panel.service';
+import { AddUpdateInterfaceDialogComponent } from 'src/app/map/add-update-interface-dialog/add-update-interface-dialog.component';
+import { InterfaceBulkEditDialogComponent } from 'src/app/map/bulk-edit-dialog/interface-bulk-edit-dialog/interface-bulk-edit-dialog.component';
+import { InterfaceService } from 'src/app/core/services/interface/interface.service';
+import { DomainService } from 'src/app/core/services/domain/domain.service';
+
+@Component({
+  selector: 'app-info-panel-table',
+  templateUrl: './info-panel-table.component.html',
+  styleUrls: ['./info-panel-table.component.scss']
+})
+export class InfoPanelTableComponent {
+  @Input() cy: any;
+  @Input() infoPanelheight = '300px';
+  @Input() gridOptions: any = {};
+  @Input() tabName: string = '';
+  private gridApi!: GridApi;
+  rowsSelected: any[] = [];
+  rowsSelectedId: any[] = [];
+
+  get gridHeight() {
+    const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
+    return infoPanelHeightNumber >= 300 ? (infoPanelHeightNumber - 100) + 'px' : '200px';
+  }
+
+  constructor(
+    private toastr: ToastrService,
+    private dialog: MatDialog,
+    private nodeService: NodeService,
+    private portGroupService: PortGroupService,
+    private interfaceService: InterfaceService,
+    private domainService: DomainService,
+    private store: Store,
+    private infoPanelService: InfoPanelService
+  ) { }
+
+  setRowData(rowData: any[]) {
+    this.gridApi?.setRowData(rowData);
+  }
+
+  setRowActive(activeEleIds: any[] = []) {
+    this.gridApi?.forEachNode(rowNode => {
+      if (activeEleIds.includes(rowNode.data.id)) {
+        rowNode.setSelected(true);
+      }
+    });
+  }
+
+  onGridReady(params: GridReadyEvent) {
+    this.gridApi = params.api;
+  }
+
+  selectedRows() {
+    this.rowsSelected = this.gridApi.getSelectedRows();
+    this.rowsSelectedId = this.rowsSelected.map(ele => {
+      if (this.tabName == 'node') {
+        return ele.node_id;
+      } else if (this.tabName == 'portgroup' || this.tabName == 'portGroupManagement') {
+        return ele.pg_id;
+      } else if (this.tabName == 'edge' || this.tabName == 'edgeManagement') {
+        return ele.interface_id;
+      } else {
+        return ele.id;
+      }
+    });
+  }
+
+  clearTable() {
+    this.rowsSelected = [];
+    this.rowsSelectedId = [];
+    this.gridApi.setRowData([]);
+  }
+
+  deselectAll() {
+    this.rowsSelected = [];
+    this.rowsSelectedId = [];
+    this.gridApi.deselectAll();
+  }
+
+  setSelectedEles(activeEleIds: any[], rowData: any[]) {
+    if (activeEleIds.length === 0) {
+      this.clearTable();
+    } else {
+      this.setRowData(rowData);
+      this.setRowActive(activeEleIds);
+    }
+  }
+
+  getServiceByTab(tabName: string) {
+    if (tabName == 'node') {
+      return this.nodeService;
+    } else if (tabName == 'portgroup' || tabName == 'portGroupManagement') {
+      return this.portGroupService;
+    } else if (tabName == 'edge' || tabName == 'edgeManagement') {
+      return this.interfaceService;;
+    } else if (tabName == 'domain') {
+      return this.domainService;
+    } else {
+      return;
+    }
+  }
+
+  showSingleEditDialogByTab(tabName: string) {
+    const dialogData = {
+      mode: 'update',
+      genData: this.rowsSelected[0],
+      cy: this.cy
+    }
+    if (tabName == 'node') {
+      this.dialog.open(AddUpdateNodeDialogComponent,
+        { width: '1000px', height: '900px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
+      );
+    } else if (tabName == 'portgroup' || this.tabName == 'portGroupManagement') {
+      this.dialog.open(AddUpdatePGDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+    } else if (tabName == 'edge' || tabName == 'edgeManagement') {
+      this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+    }
+  }
+
+  showBulkEditDialogByTab(tabName: string) {
+    const dialogData = {
+      genData: {
+        ids: this.rowsSelectedId,
+        activeEles: this.rowsSelected
+      },
+      cy: this.cy
+    }
+    if (tabName == 'node') {
+      this.dialog.open(NodeBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+    } else if (tabName == 'portgroup' || tabName == 'portGroupManagement') {
+      this.dialog.open(PortGroupBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+    } else if (tabName == 'edge' || tabName == 'edgeManagement') {
+      this.dialog.open(InterfaceBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+    }
+  }
+
+  validate() {
+    if (this.rowsSelected.length == 0) {
+      this.toastr.info('No row selected');
+    } else {
+      this.getServiceByTab(this.tabName)?.validate({ pks: this.rowsSelectedId }).pipe(
+        catchError((e: any) => {
+          this.toastr.error(e.error.message);
+          this.dialog.open(InfoPanelShowValidationResultsComponent, {
+            autoFocus: false,
+            width: 'auto',
+            data: e.error.result
+          });
+          return throwError(() => e);
+        })
+      ).subscribe(response => {
+        this.toastr.success(response.message);
+      })
+    }
+  }
+
+  edit() {
+    if (this.rowsSelected.length === 0) {
+      this.toastr.info('No row selected');
+    } else {
+      if (this.rowsSelected.length == 1) {
+        this.showSingleEditDialogByTab(this.tabName);
+      } else {
+        this.showBulkEditDialogByTab(this.tabName)
+      }
+    }
+  }
+
+  delete(activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[]) {
+    if (this.rowsSelected.length === 0) {
+      this.toastr.info('No row selected');
+    } else {
+      let message;
+      if (this.tabName == 'node') {
+        message = 'Delete node(s) from this project?';
+      } else if (this.tabName == 'portgroup') {
+        message = 'Delete port_group(s) from this switch?';
+      } else if (this.tabName == 'edge') {
+        message = 'Delete edge(s) from this project?';
+      }
+      const dialogData = {
+        title: 'User confirmation needed',
+        message,
+        submitButtonName: 'OK'
+      }
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '500px', data: dialogData });
+      dialogConfirm.afterClosed().subscribe(confirm => {
+        if (confirm) {
+          this.rowsSelectedId.map(id => {
+            this.infoPanelService.deleteInfoPanelAssociateMap(this.cy, activeNodes, activePGs, activeEdges, activeGBs, this.tabName, id);
+          });
+          this.clearTable();
+          this.store.dispatch(retrievedMapSelection({ data: true }));
+        }
+      })
+    }
+  }
+
+  setNodeDataRefresh(tasks: any) {
+    tasks.map((taskNew: any) => {
+      taskNew.start_time = taskNew.start_time ? taskNew.start_time.replace('T', ' ') : null;
+      this.gridApi?.forEachNode(rowNode => {
+        if (rowNode.data.id === taskNew.id) {
+          rowNode.setData(taskNew);
+        }
+      })
+    })
+  }
+
+  getTaskRendered() {
+    if (this.gridApi) {
+      return this.gridApi.getRenderedNodes().map(rowNode => rowNode.data.id);
+    } else {
+      return [];
+    }
+  }
+}

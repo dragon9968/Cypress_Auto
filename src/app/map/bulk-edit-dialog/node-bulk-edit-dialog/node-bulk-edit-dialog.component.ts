@@ -180,7 +180,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
       }
       const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.nodeService.editBulk(jsonData).subscribe(response => {
-        return forkJoin(this.data.genData.activeNodes.map((node: any) => {
+        return forkJoin(this.data.genData.activeEles.map((node: any) => {
           if (configId) {
             const configData = {
               pk: node.node_id,
@@ -191,7 +191,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
           return of([]);
         }))
           .subscribe(() => {
-            return forkJoin(this.data.genData.activeNodes.map((node: any) => {
+            return forkJoin(this.data.genData.activeEles.map((node: any) => {
               return this.nodeService.get(node.node_id).pipe(map(nodeData => {
                 this._updateNodeOnMap(nodeData.result);
               }));

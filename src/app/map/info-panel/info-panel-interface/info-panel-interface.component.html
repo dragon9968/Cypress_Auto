@@ -21,7 +21,7 @@
       <mat-icon svgIcon="randomize-subnet"></mat-icon>
     </button>
   </ng-template>
-  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Validate" (click)="validateNode()">
+  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Validate" (click)="validateInterface()">
     <mat-icon>check</mat-icon>
   </button>
   <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Clear Table" (click)="clearTable()">
@@ -29,8 +29,4 @@
   </button>
 </div>
 
-<div class="ag-theme-alpine info-panel-interface" [style.height]="gridHeight">
-  <ag-grid-angular style="width: 100%; height: 100%;" [gridOptions]="gridOptions" (gridReady)="onGridReady($event)"
-    (rowSelected)="selectedRows()">
-  </ag-grid-angular>
-</div>
+<app-info-panel-table [cy]="cy" [infoPanelheight]="infoPanelheight" [gridOptions]="gridOptions" [tabName]="tabName"></app-info-panel-table>

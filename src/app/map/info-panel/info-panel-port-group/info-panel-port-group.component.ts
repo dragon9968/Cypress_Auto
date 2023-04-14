@@ -5,7 +5,7 @@ import { ToastrService } from "ngx-toastr";
 import { ActivatedRoute } from "@angular/router";
 import { MatIconRegistry } from "@angular/material/icon";
 import { Subscription, throwError } from "rxjs";
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { GridApi, GridOptions, GridReadyEvent, RowDoubleClickedEvent } from "ag-grid-community";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { ProjectService } from "../../../project/services/project.service";
@@ -17,6 +17,7 @@ import { ConfirmationDialogComponent } from "../../../shared/components/confirma
 import { AddUpdatePGDialogComponent } from "../../add-update-pg-dialog/add-update-pg-dialog.component";
 import { PortGroupBulkEditDialogComponent } from "../../bulk-edit-dialog/port-group-bulk-edit-dialog/port-group-bulk-edit-dialog.component";
 import { InfoPanelShowValidationResultsComponent } from "../../../shared/components/info-panel-show-validation-results/info-panel-show-validation-results.component";
+import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
 
 @Component({
   selector: 'app-info-panel-port-group',
@@ -24,6 +25,7 @@ import { InfoPanelShowValidationResultsComponent } from "../../../shared/compone
   styleUrls: ['./info-panel-port-group.component.scss']
 })
 export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
+  @ViewChild(InfoPanelTableComponent) infoPanelTableComponent: InfoPanelTableComponent | undefined;
 
   @Input() cy: any;
   @Input() activeNodes: any[] = [];
@@ -33,48 +35,10 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterfaces: any[] = [];
   @Input() infoPanelheight = '300px';
-  private gridApi!: GridApi;
-  rowsSelected: any[] = [];
-  rowsSelectedId: any[] = [];
-  isClickAction = false;
-  tabName = 'portGroup';
+  tabName = 'portgroup';
   collectionId = '0';
   selectMapSelection$ = new Subscription();
-
-  constructor(
-    private store: Store,
-    private dialog: MatDialog,
-    private toastr: ToastrService,
-    private route: ActivatedRoute,
-    private iconRegistry: MatIconRegistry,
-    private helpers: HelpersService,
-    private projectService: ProjectService,
-    private portGroupService: PortGroupService,
-    private infoPanelService: InfoPanelService
-  ) {
-    this.iconRegistry.addSvgIcon('randomize-subnet', this.helpers.setIconPath('/assets/icons/randomize-subnet.svg'));
-    this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
-      if (mapSelection) {
-        this._setPGInfoPanel(this.activePGs);
-        this.store.dispatch(retrievedMapSelection({ data: false }));
-      }
-    });
-  }
-
-  get gridHeight() {
-    const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
-    return infoPanelHeightNumber >= 300 ? (infoPanelHeightNumber - 100) + 'px' : '200px';
-  }
-
-  ngOnInit(): void {
-    this.collectionId = this.projectService.getCollectionId();
-  }
-
-  ngOnDestroy(): void {
-    this.selectMapSelection$.unsubscribe();
-  }
-
-  public gridOptions: GridOptions = {
+  gridOptions: GridOptions = {
     headerHeight: 48,
     defaultColDef: {
       sortable: true,
@@ -145,10 +109,6 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
     ]
   };
 
-  onGridReady(params: GridReadyEvent) {
-    this.gridApi = params.api;
-  }
-
   onRowDoubleClicked(row: RowDoubleClickedEvent) {
     const dialogData = {
       mode: 'view',
@@ -158,94 +118,59 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
     this.dialog.open(AddUpdatePGDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
   }
 
-  private _setRowActive() {
-    this.gridApi.forEachNode(rowNode => {
-      const activePGIds = this.activePGs.map(ele => ele.data('pg_id'));
-      if (activePGIds.includes(rowNode.data.pg_id)) {
-        rowNode.setSelected(true);
+  constructor(
+    private store: Store,
+    private dialog: MatDialog,
+    private toastr: ToastrService,
+    private iconRegistry: MatIconRegistry,
+    private helpers: HelpersService,
+    private projectService: ProjectService,
+    private portGroupService: PortGroupService,
+    private infoPanelService: InfoPanelService
+  ) {
+    this.iconRegistry.addSvgIcon('randomize-subnet', this.helpers.setIconPath('/assets/icons/randomize-subnet.svg'));
+    this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
+      if (mapSelection) {
+        const rowData = this.activePGs.map(ele => {
+          if (ele.data('domain')?.name) {
+            ele.data('domain', ele.data('domain').name);
+          }
+          return ele.data();
+        });
+        const activeEleIds = this.activePGs.map(ele => ele.data('id'));
+        this.infoPanelTableComponent?.setSelectedEles(activeEleIds, rowData);
+        this.store.dispatch(retrievedMapSelection({ data: false }));
       }
-    })
+    });
   }
 
-  private _setPGInfoPanel(activePGs: any[]) {
-    if (activePGs.length === 0) {
-      this.rowsSelected = [];
-      this.rowsSelectedId = [];
-      if (this.gridApi != null) {
-        this.gridApi.setRowData([]);
-      }
-    } else {
-      const rowData = activePGs.map(ele => {
-        if (ele.data('domain')?.name) {
-          ele.data('domain',  ele.data('domain').name);
-        }
-        return ele.data();
-      });
-      if (this.gridApi != null) {
-        this.gridApi.setRowData(rowData);
-        this._setRowActive();
-      }
-    }
+  get gridHeight() {
+    const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
+    return infoPanelHeightNumber >= 300 ? (infoPanelHeightNumber - 100) + 'px' : '200px';
   }
 
-  selectedRows() {
-    this.rowsSelected = this.gridApi.getSelectedRows();
-    this.rowsSelectedId = this.rowsSelected.map(ele => ele.pg_id);
+  ngOnInit(): void {
+    this.collectionId = this.projectService.getCollectionId();
+  }
+
+  ngOnDestroy(): void {
+    this.selectMapSelection$.unsubscribe();
   }
 
   deletePortGroup() {
-    if (this.rowsSelected.length === 0) {
-      this.toastr.info('No row selected');
-    } else {
-      const dialogData = {
-        title: 'User confirmation needed',
-        message: 'Delete port_group(s) from this switch?',
-        submitButtonName: 'OK'
-      }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '500px', data: dialogData });
-      dialogConfirm.afterClosed().subscribe(confirm => {
-        if (confirm) {
-          this.rowsSelectedId.map(pgId => {
-            this.infoPanelService.deleteInfoPanelAssociateMap(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
-              this.deletedNodes, this.deletedInterfaces, this.tabName, pgId);
-          });
-          this.clearTable();
-          this.store.dispatch(retrievedMapSelection({ data: true }));
-        }
-      })
-    }
+    this.infoPanelTableComponent?.delete(this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs);
   }
 
   editPortGroup() {
-    if (this.rowsSelected.length === 0) {
-      this.toastr.info('No row selected');
-    } else {
-      if (this.rowsSelectedId.length === 1) {
-        const dialogData = {
-          mode: 'update',
-          genData: this.rowsSelected[0],
-          cy: this.cy
-        }
-        this.dialog.open(AddUpdatePGDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-      } else {
-        const dialogData = {
-          genData: {
-            ids: this.rowsSelectedId,
-            activePGs: this.rowsSelected
-          },
-          cy: this.cy
-        }
-        this.dialog.open(PortGroupBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-      }
-    }
+    this.infoPanelTableComponent?.edit();
   }
 
   exportPortGroup(format: string) {
-    if (this.rowsSelected.length == 0) {
+    if (this.infoPanelTableComponent?.rowsSelected.length == 0) {
       this.toastr.info('No row selected');
     } else {
       const jsonData = {
-        pks: this.rowsSelectedId,
+        pks: this.infoPanelTableComponent?.rowsSelectedId,
         format: format
       }
       let file = new Blob();
@@ -266,11 +191,11 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
   }
 
   randomizeSubnet() {
-    if (this.rowsSelected.length == 0) {
+    if (this.infoPanelTableComponent?.rowsSelected.length == 0) {
       this.toastr.info('No row selected');
     } else {
-      const item = this.rowsSelectedId.length === 1 ? 'this' : 'these';
-      const sSuffix = this.rowsSelectedId.length === 1 ? '' : 's';
+      const item = this.infoPanelTableComponent?.rowsSelectedId.length === 1 ? 'this' : 'these';
+      const sSuffix = this.infoPanelTableComponent?.rowsSelectedId.length === 1 ? '' : 's';
       const dialogData = {
         title: 'User confirmation needed',
         message: `Generate a new randomize subnet for ${item} port_group${sSuffix}?`,
@@ -279,35 +204,17 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '500px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
-          this.infoPanelService.randomizeSubnetPortGroups(this.rowsSelectedId, this.collectionId);
+          this.infoPanelService.randomizeSubnetPortGroups(this.infoPanelTableComponent?.rowsSelectedId, this.collectionId);
         }
       })
     }
   }
 
   validatePortGroup() {
-    if (this.rowsSelected.length == 0) {
-      this.toastr.info('No row selected');
-    } else {
-      this.portGroupService.validate({ pks: this.rowsSelectedId }).pipe(
-        catchError((e: any) => {
-          this.toastr.error(e.error.message);
-          this.dialog.open(InfoPanelShowValidationResultsComponent, {
-            autoFocus: false,
-            width: 'auto',
-            data: e.error.result
-          });
-          return throwError(() => e);
-        })
-      ).subscribe(response => {
-        this.toastr.success(response.message);
-      })
-    }
+    this.infoPanelTableComponent?.validate();
   }
 
   clearTable() {
-    this.rowsSelected = [];
-    this.rowsSelectedId = [];
-    this.gridApi.setRowData([]);
+    this.infoPanelTableComponent?.clearTable();
   }
 }

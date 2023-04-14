@@ -1,22 +1,20 @@
 import { Store } from "@ngrx/store";
 import { MatDialog } from "@angular/material/dialog";
-import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
 import { MatIconRegistry } from "@angular/material/icon";
-import { Component, Input, OnDestroy } from '@angular/core';
-import { Subscription, throwError } from "rxjs";
-import { GridApi, GridOptions, GridReadyEvent, RowDoubleClickedEvent } from "ag-grid-community";
+import { Component, Input, OnDestroy, ViewChild } from '@angular/core';
+import { Subscription } from "rxjs";
+import { GridOptions, RowDoubleClickedEvent } from "ag-grid-community";
 import { NodeService } from "../../../core/services/node/node.service";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { CMActionsService } from "../../context-menu/cm-actions/cm-actions.service";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
-import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
-import { InfoPanelShowValidationResultsComponent } from "../../../shared/components/info-panel-show-validation-results/info-panel-show-validation-results.component";
 import { AddUpdateNodeDialogComponent } from "../../add-update-node-dialog/add-update-node-dialog.component";
-import { NodeBulkEditDialogComponent } from "../../bulk-edit-dialog/node-bulk-edit-dialog/node-bulk-edit-dialog.component";
-import { ViewUpdateProjectNodeComponent } from "../../context-menu/cm-dialog/view-update-project-node/view-update-project-node.component";
+import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
+import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
+
 
 @Component({
   selector: 'app-info-panel-node',
@@ -24,6 +22,8 @@ import { ViewUpdateProjectNodeComponent } from "../../context-menu/cm-dialog/vie
   styleUrls: ['./info-panel-node.component.scss']
 })
 export class InfoPanelNodeComponent implements OnDestroy {
+  @ViewChild(InfoPanelTableComponent) infoPanelTableComponent: InfoPanelTableComponent | undefined;
+
   @Input() cy: any;
   @Input() activeNodes: any[] = [];
   @Input() activePGs: any[] = [];
@@ -32,61 +32,10 @@ export class InfoPanelNodeComponent implements OnDestroy {
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterfaces: any[] = [];
   @Input() infoPanelheight = '300px';
-  private gridApi!: GridApi;
-  rowsSelected: any[] = [];
-  rowsSelectedId: any[] = [];
-  isClickAction: boolean = true;
-  tabName = 'node';
+
   selectMapSelection$ = new Subscription();
-
-  get gridHeight() {
-    const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
-    return infoPanelHeightNumber >= 300 ? (infoPanelHeightNumber - 100) + 'px' : '200px';
-  }
-
-  private _setRowActive() {
-    this.gridApi.forEachNode(rowNode => {
-      const activeNodeIds = this.activeNodes.map(ele => ele.data('id'));
-      if (activeNodeIds.includes(rowNode.data.id)) {
-        rowNode.setSelected(true);
-      }
-    });
-  }
-
-  private _setNodeInfoPanel(activeNodes: any[]) {
-    if (activeNodes.length === 0) {
-      this.rowsSelected = [];
-      this.rowsSelectedId = [];
-      if (this.gridApi != null) {
-        this.gridApi.setRowData([]);
-      }
-    } else {
-      const rowData = activeNodes.map((ele: any) => {
-        if (ele.data('device')?.name) {
-          ele.data('device', ele.data('device')?.name)
-        }
-        if (ele.data('template')?.name) {
-          ele.data('template', ele.data('template')?.name)
-        }
-        if (ele.data('domain')?.name) {
-          ele.data('domain', ele.data('domain')?.name)
-        }
-        if (ele.data('hardware')?.serial_number) {
-          ele.data('hardware', ele.data('hardware')?.serial_number)
-        }
-        if (ele.data('login_profile')?.name) {
-          ele.data('login_profile', ele.data('login_profile')?.name)
-        }
-        return ele.data();
-      })
-      if (this.gridApi != null) {
-        this.gridApi.setRowData(rowData);
-        this._setRowActive();
-      }
-    }
-  }
-
-  public gridOptions: GridOptions = {
+  tabName = 'node';
+  gridOptions: GridOptions = {
     headerHeight: 48,
     defaultColDef: {
       sortable: true,
@@ -170,10 +119,10 @@ export class InfoPanelNodeComponent implements OnDestroy {
       {
         field: 'configs',
         headerName: 'Configuration',
-        cellRenderer: function(params: any) {
+        cellRenderer: (params: any) => {
           if (params.value.length > 0) {
             let html_str = "<div style='text-align:left;'><ul>"
-            for(let i in params.value) {
+            for (let i in params.value) {
               let item_html = `<li style='text-align: left'>${params.value[i].name}</li>`;
               html_str += item_html;
             }
@@ -190,39 +139,6 @@ export class InfoPanelNodeComponent implements OnDestroy {
     ]
   };
 
-  constructor(
-    private store: Store,
-    private dialog: MatDialog,
-    private toastr: ToastrService,
-    iconRegistry: MatIconRegistry,
-    private nodeService: NodeService,
-    private helpers: HelpersService,
-    private infoPanelService: InfoPanelService,
-    private cmActionsService: CMActionsService,
-  ) {
-    iconRegistry.addSvgIcon('export-csv', this.helpers.setIconPath('/assets/icons/export-csv-info-panel.svg'));
-    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json-info-panel.svg'));
-    this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
-      if (mapSelection) {
-        this._setNodeInfoPanel(this.activeNodes);
-        this.store.dispatch(retrievedMapSelection({ data: false }));
-      }
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.selectMapSelection$.unsubscribe();
-  }
-
-  onGridReady(params: GridReadyEvent) {
-    this.gridApi = params.api;
-  }
-
-  selectedRows() {
-    this.rowsSelected = this.gridApi.getSelectedRows();
-    this.rowsSelectedId = this.rowsSelected.map(ele => ele.node_id);
-  }
-
   onRowDoubleClicked(row: RowDoubleClickedEvent) {
     const dialogData = {
       mode: 'view',
@@ -234,11 +150,53 @@ export class InfoPanelNodeComponent implements OnDestroy {
     );
   }
 
+  constructor(
+    private store: Store,
+    private dialog: MatDialog,
+    private toastr: ToastrService,
+    iconRegistry: MatIconRegistry,
+    private nodeService: NodeService,
+    private helpers: HelpersService,
+    private cmActionsService: CMActionsService,
+  ) {
+    iconRegistry.addSvgIcon('export-csv', this.helpers.setIconPath('/assets/icons/export-csv-info-panel.svg'));
+    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json-info-panel.svg'));
+    this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
+      if (mapSelection) {
+        const rowData = this.activeNodes.map((ele: any) => {
+          if (ele.data('device')?.name) {
+            ele.data('device', ele.data('device')?.name)
+          }
+          if (ele.data('template')?.name) {
+            ele.data('template', ele.data('template')?.name)
+          }
+          if (ele.data('domain')?.name) {
+            ele.data('domain', ele.data('domain')?.name)
+          }
+          if (ele.data('hardware')?.serial_number) {
+            ele.data('hardware', ele.data('hardware')?.serial_number)
+          }
+          if (ele.data('login_profile')?.name) {
+            ele.data('login_profile', ele.data('login_profile')?.name)
+          }
+          return ele.data();
+        });
+        const activeEleIds = this.activeNodes.map(ele => ele.data('id'));
+        this.infoPanelTableComponent?.setSelectedEles(activeEleIds, rowData);
+        this.store.dispatch(retrievedMapSelection({ data: false }));
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.selectMapSelection$.unsubscribe();
+  }
+
   cloneNodes() {
-    if (this.rowsSelected.length === 0) {
+    if (this.infoPanelTableComponent?.rowsSelected.length === 0) {
       this.toastr.info('No row selected');
     } else {
-      const message = this.rowsSelected.length === 1 ? 'Clone this node?' : 'Clone these nodes?';
+      const message = this.infoPanelTableComponent?.rowsSelected.length === 1 ? 'Clone this node?' : 'Clone these nodes?';
       const dialogData = {
         title: 'User confirmation needed',
         message: message,
@@ -246,8 +204,8 @@ export class InfoPanelNodeComponent implements OnDestroy {
       }
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
-        if (confirm) {
-          const ids = this.rowsSelectedId;
+        if (confirm && this.infoPanelTableComponent) {
+          const ids = this.infoPanelTableComponent.rowsSelectedId;
           this.cmActionsService.cloneNodes(this.cy, ids);
         }
       })
@@ -255,64 +213,19 @@ export class InfoPanelNodeComponent implements OnDestroy {
   }
 
   deleteNodes() {
-    if (this.rowsSelected.length === 0) {
-      this.toastr.info('No row selected');
-    } else {
-      const dialogData = {
-        title: 'User confirmation needed',
-        message: 'Delete node(s) from this project?',
-        submitButtonName: 'OK'
-      }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '450px', data: dialogData });
-      dialogConfirm.afterClosed().subscribe(confirm => {
-        if (confirm) {
-          if (this.rowsSelected.length === 0) {
-            this.toastr.info('No row selected');
-          } else {
-            this.rowsSelectedId.map(id => {
-              this.infoPanelService.deleteInfoPanelAssociateMap(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
-                this.deletedNodes, this.deletedInterfaces, this.tabName, id);
-            })
-            this.clearTable();
-            this.store.dispatch(retrievedMapSelection({ data: true }));
-          }
-        }
-      })
-    }
+    this.infoPanelTableComponent?.delete(this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs);
   }
 
   editNodes() {
-    if (this.rowsSelected.length === 0) {
-      this.toastr.info('No row selected');
-    } else {
-      if (this.rowsSelected.length == 1) {
-        const dialogData = {
-          mode: 'update',
-          genData: this.rowsSelected[0],
-          cy: this.cy
-        }
-        this.dialog.open(AddUpdateNodeDialogComponent,
-          { width: '1000px', height: '900px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
-        );
-      } else {
-        const dialogData = {
-          genData: {
-            ids: this.rowsSelectedId,
-            activeNodes: this.rowsSelected
-          },
-          cy: this.cy
-        }
-        this.dialog.open(NodeBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-      }
-    }
+    this.infoPanelTableComponent?.edit();
   }
 
   exportNodes(format: string) {
-    if (this.rowsSelected.length === 0) {
+    if (this.infoPanelTableComponent?.rowsSelected.length === 0) {
       this.toastr.info('No row selected');
     } else {
       const jsonData = {
-        pks: this.rowsSelectedId
+        pks: this.infoPanelTableComponent?.rowsSelectedId
       }
       const fileName = format === 'json' ? 'Node-Export.json' : 'node_export.csv';
       let file = new Blob();
@@ -327,29 +240,10 @@ export class InfoPanelNodeComponent implements OnDestroy {
   }
 
   validateNode() {
-    if (this.rowsSelected.length === 0) {
-      this.toastr.info('No row selected');
-    } else {
-      const pks = this.rowsSelectedId;
-      this.nodeService.validate({ pks }).pipe(
-        catchError((e: any) => {
-          this.toastr.error(e.error.message);
-          this.dialog.open(InfoPanelShowValidationResultsComponent, {
-            autoFocus: false,
-            width: 'auto',
-            data: e.error.result
-          });
-          return throwError(() => e);
-        })
-      ).subscribe(response => {
-        this.toastr.success(response.message);
-      });
-    }
+    this.infoPanelTableComponent?.validate();
   }
 
   clearTable() {
-    this.rowsSelected = [];
-    this.rowsSelectedId = [];
-    this.gridApi.setRowData([]);
+    this.infoPanelTableComponent?.clearTable();
   }
 }

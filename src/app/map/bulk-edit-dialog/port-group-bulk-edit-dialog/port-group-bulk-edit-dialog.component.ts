@@ -95,7 +95,7 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
       }
       const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.portGroupService.editBulk(jsonData).subscribe((response: any) => {
-        return forkJoin(this.data.genData.activePGs.map((pg: any) => {
+        return forkJoin(this.data.genData.activeEles.map((pg: any) => {
           return this.portGroupService.get(pg.pg_id).pipe(map(pgData => {
             const portGroup = pgData.result;
             if (portGroup.category == 'management') {
@@ -106,7 +106,7 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
           }));
         }))
           .subscribe(() => {
-            return forkJoin(this.data.genData.activePGs.map((pg: any) => {
+            return forkJoin(this.data.genData.activeEles.map((pg: any) => {
               return this.portGroupService.get(pg.pg_id).pipe(map(pgData => {
                 this._updatePGOnMap(pgData.result);
               }))
