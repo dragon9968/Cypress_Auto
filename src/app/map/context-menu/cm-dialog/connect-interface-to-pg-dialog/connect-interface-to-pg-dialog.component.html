@@ -1,12 +1,12 @@
 <form [formGroup]="connectInterfaceToPGForm"
-      (ngSubmit)="data.mode === 'connect' ? connectToPortGroup() : disconnectPortGroup()">
+      (ngSubmit)="data.mode === 'connect' ? connectToPortGroup() : disconnectPortGroup()" autocomplete="off">
   <h1 mat-dialog-title>
     {{ data.mode === 'connect' ? 'Connect Interface to Port Group Form' : 'Disconnect Interface from Port Group Form' }}
   </h1>
   <mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Interface</mat-label>
-      <input matInput placeholder="Select a interface" formControlName="interfaceCtr"
+      <input autocomplete="off" id="connect-interface" matInput placeholder="Select a interface" formControlName="interfaceCtr"
              [matAutocomplete]="autoInterface">
       <mat-autocomplete #autoInterface="matAutocomplete"
                         [displayWith]="helpersService.optionDisplay">

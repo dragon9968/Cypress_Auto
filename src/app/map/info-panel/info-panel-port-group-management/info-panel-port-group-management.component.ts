@@ -111,7 +111,7 @@ export class InfoPanelPortGroupManagementComponent implements OnInit, OnDestroy 
       genData: row.data,
       cy: this.cy,
     }
-    this.dialog.open(AddUpdatePGDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+    this.dialog.open(AddUpdatePGDialogComponent, { hasBackdrop: false, width: '600px', autoFocus: false, data: dialogData });
   }
 
   constructor(
@@ -156,7 +156,7 @@ export class InfoPanelPortGroupManagementComponent implements OnInit, OnDestroy 
         message: 'Delete port_group(s) from this switch?',
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '500px', data: dialogData });
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '500px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
           const newPGsManagement = [...this.portGroupsManagement];
@@ -218,7 +218,7 @@ export class InfoPanelPortGroupManagementComponent implements OnInit, OnDestroy 
         message: `Generate a new randomize subnet for ${item} port_group${sSuffix}?`,
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '500px', data: dialogData });
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '500px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
           const jsonData = {

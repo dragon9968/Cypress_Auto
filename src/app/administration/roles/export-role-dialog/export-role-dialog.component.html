@@ -1,9 +1,9 @@
-<form [formGroup]="exportForm" (ngSubmit)="exportRoles()">
+<form [formGroup]="exportForm" (ngSubmit)="exportRoles()" autocomplete="off">
   <h1 mat-dialog-title>Export Role</h1>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>File Name</mat-label>
-      <input type="text" formControlName="fileNameCtr" matInput>
+      <input autocomplete="off" id="export-role-filename" type="text" formControlName="fileNameCtr" matInput>
       <mat-error *ngIf="fileNameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
   </div>

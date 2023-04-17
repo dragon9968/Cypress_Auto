@@ -130,7 +130,7 @@ export class InfoPanelInterfaceManagementComponent implements OnDestroy {
       genData: row.data,
       cy: this.cy,
     };
-    this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+    this.dialog.open(AddUpdateInterfaceDialogComponent, { hasBackdrop: false, width: '600px', autoFocus: false, data: dialogData });
   }
 
   constructor(
@@ -165,7 +165,7 @@ export class InfoPanelInterfaceManagementComponent implements OnDestroy {
         message: 'Delete edge(s) from this project?',
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '500px', data: dialogData });
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '500px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
           const newInterfacesManagement = [...this.interfacesManagement];
@@ -200,7 +200,7 @@ export class InfoPanelInterfaceManagementComponent implements OnDestroy {
         message: message,
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '500px', data: dialogData });
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '500px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
           this.interfaceService.randomizeIpBulk({ pks: this.infoPanelTableComponent?.rowsSelectedId }).pipe(

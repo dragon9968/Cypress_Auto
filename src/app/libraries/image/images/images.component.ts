@@ -121,6 +121,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
       }
     }
     this.dialog.open(AddEditImagesDialogComponent, {
+      hasBackdrop: false,
       autoFocus: false,
       width: WIDTH_DIALOG,
       data: dialogData
@@ -137,6 +138,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
           genData: imageData.result
         }
         this.dialog.open(AddEditImagesDialogComponent, {
+          hasBackdrop: false,
           autoFocus: false,
           width: WIDTH_DIALOG,
           data: dialogData
@@ -159,7 +161,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
         message: `Are you sure you want to delete ${suffix}?`,
         submitButtonName: 'OK'
       }
-      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '400px', data: dialogData });
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
           forkJoin(this.selectedImage.map(id => {
@@ -205,6 +207,7 @@ export class ImagesComponent implements OnInit, OnDestroy {
         genData: imageData.result
       }
       this.dialog.open(AddEditImagesDialogComponent, {
+        hasBackdrop: false,
         autoFocus: false,
         width: '600px',
         data: dialogData

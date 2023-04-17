@@ -145,7 +145,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       message: 'PNG file format.',
       submitButtonName: 'Download'
     }
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '600px', data: dialogData });
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '600px', data: dialogData });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         try {
@@ -276,7 +276,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         title: 'User confirmation needed',
         message: 'Are you sure you want to refresh? Changes have not been saved.'
       }
-      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '400px', data: dialogData });
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
           this.mapService.getMapData(this.mapCategory, this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));

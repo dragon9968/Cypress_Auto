@@ -128,7 +128,7 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
       genData: row.data,
       cy: this.cy
     };
-    this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+    this.dialog.open(AddUpdateInterfaceDialogComponent, { hasBackdrop: false, width: '600px', autoFocus: false, data: dialogData });
   }
 
   constructor(
@@ -178,7 +178,7 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
         message: message,
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '500px', data: dialogData });
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '500px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm && this.infoPanelTableComponent) {
           this.infoPanelService.randomizeIpInterfaces(this.infoPanelTableComponent.rowsSelected);

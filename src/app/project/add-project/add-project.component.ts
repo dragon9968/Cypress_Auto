@@ -315,7 +315,7 @@ export class AddProjectComponent implements OnInit {
       message: 'You sure you want to delete this item?',
       submitButtonName: 'OK'
     }
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData, autoFocus: false });
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '400px', data: dialogData, autoFocus: false });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.rowData.splice(params.rowData.index, 1);

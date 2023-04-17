@@ -90,7 +90,7 @@ export class ShowUserTaskDialogComponent implements OnInit, AfterViewInit {
       message: 'Rerun post task?',
       submitButtonName: 'OK'
     }
-    const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
+    const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {hasBackdrop: false, width: '450px', data: dialogData});
     dialogConfirm.afterClosed().subscribe(confirm => {
       if (confirm) {
         this.infoPanelService.postTask([this.data.genData.id]);
@@ -105,7 +105,7 @@ export class ShowUserTaskDialogComponent implements OnInit, AfterViewInit {
       message: 'Rerun this task?',
       submitButtonName: 'OK'
     }
-    const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
+    const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {hasBackdrop: false, width: '450px', data: dialogData});
     dialogConfirm.afterClosed().subscribe(confirm => {
       if (confirm) {
         this.infoPanelService.rerunTask([this.data.genData.id]);
@@ -120,7 +120,7 @@ export class ShowUserTaskDialogComponent implements OnInit, AfterViewInit {
       message: 'Revoke this task?',
       submitButtonName: 'OK'
     }
-    const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
+    const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {hasBackdrop: false, width: '450px', data: dialogData});
     dialogConfirm.afterClosed().subscribe(confirm => {
       if (confirm) {
         this.infoPanelService.revokeTask([this.data.genData.id]);

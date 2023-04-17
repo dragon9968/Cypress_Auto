@@ -147,7 +147,7 @@ export class CMRemoteService implements OnDestroy{
               activeNodes,
               category: this.connectionCategory
             };
-            this.dialog.open(AddUpdateNodeDeployDialogComponent, { width: '600px', data: dialogData, autoFocus: false });
+            this.dialog.open(AddUpdateNodeDeployDialogComponent, { hasBackdrop: false, width: '600px', data: dialogData, autoFocus: false });
           },
           hasTrailingDivider: true,
           disabled: false,
@@ -161,7 +161,7 @@ export class CMRemoteService implements OnDestroy{
               activeNodes,
               category: this.connectionCategory
             };
-            this.dialog.open(DeleteNodeDeployDialogComponent, { width: '600px', data: dialogData, autoFocus: false });
+            this.dialog.open(DeleteNodeDeployDialogComponent, { hasBackdrop: false, width: '600px', data: dialogData, autoFocus: false });
           },
           hasTrailingDivider: true,
           disabled: false,
@@ -176,7 +176,7 @@ export class CMRemoteService implements OnDestroy{
               activeNodes,
               category: this.connectionCategory
             };
-            this.dialog.open(AddUpdateNodeDeployDialogComponent, { width: '600px', data: dialogData, autoFocus: false });
+            this.dialog.open(AddUpdateNodeDeployDialogComponent, { hasBackdrop: false, width: '600px', data: dialogData, autoFocus: false });
           },
           hasTrailingDivider: true,
           disabled: false,
@@ -198,7 +198,7 @@ export class CMRemoteService implements OnDestroy{
               activeNodes,
               category: this.connectionCategory
             };
-            this.dialog.open(CreateNodeSnapshotDialogComponent, { width: '600px', data: dialogData });
+            this.dialog.open(CreateNodeSnapshotDialogComponent, { hasBackdrop: false, width: '600px', data: dialogData });
           },
           hasTrailingDivider: true,
           disabled: false,
@@ -219,7 +219,7 @@ export class CMRemoteService implements OnDestroy{
                     names: response,
                     category: this.connectionCategory
                   };
-                  this.dialog.open(DeleteNodeSnapshotDialogComponent, { width: '600px', data: dialogData });
+                  this.dialog.open(DeleteNodeSnapshotDialogComponent, { hasBackdrop: false, width: '600px', data: dialogData });
                 }
               })
             } else {
@@ -245,7 +245,7 @@ export class CMRemoteService implements OnDestroy{
                     names: response,
                     category: this.connectionCategory
                   };
-                  this.dialog.open(RevertNodeSnapshotDialogComponent, { width: '600px', data: dialogData });
+                  this.dialog.open(RevertNodeSnapshotDialogComponent, { hasBackdrop: false, width: '600px', data: dialogData });
                 }
               })
             } else {
@@ -266,7 +266,7 @@ export class CMRemoteService implements OnDestroy{
           activeNodes,
           category: this.connectionCategory
         };
-        this.dialog.open(UpdateFactsNodeDialogComponent, { width: '600px', data: dialogData });
+        this.dialog.open(UpdateFactsNodeDialogComponent, { hasBackdrop: false, width: '600px', data: dialogData });
       },
       hasTrailingDivider: true,
       disabled: false,
@@ -286,7 +286,7 @@ export class CMRemoteService implements OnDestroy{
               jobName: 'ping_test',
               category: this.connectionCategory
             }
-            this.dialog.open(NodeToolsDialogComponent, { width: '450px', data: dialogData, autoFocus: false })
+            this.dialog.open(NodeToolsDialogComponent, { hasBackdrop: false, width: '450px', data: dialogData, autoFocus: false })
           },
           hasTrailingDivider: true,
           disabled: false,
@@ -301,7 +301,7 @@ export class CMRemoteService implements OnDestroy{
               jobName: 'shell_command',
               category: this.connectionCategory
             }
-            this.dialog.open(NodeToolsDialogComponent, { width: '450px', data: dialogData, autoFocus: false })
+            this.dialog.open(NodeToolsDialogComponent, { hasBackdrop: false, width: '450px', data: dialogData, autoFocus: false })
           },
           hasTrailingDivider: true,
           disabled: false,
@@ -344,7 +344,7 @@ export class CMRemoteService implements OnDestroy{
               message: 'Deploy this port group?',
               category: this.connectionCategory
             };
-            this.dialog.open(AddDeletePGDeployDialogComponent, { width: '450px', data: dialogData });
+            this.dialog.open(AddDeletePGDeployDialogComponent, { hasBackdrop: false, width: '450px', data: dialogData });
           },
           hasTrailingDivider: true,
           disabled: false,
@@ -360,7 +360,7 @@ export class CMRemoteService implements OnDestroy{
               message: 'Delete port group(s)?',
               category: this.connectionCategory
             };
-            this.dialog.open(AddDeletePGDeployDialogComponent, { width: '450px', data: dialogData });
+            this.dialog.open(AddDeletePGDeployDialogComponent, { hasBackdrop: false, width: '450px', data: dialogData });
           },
           hasTrailingDivider: true,
           disabled: false,
@@ -376,7 +376,7 @@ export class CMRemoteService implements OnDestroy{
               message: 'Update port group(s)?',
               category: this.connectionCategory
             };
-            this.dialog.open(AddDeletePGDeployDialogComponent, { width: '450px', data: dialogData });
+            this.dialog.open(AddDeletePGDeployDialogComponent, { hasBackdrop: false, width: '450px', data: dialogData });
           },
           hasTrailingDivider: true,
           disabled: false,

@@ -153,6 +153,7 @@ export class RolesComponent implements OnInit {
       }
     }
     this.dialog.open(AddEditRoleDialogComponent, {
+      hasBackdrop: false,
       autoFocus: false,
       width: '800px',
       data: dialogData
@@ -169,6 +170,7 @@ export class RolesComponent implements OnInit {
           genData: roleData.result
         }
         this.dialog.open(AddEditRoleDialogComponent, {
+          hasBackdrop: false,
           autoFocus: false,
           width: '800px',
           data: dialogData
@@ -190,7 +192,7 @@ export class RolesComponent implements OnInit {
         message: `Are you sure you want to delete ${suffix}?`,
         submitButtonName: 'OK'
       }
-      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '400px', data: dialogData });
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
           forkJoin(this.rowsSelectedId.map(id => {
@@ -224,6 +226,7 @@ export class RolesComponent implements OnInit {
 
   importRoles() {
     const dialogRef = this.dialog.open(ImportRoleDialogComponent, {
+      hasBackdrop: false,
       autoFocus: false,
       width: '450px',
     });
@@ -239,6 +242,7 @@ export class RolesComponent implements OnInit {
           name: data.result.name,
         }
         this.dialog.open(ExportRoleDialogComponent, {
+          hasBackdrop: false,
           autoFocus: false,
           width: '450px',
           data: dialogData
@@ -257,6 +261,7 @@ export class RolesComponent implements OnInit {
           name: roleData.result.name
         }
         this.dialog.open(CloneRoleDialogComponent, {
+          hasBackdrop: false,
           autoFocus: false,
           width: '450px',
           data: dialogData

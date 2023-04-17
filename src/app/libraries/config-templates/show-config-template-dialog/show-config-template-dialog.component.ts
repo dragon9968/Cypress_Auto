@@ -95,7 +95,7 @@ export class ShowConfigTemplateDialogComponent implements OnInit {
       title: 'User confirmation needed',
       message: 'You sure you want to delete this item?'
     }
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '400px', data: dialogData });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         const jsonData = {

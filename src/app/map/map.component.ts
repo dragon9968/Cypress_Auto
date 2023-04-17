@@ -1051,7 +1051,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       newNodeData,
       newNodePosition,
     }
-    const dialogRef = this.dialog.open(AddUpdateNodeDialogComponent, { width: '600px', data: dialogData });
+    const dialogRef = this.dialog.open(AddUpdateNodeDialogComponent, { hasBackdrop: false, width: '600px', data: dialogData });
     dialogRef.afterClosed().subscribe((_data: any) => {
       this.isAddNode = false;
       this._enableMapEditButtons();
@@ -1129,7 +1129,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       newNodeData,
       newNodePosition,
     }
-    const dialogRef = this.dialog.open(AddUpdatePGDialogComponent, { width: '600px', data: dialogData });
+    const dialogRef = this.dialog.open(AddUpdatePGDialogComponent, { hasBackdrop: false, width: '600px', data: dialogData });
     dialogRef.afterClosed().subscribe((_data: any) => {
       if (this.isAddPublicPG) this.isAddPublicPG = false;
       if (this.isAddPrivatePG) this.isAddPrivatePG = false;
@@ -1193,7 +1193,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       genData,
       newEdgeData
     }
-    const dialogRef = this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '650px', data: dialogData });
+    const dialogRef = this.dialog.open(AddUpdateInterfaceDialogComponent, { hasBackdrop: false, width: '650px', data: dialogData });
     dialogRef.afterClosed().subscribe((_data: any) => {
       this.cy.unbind('mousemove');
       this.inv.remove();
@@ -1294,7 +1294,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       genData,
       newEdgeData,
     }
-    const dialogRef = this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', data: dialogData });
+    const dialogRef = this.dialog.open(AddUpdateInterfaceDialogComponent, { hasBackdrop: false, width: '600px', data: dialogData });
     dialogRef.afterClosed().subscribe((_data: any) => {
       this.cy.unbind('mousemove');
       this.inv.remove();
@@ -1668,6 +1668,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         )
         this.toastr.error(e.error.message);
         this.dialog.open(ValidateProjectDialogComponent, {
+          hasBackdrop: false,
           autoFocus: false,
           width: 'auto',
           data: e.error.result

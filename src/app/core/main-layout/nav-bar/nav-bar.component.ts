@@ -216,6 +216,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
           genData: resp.result
         }
         const dialogRef = this.dialog.open(EditProjectDialogComponent, {
+          hasBackdrop: false,
           autoFocus: false,
           width: 'auto',
           data: dialogData
@@ -230,7 +231,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
       message: 'Project will be moved to trash. Are you sure?',
       submitButtonName: 'Delete'
     }
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '400px', data: dialogData });
     dialogRef.afterClosed().subscribe(result => {
       const jsonData = {
         pk: this.collectionId,
@@ -270,6 +271,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
         type: 'user'
       }
       this.dialog.open(ExportProjectDialogComponent, {
+        hasBackdrop: false,
         autoFocus: false,
         width: '450px',
         data: dialogData
@@ -279,6 +281,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
 
   importProject() {
     const dialogRef = this.dialog.open(ImportProjectDialogComponent, {
+      hasBackdrop: false,
       autoFocus: false,
       width: '450px',
     });
@@ -291,6 +294,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
         category: data.result.category
       }
       this.dialog.open(CloneProjectDialogComponent, {
+        hasBackdrop: false,
         autoFocus: false,
         width: '400px',
         data: dialogData
@@ -317,6 +321,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
       }
       this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPrefs({ data: data.result })));
       const dialogRef = this.dialog.open(AppPreferencesComponent, {
+        hasBackdrop: false,
         autoFocus: false,
         width: '600px',
         data: dialogData
@@ -328,7 +333,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
     const dialogData = {
       connectionCategory: connectionCategory
     }
-    this.dialog.open(ServerConnectDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+    this.dialog.open(ServerConnectDialogComponent, { hasBackdrop: false, width: '600px', autoFocus: false, data: dialogData });
   }
 
   disconnectServer(category: string) {
@@ -352,7 +357,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   openAboutModal() {
-    this.dialog.open(AboutComponent, { width: '600px', autoFocus: false });
+    this.dialog.open(AboutComponent, { hasBackdrop: false, width: '600px', autoFocus: false });
   }
 
   openProject(collectionId: string) {
@@ -387,6 +392,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
       catchError((e: any) => {
         this.toastr.error(e.error.message);
         this.dialog.open(ValidateProjectDialogComponent, {
+          hasBackdrop: false,
           autoFocus: false,
           width: 'auto',
           data: e.error.result
@@ -403,7 +409,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
       const dialogData = {
         genData: data.result
       }
-      this.dialog.open(LDAPConfigurationComponent, { width: '600px', autoFocus: false, data: dialogData });
+      this.dialog.open(LDAPConfigurationComponent, { hasBackdrop: false, width: '600px', autoFocus: false, data: dialogData });
     })
   }
 }

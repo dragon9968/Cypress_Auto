@@ -213,6 +213,7 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
       genIcon: this.icon_default
     }
     this.dialog.open(AddEditMapprefDialogComponent, {
+      hasBackdrop: false,
       autoFocus: false,
       width: '450px',
       data: dialogData
@@ -240,6 +241,7 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
         genData: mapPrefData.result
       }
       this.dialog.open(AddEditMapprefDialogComponent, {
+        hasBackdrop: false,
         width: '450px',
         data: dialogData
       });
@@ -256,6 +258,7 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
           genData: mapPrefData.result,
         }
         this.dialog.open(AddEditMapprefDialogComponent, {
+          hasBackdrop: false,
           autoFocus: false,
           width: '450px',
           data: dialogData
@@ -277,7 +280,7 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
         message: `You sure you want to delete ${suffix}?`,
         submitButtonName: 'OK'
       }
-      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '400px', data: dialogData });
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
           this.rowsSelected.map(mapPref => {

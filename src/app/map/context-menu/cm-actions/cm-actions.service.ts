@@ -54,6 +54,7 @@ export class CMActionsService {
               catchError((e: any) => {
                 this.toastr.error(e.error.message);
                 this.dialog.open(InfoPanelShowValidationResultsComponent, {
+                  hasBackdrop: false,
                   autoFocus: false,
                   width: 'auto',
                   data: e.error.result
@@ -96,6 +97,7 @@ export class CMActionsService {
               catchError((e: any) => {
                 this.toastr.error(e.error.message);
                 this.dialog.open(InfoPanelShowValidationResultsComponent, {
+                  hasBackdrop: false,
                   autoFocus: false,
                   width: 'auto',
                   data: e.error.result
@@ -150,6 +152,7 @@ export class CMActionsService {
               catchError((e: any) => {
                 this.toastr.error(e.error.message);
                 this.dialog.open(InfoPanelShowValidationResultsComponent, {
+                  hasBackdrop: false,
                   autoFocus: false,
                   width: 'auto',
                   data: e.error.result

@@ -228,6 +228,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
               genData: data.result
             }
             this.dialog.open(EditProjectDialogComponent, {
+              hasBackdrop: false,
               autoFocus: false,
               width: '600px',
               data: dialogData
@@ -250,7 +251,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
         message: `Are you sure you want to delete ${suffix}?`,
         submitButtonName: 'OK'
       }
-      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '400px', data: dialogData });
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
           forkJoin(this.rowsSelectedId.map(id => {
@@ -283,7 +284,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
         name: this.rowsSelectedId.length === 1 ? this.rowsSelected[0].name : 'Projects',
         type: 'admin'
       }
-      this.dialog.open(ExportProjectDialogComponent, { autoFocus: false, width: '400px', data: dialogData });
+      this.dialog.open(ExportProjectDialogComponent, { hasBackdrop: false, autoFocus: false, width: '400px', data: dialogData });
     }
   }
 

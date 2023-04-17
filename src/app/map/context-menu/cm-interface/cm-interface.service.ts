@@ -47,7 +47,7 @@ export class CMInterfaceService {
         }
         this.interfaceService.getByNodeAndNotConnectToPG(nodeId).subscribe(response => {
           this.store.dispatch(retrievedInterfacesNotConnectPG({ interfacesNotConnectPG: response.result }));
-          this.dialog.open(ConnectInterfaceToPgDialogComponent, { width: '450px', data: dialogData })
+          this.dialog.open(ConnectInterfaceToPgDialogComponent, { hasBackdrop: false, width: '450px', data: dialogData })
         })
       }
     }
@@ -68,7 +68,7 @@ export class CMInterfaceService {
         }
         this.interfaceService.getByNodeAndConnectedToPG(nodeId).subscribe(response => {
           this.store.dispatch(retrievedInterfacesNotConnectPG({ interfacesNotConnectPG: response.result }));
-          this.dialog.open(ConnectInterfaceToPgDialogComponent, { width: '450px', data: dialogData })
+          this.dialog.open(ConnectInterfaceToPgDialogComponent, { hasBackdrop: false, width: '450px', data: dialogData })
         })
       }
     }

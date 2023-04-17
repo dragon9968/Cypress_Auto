@@ -1,9 +1,9 @@
-<form [formGroup]="exportForm" (ngSubmit)="exportProject()">
+<form [formGroup]="exportForm" (ngSubmit)="exportProject()" autocomplete="off">
   <h1 mat-dialog-title>{{ data.category === 'project' ? 'Export Project' : 'Export Project Template'}}</h1>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>File Name</mat-label>
-      <input type="text" formControlName="fileNameCtr" matInput>
+      <input autocomplete="off" id="export-project-filename" type="text" formControlName="fileNameCtr" matInput>
       <mat-error *ngIf="fileNameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
   </div>

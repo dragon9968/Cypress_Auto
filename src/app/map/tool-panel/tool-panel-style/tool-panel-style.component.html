@@ -3,7 +3,7 @@
     <div>
         <mat-form-field class="tab-select-field">
             <mat-label>Map Preference</mat-label>
-            <input matInput type="text" placeholder="Select Map Preference" [formControl]="mapPrefCtr"
+            <input autocomplete="off" id="toolpanel-style-mappref" matInput type="text" placeholder="Select Map Preference" [formControl]="mapPrefCtr"
                 [matAutocomplete]="autoMapPref">
             <mat-autocomplete #autoMapPref="matAutocomplete" [displayWith]="helpers.optionDisplay"
                 (optionSelected)="selectMapPref($event)">
@@ -183,12 +183,12 @@
         <div class="tab-field">
             <mat-form-field class="position">
                 <mat-label>X</mat-label>
-                <input matInput type="text" formControlName="xCtr">
+                <input autocomplete="off" id="tool-panel-style-positionx" matInput type="text" formControlName="xCtr">
                 <mat-error *ngIf="xCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
             </mat-form-field>
             <mat-form-field class="position">
                 <mat-label>Y</mat-label>
-                <input matInput type="text" formControlName="yCtr">
+                <input autocomplete="off" id="tool-panel-style-positiony" matInput type="text" formControlName="yCtr">
                 <mat-error *ngIf="yCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
             </mat-form-field>
         </div>

@@ -114,6 +114,7 @@ export class LookupFeaturesComponent implements OnInit, OnDestroy {
         genData: data.result
       }
       this.dialog.open(AddEditLookupFeaturesDialogComponent, {
+        hasBackdrop: false,
         autoFocus: false,
         width: 'auto',
         data: dialogData
@@ -133,6 +134,7 @@ export class LookupFeaturesComponent implements OnInit, OnDestroy {
       }
     }
     this.dialog.open(AddEditLookupFeaturesDialogComponent, {
+      hasBackdrop: false,
       autoFocus: false,
       width: '450px',
       data: dialogData
@@ -149,6 +151,7 @@ export class LookupFeaturesComponent implements OnInit, OnDestroy {
           genData: data.result
         }
         this.dialog.open(AddEditLookupFeaturesDialogComponent, {
+          hasBackdrop: false,
           autoFocus: false,
           width: '450px',
           data: dialogData
@@ -170,7 +173,7 @@ export class LookupFeaturesComponent implements OnInit, OnDestroy {
         message: `Are you sure you want to delete ${suffix}?`,
         submitButtonName: 'OK'
       }
-      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '400px', data: dialogData });
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
           forkJoin(this.rowsSelectedId.map(id => {
@@ -218,6 +221,7 @@ export class LookupFeaturesComponent implements OnInit, OnDestroy {
 
   importLookupFeatures() {
     const dialogRef = this.dialog.open(ImportLookupFeaturesDialogComponent, {
+      hasBackdrop: false,
       autoFocus: false,
       width: '450px',
     });
