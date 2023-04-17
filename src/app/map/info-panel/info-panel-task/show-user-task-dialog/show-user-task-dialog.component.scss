@@ -14,15 +14,16 @@
   display: flex;
   &__info {
     width: 30%;
+    overflow-y: auto;
   }
   &__result {
     margin-left: 5px;
     width: 69%;
     &__editor {
       overflow-y: auto;
-      max-height: 600px;
+      max-height: 62vh;
       ace-editor {
-        height: 600px;
+        height: 62vh;
       }
     }
   }

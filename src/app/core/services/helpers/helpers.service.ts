@@ -203,7 +203,7 @@ export class HelpersService implements OnDestroy {
         selector: ':parent',
         style: {
           'content': (ele: any) => ele.data('name'),
-          'background-opacity': (ele: any) => ele.data('group_opacity') ? ele.data('group_opacity') : 1,
+          'background-opacity': (ele: any) => ele.data('group_opacity') ? ele.data('group_opacity') : .2,
           'background-color': (ele: any) => ele.data('color') ? ele.data('color') : '#00dcff',
           "z-index-compare": "manual"
         }
@@ -221,7 +221,7 @@ export class HelpersService implements OnDestroy {
         style: {
           'content': (ele: any) => ele.data('id'),
           'background-color': (ele: any) => ele.data('color') ? ele.data('color') : '#00dcff',
-          'background-opacity': (ele: any) => ele.data('group_opacity') ? ele.data('group_opacity') : 1,
+          'background-opacity': (ele: any) => ele.data('group_opacity') ? ele.data('group_opacity') : .2,
           "z-index-compare": "manual",
           'shape': 'rectangle',
         }
@@ -427,7 +427,7 @@ export class HelpersService implements OnDestroy {
 
   removeGroupBox(cy: any, groupBoxId: any) {
     const groupBox = cy.getElementById(`group-${groupBoxId}`)
-    if (groupBox) {
+    if (groupBox && groupBox.length > 0) {
       const data = groupBox.data();
       if (data.collapsedChildren) {
         cy.expandCollapse('get').expandRecursively(groupBox, {});

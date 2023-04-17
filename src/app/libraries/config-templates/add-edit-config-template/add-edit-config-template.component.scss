@@ -1,10 +1,12 @@
 .configuration-template {
-  max-height: 85vh;
+  max-height: 80vh;
   display: flex;
   justify-content: space-between;
   overflow: hidden;
   &__left {
     width: 50%;
+    overflow-y: auto;
+    overflow-x: hidden;
     &__info {
       background-color: #fff;
       padding: 8px 8px 0 8px;
@@ -62,17 +64,17 @@
   }
   &__right {
     width: 48%;
+    overflow-y: auto;
     &__view {
       background-color: #fff;
       padding: 2px 8px 4px 8px;
       overflow-y: auto;
-      max-height: 630px;
-      height: 630px;
+      max-height: 75vh;
     }
     &__edit {
-      max-height: 630px;
+      max-height: 75vh;
       ace-editor {
-        height: 630px;
+        height: 75vh;
       }
     }
   }

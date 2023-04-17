@@ -1,10 +1,9 @@
 import { Store } from "@ngrx/store";
 import { MatDialog } from "@angular/material/dialog";
 import { ToastrService } from "ngx-toastr";
-import { ActivatedRoute } from "@angular/router";
-import { Observable, of, Subscription } from "rxjs";
+import { Subscription } from "rxjs";
 import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { GridApi, GridOptions, GridReadyEvent, RowDoubleClickedEvent } from "ag-grid-community";
+import { GridOptions, RowDoubleClickedEvent } from "ag-grid-community";
 import { GroupService } from "../../../core/services/group/group.service";
 import { ProjectService } from "../../../project/services/project.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
@@ -100,7 +99,7 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
       };
       this.dialog.open(AddUpdateGroupDialogComponent, { hasBackdrop: false, width: '600px', autoFocus: false, data: dialogData });
     })
-    
+
   }
 
   constructor(

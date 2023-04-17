@@ -211,7 +211,6 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
         hasBackdrop: false,
         autoFocus: false,
         width: '1000px',
-        height: '810px',
         data: dialogData,
         panelClass: 'custom-node-form-modal'
       });
@@ -231,7 +230,6 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
           hasBackdrop: false,
           autoFocus: false,
           width: '1000px',
-          height: '810px',
           data: dialogData,
           panelClass: 'custom-node-form-modal'
         });
