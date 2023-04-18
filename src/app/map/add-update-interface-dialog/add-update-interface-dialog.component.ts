@@ -108,7 +108,8 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     let directionValue = this.isEdgeDirectionChecked ? this.data.genData.direction : this.data.genData.prev_direction;
-    directionValue = this.data.mode == 'add' || this.data.mode == 'connect' ? this.data.genData.direction : directionValue;
+    directionValue = this.data.mode == 'add' || this.data.mode == 'connect' || this.data.genData.category == 'management'
+                      ? this.data.genData.direction : directionValue;
     this.directionCtr.setValidators([Validators.required, autoCompleteValidator(this.DIRECTIONS)]);
     this.filteredDirections = this.helpers.filterOptions(this.directionCtr, this.DIRECTIONS);
     this.orderCtr?.setValue(this.data.genData.order);
