@@ -52,7 +52,7 @@ export class CMEditService {
         const dialogData = {
           genData: {
             ids: edgeActiveIds,
-            activeEdges: activeEdges.map((ele: any) => ele.data())
+            activeEles: activeEdges.map((ele: any) => ele.data())
           },
           cy
         };
@@ -71,7 +71,7 @@ export class CMEditService {
         const dialogData = {
           genData: {
             ids: pgActiveIds,
-            activePGs: activePGs.map((ele: any) => ele.data())
+            activeEles: activePGs.map((ele: any) => ele.data())
           },
           cy
         }
@@ -90,7 +90,7 @@ export class CMEditService {
         const dialogData = {
           genData: {
             ids: nodeActiveIds,
-            activeNodes: activeNodes.map((ele: any) => ele.data())
+            activeEles: activeNodes.map((ele: any) => ele.data())
           },
           cy
         }

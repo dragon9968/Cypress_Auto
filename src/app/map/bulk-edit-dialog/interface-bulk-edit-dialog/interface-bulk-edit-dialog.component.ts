@@ -111,7 +111,7 @@ export class InterfaceBulkEditDialogComponent implements OnInit, OnDestroy {
       const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.interfaceService.editBulk(jsonData).subscribe(response => {
         let interfacesData: any[] = [];
-        this.data.genData.activeEdges.map((edge: any) => {
+        this.data.genData.activeEles.map((edge: any) => {
           const data = {
             ...edge,
             ...jsonData,
