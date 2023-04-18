@@ -89,7 +89,7 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
     if (this.rowsSelectedId.length == 0) {
       this.toastr.info('No row selected');
     } else {
-      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '400px', data: dialogData });
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData });
       dialogRef.afterClosed().subscribe(result => {
         const jsonData = {
           pk: this.rowsSelectedId,
@@ -120,7 +120,7 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
     if (this.rowsSelectedId.length == 0) {
       this.toastr.info('No row selected');
     } else {
-      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '400px', data: dialogData });
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData });
       dialogRef.afterClosed().subscribe(result => {
         const jsonData = {
           pk: this.rowsSelectedId,

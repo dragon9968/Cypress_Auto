@@ -97,7 +97,7 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
         collection_id: groupData.result.collection_id,
         map_category: 'logical'
       };
-      this.dialog.open(AddUpdateGroupDialogComponent, { hasBackdrop: false, width: '600px', autoFocus: false, data: dialogData });
+      this.dialog.open(AddUpdateGroupDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
     })
 
   }
@@ -151,7 +151,7 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
       collection_id: this.collectionId,
       map_category: this.mapCategory
     };
-    this.dialog.open(AddUpdateGroupDialogComponent, { hasBackdrop: false, width: '600px', autoFocus: false, data: dialogData });
+    this.dialog.open(AddUpdateGroupDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
   }
 
   editGroup() {
@@ -165,7 +165,7 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
           collection_id: groupData.result.collection_id,
           map_category: 'logical'
         };
-        const dialogRef = this.dialog.open(AddUpdateGroupDialogComponent, { hasBackdrop: false, width: '600px', autoFocus: false, data: dialogData });
+        const dialogRef = this.dialog.open(AddUpdateGroupDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
         dialogRef.afterClosed().subscribe(result => {
           if (result) {
             this.activePGs.splice(0);
@@ -190,7 +190,7 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
         message: `Are you sure you want to delete ${item}?`,
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {hasBackdrop: false, width: '450px', data: dialogData});
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {disableClose: true, width: '450px', data: dialogData});
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
           this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.infoPanelTableComponent?.rowsSelectedId);

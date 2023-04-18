@@ -40,14 +40,14 @@ export class CMViewDetailsService {
         genData: activeEdges[0].data(),
         cy
       }
-      this.dialog.open(AddUpdateInterfaceDialogComponent, { hasBackdrop: false, width: '650px', autoFocus: false, data: dialogData });
+      this.dialog.open(AddUpdateInterfaceDialogComponent, { disableClose: true, width: '650px', autoFocus: false, data: dialogData });
     } else if (activePGsLength == 1 && activeNodesLength == 0 && activeEdgesLength == 0) {
       const dialogData = {
         mode: 'view',
         genData: activePGs[0].data(),
         cy
       }
-      this.dialog.open(AddUpdatePGDialogComponent, { hasBackdrop: false, width: '600px', autoFocus: false, data: dialogData });
+      this.dialog.open(AddUpdatePGDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
     } else if (activeNodesLength == 1 && activePGsLength == 0 && activeEdgesLength == 0) {
       const dialogData = {
         mode: 'view',
@@ -55,7 +55,7 @@ export class CMViewDetailsService {
         cy
       }
       this.dialog.open(AddUpdateNodeDialogComponent,
-        { hasBackdrop: false, width: '1000px', height: '900px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal'}
+        { disableClose: true, width: '1000px', height: '900px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal'}
       );
     } else if (activeMapLinksLength == 1 && activePGsLength == 0 && activeEdgesLength == 0 && activeNodesLength == 0) {
       const dialogData = {
@@ -63,7 +63,7 @@ export class CMViewDetailsService {
         genData: activeMapLinks[0].data(),
         cy
       }
-      this.dialog.open(ViewUpdateProjectNodeComponent, { hasBackdrop: false, width: '450px', autoFocus: false, data: dialogData });
+      this.dialog.open(ViewUpdateProjectNodeComponent, { disableClose: true, width: '450px', autoFocus: false, data: dialogData });
     }
   }
 }

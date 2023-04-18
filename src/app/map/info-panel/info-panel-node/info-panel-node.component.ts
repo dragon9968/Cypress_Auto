@@ -146,7 +146,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
       cy: this.cy
     }
     this.dialog.open(AddUpdateNodeDialogComponent,
-      { hasBackdrop: false, width: '1000px', height: '900px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
+      { disableClose: true, width: '1000px', height: '900px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
     );
   }
 
@@ -202,7 +202,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
         message: message,
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '400px', data: dialogData });
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm && this.infoPanelTableComponent) {
           const ids = this.infoPanelTableComponent.rowsSelectedId;

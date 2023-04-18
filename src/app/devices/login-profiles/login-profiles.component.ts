@@ -153,7 +153,7 @@ export class LoginProfilesComponent implements OnInit, OnDestroy {
       }
     }
     this.dialog.open(EditLoginProfilesDialogComponent, {
-      hasBackdrop: false,
+      disableClose: true,
       autoFocus: false,
       width: '450px',
       data: dialogData
@@ -167,7 +167,7 @@ export class LoginProfilesComponent implements OnInit, OnDestroy {
         genData: loginData.result
       }
       this.dialog.open(EditLoginProfilesDialogComponent, {
-        hasBackdrop: false,
+        disableClose: true,
         autoFocus: false,
         width: '450px',
         data: dialogData
@@ -185,7 +185,7 @@ export class LoginProfilesComponent implements OnInit, OnDestroy {
           genData: loginData.result
         }
         this.dialog.open(EditLoginProfilesDialogComponent, {
-          hasBackdrop: false,
+          disableClose: true,
           autoFocus: false,
           width: '450px',
           data: dialogData
@@ -208,7 +208,7 @@ export class LoginProfilesComponent implements OnInit, OnDestroy {
         message: `Are you sure you want to delete ${suffix}?`,
         submitButtonName: 'OK'
       }
-      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '400px', data: dialogData });
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData });
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
           this.rowsSelected.map(loginProfile => {

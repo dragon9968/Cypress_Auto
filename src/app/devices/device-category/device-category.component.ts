@@ -94,7 +94,7 @@ export class DeviceCategoryComponent implements OnInit, OnDestroy {
       mode: 'add',
       genData: {}
     }
-    this.dialog.open(AddUpdateDeviceCategoryDialogComponent, {hasBackdrop: false, width: '500px', data: dialogData});
+    this.dialog.open(AddUpdateDeviceCategoryDialogComponent, {disableClose: true, width: '500px', data: dialogData});
   }
 
   onGridReady(params: GridReadyEvent) {
@@ -131,7 +131,7 @@ export class DeviceCategoryComponent implements OnInit, OnDestroy {
           mode: 'update',
           genData: deviceCategory
         };
-        this.dialog.open(AddUpdateDeviceCategoryDialogComponent, {hasBackdrop: false, width: '500px', data: dialogData});
+        this.dialog.open(AddUpdateDeviceCategoryDialogComponent, {disableClose: true, width: '500px', data: dialogData});
     }
     else {
       this.toastr.info('Bulk edits do not apply to device category.<br>Please select only one device category',
@@ -150,7 +150,7 @@ export class DeviceCategoryComponent implements OnInit, OnDestroy {
         message: `You sure you want to delete ${suffix}?`,
         submitButtonName: 'OK'
       }
-      const dialogRefConfirm = this.dialog.open(ConfirmationDialogComponent, {hasBackdrop: false, width: '450px', data: dialogData});
+      const dialogRefConfirm = this.dialog.open(ConfirmationDialogComponent, {disableClose: true, width: '450px', data: dialogData});
       dialogRefConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
           this.rowsSelected.map(deviceCategory => {

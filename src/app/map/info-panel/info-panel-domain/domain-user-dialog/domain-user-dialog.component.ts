@@ -311,7 +311,7 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
         message: `Are you sure you want to delete ${item}?`,
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {hasBackdrop: false, width: '450px', data: dialogData});
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {disableClose: true, width: '450px', data: dialogData});
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
           this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.rowsSelectedId);

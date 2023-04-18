@@ -133,7 +133,7 @@ export class UsersComponent implements OnInit, OnDestroy{
       }
     }
     this.dialog.open(AddEditUserDialogComponent, {
-      hasBackdrop: false,
+      disableClose: true,
       autoFocus: false,
       width: '600px',
       data: dialogData
@@ -150,7 +150,7 @@ export class UsersComponent implements OnInit, OnDestroy{
           genData: data.result
         }
         this.dialog.open(AddEditUserDialogComponent, {
-          hasBackdrop: false,
+          disableClose: true,
           autoFocus: false,
           width: '600px',
           data: dialogData
@@ -172,7 +172,7 @@ export class UsersComponent implements OnInit, OnDestroy{
         message: `Are you sure you want to delete ${suffix}?`,
         submitButtonName: 'OK'
       }
-      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '400px', data: dialogData });
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData });
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
           forkJoin(this.rowsSelectedId.map(id => {
@@ -199,7 +199,7 @@ export class UsersComponent implements OnInit, OnDestroy{
         genData: respData.result
       }
       this.dialog.open(AddEditUserDialogComponent, {
-        hasBackdrop: false,
+        disableClose: true,
         autoFocus: false,
         width: '600px',
         data: dialogData
@@ -216,7 +216,7 @@ export class UsersComponent implements OnInit, OnDestroy{
           genData: data.result
         }
         this.dialog.open(ResetPasswordDialogComponent, {
-          hasBackdrop: false,
+          disableClose: true,
           autoFocus: false,
           width: '500px',
           data: dialogData

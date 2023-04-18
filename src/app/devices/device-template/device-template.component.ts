@@ -265,7 +265,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
       }
     }
     const dialogRef = this.dialog.open(AddEditDeviceDialogComponent, {
-      hasBackdrop: false,
+      disableClose: true,
       autoFocus: false,
       width: '450px',
       data: dialogData
@@ -294,7 +294,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
       }
     }
     const dialogRef = this.dialog.open(AddEditTemplateDialogComponent, {
-      hasBackdrop: false,
+      disableClose: true,
       autoFocus: false,
       width: '450px',
       data: dialogData
@@ -364,7 +364,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
           genData: deviceData.result
         }
         const dialogRef = this.dialog.open(AddEditDeviceDialogComponent, {
-          hasBackdrop: false,
+          disableClose: true,
           autoFocus: false,
           width: '450px',
           data: dialogData
@@ -386,7 +386,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
         message: `Are you sure you want to delete ${suffix}?`,
         submitButtonName: 'OK'
       }
-      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '400px', data: dialogData });
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData });
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
           this.rowSelectedDevice.map(device => {
@@ -425,7 +425,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
           deviceId: this.rowSelectedDeviceId[0]
         }
         this.dialog.open(AddEditTemplateDialogComponent, {
-          hasBackdrop: false,
+          disableClose: true,
           autoFocus: false,
           width: '450px',
           data: dialogData
@@ -447,7 +447,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
         message: `Are you sure you want to delete ${suffix}?`,
         submitButtonName: 'OK'
       }
-      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '400px', data: dialogData });
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData });
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
           this.rowsSelectedTemplate.map(template => {

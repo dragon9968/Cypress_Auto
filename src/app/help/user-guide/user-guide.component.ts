@@ -48,7 +48,7 @@ export class UserGuideComponent implements OnInit {
   }
 
   openUploadUserGuide() {
-    this.dialog.open(UploadUserGuideDialogComponent, { hasBackdrop: false,  width: '450px'});
+    this.dialog.open(UploadUserGuideDialogComponent, { disableClose: true,  width: '450px'});
   }
 
   downladUserGuide() {

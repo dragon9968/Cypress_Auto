@@ -96,7 +96,7 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
         genData: response.result
       };
       this.dialog.open(ShowUserTaskDialogComponent, {
-        hasBackdrop: false,
+        disableClose: true,
         width: `${screen.width}px`,
         autoFocus: false,
         data: dialogData
@@ -143,7 +143,7 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
         message: `Are you sure you want to delete ${item}?`,
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {hasBackdrop: false, width: '450px', data: dialogData});
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {disableClose: true, width: '450px', data: dialogData});
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm && this.infoPanelTableComponent) {
           this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.infoPanelTableComponent.rowsSelectedId);
@@ -163,7 +163,7 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
         message: message,
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {hasBackdrop: false, width: '450px', data: dialogData});
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {disableClose: true, width: '450px', data: dialogData});
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm && this.infoPanelTableComponent) {
           this.infoPanelService.rerunTask(this.infoPanelTableComponent.rowsSelectedId);
@@ -181,7 +181,7 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
         message: 'Revoke pending task?',
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {hasBackdrop: false, width: '450px', data: dialogData});
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {disableClose: true, width: '450px', data: dialogData});
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
           let taskPendingId: any[] = []

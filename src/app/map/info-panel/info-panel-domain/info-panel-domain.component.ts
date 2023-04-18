@@ -85,7 +85,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
       mode: 'view',
       genData: row.data
     };
-    this.dialog.open(AddUpdateDomainDialogComponent, { hasBackdrop: false, width: '600px', autoFocus: false, data: dialogData });
+    this.dialog.open(AddUpdateDomainDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
   }
 
   constructor(
@@ -128,7 +128,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
         admin_password: ''
       }
     };
-    this.dialog.open(AddUpdateDomainDialogComponent, { hasBackdrop: false, width: '600px', autoFocus: false, data: dialogData });
+    this.dialog.open(AddUpdateDomainDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
   }
 
   addDomainUser() {
@@ -138,7 +138,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
       const dialogData = {
         genData: { domainId: this.infoPanelTableComponent?.rowsSelectedId }
       }
-      this.dialog.open(AddDomainUserDialogComponent, { hasBackdrop: false, width: '600px', data: dialogData });
+      this.dialog.open(AddDomainUserDialogComponent, { disableClose: true, width: '600px', data: dialogData });
     }
   }
 
@@ -152,7 +152,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
           mode: 'update',
           genData: domainData.result
         };
-        this.dialog.open(AddUpdateDomainDialogComponent, { hasBackdrop: false, width: '600px', autoFocus: false, data: dialogData });
+        this.dialog.open(AddUpdateDomainDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
       })
     } else {
       const dialogData = {
@@ -161,7 +161,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
           collectionId: this.collectionId
         }
       }
-      this.dialog.open(DomainBulkEditDialogComponent, { hasBackdrop: false, width: '600px', autoFocus: false, data: dialogData });
+      this.dialog.open(DomainBulkEditDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
     }
   }
 
@@ -175,7 +175,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
         message: `Are you sure you want to delete ${item}?`,
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '450px', data: dialogData });
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '450px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
           this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.infoPanelTableComponent?.rowsSelectedId);
@@ -218,7 +218,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
           domain: this.infoPanelTableComponent?.rowsSelected[0]
         }
         this.dialog.open(DomainUserDialogComponent,
-          { hasBackdrop: false, width: `${screen.width}px`, height: `${screen.height * .85}px`, data: dialogData });
+          { disableClose: true, width: `${screen.width}px`, height: `${screen.height * .85}px`, data: dialogData });
       })
     } else {
       this.toastr.info('Please select only one domain to open the domain user list!', 'Info');

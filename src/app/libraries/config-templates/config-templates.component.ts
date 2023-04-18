@@ -181,7 +181,7 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
       }
     }
     this.dialog.open(AddEditConfigTemplateComponent, {
-      hasBackdrop: false,
+      disableClose: true,
       autoFocus: false,
       width: '450px',
       data: dialogData
@@ -208,7 +208,7 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
         genData: configTemplateData.result
       }
       this.dialog.open(AddEditConfigTemplateComponent, {
-        hasBackdrop: false,
+        disableClose: true,
         autoFocus: false,
         width: '1000px',
         data: dialogData,
@@ -227,7 +227,7 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
           genData: configTemplateData.result
         }
         this.dialog.open(AddEditConfigTemplateComponent, {
-          hasBackdrop: false,
+          disableClose: true,
           autoFocus: false,
           width: '1000px',
           data: dialogData,
@@ -250,7 +250,7 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
         message: `You sure you want to delete ${suffix}?`,
         submitButtonName: 'OK'
       }
-      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '400px', data: dialogData });
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData });
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
           this.rowsSelectedId.map(id => {
@@ -282,7 +282,7 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
           genData: configTemplateData.result
         }
         this.dialog.open(AddRouteDialogComponent, {
-          hasBackdrop: false,
+          disableClose: true,
           autoFocus: false,
           width: '450px',
           data: dialogData
@@ -304,7 +304,7 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
           genData: configTemplateData.result
         }
         this.dialog.open(AddFirewallRuleDialogComponent, {
-          hasBackdrop: false,
+          disableClose: true,
           autoFocus: false,
           width: '450px',
           data: dialogData
@@ -326,7 +326,7 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
           genData: configTemplateData.result
         }
         this.dialog.open(AddDomainMembershipDialogComponent, {
-          hasBackdrop: false,
+          disableClose: true,
           autoFocus: false,
           width: '450px',
           data: dialogData
@@ -348,7 +348,7 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
           genData: configTemplateData.result
         }
         this.dialog.open(AddEditRolesServicesDialogComponent, {
-          hasBackdrop: false,
+          disableClose: true,
           autoFocus: false,
           width: '450px',
           data: dialogData

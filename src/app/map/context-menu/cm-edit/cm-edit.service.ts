@@ -45,7 +45,7 @@ export class CMEditService {
         genData: activeMapLinks[0].data(),
         cy
       }
-      this.dialog.open(ViewUpdateProjectNodeComponent, { hasBackdrop: false, width: '450px', autoFocus: false, data: dialogData });
+      this.dialog.open(ViewUpdateProjectNodeComponent, { disableClose: true, width: '450px', autoFocus: false, data: dialogData });
     } else if (activeNodesLength == 0 && activePGsLength == 0) {
       if (activeEdgesLength > 1) {
         const edgeActiveIds = activeEdges.map((ele: any) => ele.data('interface_id'));
@@ -56,14 +56,14 @@ export class CMEditService {
           },
           cy
         };
-        this.dialog.open(InterfaceBulkEditDialogComponent, { hasBackdrop: false, width: '600px', autoFocus: false, data: dialogData });
+        this.dialog.open(InterfaceBulkEditDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
       } else if (activeEdgesLength == 1) {
         const dialogData = {
           mode: 'update',
           genData: activeEdges[0].data(),
           cy
         }
-        this.dialog.open(AddUpdateInterfaceDialogComponent, { hasBackdrop: false, width: '650px', autoFocus: false, data: dialogData });
+        this.dialog.open(AddUpdateInterfaceDialogComponent, { disableClose: true, width: '650px', autoFocus: false, data: dialogData });
       }
     } else if (activeNodesLength == 0 && activeEdgesLength == 0) {
       if (activePGsLength > 1) {
@@ -75,14 +75,14 @@ export class CMEditService {
           },
           cy
         }
-        this.dialog.open(PortGroupBulkEditDialogComponent, { hasBackdrop: false, width: '600px', autoFocus: false, data: dialogData });
+        this.dialog.open(PortGroupBulkEditDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
       } else if (activePGsLength == 1) {
         const dialogData = {
           mode: 'update',
           genData: activePGs[0].data(),
           cy
         }
-        this.dialog.open(AddUpdatePGDialogComponent, { hasBackdrop: false, width: '600px', autoFocus: false, data: dialogData });
+        this.dialog.open(AddUpdatePGDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
       }
     } else if (activePGsLength == 0 && activeEdgesLength == 0) {
       if (activeNodesLength > 1) {
@@ -94,7 +94,7 @@ export class CMEditService {
           },
           cy
         }
-        this.dialog.open(NodeBulkEditDialogComponent, { hasBackdrop: false, width: '600px', autoFocus: false, data: dialogData });
+        this.dialog.open(NodeBulkEditDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
       } else if (activeNodesLength == 1) {
         const dialogData = {
           mode: 'update',
@@ -102,7 +102,7 @@ export class CMEditService {
           cy
         }
         this.dialog.open(AddUpdateNodeDialogComponent,
-          { hasBackdrop: false, width: '1000px', height: '900px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
+          { disableClose: true, width: '1000px', height: '900px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
         );
       }
     } else  {

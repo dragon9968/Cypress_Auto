@@ -216,14 +216,14 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
           activeNodes: this.activeNodes,
           category
         };
-        this.dialog.open(AddUpdateNodeDeployDialogComponent,{ hasBackdrop: false, width: '600px', data: dialogData, autoFocus: false });
+        this.dialog.open(AddUpdateNodeDeployDialogComponent,{ disableClose: true, width: '600px', data: dialogData, autoFocus: false });
         break;
       case 'delete_node':
         dialogData = {
           activeNodes: this.activeNodes,
           category
         };
-        this.dialog.open(DeleteNodeDeployDialogComponent,{ hasBackdrop: false, width: '600px', data: dialogData, autoFocus: false });
+        this.dialog.open(DeleteNodeDeployDialogComponent,{ disableClose: true, width: '600px', data: dialogData, autoFocus: false });
         break;
       case 'update_node':
         dialogData = {
@@ -231,7 +231,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
           activeNodes: this.activeNodes,
           category
         };
-        this.dialog.open(AddUpdateNodeDeployDialogComponent,{ hasBackdrop: false, width: '600px', data: dialogData, autoFocus: false });
+        this.dialog.open(AddUpdateNodeDeployDialogComponent,{ disableClose: true, width: '600px', data: dialogData, autoFocus: false });
         break;
       case 'power_on_node':
         activeNodeIds = this.activeNodes.map((ele: any) => ele.data('node_id')).join(',');
@@ -250,7 +250,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
           activeNodes: this.activeNodes,
           category
         };
-        this.dialog.open(CreateNodeSnapshotDialogComponent,{ hasBackdrop: false, width: '600px', data: dialogData, autoFocus: false });
+        this.dialog.open(CreateNodeSnapshotDialogComponent,{ disableClose: true, width: '600px', data: dialogData, autoFocus: false });
         break;
       case 'delete_snapshot':
         collectionId = this.projectService.getCollectionId();
@@ -267,7 +267,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
             names: response,
             category
           };
-          this.dialog.open(DeleteNodeSnapshotDialogComponent, { hasBackdrop: false, width: '600px', data: dialogData, autoFocus: false });
+          this.dialog.open(DeleteNodeSnapshotDialogComponent, { disableClose: true, width: '600px', data: dialogData, autoFocus: false });
         })
         break;
       case 'revert_snapshot':
@@ -285,7 +285,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
             names: response,
             category
           };
-          this.dialog.open(RevertNodeSnapshotDialogComponent, { hasBackdrop: false, width: '600px', data: dialogData, autoFocus: false });
+          this.dialog.open(RevertNodeSnapshotDialogComponent, { disableClose: true, width: '600px', data: dialogData, autoFocus: false });
         })
         break;
       case 'update_facts':
@@ -293,7 +293,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
           activeNodes: this.activeNodes,
           category
         };
-        this.dialog.open(UpdateFactsNodeDialogComponent,{ hasBackdrop: false, width: '600px', data: dialogData, autoFocus: false });
+        this.dialog.open(UpdateFactsNodeDialogComponent,{ disableClose: true, width: '600px', data: dialogData, autoFocus: false });
         break;
       case 'remote_config':
           dialogData = {
@@ -301,7 +301,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
             activeNodes: this.activeNodes,
             category
           };
-          this.dialog.open(AddUpdateNodeDeployDialogComponent,{ hasBackdrop: false, width: '600px', data: dialogData, autoFocus: false });
+          this.dialog.open(AddUpdateNodeDeployDialogComponent,{ disableClose: true, width: '600px', data: dialogData, autoFocus: false });
           break;
       default:
         this.toastr.warning('Please select a node before adding the task', 'Warning');
@@ -318,7 +318,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
           jobName: 'ping_test',
           category
         }
-        this.dialog.open(NodeToolsDialogComponent, { hasBackdrop: false, width: '450px', data: dialogData, autoFocus: false } )
+        this.dialog.open(NodeToolsDialogComponent, { disableClose: true, width: '450px', data: dialogData, autoFocus: false } )
         break;
       case 'shell_command':
         dialogData = {
@@ -326,7 +326,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
           jobName: 'shell_command',
           category
         }
-        this.dialog.open(NodeToolsDialogComponent, { hasBackdrop: false, width: '450px', data: dialogData, autoFocus: false })
+        this.dialog.open(NodeToolsDialogComponent, { disableClose: true, width: '450px', data: dialogData, autoFocus: false })
         break;
       default:
         this.toastr.warning('Please select a node before adding the tool task', 'Warning');
@@ -344,7 +344,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
           message: 'Deploy this port group?',
           category
         };
-        this.dialog.open(AddDeletePGDeployDialogComponent, { hasBackdrop: false, width: '450px', data: dialogData, autoFocus: false });
+        this.dialog.open(AddDeletePGDeployDialogComponent, { disableClose: true, width: '450px', data: dialogData, autoFocus: false });
         break;
       case 'delete_pg':
         dialogData = {
@@ -353,7 +353,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
           message: 'Delete port group(s)?',
           category
         };
-        this.dialog.open(AddDeletePGDeployDialogComponent, { hasBackdrop: false, width: '450px', data: dialogData, autoFocus: false });
+        this.dialog.open(AddDeletePGDeployDialogComponent, { disableClose: true, width: '450px', data: dialogData, autoFocus: false });
         break;
       case 'update_pg':
         dialogData = {
@@ -362,7 +362,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
           message: 'Update port group(s)?',
           category
         };
-        this.dialog.open(AddDeletePGDeployDialogComponent, { hasBackdrop: false, width: '450px', data: dialogData, autoFocus: false });
+        this.dialog.open(AddDeletePGDeployDialogComponent, { disableClose: true, width: '450px', data: dialogData, autoFocus: false });
         break;
       default:
         this.toastr.warning('Please select a port group before adding the task', 'Warning');

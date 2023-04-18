@@ -271,7 +271,7 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
       title: 'Network Map',
       message: 'Do you want to remove all custom stylings and/or map background?'
     }
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '600px', data: dialogData });
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '600px', data: dialogData });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         // remove Group Boxes if present

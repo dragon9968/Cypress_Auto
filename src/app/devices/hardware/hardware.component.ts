@@ -134,7 +134,7 @@ export class HardwareComponent implements OnInit, OnDestroy {
       }
     }
     this.dialog.open(AddEditHardwareDialogComponent, {
-      hasBackdrop: false,
+      disableClose: true,
       autoFocus: false,
       width: '450px',
       data: dialogData
@@ -167,7 +167,7 @@ export class HardwareComponent implements OnInit, OnDestroy {
         message: `Are you sure you want to delete ${suffix}?`,
         submitButtonName: 'OK'
       }
-      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { hasBackdrop: false, width: '400px', data: dialogData });
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData });
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
           forkJoin(this.rowsSelectedId.map(id => {
@@ -200,7 +200,7 @@ export class HardwareComponent implements OnInit, OnDestroy {
         genData: hardwareData.result
       }
       this.dialog.open(AddEditHardwareDialogComponent, {
-        hasBackdrop: false,
+        disableClose: true,
         autoFocus: false,
         width: '450px',
         data: dialogData
@@ -218,7 +218,7 @@ export class HardwareComponent implements OnInit, OnDestroy {
           genData: hardwareData.result
         }
         this.dialog.open(AddEditHardwareDialogComponent, {
-          hasBackdrop: false,
+          disableClose: true,
           autoFocus: false,
           width: '450px',
           data: dialogData

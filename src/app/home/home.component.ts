@@ -54,7 +54,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   importProject() {
     const dialogRef = this.dialog.open(ImportProjectDialogComponent, {
-      hasBackdrop: false,
+      disableClose: true,
       autoFocus: false,
       width: '450px',
     });
