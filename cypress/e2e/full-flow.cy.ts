@@ -17,7 +17,7 @@ describe('C.R.O Automation testing full flow', () => {
     // Landing add project page
     cy.getByDataCy('btn-create-new').click()
     // Add new one
-    cy.addNewProject(project)
+    cy.addNewRandomProject(project)
     // Open project just created
     cy.get('ag-grid-angular').contains(project.name).dblclick().then(() => {
       // Validate project

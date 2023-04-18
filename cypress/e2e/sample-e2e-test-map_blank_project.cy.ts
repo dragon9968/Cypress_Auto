@@ -27,22 +27,27 @@ describe('Testing for the login', () => {
       pgX = portGroup.logical_map_position.x
       pgY = portGroup.logical_map_position.y
     })
+
+    cy.fixture('project/new-project.json').then(projectData => {
+      project = projectData
+    })
   })
 
   it('Sample e2e test on map',() => {
     cy.login(admin.username, admin.password)
     // Landing project page
-    cy.getByDataCy('btn-open-project').click()
-    // Click on the first project
-
-    cy.wait(5000)
+    cy.getByDataCy('btn-create-new').click()
+    // Add a new Blank Project
+    cy.wait(2000)
+    cy.addNewBlankProject(project)
 
     cy.get('.ag-row').first().dblclick({ force: true })
 
+    cy.wait(6000)
+    cy.get('circle.ng-star-inserted').should('be.visible')
+
     // Add new node
-    cy.getByFormControlName('deviceCtr').should('be.visible')
-    cy.wait(5000)
-    cy.getByFormControlName('deviceCtr').click()
+    cy.getByFormControlName('deviceCtr').should('be.visible').click({force:true})
     cy.wait(1000)
 
     cy.get('.option-text').contains(node.device_name).first().click()
@@ -58,7 +63,6 @@ describe('Testing for the login', () => {
         cy.wait(2000)
         nodeName = nodeNameInput ? nodeNameInput.toString() : 'None'
         cy.getByFormControlName('folderCtr').type(`${node.folder}-${nodeNameInput}`)
-        cy.wait(5000)
       })
     cy.get('mat-error').should('not.exist')
     cy.getByDataCy('nodeAddForm').submit()
@@ -120,8 +124,15 @@ describe('Testing for the login', () => {
       newEdge.select()
       cy.log('Select edge and right click on mouse SUCCESS')
 
+
+      cy.scrollTo('top')
+      cy.getByDataCy('btn-nav-project').should('be.visible').click({force:true}).then( () => {
+        cy.get('.mat-menu-content').contains('Delete').click()
+        cy.get('app-confirmation-dialog button[type="submit"]').should('be.visible').click()
+      })
+
     })
 
-  });
-
+  })
 })
+

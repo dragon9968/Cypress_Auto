@@ -3,8 +3,8 @@ import { defineConfig } from 'cypress'
 export default defineConfig({
 
   e2e: {
-    'baseUrl': 'http://localhost:4200',
-    watchForFileChanges: false,
+    'baseUrl': 'https://172.19.0.50/',
+    //watchForFileChanges: false,
   },
 
   component: {

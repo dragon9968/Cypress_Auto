@@ -3,6 +3,7 @@
 // with Intellisense and code completion in your
 // IDE or Text Editor.
 // ***********************************************
+
 declare namespace Cypress {
   interface Chainable<Subject = any> {
     login(username: string, password: string): typeof login;
@@ -23,18 +24,21 @@ Cypress.Commands.add('login', login);
 
 declare namespace Cypress {
   interface Chainable<Subject = any> {
-    addNewProject(project: any): typeof addNewProject;
+    addNewRandomProject(project: any): typeof addNewRandomProject;
+    addNewBlankProject(project: any): typeof addNewBlankProject;
+    Random_Name(project: any): typeof Random_Name;
+
   }
 }
 
-function addNewProject(project: any): void {
+function addNewRandomProject(project: any): void {
   cy.getByFormControlName('name').type(project.name)
   cy.getByFormControlName('description').type(project.description)
   cy.getByFormControlName('category').children(`mat-radio-button[value="${project.category}"]`).click()
   cy.getByFormControlName('target').click().then(() => {
     cy.get('mat-option').contains(`${project.target}`).click()
   })
-  cy.getByFormControlName('option').children(`mat-radio-button[value="${project.option}"]`).click()
+  cy.getByFormControlName('option').children(`mat-radio-button[value="${project.option1}"]`).click()
   cy.getByFormControlName('enclave_number').clear().type(project.enclave_number)
   cy.getByFormControlName('enclave_clients').clear().type(project.enclave_clients)
   cy.getByFormControlName('enclave_servers').clear().type(project.enclave_servers)
@@ -46,9 +50,42 @@ function addNewProject(project: any): void {
   cy.scrollTo('top')
   cy.url().should('include', 'projects')
 }
+
+
+function addNewBlankProject(project: any): void {
+
+  cy.getByFormControlName('name').type(project.name + Random_Name())
+  cy.getByFormControlName('description').type(project.description)
+  cy.getByFormControlName('category').children(`mat-radio-button[value="${project.category}"]`).click()
+  cy.getByFormControlName('target').click().then(() => {
+    cy.get('mat-option').contains(`${project.target}`).click()
+  })
+  cy.getByFormControlName('option').children(`mat-radio-button[value="${project.option2}"]`).click()
+  cy.get('mat-error').should('not.exist')
+  cy.getByDataCy('projectForm').submit().log(`Create project ${project.name} successfully`)
+  cy.scrollTo('top')
+  cy.url().should('include', 'projects')
+  cy.wait(6000)
+
+
+
+}
+
+function Random_Name() {
+  var text = "";
+  var possible = "0123456789";
+
+  for (var i = 0; i < 5; i++)
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+  return text;
+}
 //
 // NOTE: You can use it like so:
-Cypress.Commands.add('addNewProject', addNewProject);
+Cypress.Commands.add('addNewRandomProject', addNewRandomProject);
+Cypress.Commands.add('addNewBlankProject', addNewBlankProject);
+
+
 Cypress.on('uncaught:exception', (err, runnable) => {
   // returning false here prevents Cypress from
   // failing the test
@@ -61,25 +98,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 // existing commands.
 //
 // For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
-//
-//
-// -- This is a parent command --
-// Cypress.Commands.add("login", (email, password) => { ... })
-//
-//
-// -- This is a child command --
-// Cypress.Commands.add("drag", { prevSubject: 'element'}, (subject, options) => { ... })
-//
-//
-// -- This is a dual command --
-// Cypress.Commands.add("dismiss", { prevSubject: 'optional'}, (subject, options) => { ... })
-//
-//
-// -- This will overwrite an existing command --
-// Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
+
 
 declare namespace Cypress {
   interface Chainable<Subject = any> {
@@ -94,8 +113,11 @@ declare namespace Cypress {
      * @example cy.getByFormControlName('username')
      */
     getByFormControlName(controlName: string): Chainable<JQuery<HTMLElement>>
+    Random_Name (text: string):Chainable<JQuery<HTMLElement>>
   }
 }
+
+
 Cypress.Commands.add(
   'getByDataCy',
   (id: string) => {
