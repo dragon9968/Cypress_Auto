@@ -123,12 +123,12 @@ export class InfoPanelTableComponent {
     }
     if (tabName == 'node') {
       this.dialog.open(AddUpdateNodeDialogComponent,
-        { width: '1000px', height: '900px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
+        { disableClose: true, width: '1000px', height: '900px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
       );
     } else if (tabName == 'portgroup' || this.tabName == 'portGroupManagement') {
-      this.dialog.open(AddUpdatePGDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+      this.dialog.open(AddUpdatePGDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
     } else if (tabName == 'edge' || tabName == 'edgeManagement') {
-      this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+      this.dialog.open(AddUpdateInterfaceDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
     }
   }
 
@@ -141,11 +141,11 @@ export class InfoPanelTableComponent {
       cy: this.cy
     }
     if (tabName == 'node') {
-      this.dialog.open(NodeBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+      this.dialog.open(NodeBulkEditDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
     } else if (tabName == 'portgroup' || tabName == 'portGroupManagement') {
-      this.dialog.open(PortGroupBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+      this.dialog.open(PortGroupBulkEditDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
     } else if (tabName == 'edge' || tabName == 'edgeManagement') {
-      this.dialog.open(InterfaceBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+      this.dialog.open(InterfaceBulkEditDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
     }
   }
 
@@ -157,6 +157,7 @@ export class InfoPanelTableComponent {
         catchError((e: any) => {
           this.toastr.error(e.error.message);
           this.dialog.open(InfoPanelShowValidationResultsComponent, {
+            disableClose: true,
             autoFocus: false,
             width: 'auto',
             data: e.error.result
@@ -198,7 +199,7 @@ export class InfoPanelTableComponent {
         message,
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '500px', data: dialogData });
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '500px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
           this.rowsSelectedId.map(id => {

@@ -22,6 +22,11 @@ import { retrievedAppPref } from 'src/app/store/app-pref/app-pref.actions';
 import { MatRadioChange } from '@angular/material/radio';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { NgxPermissionsService } from "ngx-permissions";
+import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
+import { MapPrefService } from 'src/app/core/services/map-pref/map-pref.service';
+import { retrievedMapPref } from 'src/app/store/map-style/map-style.actions';
+import { retrievedDefaultMapPref } from 'src/app/store/map-pref/map-pref.actions';
+import { selectDefaultMapPref } from 'src/app/store/map-pref/map-pref.selectors';
 
 @Component({
   selector: 'app-add-project',
@@ -33,6 +38,7 @@ export class AddProjectComponent implements OnInit {
   private gridApi!: GridApi;
   isSubmitBtnDisabled = false;
   selectAppPref$ = new Subscription();
+  selectDefaultMapPref$ = new Subscription();
   labelPosition = 'blank';
   projectForm!: FormGroup;
   routeSegments = RouteSegments;
@@ -53,6 +59,7 @@ export class AddProjectComponent implements OnInit {
   isDisableTemplate = true;
   isCreateNewFromSelected = false;
   filteredTemplate!: Observable<any[]>;
+  selectedDefaultMapPref: any;
 
   defaultColDef: ColDef = {
     sortable: true,
@@ -104,6 +111,7 @@ export class AddProjectComponent implements OnInit {
     private dialog: MatDialog,
     public helpers: HelpersService,
     private ngxPermissionsService: NgxPermissionsService,
+    private mapPrefService: MapPrefService
   ) {
 
     const state = this.router.getCurrentNavigation()?.extras.state;
@@ -138,6 +146,9 @@ export class AddProjectComponent implements OnInit {
         this.filteredTemplate = this.helpers.filterOptions(this.template, this.projectTemplate);
       }
     })
+    this.selectDefaultMapPref$ = this.store.select(selectDefaultMapPref).subscribe((selectedMapPref: any) => {
+      this.selectedDefaultMapPref = selectedMapPref;
+    });
     this.selectAppPref$ = this.store.select(selectAppPref).subscribe((data: any)=> {
       if (data) {
         let pubNetwork = {
@@ -183,6 +194,7 @@ export class AddProjectComponent implements OnInit {
       this.store.dispatch(retrievedProjects({data: data.result}));
     })
     this.appPrefService.get("2").subscribe((data: any) => this.store.dispatch(retrievedAppPref({ data: data.result })));
+    this.mapPrefService.get("1").subscribe((data: any) => this.store.dispatch(retrievedDefaultMapPref({ data: data.result })));
     this.projectService.getProjectByStatusAndCategory(this.status, 'template').subscribe((data: any) => this.store.dispatch(retrievedProjectsTemplate({ template: data.result })));
   }
 
@@ -256,7 +268,19 @@ export class AddProjectComponent implements OnInit {
         enclave_users: this.enclave_users?.value,
         vlan_min: this.vlan_min?.value,
         vlan_max: this.vlan_max?.value,
-        networks: items
+        networks: items,
+        logical_map_style: {
+          node: { "width": this.selectedDefaultMapPref.node_size + "px", "height": this.selectedDefaultMapPref.node_size + "px"},
+          port_group: { "size": this.selectedDefaultMapPref.port_group_size + "px", "color": this.selectedDefaultMapPref.port_group_color },
+          edge: { "size": this.selectedDefaultMapPref.edge_width + "px", "color": this.selectedDefaultMapPref.edge_color },
+          text: { "size": this.selectedDefaultMapPref.text_size + "px", "color": this.selectedDefaultMapPref.text_color },
+          group_box: { "color": this.selectedDefaultMapPref.group_box_color, "group_opacity": "20%", "zIndex": 997, "gbs": [] },
+          map_background: { "zIndex": 998, "bgs": [] },
+          "grid_settings": { "enabled": false, "spacing": this.selectedDefaultMapPref.grid_spacing+ "px", "snap": false },
+          "accessed": false,
+          "cleared": false,
+          "default_map_pref_id": this.selectedDefaultMapPref.id
+        }
       }
       let jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
       if (!jsonData.template_id && !this.isDisableTemplate) {
