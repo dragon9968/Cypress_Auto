@@ -516,117 +516,131 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   private _selectNode($event: any) {
     const t = $event.target;
-    const isChildrenOfProjectNode = t.parent()?.data('elem_category') == 'map_link';
-    if (isChildrenOfProjectNode) {
-      return;
-    }
-    const d = t.data();
-    if (this.isBoxSelecting || this.isSearching) { return; }
+    const activeEles = this.activeNodes.concat(this.activePGs, this.activeEdges, this.activeGBs)
+    if (this.cy.elements().length !== activeEles.length) {
+      const isChildrenOfProjectNode = t.parent()?.data('elem_category') == 'map_link';
+      if (isChildrenOfProjectNode) {
+        return;
+      }
+      const d = t.data();
+      if (this.isBoxSelecting || this.isSearching) { return; }
 
-    if (this.isAddNode || this.isAddPublicPG || this.isAddPrivatePG) {
-      this.isAddNode = false;
-      this.isAddPublicPG = false;
-      this.isAddPrivatePG = false;
-      t.unselect();
-      return;
-    }
-    if (d.label == 'map_background') {
-      this.activeMBs.push(t);
-    } else if (d.label == 'group_box') {
-      this.isBoxSelecting = true;
-      this.activeGBs.push(t);
-      t.children().forEach((ele: any) => {
-        ele.select();
-        this.boxSelectedNodes.add(ele);
-      })
-      this._boxSelect();
-      this.isBoxSelecting = false;
-      this.isSelectedProcessed = false;
-      this.boxSelectedNodes.clear();
-    } else {
-      if (d.elem_category == 'node' && !this.activeNodes.includes(t)) {
-        this.activeNodes.push(t);
-      } else if (d.elem_category == 'port_group' && !this.activePGs.includes(t)) {
-        this.activePGs.push(t);
-      } else if (d.elem_category == 'map_link' && !this.activeMapLinks.includes(t)) {
-        this.activeMapLinks.push(t)
+      if (this.isAddNode || this.isAddPublicPG || this.isAddPrivatePG) {
+        this.isAddNode = false;
+        this.isAddPublicPG = false;
+        this.isAddPrivatePG = false;
+        t.unselect();
+        return;
       }
-      if (!d.new) {
-        if (this.activeNodes.length == 0) {
-          this.activeNodes.splice(0);
+      if (d.label == 'map_background') {
+        this.activeMBs.push(t);
+      } else if (d.label == 'group_box') {
+        this.isBoxSelecting = true;
+        this.activeGBs.push(t);
+        t.children().forEach((ele: any) => {
+          ele.select();
+          this.boxSelectedNodes.add(ele);
+        })
+        this._boxSelect();
+        this.isBoxSelecting = false;
+        this.isSelectedProcessed = false;
+        this.boxSelectedNodes.clear();
+      } else {
+        if (d.elem_category == 'node' && !this.activeNodes.includes(t)) {
+          this.activeNodes.push(t);
+        } else if (d.elem_category == 'port_group' && !this.activePGs.includes(t)) {
+          this.activePGs.push(t);
+        } else if (d.elem_category == 'map_link' && !this.activeMapLinks.includes(t)) {
+          this.activeMapLinks.push(t)
         }
-        if (this.activePGs.length == 0) {
-          this.activePGs.splice(0);
+        if (!d.new) {
+          if (this.activeNodes.length == 0) {
+            this.activeNodes.splice(0);
+          }
+          if (this.activePGs.length == 0) {
+            this.activePGs.splice(0);
+          }
         }
       }
+      this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
+                                              this.activeMBs, this.activeMapLinks, this.isTemplateCategory);
+      this.store.dispatch(retrievedMapSelection({ data: true }));
     }
-    this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
-                                            this.activeMBs, this.activeMapLinks, this.isTemplateCategory);
-    this.store.dispatch(retrievedMapSelection({ data: true }));
   }
 
   private _selectEdge($event: any) {
     const t = $event.target;
-    const isChildrenOfProjectNode = t.connectedNodes().some((ele: any) => ele.parent()?.data('elem_category') == 'map_link')
-    if (isChildrenOfProjectNode) {
-      return;
-    }
-    const d = t.data()
-    if (this.isBoxSelecting || this.isSearching) { return; }
-    if (t.isEdge() && !this.activeEdges.includes(t)) {
-      this.activeEdges.push(t);
-    }
-    if (!d.new) {
-      if (this.activeEdges.length == 0) {
-        this.activeEdges.splice(0);
+    const activeEles = this.activeNodes.concat(this.activePGs, this.activeEdges, this.activeGBs)
+    if (this.cy.elements().length !== activeEles.length) { 
+      const isChildrenOfProjectNode = t.connectedNodes().some((ele: any) => ele.parent()?.data('elem_category') == 'map_link')
+      if (isChildrenOfProjectNode) {
+        return;
       }
+      const d = t.data()
+      if (this.isBoxSelecting || this.isSearching) { return; }
+      if (t.isEdge() && !this.activeEdges.includes(t)) {
+        this.activeEdges.push(t);
+      }
+      if (!d.new) {
+        if (this.activeEdges.length == 0) {
+          this.activeEdges.splice(0);
+        }
+      }
+      this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
+                                              this.activeMBs, this.activeMapLinks , this.isTemplateCategory);
+      this.store.dispatch(retrievedMapSelection({ data: true })); 
     }
-    this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
-                                            this.activeMBs, this.activeMapLinks , this.isTemplateCategory);
-    this.store.dispatch(retrievedMapSelection({ data: true }));
   }
 
   private _unselectNode($event: any) {
     const t = $event.target;
-    if (t.data('label') == 'map_background') {
-      if (this.activeMBs.includes(t)) {
-        const index = this.activeMBs.indexOf(t);
-        this.activeMBs.splice(index, 1);
+    const activeEles = this.activeNodes.concat(this.activePGs, this.activeGBs)
+    if (activeEles.length > 0) {
+      if (t.data('label') == 'map_background') {
+        if (this.activeMBs.includes(t)) {
+          const index = this.activeMBs.indexOf(t);
+          this.activeMBs.splice(index, 1);
+        }
+      } else if (t.data('label') == 'group_box') {
+        if (this.activeGBs.includes(t)) {
+          const index = this.activeGBs.indexOf(t);
+          this.activeGBs.splice(index, 1);
+          t.children().forEach((el: any) => {
+            el.unselect();
+          })
+        }
+        // this.activeNodes.splice(0);
+        // this.activePGs.splice(0);
+        // this.activeEdges.splice(0);
+      } else if (t.data('elem_category') == 'port_group') {
+        if (this.activePGs.includes(t)) {
+          const index = this.activePGs.indexOf(t);
+          this.activePGs.splice(index, 1);
+        }
+      } else if (t.data('elem_category') == 'node') {
+        if (this.activeNodes.includes(t)) {
+          const index = this.activeNodes.indexOf(t);
+          this.activeNodes.splice(index, 1);
+        }
+      } else {
+        if (this.activeMapLinks.includes(t)) {
+          const index = this.activeMapLinks.indexOf(t);
+          this.activeMapLinks.splice(index, 1);
+        }
       }
-    } else if (t.data('label') == 'group_box') {
-      if (this.activeGBs.includes(t)) {
-        const index = this.activeGBs.indexOf(t);
-        this.activeGBs.splice(index, 1);
-      }
-      this.activeNodes.splice(0);
-      this.activePGs.splice(0);
-      this.activeEdges.splice(0);
-    } else if (t.data('elem_category') == 'port_group') {
-      if (this.activePGs.includes(t)) {
-        const index = this.activePGs.indexOf(t);
-        this.activePGs.splice(index, 1);
-      }
-    } else if (t.data('elem_category') == 'node') {
-      if (this.activeNodes.includes(t)) {
-        const index = this.activeNodes.indexOf(t);
-        this.activeNodes.splice(index, 1);
-      }
-    } else {
-      if (this.activeMapLinks.includes(t)) {
-        const index = this.activeMapLinks.indexOf(t);
-        this.activeMapLinks.splice(index, 1);
-      }
+      this.store.dispatch(retrievedMapSelection({ data: true }));
     }
-    this.store.dispatch(retrievedMapSelection({ data: true }));
   }
 
   private _unselectEdge($event: any) {
     const t = $event.target;
-    if (this.activeEdges.includes(t)) {
-      const index = this.activeEdges.indexOf(t);
-      this.activeEdges.splice(index, 1);
+    if (this.activeEdges.length > 0) {
+      if (this.activeEdges.includes(t)) {
+        const index = this.activeEdges.indexOf(t);
+        this.activeEdges.splice(index, 1);
+      }
+      this.store.dispatch(retrievedMapSelection({ data: true }));
     }
-    this.store.dispatch(retrievedMapSelection({ data: true }));
   }
 
   private _boxStart(_$event: any) {
@@ -712,6 +726,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.addProjectNode(this.linkProjectId, this.collectionId, newNodePosition);
     } else if (this.isAddMapImage){
       this.addImage(this.imageWidth, this.imageHeight, this.imageUrl, this.collectionId, newNodePosition);
+    }
+    if ($event.target === this.cy) {
+      this.activeNodes.splice(0);
+      this.activeGBs.splice(0)
+      this.activePGs.splice(0);
+      this.activeEdges.splice(0);
+      this.store.dispatch(retrievedMapSelection({ data: true }));
     }
 
   }
@@ -1035,7 +1056,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.cmMapService.getDownloadMenu(),
         this.cmMapService.getLockAllMenu(this.cy),
         this.cmMapService.getUnlockAllMenu(this.cy),
-        this.cmMapService.getSelectAllMenu(this.cy),
+        this.cmMapService.getSelectAllMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs),
       ],
       submenuIndicator: { src: '/assets/icons/submenu-indicator-default.svg', width: 12, height: 12 }
     });

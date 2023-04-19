@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { retrievedMapContextMenu } from 'src/app/store/map-context-menu/map-context-menu.actions';
+import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 
 @Injectable({
   providedIn: 'root'
@@ -115,14 +116,37 @@ export class CMMapService {
     }
   }
 
-  getSelectAllMenu(cy: any) {
+  getSelectAllMenu(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[]) {
     return {
       id: "select_all",
       content: "Select All",
       coreAsWell: true,
       onClickFunction: (event: any) => {
+        const allNodes = cy.nodes();
+        const allEdges = cy.edges();
+        const activeEles = activeNodes.concat(activePGs, activeEdges);
+        if (activeEles.length == 0) {
+          activeNodes.splice(0);
+          activePGs.splice(0);
+          activeEdges.splice(0);
+          activeGBs.splice(0);
+        }
+        const allNodeAndEdges = allNodes.merge(allEdges)
+        allNodeAndEdges.forEach((node: any) => {
+          const d = node.data();
+          if (d.elem_category == 'node' && !activeNodes.includes(node)) {
+            activeNodes.push(node);
+          } else if (d.elem_category == 'port_group' && !activePGs.includes(node)) {
+            activePGs.push(node);
+          } else if (node.isEdge() && !activeEdges.includes(node)) {
+            activeEdges.push(node);
+          } else if (d.label == 'group_box' && !activeGBs.includes(node)) {
+            activeGBs.push(node)
+          }
+        })
         cy.nodes().select();
         cy.edges().select();
+        this.store.dispatch(retrievedMapSelection({ data: true }));
       },
       hasTrailingDivider: false,
       disabled: false,
