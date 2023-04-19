@@ -54,8 +54,8 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
     if (valueChange.cy?.currentValue && valueChange.config.currentValue) {
       this.isEdgeDirectionChecked = this.config.default_preferences.edge_direction_checkbox != undefined
                                   ? this.config.default_preferences.edge_direction_checkbox : this.isEdgeDirectionChecked;
-      this.isGroupBoxesChecked = this.config.default_preferences.groupbox_checkbox != undefined
-                               ? this.config.default_preferences.groupbox_checkbox : this.isGroupBoxesChecked;
+      this.isGroupBoxesChecked = this.config.default_preferences.groupbox_checkbox
+                               ? this.config.default_preferences.groupbox_checkbox : false;
       if (!this.groupCategoryId) {
         const groupCategory = this.groupCategories.filter(category => category.id == this.config.default_preferences.group_category)[0];
         this.groupCategoryCtr.setValue(groupCategory ? groupCategory : this.groupCategories[0]);
