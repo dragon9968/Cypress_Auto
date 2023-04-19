@@ -239,9 +239,16 @@ export class InfoPanelService implements OnDestroy {
           next: () => {
             const collectionId = this.projectService.getCollectionId();
             this.domainService.getDomainByCollectionId(collectionId).subscribe(
-              (data: any) => this.store.dispatch(retrievedDomains({ data: data.result }))
+              (data: any) => {
+                this.toastr.success(`Deleted domain ${domainName}`);
+                this.store.dispatch(retrievedDomains({ data: data.result }))
+              }
             );
-            this.toastr.success(`Deleted domain ${domainName}`);
+            this.groupService.getGroupByCollectionId(collectionId).subscribe(data => {
+              this.toastr.success(`Deleted group related to domain ${domainName}`);
+              this.store.dispatch(retrievedGroups({ data: data.result }));
+            })
+            
           },
           error: err => {
             this.toastr.error(`Delete domain ${domainName} failed`, 'Error');

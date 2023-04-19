@@ -318,7 +318,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.selectInterfaceIdConnectPG = this.store.select(selectInterfaceIdConnectPG).subscribe(interfaceIdConnectPG => {
       this.interfaceIdConnectPG = interfaceIdConnectPG;
     })
-    this.selectProjects$ = this.store.select(selectProjects).subscribe(projects => this.projects = projects);
+    this.selectProjects$ = this.store.select(selectProjects).subscribe(projects => this.projects = projects ? projects : []);
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe(mapOption => {
       this.isEdgeDirectionChecked = mapOption?.isEdgeDirectionChecked != undefined ? mapOption.isEdgeDirectionChecked : false;
       this.isGroupBoxesChecked = mapOption?.isGroupBoxesChecked != undefined ? mapOption.isGroupBoxesChecked : false;
