@@ -116,7 +116,7 @@ export class CMMapService {
     }
   }
 
-  getSelectAllMenu(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[]) {
+  getSelectAllMenu(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], activeMBs: any[], activeMapLinks: any[]) {
     return {
       id: "select_all",
       content: "Select All",
@@ -142,6 +142,10 @@ export class CMMapService {
             activeEdges.push(node);
           } else if (d.label == 'group_box' && !activeGBs.includes(node)) {
             activeGBs.push(node)
+          } else if (d.label == 'map_background' && !activeMBs.includes(node)) {
+            activeMBs.push(node)
+          } else if (d.elem_category == 'map_link' && !activeMapLinks.includes(node)) {
+            activeMapLinks.push(node);
           }
         })
         cy.nodes().select();

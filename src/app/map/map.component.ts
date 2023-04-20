@@ -516,7 +516,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   private _selectNode($event: any) {
     const t = $event.target;
-    const activeEles = this.activeNodes.concat(this.activePGs, this.activeEdges, this.activeGBs)
+    const activeEles = this.activeNodes.concat(this.activePGs, this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks)
     if (this.cy.elements().length !== activeEles.length) {
       const isChildrenOfProjectNode = t.parent()?.data('elem_category') == 'map_link';
       if (isChildrenOfProjectNode) {
@@ -570,7 +570,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   private _selectEdge($event: any) {
     const t = $event.target;
-    const activeEles = this.activeNodes.concat(this.activePGs, this.activeEdges, this.activeGBs)
+    const activeEles = this.activeNodes.concat(this.activePGs, this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks)
     if (this.cy.elements().length !== activeEles.length) { 
       const isChildrenOfProjectNode = t.connectedNodes().some((ele: any) => ele.parent()?.data('elem_category') == 'map_link')
       if (isChildrenOfProjectNode) {
@@ -732,6 +732,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.activeGBs.splice(0)
       this.activePGs.splice(0);
       this.activeEdges.splice(0);
+      this.activeMBs.splice(0);
+      this.activeMapLinks.splice(0);
       this.store.dispatch(retrievedMapSelection({ data: true }));
     }
 
@@ -1056,7 +1058,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.cmMapService.getDownloadMenu(),
         this.cmMapService.getLockAllMenu(this.cy),
         this.cmMapService.getUnlockAllMenu(this.cy),
-        this.cmMapService.getSelectAllMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs),
+        this.cmMapService.getSelectAllMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks),
       ],
       submenuIndicator: { src: '/assets/icons/submenu-indicator-default.svg', width: 12, height: 12 }
     });
@@ -1770,9 +1772,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           "original_height": height,
         }
         this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData },  newNodePosition});
+        this.mapImageService.getMapImageByCollectionId(+this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedMapImages({ mapImage: data.result })));
         this.toastr.success('Add map image successfully', 'Success');
       });
     });
   }
-
 }
