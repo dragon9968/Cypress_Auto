@@ -385,33 +385,6 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     }
   }
 
-  private _updateNodeOnMap(data: any) {
-    const ele = this.data.cy.getElementById(this.data.genData.id);
-    ele.data('name', data.name);
-    ele.data('notes', data.notes);
-    ele.data('icon', ICON_PATH + data.icon.photo);
-    ele.data('icon_id', data.icon_id);
-    ele.data('category', data.category);
-    ele.data('device', data.device);
-    ele.data('device_id', data.device_id);
-    ele.data('template', data.template);
-    ele.data('template_id', data.template_id);
-    ele.data('hardware', data.hardware);
-    ele.data('hardware_id', data.hardware_id);
-    ele.data('folder', data.folder);
-    ele.data('parent_folder', data.parent_folder);
-    ele.data('role', data.role);
-    ele.data('domain', data.domain);
-    ele.data('domain_id', data.domain_id);
-    ele.data('hostname', data.hostname);
-    ele.data('login_profile_id', data.login_profile_id);
-    ele.data('login_profile_show', data.login_profile_show);
-    ele.data('login_profile', data.login_profile?.name);
-    ele.data('configs', data.configs);
-    ele.data('configuration_show', data.configuration_show);
-    ele.data('groups', data.groups);
-  }
-
   onCategoryChange($event: MatRadioChange) {
     this.disableItems($event.value);
   }
@@ -502,7 +475,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
           this.nodeService.associate(configData).subscribe(respData => {
             this.nodeService.get(cyData.node_id).subscribe(nodeData => {
               this.data.genData.id = cyData.id;
-              this._updateNodeOnMap(nodeData.result);
+              this.helpers.updateNodeOnMap(this.data.cy, this.data.genData.id, nodeData.result);
             })
           });
         }
@@ -570,7 +543,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     this.store.dispatch(retrievedMapSelection({ data: true }));
     this.nodeService.get(this.data.genData.node_id).subscribe(nodeData => {
       this.helpers.updateNodesStorage(nodeData.result);
-      this._updateNodeOnMap(nodeData.result);
+      this.helpers.updateNodeOnMap(this.data.cy, this.data.genData.id, nodeData.result);
       this.helpers.reloadGroupBoxes(this.data.cy);
       this.dialogRef.close();
       this.store.dispatch(retrievedMapSelection({ data: true }));

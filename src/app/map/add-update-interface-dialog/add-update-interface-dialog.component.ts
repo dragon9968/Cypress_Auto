@@ -222,7 +222,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         this.helpers.updatePGOnMap(this.data.cy, portGroupId)
       }
       this.toastr.success('Edge details added!');
-      this.dialogRef.close();
+      this.dialogRef.close(respData.result);
     });
   }
 
