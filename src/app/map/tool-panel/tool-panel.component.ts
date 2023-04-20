@@ -541,36 +541,47 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       const nodesInGroup = group.nodes;
       const portGroupInGroup = group.port_groups;
       const mapImagesInGroup = group.map_images;
-      if (nodesInGroup && nodesInGroup.length > 0) {
-        nodesInGroup.map((nodeId: any) => {
-          // Update domain data for the nodes
-          const nodeEle = this.cy.getElementById(`node-${nodeId}`);
-          nodeEle.data('domain_id', group.domain_id);
-          nodeEle.data('domain', group.domain);
-          // Update the list of nodes in the group's storage
-          const node = this.nodes.find(node => node.id === nodeId)
-          newNodes.push({id: nodeId, name: node.name})
-        });
-        newGroup.nodes = newNodes;
+      if (nodesInGroup) {
+        if (nodesInGroup.length > 0) {
+          nodesInGroup.map((nodeId: any) => {
+            // Update domain data for the nodes
+            const nodeEle = this.cy.getElementById(`node-${nodeId}`);
+            nodeEle.data('domain_id', group.domain_id);
+            nodeEle.data('domain', group.domain);
+            // Update the list of nodes in the group's storage
+            const node = this.nodes.find(node => node.id === nodeId)
+            newNodes.push({id: nodeId, name: node.name})
+          });
+          newGroup.nodes = newNodes;
+        } else {
+          newGroup.nodes = [];
+        }
       }
-      if (portGroupInGroup && portGroupInGroup.length > 0) {
-        portGroupInGroup.map((pgId: number) => {
-          const pgEle = this.cy.getElementById(`pg-${pgId}`);
-          pgEle.data('domain_id', group.domain_id);
-          pgEle.data('domain', group.domain);
-          const pg = this.portGroups.find(pg => pg.id === pgId);
-          newPortGroups.push({id: pgId, name: pg.name});
-        })
-        newGroup.port_groups = newPortGroups;
+      if (portGroupInGroup) {
+        if (portGroupInGroup.length > 0) {
+          portGroupInGroup.map((pgId: number) => {
+            const pgEle = this.cy.getElementById(`pg-${pgId}`);
+            pgEle.data('domain_id', group.domain_id);
+            pgEle.data('domain', group.domain);
+            const pg = this.portGroups.find(pg => pg.id === pgId);
+            newPortGroups.push({id: pgId, name: pg.name});
+          })
+          newGroup.port_groups = newPortGroups;
+        } else {
+          newGroup.port_groups = [];
+        }
       }
-
-      if (mapImagesInGroup && mapImagesInGroup.length > 0) {
-        mapImagesInGroup.map((mapImageId: number) => {
-          const mapImageEle = this.cy.getElementById(`map_image-${mapImageId}`);
-          const mapImage = this.mapImages.find(el => el.id === mapImageId);
-          newMapImages.push({id: mapImageId, name: mapImage.name});
-        })
-        newGroup.map_images = newMapImages;
+      if (mapImagesInGroup) {
+        if (mapImagesInGroup.length > 0) {
+          mapImagesInGroup.map((mapImageId: number) => {
+            // const mapImageEle = this.cy.getElementById(`map_image-${mapImageId}`);
+            const mapImage = this.mapImages.find(el => el.id === mapImageId);
+            newMapImages.push({id: mapImageId, name: mapImage.name});
+          })
+          newGroup.map_images = newMapImages;           
+        } else {
+          newGroup.map_images = [];
+        }
       }
       newGroups.splice(indexGroup, 1, newGroup);
     })
