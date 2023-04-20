@@ -1,0 +1,16 @@
+{
+  "name": "Static Routes Template",
+  "description": "Templates for default routes",
+  "static_routes": [
+    {
+      "interface": "",
+      "next_hop": "2.2.2.2",
+      "route": "1.1.1.1"
+    },
+    {
+      "interface": "",
+      "next_hop": "4.4.4.4",
+      "route": "3.3.3.3"
+    }
+  ]
+}

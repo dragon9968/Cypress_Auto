@@ -1,0 +1,14 @@
+{
+  "name": "Windows Active Directory Role Template",
+  "description": "Config template for Windows Active Directory role services",
+  "role_services": [
+    "Active Directory Domain Services",
+    "Certification Authority Management Tools",
+    "DNS Server",
+    "File Server",
+    "Active Directory Domain Services",
+    "Certification Authority Management Tools",
+    "File Server",
+    "DHCP Server"
+  ]
+}

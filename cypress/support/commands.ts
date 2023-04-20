@@ -46,9 +46,101 @@ function addNewProject(project: any): void {
   cy.scrollTo('top')
   cy.url().should('include', 'projects')
 }
-//
-// NOTE: You can use it like so:
 Cypress.Commands.add('addNewProject', addNewProject);
+
+// Add a new configuration template
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    addNewConfigTemplate(configTemplate: any): typeof addNewConfigTemplate;
+  }
+}
+
+function addNewConfigTemplate(configTemplate: any): void {
+  cy.log(`START: Add new ${configTemplate.name} config`)
+  cy.getByMatToolTip('Add New Config Template').click()
+  cy.getByFormControlName('name').type(configTemplate.name)
+  cy.getByFormControlName('description').type(configTemplate.description)
+  cy.get('mat-error').should('not.exist')
+  cy.wait(3000)
+  cy.getByDataCy('configTemplateForm').submit()
+  cy.log(`END: Added new ${configTemplate.name} config`)
+}
+Cypress.Commands.add('addNewConfigTemplate', addNewConfigTemplate);
+
+
+// Edit configuration template
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    editConfigTemplate(configTemplate: any, newValue: any): typeof editConfigTemplate;
+  }
+}
+
+function editConfigTemplate(configTemplate: any, newValue: any): void {
+  cy.log(`START: Edit ${configTemplate.name} Config`)
+  cy.wait(3000)
+
+  cy.getByFormControlName('name').as('name').invoke('val').then(nameValue => {
+    if (nameValue !== configTemplate.name) {
+      cy.get('@name').clear().type(configTemplate.name)
+    }
+  })
+  cy.getByFormControlName('description').as('description').invoke('val').then(nameValue => {
+    if (nameValue !== configTemplate.description) {
+      cy.get('@description').clear().type(configTemplate.description)
+    }
+  })
+
+  cy.wait(2000)
+  cy.get('.ace_content').first().then((aceContentEle: any) => {
+    let aceContent = JSON.parse(aceContentEle[0].textContent)
+    Object.entries(newValue).forEach(([key, value]) => {
+      aceContent[key] = value
+    })
+    cy.wait(2000)
+    cy.get('.ace_text-input').focus().clear({force: true})
+    cy.wait(2000)
+    cy.get('.ace_text-input').type(JSON.stringify(aceContent, null, 2), { force: true })
+  })
+  cy.get('mat-error').should('not.exist')
+  cy.getByDataCy('configTemplateForm').as('configTemplateForm').submit()
+  cy.wait(2000)
+  cy.get('.toast-warning').should('not.exist')
+  cy.log(`END: Edited ${configTemplate.name} Config`)
+  cy.wait(2000)
+  cy.get('mat-dialog-container').should('not.exist')
+}
+Cypress.Commands.add('editConfigTemplate', editConfigTemplate);
+
+
+// Select row on AG-Grid by name
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    selectRowByName(name: string): typeof selectRowByName;
+  }
+}
+
+function selectRowByName(name: string): void {
+  cy.get('.ag-row').contains(name).first().click({ force: true }).type(" ");
+}
+Cypress.Commands.add('selectRowByName', selectRowByName);
+
+
+// Showing edit form by name
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    showFormEditByName(name: string): typeof showFormEditByName;
+  }
+}
+
+function showFormEditByName(name: string): void {
+  cy.wait(2000)
+  cy.get('.ag-row').contains(name).first().dblclick({ force: true })
+  cy.get('mat-dialog-container').should('exist')
+  cy.getByDataCy('btn-change-mode').click()
+}
+Cypress.Commands.add('showFormEditByName', showFormEditByName);
+
+
 Cypress.on('uncaught:exception', (err, runnable) => {
   // returning false here prevents Cypress from
   // failing the test
@@ -94,6 +186,12 @@ declare namespace Cypress {
      * @example cy.getByFormControlName('username')
      */
     getByFormControlName(controlName: string): Chainable<JQuery<HTMLElement>>
+
+    /**
+     * Custom command to select DOM element form control name attribute.
+     * @example cy.getByFormControlName('username')
+     */
+    getByMatToolTip(matTooltip: string): Chainable<JQuery<HTMLElement>>
   }
 }
 Cypress.Commands.add(
@@ -109,3 +207,11 @@ Cypress.Commands.add(
     cy.get(`[formControlName="${controlName}"]`)
   }
 );
+
+Cypress.Commands.add(
+  'getByMatToolTip',
+  (matTooltip: string) => {
+    cy.get(`[matTooltip="${matTooltip}"]`)
+  }
+);
+

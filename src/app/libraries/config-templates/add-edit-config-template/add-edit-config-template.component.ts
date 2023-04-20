@@ -13,6 +13,7 @@ import { CONFIG_TEMPLATE_ADDS_TYPE } from "../../../shared/contants/config-templ
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { PORT } from "../../../shared/contants/port.constant";
+import { AceEditorComponent } from "ng2-ace-editor";
 
 @Component({
   selector: 'app-add-edit-config-template',
@@ -20,7 +21,7 @@ import { PORT } from "../../../shared/contants/port.constant";
   styleUrls: ['./add-edit-config-template.component.scss']
 })
 export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
-  @ViewChild("editor") editor: any;
+  @ViewChild("editor") editor!: AceEditorComponent;
   PORT = PORT;
   configTemplateAddsType = CONFIG_TEMPLATE_ADDS_TYPE;
   configTemplateForm!: FormGroup;
@@ -105,7 +106,9 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
       this.editor.getEditor().setOptions({
         tabSize: 2,
         useWorker: false,
-        fontSize: '16px'
+        fontSize: '16px',
+        behavioursEnabled: false,
+        showPrintMargin: false
       });
       this.editor.mode = 'json';
       this.editor.setTheme('textmate');
@@ -116,13 +119,13 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
         }
         this.configTemplateService.getNodeDefaultConfiguration(data).subscribe(res => {
           this.defaultConfig = res.configuration;
-          this.defaultConfig.firewall_rule = this.defaultConfig.firewall_rule.map(({action, category, destination, destination_port, ...obj}: any) => ({
+          this.defaultConfig.firewall_rule = this.defaultConfig.firewall_rule?.map(({action, category, destination, destination_port, ...obj}: any) => ({
             action: action,
             category: category,
             destination: destination,
             dest_port: destination_port,
             ...obj,
-          })) 
+          }))
           this.editor.value = JSON.stringify(this.defaultConfig, null, 2);
         })
       }, 0)

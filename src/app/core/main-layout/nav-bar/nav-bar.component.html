@@ -175,7 +175,7 @@
                       <span>Disconnect</span>
                     </button>
                   </button>
-    
+
                   <button mat-menu-item class="remote-item">
                     <span class="remote-item__title">Datasource</span>
                     <button mat-raised-button class="remote-item__btn" *ngIf="!isDatasourceConnect && isOpen" (click)="openConnectServerForm('datasource')">
@@ -187,7 +187,7 @@
                       <span>Disconnect</span>
                     </button>
                   </button>
-    
+
                   <button mat-menu-item class="remote-item">
                     <span class="remote-item__title">Configurator</span>
                     <button mat-raised-button class="remote-item__btn" *ngIf="!isConfiguratorConnect && isOpen" (click)="openConnectServerForm('configurator')">
@@ -200,7 +200,7 @@
                     </button>
                   </button>
                 </mat-menu>
-    
+
               </ng-template>
               <ng-template [ngxPermissionsOnly]="['can_read on Settings']">
               <button mat-menu-item [routerLink]="routeSegments.CONNECTION_PROFILES">
@@ -386,7 +386,7 @@
       </mat-menu>
     </ng-template>
     <ng-template [ngxPermissionsOnly]="['can_read on Libraries']">
-      <a *ngIf="!isSmallScreen" mat-button [matMenuTriggerFor]="libraries" class="menu-btn">Libraries</a>
+      <a *ngIf="!isSmallScreen" mat-button [matMenuTriggerFor]="libraries" class="menu-btn" data-cy="btn-libraries">Libraries</a>
       <mat-menu #libraries="matMenu">
           <button mat-menu-item [routerLink]="routeSegments.CONFIG_TEMPLATES">
             <mat-icon>source</mat-icon>
