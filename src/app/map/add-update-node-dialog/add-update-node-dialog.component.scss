@@ -10,6 +10,10 @@ $margin: 8px;
     display: flex;
 }
 
+.category-temp {
+  height: 21px;
+}
+
 .category-group {
     width: 100%;
     display: flex;
@@ -43,64 +47,143 @@ $margin: 8px;
 }
 
 .mat-option {
-    height: 60px;
-}
-.node-area {
-  max-height: 85vh;
-  .node {
-    display: flex;
-    &__left {
-      width: 50%;
-      margin-right: $margin;
-      background-color: #fff;
-      border-radius: calc($margin/2);
-      &__detail {
-        &--top {
-          padding: $margin;
-        }
-        &--bottom {
-          display: flex;
-          justify-content: space-between;
-          &__left, &__right {
-            width: 45%;
-            padding: $margin;
-          }
-        }
-      }
-    }
-    &__right {
-      width: 50%;
-      &__configuration {
-        background-color: #fff;
-        padding: 2px 8px 4px 8px;
-        border-radius: 4px;
-        &__default {
-          overflow-y: auto;
-          max-height: 400px;
-          ace-editor {
-            height: 400px;
-          }
-        }
-      }
-    }
-  }
-  .interfaces {
-    width: 100%;
-    position: relative;
-    bottom: 0;
-    margin-top: $margin;
-    &__table ag-grid-angular {
-      text-align: center;
-      .ag-header-cell-label {
-        justify-content: center;
-      }
-    }
-  }
+  height: 60px;
 }
 
-
+.node-title {
+  margin: 0;
+}
 
 .title {
   font: 500 15px/0px Roboto, "Helvetica Neue", sans-serif;
   letter-spacing: normal;
+}
+
+.node-area {
+  max-height: 85vh;
+}
+
+.info-area {
+  &__list {
+    display: flex;
+    margin-top: 4px;
+    &__item {
+      width: 50%;
+      display: flex;
+      flex-direction: column;
+      margin-right: $margin;
+      padding: $margin;
+      background-color: #fff;
+      border-radius: 4px;
+    }
+  }
+}
+
+.instance-area, .history-area, .config-area {
+  max-height: 42vh;
+  height: 42vh;
+  background-color: #fff;
+  padding: $margin;
+  margin-top: 4px;
+  border-radius: 4px;
+}
+
+.interfaces {
+  width: 100%;
+  position: relative;
+  bottom: 0;
+  margin-top: $margin;
+  &__table ag-grid-angular {
+    text-align: center;
+    .ag-header-cell-label {
+      justify-content: center;
+    }
+  }
+}
+
+.configuration-template {
+  max-height: 43.9vh;
+  display: flex;
+  justify-content: space-between;
+  &__left {
+    width: 50%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    &__info {
+      background-color: #fff;
+      padding: 8px 8px 0 8px;
+      border-radius: 4px;
+    }
+    &__config-template {
+      background-color: #fff;
+      padding: 6px 6px 12px 6px;
+      margin-top: 36px;
+      border-radius: 4px;
+    }
+    &__actions-add {
+      margin-top: 4px;
+      background-color: #fff;
+      padding: 8px 8px 0 8px;
+      border-radius: 4px;
+      &__form--show {
+        width: initial;
+        &--field {
+          width: 60%;
+        }
+        .btn-show-form {
+          margin: 0 4px;
+        }
+      }
+      &__form--add {
+        .fw-form {
+          &__content {
+            display: flex;
+            &__item {
+              width: 30%;
+              margin-right: 12px;
+            }
+          }
+          &--field {
+            width: 100%;
+          }
+        }
+        .domain-membership-form {
+          &__join-domain {
+            width: 25%;
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+        }
+        .roles-service-form {
+          .mat-form-field-appearance-legacy .mat-form-field-wrapper {
+            padding-bottom: 15px;
+          }
+        }
+      }
+    }
+
+  }
+  &__right {
+    width: 48%;
+    overflow-y: auto;
+    &__view {
+      background-color: #fff;
+      padding: 2px 8px 4px 8px;
+      overflow-y: auto;
+      max-height: 75vh;
+    }
+    &__edit, &__view {
+      max-height: 40vh;
+      height: 40vh;
+      ace-editor {
+        height: 40vh;
+      }
+    }
+  }
+}
+
+::ng-deep ng-dropdown-panel {
+  position: relative !important;
 }

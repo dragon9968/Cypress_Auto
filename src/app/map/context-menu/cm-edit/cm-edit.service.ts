@@ -102,7 +102,7 @@ export class CMEditService {
           cy
         }
         this.dialog.open(AddUpdateNodeDialogComponent,
-          { disableClose: true, width: '1000px', height: '900px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
+          { disableClose: true, width: '1000px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
         );
       }
     } else  {

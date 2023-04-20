@@ -27,6 +27,9 @@ import { ErrorStateMatcher } from '@angular/material/core';
 import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
 import { InterfaceService } from "../../core/services/interface/interface.service";
 import { ConfigTemplateService } from "../../core/services/config-template/config-template.service";
+import { CONFIG_TEMPLATE_ADDS_TYPE } from "../../shared/contants/config-template-add-actions.constant";
+import { retrievedConfigTemplates } from "../../store/config-template/config-template.actions";
+import { PORT } from "../../shared/contants/port.constant";
 
 class CrossFieldErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -49,6 +52,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   nodeAddForm: FormGroup;
   errorMatcher = new CrossFieldErrorMatcher();
   ROLES = ROLES;
+  PORT = PORT;
   ICON_PATH = ICON_PATH;
   filteredTemplatesByDevice!: any[];
   errorMessages = ErrorMessages;
@@ -78,6 +82,21 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   filteredConfigTemplates!: Observable<any[]>;
   filteredLoginProfiles!: Observable<any[]>;
   rowData$!: Observable<any[]>;
+  configTemplateAddsType = CONFIG_TEMPLATE_ADDS_TYPE;
+  configTemplateForm!: FormGroup;
+  actionsAddForm!: FormGroup;
+  configForm!: FormGroup;
+  firewallRuleForm!: FormGroup;
+  domainMemberForm!: FormGroup;
+  roleServicesForm!: FormGroup;
+  isAddMode = false;
+  isAddRoute = false;
+  isAddFirewallRule = false;
+  isAddRolesAndService = false;
+  isAddDomainMembership = false;
+  rolesAndService: any[] = [];
+  filteredAddActions!: Observable<any>[];
+
   public gridOptions: GridOptions = {
     headerHeight: 48,
     defaultColDef: {
@@ -136,6 +155,38 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     private interfaceService: InterfaceService,
     private configTemplateService: ConfigTemplateService
   ) {
+    this.actionsAddForm = new FormGroup({
+      addTypeCtr: new FormControl('')
+    })
+    this.configForm = new FormGroup({
+      routeCtr: new FormControl('', [Validators.required]),
+      nextHopCtr: new FormControl('', [Validators.required]),
+      interfaceCtr: new FormControl('')
+    });
+    this.firewallRuleForm = new FormGroup({
+      categoryFirewallRuleCtr: new FormControl({value: 'rule', disabled: false}),
+      nameFirewallRuleCtr: new FormControl({value: '', disabled: false}),
+      stateCtr: new FormControl({value: 'present', disabled: false}),
+      actionCtr: new FormControl('pass'),
+      interfaceFirewallCtr: new FormControl({value: '', disabled: false}),
+      protocolCtr: new FormControl({value: 'any', disabled: false}),
+      sourceCtr: new FormControl({value: 'any', disabled: false}),
+      sourcePortCtr: new FormControl({value: 'any', disabled: false}),
+      sourceCustomPortCtr: new FormControl({value: 'any', disabled: true}),
+      destinationCtr: new FormControl({value: 'any', disabled: false}),
+      destinationPortCtr: new FormControl({value: 'any', disabled: false}),
+      destCustomPortCtr: new FormControl({value: '', disabled: true}),
+      targetCtr: new FormControl({value: '', disabled: true}),
+      targetPortCtr: new FormControl({value: 'any', disabled: true}),
+      targetCustomPortCtr: new FormControl({value: '', disabled: true}),
+    });
+    this.domainMemberForm = new FormGroup({
+      joinDomainCtr: new FormControl(false),
+      ouPathCtr: new FormControl(''),
+    })
+    this.roleServicesForm = new FormGroup({
+      rolesCtr: new FormControl('')
+    })
     this.isViewMode = this.data.mode == 'view';
     this.nodeAddForm = new FormGroup({
       nameCtr: new FormControl('', [
@@ -155,6 +206,15 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       hostnameCtr: new FormControl('', Validators.required),
       configTemplateCtr: new FormControl({ value: '', disabled: this.isViewMode }),
       loginProfileCtr: new FormControl(''),
+      hardwareInfoCtr: new FormControl(''),
+      uuidCtr: new FormControl(''),
+      webConsoleCtr: new FormControl(''),
+      featuresCtr: new FormControl(''),
+      softwareCtr: new FormControl(''),
+      serviceCtr: new FormControl(''),
+      runningConfigCtr: new FormControl(''),
+      changeCtr: new FormControl(''),
+      tasksCtr: new FormControl(''),
     }, { validators: hostnameValidator });
     this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
       this.icons = icons;
@@ -201,6 +261,11 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
         this.rowData$ = of(interfaceData);
       }
     })
+    this.filteredAddActions = this.helpers.filterOptions(this.addTypeCtr, this.configTemplateAddsType);
+    this.configTemplateService.getWinRoles().subscribe(data => {
+      this.rolesAndService = data;
+      this.rolesCtr.setValidators([Validators.required, autoCompleteValidator(this.rolesAndService)]);
+    });
   }
 
   ngAfterViewInit(): void {
@@ -237,6 +302,37 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   get hostnameCtr() { return this.nodeAddForm.get('hostnameCtr'); }
   get configTemplateCtr() { return this.nodeAddForm.get('configTemplateCtr'); }
   get loginProfileCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('loginProfileCtr'), this.loginProfiles); }
+  get hardwareInfoCtr() { return this.nodeAddForm.get('hardwareInfoCtr'); }
+  get uuidCtr() { return this.nodeAddForm.get('uuidCtr'); }
+  get webConsoleCtr() { return this.nodeAddForm.get('webConsoleCtr'); }
+  get featuresCtr() { return this.nodeAddForm.get('featuresCtr'); }
+  get softwareCtr() { return this.nodeAddForm.get('softwareCtr'); }
+  get serviceCtr() { return this.nodeAddForm.get('serviceCtr'); }
+  get runningConfigCtr() { return this.nodeAddForm.get('runningConfigCtr'); }
+  get changeCtr() { return this.nodeAddForm.get('changeCtr'); }
+  get tasksCtr() { return this.nodeAddForm.get('tasksCtr'); }
+  get addTypeCtr() { return this.helpers.getAutoCompleteCtr(this.actionsAddForm.get('addTypeCtr'), this.configTemplateAddsType) }
+  get routeCtr() { return this.configForm.get('routeCtr'); }
+  get nextHopCtr() { return this.configForm.get('nextHopCtr'); }
+  get interfaceCtr() { return this.configForm.get('interfaceCtr'); }
+  get categoryFirewallRuleCtr() { return this.firewallRuleForm.get('categoryFirewallRuleCtr'); }
+  get nameFirewallRuleCtr() { return this.firewallRuleForm.get('nameFirewallRuleCtr'); }
+  get stateCtr() { return this.firewallRuleForm.get('stateCtr'); }
+  get actionCtr() { return this.firewallRuleForm.get('actionCtr'); }
+  get interfaceFirewallCtr() { return this.firewallRuleForm.get('interfaceFirewallCtr'); }
+  get protocolCtr() { return this.firewallRuleForm.get('protocolCtr'); }
+  get sourceCtr() { return this.firewallRuleForm.get('sourceCtr'); }
+  get sourcePortCtr() { return this.firewallRuleForm.get('sourcePortCtr'); }
+  get sourceCustomPortCtr() { return this.firewallRuleForm.get('sourceCustomPortCtr'); }
+  get destinationCtr() { return this.firewallRuleForm.get('destinationCtr'); }
+  get destinationPortCtr() { return this.firewallRuleForm.get('destinationPortCtr'); }
+  get destCustomPortCtr() { return this.firewallRuleForm.get('destCustomPortCtr'); }
+  get targetCtr() { return this.firewallRuleForm.get('targetCtr'); }
+  get targetPortCtr() { return this.firewallRuleForm.get('targetPortCtr'); }
+  get targetCustomPortCtr() { return this.firewallRuleForm.get('targetCustomPortCtr'); }
+  get joinDomainCtr() { return this.domainMemberForm.get('joinDomainCtr'); }
+  get ouPathCtr() { return this.domainMemberForm.get('ouPathCtr');}
+  get rolesCtr() { return this.helpers.getAutoCompleteCtr(this.roleServicesForm.get('rolesCtr'), this.rolesAndService);}
 
   ngOnInit(): void {
     this.roleCtr.setValidators([Validators.required, autoCompleteValidator(this.ROLES)]);
@@ -261,6 +357,9 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       this.configTemplateCtr?.setValue(this.data.genData.configs.map((item: any) => item.id));
     }
     this.helpers.validateAllFormFields(this.nodeAddForm);
+    this.addTypeCtr?.setValue(this.configTemplateAddsType[0]);
+    this.addTypeCtr?.setValidators([Validators.required, autoCompleteValidator(this.configTemplateAddsType)])
+    this.helpers.setAutoCompleteValue(this.addTypeCtr, this.configTemplateAddsType, this.configTemplateAddsType[0].id)
   }
 
   ngOnDestroy(): void {
@@ -488,5 +587,202 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
 
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
+  }
+
+  showAddConfigForm() {
+    this.showFormAdd(this.addTypeCtr?.value.id);
+  }
+
+  selectAddType($event: MatAutocompleteSelectedEvent) {
+    this.showFormAdd($event.option.value.id)
+  }
+
+  disableItemsConfig(category: string) {
+    if (category === 'port_forward') {
+      this.actionCtr?.disable();
+      this.protocolCtr?.disable();
+      this.sourcePortCtr?.disable();
+      this.targetCtr?.enable();
+      this.targetPortCtr?.enable();
+    } else {
+      this.actionCtr?.enable();
+      this.protocolCtr?.enable();
+      this.sourcePortCtr?.enable();
+      this.targetCtr?.disable();
+      this.targetPortCtr?.disable();
+      this.targetCustomPortCtr?.disable();
+    }
+  }
+
+  onCategoryChangeConfig($event: any) {
+    this.disableItemsConfig($event.value)
+  }
+
+  onChangeSourcePort($event: any) {
+    if ($event.value === "other") {
+      this.sourceCustomPortCtr?.enable();
+    } else {
+      this.sourceCustomPortCtr?.disable();
+    }
+  }
+
+  onChangeDestinationPort($event: any) {
+    if ($event.value === "other") {
+      this.destCustomPortCtr?.enable();
+    } else {
+      this.destCustomPortCtr?.disable();
+    }
+  }
+
+  onChangeTargetPort($event: any) {
+    if ($event.value === "other") {
+      this.targetCustomPortCtr?.enable();
+    }else {
+      this.targetCustomPortCtr?.disable();
+    }
+  }
+
+  addRoute() {
+    const jsonDataValue = {
+      config_type: "static_route",
+      config_id: this.data.genData.default_config_id,
+      name: this.data.genData.name,
+      description: this.data.genData.description,
+      route: this.routeCtr?.value,
+      next_hop: this.nextHopCtr?.value,
+      interface: this.interfaceCtr?.value,
+      node_id: this.data.genData.node_id
+    }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
+    this.configTemplateService.addConfiguration(jsonData).pipe(
+      catchError(err => {
+        this.toastr.error('Add Route failed', 'Error');
+        return throwError(() => err);
+      })
+    ).subscribe((response) => {
+      this._setEditorData(response.result)
+      this.toastr.success('Add Route successfully', 'Success');
+      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
+    });
+  }
+
+  addFirewallRule() {
+    const jsonDataValue = {
+      config_type: "firewall",
+      config_id: this.data.genData.default_config_id,
+      category: this.categoryFirewallRuleCtr?.value,
+      name: this.nameFirewallRuleCtr?.value,
+      state: this.stateCtr?.value,
+      action: this.actionCtr?.value,
+      interface: this.interfaceFirewallCtr?.value,
+      protocol: this.protocolCtr?.value,
+      source: this.sourceCtr?.value,
+      source_port: this.sourcePortCtr?.value,
+      source_port_custom: this.sourceCustomPortCtr?.value,
+      destination: this.destinationCtr?.value,
+      dest_port: this.destinationPortCtr?.value,
+      dest_port_custom: this.destCustomPortCtr?.value,
+      target: this.targetCtr?.value,
+      target_port: this.targetPortCtr?.value,
+      target_port_custom: this.targetCustomPortCtr?.value,
+      node_id: this.data.genData.node_id
+    }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
+    this.configTemplateService.addConfiguration(jsonData).pipe(
+      catchError(err => {
+        this.toastr.error('Add Firewall Rule failed', 'Error');
+        return throwError(() => err);
+      })
+    ).subscribe((response) => {
+      this._setEditorData(response.result)
+      this.toastr.success('Add Firewall Rule successfully', 'Success');
+      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
+    });
+  }
+
+  addDomainMembership() {
+    const jsonDataValue = {
+      config_type: "domain_membership",
+      config_id: this.data.genData.default_config_id,
+      join_domain: this.joinDomainCtr?.value,
+      ou_path: this.ouPathCtr?.value,
+      node_id: this.data.genData.node_id
+    }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
+    this.configTemplateService.addConfiguration(jsonData).pipe(
+      catchError(err => {
+        this.toastr.error('Add Domain Membership failed', 'Error');
+        return throwError(() => err);
+      })
+    ).subscribe((response) => {
+      this._setEditorData(response.result)
+      this.toastr.success('Add Domain Membership successfully', 'Success');
+      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
+    });
+  }
+
+  addRoleServices() {
+    const jsonData = {
+      config_type: "role_services",
+      config_id: this.data.genData.default_config_id,
+      role_services: this.rolesCtr?.value,
+      node_id: this.data.genData.node_id
+    }
+    this.configTemplateService.addConfiguration(jsonData).pipe(
+      catchError(err => {
+        this.toastr.error('Add Roles & Service failed', 'Error')
+        return throwError(() => err);
+      })
+    ).subscribe((response) => {
+      this._setEditorData(response.result)
+      this.toastr.success('Add Roles & Service successfully', 'Success');
+      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
+    });
+  }
+
+  showFormAdd(addType: string) {
+    switch (addType) {
+      case 'add_route':
+        this.isAddRoute = true;
+        this.isAddFirewallRule = false;
+        this.isAddDomainMembership = false;
+        this.isAddRolesAndService = false;
+        break;
+      case 'add_firewall_rule':
+        this.isAddRoute = false;
+        this.isAddFirewallRule = true;
+        this.isAddDomainMembership = false;
+        this.isAddRolesAndService = false;
+        break;
+      case 'add_domain_membership':
+        this.isAddRoute = false;
+        this.isAddFirewallRule = false;
+        this.isAddDomainMembership = true;
+        this.isAddRolesAndService = false;
+        break;
+      case 'add_roles_service':
+        this.isAddRoute = false;
+        this.isAddFirewallRule = false;
+        this.isAddDomainMembership = false;
+        this.isAddRolesAndService = true;
+        break;
+      default:
+        this.isAddRoute = false;
+        this.isAddFirewallRule = false;
+        this.isAddDomainMembership = false;
+        this.isAddRolesAndService = false;
+    }
+  }
+
+  private _setEditorData(data: any) {
+    this.defaultConfig = data;
+    this.editor.value = JSON.stringify(this.defaultConfig, null, 2);
+  }
+
+  hideAddForm() {
+    this.isAddRoute = false;
+    this.isAddFirewallRule = false;
+    this.isAddDomainMembership = false;
+    this.isAddRolesAndService = false;
   }
 }
