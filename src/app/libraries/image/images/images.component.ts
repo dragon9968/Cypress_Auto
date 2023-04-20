@@ -168,7 +168,8 @@ export class ImagesComponent implements OnInit, OnDestroy {
             return this.imageService.delete(id).pipe(
               catchError((response: any) => {
                 if (response.status == 400) {
-                  this.toastr.error(response.error.message.split(':')[1], 'Error');
+                  const message = response.error.message.split(':')[1];
+                  this.toastr.warning(message, 'Warning');
                 } else {
                   this.toastr.error('Delete image failed', 'Error');
                 }
