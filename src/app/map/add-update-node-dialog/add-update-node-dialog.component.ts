@@ -30,6 +30,7 @@ import { ConfigTemplateService } from "../../core/services/config-template/confi
 import { CONFIG_TEMPLATE_ADDS_TYPE } from "../../shared/contants/config-template-add-actions.constant";
 import { retrievedConfigTemplates } from "../../store/config-template/config-template.actions";
 import { PORT } from "../../shared/contants/port.constant";
+import { AceEditorComponent } from "ng2-ace-editor";
 
 class CrossFieldErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -47,7 +48,7 @@ class CrossFieldErrorMatcher implements ErrorStateMatcher {
   styleUrls: ['./add-update-node-dialog.component.scss']
 })
 export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterViewInit {
-  @ViewChild("editor") editor: any;
+  @ViewChild("editor") editor!: AceEditorComponent;
   private gridApi!: GridApi;
   nodeAddForm: FormGroup;
   errorMatcher = new CrossFieldErrorMatcher();
@@ -190,7 +191,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     this.isViewMode = this.data.mode == 'view';
     this.nodeAddForm = new FormGroup({
       nameCtr: new FormControl('', [
-        Validators.required,
+        Validators.required, Validators.minLength(3), Validators.maxLength(50),
         validateNameExist(() => this.nodes, this.data.mode, this.data.genData.node_id)
       ]),
       notesCtr: new FormControl(''),

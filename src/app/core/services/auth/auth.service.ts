@@ -11,15 +11,9 @@ import { ServerConnectService } from "../server-connect/server-connect.service";
 import { catchError } from "rxjs/operators";
 import { forkJoin, of, throwError } from "rxjs";
 import { ToastrService } from "ngx-toastr";
-import {
-  retrievedIsConfiguratorConnect,
-  retrievedIsHypervisorConnect,
-  retrievedIsDatasourceConnect
-} from "../../../store/server-connect/server-connect.actions";
-import { retrievedVMStatus } from "../../../store/project/project.actions";
+import { retrievedIsOpen, retrievedVMStatus } from "../../../store/project/project.actions";
 import { Store } from "@ngrx/store";
 import { NgxPermissionsService, NgxRolesService } from "ngx-permissions";
-import { RemoteCategories } from "../../enums/remote-categories.enum";
 import { HelpersService } from "../helpers/helpers.service";
 
 @Injectable({
@@ -119,10 +113,12 @@ export class AuthService {
   private _removeDataInLocalStorageAndPermission() {
     this.ngxRolesService.flushRolesAndPermissions();
     this.ngxPermissionsService.flushPermissions();
+    this.store.dispatch(retrievedIsOpen({data: false}));
     this.localStorageService.removeItem(LocalStorageKeys.ACCESS_TOKEN);
     this.localStorageService.removeItem(LocalStorageKeys.REFRESH_TOKEN);
     this.localStorageService.removeItem(LocalStorageKeys.CONNECTIONS);
     this.localStorageService.removeItem(LocalStorageKeys.USER_ID);
+    this.localStorageService.removeItem(LocalStorageKeys.COLLECTION_ID);
   }
 
 }

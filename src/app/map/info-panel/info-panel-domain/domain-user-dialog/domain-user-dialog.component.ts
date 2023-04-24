@@ -161,11 +161,11 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
 
   setFirstName(params: ValueSetterParams) {
     const newValue = params.newValue;
-    const isValueRequired = this.validateRequired(newValue);
+    const isValueRequired = this.helpersService.validateRequiredInCell(newValue);
     if (!isValueRequired) return false;
-    const isValueCharacter = this.validateCharacter(newValue);
+    const isValueCharacter = this.helpersService.validateCharacterInCell(newValue);
     if (!isValueCharacter) return false;
-    const isValueInRange = this.validateLengthInRange(newValue, 2, 20);
+    const isValueInRange = this.helpersService.validateLengthRangeInCell(newValue, 2, 20);
     if (!isValueInRange) return false;
     const data = params.data;
     data.firstname = params.newValue;
@@ -174,11 +174,11 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
 
   setLastName(params: ValueSetterParams) {
     const newValue = params.newValue;
-    const isValueRequired = this.validateRequired(newValue);
+    const isValueRequired = this.helpersService.validateRequiredInCell(newValue);
     if (!isValueRequired) return false;
-    const isValueCharacter = this.validateCharacter(newValue);
+    const isValueCharacter = this.helpersService.validateCharacterInCell(newValue);
     if (!isValueCharacter) return false;
-    const isValueInRange = this.validateLengthInRange(newValue, 2, 20);
+    const isValueInRange = this.helpersService.validateLengthRangeInCell(newValue, 2, 20);
     if (!isValueInRange) return false;
     const data = params.data;
     data.lastname = params.newValue;
@@ -186,7 +186,7 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
   }
 
   setUsername(params: ValueSetterParams) {
-    const isValueRequired = this.validateRequired(params.newValue);
+    const isValueRequired = this.helpersService.validateRequiredInCell(params.newValue);
     if (!isValueRequired) return false;
     let isExistUsername = false;
     const data = params.data;
@@ -207,7 +207,7 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
 
   setUpn(params: ValueSetterParams) {
     const newValue = params.newValue;
-    const isValueRequired = this.validateRequired(newValue);
+    const isValueRequired = this.helpersService.validateRequiredInCell(newValue);
     if (!isValueRequired) {
       return false;
     } else {
@@ -219,7 +219,7 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
 
   setPostalCode(params: ValueSetterParams) {
     const newValue = params.newValue;
-    const isValueNumber = this.validateNumber(newValue);
+    const isValueNumber = this.helpersService.validateNumberInCell(newValue);
     if (!isValueNumber) {
       return false;
     } else {
@@ -283,7 +283,7 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
             state_province: domainUser.state_province,
             postal_code: domainUser.postal_code,
             country: domainUser.country
-          } 
+          }
           const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
           this.domainUserService.put(domainUser.id, jsonData).subscribe({
             next: () => {
@@ -340,47 +340,5 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
   onCellValueChanged(event: CellValueChangedEvent) {
     event.node.setSelected(true);
     this.selectRow();
-  }
-
-  validateRequired(newValue: any) {
-    const isValueValid = newValue && newValue.trim();
-    if (isValueValid) {
-      return true;
-    } {
-      this.toastr.error(ErrorMessages.FIELD_IS_REQUIRED, 'Error');
-      return false;
-    }
-  }
-
-  validateLengthInRange(newValue: any, minLength: number, maxLength: number) {
-   const isValueValid = newValue && newValue.trim() && (newValue.length >= minLength && newValue.length <= maxLength);
-   if (isValueValid) {
-     return true;
-   } else {
-     this.toastr.error(ErrorMessages.RANGE_LENGTH_2_TO_20, 'Error');
-     return false;
-   }
-  }
-
-  validateCharacter(newValue: any) {
-    const regex = /^[a-zA-Z\s]*$/;
-    const isValueCharacter = regex.test(newValue);
-    if (isValueCharacter) {
-      return true;
-    } else {
-      this.toastr.error(ErrorMessages.FIELD_IS_ALPHABET, 'Error');
-      return false;
-    }
-  }
-
-  validateNumber(newValue: any) {
-    const regex = /^\d+$/;
-    const isNumber = regex.test(newValue);
-    if (isNumber) {
-      return true;
-    } else {
-      this.toastr.error(ErrorMessages.FIELD_IS_NUMBER, 'Error');
-      return false;
-    }
   }
 }

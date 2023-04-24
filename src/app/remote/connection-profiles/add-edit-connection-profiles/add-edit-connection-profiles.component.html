@@ -84,11 +84,11 @@
             <mat-hint *ngIf="data.mode !== 'view'" align="start"></mat-hint>
           </mat-form-field>
         </div>
-        <mat-form-field class="field">
+        <mat-form-field *ngIf="isViewMode" class="field">
           <mat-label>Version</mat-label>
           <input autocomplete="off" id="connection-version" type="text" formControlName="version" matInput>
         </mat-form-field>
-        <mat-form-field class="field">
+        <mat-form-field *ngIf="isViewMode" class="field">
           <mat-label>UUID</mat-label>
           <input autocomplete="off" id="connection-uuid" type="text" formControlName="uuid" matInput>
         </mat-form-field>

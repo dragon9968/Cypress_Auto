@@ -22,9 +22,7 @@ import { retrievedAppPref } from 'src/app/store/app-pref/app-pref.actions';
 import { MatRadioChange } from '@angular/material/radio';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { NgxPermissionsService } from "ngx-permissions";
-import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
 import { MapPrefService } from 'src/app/core/services/map-pref/map-pref.service';
-import { retrievedMapPref } from 'src/app/store/map-style/map-style.actions';
 import { retrievedDefaultMapPref } from 'src/app/store/map-pref/map-pref.actions';
 import { selectDefaultMapPref } from 'src/app/store/map-pref/map-pref.selectors';
 

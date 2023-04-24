@@ -930,6 +930,48 @@ export class HelpersService implements OnDestroy {
     }
   }
 
+  validateRequiredInCell(newValue: any) {
+    const isValueValid = newValue && newValue.trim();
+    if (isValueValid) {
+      return true;
+    } {
+      this.toastr.error(ErrorMessages.FIELD_IS_REQUIRED, 'Error');
+      return false;
+    }
+  }
+
+  validateLengthRangeInCell(newValue: any, minLength: number, maxLength: number) {
+    const isValueValid = newValue && newValue.trim() && (newValue.length >= minLength && newValue.length <= maxLength);
+    if (isValueValid) {
+      return true;
+    } else {
+      this.toastr.error(ErrorMessages.RANGE_LENGTH_2_TO_20, 'Error');
+      return false;
+    }
+  }
+
+  validateCharacterInCell(newValue: any) {
+    const regex = /^[a-zA-Z\s]*$/;
+    const isValueCharacter = regex.test(newValue);
+    if (isValueCharacter) {
+      return true;
+    } else {
+      this.toastr.error(ErrorMessages.FIELD_IS_ALPHABET, 'Error');
+      return false;
+    }
+  }
+
+  validateNumberInCell(newValue: any) {
+    const regex = /^\d+$/;
+    const isNumber = regex.test(newValue);
+    if (isNumber) {
+      return true;
+    } else {
+      this.toastr.error(ErrorMessages.FIELD_IS_NUMBER, 'Error');
+      return false;
+    }
+  }
+
   updateNodesStorage(newNode: any) {
     const nodeIds = this.nodes.map(node => node.id);
     const newNodes = [...this.nodes];
