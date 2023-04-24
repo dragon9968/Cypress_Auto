@@ -98,7 +98,15 @@ export class InfoPanelPortGroupManagementComponent implements OnInit, OnDestroy 
         field: 'interfaces',
         minWidth: 300,
         flex: 1,
-        cellRenderer: (param: any) => param.value,
+        cellRenderer: (param: any) => {
+          let html_str = "<ul>";
+          param.value?.forEach((i: any) => {
+            const item_html = `<li>${i.value}</li>`
+            html_str += item_html
+          });
+          html_str += "</ul>"
+          return html_str != '<ul></ul>' ? html_str : '';
+        },
         cellClass: 'row-interface',
         autoHeight: true
       }

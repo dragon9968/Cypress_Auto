@@ -41,10 +41,10 @@ export class HelpersService implements OnDestroy {
   @Input() deletedNodes!: any[];
 
   constructor(private store: Store,
-              private toastr: ToastrService,
-              private domSanitizer: DomSanitizer,
-              private serverConnectionService: ServerConnectService,
-              private portGroupService: PortGroupService) {
+    private toastr: ToastrService,
+    private domSanitizer: DomSanitizer,
+    private serverConnectionService: ServerConnectService,
+    private portGroupService: PortGroupService) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
         this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
@@ -383,7 +383,7 @@ export class HelpersService implements OnDestroy {
     });
   }
 
-  addCYNodeAndEdge(cy: any, nodes: any[], edges: any[], newPosition: any = {x: 0, y: 0}, mapLinkId = undefined) {
+  addCYNodeAndEdge(cy: any, nodes: any[], edges: any[], newPosition: any = { x: 0, y: 0 }, mapLinkId = undefined) {
     // Draw new nodes from the other project into the current project.
     nodes.map((node: any) => {
       if (node.data.elem_category == 'node' || node.data.elem_category == 'map_link') {
@@ -600,7 +600,7 @@ export class HelpersService implements OnDestroy {
           return options;
         }
         const text = typeOfValue === 'string' ? value.toLowerCase() : value.name;
-        const filteredOptions =  options?.filter((option: any) => option[optionColumn]?.toLowerCase().includes(text));
+        const filteredOptions = options?.filter((option: any) => option[optionColumn]?.toLowerCase().includes(text));
         return filteredOptions.length > 0 ? filteredOptions : options;
       }),
     );
@@ -616,15 +616,15 @@ export class HelpersService implements OnDestroy {
         }
         const text = typeOfValue === 'string' ? value.toLowerCase() : value.name;
         const filteredOptions = options?.filter((option: any) => option['name']?.toLowerCase().includes(text)
-                                                                || option['subnet']?.toLowerCase().includes(text)
-                                                                || option['vlan']?.toString().toLowerCase().includes(text));
+          || option['subnet']?.toLowerCase().includes(text)
+          || option['vlan']?.toString().toLowerCase().includes(text));
         return filteredOptions.length > 0 ? filteredOptions : options;
       }),
     );
   }
 
   removeNode(node: any) {
-    node._private['data'] = {...node._private['data']};
+    node._private['data'] = { ...node._private['data'] };
     const data = node.data();
     if (!data.new) {
       data.deleted = true;
@@ -676,11 +676,11 @@ export class HelpersService implements OnDestroy {
 
   isParentOfOneChild(node: any) {
     return (node.isParent() && (node.children().length === 1 && node.data('elem_category') != 'group')) ||
-           (node.children().length === 0 && node.data('elem_category') == 'group')
+      (node.children().length === 0 && node.data('elem_category') == 'group')
   }
 
   removeParent(parent: any) {
-    parent.children().move({parent: null})
+    parent.children().move({ parent: null })
     parent.remove();
   }
 
@@ -688,24 +688,24 @@ export class HelpersService implements OnDestroy {
     cy.nodes().filter(this.isParentOfOneChild).forEach(this.removeParent)
   }
 
-  restoreNode(node: any){
-    node._private['data'] = {...node._private['data']};
+  restoreNode(node: any) {
+    node._private['data'] = { ...node._private['data'] };
     var restored = node.restore();
     var node = null;
     restored.forEach((ele: any) => {
-        var d = ele.data()
-        if(ele.group() == 'nodes'){
-            if (!d.new) {
-                d.deleted = false;
-                this.deletedNodes.pop();
-                node = ele;
-            }
-        }else{
-            if (!d.new) {
-                d.deleted = false;
-                this.deletedInterfaces.pop();
-            }
+      var d = ele.data()
+      if (ele.group() == 'nodes') {
+        if (!d.new) {
+          d.deleted = false;
+          this.deletedNodes.pop();
+          node = ele;
         }
+      } else {
+        if (!d.new) {
+          d.deleted = false;
+          this.deletedInterfaces.pop();
+        }
+      }
     });
     return node;
   }
@@ -742,26 +742,33 @@ export class HelpersService implements OnDestroy {
     }
   }
 
-  removeEdge(edge: any) {
-    const data = edge.data();
-    if (data && !data.new) {
+  removeEdge(data: any) {
+    const edgeData = data.edge.data();
+    if (edgeData && !edgeData.new) {
       this.deletedInterfaces.push({
-        'name': data.id,
-        'interface_id': data.interface_id
+        'name': edgeData.id,
+        'interface_id': edgeData.interface_id
       });
-      data.deleted = true;
+      edgeData.deleted = true;
     }
-    return edge.remove();
+    const ele = data.cy.getElementById(`pg-${edgeData.port_group_id}`);
+    const interfaces = ele.data('interfaces').filter((i: any) => i.id != edgeData.id);
+    ele.data('interfaces', interfaces);
+    return { cy: data.cy, edge: data.edge.remove() };
   }
 
-  restoreEdge(edge: any) {
-    const edge_restore = edge.restore();
-    const data = edge_restore.data();
-    if (data && !data.new) {
-      data.deleted = false;
+  restoreEdge(data: any) {
+    const edge_restore = data.edge.restore();
+    const edgeData = edge_restore.data();
+    if (edgeData && !edgeData.new) {
+      edgeData.deleted = false;
       this.deletedInterfaces.pop();
     }
-    return edge_restore;
+    const ele = data.cy.getElementById(`pg-${edgeData.port_group_id}`);
+    const i = `${edgeData.node} - ${edgeData.name} - ${edgeData.ip}`;
+    const interfaces = [...ele.data('interfaces'), { id: edgeData.interface_id, value: i }];
+    ele.data('interfaces', interfaces);
+    return { cy: data.cy, edge: edge_restore };
   }
 
   hexToRGB(hexColor: string) {
@@ -849,8 +856,7 @@ export class HelpersService implements OnDestroy {
     return this.domSanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
-  getDateformatYYYYMMDDHHMMSS(date: Date)
-  {
+  getDateformatYYYYMMDDHHMMSS(date: Date) {
     const year = '' + date.getFullYear();
     let month = '' + (date.getMonth() + 1); if (month.length == 1) { month = '0' + month; }
     let day = '' + date.getDate(); if (day.length == 1) { day = '0' + day; }
@@ -964,20 +970,17 @@ export class HelpersService implements OnDestroy {
     ele.data('interfaces', data.interfaces);
   }
 
-  updatePGOnMap(cy: any, portGroupId: any) {
-    this.portGroupService.get(portGroupId).subscribe(response => {
-      const data = response.result;
-      const ele = cy.getElementById(`pg-${data.id}`);
-      ele.data('name', data.name);
-      ele.data('vlan', data.vlan);
-      ele.data('category', data.category);
-      ele.data('subnet_allocation', data.subnet_allocation);
-      ele.data('subnet', data.subnet);
-      ele.data('groups', data.groups);
-      ele.data('domain', data.domain);
-      ele.data('domain_id', data.domain_id);
-      ele.data('interfaces', data.interfaces);
-    })
+  updatePGOnMap(cy: any, portGroupId: any, data: any) {
+    const ele = cy.getElementById(`pg-${portGroupId}`);
+    ele.data('name', data.name);
+    ele.data('vlan', data.vlan);
+    ele.data('category', data.category);
+    ele.data('subnet_allocation', data.subnet_allocation);
+    ele.data('subnet', data.subnet);
+    ele.data('groups', data.groups);
+    ele.data('domain', data.domain);
+    ele.data('domain_id', data.domain_id);
+    ele.data('interfaces', data.interfaces);
   }
 
   removeNodesInStorage(nodeIds: any[]) {
@@ -1012,7 +1015,7 @@ export class HelpersService implements OnDestroy {
         this.store.dispatch(retrievedIsDatasourceConnect({ data: status }));
         break;
       case RemoteCategories.CONFIGURATOR:
-        this.store.dispatch(retrievedIsConfiguratorConnect({ data: status}));
+        this.store.dispatch(retrievedIsConfiguratorConnect({ data: status }));
         break;
       default:
         this.toastr.warning('The connection category is not match', 'Warning')
@@ -1040,6 +1043,6 @@ export class HelpersService implements OnDestroy {
       const index = newProjects.findIndex(ele => ele.id === projectId);
       newProjects.splice(index, 1);
     })
-    this.store.dispatch(retrievedProjects({data: newProjects}));
+    this.store.dispatch(retrievedProjects({ data: newProjects }));
   }
 }

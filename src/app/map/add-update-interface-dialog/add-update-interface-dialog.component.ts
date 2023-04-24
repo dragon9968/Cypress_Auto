@@ -53,7 +53,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     private portGroupService: PortGroupService
   ) {
     this.interfaceAddForm = new FormGroup({
-      orderCtr: new FormControl('',[Validators.required, Validators.pattern('^[0-9]*$')]),
+      orderCtr: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
       nameCtr: new FormControl('', Validators.required),
       descriptionCtr: new FormControl('', Validators.required),
       categoryCtr: new FormControl({ value: '', disabled: this.isViewMode || this.tabName == 'edgeManagement' }),
@@ -109,7 +109,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     let directionValue = this.isEdgeDirectionChecked ? this.data.genData.direction : this.data.genData.prev_direction;
     directionValue = this.data.mode == 'add' || this.data.mode == 'connect' || this.data.genData.category == 'management'
-                      ? this.data.genData.direction : directionValue;
+      ? this.data.genData.direction : directionValue;
     this.directionCtr.setValidators([Validators.required, autoCompleteValidator(this.DIRECTIONS)]);
     this.filteredDirections = this.helpers.filterOptions(this.directionCtr, this.DIRECTIONS);
     this.orderCtr?.setValue(this.data.genData.order);
@@ -218,8 +218,11 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         cyData.text_size = cyData.logical_map_style.text_size;
         cyData.color = cyData.logical_map_style.color;
         this.helpers.addCYEdge(this.data.cy, { ...newEdgeData, ...cyData });
-        this._showOrHideArrowDirectionOnEdge(cyData.id)
-        this.helpers.updatePGOnMap(this.data.cy, portGroupId)
+        this._showOrHideArrowDirectionOnEdge(cyData.id);
+        this.portGroupService.get(portGroupId).subscribe(response => {
+          this.helpers.updatePGOnMap(this.data.cy, portGroupId, response.result);
+          this.store.dispatch(retrievedMapSelection({ data: true }));
+        });
       }
       this.toastr.success('Edge details added!');
       this.dialogRef.close(respData.result);

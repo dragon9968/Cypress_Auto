@@ -114,10 +114,9 @@ export class InfoPanelService implements OnDestroy {
       if ('temp' in sourceData || 'temp' in targetData) {
         return
       } else {
-        this.ur?.do('removeEdge', edge);
+        this.ur?.do('removeEdge', { cy, edge });
         const index = activeEdges.findIndex(ele => ele.data(idName) === id);
         activeEdges.splice(index, 1);
-        // TODO: this.tool_panel.update_components();
       }
     });
 
