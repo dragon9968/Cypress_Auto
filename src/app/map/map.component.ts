@@ -166,6 +166,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   vmStatus!: boolean;
   boxSelectedNodes = new Set();
   interfaceIdConnectPG!: any;
+  groupCategoryId!: string;
   selectMap$ = new Subscription();
   selectMapPref$ = new Subscription();
   selectMapEdit$ = new Subscription();
@@ -322,9 +323,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe(mapOption => {
       this.isEdgeDirectionChecked = mapOption?.isEdgeDirectionChecked != undefined ? mapOption.isEdgeDirectionChecked : false;
       this.isGroupBoxesChecked = mapOption?.isGroupBoxesChecked != undefined ? mapOption.isGroupBoxesChecked : false;
+      this.groupCategoryId = mapOption?.groupCategoryId;
     })
     this.projectService.getProjectByStatusAndCategory('active', 'project').subscribe(
-      (response: any) => this.store.dispatch(retrievedProjects({data: response.result}))
+      (response: any) => this.store.dispatch(retrievedProjects({ data: response.result }))
     );
   }
 
@@ -363,7 +365,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         const index = newProjects.findIndex(ele => ele.id === projectId);
         newProjects.splice(index, 1);
       })
-      this.store.dispatch(retrievedProjects({data: newProjects}));
+      this.store.dispatch(retrievedProjects({ data: newProjects }));
     }, 0)
   }
 
@@ -563,7 +565,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         }
       }
       this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
-                                              this.activeMBs, this.activeMapLinks, this.isTemplateCategory);
+        this.activeMBs, this.activeMapLinks, this.isTemplateCategory);
       this.store.dispatch(retrievedMapSelection({ data: true }));
     }
   }
@@ -571,7 +573,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private _selectEdge($event: any) {
     const t = $event.target;
     const activeEles = this.activeNodes.concat(this.activePGs, this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks)
-    if (this.cy.elements().length !== activeEles.length) { 
+    if (this.cy.elements().length !== activeEles.length) {
       const isChildrenOfProjectNode = t.connectedNodes().some((ele: any) => ele.parent()?.data('elem_category') == 'map_link')
       if (isChildrenOfProjectNode) {
         return;
@@ -587,8 +589,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         }
       }
       this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
-                                              this.activeMBs, this.activeMapLinks , this.isTemplateCategory);
-      this.store.dispatch(retrievedMapSelection({ data: true })); 
+        this.activeMBs, this.activeMapLinks, this.isTemplateCategory);
+      this.store.dispatch(retrievedMapSelection({ data: true }));
     }
   }
 
@@ -724,7 +726,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.addTemplateIntoCurrentProject(this.projectTemplateId, this.isLayoutOnly, newNodePosition);
     } else if (this.isAddProjectNode) {
       this.addProjectNode(this.linkProjectId, this.collectionId, newNodePosition);
-    } else if (this.isAddMapImage){
+    } else if (this.isAddMapImage) {
       this.addImage(this.imageWidth, this.imageHeight, this.imageUrl, this.collectionId, newNodePosition);
     }
     if ($event.target === this.cy) {
@@ -743,8 +745,48 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     console.log('nodeEditing');
   }
 
-  private _cdndDrop() {
-    console.log('cdndDrop');
+  private _cdndDrop($event: any, dropTarget: any, dropSibling: any) {
+    const target = $event.target;
+    const data = target.data();
+    if (dropTarget.data('label') == 'group_box') {
+      if (this.groupCategoryId == 'domain') {
+        const g = data.groups.filter((gb: any) => gb.category == 'domain');
+        if (g[0]?.id != dropTarget.data('group_id')) {
+          data.domain = dropTarget.data('domain');
+          data.domain_id = dropTarget.data('domain_id');
+
+          if (data.elem_category === 'port_group') {
+            this.portgroupService.put(data.pg_id, {
+              domain_id: data.domain_id,
+              switch_id: data.switch_id
+            }).subscribe(resp => {
+              this.portgroupService.get(data.pg_id).subscribe(resp => {
+                data.groups = resp.result.groups
+                this.toastr.success('Groups updated!');
+              });
+            });
+          } else if (data.elem_category === 'node') {
+            this.nodeService.put(data.node_id, {
+              domain_id: data.domain_id,
+            }).subscribe(resp => {
+              this.nodeService.get(data.node_id).subscribe(resp => {
+                data.groups = resp.result.groups
+                this.toastr.success('Groups updated!');
+              });
+            });
+          }
+        }
+      }
+      target.move({ 'parent': 'group-' + dropTarget.data('group_id') });
+    } else if (dropTarget.data('label') != 'group_box') {
+      data.in_groupbox = true;
+      this.helpersService.reloadGroupBoxes(this.cy);
+    }
+    if (data.category != "bg_image") {
+      data.new = false;
+      data.updated = true;
+      data.deleted = false;
+    }
   }
 
   private _cdndOut(event: any, dropTarget: any) {
@@ -1018,9 +1060,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.cy.on("box", this._boxCheck.bind(this));
     this.cy.on("click", this._click.bind(this));
     this.cy.on("cxttap", "node", () => this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs,
-                                          this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks, this.isTemplateCategory));
+      this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks, this.isTemplateCategory));
     this.cy.on("cxttap", "edge", () => this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs,
-                                          this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks, this.isTemplateCategory));
+      this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks, this.isTemplateCategory));
     this.cy.on("nodeediting.resizeend", this._nodeEditing.bind(this));
     this.cy.on('cdnddrop', this._cdndDrop.bind(this));
     this.cy.on('cdndout', this._cdndOut.bind(this));
@@ -1047,7 +1089,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.cmViewDetailsService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeMapLinks),
         this.cmEditService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeMapLinks, this.isCanWriteOnProject),
         this.cmDeleteService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
-                                     this.activeMBs,this.activeMapLinks, this.isCanWriteOnProject),
+          this.activeMBs, this.activeMapLinks, this.isCanWriteOnProject),
         this.cmLockUnlockService.getLockMenu(this.cy, this.activeNodes, this.activePGs, this.activeMBs, this.activeMapLinks),
         this.cmLockUnlockService.getUnlockMenu(this.activeNodes, this.activePGs, this.activeMBs, this.activeMapLinks),
         this.cmGroupBoxService.getCollapseMenu(this.cy, this.activeGBs),
@@ -1267,11 +1309,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       }
     }
     this.interfaceService.add(jsonData).pipe(
-        catchError(err => {
-          this._unQueueLinkProject();
-          this.toastr.error('Linked Project Failed!', 'Error');
-          return throwError(() => err);
-        })
+      catchError(err => {
+        this._unQueueLinkProject();
+        this.toastr.error('Linked Project Failed!', 'Error');
+        return throwError(() => err);
+      })
     ).subscribe((respData: any) => {
       this._unQueueLinkProject();
       if (!newEdgeData.target.includes('node')) {
@@ -1596,7 +1638,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       const data = response.result;
       const nodes = data.nodes;
       const edges = data.interfaces;
-      this.helpersService.addCYNodeAndEdge(this.cy, nodes, edges, {x: 0, y: 0}, mapLinkId);
+      this.helpersService.addCYNodeAndEdge(this.cy, nodes, edges, { x: 0, y: 0 }, mapLinkId);
       const nodeEle = this.cy.getElementById(`project-link-${mapLinkId}`)
       this.cy.expandCollapse('get').collapseRecursively(nodeEle, {});
       nodeEle.data('width', '90px');
@@ -1672,7 +1714,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           'shape': 'roundrectangle',
           'text-opacity': 1
         }
-        const nodeEle = this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...mapLinkData },  newNodePosition});
+        const nodeEle = this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...mapLinkData }, newNodePosition });
 
         // Add collapse and expand event for new map link project
         this.helpersService.collapseAndExpandMapLinkNodeEvent(nodeEle);
@@ -1778,7 +1820,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           "original_width": width,
           "original_height": height,
         }
-        this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData },  newNodePosition});
+        this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
         this.mapImageService.getMapImageByCollectionId(+this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedMapImages({ mapImage: data.result })));
         this.toastr.success('Add map image successfully', 'Success');
       });
