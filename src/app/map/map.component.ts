@@ -883,6 +883,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       container: document.getElementById("cy"),
       elements: this.eles,
       style: this.helpersService.generateCyStyle(this.config.default_preferences),
+      minZoom: 0.1,
+      maxZoom: 10,
       layout: (this.styleExists || this.cleared) ? { name: 'preset' } : {
         name: "cose",
         avoidOverlap: true,
