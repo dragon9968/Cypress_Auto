@@ -50,7 +50,6 @@ export class HardwareComponent implements OnInit, OnDestroy {
     },
     {
       field: 'device.name',
-      sort: 'asc',
     },
     {
       headerName: 'Template Name',
