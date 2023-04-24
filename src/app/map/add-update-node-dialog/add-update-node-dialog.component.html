@@ -54,7 +54,7 @@
               </mat-form-field>
               <mat-form-field class="field">
                 <mat-label>Device</mat-label>
-                <input autocomplete="off" id="node-device" matInput type="text" placeholder="Select a device" formControlName="deviceCtr"
+                <input autocomplete="off" id="node-device" name="node-device" matInput type="text" placeholder="Select a device" formControlName="deviceCtr"
                        [matAutocomplete]="autoDevice" [readonly]="isViewMode" (change)="changeDevice()">
                 <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="helpers.optionDisplay"
                                   (optionSelected)="selectDevice($event)">
@@ -124,7 +124,7 @@
               </mat-form-field>
               <mat-form-field class="field">
                 <mat-label>Template</mat-label>
-                <input autocomplete="off" id="node-template" matInput type="text" placeholder="Select a template" formControlName="templateCtr"
+                <input autocomplete="off" id="node-template" name="node-template" matInput type="text" placeholder="Select a template" formControlName="templateCtr"
                        [matAutocomplete]="autoTemplate" [readonly]="isViewMode">
                 <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helpers.templateDisplay">
                   <mat-option *ngFor="let option of filteredTemplates | async" [value]="option">
