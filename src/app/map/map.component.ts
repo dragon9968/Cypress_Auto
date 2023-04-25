@@ -1024,8 +1024,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.infoPanelService.cy = this.cy;
     this.helpersService.deletedInterfaces = this.deletedInterfaces;
     this.helpersService.deletedNodes = this.deletedNodes;
+    const that = this.helpersService;
     this.ur.action("removeNode", this.helpersService.removeNode.bind(this), this.helpersService.restoreNode.bind(this));
-    this.ur.action("removeEdge", this.helpersService.removeEdge.bind(this), this.helpersService.restoreEdge.bind(this));
+    this.ur.action("removeEdge", this.helpersService.removeEdge.bind(that), this.helpersService.restoreEdge.bind(that));
     this.ur.action("changeNodeSize", this.toolPanelStyleService.changeNodeSize.bind(this.commonService), this.toolPanelStyleService.restoreNodeSize.bind(this.commonService));
     this.ur.action("changeMapImageSize", this.toolPanelStyleService.changeMapImageSize.bind(this.commonService), this.toolPanelStyleService.restoreMapImageSize.bind(this.commonService));
     this.ur.action("changTextColor", this.toolPanelStyleService.changTextColor.bind(this.commonService).bind(this.commonService), this.toolPanelStyleService.restoreTextColor.bind(this.commonService).bind(this.commonService));

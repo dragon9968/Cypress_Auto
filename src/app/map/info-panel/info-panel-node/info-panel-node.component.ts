@@ -105,7 +105,15 @@ export class InfoPanelNodeComponent implements OnDestroy {
       },
       {
         field: 'interfaces',
-        cellRenderer: (param: any) => param.value,
+        cellRenderer: (param: any) => {
+          let html_str = "<ul>";
+          param.value?.forEach((i: any) => {
+            const item_html = `<li>${i.value}</li>`
+            html_str += item_html
+          });
+          html_str += "</ul>"
+          return html_str != '<ul></ul>' ? html_str : '';
+        },
         autoHeight: true,
         minWidth: 120,
         flex: 1
