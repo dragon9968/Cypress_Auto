@@ -22,6 +22,11 @@ import { selectDashboard, selectVMStatus } from "../../store/project/project.sel
 import { retrievedDashboard, retrievedIsOpen, retrievedVMStatus } from "../../store/project/project.actions";
 import { RemoteCategories } from "../../core/enums/remote-categories.enum";
 
+const expandCollapse = require('cytoscape-expand-collapse');
+const nodeEditing = require('cytoscape-node-editing');
+const konva = require('konva');
+const jquery = require('jquery');
+
 @Component({
   selector: 'app-network-map',
   templateUrl: './network-map.component.html',
@@ -64,6 +69,8 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
     private infoPanelService: InfoPanelService,
     private serverConnectionService: ServerConnectService
   ) {
+    expandCollapse(cytoscape);
+    nodeEditing(cytoscape, jquery, konva);
     this.iconRegistry.addSvgIcon('minus', this.helpersService.setIconPath('/assets/icons/dashboard/minus.svg'));
     this.iconRegistry.addSvgIcon('plus', this.helpersService.setIconPath('/assets/icons/dashboard/plus.svg'));
     this.collectionId = this.projectService.getCollectionId();
@@ -113,6 +120,7 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
           if (this.connection && this.connection.id !== 0 && this.vmStatusChecked) {
             this.infoPanelService.changeVMStatusOnMap(+this.collectionId, this.connection.id);
           }
+          this.helpersService.initCollapseExpandMapLink(this.cy)
         }
       });
     }
@@ -143,8 +151,10 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
     this.eles = JSON.parse(JSON.stringify(this.nodes.concat(this.interfaces)));
     this.eles.forEach((ele: any) => {
       ele.locked = ele.data.locked
-      if (ele.data.elem_category == 'node') {
+      if (ele.data.elem_category == 'node' || ele.data.elem_category == 'map_link') {
         ele.data.icon = environment.apiBaseUrl + ele.data.icon;
+      } else if (ele.data.elem_category == 'bg_image') {
+        ele.data.src = environment.apiBaseUrl + ele.data.image;
       }
     });
     const style = this.helpersService.generateCyStyle(this.defaultPreferences);
@@ -170,6 +180,19 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
     });
     this.infoPanelService.cy = this.cy;
     this.helpersService.randomPositionForElementsNoPosition(this.cy)
+    this.cy.expandCollapse({
+      layoutBy: null,
+      fisheye: false,
+      undoable: false,
+      animate: false
+    });
+    this.cy.nodes().on('expandcollapse.beforecollapse', ($event: any) => {
+      let a = this.cy.nodeEditing('get');
+      if (a) {
+        a.removeGrapples()
+      }
+      a = null;
+    });
   }
 
   toggleVMStatus($event: any) {

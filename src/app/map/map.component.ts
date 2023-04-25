@@ -351,6 +351,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this._initContextMenu();
         this._initUndoRedo();
         this._initCollapseExpandMapLink();
+        this.helpersService.initCollapseExpandMapLink(this.cy)
         this._initDataLinkProjects();
       }
     });

@@ -1048,6 +1048,42 @@ export class HelpersService implements OnDestroy {
     ele.data('interfaces', data.interfaces);
   }
 
+  initCollapseExpandMapLink(cy: any) {
+    // Add parent for the elements related to the map link
+    const nodeRelatedMapLink = cy.elements().filter((ele: any) =>
+      (ele.group() == 'nodes' && ele.data('parent_id'))
+    )
+    nodeRelatedMapLink.forEach((node: any) => {
+      node.move({ parent: `project-link-${node.data('parent_id')}` });
+    })
+
+    // Set initial collapse and expand based on the project node data
+    const mapLinkNodes = cy.nodes().filter((node: any) => node.data('elem_category') == 'map_link' && !Boolean(node.data('parent_id')))
+    mapLinkNodes.map((mapLinkNode: any) => {
+      if (mapLinkNode.data('collapsed')) {
+        cy.expandCollapse('get').collapseRecursively(mapLinkNode, {});
+        mapLinkNode.data('width', '90px');
+        mapLinkNode.data('height', '90px');
+        mapLinkNode.style({
+          'background-opacity': '0',
+          'background-color': '#fff',
+          'background-image-opacity': 1,
+        });
+      } else {
+        mapLinkNode.style({
+          'background-opacity': '.20',
+          'background-color': '#00dcff',
+          'background-image-opacity': 0,
+        });
+      }
+    })
+
+    // Set events before and after the collapse and expand.
+    mapLinkNodes.map((mapLinkNode: any) => {
+      this.collapseAndExpandMapLinkNodeEvent(mapLinkNode);
+    })
+  }
+
   removeNodesInStorage(nodeIds: any[]) {
     const newNodes = [...this.nodes];
     this.nodes.map(node => {
