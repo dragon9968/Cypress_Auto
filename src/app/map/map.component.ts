@@ -76,6 +76,7 @@ import { selectProjects } from "../store/project/project.selectors";
 import { NgxPermissionsService } from "ngx-permissions";
 import { CMProjectNodeService } from "./context-menu/cm-project-node/cm-project-node.service";
 import { MapLinkService } from "../core/services/map-link/map-link.service";
+import { AddUpdateGroupDialogComponent } from "./add-update-group-dialog/add-update-group-dialog.component";
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -781,13 +782,14 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       target.move({ 'parent': 'group-' + dropTarget.data('group_id') });
     } else if (dropTarget.data('label') != 'group_box') {
       data.in_groupbox = true;
-      this.helpersService.reloadGroupBoxes(this.cy);
+      // this.helpersService.reloadGroupBoxes(this.cy);
     }
     if (data.category != "bg_image") {
       data.new = false;
       data.updated = true;
       data.deleted = false;
     }
+    this.helpersService.addNewGroupBoxByMovingNodes(this.cy, dropTarget, this.collectionId, this.mapCategory)
   }
 
   private _cdndOut(event: any, dropTarget: any) {

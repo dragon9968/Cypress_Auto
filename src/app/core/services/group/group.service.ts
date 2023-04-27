@@ -30,7 +30,7 @@ export class GroupService {
   }
 
   add(data: any): Observable<any> {
-    return this.http.post<any>(ApiPaths.GROUP, data);
+    return this.http.post<any>(ApiPaths.GROUP + 'add', data);
   }
 
   put(groupId: string, data: any): Observable<any> {

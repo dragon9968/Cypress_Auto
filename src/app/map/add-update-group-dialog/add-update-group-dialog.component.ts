@@ -165,7 +165,10 @@ export class AddUpdateGroupDialogComponent implements OnInit {
       category: this.categoryCtr?.value.id,
       description: this.descriptionCtr?.value,
       collection_id: this.data.collection_id,
-      domain_id: this.categoryCtr?.value.id == 'domain' ? this.categoryIdCtr?.value.id : undefined
+      domain_id: this.categoryCtr?.value.id == 'domain' ? this.categoryIdCtr?.value.id : undefined,
+      nodes: this.data.genData.nodes?.map((ele: any) => ele.data('node_id')),
+      port_groups: this.data.genData.port_groups?.map((ele: any) => ele.data('pg_id')),
+      map_images: this.data.genData.map_images?.map((ele: any) => ele.data('map_image_id')),
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.groupService.add(jsonData).subscribe(response => {
@@ -202,7 +205,7 @@ export class AddUpdateGroupDialogComponent implements OnInit {
   }
 
   onCancel() {
-    this.dialogRef.close();
+    this.dialogRef.close({isCanceled: true});
   }
 
   changeCategory(event: any) {

@@ -21,6 +21,8 @@ import { ServerConnectService } from "../server-connect/server-connect.service";
 import { retrievedProjects } from "../../../store/project/project.actions";
 import { PortGroupService } from "../portgroup/portgroup.service";
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
+import { AddUpdateGroupDialogComponent } from "../../../map/add-update-group-dialog/add-update-group-dialog.component";
+import { MatDialog } from "@angular/material/dialog";
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 
 @Injectable({
@@ -45,7 +47,9 @@ export class HelpersService implements OnDestroy {
     private toastr: ToastrService,
     private domSanitizer: DomSanitizer,
     private serverConnectionService: ServerConnectService,
-    private portGroupService: PortGroupService) {
+    private portGroupService: PortGroupService,
+    private dialog: MatDialog
+  ) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
         this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
@@ -502,6 +506,46 @@ export class HelpersService implements OnDestroy {
     if (this.isGroupBoxesChecked) {
       this.removeGroupBoxes(cy);
       this.addGroupBoxes(cy);
+    }
+  }
+
+  addNewGroupBoxByMovingNodes(cy: any, dropTarget: any, collectionId: any, mapCategory: string) {
+    if (dropTarget.data() && dropTarget.hasClass('cdnd-new-parent')) {
+      const children = dropTarget.children()
+      if (children.length == 2) {
+        const g0 = children[0].map((ele: any) => ele.data('groups'))[0].map((g: any) => g.id).sort()
+        const g1 = children[1].map((ele: any) => ele.data('groups'))[0].map((g: any) => g.id).sort()
+        const isBelongedOneGroup = g0.some((g: any) => g1.includes(g))
+        if (g0.length == 0 || g1.length == 0 || !isBelongedOneGroup) {
+          const nodes = children.filter('[elem_category="node"]')
+          const portGroups = children.filter('[elem_category="port_group"]')
+          const mapImages = children.filter('[elem_category="bg_image"]')
+          const dialogData = {
+            mode: 'add',
+            genData: {
+              nodes,
+              port_groups: portGroups,
+              map_images: mapImages
+            },
+            collection_id: collectionId,
+            map_category: mapCategory
+          };
+          const dialog = this.dialog.open(AddUpdateGroupDialogComponent,
+            { disableClose: true, width: '600px', autoFocus: false, data: dialogData }
+          );
+          dialog.afterClosed().subscribe((dialogResult: any) => {
+            if (dialogResult && dialogResult.isCanceled) {
+              if (nodes.length > 0 || portGroups.length > 0 || mapImages.length > 0) {
+                this.removeParent(dropTarget)
+              }
+            }
+          })
+        }
+        else {
+          this.toastr.info('Two nodes belonged to a group box', 'Info')
+          this.reloadGroupBoxes(cy);
+        }
+      }
     }
   }
 
