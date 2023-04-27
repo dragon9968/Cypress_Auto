@@ -1,0 +1,6 @@
+{
+  "name": "Domain Membership Template",
+  "description": "Config template for domain membership",
+  "join_domain": true,
+  "ou_path": "OU=test,DC=blue"
+}

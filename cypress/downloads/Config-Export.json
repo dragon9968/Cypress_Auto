@@ -1,0 +1,101 @@
+{
+    "config_template": [
+        {
+            "id": 5547,
+            "name": "Domain Membership Template",
+            "description": "Config template for domain membership",
+            "category": "template",
+            "configuration": {
+                "firewall_rule": [],
+                "join_domain": true,
+                "ou_path": "OU=test,DC=blue",
+                "role_services": [],
+                "static_routes": []
+            }
+        },
+        {
+            "id": 5546,
+            "name": "Firewall Rules Template",
+            "description": "Template for default outbound and inbound rules",
+            "category": "template",
+            "configuration": {
+                "firewall_rule": [
+                    {
+                        "category": "rule",
+                        "name": "Outbound",
+                        "state": "present",
+                        "action": "pass",
+                        "interface": "",
+                        "protocol": "any",
+                        "source": "any",
+                        "source_port": "Any",
+                        "destination": "any",
+                        "destination_port": null
+                    },
+                    {
+                        "category": "rule",
+                        "name": "Inbound",
+                        "state": "present",
+                        "action": "block",
+                        "interface": "",
+                        "protocol": "any",
+                        "source": "any",
+                        "source_port": "Any",
+                        "destination": "any",
+                        "destination_port": null
+                    }
+                ],
+                "join_domain": false,
+                "ou_path": "",
+                "role_services": [],
+                "static_routes": []
+            }
+        },
+        {
+            "id": 5545,
+            "name": "Static Routes Template",
+            "description": "Templates for default routes",
+            "category": "template",
+            "configuration": {
+                "firewall_rule": [],
+                "join_domain": false,
+                "ou_path": "",
+                "role_services": [],
+                "static_routes": [
+                    {
+                        "route": "1.1.1.1",
+                        "next_hop": "2.2.2.2",
+                        "interface": ""
+                    },
+                    {
+                        "route": "3.3.3.3",
+                        "next_hop": "4.4.4.4",
+                        "interface": ""
+                    }
+                ]
+            }
+        },
+        {
+            "id": 5548,
+            "name": "Windows Active Directory Role Template",
+            "description": "Config template for Windows Active Directory role services",
+            "category": "template",
+            "configuration": {
+                "firewall_rule": [],
+                "join_domain": false,
+                "ou_path": "",
+                "role_services": [
+                    "Active Directory Domain Services",
+                    "Certification Authority Management Tools",
+                    "DNS Server",
+                    "File Server",
+                    "Active Directory Domain Services",
+                    "Certification Authority Management Tools",
+                    "File Server",
+                    "DHCP Server"
+                ],
+                "static_routes": []
+            }
+        }
+    ]
+}
