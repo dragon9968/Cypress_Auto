@@ -24,6 +24,7 @@ import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { AddUpdateGroupDialogComponent } from "../../../map/add-update-group-dialog/add-update-group-dialog.component";
 import { MatDialog } from "@angular/material/dialog";
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
+import { CONFIG_TEMPLATE_ADDS_TYPE } from "../../../shared/contants/config-template-add-actions.constant";
 
 @Injectable({
   providedIn: 'root'
@@ -40,6 +41,7 @@ export class HelpersService implements OnDestroy {
   lastWidth = 0;
   lastHeight = 0;
   zoomLimit = false;
+  configTemplateAddsType = CONFIG_TEMPLATE_ADDS_TYPE;
   @Input() deletedInterfaces!: any[];
   @Input() deletedNodes!: any[];
 
@@ -1164,6 +1166,23 @@ export class HelpersService implements OnDestroy {
         break;
       default:
         this.toastr.warning('The connection category is not match', 'Warning')
+    }
+  }
+
+  getConfigAddsTypeByDeviceCategory(deviceCategory: string) {
+    switch (deviceCategory) {
+      case 'Router': case 'Firewall':
+        return this.configTemplateAddsType.filter(
+          addType => addType.id == 'add_firewall_rule' || addType.id == 'add_route'
+        )
+      case 'Windows Server':
+        return this.configTemplateAddsType.filter(
+          addType => addType.id == 'add_roles_service' || addType.id == 'add_domain_membership'
+        )
+      case 'Windows Client': case 'Linux Client':
+        return this.configTemplateAddsType.filter(addType => addType.id == 'add_domain_membership')
+      default:
+        return this.configTemplateAddsType
     }
   }
 

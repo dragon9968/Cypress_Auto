@@ -83,7 +83,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   filteredConfigTemplates!: Observable<any[]>;
   filteredLoginProfiles!: Observable<any[]>;
   rowData$!: Observable<any[]>;
-  configTemplateAddsType = CONFIG_TEMPLATE_ADDS_TYPE;
+  configTemplateAddsType: any[] = [];
   configTemplateForm!: FormGroup;
   actionsAddForm!: FormGroup;
   configForm!: FormGroup;
@@ -262,6 +262,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
         this.rowData$ = of(interfaceData);
       }
     })
+    this.configTemplateAddsType = this.helpers.getConfigAddsTypeByDeviceCategory(this.data.genData.device_category);
     this.filteredAddActions = this.helpers.filterOptions(this.addTypeCtr, this.configTemplateAddsType);
     this.configTemplateService.getWinRoles().subscribe(data => {
       this.rolesAndService = data;
