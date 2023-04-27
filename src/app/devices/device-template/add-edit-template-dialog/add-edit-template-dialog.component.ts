@@ -12,6 +12,8 @@ import { retrievedTemplates } from "../../../store/template/template.actions";
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
+import { selectTemplates } from 'src/app/store/template/template.selectors';
+import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 
 @Component({
   selector: 'app-add-edit-template-dialog',
@@ -23,8 +25,10 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
   errorMessages = ErrorMessages;
   selectIcons$ = new Subscription();
   selectLoginProfiles$ = new Subscription();
+  selectTemplates$ = new Subscription();
   icons!: any[];
   loginProfiles!: any[];
+  listTemplate!: any[];
   selectedFile: any = null;
   filteredIcons!: Observable<any[]>;
   filteredLoginProfiles!: Observable<any[]>;
@@ -38,9 +42,13 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
     public dialogRef: MatDialogRef<AddEditTemplateDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
+    this.selectTemplates$= this.store.select(selectTemplates).subscribe(templateData => {
+      this.listTemplate = templateData;
+    })
+
     this.templateForm = new FormGroup({
       displayName: new FormControl({ value: '', disabled: false }),
-      name: new FormControl({ value: '', disabled: false }, [Validators.required, Validators.minLength(3),
+      name: new FormControl({ value: '', disabled: false }, [Validators.required, validateNameExist(() => this.listTemplate, this.data.mode, this.data.genData.id), Validators.minLength(3),
       Validators.maxLength(50)]),
       category: new FormControl(['vm']),
       icon: new FormControl(''),

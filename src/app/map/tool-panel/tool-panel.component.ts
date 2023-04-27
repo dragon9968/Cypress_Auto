@@ -517,13 +517,19 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
           domain: group.domain,
         }
         if (isNodesInGroupChange) {
-          item.nodes = nodeIdsInGroupElement;
+          if (this.groupCategoryId == 'domain') {
+            item.nodes = nodeIdsInGroupElement;
+          }
         }
         if (isPortGroupsInGroupChange) {
-          item.port_groups = portGroupIdsInGroupElement;
+          if (this.groupCategoryId == 'domain') {
+            item.port_groups = portGroupIdsInGroupElement;
+          }
         }
         if (isMapImageIdsInGroupChange) {
-          item.map_images = mapImageIdsInGroupElement;
+          if (this.groupCategoryId == 'domain') {
+            item.map_images = mapImageIdsInGroupElement;
+          }
         }
         this.updatedNodeAndPGInGroups.push(item);
       }
@@ -532,6 +538,16 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
 
   updateNodesAndPGInGroupStorageAndMap() {
     let newGroups = JSON.parse(JSON.stringify(this.groups));
+    let nodeInGB: any[] = [];
+    let portGroupsInGB: any[] = [];
+    let mapImagesInGB: any[] = [];
+    this.cy.nodes().forEach((el: any) => {
+      if (el.data('label') == 'group_box') { 
+        nodeInGB.push(el.children('[elem_category="node"]').map((node: any) => node.data('node_id')))
+        portGroupsInGB.push(el.children('[elem_category="port_group"]').map((pg: any) => pg.data('pg_id')))
+        mapImagesInGB.push(el.children('[elem_category="bg_image"]').map((image: any) => image.data('map_image_id')))
+      }
+    })
     this.updatedNodeAndPGInGroups.map(group => {
       const indexGroup = newGroups.findIndex((ele: any) => ele.id === group.group_id);
       let newGroup = newGroups[indexGroup];
@@ -554,7 +570,23 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
           });
           newGroup.nodes = newNodes;
         } else {
-          newGroup.nodes = [];
+          if (nodeInGB.length > 0) {
+            nodeInGB.forEach(nodeId => {
+              newGroup.nodes = newGroup.nodes.filter((node: any) => !nodeId.includes(node.id));
+              const nodeInOldGroup = newGroup.nodes.map((node: any) => node.id)
+              if (nodeInOldGroup.length == newGroup.nodes.length) {
+                newNodes = [];
+              } else {
+                nodeInOldGroup.map((nodeId: any) => {
+                  const node = this.nodes.find(node => node.id === nodeId)
+                  newNodes.push({id: nodeId, name: node.name})
+                })
+                newGroup.nodes = newNodes;
+              }
+            })
+          } else {
+            newGroup.nodes = [];
+          }
         }
       }
       if (portGroupInGroup) {
@@ -568,7 +600,19 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
           })
           newGroup.port_groups = newPortGroups;
         } else {
-          newGroup.port_groups = [];
+          portGroupsInGB.forEach(pgId => {
+            newGroup.port_groups = newGroup.port_groups.filter((node: any) => !pgId.includes(node.id));
+            const portGroupsInOldGroup = newGroup.port_groups.map((pg: any) => pg.id)
+            if (portGroupsInOldGroup.length == newGroup.port_groups.length) {
+              newPortGroups = [];
+            } else {
+              portGroupsInOldGroup.map((pgId: any) => {
+                const pg = this.portGroups.find(pg => pg.id === pgId)
+                newPortGroups.push({id: pgId, name: pg.name})
+              })
+              newGroup.port_groups = newPortGroups;
+            }
+          })
         }
       }
       if (mapImagesInGroup) {
@@ -580,7 +624,19 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
           })
           newGroup.map_images = newMapImages;           
         } else {
-          newGroup.map_images = [];
+          mapImagesInGB.forEach(mapImageId => {
+            newGroup.map_images = newGroup.map_images.filter((node: any) => !mapImageId.includes(node.id));
+            const mapImagesInOldGroup = newGroup.map_images.map((mapImage: any) => mapImage.id)
+            if (mapImagesInOldGroup.length == newGroup.map_images.length) {
+              newMapImages = [];
+            } else {
+              mapImagesInOldGroup.map((mapImageId: any) => {
+                const mapImage = this.mapImages.find(mapImage => mapImage.id === mapImageId)
+                newMapImages.push({id: mapImageId, name: mapImage.name})
+              })
+              newGroup.map_images = newMapImages;
+            }
+          })
         }
       }
       newGroups.splice(indexGroup, 1, newGroup);

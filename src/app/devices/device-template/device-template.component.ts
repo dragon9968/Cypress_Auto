@@ -195,6 +195,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.deviceService.getAll().subscribe((data: any) => this.store.dispatch(retrievedDevices({data: data.result})));
+    this.templateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedTemplates({data: data.result})));
     this.imageService.getByCategory('icon').subscribe(data => {
       this.store.dispatch(retrievedIcons({data: data.result}));
     })

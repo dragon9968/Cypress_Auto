@@ -782,6 +782,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       target.move({ 'parent': 'group-' + dropTarget.data('group_id') });
     } else if (dropTarget.data('label') != 'group_box') {
       data.in_groupbox = true;
+      target.move({ 'parent': null });
       // this.helpersService.reloadGroupBoxes(this.cy);
     }
     if (data.category != "bg_image") {
