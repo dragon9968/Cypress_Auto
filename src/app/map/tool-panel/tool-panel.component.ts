@@ -542,7 +542,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     let portGroupsInGB: any[] = [];
     let mapImagesInGB: any[] = [];
     this.cy.nodes().forEach((el: any) => {
-      if (el.data('label') == 'group_box') { 
+      if (el.data('label') == 'group_box') {
         nodeInGB.push(el.children('[elem_category="node"]').map((node: any) => node.data('node_id')))
         portGroupsInGB.push(el.children('[elem_category="port_group"]').map((pg: any) => pg.data('pg_id')))
         mapImagesInGB.push(el.children('[elem_category="bg_image"]').map((image: any) => image.data('map_image_id')))
@@ -569,7 +569,9 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
             newNodes.push({id: nodeId, name: node.name})
           });
           newGroup.nodes = newNodes;
+          this._updateGroupsPropertyOfNodeOnMap(nodesInGroup, newGroup, 'node')
         } else {
+          this._removeGroupsPropertyOfNodeOnMap([], newGroup.id, 'node')
           if (nodeInGB.length > 0) {
             nodeInGB.forEach(nodeId => {
               newGroup.nodes = newGroup.nodes.filter((node: any) => !nodeId.includes(node.id));
@@ -599,7 +601,9 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
             newPortGroups.push({id: pgId, name: pg.name});
           })
           newGroup.port_groups = newPortGroups;
+          this._updateGroupsPropertyOfNodeOnMap(portGroupInGroup, newGroup, 'pg')
         } else {
+          this._removeGroupsPropertyOfNodeOnMap([], newGroup.id, 'pg')
           portGroupsInGB.forEach(pgId => {
             newGroup.port_groups = newGroup.port_groups.filter((node: any) => !pgId.includes(node.id));
             const portGroupsInOldGroup = newGroup.port_groups.map((pg: any) => pg.id)
@@ -622,8 +626,10 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
             const mapImage = this.mapImages.find(el => el.id === mapImageId);
             newMapImages.push({id: mapImageId, name: mapImage.name});
           })
-          newGroup.map_images = newMapImages;           
+          newGroup.map_images = newMapImages;
+          this._updateGroupsPropertyOfNodeOnMap(mapImagesInGroup, newGroup, 'map_image')
         } else {
+          this._removeGroupsPropertyOfNodeOnMap([], newGroup.id, 'map_image')
           mapImagesInGB.forEach(mapImageId => {
             newGroup.map_images = newGroup.map_images.filter((node: any) => !mapImageId.includes(node.id));
             const mapImagesInOldGroup = newGroup.map_images.map((mapImage: any) => mapImage.id)
@@ -644,5 +650,41 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     this.updatedNodeAndPGInGroups.splice(0);
     this.store.dispatch(retrievedGroups({ data: newGroups }));
     this.store.dispatch(retrievedMapSelection({ data: true }));
+  }
+
+  private _updateGroupsPropertyOfNodeOnMap(itemsIds: any[], group: any, typeOfElement: string) {
+    // Add new group into element's groups property
+    itemsIds.map((itemId: any) => {
+      const element = this.cy.getElementById(`${typeOfElement}-${itemId}`);
+      const currentGroups = element.data('groups')
+      const isGroupExistInNodeGroup = currentGroups.some((g: any) => g.id === group.id)
+      if (!isGroupExistInNodeGroup) {
+        const newGroupItem = {
+          category: group.category,
+          id: group.id,
+          name: group.name
+        }
+        currentGroups.push(newGroupItem)
+        element.data('groups', currentGroups)
+      }
+    });
+    this._removeGroupsPropertyOfNodeOnMap(itemsIds, group.id, typeOfElement)
+  }
+
+  private _removeGroupsPropertyOfNodeOnMap(itemsIds: any[], groupId: any, typeOfElement: string) {
+    // Remove group is not belong to nodes in element's groups property
+    const elemCategory = typeOfElement == 'node' ? 'node' : typeOfElement == 'pg' ? 'port_group' : 'bg_image';
+    const elementsOnMapBelongToGroup = this.cy.nodes().filter(
+      (ele: any) => ele.data('elem_category') == elemCategory && ele.data('groups')
+        && ele.data('groups').some((g: any) => g.id === groupId)
+    )
+    elementsOnMapBelongToGroup.map((ele: any) => {
+      if (!itemsIds.includes(ele.data(`${typeOfElement}_id`))) {
+        const groups = ele.data('groups')
+        const groupIndex = groups.findIndex((g: any) => g.id === groupId)
+        groups.splice(groupIndex, 1)
+        ele.data('groups', groups)
+      }
+    })
   }
 }
