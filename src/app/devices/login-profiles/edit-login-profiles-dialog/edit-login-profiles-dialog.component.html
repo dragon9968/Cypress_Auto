@@ -1,9 +1,9 @@
-<form [formGroup]="loginProfileEditForm" (ngSubmit)="data.mode === 'add' ? addLoginProfile() : updateLogin()" autocomplete="off">
+<form [formGroup]="loginProfileEditForm" data-cy="loginProfileEditForm" (ngSubmit)="data.mode === 'add' ? addLoginProfile() : updateLogin()" autocomplete="off">
   <div class="dialog-title">
     <h1 mat-dialog-title>{{data.mode === 'add' ? 'Add Login Profile' : data.mode === 'update' ? 'Edit Login Profiles':
       'Login Profile Detail'}}</h1>
     <ng-template [ngxPermissionsOnly]="['can_write on Devices']">
-      <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+      <button *ngIf="data.mode === 'view'" data-cy="btn-change-mode" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
         <mat-icon>edit</mat-icon>
       </button>
     </ng-template>

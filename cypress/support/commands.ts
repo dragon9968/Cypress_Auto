@@ -141,6 +141,87 @@ function showFormEditByName(name: string): void {
 Cypress.Commands.add('showFormEditByName', showFormEditByName);
 
 
+// Showing add form by name
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    showFormAddByMatTooltip(name: string): typeof showFormAddByMatTooltip;
+  }
+}
+
+function showFormAddByMatTooltip(name: string): void {
+  cy.wait(2000)
+  cy.getByMatToolTip(name).first().click()
+  cy.get('mat-dialog-container').should('exist')
+}
+Cypress.Commands.add('showFormAddByMatTooltip', showFormAddByMatTooltip);
+
+// Add a new login profile
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    addUpdateNewLoginProfile(loginProfile: any, mode: string): typeof addUpdateNewLoginProfile;
+  }
+}
+
+function addUpdateNewLoginProfile(loginProfile: any, mode: string): void {
+  cy.log(`START: Add/Update new ${loginProfile.name}`)
+  cy.getByFormControlName('name').as('name').invoke('val').then(nameValue => {
+    if (nameValue !== loginProfile.name) {
+      cy.get('@name').clear().type(loginProfile.name)
+    }
+  })
+  cy.getByFormControlName('description').as('description').invoke('val').then(descriptionValue => {
+    if (loginProfile.description && descriptionValue !== loginProfile.description) {
+      cy.get('@description').clear().type(loginProfile.description)
+    }
+  })
+  cy.getByFormControlName('username').as('username').invoke('val').then(usernameValue => {
+    if (usernameValue !== loginProfile.username) {
+      cy.get('@username').clear().type(loginProfile.username)
+    }
+  })
+  if (mode == 'add') {
+    cy.getByFormControlName('password').as('password').invoke('val').then(passwordValue => {
+      if (passwordValue !== loginProfile.password) {
+        cy.get('@password').clear().type(loginProfile.password)
+      }
+    })
+  } else {
+    cy.getByFormControlName('updatePassword').as('updatePassword').invoke('val').then(updatePasswordValue => {
+      if (updatePasswordValue !== loginProfile.updatePassword) {
+        cy.get('@updatePassword').clear().type(loginProfile.updatePassword)
+      }
+    })
+  }
+  cy.get('mat-error').should('not.exist')
+  cy.wait(3000)
+  cy.getByDataCy('loginProfileEditForm').submit()
+  cy.log(`END: Add/Update ${loginProfile.name}`)
+}
+Cypress.Commands.add('addUpdateNewLoginProfile', addUpdateNewLoginProfile);
+
+// Delete record by name
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    deleteRecordByName(name: string, matToolTipName: string, isRowSelected: boolean): typeof deleteRecordByName;
+  }
+}
+
+function deleteRecordByName(name: string, matToolTipName: string, isRowSelected: boolean): void {
+  cy.log(`START: Delete ${name}`)
+  cy.wait(2000)
+  if (!isRowSelected) {
+    cy.selectRowByName(name)
+  }
+  cy.getByMatToolTip(matToolTipName).click()
+  cy.get('mat-dialog-container').should('exist')
+  cy.wait(2000)
+  cy.getButtonByTypeAndContent('submit', 'OK').click()
+  cy.wait(2000)
+  cy.get('mat-dialog-container').should('not.exist')
+  cy.log(`END: Delete ${name} successfully`)
+}
+Cypress.Commands.add('deleteRecordByName', deleteRecordByName);
+
 Cypress.on('uncaught:exception', (err, runnable) => {
   // returning false here prevents Cypress from
   // failing the test
@@ -189,9 +270,21 @@ declare namespace Cypress {
 
     /**
      * Custom command to select DOM element form control name attribute.
-     * @example cy.getByFormControlName('username')
+     * @example cy.getByMatToolTip('Add')
      */
     getByMatToolTip(matTooltip: string): Chainable<JQuery<HTMLElement>>
+
+    /**
+     * Custom command to select DOM element form control name attribute.
+     * @example cy.getButtonByTypeAndContent('submit', 'OK')
+     */
+    getButtonByTypeAndContent(buttonType: string, content: string): Chainable<JQuery<HTMLElement>>
+
+    /**
+     * Custom command to select DOM element form control name attribute.
+     * @example cy.getOptionByContent('content')
+     */
+    getOptionByContent(content: string): Chainable<JQuery<HTMLElement>>
   }
 }
 Cypress.Commands.add(
@@ -215,3 +308,16 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add(
+  'getButtonByTypeAndContent',
+  (buttonType: string, content: string) => {
+    cy.get(`button[type="${buttonType}"]`).contains(content)
+  }
+);
+
+Cypress.Commands.add(
+  'getOptionByContent',
+  (content: string) => {
+    cy.get('mat-option').contains(content)
+  }
+);
