@@ -185,6 +185,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   selectMapFeatureSubject: Subject<MapState> = new ReplaySubject(1);
   destroy$: Subject<boolean> = new Subject<boolean>();
   saveMapSubject: Subject<void> = new Subject<void>();
+  activeNodeInBox: any[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -545,7 +546,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           ele.select();
           this.boxSelectedNodes.add(ele);
         })
-        this._boxSelect();
+        this._selectGroupBox();
         this.isBoxSelecting = false;
         this.isSelectedProcessed = false;
         this.boxSelectedNodes.clear();
@@ -648,17 +649,37 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   private _boxStart(_$event: any) {
+    this.cy.nodes().selectify();
+    this.cy.edges().selectify();
     this.isBoxSelecting = true;
     this.isSelectedProcessed = false;
     this.boxSelectedNodes.clear();
+    this.activeNodeInBox.splice(0)
   }
 
-  private _boxSelect() {
+  private _boxSelect($event: any) {
+    this.cy.nodes().selectify();
+    this.cy.edges().selectify();
+    this.activeNodeInBox.push($event.target);
+    clearTimeout(this.cy.nodesSelectionTimeout);
+    this.cy.nodesSelectionTimeout = setTimeout(this._selectNodeAndEdgesInBox.bind(this), 20)
+  }
+
+  private _selectNodeAndEdgesInBox() {
+    this._processNodeList(this.activeNodeInBox);
+    this.store.dispatch(retrievedMapSelection({ data: true }));
+  }
+
+  private _selectGroupBox() {
+    this.cy.nodes().selectify();
+    this.cy.edges().selectify();
     if (this.isSelectedProcessed || this.boxSelectedNodes.size == 0) return;
     this._processNodeList(this.boxSelectedNodes);
   }
 
   private _boxCheck($event: any) {
+    this.cy.nodes().selectify();
+    this.cy.edges().selectify();
     const t = $event.target;
     this.boxSelectedNodes.add(t);
   }
@@ -732,13 +753,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.addImage(this.imageWidth, this.imageHeight, this.imageUrl, this.collectionId, newNodePosition);
     }
     if ($event.target === this.cy) {
-      this.activeNodes.splice(0);
-      this.activeGBs.splice(0)
-      this.activePGs.splice(0);
-      this.activeEdges.splice(0);
-      this.activeMBs.splice(0);
-      this.activeMapLinks.splice(0);
-      this.store.dispatch(retrievedMapSelection({ data: true }));
+      this.cy.nodes().unselectify();
+      this.cy.edges().unselectify();
+    } else {
+      this.cy.nodes().selectify();
+      this.cy.edges().selectify();
     }
 
   }
@@ -1107,6 +1126,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.cmMapService.getLockAllMenu(this.cy),
         this.cmMapService.getUnlockAllMenu(this.cy),
         this.cmMapService.getSelectAllMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks),
+        this.cmMapService.getDeselectAllMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks),
       ],
       submenuIndicator: { src: '/assets/icons/submenu-indicator-default.svg', width: 12, height: 12 }
     });

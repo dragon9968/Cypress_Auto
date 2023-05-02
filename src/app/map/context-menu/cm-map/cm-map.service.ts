@@ -124,6 +124,8 @@ export class CMMapService {
       onClickFunction: (event: any) => {
         const allNodes = cy.nodes();
         const allEdges = cy.edges();
+        cy.nodes().selectify();
+        cy.edges().selectify();
         const activeEles = activeNodes.concat(activePGs, activeEdges);
         if (activeEles.length == 0) {
           activeNodes.splice(0);
@@ -156,4 +158,28 @@ export class CMMapService {
       disabled: false,
     }
   }
+
+  getDeselectAllMenu(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], activeMBs: any[], activeMapLinks: any[]) {
+    return {
+      id: "deselect_all",
+      content: "Deselect All",
+      coreAsWell: true,
+      onClickFunction: (event: any) => {
+        cy.nodes().selectify();
+        cy.edges().selectify();
+        activeNodes.splice(0);
+        activeGBs.splice(0)
+        activePGs.splice(0);
+        activeEdges.splice(0);
+        activeMBs.splice(0);
+        activeMapLinks.splice(0);
+        cy.nodes().unselect();
+        cy.edges().unselect();
+      this.store.dispatch(retrievedMapSelection({ data: true }));
+      },
+      hasTrailingDivider: false,
+      disabled: false,
+    }
+  }
 }
+
