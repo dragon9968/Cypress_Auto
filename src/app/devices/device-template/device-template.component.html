@@ -4,13 +4,13 @@
     <div class="table__nav">
       <div class="table__nav--actions">
         <ng-template [ngxPermissionsOnly]="['can_write on Devices']">
-          <button mat-button mat-mini-fab color="primary" matTooltip="Add" (click)="addDevices()">
+          <button mat-button mat-mini-fab color="primary" matTooltip="Add New Device" (click)="addDevices()">
             <mat-icon>add</mat-icon>
           </button>
-          <button mat-button mat-mini-fab color="primary" matTooltip="Edit" (click)="updateDevice()">
+          <button mat-button mat-mini-fab color="primary" matTooltip="Edit Device" (click)="updateDevice()">
             <mat-icon>edit</mat-icon>
           </button>
-          <button mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteDevice()">
+          <button mat-button mat-mini-fab color="primary" matTooltip="Delete Device" (click)="deleteDevice()">
             <mat-icon>delete</mat-icon>
           </button>
         </ng-template>
@@ -52,13 +52,13 @@
     <div class="table__nav">
       <div class="table__nav--actions">
         <ng-template [ngxPermissionsOnly]="['can_write on Devices']">
-          <button mat-button mat-mini-fab color="primary" matTooltip="Add" (click)="addTemplate()">
+          <button mat-button mat-mini-fab color="primary" matTooltip="Add New Template" (click)="addTemplate()">
             <mat-icon>add</mat-icon>
           </button>
-          <button mat-button mat-mini-fab color="primary" matTooltip="Edit" (click)="updateTemplate()">
+          <button mat-button mat-mini-fab color="primary" matTooltip="Edit Template" (click)="updateTemplate()">
             <mat-icon>edit</mat-icon>
           </button>
-          <button mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteTemplate()">
+          <button mat-button mat-mini-fab color="primary" matTooltip="Delete Template" (click)="deleteTemplate()">
             <mat-icon>delete</mat-icon>
           </button>
         </ng-template>
