@@ -1,8 +1,8 @@
-<form [formGroup]="connectionForm" (ngSubmit)="data.mode === 'add' ? addServerConnect() : updateServerConnect()" autocomplete="off">
+<form [formGroup]="connectionForm" data-cy="connectionForm" (ngSubmit)="data.mode === 'add' ? addServerConnect() : updateServerConnect()" autocomplete="off">
   <div class="dialog-title">
     <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add connection Profile' : data.mode === 'update' ? 'Edit Connection Profile' : 'Connection Detail' }}</h1>
     <ng-template [ngxPermissionsOnly]="['can_write on Settings']">
-      <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+      <button *ngIf="data.mode === 'view'" data-cy="btn-change-mode" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
         <mat-icon>edit</mat-icon>
       </button>
     </ng-template>
@@ -19,7 +19,7 @@
       </mat-form-field>
       <mat-form-field class="field">
         <mat-label>Category</mat-label>
-        <mat-select (ngModelChange)="onSelectChange($event)" formControlName="category">
+        <mat-select (ngModelChange)="onSelectChange($event)" formControlName="category" data-cy="select-category">
           <mat-option value="vmware_vcenter">VMWare vCenter</mat-option>
            <mat-option value="datasource">Datasource</mat-option>
           <mat-option value="configurator">Configurator</mat-option>
@@ -72,7 +72,7 @@
         </div>
         <mat-form-field class="field">
           <mat-label>Switch Type</mat-label>
-          <mat-select formControlName="switchType" >
+          <mat-select formControlName="switchType" data-cy="select-switch-type">
             <mat-option value="vswitch">vSwitch</mat-option>
             <mat-option value="dvswitch">dvSwitch</mat-option>
           </mat-select>

@@ -156,7 +156,7 @@
             </mat-menu>
           </ng-template>
           <ng-template [ngxPermissionsOnly]="['can_read on Settings', 'can_write on Settings']">
-            <button mat-menu-item [matMenuTriggerFor]="remote">Remote</button>
+            <button mat-menu-item [matMenuTriggerFor]="remote" data-cy="btn-remote">Remote</button>
             <mat-menu #remote="matMenu">
               <ng-template [ngxPermissionsOnly]="['can_write on Settings']">
                 <button mat-menu-item [matMenuTriggerFor]="remoteList">
@@ -423,7 +423,7 @@
       </mat-menu>
     </ng-template>
     <ng-template [ngxPermissionsOnly]="['can_read on Settings', 'can_write on Settings']">
-      <a *ngIf="!isSmallScreen" mat-button [matMenuTriggerFor]="remote" class="menu-btn">Remote</a>
+      <a *ngIf="!isSmallScreen" mat-button [matMenuTriggerFor]="remote" class="menu-btn" data-cy="btn-remote">Remote</a>
       <mat-menu #remote="matMenu">
           <ng-template [ngxPermissionsOnly]="['can_write on Settings']">
             <button mat-menu-item [matMenuTriggerFor]="remoteList">

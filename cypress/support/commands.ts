@@ -222,6 +222,94 @@ function deleteRecordByName(name: string, matToolTipName: string, isRowSelected:
 }
 Cypress.Commands.add('deleteRecordByName', deleteRecordByName);
 
+
+// Add new Connection Profile
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    addEditConnectionProfile(connectionProfile: any, mode: string): typeof addEditConnectionProfile;
+  }
+}
+
+function addEditConnectionProfile(connectionProfile: any, mode: string): void {
+  cy.log(`START: Add new Connection Profile ${connectionProfile.name}`)
+  cy.getByFormControlName('name').as('name').invoke('val').then(value => {
+    if (value !== connectionProfile.name) {
+      cy.get('@name').clear().type(connectionProfile.name)
+    }
+  })
+  if (connectionProfile.category) {
+    cy.get('[data-cy=select-category]').click();
+    cy.get(`mat-option[value="${connectionProfile.category}"]`).click()
+  }
+  cy.getByFormControlName('server').as('server').invoke('val').then(value => {
+    if (value !== connectionProfile.server && connectionProfile.server) {
+      cy.get('@server').clear().type(connectionProfile.server)
+    }
+  })
+  cy.getByFormControlName('dataCenter').as('dataCenter').invoke('val').then(value => {
+    if (value !== connectionProfile.datacenter && connectionProfile.datacenter) {
+       cy.get('@dataCenter').clear().type(connectionProfile.datacenter)
+    }
+  })
+  cy.getByFormControlName('cluster').as('cluster').invoke('val').then(value => {
+    if (value !== connectionProfile.cluster && connectionProfile.cluster) {
+      cy.get('@cluster').clear().type(connectionProfile.cluster)
+    }
+  })
+  cy.getByFormControlName('dataStore').as('dataStore').invoke('val').then(value => {
+    if (value !== connectionProfile.datastore && connectionProfile.datastore) {
+      cy.get('@dataStore').clear().type(connectionProfile.datastore)
+    }
+  })
+  if (connectionProfile.datastore_cluster == 'True') {
+    cy.get('.checkbox-field').get('[type="checkbox"]').check({ force: true }).should('be.checked')
+  } else {
+    cy.get('.checkbox-field').get('[type="checkbox"]').uncheck({ force: true })
+  }
+
+  cy.getByFormControlName('switch').as('switch').invoke('val').then(value => {
+    if (value !== connectionProfile.switch && connectionProfile.switch) {
+      cy.get('@switch').clear().type(connectionProfile.switch)
+    }
+  })
+  if (connectionProfile.switch_type) {
+    cy.get('[data-cy=select-switch-type]').click();
+    cy.get(`mat-option[value="${connectionProfile.switch_type}"]`).click()
+      cy.getByFormControlName('managementNetwork').as('managementNetwork').invoke('val').then(value => {
+      if (value !== connectionProfile.management_network && connectionProfile.management_network) {
+        cy.get('@managementNetwork').clear().type(connectionProfile.management_network)
+      }
+    }) 
+  }
+  cy.getByFormControlName('username').as('username').invoke('val').then(value => {
+    if (value !== connectionProfile.username && connectionProfile.username) {
+      cy.get('@username').clear().type(connectionProfile.username)
+    }
+  })
+  if (mode == 'add') {
+    cy.getByFormControlName('password').as('password').invoke('val').then(value => {
+      if (value !== connectionProfile.password) {
+        cy.get('@password').clear().type(connectionProfile.password)
+      }
+    })
+  } else {
+    cy.getByFormControlName('updatePassword').as('updatePassword').invoke('val').then(value => {
+      if (value !== connectionProfile.password) {
+        cy.get('@updatePassword').clear().type(connectionProfile.password)
+      }
+    })
+  }
+  cy.get('mat-error').should('not.exist')
+  cy.wait(2000)
+  cy.getByDataCy('connectionForm').submit()
+  cy.log(`END: Add/Update ${connectionProfile.name}`)
+
+}
+
+Cypress.Commands.add('addEditConnectionProfile', addEditConnectionProfile);
+
+
+
 Cypress.on('uncaught:exception', (err, runnable) => {
   // returning false here prevents Cypress from
   // failing the test
