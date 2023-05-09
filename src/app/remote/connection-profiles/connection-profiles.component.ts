@@ -302,6 +302,13 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
           this.toastr.success(`${newConnection.msg}`, 'Success')
         } else {
           this.toastr.success(`Login Check for ${newConnection.name} successfully`, 'Success')
+          if (newConnection.validate_vm_result) {
+            if (newConnection.validate_vm_result?.is_valid) {
+              this.toastr.success(newConnection.validate_vm_result.message, 'Success')
+            } else {
+              this.toastr.warning(newConnection.validate_vm_result.message, 'Warning')
+            }
+          }
         }
       } else {
         if (typeAction == 'ping_test') {
