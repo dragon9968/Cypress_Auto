@@ -27,7 +27,6 @@ import { ErrorStateMatcher } from '@angular/material/core';
 import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
 import { InterfaceService } from "../../core/services/interface/interface.service";
 import { ConfigTemplateService } from "../../core/services/config-template/config-template.service";
-import { CONFIG_TEMPLATE_ADDS_TYPE } from "../../shared/contants/config-template-add-actions.constant";
 import { retrievedConfigTemplates } from "../../store/config-template/config-template.actions";
 import { PORT } from "../../shared/contants/port.constant";
 import { AceEditorComponent } from "ng2-ace-editor";
@@ -200,7 +199,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       deviceCtr: new FormControl(''),
       templateCtr: new FormControl(''),
       hardwareCtr: new FormControl(''),
-      folderCtr: new FormControl('', Validators.required),
+      folderCtr: new FormControl(''),
       parentFolderCtr: new FormControl(''),
       roleCtr: new FormControl(''),
       domainCtr: new FormControl(''),
@@ -350,6 +349,9 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     this.helpers.setAutoCompleteValue(this.templateCtr, this.templates, this.data.genData.template_id);
     this.helpers.setAutoCompleteValue(this.hardwareCtr, this.hardwares, this.data.genData.hardware_id);
     this.folderCtr?.setValue(this.data.genData.folder);
+    if (!this.isViewMode) {
+      this.folderCtr?.setValidators([Validators.required])
+    }
     this.parentFolderCtr?.setValue(this.data.genData.parent_folder);
     this.helpers.setAutoCompleteValue(this.roleCtr, ROLES, this.data.genData.role);
     this.helpers.setAutoCompleteValue(this.domainCtr, this.domains, this.data.genData.domain_id);
@@ -458,6 +460,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
         cyData.id = 'node-' + respData.id;
         cyData.node_id = respData.id;
         cyData.domain = this.domainCtr?.value.name;
+        cyData.device_category = this.data.genData.device_category;
         cyData.height = cyData.logical_map_style.height;
         cyData.width = cyData.logical_map_style.width;
         cyData.text_color = cyData.logical_map_style.text_color;
@@ -558,6 +561,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     this.categoryCtr?.enable();
     this.data.mode = 'update';
     this.isViewMode = false;
+    this.folderCtr?.setValidators([Validators.required])
+    this.folderCtr?.updateValueAndValidity()
   }
 
   onGridReady(params: GridReadyEvent) {

@@ -1193,6 +1193,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         cyData.id = 'node-' + respData.id;
         cyData.node_id = respData.id;
         cyData.domain = respData.result.domain.name;
+        cyData.device_category = genData.device_category;
         cyData.height = cyData.logical_map_style.height;
         cyData.width = cyData.logical_map_style.width;
         cyData.text_color = cyData.logical_map_style.text_color;
