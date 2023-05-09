@@ -76,7 +76,6 @@ import { selectProjects } from "../store/project/project.selectors";
 import { NgxPermissionsService } from "ngx-permissions";
 import { CMProjectNodeService } from "./context-menu/cm-project-node/cm-project-node.service";
 import { MapLinkService } from "../core/services/map-link/map-link.service";
-import { AddUpdateGroupDialogComponent } from "./add-update-group-dialog/add-update-group-dialog.component";
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -221,7 +220,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     private searchService: SearchService,
     private commonService: CommonService,
     private toolPanelStyleService: ToolPanelStyleService,
-    private serverConnectService: ServerConnectService,
     private projectService: ProjectService,
     private infoPanelService: InfoPanelService,
     private mapImageService: MapImageService,

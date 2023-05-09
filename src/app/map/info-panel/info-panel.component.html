@@ -1,6 +1,6 @@
 <div class="map-info-panel-wrapper" [ngStyle]="style" mwlResizable [validateResize]="validate" [enableGhostResize]="true"
   [resizeSnapGrid]="{ left: 1, right: 1 }" (resizeEnd)="onResizeEnd($event)">
-  <mat-tab-group class="map-info-panel">
+  <mat-tab-group dynamicHeight class="map-info-panel">
     <mat-tab label="Nodes">
       <app-info-panel-node [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs" [activeEdges]="activeEdges"
         [activeGBs]="activeGBs" [deletedNodes]="deletedNodes" [deletedInterfaces]="deletedInterfaces" [infoPanelheight]="style.height">
