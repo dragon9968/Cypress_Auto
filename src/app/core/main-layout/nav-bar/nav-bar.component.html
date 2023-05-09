@@ -478,7 +478,7 @@
       </mat-menu>
     </ng-template>
     <ng-template [ngxPermissionsOnly]="['can_read on Settings']">
-      <a *ngIf="!isSmallScreen" mat-button [matMenuTriggerFor]="settings" class="menu-btn">Settings</a>
+      <a *ngIf="!isSmallScreen" mat-button [matMenuTriggerFor]="settings" class="menu-btn" data-cy="btn-nav-app-pref">Settings</a>
       <mat-menu #settings="matMenu">
           <button mat-menu-item (click)="openAppPref()">
             <mat-icon>settings</mat-icon>

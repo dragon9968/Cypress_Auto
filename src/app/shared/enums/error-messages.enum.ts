@@ -24,7 +24,8 @@ export enum ErrorMessages {
   PASSWORD_NOT_MATCH = 'Password do not match',
   VLAN_RANGE_VALUE_0_4095 = 'Must be greater than or equal to 0 and less than or equal to 4095',
   PDF_MD_FORMAT_FILE = 'PDF or Markdown file only!',
-  MAIL_INVALID = 'This email in invalid',
+  MAIL_INVALID = 'This email is invalid',
   IMAGE_FORMAT_FILE = 'The imported file is invalid, please import a file from a PNG, JPG/JPEG format',
-  IMAGE_SIZE = 'The uploaded file likely exceeded the maximum file size (5 MB)'
+  IMAGE_SIZE = 'The uploaded file likely exceeded the maximum file size (5 MB)',
+  DHCP_INVALID = 'DHCP Server is invalid. Should be a system path and no special characters or IP address'
 }

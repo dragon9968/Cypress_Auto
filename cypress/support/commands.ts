@@ -222,7 +222,6 @@ function deleteRecordByName(name: string, matToolTipName: string, isRowSelected:
 }
 Cypress.Commands.add('deleteRecordByName', deleteRecordByName);
 
-
 // Add new Connection Profile
 declare namespace Cypress {
   interface Chainable<Subject = any> {
@@ -262,9 +261,9 @@ function addEditConnectionProfile(connectionProfile: any, mode: string): void {
     }
   })
   if (connectionProfile.datastore_cluster == 'True') {
-    cy.get('.checkbox-field').get('[type="checkbox"]').check({ force: true }).should('be.checked')
+    cy.getByDataCy('connectionForm').get('mat-checkbox span input[type="checkbox"]').check({ force: true }).should('be.checked')
   } else {
-    cy.get('.checkbox-field').get('[type="checkbox"]').uncheck({ force: true })
+    cy.getByDataCy('connectionForm').get('mat-checkbox span input[type="checkbox"]').uncheck({ force: true })
   }
 
   cy.getByFormControlName('switch').as('switch').invoke('val').then(value => {
@@ -308,7 +307,42 @@ function addEditConnectionProfile(connectionProfile: any, mode: string): void {
 
 Cypress.Commands.add('addEditConnectionProfile', addEditConnectionProfile);
 
+// Update App Preferences
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    updateAppPreferences(appPreferences: any, privateNetwork: any, privateNetworkIps: any): typeof updateAppPreferences;
+  }
+}
 
+function updateAppPreferences(appPreferences: any,  privateNetwork: any, privateNetworkIps: any): void {
+  cy.log(`START: Update App Preferences`)
+  cy.get('[data-cy=select-mappref]').click();
+  cy.getOptionByContent('Default').click();
+  cy.getByFormControlName('publicNetworkCtr').as('publicNetworkCtr').invoke('val').then(value => {
+    if (value !== appPreferences.public_network && appPreferences.public_network) {
+      cy.get('@publicNetworkCtr').clear().type(appPreferences.public_network)
+    }
+  })
+  cy.getByFormControlName('privateNetworkCtr').as('privateNetworkCtr').invoke('val').then(value => {
+    if (value !== privateNetwork && privateNetwork) {
+      cy.get('@privateNetworkCtr').clear().type(privateNetwork)
+    }
+  })
+  cy.getByFormControlName('privateNetworkIPsCtr').as('privateNetworkIPsCtr').invoke('val').then(value => {
+    if (value !== privateNetworkIps && privateNetworkIps) {
+      cy.get('@privateNetworkIPsCtr').clear().type(privateNetworkIps)
+    }
+  })
+  cy.getByFormControlName('managementNetworkCtr').as('managementNetworkCtr').invoke('val').then(value => {
+    cy.get('@managementNetworkCtr').clear().type(appPreferences.management_network)
+  })
+  cy.getByFormControlName('dhcpServerCtr').as('dhcpServerCtr').invoke('val').then(value => {
+    cy.get('@dhcpServerCtr').clear().type(appPreferences.dhcp_server)
+  })
+  cy.log(`END: Update App Preferences`)
+}
+
+Cypress.Commands.add('updateAppPreferences', updateAppPreferences);
 
 Cypress.on('uncaught:exception', (err, runnable) => {
   // returning false here prevents Cypress from

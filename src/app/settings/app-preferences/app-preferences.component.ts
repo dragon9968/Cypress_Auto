@@ -25,6 +25,7 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
   errorMessages = ErrorMessages;
   listMapPref!: any[];
   appPrefDefault!: any[];
+  pattern = "^[A-Za-z0-9\/\._-]*$";
   constructor(
     private toastr: ToastrService,
     private store: Store,
@@ -48,7 +49,7 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
       privateNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.private_network , "private"), ipSubnetValidation(false)]),
       managementNetworkCtr: new FormControl('', [Validators.required, ipSubnetValidation(true)]),
       managementNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.management_network, "management"), ipSubnetValidation(false)]),
-      dhcpServerCtr: new FormControl(''),
+      dhcpServerCtr: new FormControl('', [Validators.pattern(this.pattern)]),
     });
     if (this.data) {
       // this.sessionTimeoutCtr?.setValue(this.data.genData.preferences.session_timeout);
