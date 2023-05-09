@@ -113,26 +113,7 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
   }
 
   toggleEdgeDirection() {
-    if (!this.isEdgeDirectionChecked) {
-      for (let i = 0; i < this.cy.edges().length; i++) {
-        const edge = this.cy.edges()[i];
-        const current_dir = edge.data('direction');
-        edge.data('prev_direction', current_dir);
-        edge.data('direction', 'none');
-      }
-    } else {
-      for (let i = 0; i < this.cy.edges().length; i++) {
-        const edge = this.cy.edges()[i];
-        let prev_dir = edge.data('prev_direction');
-        const current_dir = edge.data('direction');
-        if (current_dir == 'none') {
-          if (!prev_dir || prev_dir == 'none') {
-            prev_dir = 'both';
-          }
-          edge.data('direction', prev_dir)
-        }
-      }
-    }
+    this.helpers.changeEdgeDirectionOnMap(this.cy, this.isEdgeDirectionChecked)
     this.store.dispatch(retrievedMapOption({
       data: {
         isEdgeDirectionChecked: this.isEdgeDirectionChecked,

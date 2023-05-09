@@ -1201,6 +1201,29 @@ export class HelpersService implements OnDestroy {
     }
   }
 
+  changeEdgeDirectionOnMap(cy: any, isEdgeDirectionChecked: boolean) {
+    if (!isEdgeDirectionChecked) {
+      for (let i = 0; i < cy.edges().length; i++) {
+        const edge = cy.edges()[i];
+        const current_dir = edge.data('direction');
+        edge.data('prev_direction', current_dir);
+        edge.data('direction', 'none');
+      }
+    } else {
+      for (let i = 0; i < cy.edges().length; i++) {
+        const edge = cy.edges()[i];
+        let prev_dir = edge.data('prev_direction');
+        const current_dir = edge.data('direction');
+        if (current_dir == 'none') {
+          if (!prev_dir || prev_dir == 'none') {
+            prev_dir = 'both';
+          }
+          edge.data('direction', prev_dir)
+        }
+      }
+    }
+  }
+
   updateProjectLinksStorage(cy: any, newProjects: any[]) {
     const projectNodeIdsAdded = cy?.nodes().filter('[elem_category="map_link"]').map((ele: any) => ele.data('linked_project_id'));
     projectNodeIdsAdded?.map((projectId: any) => {

@@ -1584,7 +1584,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.router.navigate([RouteSegments.DASHBOARD]);
   }
 
-  addTemplateIntoCurrentProject(projectTemplateId: Number, layoutOnly: Boolean, newPosition: any, projectNodeId = undefined) {
+  addTemplateIntoCurrentProject(projectTemplateId: Number, layoutOnly: Boolean, newPosition: any) {
     const collectionId = this.projectService.getCollectionId();
     const jsonData = {
       collection_id: collectionId,
@@ -1618,11 +1618,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
               (node.position && node.data.category != 'management') && node.position?.x !== 0 && node.position?.y !== 0
             )
             if (isNodesHasPosition) {
-              this.helpersService.addCYNodeAndEdge(this.cy, templateItems.nodes, templateItems.interfaces, newPosition, projectNodeId);
+              this.helpersService.addCYNodeAndEdge(this.cy, templateItems.nodes, templateItems.interfaces, newPosition);
               this.saveMapSubject.next();
             } else {
               this.cy.elements().lock();
-              this.helpersService.addCYNodeAndEdge(this.cy, templateItems.nodes, templateItems.interfaces, projectNodeId);
+              this.helpersService.addCYNodeAndEdge(this.cy, templateItems.nodes, templateItems.interfaces);
               this.cy.layout({
                 name: "cose",
                 avoidOverlap: true,
@@ -1634,11 +1634,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
               }).run();
               this.cy.elements().unlock();
             }
-            let successMessage = 'Added items from template into project successfully'
-            if (projectNodeId) {
-              successMessage = 'Added items from link project into current project successfully'
-            }
-            this.toastr.success(successMessage, 'Success');
+            this.toastr.success('Added items from template into project successfully', 'Success');
+            this.helpersService.changeEdgeDirectionOnMap(this.cy, this.isEdgeDirectionChecked);
             this.validateProject(collectionId);
           })
         })
@@ -1663,6 +1660,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       const edges = data.interfaces;
       this.helpersService.addCYNodeAndEdge(this.cy, nodes, edges, { x: 0, y: 0 }, mapLinkId);
       const nodeEle = this.cy.getElementById(`project-link-${mapLinkId}`)
+      this.helpersService.changeEdgeDirectionOnMap(this.cy, this.isEdgeDirectionChecked)
       this.cy.expandCollapse('get').collapseRecursively(nodeEle, {});
       nodeEle.data('width', '90px');
       nodeEle.data('height', '90px');

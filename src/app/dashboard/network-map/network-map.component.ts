@@ -45,6 +45,7 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
   selectVMStatus$ = new Subscription();
   selectIsHypervisorConnect$ = new Subscription();
   selectDashboard$ = new Subscription();
+  isEdgeDirectionChecked = false;
   styleExists: any;
   cleared: any;
   nodes: any[] = [];
@@ -116,11 +117,14 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
           this.nodes = map.nodes;
           this.interfaces = map.interfaces;
           this.defaultPreferences = map.defaultPreferences;
+          this.isEdgeDirectionChecked = map.defaultPreferences.edge_direction_checkbox != undefined
+            ? map.defaultPreferences.edge_direction_checkbox : this.isEdgeDirectionChecked;
           this._initCytoscapeNetworkMap();
           if (this.connection && this.connection.id !== 0 && this.vmStatusChecked) {
             this.infoPanelService.changeVMStatusOnMap(+this.collectionId, this.connection.id);
           }
           this.helpersService.initCollapseExpandMapLink(this.cy)
+          this.helpersService.changeEdgeDirectionOnMap(this.cy, this.isEdgeDirectionChecked)
         }
       });
     }
