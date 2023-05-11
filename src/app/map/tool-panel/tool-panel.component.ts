@@ -572,23 +572,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
           this._updateGroupsPropertyOfNodeOnMap(nodesInGroup, newGroup, 'node')
         } else {
           this._removeGroupsPropertyOfNodeOnMap([], newGroup.id, 'node')
-          if (nodeInGB.length > 0) {
-            nodeInGB.forEach(nodeId => {
-              newGroup.nodes = newGroup.nodes.filter((node: any) => !nodeId.includes(node.id));
-              const nodeInOldGroup = newGroup.nodes.map((node: any) => node.id)
-              if (nodeInOldGroup.length == newGroup.nodes.length) {
-                newNodes = [];
-              } else {
-                nodeInOldGroup.map((nodeId: any) => {
-                  const node = this.nodes.find(node => node.id === nodeId)
-                  newNodes.push({id: nodeId, name: node.name})
-                })
-                newGroup.nodes = newNodes;
-              }
-            })
-          } else {
-            newGroup.nodes = [];
-          }
+          this._updateGroupsElements(nodeInGB, newGroup, newNodes, this.nodes, 'node')
         }
       }
       if (portGroupInGroup) {
@@ -604,19 +588,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
           this._updateGroupsPropertyOfNodeOnMap(portGroupInGroup, newGroup, 'pg')
         } else {
           this._removeGroupsPropertyOfNodeOnMap([], newGroup.id, 'pg')
-          portGroupsInGB.forEach(pgId => {
-            newGroup.port_groups = newGroup.port_groups.filter((node: any) => !pgId.includes(node.id));
-            const portGroupsInOldGroup = newGroup.port_groups.map((pg: any) => pg.id)
-            if (portGroupsInOldGroup.length == newGroup.port_groups.length) {
-              newPortGroups = [];
-            } else {
-              portGroupsInOldGroup.map((pgId: any) => {
-                const pg = this.portGroups.find(pg => pg.id === pgId)
-                newPortGroups.push({id: pgId, name: pg.name})
-              })
-              newGroup.port_groups = newPortGroups;
-            }
-          })
+          this._updateGroupsElements(portGroupsInGB, newGroup, newPortGroups, this.portGroups, 'pg')
         }
       }
       if (mapImagesInGroup) {
@@ -630,19 +602,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
           this._updateGroupsPropertyOfNodeOnMap(mapImagesInGroup, newGroup, 'map_image')
         } else {
           this._removeGroupsPropertyOfNodeOnMap([], newGroup.id, 'map_image')
-          mapImagesInGB.forEach(mapImageId => {
-            newGroup.map_images = newGroup.map_images.filter((node: any) => !mapImageId.includes(node.id));
-            const mapImagesInOldGroup = newGroup.map_images.map((mapImage: any) => mapImage.id)
-            if (mapImagesInOldGroup.length == newGroup.map_images.length) {
-              newMapImages = [];
-            } else {
-              mapImagesInOldGroup.map((mapImageId: any) => {
-                const mapImage = this.mapImages.find(mapImage => mapImage.id === mapImageId)
-                newMapImages.push({id: mapImageId, name: mapImage.name})
-              })
-              newGroup.map_images = newMapImages;
-            }
-          })
+          this._updateGroupsElements(mapImagesInGB, newGroup, newMapImages, this.mapImages, 'map_image')
         }
       }
       newGroups.splice(indexGroup, 1, newGroup);
@@ -687,4 +647,43 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       }
     })
   }
+
+  private _updateGroupsElements(itemInGB: any[], newGroup: any, newItems: any[], data: any[], typeOfElement: any) {
+    let itemInOldGroup = typeOfElement === 'node' ? newGroup.nodes : typeOfElement === 'pg' ? newGroup.port_groups : newGroup.map_images;
+    if (itemInGB.length > 0) {
+      itemInGB.forEach(value => {
+        if (value.length > 0) {
+          const isExistsItemId = itemInOldGroup.some((item: any) => value.includes(item.id));
+          if (isExistsItemId) {
+            itemInOldGroup = itemInOldGroup.filter((item: any) => !value.includes(item.id));
+            const itemInOldGroupId = itemInOldGroup.map((item: any) => item.id)
+            if (itemInOldGroupId.length > 0) {
+              itemInOldGroupId.map((val: any) => {
+                const element = data.find(el => el.id === val)
+                newItems.push({id: val, name: element.name})
+              })
+              this._assignElementWithType(newGroup, typeOfElement, newItems)
+            } else {
+              this._assignElementWithType(newGroup, typeOfElement, [])
+            }
+          } 
+        } else {
+          this._assignElementWithType(newGroup, typeOfElement, [])
+        }
+      })
+    } else {
+      this._assignElementWithType(newGroup, typeOfElement, [])
+    }
+  }
+
+  private _assignElementWithType(newGroup: any, typeOfElement: any, result: any[]) {
+    if (typeOfElement === 'node') {
+      newGroup.nodes = result;
+    } else if (typeOfElement === 'pg') {
+      newGroup.port_groups = result;
+    } else if (typeOfElement === 'map_image') {
+      newGroup.map_images = result;
+    }
+  }
+
 }
