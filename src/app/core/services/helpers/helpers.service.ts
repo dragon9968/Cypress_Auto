@@ -37,6 +37,7 @@ export class HelpersService implements OnDestroy {
   groupCategoryId!: string;
   errorMessages = ErrorMessages;
   isGroupBoxesChecked!: boolean;
+  isEdgeDirectionChecked!: boolean;
   groupBoxes!: any[];
   lastWidth = 0;
   lastHeight = 0;
@@ -55,6 +56,7 @@ export class HelpersService implements OnDestroy {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
         this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
+        this.isEdgeDirectionChecked = mapOption.isEdgeDirectionChecked;
         this.groupCategoryId = mapOption.groupCategoryId;
       }
     });
@@ -589,6 +591,7 @@ export class HelpersService implements OnDestroy {
         'background-image-opacity': 0,
       });
       this.randomPositionForElementsNoPosition(event.cy)
+      this.changeEdgeDirectionOnMap(event.cy, this.isEdgeDirectionChecked)
     })
   }
 
