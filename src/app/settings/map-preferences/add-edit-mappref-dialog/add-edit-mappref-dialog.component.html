@@ -1,9 +1,9 @@
-<form [formGroup]="mapPrefForm" (ngSubmit)="data.mode === 'add' ? addMapPref() : updateMapPref()" autocomplete="off">
+<form [formGroup]="mapPrefForm" data-cy="mapPrefForm" (ngSubmit)="data.mode === 'add' ? addMapPref() : updateMapPref()" autocomplete="off">
   <div class="dialog-title">
     <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add New Preferences' : data.mode === 'update' ? 'Edit Map Preferences'
       : 'Map Preference Detail' }}</h1>
     <ng-template [ngxPermissionsOnly]="['can_write on Settings']">
-      <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+      <button *ngIf="data.mode === 'view'" data-cy="btn-change-mode" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
         <mat-icon>edit</mat-icon>
       </button>
     </ng-template>
@@ -49,7 +49,7 @@
       <mat-error *ngIf="name?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="name?.errors?.isExist">{{ errorMessages.NAME_EXISTS }}</mat-error>
     </mat-form-field>
-    <div class="tab-field">
+    <div class="tab-field gb-color">
       <label class="label" for="gbColor">Group Box Color</label>
       <button type="button" mat-mini-fab id="gbColor" class="color-picker" [(colorPicker)]="gbColor"
         [style.background]="gbColor" cpPosition="bottom" (colorPickerChange)="setGbColor($event)"></button>
@@ -61,16 +61,16 @@
     </div>
     <mat-form-field class="field">
       <mat-label>Group Box Border</mat-label>
-      <mat-select formControlName="gbBorder">
+      <mat-select formControlName="gbBorder" data-cy="gbBorder">
         <mat-option *ngFor="let option of listGroupBoxBorder" [value]="option.value">{{ option.name }}</mat-option>
       </mat-select>
     </mat-form-field>
-    <div class="tab-field">
+    <div class="tab-field gb-border-color">
       <label class="label" for="groupBoxBorderColor">Group Box Border Color </label>
       <button type="button" mat-mini-fab id="groupBoxBorderColor" class="color-picker" [(colorPicker)]="gbBorderColor"
         [style.background]="gbBorderColor" cpPosition="bottom" (colorPickerChange)="setGbBorderColor($event)"></button>
     </div>
-    <div class="tab-field">
+    <div class="tab-field pg-color">
       <label class="label" for="portGroupColor">Port Group Color </label>
       <button type="button" mat-mini-fab id="portGroupColor" class="color-picker" [(colorPicker)]="pgColor"
         [style.background]="pgColor" cpPosition="bottom" (colorPickerChange)="setPgColor($event)"></button>
@@ -82,7 +82,7 @@
       </div>
       <label>{{ textPGSizeLabel }}px</label>
     </div>
-    <div class="tab-field">
+    <div class="tab-field edge-color">
       <label class="label" for="edgeColor">Edge Color </label>
       <button type="button" mat-mini-fab id="edgeColor" class="color-picker" [(colorPicker)]="edgeColor"
         [style.background]="edgeColor" cpPosition="bottom" (colorPickerChange)="setEdgeColor($event)"></button>
@@ -102,7 +102,7 @@
       <mat-slider class="slider" formControlName="textSizeCtr" step="1" min="0" max="100" (change)="setTextSize($event)"></mat-slider>
       <label>{{ textSizeLabel }}px</label>
     </div>
-    <div class="tab-field">
+    <div class="tab-field text-color">
       <label class="label" for="textColor">Text Color </label>
       <button type="button" mat-mini-fab id="textColor" class="color-picker" [(colorPicker)]="textColor"
         [style.background]="textColor" cpPosition="bottom" (colorPickerChange)="setTextColor($event)"></button>
@@ -121,7 +121,7 @@
           }}</mat-option>
       </mat-select>
     </mat-form-field>
-    <div class="tab-field">
+    <div class="tab-field text-bg">
       <label class="label" for="TextBG">Text Background </label>
       <button type="button" mat-mini-fab id="TextBG" class="color-picker" [(colorPicker)]="TextBG"
         [style.background]="TextBG" cpPosition="bottom" (colorPickerChange)="setTextBG($event)"></button>
@@ -131,7 +131,7 @@
       <mat-slider class="slider" formControlName="textBgOpacityCtr" step="0.01" min="0" max="1" (change)="setTextBGOpacity($event)"></mat-slider>
       <label>{{ textBGOpacityLabel }}%</label>
     </div>
-    <div class="tab-field">
+    <div class="tab-field cy-map-grid">
       <label class="label">Map Grid</label>
       <mat-checkbox formControlName="mapGridCtr"></mat-checkbox>
     </div>
@@ -140,7 +140,7 @@
       <mat-slider class="slider" formControlName="gridSpacingCtr" step="1" min="50" max="250" (change)="setGridSpacing($event)"></mat-slider>
       <label>{{ textGridSpacingLabel }}px</label>
     </div>
-    <div class="checkbox">
+    <div class="checkbox cy-snap-grid">
       <label class="label">Snap to Grid</label>
       <mat-checkbox formControlName="snapToGridCtr"></mat-checkbox>
     </div>
@@ -184,7 +184,7 @@
   <div mat-dialog-actions [align]="'end'" class="create-btn">
     <button mat-raised-button type="button" (click)="onCancel()">{{data.mode === 'view' ? 'Close' : 'Cancel'}}</button>
     <ng-template [ngxPermissionsOnly]="['can_write on Settings']">
-      <button *ngIf="data.mode !== 'view'" mat-raised-button color="primary" [disabled]="!mapPrefForm.valid">
+      <button *ngIf="data.mode !== 'view'" type="button" mat-raised-button color="primary" [disabled]="!mapPrefForm.valid">
         {{ data.mode === 'add' ? 'Create' : 'Update' }}
       </button>
     </ng-template>

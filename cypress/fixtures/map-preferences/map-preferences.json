@@ -1,0 +1,59 @@
+{
+  "mapPrefAdd": [
+    {
+      "name": "Test Map Pref",
+      "category": "map",
+      "group_box_opacity": 0.5,
+      "group_box_border": "dotted",
+      "text_halign": "right",
+      "group_box_color": "#ff0000",
+      "text_color": "#3f3f3f",
+      "scale_image": 125,
+      "edge_color": "#6f00ff",
+      "grid_spacing": 120,
+      "grid_snap": true,
+      "edge_arrow_direction": "both",
+      "grid_enabled": true,
+      "text_valign": "center",
+      "text_bg_opacity": 0.5,
+      "edge_arrow_size": 6,
+      "node_size": 90,
+      "default_icon": "Cloud (Black)",
+      "text_bg_color": "#ffffff",
+      "text_size": 30,
+      "port_group_color": "#50b602",
+      "zoom_speed": 0.25,
+      "edge_width": 5,
+      "port_group_size": 30,
+      "group_box_border_color": "#066bff"
+    }
+  ],
+  "mapPrefEdit": [
+    {
+      "name": "Test Map Pref 1",
+      "group_box_opacity": 0.6,
+      "group_box_border": "solid",
+      "text_halign": "center",
+      "group_box_color": "#ff00cc",
+      "text_color": "#4f4f4f",
+      "scale_image": 100,
+      "edge_color": "#ffffff",
+      "grid_spacing": 100,
+      "grid_snap": false,
+      "edge_arrow_direction": "inbound",
+      "grid_enabled": false,
+      "text_valign": "bottom",
+      "text_bg_opacity": 0.25,
+      "edge_arrow_size": 3,
+      "node_size": 75,
+      "default_icon": "Cloud (Black)",
+      "text_bg_color": "#000000",
+      "text_size": 25,
+      "port_group_color": "#cccccc",
+      "zoom_speed": 0.50,
+      "edge_width": 4,
+      "port_group_size": 20,
+      "group_box_border_color": "#0066ff"
+    }
+  ]
+}

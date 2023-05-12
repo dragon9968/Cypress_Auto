@@ -112,6 +112,30 @@ function editConfigTemplate(configTemplate: any, newValue: any): void {
 Cypress.Commands.add('editConfigTemplate', editConfigTemplate);
 
 
+// Select All row on AG-Grid
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    selectAllRow(): typeof selectAllRow;
+  }
+}
+
+function selectAllRow(): void {
+  cy.get('.ag-header-cell .ag-header-select-all input[type="checkbox"]').first().check({ force: true })
+}
+Cypress.Commands.add('selectAllRow', selectAllRow);
+
+// UnSelect All row on AG-Grid
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    unSelectAllRow(): typeof unSelectAllRow;
+  }
+}
+
+function unSelectAllRow(): void {
+  cy.get('.ag-header-cell .ag-header-select-all input[type="checkbox"]').first().uncheck({ force: true })
+}
+Cypress.Commands.add('unSelectAllRow', unSelectAllRow);
+
 // Select row on AG-Grid by name
 declare namespace Cypress {
   interface Chainable<Subject = any> {
@@ -123,7 +147,6 @@ function selectRowByName(name: string): void {
   cy.get('.ag-row').contains(name).first().click({ force: true }).type(" ");
 }
 Cypress.Commands.add('selectRowByName', selectRowByName);
-
 
 // Showing edit form by name
 declare namespace Cypress {
@@ -344,6 +367,109 @@ function updateAppPreferences(appPreferences: any,  privateNetwork: any, private
 
 Cypress.Commands.add('updateAppPreferences', updateAppPreferences);
 
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    addUpdateMapPreferences(mapPreferences: any): typeof addUpdateMapPreferences;
+  }
+}
+
+function calcArrowsSlider(targetValue: any, currentValue: any) {
+  const arrows = targetValue > currentValue ? '{rightarrow}'.repeat((targetValue - currentValue) / 1) : targetValue < currentValue ? '{leftArrow}'.repeat((currentValue - targetValue) / 1) : `${currentValue}`;
+  return arrows
+}
+
+function addUpdateMapPreferences (mapPreferences: any) {
+  cy.log(`START: Add/Update new ${mapPreferences.name}`)
+  cy.getByFormControlName('name').as('name').invoke('val').then(val => {
+    cy.get('@name').clear().type(mapPreferences.name)
+  })
+  cy.get('#gbColor').click()
+  cy.getColorPickerByClass('.gb-color').clear().type(mapPreferences.group_box_color).type(`{enter}`)
+  cy.getByFormControlName('gbOpacity').as('gbOpacity').then(value =>{
+    cy.get('@gbOpacity').type(calcArrowsSlider(mapPreferences.group_box_opacity * 100, 50))
+  })
+  cy.get('[data-cy=gbBorder]').click();
+  cy.getOptionByContent(mapPreferences.group_box_border.charAt(0).toUpperCase() + mapPreferences.group_box_border.slice(1)).click();
+
+  cy.get('#groupBoxBorderColor').click()
+  cy.getColorPickerByClass('.gb-border-color').clear().type(mapPreferences.group_box_border_color).type(`{enter}`)
+
+  cy.get('#portGroupColor').click()
+  cy.getColorPickerByClass('.pg-color').clear().type(mapPreferences.port_group_color).type(`{enter}`)
+
+  cy.getByFormControlName('pgSizeCtr').as('pgSizeCtr').then(value =>{
+    cy.get('@pgSizeCtr').type(calcArrowsSlider(mapPreferences.port_group_size, 50))
+  })
+  
+  cy.get('#edgeColor').click()
+  cy.getColorPickerByClass('.edge-color').clear().type(mapPreferences.edge_color).type(`{enter}`)
+  cy.getByFormControlName('edgeWidthCtr').as('edgeWidthCtr').then(value =>{
+    cy.get('@edgeWidthCtr').type(calcArrowsSlider(mapPreferences.edge_width, 50))
+  })
+  cy.getByFormControlName('nodeSizeCtr').as('nodeSizeCtr').then(value =>{
+    cy.get('@nodeSizeCtr').type(calcArrowsSlider(mapPreferences.node_size, 50))
+  })
+  cy.getByFormControlName('textSizeCtr').as('textSizeCtr').then(value =>{
+    cy.get('@textSizeCtr').type(calcArrowsSlider(mapPreferences.text_size, 50))
+  })
+
+  cy.get('#textColor').click()
+  cy.getColorPickerByClass('.text-color').clear().type(mapPreferences.text_color).type(`{enter}`)
+
+  cy.getByFormControlName('textHorizontalAlignmentCtr').click();
+  cy.getOptionByContent(mapPreferences.text_halign.charAt(0).toUpperCase() + mapPreferences.text_halign.slice(1)).click();
+
+  cy.getByFormControlName('textVerticalAlignmentCtr').click();
+  cy.getOptionByContent(mapPreferences.text_valign.charAt(0).toUpperCase() + mapPreferences.text_valign.slice(1)).click();
+
+  cy.get('#TextBG').click()
+  cy.getColorPickerByClass('.text-bg').clear().type(mapPreferences.text_bg_color).type(`{enter}`)
+
+  cy.getByFormControlName('textBgOpacityCtr').as('textBgOpacityCtr').then(value =>{
+    cy.get('@textBgOpacityCtr').type(calcArrowsSlider(mapPreferences.text_bg_opacity * 100, 50))
+  })
+
+  if (mapPreferences.grid_enabled) {
+    cy.getByDataCy('mapPrefForm').get('.cy-map-grid > mat-checkbox span input[type="checkbox"]').check({ force: true }).should('be.checked')
+  } else {
+    cy.getByDataCy('mapPrefForm').get('.cy-map-grid > mat-checkbox span input[type="checkbox"]').uncheck({ force: true })
+  }
+
+  cy.getByFormControlName('gridSpacingCtr').as('gridSpacingCtr').then(value =>{
+    cy.get('@gridSpacingCtr').type(calcArrowsSlider(mapPreferences.grid_spacing, 149))
+  })
+
+  if (mapPreferences.grid_snap) {
+    cy.getByDataCy('mapPrefForm').get('.cy-snap-grid > mat-checkbox span input[type="checkbox"]').check({ force: true }).should('be.checked')
+  } else {
+    cy.getByDataCy('mapPrefForm').get('.cy-snap-grid > mat-checkbox span input[type="checkbox"]').uncheck({ force: true })
+  }
+  
+  cy.getByFormControlName('zoomSpeedCtr').click();
+  cy.getOptionByContent(mapPreferences.zoom_speed).click();
+
+  cy.get('#mappref-default-icon').clear({force: true}).type(mapPreferences.default_icon)
+  cy.getOptionByContent(mapPreferences.default_icon).click();
+
+  cy.getByFormControlName('edgeArrowDirectionCtr').click();
+  cy.getOptionByContent(mapPreferences.edge_arrow_direction.charAt(0).toUpperCase() + mapPreferences.edge_arrow_direction.slice(1)).click();
+
+  cy.getByFormControlName('edgeArrowSizeCtr').as('edgeArrowSizeCtr').then(value =>{
+    cy.get('@edgeArrowSizeCtr').type(calcArrowsSlider(mapPreferences.edge_arrow_size, 25))
+  })
+  
+  cy.getByFormControlName('mapImageSizeCtr').as('mapImageSizeCtr').then(value =>{
+    cy.get('@mapImageSizeCtr').type(calcArrowsSlider(mapPreferences.scale_image, 100))
+  })
+
+  cy.get('mat-error').should('not.exist')
+  cy.wait(2000)
+  cy.getByDataCy('mapPrefForm').submit()
+  cy.log(`END: Add/Update new ${mapPreferences.name}`)
+}
+Cypress.Commands.add('addUpdateMapPreferences', addUpdateMapPreferences);
+
+
 Cypress.on('uncaught:exception', (err, runnable) => {
   // returning false here prevents Cypress from
   // failing the test
@@ -407,6 +533,8 @@ declare namespace Cypress {
      * @example cy.getOptionByContent('content')
      */
     getOptionByContent(content: string): Chainable<JQuery<HTMLElement>>
+
+    getColorPickerByClass(value: string): Chainable<JQuery<HTMLElement>>
   }
 }
 Cypress.Commands.add(
@@ -441,5 +569,12 @@ Cypress.Commands.add(
   'getOptionByContent',
   (content: string) => {
     cy.get('mat-option').contains(content)
+  }
+);
+
+Cypress.Commands.add(
+  'getColorPickerByClass',
+  (value: string) => {
+    cy.get(`${value} color-picker > div.color-picker.open > div.hex-text.ng-star-inserted > div.box > input`)
   }
 );
