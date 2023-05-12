@@ -137,7 +137,7 @@
     </div>
     <div *ngIf="isHideEdge" class="tab-field text-align">
         <label class="control-label">V Align</label>
-        <mat-button-toggle-group class="button-group" (change)="setTextVAlign($event)">
+        <mat-button-toggle-group class="button-group" (change)="setTextVAlign($event)" [(ngModel)]="vAlignSelect">
             <mat-button-toggle value="top"><mat-icon>align_vertical_top</mat-icon></mat-button-toggle>
             <mat-button-toggle value="center"><mat-icon>align_vertical_center</mat-icon></mat-button-toggle>
             <mat-button-toggle value="bottom"><mat-icon>align_vertical_bottom</mat-icon></mat-button-toggle>
@@ -145,7 +145,7 @@
     </div>
     <div *ngIf="isHideEdge" class="tab-field text-align">
         <label class="control-label">H Align</label>
-        <mat-button-toggle-group class="button-group" (change)="setTextHAlign($event)">
+        <mat-button-toggle-group class="button-group" (change)="setTextHAlign($event)" [(ngModel)]="hAlignSelect">
             <mat-button-toggle value="left"><mat-icon>align_horizontal_left</mat-icon></mat-button-toggle>
             <mat-button-toggle value="center"><mat-icon>align_horizontal_center</mat-icon></mat-button-toggle>
             <mat-button-toggle value="right"><mat-icon>align_horizontal_right</mat-icon></mat-button-toggle>
