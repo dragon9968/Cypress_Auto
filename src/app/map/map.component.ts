@@ -1080,10 +1080,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.cy.on("boxselect", this._boxSelect.bind(this));
     this.cy.on("box", this._boxCheck.bind(this));
     this.cy.on("click", this._click.bind(this));
-    this.cy.on("cxttap", "node", () => this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs,
-      this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks, this.isTemplateCategory));
-    this.cy.on("cxttap", "edge", () => this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs,
-      this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks, this.isTemplateCategory));
+    this.cy.on("cxttap", "node", this._rightClickAndShowContextMenu.bind(this));
+    this.cy.on("cxttap", "edge", this._rightClickAndShowContextMenu.bind(this));
     this.cy.on("nodeediting.resizeend", this._nodeEditing.bind(this));
     this.cy.on('cdnddrop', this._cdndDrop.bind(this));
     this.cy.on('cdndout', this._cdndOut.bind(this));
@@ -1128,6 +1126,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       ],
       submenuIndicator: { src: '/assets/icons/submenu-indicator-default.svg', width: 12, height: 12 }
     });
+  }
+
+  private _rightClickAndShowContextMenu($event: any) {
+    const t = $event.target;
+    t.select();
+    this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs,
+      this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks, this.isTemplateCategory);
   }
 
   private _openAddUpdateNodeDialog(genData: any, newNodeData: any, newNodePosition: any) {

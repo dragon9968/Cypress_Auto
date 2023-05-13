@@ -374,7 +374,7 @@ declare namespace Cypress {
 }
 
 function calcArrowsSlider(targetValue: any, currentValue: any) {
-  const arrows = targetValue > currentValue ? '{rightarrow}'.repeat((targetValue - currentValue) / 1) : targetValue < currentValue ? '{leftArrow}'.repeat((currentValue - targetValue) / 1) : `${currentValue}`;
+  const arrows = targetValue > currentValue ? '{rightarrow}'.repeat((targetValue - currentValue)) : targetValue < currentValue ? '{leftArrow}'.repeat((currentValue - targetValue)) : `${currentValue}`;
   return arrows
 }
 
@@ -436,7 +436,12 @@ function addUpdateMapPreferences (mapPreferences: any) {
   }
 
   cy.getByFormControlName('gridSpacingCtr').as('gridSpacingCtr').then(value =>{
-    cy.get('@gridSpacingCtr').type(calcArrowsSlider(mapPreferences.grid_spacing, 149))
+    if (mapPreferences.grid_spacing === 149) {
+      cy.get('@gridSpacingCtr').type('{leftArrow}'.repeat((149)))
+      cy.get('@gridSpacingCtr').type('{rightArrow}'.repeat((mapPreferences.grid_spacing - 50)))
+    } else {
+      cy.get('@gridSpacingCtr').type(calcArrowsSlider(mapPreferences.grid_spacing, 149))
+    }
   })
 
   if (mapPreferences.grid_snap) {
@@ -459,7 +464,12 @@ function addUpdateMapPreferences (mapPreferences: any) {
   })
   
   cy.getByFormControlName('mapImageSizeCtr').as('mapImageSizeCtr').then(value =>{
-    cy.get('@mapImageSizeCtr').type(calcArrowsSlider(mapPreferences.scale_image, 100))
+    if (mapPreferences.scale_image > 100) {
+      cy.get('@mapImageSizeCtr').type(calcArrowsSlider(mapPreferences.scale_image, 100))
+    } else {
+      cy.get('@mapImageSizeCtr').type('{leftArrow}'.repeat((100)))
+      cy.get('@mapImageSizeCtr').type('{rightArrow}'.repeat((mapPreferences.scale_image - 20)))
+    }
   })
 
   cy.get('mat-error').should('not.exist')

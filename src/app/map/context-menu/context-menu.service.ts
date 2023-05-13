@@ -150,4 +150,27 @@ export class ContextMenuService implements OnDestroy{
     }
   }
 
+  hideContextMenu(cy: any) {
+    const contextMenu = cy.contextMenus('get');
+    contextMenu.hideMenuItem('node_interface');
+    contextMenu.hideMenuItem('link_project');
+    contextMenu.hideMenuItem('pg_interface');
+    contextMenu.hideMenuItem('edge_add');
+    contextMenu.hideMenuItem('node_actions');
+    contextMenu.hideMenuItem('pg_actions');
+    contextMenu.hideMenuItem('edge_actions');
+    contextMenu.hideMenuItem('view_details');
+    contextMenu.hideMenuItem('edit');
+    contextMenu.hideMenuItem('delete');
+    contextMenu.hideMenuItem('node_remote');
+    contextMenu.hideMenuItem('pg_remote');
+    contextMenu.hideMenuItem('move_to_front');
+    contextMenu.hideMenuItem('move_to_back');
+    contextMenu.hideMenuItem('collapse_groupbox');
+    contextMenu.hideMenuItem('expand_groupbox');
+    contextMenu.hideMenuItem('lock_node');
+    contextMenu.hideMenuItem('unlock_node');
+    contextMenu.hideMenuItem('web_console');
+  }
+
 }
