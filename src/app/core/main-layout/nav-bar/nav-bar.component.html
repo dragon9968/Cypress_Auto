@@ -540,7 +540,8 @@
     </mat-menu>
     <div *ngIf="isMapOpen" class="search">
         <mat-form-field floatLabel="never" class="search-bar">
-            <input matInput #searchbar [(ngModel)]="searchText" placeholder="Search Map" (keyup.enter)="search()">
+            <input autocomplete="off" id="nav-bar-search" matInput #searchbar [(ngModel)]="searchText"
+                   placeholder="Search Map" (keyup.enter)="search()" (keyup)="searchTextChange($event)">
             <button *ngIf="searchText" mat-button mat-icon-button class="btn-clear-search-text" (click)="close()" matSuffix>
                 <mat-icon>close</mat-icon>
             </button>

@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconRegistry } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { interval, Subject, Subscription, throwError } from 'rxjs';
+import { Subscription, throwError } from 'rxjs';
 import { EditProjectDialogComponent } from 'src/app/project/edit-project-dialog/edit-project-dialog.component';
 import { ProjectService } from 'src/app/project/services/project.service';
 import { retrievedSearchText } from 'src/app/store/map-option/map-option.actions';
@@ -24,7 +24,7 @@ import { ToastrService } from 'ngx-toastr';
 import { ExportProjectDialogComponent } from 'src/app/project/export-project-dialog/export-project-dialog.component';
 import { ImportProjectDialogComponent } from 'src/app/project/import-project-dialog/import-project-dialog.component';
 import { HelpersService } from "../../services/helpers/helpers.service";
-import { catchError, takeUntil } from "rxjs/operators";
+import { catchError } from "rxjs/operators";
 import { AppPreferencesComponent } from 'src/app/settings/app-preferences/app-preferences.component';
 import { AppPrefService } from '../../services/app-pref/app-pref.service';
 import { MapPrefService } from '../../services/map-pref/map-pref.service';
@@ -63,7 +63,6 @@ export class NavBarComponent implements OnInit, OnDestroy {
   isOpen!: boolean;
   status = 'active';
   selectIsMapOpen$ = new Subscription();
-  destroy$: Subject<boolean> = new Subject<boolean>();
   selectIsHypervisorConnect$ = new Subscription();
   selectIsDatasourceConnect$ = new Subscription();
   selectIsConfiguratorConnect$ = new Subscription();
@@ -105,9 +104,6 @@ export class NavBarComponent implements OnInit, OnDestroy {
     this.authService.updateUserId(this.userId)
     this.selectIsMapOpen$ = this.store.select(selectIsMapOpen).subscribe((isMapOpen: boolean) => {
       this.isMapOpen = isMapOpen;
-      if (isMapOpen) {
-        this.searchByInterval();
-      }
     });
     this.selectIsOpen$ = this.store.select(selectIsOpen).subscribe(isOpen => {
       this.isOpen = isOpen;
@@ -171,8 +167,6 @@ export class NavBarComponent implements OnInit, OnDestroy {
     this.selectIsDatasourceConnect$.unsubscribe();
     this.selectIsConfiguratorConnect$.unsubscribe();
     this.selectProjectName$.unsubscribe();
-    this.destroy$.next(true);
-    this.destroy$.unsubscribe();
   }
 
   logout() {
@@ -302,17 +296,6 @@ export class NavBarComponent implements OnInit, OnDestroy {
     })
   }
 
-  searchByInterval() {
-    interval(3000).pipe(takeUntil(this.destroy$)).subscribe(() => {
-      if (this.isMapOpen) {
-        this.search();
-      } else {
-        this.close();
-        this.destroy$.next(true);
-      }
-    })
-  }
-
   openAppPref() {
     this.appPrefService.get('2').subscribe(data => {
       const dialogData = {
@@ -411,5 +394,9 @@ export class NavBarComponent implements OnInit, OnDestroy {
       }
       this.dialog.open(LDAPConfigurationComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
     })
+  }
+
+  searchTextChange($event: any) {
+    const value = $event.target.value == '' && this.close()
   }
 }
