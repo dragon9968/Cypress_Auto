@@ -30,5 +30,6 @@ export enum ReducerKeys {
     USER_PROFILE = 'userProfile',
     USER_GUIDE = 'userGuide',
     LOOKUP_FEATURES = 'lookupFeatures',
-    LOOKUP_NAMES = 'lookupNames'
+    LOOKUP_NAMES = 'lookupNames',
+    NETMASKS = 'netmasks',
 }

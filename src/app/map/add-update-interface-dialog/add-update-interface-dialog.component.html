@@ -110,7 +110,15 @@
       <div class="interface-content__bottom__right">
         <mat-form-field class="field">
           <mat-label>Netmask</mat-label>
-          <input autocomplete="off" id="interface-netmask" matInput formControlName="netMaskCtr" [readonly]="true">
+          <input autocomplete="off" id="interface-netmask" matInput placeholder="Select or enter a netmask" formControlName="netMaskCtr"
+            [matAutocomplete]="autoNetmask" [readonly]="isViewMode">
+          <mat-autocomplete #autoNetmask="matAutocomplete" [displayWith]="helpers.netmaskDisplay">
+            <mat-option *ngFor="let option of filteredNetmasks | async" [value]="option">
+              {{ option.mask }}
+            </mat-option>
+          </mat-autocomplete>
+          <mat-error *ngIf="directionCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+          <mat-error *ngIf="directionCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
         </mat-form-field>
         <mat-form-field class="field">
           <mat-label>DNS Server</mat-label>

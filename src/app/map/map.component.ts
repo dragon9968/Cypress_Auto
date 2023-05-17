@@ -76,6 +76,8 @@ import { selectProjects } from "../store/project/project.selectors";
 import { NgxPermissionsService } from "ngx-permissions";
 import { CMProjectNodeService } from "./context-menu/cm-project-node/cm-project-node.service";
 import { MapLinkService } from "../core/services/map-link/map-link.service";
+import { NetmaskService } from '../core/services/netmask/netmask.service';
+import { retrievedNetmasks } from '../store/netmask/netmask.actions';
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -225,6 +227,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     private mapImageService: MapImageService,
     private contextMenuService: ContextMenuService,
     private ngxPermissionsService: NgxPermissionsService,
+    private netmaskService: NetmaskService,
   ) {
     navigator(cytoscape);
     gridGuide(cytoscape);
@@ -315,6 +318,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.store.dispatch(retrievedVMStatus({ vmStatus: data.result.configuration.vm_status }));
       }
     })
+    this.netmaskService.getAll().subscribe((data: any) => this.store.dispatch(retrievedNetmasks({ data: data.result })));
     this.store.dispatch(retrievedIsMapOpen({ data: true }));
     this.selectInterfaceIdConnectPG = this.store.select(selectInterfaceIdConnectPG).subscribe(interfaceIdConnectPG => {
       this.interfaceIdConnectPG = interfaceIdConnectPG;
@@ -612,9 +616,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             el.unselect();
           })
         }
-        // this.activeNodes.splice(0);
-        // this.activePGs.splice(0);
-        // this.activeEdges.splice(0);
       } else if (t.data('elem_category') == 'port_group') {
         if (this.activePGs.includes(t)) {
           const index = this.activePGs.indexOf(t);

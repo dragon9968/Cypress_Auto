@@ -84,6 +84,10 @@ export class HelpersService implements OnDestroy {
     return option && option.serial_number ? option.serial_number : '';
   }
 
+  netmaskDisplay(option: any) {
+    return option && option.mask ? option.mask : '';
+  }
+
   generateCyStyle(defaults: any): any[] {
     return [
       {

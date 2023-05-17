@@ -16,9 +16,9 @@ import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
 import { retrievedInterfacesManagement } from "../../store/interface/interface.actions";
-import { ProjectService } from "../../project/services/project.service";
 import { selectMapOption } from "../../store/map-option/map-option.selectors";
 import { PortGroupService } from "../../core/services/portgroup/portgroup.service";
+import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
 
 @Component({
   selector: 'app-add-update-interface-dialog',
@@ -28,6 +28,7 @@ import { PortGroupService } from "../../core/services/portgroup/portgroup.servic
 export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   interfaceAddForm: FormGroup;
   DIRECTIONS = DIRECTIONS;
+  netmasks!: any[];
   errorMessages = ErrorMessages;
   portGroups!: any[];
   isViewMode = false;
@@ -35,11 +36,13 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   selectPortGroups$ = new Subscription();
   selectInterfaces$ = new Subscription();
   selectMapOption$ = new Subscription();
+  selectNetmasks$ = new Subscription();
   gateways: any[] = [];
   interfaces: any[] = [];
   tabName = '';
   filteredPortGroups!: Observable<any[]>;
   filteredDirections!: Observable<any[]>;
+  filteredNetmasks!: Observable<any[]>;
 
   constructor(
     private store: Store,
@@ -47,7 +50,6 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<AddUpdateInterfaceDialogComponent>,
     public helpers: HelpersService,
-    private projectService: ProjectService,
     private interfaceService: InterfaceService,
     private infoPanelService: InfoPanelService,
     private portGroupService: PortGroupService
@@ -77,7 +79,12 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       if (interfaces) {
         this.interfaces = interfaces;
       }
-    })
+    });
+    this.selectNetmasks$ = this.store.select(selectNetmasks).subscribe((netmasks: any) => {
+      this.netmasks = netmasks;
+      this.netMaskCtr.setValidators([autoCompleteValidator(this.netmasks)]);
+      this.filteredNetmasks = this.helpers.filterOptions(this.netMaskCtr, this.netmasks, 'mask');
+    });
     this.isViewMode = this.data.mode == 'view';
     this.tabName = this.data.tabName;
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe(mapOption => {
@@ -89,13 +96,14 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     this.selectPortGroups$.unsubscribe();
     this.selectMapOption$.unsubscribe();
     this.selectInterfaces$.unsubscribe();
+    this.selectNetmasks$.unsubscribe();
   }
 
   get orderCtr() { return this.interfaceAddForm.get('orderCtr'); }
   get nameCtr() { return this.interfaceAddForm.get('nameCtr'); }
   get descriptionCtr() { return this.interfaceAddForm.get('descriptionCtr'); }
   get categoryCtr() { return this.interfaceAddForm.get('categoryCtr'); }
-  get directionCtr() { return this.helpers.getAutoCompleteCtr(this.interfaceAddForm.get('directionCtr'), DIRECTIONS); }
+  get directionCtr() { return this.helpers.getAutoCompleteCtr(this.interfaceAddForm.get('directionCtr'), this.DIRECTIONS); }
   get macAddressCtr() { return this.interfaceAddForm.get('macAddressCtr'); }
   get portGroupCtr() { return this.helpers.getAutoCompleteCtr(this.interfaceAddForm.get('portGroupCtr'), this.portGroups); }
   get ipAllocationCtr() { return this.interfaceAddForm.get('ipAllocationCtr'); }
@@ -104,7 +112,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   get gatewayCtr() { return this.interfaceAddForm.get('gatewayCtr') }
   get isGatewayCtr() { return this.interfaceAddForm.get('isGatewayCtr'); }
   get isNatCtr() { return this.interfaceAddForm.get('isNatCtr'); }
-  get netMaskCtr() { return this.interfaceAddForm.get('netMaskCtr'); }
+  get netMaskCtr() { return this.helpers.getAutoCompleteCtr(this.interfaceAddForm.get('netMaskCtr'), this.netmasks); }
 
   ngOnInit(): void {
     let directionValue = this.isEdgeDirectionChecked ? this.data.genData.direction : this.data.genData.prev_direction;
@@ -116,7 +124,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     this.nameCtr?.setValue(this.data.genData.name);
     this.descriptionCtr?.setValue(this.data.genData.description);
     this.categoryCtr?.setValue(this.data.genData.category);
-    this.helpers.setAutoCompleteValue(this.directionCtr, DIRECTIONS, directionValue);
+    this.helpers.setAutoCompleteValue(this.directionCtr, this.DIRECTIONS, directionValue);
     this.macAddressCtr?.setValue(this.data.genData.mac_address);
     this.helpers.setAutoCompleteValue(this.portGroupCtr, this.portGroups, this.data.genData.port_group_id);
     this.ipAllocationCtr?.setValue(this.data.genData.ip_allocation);
@@ -125,16 +133,17 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     this.gatewayCtr?.setValue(this.data.genData.gateway?.gateway ? this.data.genData.gateway.gateway : this.data.genData.gateway);
     this.isGatewayCtr?.setValue(this.data.genData.is_gateway);
     this.isNatCtr?.setValue(this.data.genData.is_nat);
-    this.netMaskCtr?.setValue(this.data.genData.netmask);
+    this.helpers.setAutoCompleteValue(this.netMaskCtr, this.netmasks, this.data.genData.netmask_id);
     this._disableItems(this.ipAllocationCtr?.value);
-    this.netMaskCtr?.disable();
   }
 
   private _disableItems(subnetAllocation: string) {
     if (subnetAllocation == 'static_manual') {
       this.ipCtr?.enable();
+      this.netMaskCtr?.enable();
     } else {
       this.ipCtr?.disable();
+      this.netMaskCtr?.disable();
     }
   }
 
@@ -158,6 +167,8 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     const last_octet = ip.length == 4 ? "." + ip[3] : "";
     ele.data('ip_last_octet', last_octet);
     ele.data('target', `pg-${data.port_group_id}`);
+    ele.data('netmask_id', data.netmask_id);
+    ele.data('netmask', this.helpers.getOptionById(this.netmasks, data.netmask_id).mask);
   }
 
   onIpAllocationChange($event: MatRadioChange) {
@@ -184,7 +195,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       is_gateway: this.isGatewayCtr?.value,
       is_nat: this.isNatCtr?.value,
       node_id: this.data.genData.node_id,
-      netmask_id: this.data.genData.netmask_id,
+      netmask_id: this.netMaskCtr?.value.id,
       logical_map_position: this.data.newNodePosition,
       logical_map_style: (this.data.mode == 'add') ? {
         "width": this.data.selectedMapPref.edge_width,
@@ -245,7 +256,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       is_gateway: this.isGatewayCtr?.value,
       is_nat: this.isNatCtr?.value,
       node_id: this.data.genData.node_id,
-      netmask_id: this.data.genData.netmask_id,
+      netmask_id: this.netMaskCtr?.value.id,
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.interfaceService.put(this.data.genData.interface_id, jsonData).subscribe((respData: any) => {
@@ -283,7 +294,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       is_gateway: this.isGatewayCtr?.value,
       is_nat: this.isNatCtr?.value,
       node_id: this.data.genData.node_id,
-      netmask_id: this.data.genData.netmask_id,
+      netmask_id: this.netMaskCtr?.value.id,
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.interfaceService.put(this.data.genData.interface_id, jsonData).subscribe((respData: any) => {
