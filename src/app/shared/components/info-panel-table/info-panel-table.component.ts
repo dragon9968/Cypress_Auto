@@ -18,6 +18,8 @@ import { AddUpdateInterfaceDialogComponent } from 'src/app/map/add-update-interf
 import { InterfaceBulkEditDialogComponent } from 'src/app/map/bulk-edit-dialog/interface-bulk-edit-dialog/interface-bulk-edit-dialog.component';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 import { DomainService } from 'src/app/core/services/domain/domain.service';
+import { retrievedDomains } from "../../../store/domain/domain.actions";
+import { ProjectService } from "../../../project/services/project.service";
 
 @Component({
   selector: 'app-info-panel-table',
@@ -39,14 +41,15 @@ export class InfoPanelTableComponent {
   }
 
   constructor(
-    private toastr: ToastrService,
+    private store: Store,
     private dialog: MatDialog,
+    private toastr: ToastrService,
+    private domainService: DomainService,
     private nodeService: NodeService,
     private portGroupService: PortGroupService,
     private interfaceService: InterfaceService,
-    private domainService: DomainService,
-    private store: Store,
-    private infoPanelService: InfoPanelService
+    private infoPanelService: InfoPanelService,
+    private projectService: ProjectService
   ) { }
 
   setRowData(rowData: any[]) {
@@ -107,7 +110,7 @@ export class InfoPanelTableComponent {
     } else if (tabName == 'portgroup' || tabName == 'portGroupManagement') {
       return this.portGroupService;
     } else if (tabName == 'edge' || tabName == 'edgeManagement') {
-      return this.interfaceService;;
+      return this.interfaceService;
     } else if (tabName == 'domain') {
       return this.domainService;
     } else {
@@ -162,6 +165,10 @@ export class InfoPanelTableComponent {
             width: 'auto',
             data: e.error.result
           });
+          if (this.tabName == 'domain' && e.error.result.includes('underscore(s) character')) {
+            this.domainService.getDomainByCollectionId(this.projectService.getCollectionId())
+              .subscribe((data: any) => this.store.dispatch(retrievedDomains({ data: data.result })));
+          }
           return throwError(() => e);
         })
       ).subscribe(response => {

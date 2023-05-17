@@ -4,6 +4,7 @@ export enum ErrorMessages {
   OPTION_NOT_MATCH = 'Option selected is invalid',
   SERIAL_NUMBER_EXIST = 'Serial Number already exists',
   DOMAIN_NAME_EXIST = 'Domain name already exists, please enter a different name',
+  DOMAIN_NAME_MUST_NOT_UNDERSCORE = 'Domain name has an underscore character is invalid',
   GROUP_NAME_EXIST = 'Group name already exists, please enter a different name',
   DOMAIN_USER_USERNAME_EXIST = 'Domain username already exists, please enter a different username',
   FIELD_IS_ALPHABET = 'Input must be consists of only letters.',

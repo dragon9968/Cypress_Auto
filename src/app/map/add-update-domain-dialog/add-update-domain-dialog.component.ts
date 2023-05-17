@@ -57,6 +57,7 @@ export class AddUpdateDomainDialogComponent implements OnInit {
     this.nameCtr?.setValue(this.data.genData.name);
     this.adminUserCtr?.setValue(this.data.genData.admin_user);
     this.adminPasswordCtr?.setValue(this.data.genData.admin_password);
+    this.nameCtr?.setValidators([Validators.pattern('[^_]*')])
   }
 
   addDomain() {

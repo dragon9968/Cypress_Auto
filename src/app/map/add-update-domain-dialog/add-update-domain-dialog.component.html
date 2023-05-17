@@ -18,6 +18,7 @@
       <input autocomplete="off" id="domain-name" matInput formControlName="nameCtr" [readonly]="isViewMode">
       <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="nameCtr?.errors?.isExist">{{ errorMessages.DOMAIN_NAME_EXIST }}</mat-error>
+      <mat-error *ngIf="nameCtr?.errors?.pattern">{{ errorMessages.DOMAIN_NAME_MUST_NOT_UNDERSCORE }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Admin User</mat-label>

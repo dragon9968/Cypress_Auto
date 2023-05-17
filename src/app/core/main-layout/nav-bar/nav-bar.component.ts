@@ -46,6 +46,8 @@ import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
 import { LDAPConfigurationComponent } from 'src/app/administration/ldap-configuration/ldap-configuration.component';
 import { LdapConfigService } from '../../services/ldap-config/ldap-config.service';
 import { RemoteCategories } from "../../enums/remote-categories.enum";
+import { retrievedDomains } from "../../../store/domain/domain.actions";
+import { DomainService } from "../../services/domain/domain.service";
 
 @Component({
   selector: 'app-nav-bar',
@@ -95,6 +97,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
     private serverConnectService: ServerConnectService,
     public breakpointObserver: BreakpointObserver,
     private ldapConfigService: LdapConfigService,
+    private domainService: DomainService
   ) {
     this.iconRegistry.addSvgIcon('connected', this.helpersService.setIconPath('/assets/icons/nav/connected.svg'));
     this.iconRegistry.addSvgIcon('disconnected', this.helpersService.setIconPath('/assets/icons/nav/disconnected.svg'));
@@ -380,6 +383,10 @@ export class NavBarComponent implements OnInit, OnDestroy {
           width: 'auto',
           data: e.error.result
         });
+        if (e.error.result.includes('underscore(s) character')) {
+          this.domainService.getDomainByCollectionId(this.projectService.getCollectionId())
+            .subscribe((data: any) => this.store.dispatch(retrievedDomains({ data: data.result })));
+        }
         return throwError(() => e);
       })
     ).subscribe(response => {
