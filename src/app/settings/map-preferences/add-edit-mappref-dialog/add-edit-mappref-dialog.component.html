@@ -184,7 +184,7 @@
   <div mat-dialog-actions [align]="'end'" class="create-btn">
     <button mat-raised-button type="button" (click)="onCancel()">{{data.mode === 'view' ? 'Close' : 'Cancel'}}</button>
     <ng-template [ngxPermissionsOnly]="['can_write on Settings']">
-      <button *ngIf="data.mode !== 'view'" type="button" mat-raised-button color="primary" [disabled]="!mapPrefForm.valid">
+      <button *ngIf="data.mode !== 'view'" type="submit" mat-raised-button color="primary" [disabled]="!mapPrefForm.valid">
         {{ data.mode === 'add' ? 'Create' : 'Update' }}
       </button>
     </ng-template>
