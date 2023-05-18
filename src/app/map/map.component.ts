@@ -78,6 +78,7 @@ import { CMProjectNodeService } from "./context-menu/cm-project-node/cm-project-
 import { MapLinkService } from "../core/services/map-link/map-link.service";
 import { NetmaskService } from '../core/services/netmask/netmask.service';
 import { retrievedNetmasks } from '../store/netmask/netmask.actions';
+import { MapEditService } from "../core/services/map-edit/map-edit.service";
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -228,6 +229,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     private contextMenuService: ContextMenuService,
     private ngxPermissionsService: NgxPermissionsService,
     private netmaskService: NetmaskService,
+    private mapEditService: MapEditService
   ) {
     navigator(cytoscape);
     gridGuide(cytoscape);
@@ -1641,6 +1643,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
               this.cy.elements().unlock();
             }
             this.toastr.success('Added items from template into project successfully', 'Success');
+            this.mapEditService.updateGroupBoxesInMapStorage(this.cy, templateItems.group_boxes)
             this.helpersService.changeEdgeDirectionOnMap(this.cy, this.isEdgeDirectionChecked);
             this.validateProject(collectionId);
           })

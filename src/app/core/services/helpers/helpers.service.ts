@@ -518,7 +518,7 @@ export class HelpersService implements OnDestroy {
   }
 
   addNewGroupBoxByMovingNodes(cy: any, dropTarget: any, collectionId: any, mapCategory: string) {
-    if (dropTarget.data() && dropTarget.hasClass('cdnd-new-parent')) {
+    if (dropTarget.data() && dropTarget.data('elem_category') != 'group' && dropTarget.hasClass('cdnd-new-parent')) {
       const children = dropTarget.children()
       if (children.length == 2) {
         const g0 = children[0].map((ele: any) => ele.data('groups'))[0].map((g: any) => g.id).sort()
@@ -544,7 +544,7 @@ export class HelpersService implements OnDestroy {
           dialog.afterClosed().subscribe((dialogResult: any) => {
             if (dialogResult && dialogResult.isCanceled) {
               if (nodes.length > 0 || portGroups.length > 0 || mapImages.length > 0) {
-                this.removeParent(dropTarget)
+                this.reloadGroupBoxes(cy)
               }
             }
           })
