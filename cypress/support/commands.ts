@@ -23,30 +23,157 @@ Cypress.Commands.add('login', login);
 
 declare namespace Cypress {
   interface Chainable<Subject = any> {
-    addNewProject(project: any): typeof addNewProject;
+    addNewProject(project: any, isUsingDefaultNetwork: boolean): typeof addNewProject;
   }
 }
 
-function addNewProject(project: any): void {
-  cy.getByFormControlName('name').type(project.name)
-  cy.getByFormControlName('description').type(project.description)
+function addNewProject(project: any, isUsingDefaultNetwork = true): void {
+  cy.log('Add new project')
+  cy.getByFormControlName('name').type(project.name).blur()
+  cy.get('mat-error').should('not.exist')
+  cy.getByFormControlName('description').type(project.description).blur()
   cy.getByFormControlName('category').children(`mat-radio-button[value="${project.category}"]`).click()
   cy.getByFormControlName('target').click().then(() => {
     cy.get('mat-option').contains(`${project.target}`).click()
   })
   cy.getByFormControlName('option').children(`mat-radio-button[value="${project.option}"]`).click()
-  cy.getByFormControlName('enclave_number').clear().type(project.enclave_number)
-  cy.getByFormControlName('enclave_clients').clear().type(project.enclave_clients)
-  cy.getByFormControlName('enclave_servers').clear().type(project.enclave_servers)
-  cy.getByFormControlName('enclave_users').clear().type(project.enclave_users)
-  cy.getByFormControlName('vlan_min').clear().type(project.vlan_min)
-  cy.getByFormControlName('vlan_max').clear().type(project.vlan_max)
+  cy.getByFormControlName('enclave_number').clear().type(project.enclave_number).blur()
+  cy.getByFormControlName('enclave_clients').clear().type(project.enclave_clients).blur()
+  cy.getByFormControlName('enclave_servers').clear().type(project.enclave_servers).blur()
+  cy.getByFormControlName('enclave_users').clear().type(project.enclave_users).blur()
+  cy.getByFormControlName('vlan_min').clear().type(project.vlan_min).blur()
   cy.get('mat-error').should('not.exist')
+  cy.getByFormControlName('vlan_max').clear().type(project.vlan_max).blur()
+  cy.get('mat-error').should('not.exist')
+  if (!isUsingDefaultNetwork) {
+    cy.log('Delete all networks')
+    cy.getByDataCy('btn-delete-network').each(($row) => {
+      cy.wrap($row).click()
+      cy.wait(1000)
+      cy.get('mat-dialog-container').should('exist')
+      cy.getButtonByTypeAndContent('submit', 'OK').click()
+      cy.wait(1000)
+    })
+    cy.log('Re-add all networks')
+    project.networks.map((network: any) => {
+      cy.getByDataCy('btn-add-network').click()
+      cy.get('.cy-category').last().dblclick().click().children().then(() => {
+        cy.wait(1000)
+        cy.get('span').contains(network.category).click()
+      })
+      cy.get('.cy-network').last().dblclick().type(network.network)
+      cy.blurAllInputFocused()
+      cy.get('.toast-warning').should('not.exist')
+      if (network.reserved_ip) {
+        cy.get('.cy-reserved-ip-address').last().dblclick().type(network.reserved_ip)
+        cy.blurAllInputFocused()
+        cy.get('.toast-warning').should('not.exist')
+      }
+      cy.wait(1000)
+    })
+  }
   cy.getByDataCy('projectForm').submit().log(`Create project ${project.name} successfully`)
   cy.scrollTo('top')
+  cy.get('.toast-error').should('not.exist')
   cy.url().should('include', 'projects')
 }
 Cypress.Commands.add('addNewProject', addNewProject);
+
+// Open project by name
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    openProjectByName(projectName: string): typeof openProjectByName;
+  }
+}
+
+function openProjectByName(projectName: string): void {
+  cy.visit('/projects')
+  cy.wait(2000)
+  cy.get('#search-project').type(projectName)
+  cy.get('ag-grid-angular').contains(projectName).dblclick()
+  cy.url().should('include', 'map')
+  cy.wait(4000)
+}
+Cypress.Commands.add('openProjectByName', openProjectByName);
+
+
+// Import project
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    importProject(filePath: string): typeof importProject;
+  }
+}
+
+function importProject(filePath: string): void {
+  cy.log(`Import project from ${filePath}`)
+  cy.getByDataCy('btn-nav-project').should('exist').click()
+  cy.wait(1000)
+  cy.getByDataCy('btn-export-import-project').should('exist').click()
+  cy.wait(1000)
+  cy.getByDataCy('btn-import-project').should('exist').click()
+  cy.get('input[type=file]').selectFile(`${filePath}`)
+  cy.wait(1000)
+  cy.getByDataCy('importForm').submit()
+}
+Cypress.Commands.add('importProject', importProject);
+
+// Export project by name
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    exportProject(projectName: string, isProjectOpened: boolean): typeof exportProject;
+  }
+}
+
+function exportProject(projectName: string, isProjectOpened: boolean): void {
+  cy.log('Export project')
+  if (!isProjectOpened) {
+    cy.openProjectByName(projectName)
+  }
+  cy.getByDataCy('btn-nav-project').should('exist').click()
+  cy.wait(1000)
+  cy.getByDataCy('btn-export-import-project').should('exist').click()
+  cy.wait(1000)
+  cy.getByDataCy('btn-export-project').should('exist').click()
+  cy.wait(1000)
+  cy.getByDataCy('exportForm').submit()
+}
+Cypress.Commands.add('exportProject', exportProject);
+
+// Clone Project to Template
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    cloneProjectToTemplate(projectName: string, isProjectOpened: boolean): typeof cloneProjectToTemplate;
+  }
+}
+
+function cloneProjectToTemplate(projectName: string, isProjectOpened: boolean): void {
+  cy.log('Clone Project to Template')
+  if (!isProjectOpened) {
+    cy.openProjectByName(projectName)
+  }
+  cy.getByDataCy('btn-nav-project').should('exist').click()
+  cy.getByDataCy('btn-new-clone-project').should('exist').click()
+  cy.getByDataCy('btn-clone-project').should('exist').click()
+  cy.getByFormControlName('categoryCtr').children('mat-radio-button[value="template"]').click()
+  cy.wait(1000)
+  cy.getButtonByTypeAndContent('submit', 'Clone').click()
+}
+Cypress.Commands.add('cloneProjectToTemplate', cloneProjectToTemplate);
+
+// Blur all input has been focused
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    blurAllInputFocused(): typeof blurAllInputFocused;
+  }
+}
+
+function blurAllInputFocused(): void {
+  cy.log('Blur all input has been focused')
+  cy.focused().then(($el) => {
+    cy.wrap($el).type(`{enter}`)
+  })
+}
+Cypress.Commands.add('blurAllInputFocused', blurAllInputFocused);
 
 // Add a new configuration template
 declare namespace Cypress {
@@ -301,7 +428,7 @@ function addEditConnectionProfile(connectionProfile: any, mode: string): void {
       if (value !== connectionProfile.management_network && connectionProfile.management_network) {
         cy.get('@managementNetwork').clear().type(connectionProfile.management_network)
       }
-    }) 
+    })
   }
   cy.getByFormControlName('username').as('username').invoke('val').then(value => {
     if (value !== connectionProfile.username && connectionProfile.username) {
@@ -400,7 +527,7 @@ function addUpdateMapPreferences (mapPreferences: any) {
   cy.getByFormControlName('pgSizeCtr').as('pgSizeCtr').then(value =>{
     cy.get('@pgSizeCtr').type(calcArrowsSlider(mapPreferences.port_group_size, 50))
   })
-  
+
   cy.get('#edgeColor').click()
   cy.getColorPickerByClass('.edge-color').clear().type(mapPreferences.edge_color).type(`{enter}`)
   cy.getByFormControlName('edgeWidthCtr').as('edgeWidthCtr').then(value =>{
@@ -449,7 +576,7 @@ function addUpdateMapPreferences (mapPreferences: any) {
   } else {
     cy.getByDataCy('mapPrefForm').get('.cy-snap-grid > mat-checkbox span input[type="checkbox"]').uncheck({ force: true })
   }
-  
+
   cy.getByFormControlName('zoomSpeedCtr').click();
   cy.getOptionByContent(mapPreferences.zoom_speed).click();
 
@@ -462,7 +589,7 @@ function addUpdateMapPreferences (mapPreferences: any) {
   cy.getByFormControlName('edgeArrowSizeCtr').as('edgeArrowSizeCtr').then(value =>{
     cy.get('@edgeArrowSizeCtr').type(calcArrowsSlider(mapPreferences.edge_arrow_size, 25))
   })
-  
+
   cy.getByFormControlName('mapImageSizeCtr').as('mapImageSizeCtr').then(value =>{
     if (mapPreferences.scale_image > 100) {
       cy.get('@mapImageSizeCtr').type(calcArrowsSlider(mapPreferences.scale_image, 100))

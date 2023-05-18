@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 import { ToastrService } from "ngx-toastr";
 import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { Router } from '@angular/router';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, FormControl, FormGroupDirective, NgForm } from '@angular/forms';
 import { ProjectService } from 'src/app/project/services/project.service';
 import { selectProjectTemplate } from 'src/app/store/project/project.selectors';
 import { retrievedProjects, retrievedProjectsTemplate } from 'src/app/store/project/project.actions';
@@ -25,6 +25,18 @@ import { NgxPermissionsService } from "ngx-permissions";
 import { MapPrefService } from 'src/app/core/services/map-pref/map-pref.service';
 import { retrievedDefaultMapPref } from 'src/app/store/map-pref/map-pref.actions';
 import { selectDefaultMapPref } from 'src/app/store/map-pref/map-pref.selectors';
+import { vlanValidator } from "../../shared/validations/vlan.validation";
+import { ErrorStateMatcher } from "@angular/material/core";
+
+class CrossFieldErrorMatcher implements ErrorStateMatcher {
+  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
+    return !!control?.dirty && (
+      control?.errors?.['required'] ||
+      form?.errors?.['isVlanInvalid'] ||
+      form?.errors?.['isMaxVLANInValid']
+    );
+  }
+}
 
 @Component({
   selector: 'app-add-project',
@@ -39,6 +51,7 @@ export class AddProjectComponent implements OnInit {
   selectDefaultMapPref$ = new Subscription();
   labelPosition = 'blank';
   projectForm!: FormGroup;
+  errorMatcher = new CrossFieldErrorMatcher();
   routeSegments = RouteSegments;
   errorMessages = ErrorMessages;
   selectProjects$ = new Subscription();
@@ -76,16 +89,19 @@ export class AddProjectComponent implements OnInit {
     { field: 'category',
       valueFormatter: (params) => params.value,
       cellEditor: 'agSelectCellEditor',
+      cellClass: 'cy-category',
       cellEditorParams: {
         values: ['public', 'private', 'management'],
       },
     },
     { field: 'network',
+      cellClass: 'cy-network',
       valueSetter: this.setterValueNetwork.bind(this),
     },
     { field: 'reserved_ip',
       headerName: 'Reserved IP Addresses',
       autoHeight: true,
+      cellClass: 'cy-reserved-ip-address',
       valueGetter: function(params) {
         if (Array.isArray(params.data.reserved_ip)) {
           return params.data.reserved_ip.map((cat: any) => cat.ip).join(',');
@@ -119,7 +135,15 @@ export class AddProjectComponent implements OnInit {
     }
 
     this.projectForm = this.formBuilder.group({
-      name : ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50), validateNameExist(() => this.nameProject, 'add', undefined)]],
+      name : ['',
+        [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(50),
+          Validators.pattern('[^!@#$&*`%=]*'),
+          validateNameExist(() => this.nameProject, 'add', undefined)
+        ]
+      ],
       description: [''],
       category: ['project'],
       target : ['VMWare vCenter'],
@@ -131,8 +155,8 @@ export class AddProjectComponent implements OnInit {
       enclave_servers: [2, [Validators.min(0), Validators.max(100), Validators.required]],
       enclave_users: [5, [Validators.min(0), Validators.max(100), Validators.required]],
       vlan_min: [2000, [Validators.min(1), Validators.max(4093), Validators.required]],
-      vlan_max: [2100, [Validators.min(2), Validators.max(4094), Validators.required]]
-    })
+      vlan_max: [2100]
+    },{ validators: vlanValidator })
     this.projectService.getAll().subscribe((data: any) => {
       this.nameProject = data.result;
     });
@@ -183,7 +207,6 @@ export class AddProjectComponent implements OnInit {
       }
     }
     if (!isCanWriteProject || !isCanReadSettings) {
-      console.log('You are not authorized to view this page !')
       this.toastr.warning('Not authorized!', 'Warning');
       this.router.navigate([RouteSegments.ROOT]);
     }
@@ -289,7 +312,7 @@ export class AddProjectComponent implements OnInit {
         }
         this.projectService.add(jsonData).pipe(
           catchError((e: any) => {
-            this.toastr.error(e.error.message);
+            this.toastr.error('Add New Project failed', 'Error');
             return throwError(() => e);
           })
           ).subscribe(rest => {

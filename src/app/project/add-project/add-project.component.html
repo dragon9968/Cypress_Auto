@@ -14,6 +14,7 @@
               <mat-error *ngIf="name?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
               <mat-error *ngIf="name?.errors?.minlength || name?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH_50 }}</mat-error>
               <mat-error *ngIf="name?.errors?.isExist">{{ errorMessages.NAME_EXISTS }}</mat-error>
+              <mat-error *ngIf="name?.errors?.pattern">{{ errorMessages.FIELD_IS_EXISTING_INVALID_CHAR }}</mat-error>
             </mat-form-field>
             <mat-form-field class="field" appearance="outline">
               <mat-label>Description</mat-label>
@@ -118,11 +119,13 @@
               </mat-form-field>
               <mat-form-field class="field" appearance="outline">
                 <mat-label>Max VLAN</mat-label>
-                <input autocomplete="off" id="project-maxvlan" formControlName="vlan_max" type="number" (keypress)="numericOnly($event)" matInput>
+                <input autocomplete="off" id="project-maxvlan" formControlName="vlan_max" type="number" (keypress)="numericOnly($event)" matInput [errorStateMatcher]="errorMatcher">
                 <mat-error *ngIf="vlan_max?.hasError('min') || vlan_max?.hasError('max') || vlan_max?.errors?.required">{{ errorMessages.MIN_MAX_VALUE_2_4094 }}</mat-error>
+                <mat-error *ngIf="projectForm.errors?.['isMaxVLANInValid']">{{ projectForm.errors.message }}</mat-error>
+                <mat-error *ngIf="projectForm.errors?.['isVlanInvalid']">{{ projectForm.errors.message }}</mat-error>
               </mat-form-field>
               <div class="add-button">
-                <button mat-button mat-mini-fab type="button" color="primary" (click)="addNetwork()">
+                <button data-cy="btn-add-network" mat-button mat-mini-fab type="button" color="primary" (click)="addNetwork()">
                   <mat-icon>add</mat-icon>
                 </button>
               </div>
