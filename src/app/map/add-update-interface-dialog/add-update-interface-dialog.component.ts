@@ -19,6 +19,7 @@ import { retrievedInterfacesManagement } from "../../store/interface/interface.a
 import { selectMapOption } from "../../store/map-option/map-option.selectors";
 import { PortGroupService } from "../../core/services/portgroup/portgroup.service";
 import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
+import { selectNodesByCollectionId } from 'src/app/store/node/node.selectors';
 
 @Component({
   selector: 'app-add-update-interface-dialog',
@@ -37,8 +38,10 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   selectInterfaces$ = new Subscription();
   selectMapOption$ = new Subscription();
   selectNetmasks$ = new Subscription();
+  selectNodes$ = new Subscription();
   gateways: any[] = [];
   interfaces: any[] = [];
+  nodes: any[] = [];
   tabName = '';
   filteredPortGroups!: Observable<any[]>;
   filteredDirections!: Observable<any[]>;
@@ -79,6 +82,9 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       if (interfaces) {
         this.interfaces = interfaces;
       }
+    });
+    this.selectNodes$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => {
+      this.nodes = nodes;
     });
     this.selectNetmasks$ = this.store.select(selectNetmasks).subscribe((netmasks: any) => {
       this.netmasks = netmasks;
@@ -221,6 +227,10 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         const ip = ip_str.split(".")
         const last_octet = ip.length == 4 ? "." + ip[3] : ""
         const cyData = respData.result;
+        const nodeFilterById = this.nodes.filter(node => node.id === respData.result.node_id)
+        const nodeName = nodeFilterById.map(el => el.name)
+        const netmaskFilterById = this.netmasks.filter(netmask => netmask.id === respData.result.netmask_id)
+        const mask = netmaskFilterById.map(el => el.mask)
         cyData.id = id;
         cyData.interface_id = id;
         cyData.ip_last_octet = last_octet
@@ -228,9 +238,12 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         cyData.text_color = cyData.logical_map_style.text_color;
         cyData.text_size = cyData.logical_map_style.text_size;
         cyData.color = cyData.logical_map_style.color;
-        this.helpers.addCYEdge(this.data.cy, { ...newEdgeData, ...cyData });
-        this._showOrHideArrowDirectionOnEdge(cyData.id);
+        cyData.node = nodeName;
+        cyData.netmask = mask;
         this.portGroupService.get(portGroupId).subscribe(response => {
+          cyData.port_group = response.result.name;
+          this.helpers.addCYEdge(this.data.cy, { ...newEdgeData, ...cyData });
+          this._showOrHideArrowDirectionOnEdge(cyData.id);
           this.helpers.updatePGOnMap(this.data.cy, portGroupId, response.result);
           this.store.dispatch(retrievedMapSelection({ data: true }));
         });
