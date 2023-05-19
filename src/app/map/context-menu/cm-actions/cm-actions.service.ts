@@ -2,7 +2,7 @@ import { Store } from "@ngrx/store";
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-import { catchError, throwError } from 'rxjs';
+import { Subscription, catchError, throwError } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 import { NodeService } from 'src/app/core/services/node/node.service';
@@ -11,12 +11,14 @@ import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { InfoPanelShowValidationResultsComponent } from '../../../shared/components/info-panel-show-validation-results/info-panel-show-validation-results.component';
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { environment } from "../../../../environments/environment";
+import { selectMapOption } from "src/app/store/map-option/map-option.selectors";
 
 @Injectable({
   providedIn: 'root'
 })
 export class CMActionsService {
-
+  selectMapOption$ = new Subscription();
+  isEdgeDirectionChecked = false;
   constructor(
     private store: Store,
     private dialog: MatDialog,
@@ -26,7 +28,11 @@ export class CMActionsService {
     private portGroupService: PortGroupService,
     private interfaceService: InterfaceService,
     private infoPanelService: InfoPanelService
-  ) { }
+  ) {
+    this.selectMapOption$ = this.store.select(selectMapOption).subscribe(mapOption => {
+      this.isEdgeDirectionChecked = mapOption?.isEdgeDirectionChecked != undefined ? mapOption.isEdgeDirectionChecked : false;
+    })
+   }
 
   getNodeActionsMenu(cy: any, activeNodes: any[], isCanWriteOnProject: boolean) {
     return {
@@ -227,6 +233,7 @@ export class CMActionsService {
                   width: logicalMapStyle.width,
                 }
                 this.helpers.addCYEdge(cy, { ...newEdgeData, ...cyData });
+                this.helpers.changeEdgeDirectionOnMap(cy, this.isEdgeDirectionChecked);
               }
             })
           });
