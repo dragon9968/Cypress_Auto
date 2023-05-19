@@ -14,6 +14,7 @@ import { autoCompleteValidator } from "../../../shared/validations/auto-complete
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { PORT } from "../../../shared/contants/port.constant";
 import { AceEditorComponent } from "ng2-ace-editor";
+import { networksValidation } from 'src/app/shared/validations/networks.validation';
 
 @Component({
   selector: 'app-add-edit-config-template',
@@ -30,6 +31,7 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
   firewallRuleForm!: FormGroup;
   domainMemberForm!: FormGroup;
   roleServicesForm!: FormGroup;
+  ospfForm!: FormGroup;
   errorMessages = ErrorMessages;
   staticRoles: any[] = [];
   fileWallRule: any[] = [];
@@ -42,6 +44,13 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
   isAddFirewallRule = false;
   isAddRolesAndService = false;
   isAddDomainMembership = false;
+  isAddOSPF = false;
+  // isHiddenBgpMetricType = false;
+  // isHiddenConnectedMetricType = false;
+  // isHiddenStaticMetricType = false;
+  bgpChecked = true;
+  connectedChecked = true;
+  staticChecked = true;
   filteredAddActions!: Observable<any>[];
 
   constructor(
@@ -84,6 +93,15 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
     })
     this.roleServicesForm = new FormGroup({
       rolesCtr: new FormControl('')
+    })
+    this.ospfForm = new FormGroup({
+      networksCtr: new FormControl('', [networksValidation()]),
+      bgpStateCtr: new FormControl(''),
+      bgpMetricTypeCtr: new FormControl(''),
+      connectedStateCtr: new FormControl(''),
+      connectedMetricTypeCtr: new FormControl(''),
+      staticStateCtr: new FormControl(''),
+      staticMetricTypeCtr: new FormControl('')
     })
     this.isViewMode = this.data.mode == 'view';
     this.isAddMode = this.data.mode == 'add';
@@ -158,6 +176,13 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
   get joinDomainCtr() { return this.domainMemberForm.get('joinDomainCtr'); }
   get ouPathCtr() { return this.domainMemberForm.get('ouPathCtr');}
   get rolesCtr() { return this.helpersService.getAutoCompleteCtr(this.roleServicesForm.get('rolesCtr'), this.rolesAndService);}
+  get networksCtr() { return this.ospfForm.get('networksCtr');}
+  get bgpStateCtr() { return this.ospfForm.get('bgpStateCtr');}
+  get bgpMetricTypeCtr() { return this.ospfForm.get('bgpMetricTypeCtr');}
+  get connectedStateCtr() { return this.ospfForm.get('connectedStateCtr');}
+  get connectedMetricTypeCtr() { return this.ospfForm.get('connectedMetricTypeCtr');}
+  get staticStateCtr() { return this.ospfForm.get('staticStateCtr');}
+  get staticMetricTypeCtr() { return this.ospfForm.get('staticMetricTypeCtr');}
 
   ngOnInit(): void {
     this.name?.setValue(this.data.genData.name);
@@ -386,6 +411,55 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
     });
   }
 
+  // selectBgpState(event: any) {
+  //   if (event.checked) {
+  //     this.isHiddenBgpMetricType = false;
+  //   } else {
+  //     this.isHiddenBgpMetricType = true;
+  //   }
+  // }
+
+  // selectConnectedState(event: any) {
+  //   if (event.checked) {
+  //     this.isHiddenConnectedMetricType = false;
+  //   } else {
+  //     this.isHiddenConnectedMetricType = true;
+  //   }
+  // }
+
+  // selectStaticState(event: any) {
+  //   if (event.checked) {
+  //     this.isHiddenStaticMetricType = false;
+  //   } else {
+  //     this.isHiddenStaticMetricType = true;
+  //   }
+  // }
+
+  addOSPF() {
+    const jsonDataValue = {
+      config_type: "ospf",
+      config_id: this.data.genData.id,
+      networks: this.helpersService.processNetworksField(this.networksCtr?.value),
+      bgp_state: this.bgpStateCtr?.value,
+      bgp_metric_type: this.bgpMetricTypeCtr?.value,
+      connected_state: this.connectedStateCtr?.value,
+      connected_metric_type: this.connectedMetricTypeCtr?.value,
+      static_state: this.staticStateCtr?.value,
+      static_metric_type: this.staticMetricTypeCtr?.value,
+    }
+    const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
+    this.configTemplateService.addConfiguration(jsonData).pipe(
+      catchError(err => {
+        this.toastr.error('Add OPSF failed', 'Error');
+        return throwError(() => err);
+      })
+    ).subscribe((response) => {
+      this._setEditorData(response.result)
+      this.toastr.success('Add OPSF successfully', 'Success');
+      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
+    });
+  }
+
   showFormAdd(addType: string) {
     switch (addType) {
       case 'add_route':
@@ -393,30 +467,42 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
         this.isAddFirewallRule = false;
         this.isAddDomainMembership = false;
         this.isAddRolesAndService = false;
+        this.isAddOSPF = false;
         break;
       case 'add_firewall_rule':
         this.isAddRoute = false;
         this.isAddFirewallRule = true;
         this.isAddDomainMembership = false;
         this.isAddRolesAndService = false;
+        this.isAddOSPF = false;
         break;
       case 'add_domain_membership':
         this.isAddRoute = false;
         this.isAddFirewallRule = false;
         this.isAddDomainMembership = true;
         this.isAddRolesAndService = false;
+        this.isAddOSPF = false;
         break;
       case 'add_roles_service':
         this.isAddRoute = false;
         this.isAddFirewallRule = false;
         this.isAddDomainMembership = false;
         this.isAddRolesAndService = true;
+        this.isAddOSPF = false;
+        break;
+      case 'add_ospf':
+        this.isAddRoute = false;
+        this.isAddFirewallRule = false;
+        this.isAddDomainMembership = false;
+        this.isAddRolesAndService = false;
+        this.isAddOSPF = true;
         break;
       default:
         this.isAddRoute = false;
         this.isAddFirewallRule = false;
         this.isAddDomainMembership = false;
         this.isAddRolesAndService = false;
+        this.isAddOSPF = false;
     }
   }
 
@@ -430,5 +516,6 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
     this.isAddFirewallRule = false;
     this.isAddDomainMembership = false;
     this.isAddRolesAndService = false;
+    this.isAddOSPF = false;
   }
 }

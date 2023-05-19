@@ -30,6 +30,7 @@ import { ConfigTemplateService } from "../../core/services/config-template/confi
 import { retrievedConfigTemplates } from "../../store/config-template/config-template.actions";
 import { PORT } from "../../shared/contants/port.constant";
 import { AceEditorComponent } from "ng2-ace-editor";
+import { networksValidation } from 'src/app/shared/validations/networks.validation';
 
 class CrossFieldErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -89,11 +90,19 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   firewallRuleForm!: FormGroup;
   domainMemberForm!: FormGroup;
   roleServicesForm!: FormGroup;
+  ospfForm!: FormGroup;
   isAddMode = false;
   isAddRoute = false;
   isAddFirewallRule = false;
   isAddRolesAndService = false;
   isAddDomainMembership = false;
+  isAddOSPF = false;
+  // isHiddenBgpMetricType = false;
+  // isHiddenConnectedMetricType = false;
+  // isHiddenStaticMetricType = false;
+  bgpChecked = true;
+  connectedChecked = true;
+  staticChecked = true;
   rolesAndService: any[] = [];
   filteredAddActions!: Observable<any>[];
 
@@ -186,6 +195,15 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     })
     this.roleServicesForm = new FormGroup({
       rolesCtr: new FormControl('')
+    })
+    this.ospfForm = new FormGroup({
+      networksCtr: new FormControl('', [networksValidation()]),
+      bgpStateCtr: new FormControl(''),
+      bgpMetricTypeCtr: new FormControl(''),
+      connectedStateCtr: new FormControl(''),
+      connectedMetricTypeCtr: new FormControl(''),
+      staticStateCtr: new FormControl(''),
+      staticMetricTypeCtr: new FormControl('')
     })
     this.isViewMode = this.data.mode == 'view';
     this.nodeAddForm = new FormGroup({
@@ -334,6 +352,13 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   get joinDomainCtr() { return this.domainMemberForm.get('joinDomainCtr'); }
   get ouPathCtr() { return this.domainMemberForm.get('ouPathCtr');}
   get rolesCtr() { return this.helpers.getAutoCompleteCtr(this.roleServicesForm.get('rolesCtr'), this.rolesAndService);}
+  get networksCtr() { return this.ospfForm.get('networksCtr');}
+  get bgpStateCtr() { return this.ospfForm.get('bgpStateCtr');}
+  get bgpMetricTypeCtr() { return this.ospfForm.get('bgpMetricTypeCtr');}
+  get connectedStateCtr() { return this.ospfForm.get('connectedStateCtr');}
+  get connectedMetricTypeCtr() { return this.ospfForm.get('connectedMetricTypeCtr');}
+  get staticStateCtr() { return this.ospfForm.get('staticStateCtr');}
+  get staticMetricTypeCtr() { return this.ospfForm.get('staticMetricTypeCtr');}
 
   ngOnInit(): void {
     this.roleCtr.setValidators([Validators.required, autoCompleteValidator(this.ROLES)]);
@@ -622,6 +647,30 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     }
   }
 
+  // selectBgpState(event: any) {
+  //   if (event.checked) {
+  //     this.isHiddenBgpMetricType = false;
+  //   } else {
+  //     this.isHiddenBgpMetricType = true;
+  //   }
+  // }
+
+  // selectConnectedState(event: any) {
+  //   if (event.checked) {
+  //     this.isHiddenConnectedMetricType = false;
+  //   } else {
+  //     this.isHiddenConnectedMetricType = true;
+  //   }
+  // }
+
+  // selectStaticState(event: any) {
+  //   if (event.checked) {
+  //     this.isHiddenStaticMetricType = false;
+  //   } else {
+  //     this.isHiddenStaticMetricType = true;
+  //   }
+  // }
+
   addRoute() {
     const jsonDataValue = {
       config_type: "static_route",
@@ -720,6 +769,33 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     });
   }
 
+
+  addOSPF() {
+    const jsonDataValue = {
+      config_type: "ospf",
+      config_id: this.data.genData.default_config_id,
+      networks: this.helpers.processNetworksField(this.networksCtr?.value),
+      bgp_state: this.bgpStateCtr?.value,
+      bgp_metric_type: this.bgpMetricTypeCtr?.value,
+      connected_state: this.connectedStateCtr?.value,
+      connected_metric_type: this.connectedMetricTypeCtr?.value,
+      static_state: this.staticStateCtr?.value,
+      static_metric_type: this.staticMetricTypeCtr?.value,
+      node_id: this.data.genData.node_id
+    }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
+    this.configTemplateService.addConfiguration(jsonData).pipe(
+      catchError(err => {
+        this.toastr.error('Add OPSF failed', 'Error');
+        return throwError(() => err);
+      })
+    ).subscribe((response) => {
+      this._setEditorData(response.result)
+      this.toastr.success('Add OPSF successfully', 'Success');
+      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
+    });
+  }
+
   showFormAdd(addType: string) {
     switch (addType) {
       case 'add_route':
@@ -727,30 +803,42 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
         this.isAddFirewallRule = false;
         this.isAddDomainMembership = false;
         this.isAddRolesAndService = false;
+        this.isAddOSPF = false;
         break;
       case 'add_firewall_rule':
         this.isAddRoute = false;
         this.isAddFirewallRule = true;
         this.isAddDomainMembership = false;
         this.isAddRolesAndService = false;
+        this.isAddOSPF = false;
         break;
       case 'add_domain_membership':
         this.isAddRoute = false;
         this.isAddFirewallRule = false;
         this.isAddDomainMembership = true;
         this.isAddRolesAndService = false;
+        this.isAddOSPF = false;
         break;
       case 'add_roles_service':
         this.isAddRoute = false;
         this.isAddFirewallRule = false;
         this.isAddDomainMembership = false;
         this.isAddRolesAndService = true;
+        this.isAddOSPF = false;
+        break;
+      case 'add_ospf':
+        this.isAddRoute = false;
+        this.isAddFirewallRule = false;
+        this.isAddDomainMembership = false;
+        this.isAddRolesAndService = false;
+        this.isAddOSPF = true;
         break;
       default:
         this.isAddRoute = false;
         this.isAddFirewallRule = false;
         this.isAddDomainMembership = false;
         this.isAddRolesAndService = false;
+        this.isAddOSPF = false;
     }
   }
 
@@ -764,5 +852,6 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     this.isAddFirewallRule = false;
     this.isAddDomainMembership = false;
     this.isAddRolesAndService = false;
+    this.isAddOSPF = false;
   }
 }

@@ -350,6 +350,47 @@
                     <button mat-raised-button type="submit" color="primary" [disabled]="roleServicesForm.invalid">Add</button>
                   </mat-dialog-actions>
                 </form>
+                <!-- Add OSPF configuration  -->
+                <form *ngIf="isAddOSPF" class="ospf-form" [formGroup]="ospfForm" (ngSubmit)="addOSPF()" autocomplete="off">
+                  <mat-dialog-content>
+                    <mat-form-field class="field">
+                      <mat-label>Networks</mat-label>
+                      <input autocomplete="off" id="config-networks" type="text" matInput formControlName="networksCtr">
+                      <mat-error *ngIf="networksCtr?.errors?.isNotMatchIP">{{ networksCtr?.errors?.value }}</mat-error>
+                    </mat-form-field>
+                    <section>
+                      <span class="ospf-form--section"><strong>Redistribute</strong></span>
+                      <mat-divider class="ospf-form--divider"></mat-divider>
+                      <div class="ospf-form--field">
+                        <label>BGP</label>
+                        <mat-checkbox color="primary" formControlName="bgpStateCtr" [(ngModel)]="bgpChecked"></mat-checkbox>
+                      </div>
+                      <mat-form-field class="field">
+                        <mat-label>Metric Type</mat-label>
+                        <input autocomplete="off" id="config-bgp-metrictype" type="number" matInput formControlName="bgpMetricTypeCtr">
+                      </mat-form-field>
+                      <div class="ospf-form--field">
+                        <label>Connected</label>
+                        <mat-checkbox color="primary" formControlName="connectedStateCtr" [(ngModel)]="connectedChecked"></mat-checkbox>
+                      </div>
+                      <mat-form-field class="field">
+                        <mat-label>Metric Type</mat-label>
+                        <input autocomplete="off" id="config-connected-metrictype" type="number" matInput formControlName="connectedMetricTypeCtr">
+                      </mat-form-field>
+                      <div class="ospf-form--field">
+                        <label>Static</label>
+                        <mat-checkbox color="primary" formControlName="staticStateCtr" [(ngModel)]="staticChecked"></mat-checkbox>
+                      </div>
+                      <mat-form-field class="field">
+                        <mat-label>Metric Type</mat-label>
+                        <input autocomplete="off" id="config-static-metrictype" type="number" matInput formControlName="staticMetricTypeCtr">
+                      </mat-form-field>
+                    </section>
+                  </mat-dialog-content>
+                  <mat-dialog-actions [align]="'end'">
+                    <button mat-raised-button type="submit" color="primary" [disabled]="ospfForm.invalid">Add</button>
+                  </mat-dialog-actions>
+                </form>
               </div>
             </div>
             <ng-select class="configuration-template__left__config-template" formControlName="configTemplateCtr" [items]="configTemplates"

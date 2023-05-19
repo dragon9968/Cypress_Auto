@@ -161,6 +161,23 @@ $margin: 8px;
             padding-bottom: 15px;
           }
         }
+        .ospf-form {
+          &--section {
+            font-family: 'Roboto', sans-serif;
+          }
+          &--divider {
+            padding-bottom: 15px;
+          }
+          &--field {
+            width: 50%;
+            display: flex;
+            justify-content: space-between;
+            label {
+              font-family: 'Roboto', sans-serif;
+              padding-bottom: 10px;
+            }
+          }
+        }
       }
     }
 

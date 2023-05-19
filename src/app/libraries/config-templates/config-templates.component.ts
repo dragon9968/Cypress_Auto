@@ -115,6 +115,27 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
         }
       },
     },
+    {
+      headerName: 'OSPF',
+      field: 'configuration.ospf',
+      suppressSizeToFit: true,
+      minWidth: 300,
+      autoHeight: true,
+      cellRenderer: function(param: any) {
+        if (param.value){
+          let html_str = "<div>"
+          for(let i in param.value) {
+            let item_html = `<div style='text-align:left'>Networks: <b>${param.value[i]['networks']}</b></div>`;
+            html_str += item_html;
+          }
+          html_str += "</div>"
+
+          return html_str;
+        }else {
+          return
+        }
+      },
+    },
   ];
   constructor(
     private store: Store,

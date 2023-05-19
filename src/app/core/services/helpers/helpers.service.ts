@@ -1160,6 +1160,19 @@ export class HelpersService implements OnDestroy {
     }
   }
 
+  processNetworksField(data: string) {
+    const arr: any[] = [];
+    if (!data || data === "") {
+      return []
+    }else {
+      const value = data.split(',');
+      for (let i = 0; i < value.length; i++) {
+        arr.push(value[i].trim())
+      }
+      return arr
+    }
+  }
+
   changeConnectionStatus(category: string, status: boolean) {
     switch (category) {
       case RemoteCategories.HYPERVISOR:
@@ -1178,9 +1191,13 @@ export class HelpersService implements OnDestroy {
 
   getConfigAddsTypeByDeviceCategory(deviceCategory: string) {
     switch (deviceCategory) {
-      case 'Router': case 'Firewall':
+      case 'Firewall':
         return this.configTemplateAddsType.filter(
           addType => addType.id == 'add_firewall_rule' || addType.id == 'add_route'
+        )
+      case 'Router':
+        return this.configTemplateAddsType.filter(
+          addType => addType.id == 'add_firewall_rule' || addType.id == 'add_route' || addType.id == 'add_ospf'
         )
       case 'Windows Server':
         return this.configTemplateAddsType.filter(

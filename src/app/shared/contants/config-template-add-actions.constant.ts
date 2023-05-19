@@ -14,5 +14,9 @@ export const CONFIG_TEMPLATE_ADDS_TYPE = [
   {
     id: 'add_roles_service',
     name : 'Add Roles & Service'
+  },
+  {
+    id: 'add_ospf',
+    name: 'Add OSPF'
   }
 ]
