@@ -3,7 +3,7 @@ import { Subscription } from "rxjs";
 import { Injectable } from '@angular/core';
 import { HelpersService } from "../helpers/helpers.service";
 import { retrievedMap } from "../../../store/map/map.actions";
-import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
+import { selectNodesByProjectId } from "../../../store/node/node.selectors";
 import { selectGroupBoxes, selectInterfaces, selectMapProperties } from "../../../store/map/map.selectors";
 
 @Injectable({
@@ -25,7 +25,7 @@ export class MapEditService {
   ) {
     this.selectGroupBoxes$ = this.store.select(selectGroupBoxes).subscribe(groupBoxes => this.groupBoxes = groupBoxes);
     this.selectMapProperties$ = this.store.select(selectMapProperties).subscribe(mapProperties => this.mapProperties = mapProperties);
-    this.selectNodes$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => this.nodes = nodes);
+    this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes);
     this.selectInterfaces$ = this.store.select(selectInterfaces).subscribe(interfaces => this.interfaces = interfaces);
   }
 

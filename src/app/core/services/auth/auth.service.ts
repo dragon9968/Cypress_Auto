@@ -118,7 +118,7 @@ export class AuthService {
     this.localStorageService.removeItem(LocalStorageKeys.REFRESH_TOKEN);
     this.localStorageService.removeItem(LocalStorageKeys.CONNECTIONS);
     this.localStorageService.removeItem(LocalStorageKeys.USER_ID);
-    this.localStorageService.removeItem(LocalStorageKeys.COLLECTION_ID);
+    this.localStorageService.removeItem(LocalStorageKeys.PROJECT_ID);
   }
 
 }

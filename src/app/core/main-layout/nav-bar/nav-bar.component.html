@@ -271,7 +271,7 @@
 
     <!-- Block of code to use for large screens -->
     <ng-template [ngxPermissionsOnly]="['can_read on Project', 'can_write on Project']">
-      <a *ngIf="!isSmallScreen" mat-button [matMenuTriggerFor]="project" class="menu-btn" (click)="getCollectionId()"
+      <a *ngIf="!isSmallScreen" mat-button [matMenuTriggerFor]="project" class="menu-btn" (click)="getProjectId()"
         data-cy="btn-nav-project">
         Project
       </a>
@@ -552,7 +552,7 @@
     </div>
     <span class="menu-spacer"></span>
     <span *ngIf="isOpen" class="project-name">
-      <mat-icon>folder</mat-icon>{{ categoryProject === 'project' ? 'Project:' : 'Project Template:'}}<a [matTooltip]="projectName" mat-button (click)="openProject(collectionId)" class="project-name-label">{{projectName}}</a>
+      <mat-icon>folder</mat-icon>{{ categoryProject === 'project' ? 'Project:' : 'Project Template:'}}<a [matTooltip]="projectName" mat-button (click)="openProject(projectId)" class="project-name-label">{{projectName}}</a>
     </span>
     <a mat-button [matMenuTriggerFor]="account">
         <mat-icon>person</mat-icon>

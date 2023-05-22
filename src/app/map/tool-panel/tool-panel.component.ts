@@ -16,7 +16,7 @@ import { retrievedMap } from 'src/app/store/map/map.actions';
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 import { GroupService } from "../../core/services/group/group.service";
 import { selectGroups } from "../../store/group/group.selectors";
-import { selectNodesByCollectionId } from "../../store/node/node.selectors";
+import { selectNodesByProjectId } from "../../store/node/node.selectors";
 import { retrievedGroups } from "../../store/group/group.actions";
 import { selectPortGroups } from "../../store/portgroup/portgroup.selectors";
 import { ProjectService } from "../../project/services/project.service";
@@ -31,7 +31,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   @Input() cy: any;
   @Input() ur: any;
   @Input() config: any;
-  @Input() collectionId: any;
+  @Input() projectId: any;
   @Input() mapCategory: any;
   @Input() isDisableCancel = true;
   @Input() isDisableAddNode = true;
@@ -118,7 +118,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       }
     });
     this.selectGroups$ = this.store.select(selectGroups).subscribe(groups => this.groups = groups);
-    this.selectNodes$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => this.nodes = nodes);
+    this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes);
     this.selectPortGroup$ = this.store.select(selectPortGroups).subscribe(portGroups => this.portGroups = portGroups);
     this.selectMapImages$ = this.store.select(selectMapImages).subscribe(mapImage => this.mapImages = mapImage);
   }
@@ -225,7 +225,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       updatedMapBackgrounds: this.updatedMapBackgrounds,
       updatedMapOptions
     }
-    this.mapService.saveMap(this.collectionId, this.mapCategory, jsonData).pipe(
+    this.mapService.saveMap(this.projectId, this.mapCategory, jsonData).pipe(
       catchError((error: any) => {
         this.toastr.error("Map saved failed");
         return throwError(() => error);
@@ -279,7 +279,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData });
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
-          this.mapService.getMapData(this.mapCategory, this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
+          this.mapService.getMapData(this.mapCategory, this.projectId).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
           this.activeNodes.splice(0);
           this.activePGs.splice(0);
           this.activeEdges.splice(0);

@@ -140,12 +140,12 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
           const shareProject = resp.result;
           let newProjectData: any[];
           const userId = this.authService.getUserId();
-          const collectionId = this.projectService.getCollectionId();
+          const projectId = this.projectService.getProjectId();
           newProjectData = projectData.filter(project => project.created_by_fk === userId);
           if (shareProject) {
             newProjectData = [...newProjectData, ...shareProject];
           }
-          newProjectData = newProjectData.filter(project => project.id !== collectionId);
+          newProjectData = newProjectData.filter(project => project.id !== projectId);
           this.projects = newProjectData;
           this.linkProjectCtr.setValidators([autoCompleteValidator(this.projects), Validators.required]);
           this.filteredProjects = this.helpers.filterOptions(this.linkProjectCtr, this.projects);

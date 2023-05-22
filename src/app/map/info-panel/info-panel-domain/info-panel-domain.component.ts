@@ -26,9 +26,9 @@ import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-ta
 })
 export class InfoPanelDomainComponent implements OnInit, OnDestroy {
   @ViewChild(InfoPanelTableComponent) infoPanelTableComponent: InfoPanelTableComponent | undefined;
-  
+
   @Input() infoPanelheight = '300px';
-  collectionId: string = '0';
+  projectId: string = '0';
   selectDomains$ = new Subscription();
   domains!: any;
   tabName = 'domain';
@@ -114,8 +114,8 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.collectionId = this.projectService.getCollectionId();
-    this.domainService.getDomainByCollectionId(this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedDomains({ data: data.result })));
+    this.projectId = this.projectService.getProjectId();
+    this.domainService.getDomainByProjectId(this.projectId).subscribe((data: any) => this.store.dispatch(retrievedDomains({ data: data.result })));
   }
 
   addDomain() {
@@ -123,7 +123,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
       mode: 'add',
       genData: {
         name: '',
-        collection_id: this.collectionId,
+        project_id: this.projectId,
         admin_user: '',
         admin_password: ''
       }
@@ -158,7 +158,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
       const dialogData = {
         genData: {
           pks: this.infoPanelTableComponent?.rowsSelectedId,
-          collectionId: this.collectionId
+          projectId: this.projectId
         }
       }
       this.dialog.open(DomainBulkEditDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });

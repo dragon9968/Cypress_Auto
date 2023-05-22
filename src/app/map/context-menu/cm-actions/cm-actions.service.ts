@@ -77,7 +77,7 @@ export class CMActionsService {
     }
   }
 
-  getPortGroupActionsMenu(cy: any, collectionId: string, activePGs: any[]) {
+  getPortGroupActionsMenu(cy: any, projectId: string, activePGs: any[]) {
     return {
       id: "pg_actions",
       content: "Actions",
@@ -89,7 +89,7 @@ export class CMActionsService {
           content: "Randomize Subnet",
           onClickFunction: (event: any) => {
             const pks = activePGs.map(pg => pg.data('pg_id'));
-            this.infoPanelService.randomizeSubnetPortGroups(pks, collectionId);
+            this.infoPanelService.randomizeSubnetPortGroups(pks, projectId);
           },
           hasTrailingDivider: true,
           disabled: false,

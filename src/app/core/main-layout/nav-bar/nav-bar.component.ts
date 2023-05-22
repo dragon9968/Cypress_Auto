@@ -71,7 +71,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   isHypervisorConnect = false;
   isDatasourceConnect = false;
   isConfiguratorConnect = false;
-  collectionId: any;
+  projectId: any;
   projectName: any;
   username: any;
   userId: any;
@@ -111,8 +111,8 @@ export class NavBarComponent implements OnInit, OnDestroy {
     this.selectIsOpen$ = this.store.select(selectIsOpen).subscribe(isOpen => {
       this.isOpen = isOpen;
       if (isOpen) {
-        this.collectionId = this.projectService.getCollectionId();
-        this.projectService.get(this.collectionId).subscribe(projectData => {
+        this.projectId = this.projectService.getProjectId();
+        this.projectService.get(this.projectId).subscribe(projectData => {
           this.categoryProject = projectData.result.category
           const sharedProjectId = projectData.result.share.map((val: any) => val.id)
           if (projectData.result.created_by_fk != this.userId && !sharedProjectId.includes(this.userId) && this.router.url === '/map') {
@@ -148,9 +148,9 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.collectionId = this.projectService.getCollectionId();
+    this.projectId = this.projectService.getProjectId();
     this.helpersService.initialConnectionStatus();
-    if (this.collectionId) {
+    if (this.projectId) {
       this.store.dispatch(retrievedIsOpen({ data: true }));
     }
     this.serverConnectService.getAll().subscribe((data: any) => this.store.dispatch(retrievedServerConnect({ data: data.result })));
@@ -199,14 +199,14 @@ export class NavBarComponent implements OnInit, OnDestroy {
     this.router.navigate([RouteSegments.ROOT]);
   }
 
-  getCollectionId() {
-    this.collectionId = this.projectService.getCollectionId();
+  getProjectId() {
+    this.projectId = this.projectService.getProjectId();
   }
 
   editProject() {
     this.projectService.getProjectByStatus(this.status).subscribe(data => {
       this.store.dispatch(retrievedAllProjects({listAllProject: data.result}));
-      this.projectService.get(this.collectionId).subscribe(resp => {
+      this.projectService.get(this.projectId).subscribe(resp => {
         const dialogData = {
           mode: 'update',
           category: resp.result.category,
@@ -231,7 +231,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData });
     dialogRef.afterClosed().subscribe(result => {
       const jsonData = {
-        pk: this.collectionId,
+        pk: this.projectId,
         status: 'delete'
       }
       if (result) {
@@ -261,9 +261,9 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   exportProject() {
-    this.projectService.get(this.collectionId).subscribe(data => {
+    this.projectService.get(this.projectId).subscribe(data => {
       const dialogData = {
-        pks: [this.collectionId],
+        pks: [this.projectId],
         category: data.result.category,
         type: 'user'
       }
@@ -285,7 +285,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   cloneProject() {
-    this.projectService.get(this.collectionId).subscribe(data => {
+    this.projectService.get(this.projectId).subscribe(data => {
       const dialogData = {
         genData: data.result,
         category: data.result.category
@@ -346,7 +346,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
     this.dialog.open(AboutComponent, { disableClose: true, width: '600px', autoFocus: false });
   }
 
-  openProject(collectionId: string) {
+  openProject(projectId: string) {
     this.projectService.getProjectByStatus(this.status).subscribe((data: any) => {
       if (data.result) {
           this.projectService.getShareProject('active', 'project').subscribe((resp: any) => {
@@ -356,8 +356,8 @@ export class NavBarComponent implements OnInit, OnDestroy {
               this.listProject = [...this.listProject, ...shareProject];
             }
             const listProjectId = this.listProject.map(val => val.id)
-            if (listProjectId.includes(collectionId)) {
-              this.projectService.openProject(collectionId);
+            if (listProjectId.includes(projectId)) {
+              this.projectService.openProject(projectId);
             } else {
               this.projectService.closeProject();
               this.store.dispatch(retrievedProjectName({ projectName: undefined }));
@@ -372,7 +372,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
 
   validateProject() {
     const dialogData = {
-      pk: this.collectionId
+      pk: this.projectId
     }
     this.projectService.validateProject(dialogData).pipe(
       catchError((e: any) => {
@@ -384,7 +384,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
           data: e.error.result
         });
         if (e.error.result.includes('underscore(s) character')) {
-          this.domainService.getDomainByCollectionId(this.projectService.getCollectionId())
+          this.domainService.getDomainByProjectId(this.projectService.getProjectId())
             .subscribe((data: any) => this.store.dispatch(retrievedDomains({ data: data.result })));
         }
         return throwError(() => e);

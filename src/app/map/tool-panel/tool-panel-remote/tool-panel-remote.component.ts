@@ -50,7 +50,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
   selectIsHypervisorConnect$ = new Subscription();
   selectIsDatasourceConnect$ = new Subscription();
   selectIsConfiguratorConnect$ = new Subscription();
-  collectionId!: any;
+  projectId!: any;
   isHyperConnect = false;
   isDatasourceConnect = false;
   isConfiguratorConnect = false;
@@ -96,7 +96,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
     private serverConnectionService: ServerConnectService,
     private searchService: SearchService
   ) {
-    this.collectionId = this.projectService.getCollectionId();
+    this.projectId = this.projectService.getProjectId();
     this.selectIsHypervisorConnect$ = this.store.select(selectIsHypervisorConnect).subscribe(isHypervisorConnect => {
       if (isHypervisorConnect !== undefined) {
         this.isHyperConnect = isHypervisorConnect;
@@ -128,7 +128,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
     this.selectVMStatus$ = this.store.select(selectVMStatus).subscribe(vmStatusChecked => {
       this.vmStatusChecked = vmStatusChecked;
       if (this.isHyperConnect && vmStatusChecked) {
-        this.infoPanelService.changeVMStatusOnMap(this.collectionId, this.connection.id);
+        this.infoPanelService.changeVMStatusOnMap(this.projectId, this.connection.id);
       } else {
         this.infoPanelService.removeMapStatusOnMap();
       }
@@ -165,7 +165,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe(() => {
       if (this.connection && this.connection.id !== 0 && this.vmStatusChecked) {
-        this.infoPanelService.changeVMStatusOnMap(this.collectionId, this.connection.id);
+        this.infoPanelService.changeVMStatusOnMap(this.projectId, this.connection.id);
       }
     });
   }
@@ -189,7 +189,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
   }
 
   refreshVMStatus() {
-    this.infoPanelService.changeVMStatusOnMap(this.collectionId, this.connection.id);
+    this.infoPanelService.changeVMStatusOnMap(this.projectId, this.connection.id);
   }
 
   private _updateConnectionInfo(connection: any) {
@@ -208,7 +208,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
 
   goNodeTask(category: string) {
     const nodeTaskId = this.nodeTaskCtr?.value.id;
-    let dialogData, activeNodeIds, collectionId, connection, pks, jsonData;
+    let dialogData, activeNodeIds, projectId, connection, pks, jsonData;
     switch (nodeTaskId) {
       case 'deploy_node':
         dialogData = {
@@ -253,12 +253,12 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
         this.dialog.open(CreateNodeSnapshotDialogComponent,{ disableClose: true, width: '600px', data: dialogData, autoFocus: false });
         break;
       case 'delete_snapshot':
-        collectionId = this.projectService.getCollectionId();
+        projectId = this.projectService.getProjectId();
         connection = this.serverConnectionService.getConnection(category);
         pks = this.activeNodes.map((ele: any) => ele.data('node_id'));
         jsonData = {
           pks: pks,
-          collection_id: collectionId,
+          project_id: projectId,
           connection_id: connection ? connection?.id : 0
         }
         this.nodeService.getSnapshots(jsonData).subscribe(response => {
@@ -271,12 +271,12 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
         })
         break;
       case 'revert_snapshot':
-        collectionId = this.projectService.getCollectionId()
+        projectId = this.projectService.getProjectId()
         connection = this.serverConnectionService.getConnection(category);
         pks = this.activeNodes.map((ele: any) => ele.data('node_id'));
         jsonData = {
           pks: pks,
-          collection_id: collectionId,
+          project_id: projectId,
           connection_id: connection ? connection?.id : 0
         }
         this.nodeService.getSnapshots(jsonData).subscribe(response => {
@@ -383,7 +383,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
         error: err => {
           this.toastr.error('Error during query', 'Error');
         }
-      })  
+      })
   }
 
 }

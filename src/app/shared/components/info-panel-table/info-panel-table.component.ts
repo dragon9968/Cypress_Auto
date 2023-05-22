@@ -166,7 +166,7 @@ export class InfoPanelTableComponent {
             data: e.error.result
           });
           if (this.tabName == 'domain' && e.error.result.includes('underscore(s) character')) {
-            this.domainService.getDomainByCollectionId(this.projectService.getCollectionId())
+            this.domainService.getDomainByProjectId(this.projectService.getProjectId())
               .subscribe((data: any) => this.store.dispatch(retrievedDomains({ data: data.result })));
           }
           return throwError(() => e);

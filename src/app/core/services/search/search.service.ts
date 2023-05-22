@@ -10,8 +10,8 @@ export class SearchService {
 
   constructor(private http: HttpClient) { }
 
-  search(data: any, collectionId: string): Observable<any> {
-    const params = new HttpParams().set('collection_id', collectionId);
+  search(data: any, projectId: string): Observable<any> {
+    const params = new HttpParams().set('project_id', projectId);
     return this.http.post<any>(ApiPaths.SEARCH, data,{ params });
   }
 

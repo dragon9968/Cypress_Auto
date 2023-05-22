@@ -19,7 +19,7 @@ import { retrievedInterfacesManagement } from "../../store/interface/interface.a
 import { selectMapOption } from "../../store/map-option/map-option.selectors";
 import { PortGroupService } from "../../core/services/portgroup/portgroup.service";
 import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
-import { selectNodesByCollectionId } from 'src/app/store/node/node.selectors';
+import { selectNodesByProjectId } from 'src/app/store/node/node.selectors';
 
 @Component({
   selector: 'app-add-update-interface-dialog',
@@ -83,7 +83,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         this.interfaces = interfaces;
       }
     });
-    this.selectNodes$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => {
+    this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => {
       this.nodes = nodes;
     });
     this.selectNetmasks$ = this.store.select(selectNetmasks).subscribe((netmasks: any) => {

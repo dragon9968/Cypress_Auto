@@ -75,29 +75,29 @@ export class ProjectService {
     return this.http.post<any>(ApiPaths.ASSOCIATE_PROJECT, data);
   }
 
-  openProject(collectionId: string) {
-    const currentCollectionId = this.getCollectionId();
-    if (!currentCollectionId || currentCollectionId !== collectionId) {
+  openProject(projectId: string) {
+    const currentProjectId = this.getProjectId();
+    if (!currentProjectId || currentProjectId !== projectId) {
       this.store.dispatch(retrievedIsOpen({data: false}));
-      this.setCollectionId(collectionId);
+      this.setProjectId(projectId);
     }
     this.store.dispatch(retrievedIsOpen({data: true}));
-    this.saveRecentProject({ project_id: collectionId }).subscribe(() => {
+    this.saveRecentProject({ project_id: projectId }).subscribe(() => {
       this.router.navigate([RouteSegments.MAP]);
     })
   }
 
-  setCollectionId(collectionId: string) {
-    this.localStorageService.setItem(LocalStorageKeys.COLLECTION_ID, collectionId);
+  setProjectId(projectId: string) {
+    this.localStorageService.setItem(LocalStorageKeys.PROJECT_ID, projectId);
   }
 
-  getCollectionId(): any {
-    return JSON.parse(<any>this.localStorageService.getItem(LocalStorageKeys.COLLECTION_ID));
+  getProjectId(): any {
+    return JSON.parse(<any>this.localStorageService.getItem(LocalStorageKeys.PROJECT_ID));
   }
 
   closeProject(): any {
-    if (this.getCollectionId()) {
-      this.localStorageService.removeItem(LocalStorageKeys.COLLECTION_ID);
+    if (this.getProjectId()) {
+      this.localStorageService.removeItem(LocalStorageKeys.PROJECT_ID);
     }
   }
 

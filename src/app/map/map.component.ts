@@ -118,7 +118,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   isTemplateCategory = false;
   isCanWriteOnProject = false;
   mapCategory = '';
-  collectionId = '0';
+  projectId = '0';
   nodes: any;
   interfaces: any;
   groupBoxes: any;
@@ -301,19 +301,19 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       }
     })
     this.mapCategory = 'logical';
-    this.collectionId = this.projectService.getCollectionId();
-    this.mapService.getMapData(this.mapCategory, this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
+    this.projectId = this.projectService.getProjectId();
+    this.mapService.getMapData(this.mapCategory, this.projectId).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
     this.imageService.getByCategory('icon').subscribe((data: any) => this.store.dispatch(retrievedIcons({ data: data.result })));
     this.deviceService.getAll().subscribe((data: any) => this.store.dispatch(retrievedDevices({ data: data.result })));
     this.templateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedTemplates({ data: data.result })));
     this.hardwareService.getAll().subscribe((data: any) => this.store.dispatch(retrievedHardwares({ data: data.result })));
-    this.domainService.getDomainByCollectionId(this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedDomains({ data: data.result })));
+    this.domainService.getDomainByProjectId(this.projectId).subscribe((data: any) => this.store.dispatch(retrievedDomains({ data: data.result })));
     this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
     this.loginProfileService.getAll().subscribe((data: any) => this.store.dispatch(retrievedLoginProfiles({ data: data.result })));
-    this.portgroupService.getByCollectionId(this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedPortGroups({ data: data.result })));
+    this.portgroupService.getByProjectId(this.projectId).subscribe((data: any) => this.store.dispatch(retrievedPortGroups({ data: data.result })));
     this.imageService.getByCategory('image').subscribe((data: any) => this.store.dispatch(retrievedImages({ data: data.result })));
-    this.mapImageService.getMapImageByCollectionId(+this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedMapImages({ mapImage: data.result })));
-    this.projectService.get(+this.collectionId).subscribe((data: any) => {
+    this.mapImageService.getMapImageByProjectId(+this.projectId).subscribe((data: any) => this.store.dispatch(retrievedMapImages({ mapImage: data.result })));
+    this.projectService.get(+this.projectId).subscribe((data: any) => {
       this.isTemplateCategory = data.result.category === 'template';
       if (this.isHypervisorConnect || this.isConfiguratorConnect) {
         this.vmStatus = data.result.configuration.vm_status;
@@ -709,7 +709,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private _click($event: any) {
     const newNodePosition = { x: Number($event.position.x.toFixed(2)), y: Number($event.position.y.toFixed(2)) }
     if (this.isAddNode && this.deviceId && this.templateId) {
-      this.nodeService.genData(this.collectionId, this.deviceId, this.templateId)
+      this.nodeService.genData(this.projectId, this.deviceId, this.templateId)
         .subscribe(genData => {
           const icon = this.helpersService.getOptionById(this.icons, genData.icon_id);
           const icon_src = ICON_PATH + icon.photo;
@@ -731,7 +731,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         });
     } else if (this.isAddPublicPG || this.isAddPrivatePG) {
       const category = this.isAddPrivatePG ? 'private' : 'public';
-      this.portgroupService.genData(this.collectionId, category)
+      this.portgroupService.genData(this.projectId, category)
         .subscribe(genData => {
           const newNodeData = {
             "elem_category": "port_group",
@@ -749,9 +749,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     } else if (this.isAddProjectTemplate) {
       this.addTemplateIntoCurrentProject(this.projectTemplateId, this.isLayoutOnly, newNodePosition);
     } else if (this.isAddProjectNode) {
-      this.addProjectNode(this.linkProjectId, this.collectionId, newNodePosition);
+      this.addProjectNode(this.linkProjectId, this.projectId, newNodePosition);
     } else if (this.isAddMapImage) {
-      this.addImage(this.imageWidth, this.imageHeight, this.imageUrl, this.collectionId, newNodePosition);
+      this.addImage(this.imageWidth, this.imageHeight, this.imageUrl, this.projectId, newNodePosition);
     }
     if ($event.target === this.cy) {
       this.cy.nodes().unselectify();
@@ -809,7 +809,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       data.updated = true;
       data.deleted = false;
     }
-    this.helpersService.addNewGroupBoxByMovingNodes(this.cy, dropTarget, this.collectionId, this.mapCategory)
+    this.helpersService.addNewGroupBoxByMovingNodes(this.cy, dropTarget, this.projectId, this.mapCategory)
   }
 
   private _cdndOut(event: any, dropTarget: any) {
@@ -842,7 +842,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         node_view_url: '/ap1/v1/node/gen_data',
         enc_node_view_url: '/nodeview/gen_enc_data/',
         save_url: '/api/v1/map/save_data/' + this.mapCategory,
-        enclave_save_url: "/enclaveview/save_map/" + this.collectionId,
+        enclave_save_url: "/enclaveview/save_map/" + this.projectId,
         enc_to_proj: "/enclaveview/enclave_to_project/",
         enc_to_enc: "/enclaveview/enclave_to_enclave/",
         infra_to_proj: "/infraview/infra_to_project/"
@@ -1105,7 +1105,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.cmInterfaceService.getPortGroupInterfaceMenu(this.queueEdge.bind(this)),
         this.cmAddService.getEdgeAddMenu(),
         this.cmActionsService.getNodeActionsMenu(this.cy, this.activeNodes, this.isCanWriteOnProject),
-        this.cmActionsService.getPortGroupActionsMenu(this.cy, this.collectionId, this.activePGs),
+        this.cmActionsService.getPortGroupActionsMenu(this.cy, this.projectId, this.activePGs),
         this.cmActionsService.getEdgeActionsMenu(this.cy, this.activeEdges),
         this.cmRemoteService.getNodeRemoteMenu(this.activeNodes),
         this.cmRemoteService.getPortGroupRemoteMenu(this.activePGs),
@@ -1142,7 +1142,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private _openAddUpdateNodeDialog(genData: any, newNodeData: any, newNodePosition: any) {
     const dialogData = {
       mode: 'add',
-      collectionId: this.collectionId,
+      projectId: this.projectId,
       selectedMapPref: this.selectedMapPref,
       cy: this.cy,
       genData,
@@ -1169,7 +1169,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       role: genData.role,
       domain_id: genData.domain_id,
       hostname: genData.hostname,
-      collection_id: this.collectionId,
+      project_id: this.projectId,
       logical_map_position: newNodePosition,
       logical_map_style: {
         "height": this.selectedMapPref.node_size,
@@ -1221,7 +1221,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private _openAddUpdatePGDialog(genData: any, newNodeData: any, newNodePosition: any) {
     const dialogData = {
       mode: 'add',
-      collectionId: this.collectionId,
+      projectId: this.projectId,
       selectedMapPref: this.selectedMapPref,
       cy: this.cy,
       genData,
@@ -1233,7 +1233,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       if (this.isAddPublicPG) this.isAddPublicPG = false;
       if (this.isAddPrivatePG) this.isAddPrivatePG = false;
       this._enableMapEditButtons();
-      this.portgroupService.getByCollectionId(this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedPortGroups({ data: data.result })));
+      this.portgroupService.getByProjectId(this.projectId).subscribe((data: any) => this.store.dispatch(retrievedPortGroups({ data: data.result })));
     });
   }
 
@@ -1245,7 +1245,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       domain_id: genData.domain_id,
       subnet_allocation: genData.subnet_allocation,
       subnet: genData.subnet,
-      collection_id: this.collectionId,
+      project_id: this.projectId,
       logical_map_position: newNodePosition,
       logical_map_style: {
         "height": this.selectedMapPref.port_group_size,
@@ -1284,7 +1284,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private _openAddUpdateInterfaceDialog(genData: any, newEdgeData: any) {
     const dialogData = {
       mode: 'add',
-      collectionId: this.collectionId,
+      projectId: this.projectId,
       portGroups: this.portGroups,
       gateways: this.gateways,
       selectedMapPref: this.selectedMapPref,
@@ -1292,7 +1292,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       genData,
       newEdgeData
     }
-    const dialogRef = this.dialog.open(AddUpdateInterfaceDialogComponent, { disableClose: true, width: '650px', data: dialogData });
+    const dialogRef = this.dialog.open(AddUpdateInterfaceDialogComponent, { disableClose: true, width: '650px', data: dialogData, autoFocus: false });
     dialogRef.afterClosed().subscribe((_data: any) => {
       this.cy.unbind('mousemove');
       this.inv.remove();
@@ -1390,7 +1390,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private _openConnectInterfaceToPGDialog(genData: any, newEdgeData: any) {
     const dialogData = {
       mode: 'connect',
-      collectionId: this.collectionId,
+      projectId: this.projectId,
       portGroups: this.portGroups,
       gateways: this.gateways,
       selectedMapPref: this.selectedMapPref,
@@ -1398,7 +1398,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       genData,
       newEdgeData,
     }
-    const dialogRef = this.dialog.open(AddUpdateInterfaceDialogComponent, { disableClose: true, width: '600px', data: dialogData });
+    const dialogRef = this.dialog.open(AddUpdateInterfaceDialogComponent, { disableClose: true, width: '600px', data: dialogData, autoFocus: false });
     dialogRef.afterClosed().subscribe((_data: any) => {
       this.cy.unbind('mousemove');
       this.inv.remove();
@@ -1531,7 +1531,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         operator: 'contains',
         value: searchText
       }
-      this.searchService.search(jsonData, this.collectionId).subscribe(respData => {
+      this.searchService.search(jsonData, this.projectId).subscribe(respData => {
         const nodes = respData.nodes
         const pgs = respData.port_groups
         const interfaces = respData.interfaces
@@ -1594,9 +1594,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   addTemplateIntoCurrentProject(projectTemplateId: Number, layoutOnly: Boolean, newPosition: any) {
-    const collectionId = this.projectService.getCollectionId();
+    const projectId = this.projectService.getProjectId();
     const jsonData = {
-      collection_id: collectionId,
+      project_id: projectId,
       template_id: projectTemplateId,
       layout_only: layoutOnly,
       category: 'logical'
@@ -1612,15 +1612,15 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.isAddProjectTemplate = false;
       this._enableMapEditButtons();
       const templateItems = response.result.map_items;
-      this.domainService.getDomainByCollectionId(collectionId).subscribe(domainRes => {
+      this.domainService.getDomainByProjectId(projectId).subscribe(domainRes => {
         this.store.dispatch(retrievedDomains({ data: domainRes.result }));
-        this.infoPanelService.initInterfaceManagementStorage(collectionId);
-        this.infoPanelService.initPortGroupManagementStorage(collectionId);
+        this.infoPanelService.initInterfaceManagementStorage(projectId);
+        this.infoPanelService.initPortGroupManagementStorage(projectId);
 
-        this.nodeService.getNodesByCollectionId(collectionId).subscribe(nodeRes => {
+        this.nodeService.getNodesByProjectId(projectId).subscribe(nodeRes => {
           this.store.dispatch(retrievedNodes({ data: nodeRes.result }));
 
-          this.portgroupService.getByCollectionId(collectionId).subscribe(pgRes => {
+          this.portgroupService.getByProjectId(projectId).subscribe(pgRes => {
             this.store.dispatch(retrievedPortGroups({ data: pgRes.result }));
             const nodesNotManagement = templateItems.nodes.filter((node: any) => node.data.category !== 'management');
             const isNodesHasPosition = nodesNotManagement.every((node: any) =>
@@ -1646,7 +1646,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             this.toastr.success('Added items from template into project successfully', 'Success');
             this.mapEditService.updateGroupBoxesInMapStorage(this.cy, templateItems.group_boxes)
             this.helpersService.changeEdgeDirectionOnMap(this.cy, this.isEdgeDirectionChecked);
-            this.validateProject(collectionId);
+            this.validateProject(projectId);
           })
         })
       })
@@ -1760,13 +1760,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     })
   }
 
-  validateProject(collectionId: any) {
+  validateProject(projectId: any) {
     const jsonData = {
-      pk: collectionId
+      pk: projectId
     }
     this.projectService.validateProject(jsonData).pipe(
       catchError((e: any) => {
-        this.groupService.getGroupByCollectionId(collectionId).subscribe(groupRes =>
+        this.groupService.getGroupByProjectId(projectId).subscribe(groupRes =>
           this.store.dispatch(retrievedGroups({ data: groupRes.result }))
         )
         this.toastr.error(e.error.message);
@@ -1779,7 +1779,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         return throwError(() => e);
       })
     ).subscribe(response => {
-      this.groupService.getGroupByCollectionId(collectionId).subscribe(groupRes =>
+      this.groupService.getGroupByProjectId(projectId).subscribe(groupRes =>
         this.store.dispatch(retrievedGroups({ data: groupRes.result }))
       )
       this.toastr.success(response.message);
@@ -1852,7 +1852,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           "original_height": height,
         }
         this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
-        this.mapImageService.getMapImageByCollectionId(+this.collectionId).subscribe((data: any) => this.store.dispatch(retrievedMapImages({ mapImage: data.result })));
+        this.mapImageService.getMapImageByProjectId(+this.projectId).subscribe((data: any) => this.store.dispatch(retrievedMapImages({ mapImage: data.result })));
         this.toastr.success('Add map image successfully', 'Success');
       });
     });

@@ -26,7 +26,7 @@ export class InfoPanelComponent implements OnInit{
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterfaces: any[] = [];
   selectDomainUser$ = new Subscription();
-  collectionId = '0';
+  projectId = '0';
   managementCategory = 'management';
   style: any = {
     height: '300px'
@@ -62,15 +62,15 @@ export class InfoPanelComponent implements OnInit{
   }
 
   ngOnInit(): void {
-    this.collectionId = this.projectService.getCollectionId();
-    this.nodeService.getNodesByCollectionId(this.collectionId).subscribe(
+    this.projectId = this.projectService.getProjectId();
+    this.nodeService.getNodesByProjectId(this.projectId).subscribe(
       (data: any) => this.store.dispatch(retrievedNodes({ data: data.result }))
     );
     this.selectDomainUser$ = this.domainUserService.getAll().subscribe(
       data => this.store.dispatch(retrievedDomainUsers({ data: data.result }))
     );
-    this.infoPanelService.initPortGroupManagementStorage(this.collectionId, this.managementCategory);
-    this.infoPanelService.initInterfaceManagementStorage(this.collectionId, this.managementCategory);
+    this.infoPanelService.initPortGroupManagementStorage(this.projectId, this.managementCategory);
+    this.infoPanelService.initInterfaceManagementStorage(this.projectId, this.managementCategory);
     this.store.dispatch(retrievedIsChangeDomainUsers({ isChangeDomainUsers: false }));
   }
 }

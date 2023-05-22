@@ -144,7 +144,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
       domain_id: this.domainCtr?.value.id,
       subnet_allocation: this.subnetAllocationCtr?.value,
       subnet: this.subnetAllocationCtr?.value == 'static_auto' ? this.data.genData.subnet : this.subnetCtr?.value,
-      collection_id: this.data.collectionId,
+      project_id: this.data.projectId,
       logical_map_position: this.data.newNodePosition,
       logical_map_style: (this.data.mode == 'add') ? {
         "height": this.data.selectedMapPref.port_group_size,
@@ -213,7 +213,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
       domain_id: this.domainCtr?.value.id,
       subnet_allocation: this.subnetAllocationCtr?.value,
       subnet: this.subnetAllocationCtr?.value == 'static_auto' ? undefined : this.subnetCtr?.value,
-      collection_id: this.data.genData.collection_id,
+      project_id: this.data.genData.project_id,
       logical_map_position: ele.position(),
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);

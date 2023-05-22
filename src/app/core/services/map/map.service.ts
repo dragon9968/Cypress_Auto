@@ -10,14 +10,14 @@ export class MapService {
 
   constructor(private http: HttpClient) { }
 
-  getMapData(mapCategory: string, collectionId: string): Observable<any> {
-    const params = new HttpParams().set('collection_id', collectionId).set('category', mapCategory);
+  getMapData(mapCategory: string, projectId: string): Observable<any> {
+    const params = new HttpParams().set('project_id', projectId).set('category', mapCategory);
     return this.http.get<any>(ApiPaths.GET_MAP_DATA, { params });
   }
 
-  saveMap(collectionId: string, mapCategory: string, data: any): Observable<any> {
+  saveMap(projectId: string, mapCategory: string, data: any): Observable<any> {
     const params = new HttpParams()
-      .set('collection_id', collectionId)
+      .set('project_id', projectId)
       .set('map_category', mapCategory);
     return this.http.post<any>(ApiPaths.SAVE_MAP, data, { params });
   }

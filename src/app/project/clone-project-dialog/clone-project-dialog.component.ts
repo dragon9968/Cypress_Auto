@@ -51,7 +51,7 @@ export class CloneProjectDialogComponent implements OnInit {
   get categoryCtr() { return this.cloneForm.get('categoryCtr') }
 
   ngOnInit(): void {
-    this.projectId = this.projectService.getCollectionId()
+    this.projectId = this.projectService.getProjectId()
   }
 
   onCancel() {

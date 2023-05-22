@@ -2,11 +2,10 @@ import { Store } from "@ngrx/store";
 import { MatDialog } from "@angular/material/dialog";
 import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
-import { ActivatedRoute } from "@angular/router";
 import { MatIconRegistry } from "@angular/material/icon";
 import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Observable, of, Subscription, throwError } from "rxjs";
-import { GridApi, GridOptions, GridReadyEvent, RowDoubleClickedEvent } from "ag-grid-community";
+import { Subscription, throwError } from "rxjs";
+import { GridOptions, RowDoubleClickedEvent } from "ag-grid-community";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { ProjectService } from "../../../project/services/project.service";
 import { PortGroupService } from "../../../core/services/portgroup/portgroup.service";
@@ -14,7 +13,6 @@ import { InfoPanelService } from "../../../core/services/info-panel/info-panel.s
 import { selectPortGroupsManagement } from "../../../store/portgroup/portgroup.selectors";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { AddUpdatePGDialogComponent } from "../../add-update-pg-dialog/add-update-pg-dialog.component";
-import { PortGroupBulkEditDialogComponent } from "../../bulk-edit-dialog/port-group-bulk-edit-dialog/port-group-bulk-edit-dialog.component";
 import { retrievedPortGroupsManagement } from "../../../store/portgroup/portgroup.actions";
 import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
 
@@ -35,7 +33,7 @@ export class InfoPanelPortGroupManagementComponent implements OnInit, OnDestroy 
   @Input() deletedInterfaces: any[] = [];
   @Input() infoPanelheight = '300px';
   tabName = 'portGroupManagement';
-  collectionId = '0';
+  projectId = '0';
   selectPortGroupsManagement = new Subscription();
   portGroupsManagement: any[] = [];
   gridOptions: GridOptions = {
@@ -148,7 +146,7 @@ export class InfoPanelPortGroupManagementComponent implements OnInit, OnDestroy 
   }
 
   ngOnInit(): void {
-    this.collectionId = this.projectService.getCollectionId();
+    this.projectId = this.projectService.getProjectId();
   }
 
   ngOnDestroy(): void {
@@ -231,7 +229,7 @@ export class InfoPanelPortGroupManagementComponent implements OnInit, OnDestroy 
         if (confirm) {
           const jsonData = {
             pks: this.infoPanelTableComponent?.rowsSelectedId,
-            collection_id: this.collectionId
+            project_id: this.projectId
           }
           this.portGroupService.randomizeSubnetBulk(jsonData).pipe(
             catchError((e: any) => {

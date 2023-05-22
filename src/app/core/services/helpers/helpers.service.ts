@@ -8,7 +8,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { validatieIP } from 'src/app/shared/validations/ip-subnet.validation.ag-grid';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { ToastrService } from 'ngx-toastr';
-import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
+import { selectNodesByProjectId } from "../../../store/node/node.selectors";
 import { retrievedNodes } from "../../../store/node/node.actions";
 import { environment } from "../../../../environments/environment";
 import { RemoteCategories } from "../../enums/remote-categories.enum";
@@ -63,7 +63,7 @@ export class HelpersService implements OnDestroy {
     this.selectGroupBoxes$ = this.store.select(selectGroupBoxes).subscribe((groupBoxes: any[]) => {
       this.groupBoxes = groupBoxes;
     });
-    this.selectNodes$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => this.nodes = nodes);
+    this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes);
   }
 
   ngOnDestroy(): void {
@@ -527,7 +527,7 @@ export class HelpersService implements OnDestroy {
     }
   }
 
-  addNewGroupBoxByMovingNodes(cy: any, dropTarget: any, collectionId: any, mapCategory: string) {
+  addNewGroupBoxByMovingNodes(cy: any, dropTarget: any, projectId: any, mapCategory: string) {
     if (dropTarget.data() && dropTarget.data('elem_category') != 'group' && dropTarget.hasClass('cdnd-new-parent')) {
       const children = dropTarget.children()
       if (children.length == 2) {
@@ -545,7 +545,7 @@ export class HelpersService implements OnDestroy {
               port_groups: portGroups,
               map_images: mapImages
             },
-            collection_id: collectionId,
+            project_id: projectId,
             map_category: mapCategory
           };
           const dialog = this.dialog.open(AddUpdateGroupDialogComponent,

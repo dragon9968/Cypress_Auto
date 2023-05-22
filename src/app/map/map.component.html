@@ -1,12 +1,12 @@
 <mat-sidenav-container class="sidenav-container" [hasBackdrop]="false" autosize>
   <mat-sidenav #sidenav mode="side" [opened]="isOpenToolPanel">
-    <app-tool-panel [cy]="cy" [ur]="ur" [config]="config" [collectionId]="collectionId" [mapCategory]="mapCategory"
-      [isDisableCancel]="isDisableCancel" [isDisableAddNode]="isDisableAddNode" [isDisableAddPG]="isDisableAddPG"
-      [isDisableAddImage]="isDisableAddImage" [isTemplateCategory]="isTemplateCategory" [activeNodes]="activeNodes"
-      [activePGs]="activePGs" [activeEdges]="activeEdges" [activeGBs]="activeGBs" [activeMBs]="activeMBs"
-      [deletedNodes]="deletedNodes" [deletedInterfaces]="deletedInterfaces" [activeMapLinks]="activeMapLinks"
-      [isDisableAddProjectTemplate]="isDisableAddProjectTemplate" [isDisableLinkProject]="isDisableLinkProject"
-      [isDisableNewFromSelected]="isDisableNewFromSelected" [saveMapSubject]="saveMapSubject.asObservable()">
+    <app-tool-panel [cy]="cy" [ur]="ur" [config]="config" [projectId]="projectId" [mapCategory]="mapCategory"
+                    [isDisableCancel]="isDisableCancel" [isDisableAddNode]="isDisableAddNode" [isDisableAddPG]="isDisableAddPG"
+                    [isDisableAddImage]="isDisableAddImage" [isTemplateCategory]="isTemplateCategory" [activeNodes]="activeNodes"
+                    [activePGs]="activePGs" [activeEdges]="activeEdges" [activeGBs]="activeGBs" [activeMBs]="activeMBs"
+                    [deletedNodes]="deletedNodes" [deletedInterfaces]="deletedInterfaces" [activeMapLinks]="activeMapLinks"
+                    [isDisableAddProjectTemplate]="isDisableAddProjectTemplate" [isDisableLinkProject]="isDisableLinkProject"
+                    [isDisableNewFromSelected]="isDisableNewFromSelected" [saveMapSubject]="saveMapSubject.asObservable()">
     </app-tool-panel>
   </mat-sidenav>
   <mat-sidenav-content>

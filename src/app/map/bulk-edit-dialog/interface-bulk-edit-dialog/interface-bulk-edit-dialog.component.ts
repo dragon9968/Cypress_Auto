@@ -27,7 +27,6 @@ export class InterfaceBulkEditDialogComponent implements OnInit, OnDestroy {
   errorMessages = ErrorMessages;
   isEdgeDirectionChecked = false;
   mapCategory = '';
-  collectionId = '0';
   filteredStatus!: Observable<any[]>;
   filteredDirections!: Observable<any[]>;
   selectMapOption$ = new Subscription();

@@ -20,7 +20,7 @@ import { selectConfigTemplates } from '../../store/config-template/config-templa
 import { selectLoginProfiles } from '../../store/login-profile/login-profile.selectors';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
-import { selectNodesByCollectionId } from 'src/app/store/node/node.selectors';
+import { selectNodesByProjectId } from 'src/app/store/node/node.selectors';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 import { hostnameValidator } from 'src/app/shared/validations/hostname.validation';
 import { ErrorStateMatcher } from '@angular/material/core';
@@ -288,7 +288,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       this.loginProfileCtr.setValidators([autoCompleteValidator(this.loginProfiles)]);
       this.filteredLoginProfiles = this.helpers.filterOptions(this.loginProfileCtr, this.loginProfiles);
     });
-    this.selectNodes$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => this.nodes = nodes);
+    this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes);
     this.interfaceService.getByNode(this.data.genData.node_id).subscribe(response => {
       const interfaceData = response.result;
       if (this.gridApi) {
@@ -487,7 +487,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       domain_id: this.domainCtr?.value.id,
       hostname: this.hostnameCtr?.value,
       login_profile_id: this.loginProfileCtr?.value.id,
-      collection_id: this.data.collectionId,
+      project_id: this.data.projectId,
       logical_map_position: this.data.newNodePosition,
       logical_map_style: (this.data.mode == 'add') ? {
         "height": this.data.selectedMapPref.node_size,
@@ -563,7 +563,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       domain_id: this.domainCtr?.value.id,
       hostname: this.hostnameCtr?.value,
       login_profile_id: this.loginProfileCtr?.value.id ? this.loginProfileCtr?.value.id : null,
-      collection_id: this.data.genData.collection_id,
+      project_id: this.data.genData.project_id,
       logical_map_position: ele.position(),
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);

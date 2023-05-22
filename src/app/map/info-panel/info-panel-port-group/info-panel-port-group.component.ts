@@ -2,11 +2,10 @@ import { Store } from "@ngrx/store";
 import { MatDialog } from "@angular/material/dialog";
 import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
-import { ActivatedRoute } from "@angular/router";
 import { MatIconRegistry } from "@angular/material/icon";
 import { Subscription, throwError } from "rxjs";
 import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { GridApi, GridOptions, GridReadyEvent, RowDoubleClickedEvent } from "ag-grid-community";
+import { GridOptions, RowDoubleClickedEvent } from "ag-grid-community";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { ProjectService } from "../../../project/services/project.service";
 import { PortGroupService } from "../../../core/services/portgroup/portgroup.service";
@@ -15,8 +14,6 @@ import { selectMapSelection } from "src/app/store/map-selection/map-selection.se
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { AddUpdatePGDialogComponent } from "../../add-update-pg-dialog/add-update-pg-dialog.component";
-import { PortGroupBulkEditDialogComponent } from "../../bulk-edit-dialog/port-group-bulk-edit-dialog/port-group-bulk-edit-dialog.component";
-import { InfoPanelShowValidationResultsComponent } from "../../../shared/components/info-panel-show-validation-results/info-panel-show-validation-results.component";
 import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
 
 @Component({
@@ -36,7 +33,7 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
   @Input() deletedInterfaces: any[] = [];
   @Input() infoPanelheight = '300px';
   tabName = 'portgroup';
-  collectionId = '0';
+  projectId = '0';
   selectMapSelection$ = new Subscription();
   gridOptions: GridOptions = {
     headerHeight: 48,
@@ -158,7 +155,7 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.collectionId = this.projectService.getCollectionId();
+    this.projectId = this.projectService.getProjectId();
   }
 
   ngOnDestroy(): void {
@@ -212,7 +209,7 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '500px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
-          this.infoPanelService.randomizeSubnetPortGroups(this.infoPanelTableComponent?.rowsSelectedId, this.collectionId);
+          this.infoPanelService.randomizeSubnetPortGroups(this.infoPanelTableComponent?.rowsSelectedId, this.projectId);
         }
       })
     }

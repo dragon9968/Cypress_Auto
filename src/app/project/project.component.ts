@@ -18,7 +18,6 @@ import { ConfirmationDialogComponent } from '../shared/components/confirmation-d
 import { ExportProjectDialogComponent } from './export-project-dialog/export-project-dialog.component';
 import { UserService } from '../core/services/user/user.service';
 import { retrievedUser } from '../store/user/user.actions';
-import { selectUser } from '../store/user/user.selectors';
 
 @Component({
   selector: 'app-project',
@@ -188,8 +187,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   onRowDoubleClicked() {
     if (!this.isAdmin) {
-      const collectionIdSelected = this.gridApi.getSelectedRows()[0]["id"];
-      this.projectService.openProject(collectionIdSelected);
+      const projectIdSelected = this.gridApi.getSelectedRows()[0]["id"];
+      this.projectService.openProject(projectIdSelected);
     }
   }
 
@@ -201,8 +200,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   openProject() {
-    const collectionIdSelected = this.gridApi.getSelectedRows()[0]["id"];
-    this.projectService.openProject(collectionIdSelected);
+    const projectIdSelected = this.gridApi.getSelectedRows()[0]["id"];
+    this.projectService.openProject(projectIdSelected);
   }
 
   onQuickFilterInput(event: any) {
@@ -296,7 +295,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
         const changedByValue = fullName.first_name + ' ' + fullName.last_name;
         return Object.assign({}, item, {changed_by: changedByValue})
       })
-    
+
       if (this.gridApi) {
         this.gridApi.setRowData(projectData);
       } else {

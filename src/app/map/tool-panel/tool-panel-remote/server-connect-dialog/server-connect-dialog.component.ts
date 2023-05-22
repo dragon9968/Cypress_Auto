@@ -21,10 +21,14 @@ export class ServerConnectDialogComponent implements OnInit, OnDestroy {
   serverConnectForm: FormGroup;
   serverConnect!: any[];
   selectServerConnect$ = new Subscription();
-  collectionId!: number;
+  projectId!: number;
   filteredServerConnect!: Observable<any[]>;
   connectionServerName = '';
   errorMessages = ErrorMessages;
+  connection = {
+    id: 0,
+    name: ''
+  }
 
   constructor(
     private store: Store,
@@ -48,8 +52,8 @@ export class ServerConnectDialogComponent implements OnInit, OnDestroy {
   get serverConnectCtr() { return this.helpers.getAutoCompleteCtr(this.serverConnectForm.get('serverConnectCtr'), this.serverConnect); };
 
   ngOnInit(): void {
-    this.collectionId = this.projectService.getCollectionId();
-    this.helpers.setAutoCompleteValue(this.serverConnectCtr, this.serverConnect, this.serverConnect[0].id);
+    this.projectId = this.projectService.getProjectId();
+    this.helpers.setAutoCompleteValue(this.serverConnectCtr, this.serverConnect, this.serverConnect[0]?.id);
     this.serverConnectCtr?.setValue(this.serverConnect[0]);
     this.serverConnectCtr?.setValidators([Validators.required, autoCompleteValidator(this.serverConnect)])
   }
@@ -61,14 +65,14 @@ export class ServerConnectDialogComponent implements OnInit, OnDestroy {
   connectToServer() {
     const jsonData = {
       pk: this.serverConnectCtr?.value?.id,
-      project_id: this.collectionId
+      project_id: this.projectId
     }
     this.serverConnectionService.connect(jsonData)
       .subscribe({
         next: response => {
           this.serverConnectionService.setConnection(this.data.connectionCategory, response.result);
           this.helpers.changeConnectionStatus(this.data.connectionCategory, true);
-          this.projectService.get(+this.collectionId).subscribe((data: any) => {
+          this.projectService.get(+this.projectId).subscribe((data: any) => {
             this.store.dispatch(retrievedVMStatus({ vmStatus: data.result.configuration.vm_status }));
           })
           this.toastr.success(response.message, 'Success');

@@ -53,8 +53,8 @@ export class LoginComponent implements OnInit {
                 return throwError(() => e);
             }))
             .subscribe(token => {
-                if (this.projectService.getCollectionId()) {
-                  this.localStorageService.removeItem(LocalStorageKeys.COLLECTION_ID);
+                if (this.projectService.getProjectId()) {
+                  this.localStorageService.removeItem(LocalStorageKeys.PROJECT_ID);
                 }
                 if (this.authService.getUserId()) {
                     this.localStorageService.removeItem(LocalStorageKeys.USER_ID);

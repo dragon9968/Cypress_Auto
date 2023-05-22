@@ -7,7 +7,7 @@ import { Observable, Subscription } from "rxjs";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { selectGroups } from "../../store/group/group.selectors";
 import { HelpersService } from "../../core/services/helpers/helpers.service";
-import { selectNodesByCollectionId } from "../../store/node/node.selectors";
+import { selectNodesByProjectId } from "../../store/node/node.selectors";
 import { selectDomains } from "../../store/domain/domain.selectors";
 import { selectDevices } from "../../store/device/device.selectors";
 import { selectPortGroups } from "../../store/portgroup/portgroup.selectors";
@@ -63,7 +63,7 @@ export class AddUpdateGroupDialogComponent implements OnInit {
     private groupService: GroupService,
     private mapService: MapService,
   ) {
-    this.selectNodes$ = this.store.select(selectNodesByCollectionId).subscribe(nodeData => this.nodes = nodeData);
+    this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodeData => this.nodes = nodeData);
     this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe(pgData => this.portGroups = pgData);
     this.selectTemplates$ = this.store.select(selectTemplates).subscribe(templateData => this.template = templateData);
     this.selectDomains$ = this.store.select(selectDomains).subscribe(domainData => this.domains = domainData);
@@ -164,7 +164,7 @@ export class AddUpdateGroupDialogComponent implements OnInit {
       name: this.nameCtr?.value,
       category: this.categoryCtr?.value.id,
       description: this.descriptionCtr?.value,
-      collection_id: this.data.collection_id,
+      project_id: this.data.project_id,
       domain_id: this.categoryCtr?.value.id == 'domain' ? this.categoryIdCtr?.value.id : undefined,
       nodes: this.data.genData.nodes?.map((ele: any) => ele.data('node_id')),
       port_groups: this.data.genData.port_groups?.map((ele: any) => ele.data('pg_id')),
@@ -173,10 +173,10 @@ export class AddUpdateGroupDialogComponent implements OnInit {
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.groupService.add(jsonData).subscribe(response => {
       this.toastr.success('Added Row');
-      this.groupService.getGroupByCollectionId(this.data.collection_id).subscribe(
+      this.groupService.getGroupByProjectId(this.data.project_id).subscribe(
         groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
       )
-      this.mapService.getMapData(this.data.map_category, this.data.collection_id).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
+      this.mapService.getMapData(this.data.map_category, this.data.project_id).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
       this.dialogRef.close();
     })
   }
@@ -186,7 +186,7 @@ export class AddUpdateGroupDialogComponent implements OnInit {
       name: this.nameCtr?.value,
       category: this.categoryCtr?.value.id,
       description: this.descriptionCtr?.value,
-      collection_id: this.data.collection_id,
+      project_id: this.data.project_id,
       nodes: this.nodes.filter(ele => this.nodesCtr?.value.includes(ele.id)),
       port_groups: this.portGroups.filter(ele => this.portGroupsCtr?.value.includes(ele.id)),
       map_images: this.mapImages.filter(ele => this.mapImagesCtr?.value.includes(ele.id)),
@@ -196,10 +196,10 @@ export class AddUpdateGroupDialogComponent implements OnInit {
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.groupService.put(this.data.genData.id, jsonData).subscribe(response => {
       this.toastr.success(`Updated for the ${response.result} successfully`);
-      this.groupService.getGroupByCollectionId(this.data.collection_id).subscribe(
+      this.groupService.getGroupByProjectId(this.data.project_id).subscribe(
         groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
       )
-      this.mapService.getMapData(this.data.map_category, this.data.collection_id).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
+      this.mapService.getMapData(this.data.map_category, this.data.project_id).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
       this.dialogRef.close(true);
     })
   }

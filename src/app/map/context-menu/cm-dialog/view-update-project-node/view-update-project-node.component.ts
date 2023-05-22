@@ -7,7 +7,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { Store } from "@ngrx/store";
 import { HelpersService } from "../../../../core/services/helpers/helpers.service";
 import { validateNameExist } from "../../../../shared/validations/name-exist.validation";
-import { selectNodesByCollectionId } from "../../../../store/node/node.selectors";
+import { selectNodesByProjectId } from "../../../../store/node/node.selectors";
 import { MapLinkService } from "../../../../core/services/map-link/map-link.service";
 
 @Component({
@@ -36,7 +36,7 @@ export class ViewUpdateProjectNodeComponent implements OnInit, OnDestroy {
       ]),
       notesCtr: new FormControl('')
     })
-    this.selectNodes$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => this.nodes = nodes);
+    this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes);
     this.isViewMode = this.data.mode == 'view';
   }
 

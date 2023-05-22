@@ -38,7 +38,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
   configTemplates!: any[];
   loginProfiles!: any[]
   filteredTemplatesByDevice!: any[];
-  collectionId = '0';
+  projectId = '0';
   selectIcons$ = new Subscription();
   selectDevices$ = new Subscription();
   selectTemplates$ = new Subscription();
@@ -123,7 +123,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
     this.filteredRoles = this.helpers.filterOptions(this.roleCtr, this.ROLES);
     this.filteredTemplatesByDevice = this.templates.filter((template: any) => template.device_id == this.data.genData.device?.id);
     this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice, 'display_name');
-    this.collectionId = this.projectService.getCollectionId();
+    this.projectId = this.projectService.getProjectId();
   }
 
   ngOnDestroy(): void {

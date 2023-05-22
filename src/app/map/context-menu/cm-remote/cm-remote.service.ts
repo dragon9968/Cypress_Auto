@@ -64,10 +64,10 @@ export class CMRemoteService implements OnDestroy{
         const data = target.data();
         const connection = this.serverConnectionService.getConnection(this.connectionCategory);
         const connectionId = connection ? connection?.id : 0;
-        const collectionId = this.projectService.getCollectionId();
+        const projectId = this.projectService.getProjectId();
         let url = data.url
-        if (connectionId || collectionId != 0) {
-          this.mapService.getMapStatus(collectionId, connection?.id).pipe(
+        if (connectionId || projectId != 0) {
+          this.mapService.getMapStatus(projectId, connection?.id).pipe(
             catchError(err => {
               this.toastr.error('Web Console not accessible', 'Error');
               return throwError(() => err)
@@ -209,10 +209,10 @@ export class CMRemoteService implements OnDestroy{
           selector: "node[icon]",
           onClickFunction: (event: any) => {
             if (activeNodes.length >= 1) {
-              const collectionId = this.projectService.getCollectionId()
+              const projectId = this.projectService.getProjectId()
               const connection = this.serverConnectionService.getConnection(this.connectionCategory);
               const pks = activeNodes.map(ele => ele.data('node_id'));
-              this.nodeService.getSnapshots({pks: pks, collection_id: collectionId, connection_id: connection ? connection?.id : 0}).subscribe({
+              this.nodeService.getSnapshots({pks: pks, project_id: projectId, connection_id: connection ? connection?.id : 0}).subscribe({
                 next: response => {
                   const dialogData = {
                     activeNodes,
@@ -235,10 +235,10 @@ export class CMRemoteService implements OnDestroy{
           selector: "node[icon]",
           onClickFunction: (event: any) => {
             if (activeNodes.length >= 1) {
-              const collectionId = this.projectService.getCollectionId()
+              const projectId = this.projectService.getProjectId()
               const connection = this.serverConnectionService.getConnection(this.connectionCategory);
               const pks = activeNodes.map(ele => ele.data('node_id'));
-              this.nodeService.getSnapshots({pks: pks, collection_id: collectionId, connection_id: connection ? connection?.id : 0}).subscribe({
+              this.nodeService.getSnapshots({pks: pks, project_id: projectId, connection_id: connection ? connection?.id : 0}).subscribe({
                 next: response => {
                   const dialogData = {
                     activeNodes,

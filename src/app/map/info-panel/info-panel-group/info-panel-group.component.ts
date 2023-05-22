@@ -26,7 +26,7 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
   @Input() activePGs: any[] = [];
   @Input() activeEdges: any[] = [];
   mapCategory = '';
-  collectionId: string = '0';
+  projectId: string = '0';
   selectGroups$ = new Subscription();
   groups!: any[];
   tabName = 'group';
@@ -94,7 +94,7 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
       const dialogData = {
         mode: 'view',
         genData: groupData.result,
-        collection_id: groupData.result.collection_id,
+        project_id: groupData.result.project_id,
         map_category: 'logical'
       };
       this.dialog.open(AddUpdateGroupDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
@@ -116,7 +116,7 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
           return {
             id: ele.id,
             name: ele.name,
-            collection_id: ele.collection_id,
+            project_id: ele.project_id,
             description: ele.description,
             domain_id: ele.domain_id,
             domain: ele.domain?.name,
@@ -134,8 +134,8 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.mapCategory = 'logical';
-    this.collectionId = this.projectService.getCollectionId();
-    this.groupService.getGroupByCollectionId(this.collectionId).subscribe(
+    this.projectId = this.projectService.getProjectId();
+    this.groupService.getGroupByProjectId(this.projectId).subscribe(
       groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
     )
   }
@@ -148,7 +148,7 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
     const dialogData = {
       mode: 'add',
       genData: {},
-      collection_id: this.collectionId,
+      project_id: this.projectId,
       map_category: this.mapCategory
     };
     this.dialog.open(AddUpdateGroupDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
@@ -162,7 +162,7 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
         const dialogData = {
           mode: 'update',
           genData: groupData.result,
-          collection_id: groupData.result.collection_id,
+          project_id: groupData.result.project_id,
           map_category: 'logical'
         };
         const dialogRef = this.dialog.open(AddUpdateGroupDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });

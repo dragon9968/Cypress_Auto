@@ -47,7 +47,7 @@ export class DomainBulkEditDialogComponent implements OnInit {
       }
       const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.domainService.editBulk(jsonData).subscribe(response => {
-        this.domainService.getDomainByCollectionId(this.data.genData.collectionId).subscribe(domains => {
+        this.domainService.getDomainByProjectId(this.data.genData.projectId).subscribe(domains => {
           this.store.dispatch(retrievedDomains({ data: domains.result }));
         });
         this.dialogRef.close();

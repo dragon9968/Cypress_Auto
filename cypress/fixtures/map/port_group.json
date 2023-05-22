@@ -5,7 +5,7 @@
   "domain_id": 78,
   "subnet_allocation": "static_auto",
   "subnet": "10.239.249.0/26",
-  "collection_id": 21,
+  "project_id": 21,
   "logical_map_position": {
     "x": 700,
     "y": 300
