@@ -18,5 +18,9 @@ export const CONFIG_TEMPLATE_ADDS_TYPE = [
   {
     id: 'add_ospf',
     name: 'Add OSPF'
+  },
+  {
+    id: 'add_bgp',
+    name: 'Add BGP'
   }
 ]

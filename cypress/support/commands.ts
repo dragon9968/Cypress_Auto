@@ -238,6 +238,109 @@ function editConfigTemplate(configTemplate: any, newValue: any): void {
 }
 Cypress.Commands.add('editConfigTemplate', editConfigTemplate);
 
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    addBGPConfigTemplate(configTemplate: any, networksInvalid: any): typeof addBGPConfigTemplate;
+  }
+}
+function addBGPConfigTemplate(configTemplate: any, networksInvalid: any): void {
+  cy.log(`START: Add ${configTemplate.name} Config`)
+  if (networksInvalid) {
+    // START: Validation Networks
+    cy.getByFormControlName('ipCtr').as('ipCtr').invoke('val').then(nameValue => {
+      if (nameValue !== networksInvalid) {
+        cy.get('@ipCtr').clear().type(networksInvalid)
+      }
+    })
+    const BGPAsnCtr = configTemplate.bgp[0].asn
+    cy.getByFormControlName('asnCtr').as('asnCtr').invoke('val').then(nameValue => {
+      if (nameValue !== BGPAsnCtr) {
+        cy.get('@asnCtr').clear().type(BGPAsnCtr)
+      }
+    })
+
+    cy.getByFormControlName('neighborIpCtr').as('neighborIpCtr').invoke('val').then(nameValue => {
+      if (nameValue !== networksInvalid) {
+        cy.get('@neighborIpCtr').clear().type(networksInvalid)
+      }
+    })
+
+    const BGPNeighborAsnCtrTest = configTemplate.bgp[0].neighbor_asn
+    cy.getByFormControlName('neighborAsnCtr').as('neighborAsnCtr').invoke('val').then(nameValue => {
+      if (nameValue !== BGPNeighborAsnCtrTest) {
+        cy.get('@neighborAsnCtr').clear().type(BGPNeighborAsnCtrTest)
+      }
+    })
+
+    cy.get('mat-error').should('exist')
+    cy.getByDataCy('btn-add-bgp').should("be.disabled")
+    cy.wait(3000)
+    // END
+  } else {
+    const ip = configTemplate.bgp[0].ip_address
+    cy.getByFormControlName('ipCtr').as('ipCtr').invoke('val').then(nameValue => {
+      if (nameValue !== ip) {
+        cy.get('@ipCtr').clear().type(ip)
+      }
+    })
+
+    const BGPAsnCtr = configTemplate.bgp[0].asn
+    cy.getByFormControlName('asnCtr').as('asnCtr').invoke('val').then(nameValue => {
+      if (nameValue !== BGPAsnCtr) {
+        cy.get('@asnCtr').clear().type(BGPAsnCtr)
+      }
+    })
+
+    cy.getByFormControlName('neighborIpCtr').as('neighborIpCtr').invoke('val').then(nameValue => {
+      if (nameValue !== configTemplate.bgp[0].neighbor_ip) {
+        cy.get('@neighborIpCtr').clear().type(configTemplate.bgp[0].neighbor_ip)
+      }
+    })
+
+    const BGPNeighborAsnCtr = configTemplate.bgp[0].neighbor_asn
+    cy.getByFormControlName('neighborAsnCtr').as('neighborAsnCtr').invoke('val').then(nameValue => {
+      if (nameValue !== BGPNeighborAsnCtr) {
+        cy.get('@neighborAsnCtr').clear().type(BGPNeighborAsnCtr)
+      }
+    })
+
+    const bgpConnectedState = configTemplate.bgp[0].redistribute.connected.state
+    if (bgpConnectedState) {
+      cy.get('.cy-bgp-connectedState span input[type="checkbox"]').check({ force: true }).should('be.checked')
+    } else {
+      cy.get('.cy-bgp-connectedState span input[type="checkbox"]').uncheck({ force: true })
+    }
+
+    const bgpConnectedMetric = configTemplate.bgp[0].redistribute.connected.metric
+    cy.getByFormControlName('bgpConnectedMetricCtr').as('bgpConnectedMetricCtr').invoke('val').then(nameValue => {
+      if (nameValue !== bgpConnectedMetric) {
+        cy.get('@bgpConnectedMetricCtr').clear().type(bgpConnectedMetric)
+      }
+    })
+
+    const bgpOSPFState = configTemplate.bgp[0].redistribute.ospf.state
+    if (bgpOSPFState) {
+      cy.get('.cy-bgp-ospfState span input[type="checkbox"]').check({ force: true }).should('be.checked')
+    } else {
+      cy.get('.cy-bgp-ospfState span input[type="checkbox"]').uncheck({ force: true })
+    }
+
+    const bgpOSPFMetric = configTemplate.bgp[0].redistribute.ospf.metric
+    cy.getByFormControlName('bgpOspfMetricCtr').as('bgpOspfMetricCtr').invoke('val').then(nameValue => {
+      if (nameValue !== bgpOSPFMetric) {
+        cy.get('@bgpOspfMetricCtr').clear().type(bgpOSPFMetric)
+      }
+    })
+
+    cy.get('mat-error').should('not.exist')
+    cy.getByDataCy('bgpForm').as('bgpForm').submit()
+    cy.get('mat-error').should('not.exist')
+    cy.getByDataCy('configTemplateForm').as('configTemplateForm').submit()
+    cy.wait(3000)
+  }
+}
+Cypress.Commands.add('addBGPConfigTemplate', addBGPConfigTemplate);
+
 
 declare namespace Cypress {
   interface Chainable<Subject = any> {
@@ -323,6 +426,47 @@ function addOspfConfigTemplate(configTemplate: any, networksInvalid: any): void 
 }
 
 Cypress.Commands.add('addOspfConfigTemplate', addOspfConfigTemplate);
+
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    editOspfAndBgpConfigTemplate(configTemplate: any, newValue: any, defaultConfig: any): typeof editOspfAndBgpConfigTemplate;
+  }
+}
+
+function editOspfAndBgpConfigTemplate(configTemplate: any, newValue: any, defaultConfig: any): void {
+  cy.log(`START: Edit ${configTemplate.name} Config`)
+  cy.wait(3000)
+
+  cy.getByFormControlName('name').as('name').invoke('val').then(nameValue => {
+    if (nameValue !== configTemplate.name) {
+      cy.get('@name').clear().type(configTemplate.name)
+    }
+  })
+  cy.getByFormControlName('description').as('description').invoke('val').then(nameValue => {
+    if (nameValue !== configTemplate.description) {
+      cy.get('@description').clear().type(configTemplate.description)
+    }
+  })
+
+  cy.wait(2000)
+  Object.entries(newValue).forEach(([key, value]) => {
+    defaultConfig[key] = value
+  })
+  cy.wait(2000)
+  cy.get('.ace_text-input').focus().clear({force: true})
+  cy.wait(2000)
+  cy.get('.ace_text-input').type(JSON.stringify(defaultConfig, null, 2), { force: true })
+  cy.get('mat-error').should('not.exist')
+  cy.getByDataCy('configTemplateForm').as('configTemplateForm').submit()
+  cy.wait(2000)
+  cy.get('.toast-warning').should('not.exist')
+  cy.log(`END: Edited ${configTemplate.name} Config`)
+  cy.wait(2000)
+  cy.get('mat-dialog-container').should('not.exist')
+}
+Cypress.Commands.add('editOspfAndBgpConfigTemplate', editOspfAndBgpConfigTemplate);
+
+
 
 // Select All row on AG-Grid
 declare namespace Cypress {

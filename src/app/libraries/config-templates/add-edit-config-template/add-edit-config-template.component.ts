@@ -32,6 +32,7 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
   domainMemberForm!: FormGroup;
   roleServicesForm!: FormGroup;
   ospfForm!: FormGroup;
+  bgpForm!: FormGroup;
   errorMessages = ErrorMessages;
   staticRoles: any[] = [];
   fileWallRule: any[] = [];
@@ -51,6 +52,9 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
   bgpChecked = true;
   connectedChecked = true;
   staticChecked = true;
+  isAddBGP = false;
+  bgpConnectedChecked = true;
+  bgpOspfChecked = true;
   filteredAddActions!: Observable<any>[];
 
   constructor(
@@ -94,14 +98,26 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
     this.roleServicesForm = new FormGroup({
       rolesCtr: new FormControl('')
     })
+
     this.ospfForm = new FormGroup({
-      networksCtr: new FormControl('', [networksValidation()]),
+      networksCtr: new FormControl('', [networksValidation('multi')]),
       bgpStateCtr: new FormControl(''),
       bgpMetricTypeCtr: new FormControl(''),
       connectedStateCtr: new FormControl(''),
       connectedMetricTypeCtr: new FormControl(''),
       staticStateCtr: new FormControl(''),
       staticMetricTypeCtr: new FormControl('')
+    })
+
+    this.bgpForm = new FormGroup({
+      ipCtr: new FormControl('', [networksValidation('single')]),
+      asnCtr: new FormControl(''),
+      neighborIpCtr: new FormControl('', [networksValidation('single')]),
+      neighborAsnCtr: new FormControl(''),
+      bgpConnectedStateCtr: new FormControl(''),
+      bgpConnectedMetricCtr: new FormControl(''),
+      bgpOspfStateCtr: new FormControl(''),
+      bgpOspfMetricCtr: new FormControl('')
     })
     this.isViewMode = this.data.mode == 'view';
     this.isAddMode = this.data.mode == 'add';
@@ -183,6 +199,14 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
   get connectedMetricTypeCtr() { return this.ospfForm.get('connectedMetricTypeCtr');}
   get staticStateCtr() { return this.ospfForm.get('staticStateCtr');}
   get staticMetricTypeCtr() { return this.ospfForm.get('staticMetricTypeCtr');}
+  get ipCtr() { return this.bgpForm.get('ipCtr');}
+  get asnCtr() { return this.bgpForm.get('asnCtr');}
+  get neighborIpCtr() { return this.bgpForm.get('neighborIpCtr');}
+  get neighborAsnCtr() { return this.bgpForm.get('neighborAsnCtr');}
+  get bgpConnectedStateCtr() { return this.bgpForm.get('bgpConnectedStateCtr');}
+  get bgpConnectedMetricCtr() { return this.bgpForm.get('bgpConnectedMetricCtr');}
+  get bgpOspfStateCtr() { return this.bgpForm.get('bgpOspfStateCtr');}
+  get bgpOspfMetricCtr() { return this.bgpForm.get('bgpOspfMetricCtr');}
 
   ngOnInit(): void {
     this.name?.setValue(this.data.genData.name);
@@ -459,6 +483,31 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
       this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
     });
   }
+  addBGP() {
+    const jsonDataValue = {
+      config_type: "bgp",
+      config_id: this.data.genData.id,
+      ip_address: this.ipCtr?.value,
+      asn: this.asnCtr?.value,
+      neighbor_ip: this.neighborIpCtr?.value,
+      neighbor_asn: this.neighborAsnCtr?.value,
+      bgp_connected_state: this.bgpConnectedStateCtr?.value,
+      bgp_connected_metric: this.bgpConnectedMetricCtr?.value,
+      bgp_ospf_state: this.bgpOspfStateCtr?.value,
+      bgp_ospf_metric: this.bgpOspfMetricCtr?.value
+    }
+    const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
+    this.configTemplateService.addConfiguration(jsonData).pipe(
+      catchError(err => {
+        this.toastr.error('Add BGP failed', 'Error');
+        return throwError(() => err);
+      })
+    ).subscribe((response) => {
+      this._setEditorData(response.result)
+      this.toastr.success('Add BGP successfully', 'Success');
+      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
+    });
+  }
 
   showFormAdd(addType: string) {
     switch (addType) {
@@ -468,6 +517,7 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
         this.isAddDomainMembership = false;
         this.isAddRolesAndService = false;
         this.isAddOSPF = false;
+        this.isAddBGP = false;
         break;
       case 'add_firewall_rule':
         this.isAddRoute = false;
@@ -475,6 +525,7 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
         this.isAddDomainMembership = false;
         this.isAddRolesAndService = false;
         this.isAddOSPF = false;
+        this.isAddBGP = false;
         break;
       case 'add_domain_membership':
         this.isAddRoute = false;
@@ -482,6 +533,7 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
         this.isAddDomainMembership = true;
         this.isAddRolesAndService = false;
         this.isAddOSPF = false;
+        this.isAddBGP = false;
         break;
       case 'add_roles_service':
         this.isAddRoute = false;
@@ -489,6 +541,7 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
         this.isAddDomainMembership = false;
         this.isAddRolesAndService = true;
         this.isAddOSPF = false;
+        this.isAddBGP = false;
         break;
       case 'add_ospf':
         this.isAddRoute = false;
@@ -496,6 +549,15 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
         this.isAddDomainMembership = false;
         this.isAddRolesAndService = false;
         this.isAddOSPF = true;
+        this.isAddBGP = false;
+        break;
+      case 'add_bgp':
+        this.isAddRoute = false;
+        this.isAddFirewallRule = false;
+        this.isAddDomainMembership = false;
+        this.isAddRolesAndService = false;
+        this.isAddOSPF = false;
+        this.isAddBGP = true;
         break;
       default:
         this.isAddRoute = false;
@@ -503,6 +565,7 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
         this.isAddDomainMembership = false;
         this.isAddRolesAndService = false;
         this.isAddOSPF = false;
+        this.isAddBGP = false;
     }
   }
 
@@ -517,5 +580,6 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
     this.isAddDomainMembership = false;
     this.isAddRolesAndService = false;
     this.isAddOSPF = false;
+    this.isAddBGP = false;
   }
 }

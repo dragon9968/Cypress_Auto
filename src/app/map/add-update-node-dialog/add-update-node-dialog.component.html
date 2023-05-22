@@ -391,6 +391,58 @@
                     <button mat-raised-button type="submit" color="primary" [disabled]="ospfForm.invalid">Add</button>
                   </mat-dialog-actions>
                 </form>
+                <!-- Add BGP Configuration -->
+                <form *ngIf="isAddBGP" class="bgp-form" [formGroup]="bgpForm" (ngSubmit)="addBGP()" autocomplete="off">
+                  <mat-dialog-content class="bgp-form__content">
+                    <section class="bgp-form__content__item">
+                      <mat-form-field class="field">
+                        <mat-label>IP</mat-label>
+                        <input autocomplete="off" id="config-bgp-ip" matInput type="text" placeholder="Select an IP" formControlName="ipCtr" [matAutocomplete]="autoIP"
+                              [readonly]="isViewMode">
+                        <mat-autocomplete #autoIP="matAutocomplete" [displayWith]="helpers.ipDisplay">
+                          <mat-option *ngFor="let option of filteredNodeIP | async" [value]="option">
+                            <span>{{ option.ip }}</span>
+                          </mat-option>
+                        </mat-autocomplete>
+                        <mat-error *ngIf="ipCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+                      </mat-form-field>
+                      <mat-form-field class="field">
+                        <mat-label>ASN</mat-label>
+                        <input autocomplete="off" id="config-bgp-asn" type="text" matInput formControlName="asnCtr">
+                      </mat-form-field>
+                      <mat-form-field class="field">
+                        <mat-label>Neighbor IP</mat-label>
+                        <input autocomplete="off" id="config-neighborip" type="text" matInput formControlName="neighborIpCtr">
+                        <mat-error *ngIf="neighborIpCtr?.errors?.isNotMatchIP">{{ neighborIpCtr?.errors?.value }}</mat-error>
+                      </mat-form-field>
+                      <mat-form-field class="field">
+                        <mat-label>Neighbor ASN</mat-label>
+                        <input autocomplete="off" id="config-neighborasn" type="text" matInput formControlName="neighborAsnCtr">
+                      </mat-form-field>
+                    </section>
+                    <section class="bgp-form__content__item">
+                      <div class="bgp-form__content__item--field">
+                        <label>Connected</label>
+                        <mat-checkbox color="primary" formControlName="bgpConnectedStateCtr" [(ngModel)]="bgpConnectedChecked"></mat-checkbox>
+                      </div>
+                      <mat-form-field class="field">
+                        <mat-label>Metric</mat-label>
+                        <input autocomplete="off" id="config-bgp-connected-metric" type="number" matInput formControlName="bgpConnectedMetricCtr">
+                      </mat-form-field>
+                      <div class="bgp-form__content__item--field">
+                        <label>OSPF</label>
+                        <mat-checkbox color="primary" formControlName="bgpOspfStateCtr" [(ngModel)]="bgpOspfChecked"></mat-checkbox>
+                      </div>
+                      <mat-form-field class="field">
+                        <mat-label>Metric</mat-label>
+                        <input autocomplete="off" id="config-bgpOspf-metric" type="number" matInput formControlName="bgpOspfMetricCtr">
+                      </mat-form-field>
+                    </section>
+                  </mat-dialog-content>
+                  <mat-dialog-actions [align]="'end'">
+                    <button mat-raised-button type="submit" color="primary" [disabled]="bgpForm.invalid">Add</button>
+                  </mat-dialog-actions>
+                </form>
               </div>
             </div>
             <ng-select class="configuration-template__left__config-template" formControlName="configTemplateCtr" [items]="configTemplates"

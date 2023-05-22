@@ -88,6 +88,10 @@ export class HelpersService implements OnDestroy {
     return option && option.mask ? option.mask : '';
   }
 
+  ipDisplay(option: any) {
+    return option && option.ip ? option.ip : '';
+  }
+
   generateCyStyle(defaults: any): any[] {
     return [
       {
@@ -1203,7 +1207,7 @@ export class HelpersService implements OnDestroy {
         )
       case 'Router':
         return this.configTemplateAddsType.filter(
-          addType => addType.id == 'add_firewall_rule' || addType.id == 'add_route' || addType.id == 'add_ospf'
+          addType => addType.id == 'add_firewall_rule' || addType.id == 'add_route' || addType.id == 'add_ospf' || addType.id == 'add_bgp'
         )
       case 'Windows Server':
         return this.configTemplateAddsType.filter(

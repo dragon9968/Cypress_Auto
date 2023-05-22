@@ -75,6 +75,33 @@
             }
           }
         }
+
+        .bgp-form {
+          &__content {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 20px;
+            &__item {
+              width: 47%;
+              &--section {
+                font-family: 'Roboto', sans-serif;
+              }
+              &--divider {
+                padding-bottom: 15px;
+              }
+              &--field {
+                width: 50%;
+                display: flex;
+                padding: 18px 0;
+                justify-content: space-between;
+                label {
+                  font-family: 'Roboto', sans-serif;
+                  padding-bottom: 10px;
+                }
+              }
+            }
+          }
+        }
       }
     }
 

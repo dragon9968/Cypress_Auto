@@ -136,6 +136,27 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
         }
       },
     },
+    {
+      headerName: 'BGP',
+      field: 'configuration.bgp',
+      suppressSizeToFit: true,
+      minWidth: 60,
+      autoHeight: true,
+      cellRenderer: function(param: any) {
+        if (param.value){
+          let html_str = "<div>"
+          for(let i in param.value) {
+            let item_html = `<div style='text-align:left'>IP: <b>${param.value[i]['ip_address']}</b></div>`;
+            html_str += item_html;
+          }
+          html_str += "</div>"
+
+          return html_str;
+        }else {
+          return
+        }
+      },
+    },
   ];
   constructor(
     private store: Store,

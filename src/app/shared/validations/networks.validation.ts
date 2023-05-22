@@ -1,7 +1,7 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from "@angular/forms";
 import {isIPv4} from 'is-ip';
 
-export function networksValidation(): ValidatorFn {
+export function networksValidation(type: any): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const ips = control.value;
     if (ips) {
@@ -12,6 +12,7 @@ export function networksValidation(): ValidatorFn {
       let matchSubnet = false;
       let isMatch = false;
       if (ips == undefined || ips == '') return null;
+      if (type === 'multi') {
         let ipArr = ips.split(',');
         if (ipArr) {
           for (let ip in ipArr) {
@@ -30,7 +31,11 @@ export function networksValidation(): ValidatorFn {
         }
         isMatch = (isMatchIP && !matchSubnet)
         message = message;
-        return isMatch ? {isNotMatchIP: true, value: message} : null;
+      } else {
+        isMatch = isMatchIP;
+        message = message;
+      }
+      return isMatch ? {isNotMatchIP: true, value: message} : null;
     }
     return null;
   }
