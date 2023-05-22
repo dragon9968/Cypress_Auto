@@ -8,7 +8,7 @@ networks:
 
 services:
   frontend:
-    image: bc/range_frontend:1.1.0
+    image: bc/range_frontend:1.1.2
     restart: always
     networks:
      - range_container_net
