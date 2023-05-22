@@ -603,7 +603,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   private _unselectNode($event: any) {
     const t = $event.target;
-    const activeEles = this.activeNodes.concat(this.activePGs, this.activeGBs)
+    const activeEles = this.activeNodes.concat(this.activePGs, this.activeGBs, this.activeMapLinks, this.activeMBs)
     if (activeEles.length > 0) {
       if (t.data('label') == 'map_background') {
         if (this.activeMBs.includes(t)) {
