@@ -363,6 +363,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       group_opacity: ele.style('background-opacity'),
       border_color: ele.style('border-color'),
       border_style: ele.style('border-style'),
+      border_width: ele.style('border-width'),
       text_size: ele.style("font-size"),
       text_color: ele.style("color"),
       zIndex: data.zIndex,

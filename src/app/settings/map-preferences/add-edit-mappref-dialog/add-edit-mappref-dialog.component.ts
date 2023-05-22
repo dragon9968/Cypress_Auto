@@ -39,6 +39,7 @@ export class AddEditMapprefDialogComponent {
   textGridSpacingLabel: any;
   textEdgeArrowSizeLabel: any;
   textMapImageSizeLabel: any;
+  textGBBorderSizeLabel: any;
   gbBorderColor = '#000000';
   pgColor = '#000000';
   edgeColor = '#000000';
@@ -89,6 +90,7 @@ export class AddEditMapprefDialogComponent {
         [Validators.required, validateNameExist(() => this.listMapPref, this.data.mode, this.data.genData.id)]),
       gbOpacity: new FormControl({ value: '', disabled: this.isViewMode }),
       gbBorder: new FormControl({ value: '', disabled: this.isViewMode }),
+      gbBorderSize: new FormControl({ value: '', disabled: this.isViewMode }),
       pgSizeCtr: new FormControl({ value: '', disabled: this.isViewMode }),
       edgeWidthCtr: new FormControl({ value: '', disabled: this.isViewMode }),
       nodeSizeCtr: new FormControl({ value: '', disabled: this.isViewMode }),
@@ -131,6 +133,7 @@ export class AddEditMapprefDialogComponent {
         this.snapToGridCtr?.setValue(this.listDefaultMapPref[0].grid_snap);
         this.gridSpacingCtr?.setValue(this.listDefaultMapPref[0].grid_spacing);
         this.mapImageSizeCtr?.setValue(this.listDefaultMapPref[0].scale_image);
+        this.gbBorderSize?.setValue(this.listDefaultMapPref[0].group_box_border_size)
         this._setPropertiesCommon(this.listDefaultMapPref[0]);
       }
     });
@@ -174,6 +177,7 @@ export class AddEditMapprefDialogComponent {
   get snapToGridCtr() { return this.mapPrefForm.get('snapToGridCtr') }
   get gridSpacingCtr() { return this.mapPrefForm.get('gridSpacingCtr') }
   get mapImageSizeCtr() { return this.mapPrefForm.get('mapImageSizeCtr') }
+  get gbBorderSize() { return this.mapPrefForm.get('gbBorderSize'); }
 
   onCancel() {
     this.dialogRef.close();
@@ -189,6 +193,7 @@ export class AddEditMapprefDialogComponent {
     this.textEdgeArrowSizeLabel = data.edge_arrow_size;
     this.textGridSpacingLabel = data.grid_spacing;
     this.textMapImageSizeLabel = data.scale_image;
+    this.textGBBorderSizeLabel = data.group_box_border_size;
   }
 
   addMapPref() {
@@ -198,6 +203,7 @@ export class AddEditMapprefDialogComponent {
       group_box_opacity: this.gbOpacity?.value,
       group_box_border: this.gbBorder?.value,
       group_box_border_color: this.gbBorderColor,
+      group_box_border_size: this.gbBorderSize?.value,
       port_group_color: this.pgColor,
       port_group_size: this.pgSizeCtr?.value,
       edge_color: this.edgeColor,
@@ -238,6 +244,7 @@ export class AddEditMapprefDialogComponent {
       group_box_opacity: this.gbOpacity?.value,
       group_box_border: this.gbBorder?.value,
       group_box_border_color: this.gbBorderColor,
+      group_box_border_size: this.gbBorderSize?.value,
       port_group_color: this.pgColor,
       port_group_size: this.pgSizeCtr?.value,
       edge_color: this.edgeColor,
@@ -316,6 +323,10 @@ export class AddEditMapprefDialogComponent {
     this.gbBorderColor = event;
   }
 
+  setGroupBoxBorderSize(size: any) {
+    this.textGBBorderSizeLabel = size.value;
+  }
+
   setPgColor(event: any) {
     this.pgColor = event;
   }
@@ -345,6 +356,7 @@ export class AddEditMapprefDialogComponent {
     this.gbOpacity?.setValue(this.data.genData.group_box_opacity);
     this.gbBorder?.setValue(this.data.genData.group_box_border);
     this.gbBorderColor = this.data.genData.group_box_border_color;
+    this.gbBorderSize?.setValue(this.data.genData.group_box_border_size);
     this.pgColor = this.data.genData.port_group_color;
     this.pgSizeCtr?.setValue(this.data.genData.port_group_size);
     this.edgeColor = this.data.genData.edge_color;

@@ -422,4 +422,24 @@ export class ToolPanelStyleService {
     });
     return data;
   }
+
+  changeGBBorderSize(data: any) {
+    data.activeGBs.forEach((ele: any) => {
+      data.oldGBBorderSize = ele.data("border_width");
+      ele._private['data'] = {...ele._private['data']};
+      ele.data("border_width", data.newGBBorderSize);
+      const d = ele.data();
+      if (!d.new) {
+        d.updated = true;
+      }
+    })
+    return data;
+  }
+
+  restoreGBBorderSize(data: any) {
+    data.activeGBs.forEach((ele: any) => {
+      ele.data("border_width", data.oldGBBorderSize);
+    });
+    return data;
+  }
 }

@@ -596,7 +596,7 @@ function addUpdateMapPreferences (mapPreferences: any) {
     cy.get('@name').clear().type(mapPreferences.name)
   })
   cy.get('#gbColor').click()
-  cy.getColorPickerByClass('.gb-color').clear().type(mapPreferences.group_box_color).type(`{enter}`)
+  cy.getColorPickerByClass('.gb-color').clear().type(mapPreferences.group_box_color)
   cy.getByFormControlName('gbOpacity').as('gbOpacity').then(value =>{
     cy.get('@gbOpacity').type(calcArrowsSlider(mapPreferences.group_box_opacity * 100, 50))
   })
@@ -604,17 +604,17 @@ function addUpdateMapPreferences (mapPreferences: any) {
   cy.getOptionByContent(mapPreferences.group_box_border.charAt(0).toUpperCase() + mapPreferences.group_box_border.slice(1)).click();
 
   cy.get('#groupBoxBorderColor').click()
-  cy.getColorPickerByClass('.gb-border-color').clear().type(mapPreferences.group_box_border_color).type(`{enter}`)
+  cy.getColorPickerByClass('.gb-border-color').clear().type(mapPreferences.group_box_border_color)
 
   cy.get('#portGroupColor').click()
-  cy.getColorPickerByClass('.pg-color').clear().type(mapPreferences.port_group_color).type(`{enter}`)
+  cy.getColorPickerByClass('.pg-color').clear().type(mapPreferences.port_group_color)
 
   cy.getByFormControlName('pgSizeCtr').as('pgSizeCtr').then(value =>{
     cy.get('@pgSizeCtr').type(calcArrowsSlider(mapPreferences.port_group_size, 50))
   })
 
   cy.get('#edgeColor').click()
-  cy.getColorPickerByClass('.edge-color').clear().type(mapPreferences.edge_color).type(`{enter}`)
+  cy.getColorPickerByClass('.edge-color').clear().type(mapPreferences.edge_color)
   cy.getByFormControlName('edgeWidthCtr').as('edgeWidthCtr').then(value =>{
     cy.get('@edgeWidthCtr').type(calcArrowsSlider(mapPreferences.edge_width, 50))
   })
@@ -626,7 +626,7 @@ function addUpdateMapPreferences (mapPreferences: any) {
   })
 
   cy.get('#textColor').click()
-  cy.getColorPickerByClass('.text-color').clear().type(mapPreferences.text_color).type(`{enter}`)
+  cy.getColorPickerByClass('.text-color').clear().type(mapPreferences.text_color)
 
   cy.getByFormControlName('textHorizontalAlignmentCtr').click();
   cy.getOptionByContent(mapPreferences.text_halign.charAt(0).toUpperCase() + mapPreferences.text_halign.slice(1)).click();
@@ -635,7 +635,7 @@ function addUpdateMapPreferences (mapPreferences: any) {
   cy.getOptionByContent(mapPreferences.text_valign.charAt(0).toUpperCase() + mapPreferences.text_valign.slice(1)).click();
 
   cy.get('#TextBG').click()
-  cy.getColorPickerByClass('.text-bg').clear().type(mapPreferences.text_bg_color).type(`{enter}`)
+  cy.getColorPickerByClass('.text-bg').clear().type(mapPreferences.text_bg_color)
 
   cy.getByFormControlName('textBgOpacityCtr').as('textBgOpacityCtr').then(value =>{
     cy.get('@textBgOpacityCtr').type(calcArrowsSlider(mapPreferences.text_bg_opacity * 100, 50))

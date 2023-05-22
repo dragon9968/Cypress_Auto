@@ -221,6 +221,9 @@ export class CMActionsService {
                 cyData.text_color = logicalMapStyle.text_color;
                 cyData.text_size = logicalMapStyle.text_size;
                 cyData.color = logicalMapStyle.color;
+                cyData.node = nodeData.result.name;
+                cyData.port_group = cyData.port_group.name;
+                cyData.netmask = cyData.netmask.mask;
                 const newEdgeData = {
                   source: 'node-' + edgeData.node_id,
                   target: 'pg-' + edgeData.port_group_id,

@@ -120,6 +120,12 @@
             <mat-button-toggle value="double"><mat-icon svgIcon="double"></mat-icon></mat-button-toggle>
         </mat-button-toggle-group>
     </div>
+    <div class="tab-field">
+        <label class="control-label">Size</label>
+        <mat-slider class="slider" step="1" min="0" max="20" [(ngModel)]="gbBorderSize"
+            (change)="setGBBorderSize($event)"></mat-slider>
+        <label class="control-label">{{ gbBorderSizeLabel }}px</label>
+    </div>
 </section>
 <section class="tab-section" [hidden]="isHideText">
     <mat-divider></mat-divider>

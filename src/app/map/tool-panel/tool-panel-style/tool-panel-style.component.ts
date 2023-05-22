@@ -47,6 +47,8 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   gbColor = '#00DCFF';
   gbOpacity = 0.0;
   gbOpacityLabel = 0;
+  gbBorderSize = 0;
+  gbBorderSizeLabel = 0;
   gbBorderColor = '#CCCCCC';
   textSize = 25;
   textColor = '#000000';
@@ -137,6 +139,8 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
           this.gbColor = data.color;
           this.gbOpacity = data.group_opacity;
           this.gbOpacityLabel = this.gbOpacity ? Math.round(this.gbOpacity * 100) : 0;
+          this.gbBorderSize = this.removePx(data.border_width);
+          this.gbBorderSizeLabel = this.gbBorderSize ? this.gbBorderSize : 0;
           this.gbBorderColor = data.border_color;
           this.gbBorderTypeActivated = data.border_style;
           this.textColor = data.text_color;
@@ -211,6 +215,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
     const newGBOpacity = this.selectedMapPref.group_box_opacity;
     const newGBBorderType = this.selectedMapPref.group_box_border;
     const newGBBorderColor = this.selectedMapPref.group_box_border_color;
+    const newGBBorderSize = this.selectedMapPref.group_box_border_size;
     const newMapImageSize = this.selectedMapPref.scale_image;
     this.ur.do("changTextColor", { activeEles, newTextColor });
     this.ur.do("changeTextSize", { activeEles, newTextSize });
@@ -229,6 +234,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
     this.ur.do("changeGBOpacity", { activeGBs: this.activeGBs, newGBOpacity });
     this.ur.do("changeGBType", { activeGBs: this.activeGBs, newGBBorderType });
     this.ur.do("changeGBBorderColor", { activeGBs: this.activeGBs, newGBBorderColor });
+    this.ur.do("changeGBBorderSize", { activeGBs: this.activeGBs, newGBBorderSize });
     this.ur.do("changeMapImageSize", { activeMBs: this.activeMBs, newMapImageSize });
     this.store.dispatch(retrievedMapSelection({ data: true }));
   }
@@ -324,6 +330,13 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   setGBBorderColor(newGbBorderColor: string) {
     this.gbBorderColor = this.helpers.fullColorHex(newGbBorderColor);
     this.commonService.gBBorderColor(newGbBorderColor, this.activeGBs);
+  }
+
+  setGBBorderSize(event: any) {
+    this.gbBorderSize = event.value <= 20 ? event.value : 20;
+    this.gbBorderSizeLabel = this.gbBorderSize ? this.gbBorderSize : 0;
+    console.log(this.gbBorderSizeLabel)
+    this.commonService.gbBorderSize(event, this.activeGBs);
   }
 
   increaseZIndex() {

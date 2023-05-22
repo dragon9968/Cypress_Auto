@@ -1068,6 +1068,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.ur.action("changeGBColor", this.toolPanelStyleService.changeGBColor.bind(this.commonService).bind(this.commonService), this.toolPanelStyleService.restoreGBColor.bind(this.commonService).bind(this.commonService));
     this.ur.action("changeGBBorderColor", this.toolPanelStyleService.changeGBBorderColor.bind(this.commonService).bind(this.commonService), this.toolPanelStyleService.restoreGBBorderColor.bind(this.commonService).bind(this.commonService));
     this.ur.action("changeGBType", this.toolPanelStyleService.changeGBType.bind(this.commonService).bind(this.commonService), this.toolPanelStyleService.restoreGBType.bind(this.commonService).bind(this.commonService));
+    this.ur.action("changeGBBorderSize", this.toolPanelStyleService.changeGBBorderSize.bind(this.commonService).bind(this.commonService), this.toolPanelStyleService.restoreGBBorderSize.bind(this.commonService).bind(this.commonService));
   }
 
   private _initMouseEvents() {

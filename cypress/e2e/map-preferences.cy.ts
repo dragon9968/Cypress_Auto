@@ -36,7 +36,7 @@ describe('Map Preferences e2e testing', () => {
     cy.viewport(1366, 768)
     cy.visit('/')
     cy.getByDataCy('btn-nav-app-pref').click()
-    cy.get('button>span').contains('Map Preferences').click()
+    cy.get('button>span').contains('Map Preferences').click({force: true})
     cy.wait(2000)
     // Show form edit 
     cy.showFormEditByName(mapPreferences.mapPrefAdd[0].name)
@@ -48,7 +48,7 @@ describe('Map Preferences e2e testing', () => {
     cy.viewport(1366, 768)
     cy.visit('/')
     cy.getByDataCy('btn-nav-app-pref').click()
-    cy.get('button>span').contains('Map Preferences').click()
+    cy.get('button>span').contains('Map Preferences').click({force: true})
     cy.wait(2000)
     // Export as Json with single
     cy.selectRowByName(mapPreferences.mapPrefEdit[0].name)

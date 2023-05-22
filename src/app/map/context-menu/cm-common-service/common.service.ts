@@ -162,4 +162,9 @@ export class CommonService {
   gBType(newGBBorderType: any, activeGBs: any[]) {
     this.ur?.do('changeGBType', {activeGBs, newGBBorderType});
   }
+
+  gbBorderSize(event: any, activeGBs: any[]){
+    const newGBBorderSize = event.value;
+    this.ur?.do('changeGBBorderSize', {activeGBs, newGBBorderSize});
+  }
 }

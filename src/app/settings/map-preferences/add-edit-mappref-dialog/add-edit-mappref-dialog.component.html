@@ -70,6 +70,11 @@
       <button type="button" mat-mini-fab id="groupBoxBorderColor" class="color-picker" [(colorPicker)]="gbBorderColor"
         [style.background]="gbBorderColor" cpPosition="bottom" (colorPickerChange)="setGbBorderColor($event)"></button>
     </div>
+    <div class="tab-field">
+      <label class="label">Group Box Border Size</label>
+      <mat-slider class="slider" formControlName="gbBorderSize" step="1" min="0" max="20" (change)="setGroupBoxBorderSize($event)"></mat-slider>
+      <label>{{ textGBBorderSizeLabel }}px</label>
+    </div>
     <div class="tab-field pg-color">
       <label class="label" for="portGroupColor">Port Group Color </label>
       <button type="button" mat-mini-fab id="portGroupColor" class="color-picker" [(colorPicker)]="pgColor"

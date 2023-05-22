@@ -158,6 +158,12 @@ export class HelpersService implements OnDestroy {
         }
       },
       {
+        selector: '[border_width]',
+        style: {
+          'border-width': (ele: any) => ele.data('border_width'),
+        }
+      },
+      {
         selector: 'node[width][height]',
         style: {
           "height": (ele: any) => ele.data('height'),
