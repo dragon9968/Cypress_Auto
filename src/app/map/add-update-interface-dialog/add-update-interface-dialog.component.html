@@ -117,8 +117,8 @@
               {{ option.mask }}
             </mat-option>
           </mat-autocomplete>
-          <mat-error *ngIf="directionCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
-          <mat-error *ngIf="directionCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+          <mat-error *ngIf="netMaskCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+          <mat-error *ngIf="netMaskCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
         </mat-form-field>
         <mat-form-field class="field">
           <mat-label>DNS Server</mat-label>

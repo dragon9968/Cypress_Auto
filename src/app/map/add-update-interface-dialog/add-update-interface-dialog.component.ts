@@ -146,9 +146,11 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   private _disableItems(subnetAllocation: string) {
     if (subnetAllocation == 'static_manual') {
       this.ipCtr?.enable();
+      this.netMaskCtr.setValidators([Validators.required, autoCompleteValidator(this.netmasks)]);
       this.netMaskCtr?.enable();
     } else {
       this.ipCtr?.disable();
+      this.netMaskCtr.setValidators([]);
       this.netMaskCtr?.disable();
     }
   }
@@ -174,7 +176,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     ele.data('ip_last_octet', last_octet);
     ele.data('target', `pg-${data.port_group_id}`);
     ele.data('netmask_id', data.netmask_id);
-    ele.data('netmask', this.helpers.getOptionById(this.netmasks, data.netmask_id).mask);
+    ele.data('netmask', data.netmask_id ? this.helpers.getOptionById(this.netmasks, data.netmask_id).mask : '');
   }
 
   onIpAllocationChange($event: MatRadioChange) {
@@ -254,6 +256,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   }
 
   updateInterface() {
+    const netmask_id = this.netMaskCtr?.value.id;
     const jsonDataValue = {
       order: this.orderCtr?.value,
       name: this.nameCtr?.value,
@@ -269,7 +272,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       is_gateway: this.isGatewayCtr?.value,
       is_nat: this.isNatCtr?.value,
       node_id: this.data.genData.node_id,
-      netmask_id: this.netMaskCtr?.value.id,
+      netmask_id: netmask_id ? netmask_id : null,
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.interfaceService.put(this.data.genData.interface_id, jsonData).subscribe((respData: any) => {
