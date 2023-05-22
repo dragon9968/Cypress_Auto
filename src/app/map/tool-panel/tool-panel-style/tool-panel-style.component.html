@@ -62,7 +62,7 @@
     <h4>Arrow</h4>
     <div class="tab-field direction">
         <label>Direction</label>
-        <mat-button-toggle-group color="primary" class="button-group" (change)="setDirection($event)">
+        <mat-button-toggle-group color="primary" class="button-group" (change)="setDirection($event)" [(ngModel)]="arrowActivated">
             <mat-button-toggle value="both"><mat-icon>sync_alt</mat-icon></mat-button-toggle>
             <mat-button-toggle value="inbound"><mat-icon>west</mat-icon></mat-button-toggle>
             <mat-button-toggle value="outbound"><mat-icon>east</mat-icon></mat-button-toggle>

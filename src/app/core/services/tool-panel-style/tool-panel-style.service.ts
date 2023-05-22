@@ -118,7 +118,7 @@ export class ToolPanelStyleService {
         }
       }
     })
-    return data; 
+    return data;
   }
 
   restoreMapImageSize(data: any) {

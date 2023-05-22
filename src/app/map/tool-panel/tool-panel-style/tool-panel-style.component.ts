@@ -2,7 +2,6 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatIconRegistry } from '@angular/material/icon';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
@@ -18,6 +17,7 @@ import { selectMapSelection } from 'src/app/store/map-selection/map-selection.se
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { ErrorMessages } from "../../../shared/enums/error-messages.enum";
+import { selectMapOption } from "../../../store/map-option/map-option.selectors";
 
 @Component({
   selector: 'app-tool-panel-style',
@@ -57,6 +57,8 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   textBGOpacityLabel = 0;
   selectDefaultPreferences$ = new Subscription();
   selectMapPref$ = new Subscription();
+  isEdgeDirectionChecked = false;
+  selectMapOption$ = new Subscription();
   isHideNode: boolean = true;
   isHidePGs: boolean = true;
   isHideText: boolean = true;
@@ -74,7 +76,6 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   filteredMapPrefs!: Observable<any[]>;
 
   constructor(
-    private domSanitizer: DomSanitizer,
     private mapPrefService: MapPrefService,
     private store: Store,
     public helpers: HelpersService,
@@ -84,8 +85,8 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
     private cmGroupBoxService: CMGroupBoxService,
     private cmLockUnlockService: CMLockUnlockService,
   ) {
-    iconRegistry.addSvgIcon('dashed', this.setPath('/assets/icons/dashed.svg'));
-    iconRegistry.addSvgIcon('double', this.setPath('/assets/icons/double.svg'));
+    iconRegistry.addSvgIcon('dashed', this.helpers.setIconPath('/assets/icons/dashed.svg'));
+    iconRegistry.addSvgIcon('double', this.helpers.setIconPath('/assets/icons/double.svg'));
     this.selectDefaultPreferences$ = this.store.select(selectDefaultPreferences).subscribe(defaultPref => {
       if (defaultPref) {
         this.mapPrefService.get(defaultPref.default_map_pref_id).subscribe(data => {
@@ -130,7 +131,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
           const data = this.activeEdges[0].data();
           this.edgeColor = data.color;
           this.edgeSize = this.removePx(data.width);
-          this.arrowActivated = data.direction;
+          this.arrowActivated = this.isEdgeDirectionChecked ? data.direction : data.prev_direction;
           this.arrowSize = data.arrow_scale ? this.removePx(data.arrow_scale) : 1;
           this._setPropertiesCommon(data);
         }
@@ -160,6 +161,11 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
       xCtr: new FormControl('', []),
       yCtr: new FormControl('', []),
     });
+    this.selectMapOption$ = this.store.select(selectMapOption).subscribe(mapOption => {
+      if (mapOption) {
+        this.isEdgeDirectionChecked = mapOption.isEdgeDirectionChecked
+      }
+    })
   }
 
   get xCtr() { return this.positionForm.get('xCtr'); }
@@ -190,10 +196,9 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.selectDefaultPreferences$.unsubscribe();
-  }
-
-  private setPath(url: string): SafeResourceUrl {
-    return this.domSanitizer.bypassSecurityTrustResourceUrl(url);
+    this.selectMapOption$.unsubscribe();
+    this.selectMapPref$.unsubscribe();
+    this.selectMapSelection$.unsubscribe()
   }
 
   applyMapPref() {
