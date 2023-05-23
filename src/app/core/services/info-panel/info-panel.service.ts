@@ -175,24 +175,19 @@ export class InfoPanelService implements OnDestroy {
           break;
         case 'group':
           forkJoin(ids.map(id => {
-            this.groupService.delete(id).pipe(
+            return this.groupService.delete(id).pipe(
               catchError(err => {
                 this.toastr.error('Delete group failed', 'Error');
                 return throwError(() => err)
               })
             )
-            return of(id)
-          })).subscribe(response => {
-            ids.map(id => {
-              this.helperServices.removeGroupBox(this.cy, id)
-            })
+          })).subscribe((_) => {
             const projectId = this.projectService.getProjectId();
             this.groupService.getGroupByProjectId(projectId).subscribe(data => {
               this.store.dispatch(retrievedGroups({ data: data.result }));
             })
             this.mapService.getMapData('logical', projectId).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
           })
-          ids.map(id => this.deleteGroup(id));
           break;
         case 'domainUser':
           ids.map(id => this.deleteDomainUser(id));
@@ -224,35 +219,32 @@ export class InfoPanelService implements OnDestroy {
         this.domainUsers
           .filter(ele => ele.domain_id === domain.id)
           .map(ele => {
-            return this.domainUserService.delete(ele.id).subscribe({
-              next: () => {
-                this.toastr.success(`Deleted domain user ${ele.username}`, 'Success');
-              },
-              error: err => {
+            return this.domainUserService.delete(ele.id).pipe(
+              catchError(err => {
                 this.toastr.error('Delete domain user failed', 'Error');
-                throwError(() => err.message);
-              }
+                return throwError(() => err.message);
+              })
+            ).subscribe((_) => {
+              this.toastr.success(`Deleted domain user ${ele.username}`, 'Success');
             })
           });
-        this.domainService.delete(domain.id).subscribe({
-          next: () => {
-            const projectId = this.projectService.getProjectId();
-            this.domainService.getDomainByProjectId(projectId).subscribe(
-              (data: any) => {
-                this.toastr.success(`Deleted domain ${domainName}`);
-                this.store.dispatch(retrievedDomains({ data: data.result }))
-              }
-            );
-            this.groupService.getGroupByProjectId(projectId).subscribe(data => {
-              this.toastr.success(`Deleted group related to domain ${domainName}`);
-              this.store.dispatch(retrievedGroups({ data: data.result }));
-            })
-
-          },
-          error: err => {
+        this.domainService.delete(domain.id).pipe(
+          catchError(err => {
             this.toastr.error(`Delete domain ${domainName} failed`, 'Error');
-            throwError(() => err.message);
-          }
+            return throwError(() => err.message);
+          })
+        ).subscribe(() => {
+          const projectId = this.projectService.getProjectId();
+          this.domainService.getDomainByProjectId(projectId).subscribe(
+            (data: any) => {
+              this.toastr.success(`Deleted domain ${domainName}`);
+              this.store.dispatch(retrievedDomains({ data: data.result }))
+            }
+          );
+          this.groupService.getGroupByProjectId(projectId).subscribe(data => {
+            this.toastr.success(`Deleted group related to domain ${domainName}`);
+            this.store.dispatch(retrievedGroups({ data: data.result }));
+          })
         })
       }
     });
