@@ -40,4 +40,8 @@ export const retrievedAllProjects = createAction(
   props<{ listAllProject: any }>()
 );
 
+export const retrievedProjectCategory = createAction(
+  'retrievedProjectCategory',
+  props<{ projectCategory: string }>()
+)
 

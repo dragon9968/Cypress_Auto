@@ -50,9 +50,8 @@ import { MapService } from '../core/services/map/map.service';
 import { selectMapOption, selectSearchText } from '../store/map-option/map-option.selectors';
 import { CommonService } from 'src/app/map/context-menu/cm-common-service/common.service';
 import { ToolPanelStyleService } from 'src/app/core/services/tool-panel-style/tool-panel-style.service';
-import { ServerConnectService } from "../core/services/server-connect/server-connect.service";
 import { ProjectService } from "../project/services/project.service";
-import { retrievedProjects, retrievedVMStatus } from "../store/project/project.actions";
+import { retrievedProjectCategory, retrievedProjects, retrievedVMStatus } from "../store/project/project.actions";
 import { ICON_PATH } from '../shared/contants/icon-path.constant';
 import { InfoPanelService } from '../core/services/info-panel/info-panel.service';
 import { retrievedInterfaceIdConnectPG } from "../store/interface/interface.actions";
@@ -72,7 +71,7 @@ import { GroupService } from "../core/services/group/group.service";
 import { retrievedNodes } from "../store/node/node.actions";
 import { retrievedGroups } from "../store/group/group.actions";
 import { ValidateProjectDialogComponent } from "../project/validate-project-dialog/validate-project-dialog.component";
-import { selectProjects } from "../store/project/project.selectors";
+import { selectProjectCategory, selectProjects } from "../store/project/project.selectors";
 import { NgxPermissionsService } from "ngx-permissions";
 import { CMProjectNodeService } from "./context-menu/cm-project-node/cm-project-node.service";
 import { MapLinkService } from "../core/services/map-link/map-link.service";
@@ -184,6 +183,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   selectProjects$ = new Subscription();
   selectInterfaceIdConnectPG = new Subscription();
   selectMapOption$ = new Subscription();
+  selectProjectCategory$ = new Subscription()
   selectMapFeatureSubject: Subject<MapState> = new ReplaySubject(1);
   destroy$: Subject<boolean> = new Subject<boolean>();
   saveMapSubject: Subject<void> = new Subject<void>();
@@ -313,8 +313,14 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.portgroupService.getByProjectId(this.projectId).subscribe((data: any) => this.store.dispatch(retrievedPortGroups({ data: data.result })));
     this.imageService.getByCategory('image').subscribe((data: any) => this.store.dispatch(retrievedImages({ data: data.result })));
     this.mapImageService.getMapImageByProjectId(+this.projectId).subscribe((data: any) => this.store.dispatch(retrievedMapImages({ mapImage: data.result })));
+    this.selectProjectCategory$ = this.store.select(selectProjectCategory).subscribe(projectCategory => {
+      this.isTemplateCategory = projectCategory === 'template'
+      if (this.isTemplateCategory) {
+        this.mapEditService.removeAllProjectNodesOnMap(this.cy)
+      }
+    })
     this.projectService.get(+this.projectId).subscribe((data: any) => {
-      this.isTemplateCategory = data.result.category === 'template';
+      this.store.dispatch(retrievedProjectCategory({ projectCategory: data.result.category}))
       if (this.isHypervisorConnect || this.isConfiguratorConnect) {
         this.vmStatus = data.result.configuration.vm_status;
         this.store.dispatch(retrievedVMStatus({ vmStatus: data.result.configuration.vm_status }));

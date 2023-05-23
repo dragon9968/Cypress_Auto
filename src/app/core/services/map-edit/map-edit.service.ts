@@ -41,4 +41,21 @@ export class MapEditService {
     this.store.dispatch(retrievedMap({data: newMapData}))
     this.helpersService.reloadGroupBoxes(cy)
   }
+
+  removeAllProjectNodesOnMap(cy: any) {
+    const projectNodes = cy.nodes().filter((node: any) => node.data('elem_category') == 'map_link' && !Boolean(node.data('parent_id')))
+    if (projectNodes && projectNodes.length > 0) {
+      projectNodes.map((projectNode: any) => {
+        const data = projectNode.data();
+        if (data.collapsedChildren) {
+          cy.expandCollapse('get').expandRecursively(projectNode, {});
+        }
+        const childrenNodes = projectNode.children();
+        childrenNodes.forEach((node: any) => {
+          cy.remove(node);
+        });
+        cy.remove(projectNode);
+      })
+    }
+  }
 }

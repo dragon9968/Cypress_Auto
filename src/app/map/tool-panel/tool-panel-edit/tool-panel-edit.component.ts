@@ -43,6 +43,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
   @Input() isDisableAddProjectTemplate = true;
   @Input() isDisableNewFromSelected = true;
   @Input() isDisableLinkProject = true;
+  @Input() isTemplateCategory = false;
   status = 'active';
   category = 'template';
   nodeAddForm!: FormGroup;
@@ -349,15 +350,24 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
   addNewProjectFromSelected() {
     const nodeIds = this.activeNodes.map(node => node.data('node_id'));
     const portGroupIds = this.activePGs.map(pg => pg.data('pg_id'));
-    if (nodeIds.length > 0 || portGroupIds.length > 0) {
-      const nodeDomainIds = nodeIds.length > 0 ? this.activeNodes.map(node => node.data('domain_id')) : [];
-      const portGroupDomainIds = portGroupIds.length > 0 ? this.activePGs.map(pg => pg.data('domain_id')) : [];
-      const domainIds = [...new Set([...nodeDomainIds, ...portGroupDomainIds])];
+    const mapImageIds = this.activeMBs.map(pg => pg.data('map_image_id'));
+    if (nodeIds.length > 0 || portGroupIds.length > 0 || mapImageIds.length > 0) {
+      const nodeDomains = this.activeNodes.filter(node => node.data('domain_id') && node.data('domain_id') !== null)
+      const nodeDomainIds = nodeIds.length > 0 ? nodeDomains.map(node => node.data('domain_id')) : [];
+
+      const portGroupDomains = this.activePGs.filter(pg => pg.data('domain_id') && pg.data('domain_id') !== null)
+      const portGroupDomainIds = portGroupIds.length > 0 ? portGroupDomains.map(pg => pg.data('domain_id')) : [];
+
+      const mapImageDomains = this.activeMBs.filter(mi => mi.data('domain_id') && mi.data('domain_id') !== null)
+      const mapImageDomainIds = mapImageIds.length > 0 ? mapImageDomains.map(mi => mi.data('domain_id')) : [];
+
+      const domainIds = [...new Set([...nodeDomainIds, ...portGroupDomainIds, ...mapImageDomainIds])];
       const jsonData = {
         option: 'clone',
         node_ids: nodeIds,
         port_group_ids: portGroupIds,
-        domain_ids: domainIds
+        domain_ids: domainIds,
+        map_image_ids: mapImageIds
       };
       this.router.navigate([RouteSegments.ADD_PROJECT], { state: jsonData });
     } else {

@@ -11,7 +11,7 @@ import { selectIsMapOpen } from 'src/app/store/map/map.selectors';
 import { PermissionLevels } from '../../enums/permission-levels.enum';
 import { RouteSegments } from '../../enums/route-segments.enum';
 import { AuthService } from '../../services/auth/auth.service';
-import { selectIsOpen, selectProjectName } from 'src/app/store/project/project.selectors';
+import { selectIsOpen, selectProjectCategory, selectProjectName } from 'src/app/store/project/project.selectors';
 import {
   retrievedAllProjects,
   retrievedIsOpen,
@@ -68,6 +68,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   selectIsHypervisorConnect$ = new Subscription();
   selectIsDatasourceConnect$ = new Subscription();
   selectIsConfiguratorConnect$ = new Subscription();
+  selectProjectCategory$ = new Subscription();
   isHypervisorConnect = false;
   isDatasourceConnect = false;
   isConfiguratorConnect = false;
@@ -77,7 +78,6 @@ export class NavBarComponent implements OnInit, OnDestroy {
   userId: any;
   categoryProject: any;
   isSmallScreen!: boolean;
-  selectProjects$ = new Subscription();
   listShare: any[] = [];
   listProject: any[] = [];
 
@@ -113,7 +113,6 @@ export class NavBarComponent implements OnInit, OnDestroy {
       if (isOpen) {
         this.projectId = this.projectService.getProjectId();
         this.projectService.get(this.projectId).subscribe(projectData => {
-          this.categoryProject = projectData.result.category
           const sharedProjectId = projectData.result.share.map((val: any) => val.id)
           if (projectData.result.created_by_fk != this.userId && !sharedProjectId.includes(this.userId) && this.router.url === '/map') {
             this.toastr.warning(`The user is not the owner of project ${projectData.result.name}. Cannot open the project ${projectData.result.name}`);
@@ -143,6 +142,9 @@ export class NavBarComponent implements OnInit, OnDestroy {
       this.username = respData.result.username;
       this.store.dispatch(retrievedUserProfile({ data: respData.result }));
     });
+    this.selectProjectCategory$ = this.store.select(selectProjectCategory).subscribe(projectCategory => {
+      this.categoryProject = projectCategory
+    })
     iconRegistry.addSvgIcon('plant-tree-icon', this.helpersService.setIconPath('/assets/icons/plant-tree-icon.svg'));
     iconRegistry.addSvgIcon('icons8-trash-can', this.helpersService.setIconPath('/assets/icons/icons8-trash-can.svg'));
   }
@@ -170,6 +172,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
     this.selectIsDatasourceConnect$.unsubscribe();
     this.selectIsConfiguratorConnect$.unsubscribe();
     this.selectProjectName$.unsubscribe();
+    this.selectProjectCategory$.unsubscribe()
   }
 
   logout() {

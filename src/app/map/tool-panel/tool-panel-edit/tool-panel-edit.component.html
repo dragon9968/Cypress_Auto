@@ -89,45 +89,48 @@
 
   <mat-divider></mat-divider>
   <section class="tab-section">
-    <h4>Project</h4>
-    <form [formGroup]="linkProjectForm" (ngSubmit)="addProjectNode()" autocomplete="off">
-      <div>
-        <mat-form-field class="inline-select-field">
-	  <mat-label>Link Project</mat-label>
-	  <input matInput autocomplete="off" id="toolpanel-linkproject"
-	         placeholder="Select a project"
-	         formControlName="linkProjectCtr"
-	         [matAutocomplete]="autoProject"
-	  >
-	  <mat-autocomplete #autoProject="matAutocomplete"
-	                    [displayWith]="helpers.optionDisplay"
-	                    (optionSelected)="selectProject()"
-	  >
-	    <mat-option *ngFor="let project of filteredProjects | async" [value]="project">
-	      <div class="template-option">
-	        <span class="template-option__text">{{ project.name }}</span>
-	      </div>
-	    </mat-option>
-	  </mat-autocomplete>
-	  <mat-error *ngIf="linkProjectCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
-	  <mat-error *ngIf="linkProjectCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-        </mat-form-field>
-        <button type="submit"
-	        color="primary"
-	        matTooltip="Link Project"
-	        mat-raised-button
-	        class="add-inline-btn"
-	        [disabled]="isDisableLinkProject || linkProjectForm.invalid">
-	  <mat-icon>add</mat-icon>
-        </button>
-      </div>
-    </form>
+    <div *ngIf="!isTemplateCategory">
+      <h4>Project</h4>
+      <form [formGroup]="linkProjectForm" (ngSubmit)="addProjectNode()" autocomplete="off">
+        <div>
+          <mat-form-field class="inline-select-field">
+            <mat-label>Link Project</mat-label>
+            <input matInput autocomplete="off" id="toolpanel-linkproject"
+                   placeholder="Select a project"
+                   formControlName="linkProjectCtr"
+                   [matAutocomplete]="autoProject"
+            >
+            <mat-autocomplete #autoProject="matAutocomplete"
+                              [displayWith]="helpers.optionDisplay"
+                              (optionSelected)="selectProject()"
+            >
+              <mat-option *ngFor="let project of filteredProjects | async" [value]="project">
+                <div class="template-option">
+                  <span class="template-option__text">{{ project.name }}</span>
+                </div>
+              </mat-option>
+            </mat-autocomplete>
+            <mat-error *ngIf="linkProjectCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+            <mat-error *ngIf="linkProjectCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+          </mat-form-field>
+          <button type="submit"
+                  color="primary"
+                  matTooltip="Link Project"
+                  mat-raised-button
+                  class="add-inline-btn"
+                  [disabled]="isDisableLinkProject || linkProjectForm.invalid">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+      </form>
+      <mat-divider></mat-divider>
+    </div>
 
-    <mat-divider></mat-divider>
+    <h4>Template</h4>
     <form [formGroup]="addTemplateForm" (ngSubmit)="addTemplate()" autocomplete="off">
       <mat-form-field class="tab-select-field">
         <mat-label>Template</mat-label>
-        <input autocomplete="off" id="toolpanel-linkproject" matInput
+        <input autocomplete="off" id="toolpanel-add-template" matInput
 	       placeholder="Select a template"
 	       formControlName="projectTemplateCtr"
 	       [matAutocomplete]="autoProjectTemplate"

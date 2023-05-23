@@ -14,7 +14,7 @@ import { UserService } from 'src/app/core/services/user/user.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import {
-  retrievedAllProjects,
+  retrievedAllProjects, retrievedProjectCategory,
   retrievedProjectName,
   retrievedProjects,
   retrievedProjectsTemplate,
@@ -236,6 +236,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
           return throwError(() => e);
         })
       ).subscribe((_respData: any) => {
+        this.store.dispatch(retrievedProjectCategory({ projectCategory: jsonData.category }))
         this.store.dispatch(retrievedProjectName({ projectName: jsonData.name }));
         // Update Recent Projects Storage if the project in recent projects and project is updated
         const recentProject = this.recentProjects.find(project => project.id === this.data.genData.id);
