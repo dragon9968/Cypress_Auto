@@ -136,10 +136,7 @@ describe('Configuration Template e2e testing', () => {
     cy.getByMatToolTip('Export as JSON').click()
 
     cy.wait(2000)
-    cy.unSelectAllRow()
-
-    cy.wait(2000)
-    cy.deleteRecordByName(ospfConfig.ospfDataShowForm[0].name, 'Delete', false)
+    cy.deleteRecordByName(ospfConfig.ospfDataShowForm[0].name, 'Delete', true)
 
   });
 
@@ -167,8 +164,6 @@ describe('Configuration Template e2e testing', () => {
     cy.getByMatToolTip('Export as JSON').click()
 
     cy.wait(2000)
-    cy.unSelectAllRow()
-    cy.wait(2000)
-    cy.deleteRecordByName(bgpConfig.bgpDataShowForm[0].name, 'Delete', false)
+    cy.deleteRecordByName(bgpConfig.bgpDataShowForm[0].name, 'Delete', true)
   });
 })

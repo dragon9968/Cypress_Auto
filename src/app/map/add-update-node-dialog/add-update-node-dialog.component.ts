@@ -604,6 +604,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     this.store.dispatch(retrievedMapSelection({ data: true }));
     this.nodeService.get(this.data.genData.node_id).subscribe(nodeData => {
       this.helpers.updateNodesStorage(nodeData.result);
+      this.helpers.updateNodesOnGroupStorage(nodeData.result, 'node');
       this.helpers.updateNodeOnMap(this.data.cy, this.data.genData.id, nodeData.result);
       this.helpers.reloadGroupBoxes(this.data.cy);
       this.dialogRef.close();

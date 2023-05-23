@@ -25,6 +25,8 @@ import { AddUpdateGroupDialogComponent } from "../../../map/add-update-group-dia
 import { MatDialog } from "@angular/material/dialog";
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 import { CONFIG_TEMPLATE_ADDS_TYPE } from "../../../shared/contants/config-template-add-actions.constant";
+import { selectGroups } from 'src/app/store/group/group.selectors';
+import { retrievedGroups } from 'src/app/store/group/group.actions';
 
 @Injectable({
   providedIn: 'root'
@@ -33,12 +35,14 @@ export class HelpersService implements OnDestroy {
   selectMapOption$ = new Subscription();
   selectGroupBoxes$ = new Subscription();
   selectNodes$ = new Subscription();
+  selectGroups$ = new Subscription();
   nodes: any[] = [];
   groupCategoryId!: string;
   errorMessages = ErrorMessages;
   isGroupBoxesChecked!: boolean;
   isEdgeDirectionChecked!: boolean;
   groupBoxes!: any[];
+  groups!: any[];
   lastWidth = 0;
   lastHeight = 0;
   zoomLimit = false;
@@ -63,6 +67,10 @@ export class HelpersService implements OnDestroy {
     this.selectGroupBoxes$ = this.store.select(selectGroupBoxes).subscribe((groupBoxes: any[]) => {
       this.groupBoxes = groupBoxes;
     });
+
+    this.selectGroups$ = this.store.select(selectGroups).subscribe(groupData => {
+      this.groups = groupData;
+    })
     this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes);
   }
 
@@ -1068,6 +1076,37 @@ export class HelpersService implements OnDestroy {
     } else {
       this.store.dispatch(retrievedNodes({ data: newNodes.concat(newNode) }));
     }
+  }
+
+  updateNodesOnGroupStorage(newValue: any, type: any) {
+    let newItemInGroup: any;
+    const groupOfNode = newValue.groups;
+    const groupIds = groupOfNode.map((gr: any) => gr.id);
+    groupOfNode.forEach((group: any) => {
+      const groups = this.groups.filter(gr => gr.id === group.id);
+      if (type === 'node') {
+        const nodeInGroup = groups[0].nodes;
+        newItemInGroup = [...nodeInGroup];
+        const index = nodeInGroup.findIndex((node: any) => node.id === newValue.id);
+        newItemInGroup.splice(index, 1, newValue);
+      } else {
+        const pgInGroup = groups[0].port_groups;
+        newItemInGroup = [...pgInGroup];
+        const index = pgInGroup.findIndex((pg: any) => pg.id === newValue.id);
+        newItemInGroup.splice(index, 1, newValue);
+      }
+    })
+    const indexGroup = this.groups.findIndex(group => group.id === groupIds[0]);
+    const newGroups = [...this.groups];
+    let newGroup = {...newGroups[indexGroup]};
+    if (type == 'node') {
+      newGroup.nodes = newItemInGroup;
+      newGroups.splice(indexGroup, 1, newGroup);
+    } else {
+      newGroup.port_groups = newItemInGroup;
+      newGroups.splice(indexGroup, 1, newGroup);
+    }
+    this.store.dispatch(retrievedGroups({ data: newGroups }));
   }
 
   updateNodeOnMap(cy: any, id: string, data: any) {

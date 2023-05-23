@@ -244,6 +244,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
           this.store.dispatch(retrievedPortGroupsManagement({ data: newPGsManagement }));
         } else {
           this._updatePGOnMap(portGroup);
+          this.helpers.updateNodesOnGroupStorage(portGroup, 'port_groups');
           this.helpers.reloadGroupBoxes(this.data.cy);
           this.store.dispatch(retrievedMapSelection({ data: true }));
         }
