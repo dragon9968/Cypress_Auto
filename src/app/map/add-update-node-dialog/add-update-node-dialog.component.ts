@@ -218,10 +218,10 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       asnCtr: new FormControl(''),
       neighborIpCtr: new FormControl('', [networksValidation('single')]),
       neighborAsnCtr: new FormControl(''),
-      bgpConnectedStateCtr: new FormControl('', [Validators.pattern('^[0-9]*$')]),
+      bgpConnectedStateCtr: new FormControl(''),
       bgpConnectedMetricCtr: new FormControl('', [Validators.pattern('^[0-9]*$')]),
       bgpOspfStateCtr: new FormControl(''),
-      bgpOspfMetricCtr: new FormControl('')
+      bgpOspfMetricCtr: new FormControl('', [Validators.pattern('^[0-9]*$')])
     })
     this.isViewMode = this.data.mode == 'view';
     this.nodeAddForm = new FormGroup({

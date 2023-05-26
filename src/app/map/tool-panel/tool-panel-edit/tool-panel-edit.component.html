@@ -62,7 +62,7 @@
       </button>
     </div>
     <div class="tab-field">
-      <mat-checkbox [(ngModel)]="isCustomizePG">Customize</mat-checkbox>
+      <mat-checkbox [(ngModel)]="isCustomizePG" [disabled]="isDisableCustomizePG">Customize</mat-checkbox>
     </div>
   </section>
 

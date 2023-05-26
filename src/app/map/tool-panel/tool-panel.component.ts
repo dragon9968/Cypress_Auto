@@ -51,6 +51,12 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterfaces: any[] = [];
   @Input() saveMapSubject!: Observable<any>;
+  @Input() isAddNode = false;
+  @Input() isAddPublicPG = false;
+  @Input() isAddPrivatePG = false;
+  @Input() isAddMapImage = false;
+  @Input() isAddProjectNode = false;
+  @Input() isAddProjectTemplate = false;
   updatedNodes: any[] = [];
   updatedInterfaces: any[] = [];
   updatedGroupBoxes: any[] = [];
