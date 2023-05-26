@@ -98,6 +98,7 @@
           <mat-label>IP Address</mat-label>
           <input autocomplete="off" id="interface-ip" matInput formControlName="ipCtr" [readonly]="isViewMode">
           <mat-error *ngIf="ipCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+          <mat-error *ngIf="ipCtr?.errors?.isExist">{{ errorMessages.IP_IS_EXISTING }}</mat-error>
         </mat-form-field>
         <mat-form-field class="field">
           <mat-label>Gateway</mat-label>

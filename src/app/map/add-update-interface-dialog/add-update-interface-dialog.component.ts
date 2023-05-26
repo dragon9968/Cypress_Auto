@@ -20,6 +20,7 @@ import { selectMapOption } from "../../store/map-option/map-option.selectors";
 import { PortGroupService } from "../../core/services/portgroup/portgroup.service";
 import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
 import { selectNodesByProjectId } from 'src/app/store/node/node.selectors';
+import { validateNameExist } from "../../shared/validations/name-exist.validation";
 
 @Component({
   selector: 'app-add-update-interface-dialog',
@@ -46,6 +47,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   filteredPortGroups!: Observable<any[]>;
   filteredDirections!: Observable<any[]>;
   filteredNetmasks!: Observable<any[]>;
+  edgesConnected = []
 
   constructor(
     private store: Store,
@@ -57,6 +59,8 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     private infoPanelService: InfoPanelService,
     private portGroupService: PortGroupService
   ) {
+    this.edgesConnected = this.data.cy.nodes(`[id="pg-${this.data.genData.port_group_id}"]`).connectedEdges()
+                                        .map((ele: any) => ({...ele.data(), id: Number(ele.data('id'))}))
     this.interfaceAddForm = new FormGroup({
       orderCtr: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
       nameCtr: new FormControl('', Validators.required),
@@ -66,7 +70,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       macAddressCtr: new FormControl(''),
       portGroupCtr: new FormControl(''),
       ipAllocationCtr: new FormControl(''),
-      ipCtr: new FormControl('', Validators.required),
+      ipCtr: new FormControl(''),
       dnsServerCtr: new FormControl(''),
       gatewayCtr: new FormControl(''),
       isGatewayCtr: new FormControl(''),
@@ -141,6 +145,13 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     this.isNatCtr?.setValue(this.data.genData.is_nat);
     this.helpers.setAutoCompleteValue(this.netMaskCtr, this.netmasks, this.data.genData.netmask_id);
     this._disableItems(this.ipAllocationCtr?.value);
+    this.ipCtr?.setValidators([
+      Validators.required,
+      validateNameExist(() => this.edgesConnected, this.data.mode, this.data.genData.interface_id, 'ip')
+    ])
+    if (!this.isViewMode) {
+      this.interfaceAddForm?.markAllAsTouched();
+    }
   }
 
   private _disableItems(subnetAllocation: string) {
@@ -197,7 +208,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       mac_address: this.macAddressCtr?.value,
       port_group_id: this.portGroupCtr?.value.id,
       ip_allocation: this.ipAllocationCtr?.value,
-      ip: this.ipCtr?.value,
+      ip: this.ipAllocationCtr?.value === 'static_auto' ? this.data.genData.ip : this.ipCtr?.value,
       dns_server: this.dnsServerCtr?.value,
       gateway: this.gatewayCtr?.value,
       is_gateway: this.isGatewayCtr?.value,
@@ -266,7 +277,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       mac_address: this.macAddressCtr?.value,
       port_group_id: this.portGroupCtr?.value.id,
       ip_allocation: this.ipAllocationCtr?.value,
-      ip: this.ipCtr?.value,
+      ip: this.ipAllocationCtr?.value === 'static_auto' ? this.data.genData.ip : this.ipCtr?.value,
       dns_server: this.dnsServerCtr?.value,
       gateway: this.gatewayCtr?.value,
       is_gateway: this.isGatewayCtr?.value,
@@ -365,6 +376,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   changeViewToEdit() {
     this.data.mode = 'update';
     this.isViewMode = false;
+    this.interfaceAddForm.markAllAsTouched();
   }
 
   private _showOrHideArrowDirectionOnEdge(edgeId: any) {

@@ -37,10 +37,12 @@ function addNewProject(project: any, isUsingDefaultNetwork = true): void {
     cy.get('mat-option').contains(`${project.target}`).click()
   })
   cy.getByFormControlName('option').children(`mat-radio-button[value="${project.option}"]`).click()
-  cy.getByFormControlName('enclave_number').clear().type(project.enclave_number).blur()
-  cy.getByFormControlName('enclave_clients').clear().type(project.enclave_clients).blur()
-  cy.getByFormControlName('enclave_servers').clear().type(project.enclave_servers).blur()
-  cy.getByFormControlName('enclave_users').clear().type(project.enclave_users).blur()
+  if (project.option != 'blank') {
+    cy.getByFormControlName('enclave_number').clear().type(project.enclave_number).blur()
+    cy.getByFormControlName('enclave_clients').clear().type(project.enclave_clients).blur()
+    cy.getByFormControlName('enclave_servers').clear().type(project.enclave_servers).blur()
+    cy.getByFormControlName('enclave_users').clear().type(project.enclave_users).blur()
+  }
   cy.getByFormControlName('vlan_min').clear().type(project.vlan_min).blur()
   cy.get('mat-error').should('not.exist')
   cy.getByFormControlName('vlan_max').clear().type(project.vlan_max).blur()
@@ -614,6 +616,103 @@ function deleteRecordByName(name: string, matToolTipName: string, isRowSelected:
   cy.log(`END: Delete ${name} successfully`)
 }
 Cypress.Commands.add('deleteRecordByName', deleteRecordByName);
+
+// Add new node on map
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    addNewNodeOnMap(node: any): typeof addNewNodeOnMap;
+  }
+}
+
+function addNewNodeOnMap(node: any): void {
+  cy.log(`START: Add new node ${node.name}`)
+  cy.wait(2000)
+  cy.getByFormControlName('deviceCtr').first().click()
+  cy.get('.option-text').contains(node.device_name).first().click()
+  cy.getByFormControlName('templateCtr').click()
+  cy.get('.option-text').contains(node.template_name).first().click()
+  cy.getByDataCy('btn-add-node').click()
+  cy.wait(1000)
+  cy.get('canvas.expand-collapse-canvas').click(node.logical_map_position.x, node.logical_map_position.y, { force: true });
+  cy.wait(1000)
+  cy.getByFormControlName('nameCtr').invoke('val').should('not.eq', '')
+    .then(nodeNameInput => {
+      cy.wait(1000)
+      cy.getByFormControlName('folderCtr').type(`${node.folder}-${nodeNameInput}`)
+    })
+  cy.get('mat-error').should('not.exist')
+  cy.getByDataCy('nodeAddForm').submit()
+  cy.wait(2000)
+  cy.log(`END: Added new node ${node.name} successfully`)
+}
+Cypress.Commands.add('addNewNodeOnMap', addNewNodeOnMap);
+
+// Add new node on map
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    addNewPortGroupOnMap(portGroup: any): typeof addNewPortGroupOnMap;
+  }
+}
+
+function addNewPortGroupOnMap(portGroup: any): void {
+  cy.log(`START: Add new portGroup ${portGroup.name}`)
+  cy.wait(2000)
+  const portGroupCategory = portGroup.category == 'public' ? '[matTooltip="Add Public"]' : '[matTooltip="Add Private"]'
+  cy.get(portGroupCategory).click()
+  cy.get('canvas.expand-collapse-canvas').click(portGroup.logical_map_position.x, portGroup.logical_map_position.y, { force: true });
+  cy.wait(1000)
+  cy.get('mat-error').should('not.exist')
+  cy.getByDataCy('pgAddForm').submit()
+  cy.log(`END: Add new port group ${portGroup.name} successfully`)
+  cy.wait(2000)
+}
+Cypress.Commands.add('addNewPortGroupOnMap', addNewPortGroupOnMap);
+
+// Add new node on map
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    addNewInterface(edge: any, nodeX: any, nodeY: any, pgX: any, pgY: any, isValidateIP: boolean): typeof addNewInterface;
+  }
+}
+
+function addNewInterface(edge: any, nodeX: any, nodeY: any, pgX: any, pgY: any, isValidateIP = false): void {
+  cy.log('START: Add new interface')
+  cy.wait(2000)
+  cy.get('canvas.expand-collapse-canvas').click(nodeX, nodeY, { force: true })
+    .rightclick(nodeX, nodeY,{force: true}).then(() => {
+    cy.get('.cy-context-menus-cxt-menu').first().should('exist')
+    cy.get('#node_interface').should('exist').click({ force: true })
+    cy.get('#add_new_interface').should('exist').click({ force: true })
+    cy.get('canvas.expand-collapse-canvas').click(pgX, pgY, { force: true });
+    cy.wait(1000)
+    cy.getByFormControlName('directionCtr').click().then(() => {
+      cy.get('mat-option').contains('Both').click()
+    })
+    cy.wait(1000)
+    if (edge) {
+      if (edge.ip_allocation) {
+        cy.getByFormControlName('ipAllocationCtr').children(`mat-radio-button[value="${edge.ip_allocation}"]`).click()
+        cy.wait(1000)
+      }
+      if (edge.ip_address) {
+        cy.getByFormControlName('ipCtr').clear().type(edge.ip_address)
+        if (isValidateIP) {
+          cy.get('mat-error').should('exist')
+          return;
+        } else {
+          cy.get('mat-error').should('not.exist')
+        }
+        cy.wait(1000)
+      }
+    }
+    cy.get('mat-error').should('not.exist')
+    cy.getByDataCy('interfaceAddForm').should('be.visible').submit()
+    cy.get('button[matTooltip="Save"]').click()
+  })
+  cy.wait(2000)
+  cy.log('END: Add new interface successfully')
+}
+Cypress.Commands.add('addNewInterface', addNewInterface);
 
 // Add new Connection Profile
 declare namespace Cypress {

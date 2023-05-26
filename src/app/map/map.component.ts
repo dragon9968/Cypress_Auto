@@ -1308,11 +1308,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.edgeNode = null;
       this.isAddEdge = false;
       this._enableMapEditButtons();
-      this.nodeService.get(_data.node_id).subscribe(nodeData => {
-        this.helpersService.updateNodesStorage(nodeData.result);
-        this.helpersService.updateNodeOnMap(this.cy, 'node-' + nodeData.result.id, nodeData.result);
-        this.store.dispatch(retrievedMapSelection({ data: true }));
-      });
+      if (_data) {
+        this.nodeService.get(_data.node_id).subscribe(nodeData => {
+          this.helpersService.updateNodesStorage(nodeData.result);
+          this.helpersService.updateNodeOnMap(this.cy, 'node-' + nodeData.result.id, nodeData.result);
+          this.store.dispatch(retrievedMapSelection({ data: true }));
+        });
+      }
     });
   }
 
