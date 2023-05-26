@@ -27,6 +27,7 @@ import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection
 import { CONFIG_TEMPLATE_ADDS_TYPE } from "../../../shared/contants/config-template-add-actions.constant";
 import { selectGroups } from 'src/app/store/group/group.selectors';
 import { retrievedGroups } from 'src/app/store/group/group.actions';
+import { isIPv4 } from 'is-ip';
 
 @Injectable({
   providedIn: 'root'
@@ -49,6 +50,15 @@ export class HelpersService implements OnDestroy {
   configTemplateAddsType = CONFIG_TEMPLATE_ADDS_TYPE;
   @Input() deletedInterfaces!: any[];
   @Input() deletedNodes!: any[];
+  isValidOSPFBgpMetric: boolean = true;
+  isValidOSPFConnectedMetric: boolean = true;
+  isValidOSPFStaticMetric: boolean = true;
+  isValidOSPFBgpState: boolean = true;
+  isValidOSPFConnectedState: boolean = true;
+  isValidOSPFStaticState: boolean = true;
+  isValidOSPFMetric: boolean = true; 
+  isValidOSPFState: boolean = true;
+  isValidOSPFNetworks: boolean = true;
 
   constructor(private store: Store,
     private toastr: ToastrService,
@@ -1209,6 +1219,107 @@ export class HelpersService implements OnDestroy {
     }
   }
 
+  validateFieldFormat(json: any) {
+    const configData = JSON.parse(json)
+    const ospfData = configData['ospf']
+    if (ospfData && ospfData.length > 0) {
+      ospfData.every((data: any) => {
+        const bgpMetric = data.redistibution.bgp.metric_type
+        const connectedMetric = data.redistibution.connected.metric_type
+        const StaticMetric = data.redistibution.static.metric_type
+        this.isValidOSPFBgpMetric = Number.isInteger(bgpMetric) && (bgpMetric > 0) && (bgpMetric < 3)
+        this.isValidOSPFConnectedMetric = Number.isInteger(connectedMetric) && (connectedMetric > 0) && (connectedMetric < 3)
+        this.isValidOSPFStaticMetric = Number.isInteger(StaticMetric) && (StaticMetric > 0) && (StaticMetric < 3)
+        this.isValidOSPFBgpState = (typeof data.redistibution.bgp.state === 'boolean')
+        this.isValidOSPFConnectedState = (typeof data.redistibution.connected.state === 'boolean')
+        this.isValidOSPFStaticState = (typeof data.redistibution.static.state === 'boolean')
+
+        this.isValidOSPFMetric = this.isValidOSPFBgpMetric && this.isValidOSPFConnectedMetric && this.isValidOSPFStaticMetric
+        this.isValidOSPFState = this.isValidOSPFBgpState && this.isValidOSPFConnectedState && this.isValidOSPFStaticState
+        this.isValidOSPFNetworks = this.validationNetwork(data.networks)
+        return (this.isValidOSPFMetric && this.isValidOSPFState && this.isValidOSPFNetworks)
+      })
+    }
+    if (!this.isValidOSPFMetric) {
+      this.toastr.warning(`The metric type field is invalid. Metric Type should be an integer and only have the values 1 or 2.`)
+      return false
+    } else if (!this.isValidOSPFState) {
+      this.toastr.warning(`The state field is invalid. State field should contain only true or false values`)
+      return false
+    } else if (!this.isValidOSPFNetworks) {
+      this.toastr.warning(`The network field is invalid. Expected 4 octets and only decimal digits permitted.`)
+      return false
+    } else {
+      return true;
+    }
+  }
+
+  validationNetwork(data: any) {
+    const isSubnet = require("is-subnet");
+    let isValidNetworks: boolean = true;
+    let isIpV4: boolean = true;
+    if (data && data.length > 0) {
+      if (Array.isArray(data)) {
+        data.every((val: any) => {
+          isIpV4 = isIPv4(val)
+          isValidNetworks = (isIpV4)
+          if (val.includes('/')) {
+            isIpV4 = isIPv4(val.split('/')[0])
+            const isMatchSubnet = isSubnet(val)
+            isValidNetworks = (isIpV4 && isMatchSubnet)
+          }
+          return isValidNetworks
+        })
+      } else {
+        isIpV4 = isIPv4(data)
+        isValidNetworks = isIpV4
+      }
+    }
+    return isValidNetworks;
+  }
+
+  validationBGP(json: any) {
+    let isValidBGPConnectedMetric: boolean = true; 
+    let isValidBGPOSPFMetric: boolean = true;
+    let isValidBGPConnectedState: boolean = true;
+    let isValidBGPOSPFState: boolean = true;
+    let isValidBGPMetric: boolean = true;
+    let isValidBGPState: boolean = true;
+    let isValidBGPIPAdress: boolean = true;
+    let isValidBGPNeighborIP: boolean = true;
+    let isValidBGPNetworks: boolean = true;
+    const configData = JSON.parse(json)
+    const bgpData = configData['bgp']
+    if (bgpData && bgpData.length > 0) {
+      bgpData.every((data: any) => {
+        const connectedMetric = data.redistribute.connected.metric
+        const ospfMetric = data.redistribute.ospf.metric
+        isValidBGPConnectedMetric = Number.isInteger(connectedMetric)
+        isValidBGPOSPFMetric = Number.isInteger(ospfMetric)
+        isValidBGPConnectedState = (typeof data.redistribute.connected.state === 'boolean')
+        isValidBGPOSPFState = (typeof data.redistribute.ospf.state === 'boolean')
+        isValidBGPIPAdress = this.validationNetwork(data.ip_address)
+        isValidBGPNeighborIP = this.validationNetwork(data.neighbor_ip)
+        isValidBGPMetric = isValidBGPConnectedMetric && isValidBGPOSPFMetric
+        isValidBGPState = isValidBGPConnectedState && isValidBGPOSPFState
+        isValidBGPNetworks = isValidBGPIPAdress && isValidBGPNeighborIP
+        return (isValidBGPMetric && isValidBGPState && isValidBGPNetworks)
+      })
+    }
+    if (!isValidBGPMetric) {
+      this.toastr.warning(`The metric field is invalid. Metric should be an integer.`)
+      return false
+    } else if (!isValidBGPState) {
+      this.toastr.warning(`The state field is invalid. State field should contain only true or false values`)
+      return false
+    } else if (!isValidBGPNetworks) {
+      this.toastr.warning(`The ip address is invalid. Expected 4 octets and only decimal digits permitted.`)
+      return false
+    } else {
+      return true;
+    }
+  }
+
   processNetworksField(data: string) {
     const arr: any[] = [];
     if (!data || data === "") {
@@ -1255,7 +1366,7 @@ export class HelpersService implements OnDestroy {
       case 'Windows Client': case 'Linux Client':
         return this.configTemplateAddsType.filter(addType => addType.id == 'add_domain_membership')
       default:
-        return this.configTemplateAddsType
+        return this.configTemplateAddsType.filter(addType => addType.id != 'add_ospf' && addType.id != 'add_bgp')
     }
   }
 

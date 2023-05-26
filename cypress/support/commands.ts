@@ -240,10 +240,10 @@ Cypress.Commands.add('editConfigTemplate', editConfigTemplate);
 
 declare namespace Cypress {
   interface Chainable<Subject = any> {
-    addBGPConfigTemplate(configTemplate: any, networksInvalid: any): typeof addBGPConfigTemplate;
+    addBGPConfigTemplate(configTemplate: any, networksInvalid: any, metric: any): typeof addBGPConfigTemplate;
   }
 }
-function addBGPConfigTemplate(configTemplate: any, networksInvalid: any): void {
+function addBGPConfigTemplate(configTemplate: any, networksInvalid: any, metric: any): void {
   cy.log(`START: Add ${configTemplate.name} Config`)
   if (networksInvalid) {
     // START: Validation Networks
@@ -276,6 +276,25 @@ function addBGPConfigTemplate(configTemplate: any, networksInvalid: any): void {
     cy.getByDataCy('btn-add-bgp').should("be.disabled")
     cy.wait(3000)
     // END
+  } else if (metric) {
+    const bgpConnectedMetricInvalid = metric.metric
+    cy.getByFormControlName('bgpConnectedMetricCtr').as('bgpConnectedMetricCtr').invoke('val').then(nameValue => {
+      if (nameValue !== bgpConnectedMetricInvalid) {
+        cy.get('@bgpConnectedMetricCtr').clear().type(bgpConnectedMetricInvalid)
+      }
+    })
+    
+    const bgpOSPFStateValid = configTemplate.bgp[0].redistribute.ospf.state
+    if (bgpOSPFStateValid) {
+      cy.get('.cy-bgp-ospfState span input[type="checkbox"]').check({ force: true }).should('be.checked')
+    } else {
+      cy.get('.cy-bgp-ospfState span input[type="checkbox"]').uncheck({ force: true })
+    }
+
+    cy.get('mat-error').should('exist')
+    cy.getByDataCy('btn-add-bgp').should("be.disabled")
+    cy.wait(3000)
+
   } else {
     const ip = configTemplate.bgp[0].ip_address
     cy.getByFormControlName('ipCtr').as('ipCtr').invoke('val').then(nameValue => {
@@ -358,12 +377,9 @@ function addOspfConfigTemplate(configTemplate: any, networksInvalid: any): void 
         cy.get('@networksCtr').clear().type(networksInvalid)
       }
     })
-    const ospfBGPMetricTypeValid = configTemplate.ospf[0].redistibution.bgb.metric_type
-    cy.getByFormControlName('bgpMetricTypeCtr').as('bgpMetricTypeCtr').invoke('val').then(nameValue => {
-      if (nameValue !== ospfBGPMetricTypeValid) {
-        cy.get('@bgpMetricTypeCtr').clear().type(ospfBGPMetricTypeValid)
-      }
-    })
+    const ospfBGPMetricTypeValid = configTemplate.ospf[0].redistibution.bgp.metric_type
+    cy.getByFormControlName('bgpMetricTypeCtr').click();
+    cy.getOptionByContent(ospfBGPMetricTypeValid).click();
     cy.get('mat-error').should('exist')
     cy.getByDataCy('btn-add-ospf').should("be.disabled")
     cy.wait(3000)
@@ -375,19 +391,16 @@ function addOspfConfigTemplate(configTemplate: any, networksInvalid: any): void 
         cy.get('@networksCtr').clear().type(networks)
       }
     })
-    const bgp = configTemplate.ospf[0].redistibution.bgb.state
+    const bgp = configTemplate.ospf[0].redistibution.bgp.state
     if (bgp) {
       cy.get('.cy-ospf-bgpState span input[type="checkbox"]').check({ force: true }).should('be.checked')
     } else {
       cy.get('.cy-ospf-bgpState span input[type="checkbox"]').uncheck({ force: true })
     }
 
-    const ospfBGPMetricType = configTemplate.ospf[0].redistibution.bgb.metric_type
-    cy.getByFormControlName('bgpMetricTypeCtr').as('bgpMetricTypeCtr').invoke('val').then(nameValue => {
-      if (nameValue !== ospfBGPMetricType) {
-        cy.get('@bgpMetricTypeCtr').clear().type(ospfBGPMetricType)
-      }
-    })
+    const ospfBGPMetricType = configTemplate.ospf[0].redistibution.bgp.metric_type
+    cy.getByFormControlName('bgpMetricTypeCtr').click();
+    cy.getOptionByContent(ospfBGPMetricType).click();
 
     const ospfConnectedState = configTemplate.ospf[0].redistibution.connected.state
     if (ospfConnectedState) {
@@ -397,11 +410,8 @@ function addOspfConfigTemplate(configTemplate: any, networksInvalid: any): void 
     }
 
     const ospfConnectedMetricType = configTemplate.ospf[0].redistibution.connected.metric_type
-    cy.getByFormControlName('connectedMetricTypeCtr').as('connectedMetricTypeCtr').invoke('val').then(nameValue => {
-      if (nameValue !== ospfConnectedMetricType) {
-        cy.get('@connectedMetricTypeCtr').clear().type(ospfConnectedMetricType)
-      }
-    })
+    cy.getByFormControlName('connectedMetricTypeCtr').click();
+    cy.getOptionByContent(ospfConnectedMetricType).click();
 
     const ospfStaticState = configTemplate.ospf[0].redistibution.static.state
     if (ospfStaticState) {
@@ -411,11 +421,8 @@ function addOspfConfigTemplate(configTemplate: any, networksInvalid: any): void 
     }
 
     const ospfStaticMetricType = configTemplate.ospf[0].redistibution.static.metric_type
-    cy.getByFormControlName('staticMetricTypeCtr').as('staticMetricTypeCtr').invoke('val').then(nameValue => {
-      if (nameValue !== ospfStaticMetricType) {
-        cy.get('@staticMetricTypeCtr').clear().type(ospfStaticMetricType)
-      }
-    })
+    cy.getByFormControlName('staticMetricTypeCtr').click();
+    cy.getOptionByContent(ospfStaticMetricType).click();
 
     cy.get('mat-error').should('not.exist')
     cy.getByDataCy('ospfForm').as('ospfForm').submit()
@@ -429,11 +436,11 @@ Cypress.Commands.add('addOspfConfigTemplate', addOspfConfigTemplate);
 
 declare namespace Cypress {
   interface Chainable<Subject = any> {
-    editOspfAndBgpConfigTemplate(configTemplate: any, newValue: any, defaultConfig: any): typeof editOspfAndBgpConfigTemplate;
+    editOspfAndBgpConfigTemplate(configTemplate: any, newValue: any, defaultConfig: any, validation: boolean): typeof editOspfAndBgpConfigTemplate;
   }
 }
 
-function editOspfAndBgpConfigTemplate(configTemplate: any, newValue: any, defaultConfig: any): void {
+function editOspfAndBgpConfigTemplate(configTemplate: any, newValue: any, defaultConfig: any, validation: boolean): void {
   cy.log(`START: Edit ${configTemplate.name} Config`)
   cy.wait(3000)
 
@@ -459,10 +466,17 @@ function editOspfAndBgpConfigTemplate(configTemplate: any, newValue: any, defaul
   cy.get('mat-error').should('not.exist')
   cy.getByDataCy('configTemplateForm').as('configTemplateForm').submit()
   cy.wait(2000)
-  cy.get('.toast-warning').should('not.exist')
-  cy.log(`END: Edited ${configTemplate.name} Config`)
-  cy.wait(2000)
-  cy.get('mat-dialog-container').should('not.exist')
+  if (validation) {
+    cy.get('.toast-warning').should('exist')
+    cy.log(`END: Edited ${configTemplate.name} Config`)
+    cy.wait(2000)
+    cy.get('mat-dialog-container').should('exist')
+  } else {
+    cy.get('.toast-warning').should('not.exist')
+    cy.log(`END: Edited ${configTemplate.name} Config`)
+    cy.wait(2000)
+    cy.get('mat-dialog-container').should('not.exist')
+  }
 }
 Cypress.Commands.add('editOspfAndBgpConfigTemplate', editOspfAndBgpConfigTemplate);
 

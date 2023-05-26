@@ -218,8 +218,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       asnCtr: new FormControl(''),
       neighborIpCtr: new FormControl('', [networksValidation('single')]),
       neighborAsnCtr: new FormControl(''),
-      bgpConnectedStateCtr: new FormControl(''),
-      bgpConnectedMetricCtr: new FormControl(''),
+      bgpConnectedStateCtr: new FormControl('', [Validators.pattern('^[0-9]*$')]),
+      bgpConnectedMetricCtr: new FormControl('', [Validators.pattern('^[0-9]*$')]),
       bgpOspfStateCtr: new FormControl(''),
       bgpOspfMetricCtr: new FormControl('')
     })
@@ -582,7 +582,9 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
           const isUpdateConfigDefault = JSON.stringify(this.defaultConfig, null, 2) !== this.editor.value;
           if (isUpdateConfigDefault) {
             const isNodeConfigDataFormatted = this.helpers.validateJSONFormat(this.editor.value)
-            if (isNodeConfigDataFormatted) {
+            const isValidJsonForm = this.helpers.validateFieldFormat(this.editor.value)
+            const isValidJsonFormBGP = this.helpers.validationBGP(this.editor.value)
+            if (isNodeConfigDataFormatted && isValidJsonForm && isValidJsonFormBGP) {
               const configDefaultNode = {
                 node_id: this.data.genData.node_id,
                 config_id: this.data.genData.default_config_id,
@@ -807,11 +809,11 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       config_id: this.data.genData.default_config_id,
       networks: this.helpers.processNetworksField(this.networksCtr?.value),
       bgp_state: this.bgpStateCtr?.value,
-      bgp_metric_type: this.bgpMetricTypeCtr?.value,
+      bgp_metric_type: parseInt(this.bgpMetricTypeCtr?.value),
       connected_state: this.connectedStateCtr?.value,
-      connected_metric_type: this.connectedMetricTypeCtr?.value,
+      connected_metric_type: parseInt(this.connectedMetricTypeCtr?.value),
       static_state: this.staticStateCtr?.value,
-      static_metric_type: this.staticMetricTypeCtr?.value,
+      static_metric_type: parseInt(this.staticMetricTypeCtr?.value),
       node_id: this.data.genData.node_id
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);

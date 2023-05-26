@@ -40,7 +40,8 @@
               "cytoscape",
               "src/app/shared/validations/ip-subnet.validation.ag-grid",
               "src/app/shared/validations/ip-subnet.validation",
-              "src/app/shared/validations/networks.validation"
+              "src/app/shared/validations/networks.validation",
+              "src/app/core/services/helpers/helpers.service"
             ]
           },
           "configurations": {

@@ -367,7 +367,11 @@
                       </div>
                       <mat-form-field class="field">
                         <mat-label>Metric Type</mat-label>
-                        <input autocomplete="off" id="config-bgp-metrictype" type="number" matInput formControlName="bgpMetricTypeCtr">
+                        <!-- <input autocomplete="off" id="config-bgp-metrictype" type="number" matInput formControlName="bgpMetricTypeCtr"> -->
+                        <mat-select formControlName="bgpMetricTypeCtr">
+                          <mat-option value=1>1</mat-option>
+                          <mat-option value=2>2</mat-option>
+                        </mat-select>
                       </mat-form-field>
                       <div class="ospf-form--field">
                         <label>Connected</label>
@@ -375,7 +379,11 @@
                       </div>
                       <mat-form-field class="field">
                         <mat-label>Metric Type</mat-label>
-                        <input autocomplete="off" id="config-connected-metrictype" type="number" matInput formControlName="connectedMetricTypeCtr">
+                        <!-- <input autocomplete="off" id="config-connected-metrictype" type="number" matInput formControlName="connectedMetricTypeCtr"> -->
+                        <mat-select formControlName="connectedMetricTypeCtr">
+                          <mat-option value=1>1</mat-option>
+                          <mat-option value=2>2</mat-option>
+                        </mat-select>
                       </mat-form-field>
                       <div class="ospf-form--field">
                         <label>Static</label>
@@ -383,7 +391,11 @@
                       </div>
                       <mat-form-field class="field">
                         <mat-label>Metric Type</mat-label>
-                        <input autocomplete="off" id="config-static-metrictype" type="number" matInput formControlName="staticMetricTypeCtr">
+                        <!-- <input autocomplete="off" id="config-static-metrictype" type="number" matInput formControlName="staticMetricTypeCtr"> -->
+                        <mat-select formControlName="staticMetricTypeCtr">
+                          <mat-option value=1>1</mat-option>
+                          <mat-option value=2>2</mat-option>
+                        </mat-select>
                       </mat-form-field>
                     </section>
                   </mat-dialog-content>
@@ -395,7 +407,7 @@
                 <form *ngIf="isAddBGP" class="bgp-form" [formGroup]="bgpForm" (ngSubmit)="addBGP()" autocomplete="off">
                   <mat-dialog-content class="bgp-form__content">
                     <section class="bgp-form__content__item">
-                      <mat-form-field class="field">
+                      <mat-form-field class="bgp-form__content__item--input-field">
                         <mat-label>IP</mat-label>
                         <input autocomplete="off" id="config-bgp-ip" matInput type="text" placeholder="Select an IP" formControlName="ipCtr" [matAutocomplete]="autoIP"
                               [readonly]="isViewMode">
@@ -406,36 +418,38 @@
                         </mat-autocomplete>
                         <mat-error *ngIf="ipCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
                       </mat-form-field>
-                      <mat-form-field class="field">
+                      <mat-form-field class="bgp-form__content__item--input-field">
                         <mat-label>ASN</mat-label>
                         <input autocomplete="off" id="config-bgp-asn" type="text" matInput formControlName="asnCtr">
                       </mat-form-field>
-                      <mat-form-field class="field">
+                      <mat-form-field class="bgp-form__content__item--input-field">
                         <mat-label>Neighbor IP</mat-label>
                         <input autocomplete="off" id="config-neighborip" type="text" matInput formControlName="neighborIpCtr">
                         <mat-error *ngIf="neighborIpCtr?.errors?.isNotMatchIP">{{ neighborIpCtr?.errors?.value }}</mat-error>
                       </mat-form-field>
-                      <mat-form-field class="field">
+                      <mat-form-field class="bgp-form__content__item--input-field">
                         <mat-label>Neighbor ASN</mat-label>
                         <input autocomplete="off" id="config-neighborasn" type="text" matInput formControlName="neighborAsnCtr">
                       </mat-form-field>
                     </section>
                     <section class="bgp-form__content__item">
-                      <div class="bgp-form__content__item--field">
+                      <div class="bgp-form__content__item--checkboxfield">
                         <label>Connected</label>
                         <mat-checkbox color="primary" formControlName="bgpConnectedStateCtr" [(ngModel)]="bgpConnectedChecked"></mat-checkbox>
                       </div>
-                      <mat-form-field class="field">
+                      <mat-form-field class="bgp-form__content__item--input-field">
                         <mat-label>Metric</mat-label>
-                        <input autocomplete="off" id="config-bgp-connected-metric" type="number" matInput formControlName="bgpConnectedMetricCtr">
+                        <input autocomplete="off" id="config-bgp-connected-metric" matInput formControlName="bgpConnectedMetricCtr">
+                        <mat-error *ngIf="bgpConnectedMetricCtr?.errors?.pattern">{{ errorMessages.FIELD_IS_NUMBER }}</mat-error>
                       </mat-form-field>
-                      <div class="bgp-form__content__item--field">
+                      <div class="bgp-form__content__item--checkboxfield">
                         <label>OSPF</label>
                         <mat-checkbox color="primary" formControlName="bgpOspfStateCtr" [(ngModel)]="bgpOspfChecked"></mat-checkbox>
                       </div>
-                      <mat-form-field class="field">
+                      <mat-form-field class="bgp-form__content__item--input-field">
                         <mat-label>Metric</mat-label>
-                        <input autocomplete="off" id="config-bgpOspf-metric" type="number" matInput formControlName="bgpOspfMetricCtr">
+                        <input autocomplete="off" id="config-bgpOspf-metric" matInput formControlName="bgpOspfMetricCtr">
+                        <mat-error *ngIf="bgpOspfMetricCtr?.errors?.pattern">{{ errorMessages.FIELD_IS_NUMBER }}</mat-error>
                       </mat-form-field>
                     </section>
                   </mat-dialog-content>

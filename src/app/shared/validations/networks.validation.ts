@@ -24,7 +24,7 @@ export function networksValidation(type: any): ValidatorFn {
                 message = message;
               } else {
                 const subnet = ipArr[ip].split('/')[1]
-                message = `'${subnet}' is not a valid netmask`
+                message = `'${subnet}' is invalid subnet mask`
               }
             }
           }
