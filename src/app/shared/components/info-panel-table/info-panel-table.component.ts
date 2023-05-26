@@ -122,7 +122,8 @@ export class InfoPanelTableComponent {
     const dialogData = {
       mode: 'update',
       genData: this.rowsSelected[0],
-      cy: this.cy
+      cy: this.cy,
+      tabName: this.tabName
     }
     if (tabName == 'node') {
       this.dialog.open(AddUpdateNodeDialogComponent,
@@ -141,7 +142,8 @@ export class InfoPanelTableComponent {
         ids: this.rowsSelectedId,
         activeEles: this.rowsSelected
       },
-      cy: this.cy
+      cy: this.cy,
+      tabName: this.tabName
     }
     if (tabName == 'node') {
       this.dialog.open(NodeBulkEditDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });

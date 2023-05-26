@@ -61,17 +61,17 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       orderCtr: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
       nameCtr: new FormControl('', Validators.required),
       descriptionCtr: new FormControl('', Validators.required),
-      categoryCtr: new FormControl({ value: '', disabled: this.isViewMode || this.tabName == 'edgeManagement' }),
+      categoryCtr: new FormControl(''),
       directionCtr: new FormControl(''),
       macAddressCtr: new FormControl(''),
       portGroupCtr: new FormControl(''),
-      ipAllocationCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      ipAllocationCtr: new FormControl(''),
       ipCtr: new FormControl('', Validators.required),
       dnsServerCtr: new FormControl(''),
       gatewayCtr: new FormControl(''),
-      isGatewayCtr: new FormControl({ value: '', disabled: this.isViewMode }),
-      isNatCtr: new FormControl({ value: '', disabled: this.isViewMode }),
-      netMaskCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      isGatewayCtr: new FormControl(''),
+      isNatCtr: new FormControl(''),
+      netMaskCtr: new FormControl(''),
     });
     this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe((portGroups: any) => {
       this.portGroups = portGroups;
