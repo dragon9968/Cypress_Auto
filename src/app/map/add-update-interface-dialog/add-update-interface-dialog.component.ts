@@ -118,7 +118,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   get gatewayCtr() { return this.interfaceAddForm.get('gatewayCtr') }
   get isGatewayCtr() { return this.interfaceAddForm.get('isGatewayCtr'); }
   get isNatCtr() { return this.interfaceAddForm.get('isNatCtr'); }
-  get netMaskCtr() { return this.helpers.getAutoCompleteCtr(this.interfaceAddForm.get('netMaskCtr'), this.netmasks); }
+  get netMaskCtr() { return this.helpers.getAutoCompleteCtr(this.interfaceAddForm.get('netMaskCtr'), this.netmasks, 'mask'); }
 
   ngOnInit(): void {
     let directionValue = this.isEdgeDirectionChecked ? this.data.genData.direction : this.data.genData.prev_direction;

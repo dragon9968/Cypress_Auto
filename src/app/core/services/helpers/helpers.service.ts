@@ -652,8 +652,8 @@ export class HelpersService implements OnDestroy {
     return option ? option : {};
   }
 
-  getOptionByName(options: any, name: string) {
-    const option = options?.filter((option: any) => option.name == name)[0];
+  getOption(options: any, value: string, optionColumn: string = 'name') {
+    const option = options?.filter((option: any) => option[optionColumn] == value)[0];
     return option ? option : {};
   }
 
@@ -663,9 +663,9 @@ export class HelpersService implements OnDestroy {
     }
   }
 
-  getAutoCompleteCtr(control: any, options: any) {
+  getAutoCompleteCtr(control: any, options: any, optionColumn: string = 'name') {
     if (typeof control?.value === 'string') {
-      const option = this.getOptionByName(options, control?.value);
+      const option = this.getOption(options, control?.value, optionColumn);
       if (option && option.id) {
         control.setValue(option);
       }
@@ -681,7 +681,7 @@ export class HelpersService implements OnDestroy {
         if (typeOfValue === 'object') {
           return options;
         }
-        const text = typeOfValue === 'string' ? value.toLowerCase() : value.name;
+        const text = typeOfValue === 'string' ? value.toLowerCase() : value[optionColumn];
         const filteredOptions = options?.filter((option: any) => option[optionColumn]?.toLowerCase().includes(text));
         return filteredOptions.length > 0 ? filteredOptions : options;
       }),
@@ -696,7 +696,7 @@ export class HelpersService implements OnDestroy {
         if (typeOfValue === 'object') {
           return options;
         }
-        const text = typeOfValue === 'string' ? value.toLowerCase() : value.name;
+        const text = typeOfValue === 'string' ? value.toLowerCase() : value['name'];
         const filteredOptions = options?.filter((option: any) => option['name']?.toLowerCase().includes(text)
           || option['subnet']?.toLowerCase().includes(text)
           || option['vlan']?.toString().toLowerCase().includes(text));
