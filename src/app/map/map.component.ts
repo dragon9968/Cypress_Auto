@@ -945,9 +945,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.eles.forEach(ele => {
       ele.locked = ele.data.locked
       if (ele.data.elem_category == 'node' || ele.data.elem_category == 'map_link') {
-        ele.data.icon = environment.apiBaseUrl + ele.data.icon;
+        if (!ele.data.icon.includes(environment.apiBaseUrl)) {
+          ele.data.icon = environment.apiBaseUrl + ele.data.icon;
+        }
       } else if (ele.data.elem_category == 'bg_image') {
-        ele.data.src = environment.apiBaseUrl + ele.data.image;
+        if (!ele.data.src.includes(environment.apiBaseUrl)) {
+          ele.data.src = environment.apiBaseUrl + ele.data.image;
+        }
       }
     });
     this.cy = cytoscape({
