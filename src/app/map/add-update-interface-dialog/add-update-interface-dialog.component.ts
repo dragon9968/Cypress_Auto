@@ -21,6 +21,7 @@ import { PortGroupService } from "../../core/services/portgroup/portgroup.servic
 import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
 import { selectNodesByProjectId } from 'src/app/store/node/node.selectors';
 import { validateNameExist } from "../../shared/validations/name-exist.validation";
+import { networksValidation } from 'src/app/shared/validations/networks.validation';
 
 @Component({
   selector: 'app-add-update-interface-dialog',
@@ -70,7 +71,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       macAddressCtr: new FormControl(''),
       portGroupCtr: new FormControl(''),
       ipAllocationCtr: new FormControl(''),
-      ipCtr: new FormControl(''),
+      ipCtr: new FormControl('', [Validators.required, networksValidation('single')]),
       dnsServerCtr: new FormControl(''),
       gatewayCtr: new FormControl(''),
       isGatewayCtr: new FormControl(''),
