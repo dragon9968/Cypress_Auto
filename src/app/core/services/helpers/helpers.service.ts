@@ -1224,15 +1224,15 @@ export class HelpersService implements OnDestroy {
     const ospfData = configData['ospf']
     if (ospfData && ospfData.length > 0) {
       ospfData.every((data: any) => {
-        const bgpMetric = data.redistibution.bgp.metric_type
-        const connectedMetric = data.redistibution.connected.metric_type
-        const StaticMetric = data.redistibution.static.metric_type
+        const bgpMetric = data.redistribute.bgp.metric_type
+        const connectedMetric = data.redistribute.connected.metric_type
+        const StaticMetric = data.redistribute.static.metric_type
         this.isValidOSPFBgpMetric = Number.isInteger(bgpMetric) && (bgpMetric > 0) && (bgpMetric < 3)
         this.isValidOSPFConnectedMetric = Number.isInteger(connectedMetric) && (connectedMetric > 0) && (connectedMetric < 3)
         this.isValidOSPFStaticMetric = Number.isInteger(StaticMetric) && (StaticMetric > 0) && (StaticMetric < 3)
-        this.isValidOSPFBgpState = (typeof data.redistibution.bgp.state === 'boolean')
-        this.isValidOSPFConnectedState = (typeof data.redistibution.connected.state === 'boolean')
-        this.isValidOSPFStaticState = (typeof data.redistibution.static.state === 'boolean')
+        this.isValidOSPFBgpState = (typeof data.redistribute.bgp.state === 'boolean')
+        this.isValidOSPFConnectedState = (typeof data.redistribute.connected.state === 'boolean')
+        this.isValidOSPFStaticState = (typeof data.redistribute.static.state === 'boolean')
 
         this.isValidOSPFMetric = this.isValidOSPFBgpMetric && this.isValidOSPFConnectedMetric && this.isValidOSPFStaticMetric
         this.isValidOSPFState = this.isValidOSPFBgpState && this.isValidOSPFConnectedState && this.isValidOSPFStaticState
