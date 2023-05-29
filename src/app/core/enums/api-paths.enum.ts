@@ -29,6 +29,7 @@ export enum ApiPaths {
   NODE_SNAPSHOTS = '/api/v1/map/get_vm_snapshots',
   CLONE_NODE = '/api/v1/node/clone/',
   VALIDATE_NODE = '/api/v1/node/validate',
+  GET_DEPLOY_DATA = '/api/v1/node/get_deploy_data',
   PORTGROUP = '/api/v1/portgroup/',
   PORTGROUP_EXPORT  = '/api/v1/portgroup/export',
   MAP_PREF = '/api/v1/mappref/',

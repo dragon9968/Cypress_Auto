@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiPaths } from 'src/app/core/enums/api-paths.enum';
@@ -68,5 +68,12 @@ export class NodeService {
 
   getSnapshots(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.NODE_SNAPSHOTS, data);
+  }
+
+  getDeployData(nodeId: any, connectionId: any): Observable<any> {
+    const params = new HttpParams()
+    .set('pk', nodeId)
+    .set('connection_id', connectionId);
+    return this.http.get<any>(ApiPaths.GET_DEPLOY_DATA, { params });
   }
 }

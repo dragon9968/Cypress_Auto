@@ -490,7 +490,8 @@
             <div class="info-area__list__item">
               <mat-form-field class="field">
                 <mat-label>Hardware info</mat-label>
-                <input autocomplete="off" id="hardware-info" matInput formControlName="hardwareInfoCtr" [readonly]="isViewMode">
+                <textarea autocomplete="off" id="hardware-info" matInput formControlName="hardwareInfoCtr" [readonly]="isViewMode" rows="1"></textarea>
+                <!-- <input autocomplete="off" id="hardware-info" matInput formControlName="hardwareInfoCtr" [readonly]="isViewMode"> -->
               </mat-form-field>
               <mat-form-field class="field">
                 <mat-label>UUID</mat-label>
@@ -502,18 +503,20 @@
               </mat-form-field>
               <mat-form-field class="field">
                 <mat-label>Features</mat-label>
-                <input autocomplete="off" id="features" matInput formControlName="featuresCtr" [readonly]="isViewMode">
+                <textarea autocomplete="off" id="features" matInput formControlName="featuresCtr" [readonly]="isViewMode" rows="1"></textarea>
+                <!-- <input autocomplete="off" id="features" matInput formControlName="featuresCtr" [readonly]="isViewMode"> -->
               </mat-form-field>
               <mat-form-field class="field">
                 <mat-label>Softwares</mat-label>
                 <input autocomplete="off" id="software" matInput formControlName="softwareCtr" [readonly]="isViewMode">
               </mat-form-field>
-              <mat-form-field class="field">
-                <mat-label>Services</mat-label>
-                <input autocomplete="off" id="service" matInput formControlName="serviceCtr" [readonly]="isViewMode">
-              </mat-form-field>
             </div>
             <div class="info-area__list__item">
+              <mat-form-field class="field">
+                <mat-label>Services</mat-label>
+                <textarea autocomplete="off" id="service" matInput formControlName="serviceCtr" [readonly]="isViewMode" rows="1"></textarea>
+                <!-- <input autocomplete="off" id="service" matInput formControlName="serviceCtr" [readonly]="isViewMode"> -->
+              </mat-form-field>
               <mat-form-field class="field">
                 <mat-label>Running Config</mat-label>
                 <input autocomplete="off" id="running-config" matInput formControlName="runningConfigCtr" [readonly]="isViewMode">

@@ -31,6 +31,9 @@ import { retrievedConfigTemplates } from "../../store/config-template/config-tem
 import { PORT } from "../../shared/contants/port.constant";
 import { AceEditorComponent } from "ng2-ace-editor";
 import { networksValidation } from 'src/app/shared/validations/networks.validation';
+import { selectIsConfiguratorConnect, selectIsDatasourceConnect, selectIsHypervisorConnect } from 'src/app/store/server-connect/server-connect.selectors';
+import { RemoteCategories } from 'src/app/core/enums/remote-categories.enum';
+import { ServerConnectService } from 'src/app/core/services/server-connect/server-connect.service';
 
 class CrossFieldErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -111,6 +114,13 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   rolesAndService: any[] = [];
   filteredAddActions!: Observable<any>[];
   listNodeIP: any[] = [];
+  selectIsHypervisorConnect$ = new Subscription();
+  selectIsDatasourceConnect$ = new Subscription();
+  selectIsConfiguratorConnect$ = new Subscription();
+  isHypervisorConnect = false;
+  isDatasourceConnect = false;
+  isConfiguratorConnect = false;
+  connectionCategory = '';
 
   public gridOptions: GridOptions = {
     headerHeight: 48,
@@ -168,7 +178,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     public helpers: HelpersService,
     private store: Store,
     private interfaceService: InterfaceService,
-    private configTemplateService: ConfigTemplateService
+    private configTemplateService: ConfigTemplateService,
+    private serverConnectionService: ServerConnectService,
   ) {
     this.actionsAddForm = new FormGroup({
       addTypeCtr: new FormControl('')
@@ -306,6 +317,26 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       this.rolesAndService = data;
       this.rolesCtr.setValidators([Validators.required, autoCompleteValidator(this.rolesAndService)]);
     });
+    this.selectIsHypervisorConnect$ = this.store.select(selectIsHypervisorConnect).subscribe(isHypervisorConnect => {
+      if (isHypervisorConnect) {
+        this.isHypervisorConnect = isHypervisorConnect
+        this.connectionCategory = RemoteCategories.HYPERVISOR
+      }
+    })
+
+    this.selectIsDatasourceConnect$ = this.store.select(selectIsDatasourceConnect).subscribe(isDatasourceConnect => {
+      if (isDatasourceConnect) {
+        this.isDatasourceConnect = isDatasourceConnect
+        this.connectionCategory = RemoteCategories.DATASOURCE
+      }
+    })
+
+    this.selectIsConfiguratorConnect$ = this.store.select(selectIsConfiguratorConnect).subscribe(isConfiguratorConnect => {
+      if (isConfiguratorConnect) {
+        this.isConfiguratorConnect = isConfiguratorConnect
+        this.connectionCategory = RemoteCategories.CONFIGURATOR
+      }
+    })
   }
 
   ngAfterViewInit(): void {
@@ -420,6 +451,28 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     this.addTypeCtr?.setValue(this.configTemplateAddsType[0]);
     this.addTypeCtr?.setValidators([Validators.required, autoCompleteValidator(this.configTemplateAddsType)])
     this.helpers.setAutoCompleteValue(this.addTypeCtr, this.configTemplateAddsType, this.configTemplateAddsType[0].id)
+    if (this.data.mode === 'view') {
+      const connection = this.serverConnectionService.getConnection(this.connectionCategory);
+      const connectionId = connection ? connection?.id : 0;
+      const nodeId = this.data.genData.node_id
+      this.nodeService.getDeployData(nodeId, connectionId).subscribe((respData: any) => {
+        const resp = respData.result;
+        this.uuidCtr?.setValue(resp?.uuid)
+        if (resp?.info?.Hardware) {
+          let hardwareInfo = [];
+          for (const [key, value] of Object.entries(resp?.info?.Hardware)) {
+            hardwareInfo.push(`${key}: ${value}`)
+          }
+          this.hardwareInfoCtr?.setValue(hardwareInfo)
+        }
+        this.serviceCtr?.setValue(resp?.running_services)
+        if (resp?.installed_features) {
+          const features = resp?.installed_features.map((val: any) => val.name)
+          this.featuresCtr?.setValue(features)
+        }
+        this.runningConfigCtr?.setValue(resp?.deploy_config)
+      })
+    }
   }
 
   ngOnDestroy(): void {
