@@ -28,6 +28,7 @@ import { MatRadioChange } from '@angular/material/radio';
 import { selectUserProfile } from 'src/app/store/user-profile/user-profile.selectors';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { NgxPermissionsService } from "ngx-permissions";
+import { RolesService } from 'src/app/core/services/roles/roles.service';
 
 @Component({
   selector: 'app-edit-project-dialog',
@@ -102,7 +103,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private projectService: ProjectService,
     private userService: UserService,
-    private ngxPermissionsService: NgxPermissionsService,
+    private rolesService: RolesService,
     private router: Router,
     private store: Store,
     private toastr: ToastrService,
@@ -175,15 +176,17 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
   get categoryCtr() { return this.editProjectForm.get('categoryCtr'); }
 
   ngOnInit(): void {
-    let permissions = this.ngxPermissionsService.getPermissions();
-    let isCanWriteProject = false
-    let isCanReadSettings = false
-    for (let p in permissions) {
-      if (p === "can_write on Project") {
-        isCanWriteProject = true
-      }
-      if (p === "can_read on Settings") {
-        isCanReadSettings = true
+    let isCanWriteProject = false;
+    let isCanReadSettings = false;
+    const permissions = this.rolesService.getUserPermissions();
+    if (permissions) {
+      for (let p of JSON.parse(permissions)) {
+        if (p === "can_write on Project") {
+          isCanWriteProject = true
+        }
+        if (p === "can_read on Settings") {
+          isCanReadSettings = true
+        }
       }
     }
     if (!isCanWriteProject || !isCanReadSettings) {
@@ -320,7 +323,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
   }
 
   changeCategory($event: MatRadioChange) {
-    if($event.value == 'template') {
+    if ($event.value == 'template') {
       this.listUser = [];
       this.listShared = [];
       this.sharedCtr.disable();

@@ -20,6 +20,7 @@ import { catchError } from "rxjs/operators";
 import { NgxPermissionsService } from "ngx-permissions";
 import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { Router } from '@angular/router';
+import { RolesService } from 'src/app/core/services/roles/roles.service';
 
 @Component({
   selector: 'app-map-preferences',
@@ -128,7 +129,7 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
     private helpers: HelpersService,
     private imageService: ImageService,
     private router: Router,
-    private ngxPermissionsService: NgxPermissionsService,
+    private rolesService: RolesService,
   ) {
     this.selectMapPrefs$ = this.store.select(selectMapPrefs).subscribe((data: any) => {
       if (data) {
@@ -153,17 +154,17 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    let permissions = this.ngxPermissionsService.getPermissions();
-
     let isCanReadLibraries = false
     let isCanReadSettings = false
-
-    for (let p in permissions) {
-      if (p === "can_read on Settings") {
-        isCanReadSettings = true
-      }
-      if (p === "can_read on Libraries") {
-        isCanReadLibraries = true
+    const permissions = this.rolesService.getUserPermissions();
+    if (permissions) {
+      for (let p of JSON.parse(permissions)) {
+        if (p === "can_read on Settings") {
+          isCanReadSettings = true
+        }
+        if (p === "can_read on Libraries") {
+          isCanReadLibraries = true
+        }
       }
     }
     if (!isCanReadLibraries || !isCanReadSettings) {

@@ -78,6 +78,7 @@ import { MapLinkService } from "../core/services/map-link/map-link.service";
 import { NetmaskService } from '../core/services/netmask/netmask.service';
 import { retrievedNetmasks } from '../store/netmask/netmask.actions';
 import { MapEditService } from "../core/services/map-edit/map-edit.service";
+import { RolesService } from '../core/services/roles/roles.service';
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -227,9 +228,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     private infoPanelService: InfoPanelService,
     private mapImageService: MapImageService,
     private contextMenuService: ContextMenuService,
-    private ngxPermissionsService: NgxPermissionsService,
     private netmaskService: NetmaskService,
-    private mapEditService: MapEditService
+    private mapEditService: MapEditService,
+    private rolesService: RolesService
   ) {
     navigator(cytoscape);
     gridGuide(cytoscape);
@@ -343,14 +344,15 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    let permissions = this.ngxPermissionsService.getPermissions();
-    for (let p in permissions) {
-      if (p === "can_write on Project") {
-        this.isCanWriteOnProject = true
-        break
+    const permissions = this.rolesService.getUserPermissions();
+    if (permissions) {
+      for (let p of JSON.parse(permissions)) {
+        if (p === "can_write on Project") {
+          this.isCanWriteOnProject = true
+          break
+        }
       }
     }
-
     this.selectMapFeatureSubject.pipe(delay(1)).subscribe((map: MapState) => {
       if (map.mapProperties && map.defaultPreferences) {
         this.nodes = map.nodes;

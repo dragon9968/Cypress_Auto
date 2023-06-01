@@ -27,6 +27,7 @@ import { retrievedDefaultMapPref } from 'src/app/store/map-pref/map-pref.actions
 import { selectDefaultMapPref } from 'src/app/store/map-pref/map-pref.selectors';
 import { vlanValidator } from "../../shared/validations/vlan.validation";
 import { ErrorStateMatcher } from "@angular/material/core";
+import { RolesService } from 'src/app/core/services/roles/roles.service';
 
 class CrossFieldErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -124,8 +125,8 @@ export class AddProjectComponent implements OnInit {
     private appPrefService: AppPrefService,
     private dialog: MatDialog,
     public helpers: HelpersService,
-    private ngxPermissionsService: NgxPermissionsService,
-    private mapPrefService: MapPrefService
+    private mapPrefService: MapPrefService,
+    private rolesService: RolesService
   ) {
 
     const state = this.router.getCurrentNavigation()?.extras.state;
@@ -194,16 +195,17 @@ export class AddProjectComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    let permissions = this.ngxPermissionsService.getPermissions();
+    const permissions = this.rolesService.getUserPermissions();
     let isCanWriteProject = false
     let isCanReadSettings = false
-
-    for (let p in permissions) {
-      if (p === "can_write on Project") {
-        isCanWriteProject = true
-      }
-      if (p === "can_read on Settings") {
-        isCanReadSettings = true
+    if (permissions) {
+      for (let p of JSON.parse(permissions)) {
+        if (p === "can_write on Project") {
+          isCanWriteProject = true
+        }
+        if (p === "can_read on Settings") {
+          isCanReadSettings = true
+        }
       }
     }
     if (!isCanWriteProject || !isCanReadSettings) {
