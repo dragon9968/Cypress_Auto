@@ -28,5 +28,14 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.version$ = this.versionService.version$;
+    if (this.authService.isLoggedIn()) {
+      const permissionsString = this.rolesService.getUserPermissions();
+      if (permissionsString) {
+        const permissionsObject = JSON.parse(permissionsString)
+        this.permissionsService.loadPermissions(permissionsObject);
+      } else {
+        this.toastr.error('Get roles for the user failed!', 'Error');
+      }
+    }
   }
 }

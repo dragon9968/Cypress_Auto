@@ -69,6 +69,7 @@ export class LoginComponent implements OnInit {
                   })
                   const permissionsUnique:any[] = [...new Set(permissions)];
                   this.rolesService.updateUserPermissions(JSON.stringify(permissionsUnique));
+                  this.permissionsService.loadPermissions(permissionsUnique);
                 })
                 this.router.navigate([RouteSegments.ROOT]);
             });
