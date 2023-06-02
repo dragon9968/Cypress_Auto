@@ -1,0 +1,54 @@
+{
+  "ospfDataEditor": [
+    {
+      "name": "OSPF Configuration",
+      "description": "Test ospf configuration",
+      "ospf": [
+        {
+          "networks": [
+            "192.168.1.0/24",
+            "192.168.2.0/24",
+            "172.16.87.0/24"
+          ],
+          "redistibution": {
+            "bgb": {
+              "state": true,
+              "metric_type": 2},
+            "connected": {
+              "state": true,
+              "metric_type": 2},
+            "static": {
+              "state": true,
+              "metric_type": 2}
+          }
+        }
+      ]
+    }
+  ],
+  "ospfDataShowForm": [
+    {
+      "name": "OSPF Configuration",
+      "description": "Test ospf configuration",
+      "ospf": [
+        {
+          "networks": [
+            "192.168.1.0/26",
+            "192.168.2.0/26",
+            "172.16.87.0/26"
+          ],
+          "redistibution": {
+            "bgb": {
+              "state": false,
+              "metric_type": 3},
+            "connected": {
+              "state": true,
+              "metric_type": 4},
+            "static": {
+              "state": true,
+              "metric_type": 6}
+          }
+        }
+      ]
+    }
+  ]
+}

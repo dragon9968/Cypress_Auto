@@ -1,0 +1,75 @@
+{
+    "name": "server_connect",
+    "version": "v1.1.3-28-gaef8ff56",
+    "server_connect": [
+        {
+            "created_on": "2023-05-08T09:33:22.701806",
+            "changed_on": "2023-05-08T09:33:22.701837",
+            "id": 84,
+            "name": "Test Configurator Connection",
+            "category": "configurator",
+            "parameters": {
+                "server": "172.16.65.1",
+                "port": null,
+                "datacenter": "",
+                "cluster": "",
+                "datastore": "",
+                "datastore_cluster": false,
+                "switch": "",
+                "switch_type": "dvswitch",
+                "management_network": "",
+                "username": "admin@test.local",
+                "password": "$ANSIBLE_VAULT;1.1;AES256\n35653866323435323638333431666364623862393137663930656663373835306462616363633233\n6438636231306534616430623233353730396530396335360a373566316231353530623365353362\n63346261323366653565393934386365633361663636393331613364363436373262383730306331\n3038646439663339660a323966623230376561653166346637393934353330633233633262303062\n3535\n",
+                "cert_file": ""
+            },
+            "created_by_fk": 1,
+            "changed_by_fk": 1
+        },
+        {
+            "created_on": "2023-05-08T09:33:02.598630",
+            "changed_on": "2023-05-08T09:33:02.598656",
+            "id": 83,
+            "name": "Test Datasource Connection",
+            "category": "datasource",
+            "parameters": {
+                "server": "172.19.0.1",
+                "port": null,
+                "datacenter": "",
+                "cluster": "",
+                "datastore": "",
+                "datastore_cluster": false,
+                "switch": "",
+                "switch_type": "dvswitch",
+                "management_network": "",
+                "username": "admin@test.local",
+                "password": "$ANSIBLE_VAULT;1.1;AES256\n32653930663236626136373936333131646561663736343838316465316161336531383437363730\n6561386163343761313237326363376463376661316265610a323037663165386632336537336132\n33383639626563666661643562326562666535653930323862303636313937613365356231383236\n3864306461666539360a373366613830303364306664306538363637343334376365663136653264\n35393861336264353964613837656265343162353730646561613564343632333132346363373530\n3866306236303336353161626565636230356339393336323931\n",
+                "cert_file": ""
+            },
+            "created_by_fk": 1,
+            "changed_by_fk": 1
+        },
+        {
+            "created_on": "2023-05-08T09:32:42.679776",
+            "changed_on": "2023-05-08T09:33:40.175634",
+            "id": 82,
+            "name": "Test Hypervisor Connection",
+            "category": "vmware_vcenter",
+            "parameters": {
+                "server": "192.168.1.1",
+                "port": null,
+                "datacenter": "Test Datacenter",
+                "cluster": "Test Cluster",
+                "datastore": "Test Datastore",
+                "datastore_cluster": false,
+                "switch": "Test Switch",
+                "switch_type": "dvswitch",
+                "management_network": "Test VM Management",
+                "username": "admin@test.local",
+                "password": "$ANSIBLE_VAULT;1.1;AES256\n32303063333831346431386165666433323234383939393133353334633530663465343964623331\n6464643163623735663564326266303230636564343663390a366465343431613566353836366664\n32613538336432363136343237623863386234623462353434646663656565383765643363386165\n3766636636626263310a333533383762386566373638313736623337396463356364383162396463\n31653861396261323433646639383735663163633361633636636437356632363335\n",
+                "cert_file": null
+            },
+            "created_by_fk": 1,
+            "changed_by_fk": 1
+        }
+    ]
+}

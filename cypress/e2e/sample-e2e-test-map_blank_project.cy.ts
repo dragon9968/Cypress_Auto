@@ -100,7 +100,7 @@ describe('Testing for the login', () => {
 
     // Refresh page
     cy.wait(2000)
-    cy.reload()
+    //cy.reload()
 
     cy.wait(2000)
     cy.get('#cy').then((cyElement: any) => {

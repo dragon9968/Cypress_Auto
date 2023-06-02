@@ -50,7 +50,7 @@ describe('Test for Node View', () => {
     cy.getByDataCy('nodeAddForm').submit()
 
     cy.wait(2000)
-    cy.reload()
+    //cy.reload()
     cy.log('END: Added new node')
     // Show View Node
     cy.get('#cy').then((el: any) => {

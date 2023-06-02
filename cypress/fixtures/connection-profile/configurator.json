@@ -1,0 +1,7 @@
+{
+    "name": "Test Configurator Connection",
+    "category": "configurator",
+    "server": "172.16.65.1",
+    "username": "admin@test.local",
+    "password": "Password"
+    }
