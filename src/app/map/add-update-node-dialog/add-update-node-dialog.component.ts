@@ -102,9 +102,6 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   isAddRolesAndService = false;
   isAddDomainMembership = false;
   isAddOSPF = false;
-  // isHiddenBgpMetricType = false;
-  // isHiddenConnectedMetricType = false;
-  // isHiddenStaticMetricType = false;
   bgpChecked = true;
   connectedChecked = true;
   staticChecked = true;
@@ -309,7 +306,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       }
       this.listNodeIP = interfaceData.filter((ip: any) => ip.category !== 'management')
       this.ipCtr.setValidators([autoCompleteValidator(this.listNodeIP, 'ip')]);
-      this.filteredNodeIP = this.helpers.filterOptions(this.ipCtr, this.listNodeIP);
+      this.filteredNodeIP = this.helpers.filterOptions(this.ipCtr, this.listNodeIP, 'ip');
     })
     this.configTemplateAddsType = this.helpers.getConfigAddsTypeByDeviceCategory(this.data.genData.device_category);
     this.filteredAddActions = this.helpers.filterOptions(this.addTypeCtr, this.configTemplateAddsType);
@@ -886,7 +883,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     const jsonDataValue = {
       config_type: "bgp",
       config_id: this.data.genData.default_config_id,
-      ip_address: this.ipCtr?.value.ip,
+      ip_address: this.ipCtr?.value.ip || this.ipCtr?.value,
       asn: this.asnCtr?.value,
       neighbor_ip: this.neighborIpCtr?.value,
       neighbor_asn: this.neighborAsnCtr?.value,
