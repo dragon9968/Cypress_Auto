@@ -53,9 +53,9 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
         Validators.pattern('^[0-9]*$'),
         showErrorFromServer(() => this.errors)
       ]),
-      categoryCtr: new FormControl({ value: '', disabled: this.isViewMode || this.tabName == 'portGroupManagement' }),
+      categoryCtr: new FormControl(''),
       domainCtr: new FormControl(''),
-      subnetAllocationCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      subnetAllocationCtr: new FormControl(''),
       subnetCtr: new FormControl('', [
         Validators.required,
         showErrorFromServer(() => this.errors)])
