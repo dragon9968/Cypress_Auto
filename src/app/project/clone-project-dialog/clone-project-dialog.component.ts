@@ -34,17 +34,16 @@ export class CloneProjectDialogComponent implements OnInit {
     private helperService: HelpersService
   ) {
     this.cloneForm = new FormGroup({
-      nameCtr: new FormControl(''),
+      nameCtr: new FormControl('',
+        [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(50)
+        ]),
       categoryCtr: new FormControl('project')
     });
-    this.projectService.getAll().subscribe((data: any) => {
-      this.listProjects = data.result;
-      this.nameCtr?.setValidators([Validators.required,
-      Validators.minLength(3),
-      Validators.maxLength(50),
-      validateNameExist(() => this.listProjects, '', undefined)]);
-    });
     this.nameCtr?.setValue(this.data.genData.name);
+    this.categoryCtr?.setValue(this.data.category);
   }
 
   get nameCtr() { return this.cloneForm.get('nameCtr') }

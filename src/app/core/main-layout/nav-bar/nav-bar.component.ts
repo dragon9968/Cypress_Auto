@@ -45,7 +45,6 @@ import { CloneProjectDialogComponent } from 'src/app/project/clone-project-dialo
 import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
 import { LDAPConfigurationComponent } from 'src/app/administration/ldap-configuration/ldap-configuration.component';
 import { LdapConfigService } from '../../services/ldap-config/ldap-config.service';
-import { RemoteCategories } from "../../enums/remote-categories.enum";
 import { retrievedDomains } from "../../../store/domain/domain.actions";
 import { DomainService } from "../../services/domain/domain.service";
 
@@ -288,18 +287,18 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   cloneProject() {
-    this.projectService.get(this.projectId).subscribe(data => {
-      const dialogData = {
-        genData: data.result,
-        category: data.result.category
-      }
-      this.dialog.open(CloneProjectDialogComponent, {
-        disableClose: true,
-        autoFocus: false,
-        width: '400px',
-        data: dialogData
-      });
-    })
+    const dialogData = {
+      genData: {
+        name: this.projectName
+      },
+      category: this.categoryProject
+    }
+    this.dialog.open(CloneProjectDialogComponent, {
+      disableClose: true,
+      autoFocus: false,
+      width: '400px',
+      data: dialogData
+    });
   }
 
   openAppPref() {
