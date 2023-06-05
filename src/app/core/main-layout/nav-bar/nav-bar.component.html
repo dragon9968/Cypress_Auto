@@ -311,7 +311,7 @@
             </mat-menu>
           </ng-template>
           <ng-template [ngxPermissionsOnly]="['can_write on Project']">
-            <button mat-menu-item [disabled]="!isOpen" (click)="editProject()">
+            <button mat-menu-item [disabled]="!isOpen" (click)="editProject()" data-cy="btn-edit-project">
               <mat-icon>edit</mat-icon>
               <span>Edit</span>
             </button>
@@ -337,11 +337,11 @@
             </ng-template>
           </mat-menu>
           <ng-template [ngxPermissionsOnly]="['can_write on Project']">
-            <button mat-menu-item [disabled]="!isOpen" (click)="deleteProject()">
+            <button mat-menu-item [disabled]="!isOpen" (click)="deleteProject()" data-cy="btn-delete-project">
               <mat-icon>delete</mat-icon>
               <span>Delete</span>
             </button>
-            <button mat-menu-item [routerLink]="routeSegments.TRASH_PROJECT">
+            <button mat-menu-item [routerLink]="routeSegments.TRASH_PROJECT" data-cy="btn-delete-permanently-project">
               <mat-icon svgIcon="icons8-trash-can"></mat-icon>
               <span>Trash Bin</span>
             </button>

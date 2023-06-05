@@ -97,7 +97,7 @@ describe('App Preferences e2e testing', () =>{
       cy.get('button>span').contains('App Preferences').click()
       cy.wait(2000)
       cy.updateAppPreferences(appPreferences, appPreferences.private_network, appPreferences.private_network_ips);
-      // Check validation with value is IPaddress:port 
+      // Check validation with value is IP address:port
       cy.getByFormControlName('dhcpServerCtr').as('dhcpServerCtr').invoke('val').then(value => {
         cy.get('@dhcpServerCtr').clear().type(dhcpServerInvalid.dhcp_server_ip)
       })
@@ -111,9 +111,12 @@ describe('App Preferences e2e testing', () =>{
       })
       cy.get('body').click(0,0);
       cy.get('mat-error').should('exist')
-      cy.getByDataCy('btn-save-app-pref').should("be.disabled")  
-      Cypress.session.clearAllSavedSessions()
+      cy.getByDataCy('btn-save-app-pref').should("be.disabled")
     });
+  })
+
+  afterEach(() => {
+    Cypress.session.clearAllSavedSessions()
   })
 
 })

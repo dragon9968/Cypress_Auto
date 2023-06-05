@@ -37,7 +37,7 @@ describe('Project export, import, clone to template', () => {
 
   it('Test - Clone project to template ', () => {
     cy.visit('/')
-    cy.cloneProjectToTemplate(project.name, false)
+    cy.cloneProject(project.name, 'template', false)
     cy.wait(3000)
   });
 })

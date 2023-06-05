@@ -15,6 +15,7 @@ function login(username: string, password: string): void {
   cy.getByFormControlName('password').type(password)
   cy.getByDataCy('login-form').submit().log(`Login as username ${username} successfully`)
   cy.url().should('not.include', 'login')
+  cy.wait(3000)
 }
 //
 // NOTE: You can use it like so:
@@ -74,8 +75,10 @@ function addNewProject(project: any, isUsingDefaultNetwork = true): void {
       cy.wait(1000)
     })
   }
+  cy.wait(2000)
   cy.getByDataCy('projectForm').submit().log(`Create project ${project.name} successfully`)
   cy.scrollTo('top')
+  cy.wait(7000)
   cy.get('.toast-error').should('not.exist')
   cy.url().should('include', 'projects')
 }
@@ -92,7 +95,8 @@ function openProjectByName(projectName: string): void {
   cy.visit('/projects')
   cy.wait(2000)
   cy.get('#search-project').type(projectName)
-  cy.get('ag-grid-angular').contains(projectName).dblclick()
+  cy.wait(2000)
+  cy.get('ag-grid-angular').contains(projectName, { timeout: 8000}).first().dblclick()
   cy.url().should('include', 'map')
   cy.wait(4000)
 }
@@ -116,6 +120,9 @@ function importProject(filePath: string): void {
   cy.get('input[type=file]').selectFile(`${filePath}`)
   cy.wait(1000)
   cy.getByDataCy('importForm').submit()
+  cy.log(`Imported project from ${filePath}`)
+  cy.wait(2000)
+  cy.get('mat-dialog-container').should('not.exist')
 }
 Cypress.Commands.add('importProject', importProject);
 
@@ -138,29 +145,107 @@ function exportProject(projectName: string, isProjectOpened: boolean): void {
   cy.getByDataCy('btn-export-project').should('exist').click()
   cy.wait(1000)
   cy.getByDataCy('exportForm').submit()
+  cy.wait(1000)
+  cy.get('mat-dialog-container').should('not.exist')
 }
 Cypress.Commands.add('exportProject', exportProject);
+
+
+// Delete project by name
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    deleteProject(projectName: string, isProjectOpened: boolean): typeof deleteProject;
+  }
+}
+
+function deleteProject(projectName: string, isProjectOpened: boolean): void {
+  cy.log('Delete project')
+  if (!isProjectOpened) {
+    cy.openProjectByName(projectName)
+  }
+  cy.getByDataCy('btn-nav-project').should('exist').click()
+  cy.wait(1000)
+  cy.getByDataCy('btn-delete-project').should('exist').click()
+  cy.wait(1000)
+  cy.getButtonByTypeAndContent('submit', 'Delete').click()
+  cy.wait(1000)
+  cy.get('mat-dialog-container').should('not.exist')
+}
+Cypress.Commands.add('deleteProject', deleteProject);
+
+// Permanently delete project by name
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+      deletePermanentlyProject(projectName: string, isProjectOpened: boolean): typeof deletePermanentlyProject;
+  }
+}
+
+function deletePermanentlyProject(projectName: string, isProjectOpened: boolean): void {
+  cy.log('Permanently Delete project')
+  cy.getByDataCy('btn-nav-project').should('exist').click()
+  cy.wait(1000)
+  cy.getByDataCy('btn-delete-permanently-project').should('exist').click()
+  cy.wait(3000)
+  cy.get('.ag-row').contains(projectName).first().click({ force: true });
+  cy.wait(1000)
+  cy.get('.actions').click()
+  cy.wait(1000)
+  cy.getButtonByTypeAndContent('button', 'Permanent Delete').click()
+  cy.wait(2000)
+  cy.getButtonByTypeAndContent('submit', 'Delete').click()
+  cy.wait(1000)
+  cy.get('mat-dialog-container').should('not.exist')
+}
+Cypress.Commands.add('deletePermanentlyProject', deletePermanentlyProject);
+
 
 // Clone Project to Template
 declare namespace Cypress {
   interface Chainable<Subject = any> {
-    cloneProjectToTemplate(projectName: string, isProjectOpened: boolean): typeof cloneProjectToTemplate;
+    cloneProject(projectName: string, option: string, isProjectOpened: boolean): typeof cloneProject;
   }
 }
 
-function cloneProjectToTemplate(projectName: string, isProjectOpened: boolean): void {
+function cloneProject(projectName: string, option: string, isProjectOpened: boolean): void {
   cy.log('Clone Project to Template')
   if (!isProjectOpened) {
     cy.openProjectByName(projectName)
   }
   cy.getByDataCy('btn-nav-project').should('exist').click()
+  cy.wait(1000)
   cy.getByDataCy('btn-new-clone-project').should('exist').click()
+  cy.wait(1000)
   cy.getByDataCy('btn-clone-project').should('exist').click()
-  cy.getByFormControlName('categoryCtr').children('mat-radio-button[value="template"]').click()
+  cy.getByFormControlName('categoryCtr').children(`mat-radio-button[value=${option}]`).click()
   cy.wait(1000)
   cy.getButtonByTypeAndContent('submit', 'Clone').click()
 }
-Cypress.Commands.add('cloneProjectToTemplate', cloneProjectToTemplate);
+Cypress.Commands.add('cloneProject', cloneProject);
+
+// Update Project to Template
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    updateProjectToTemplate(projectName: string, isProjectOpened: boolean): typeof updateProjectToTemplate;
+  }
+}
+
+function updateProjectToTemplate(projectName: string, isProjectOpened: boolean): void {
+  cy.log('Update Project to Template')
+  if (!isProjectOpened) {
+    cy.openProjectByName(projectName)
+  }
+  cy.getByDataCy('btn-nav-project').should('exist').click()
+  cy.wait(1000)
+  cy.getByDataCy('btn-edit-project').should('exist').click()
+  cy.wait(3000)
+  cy.get('mat-dialog-container').should('exist')
+  cy.getByFormControlName('categoryCtr').children('mat-radio-button[value="template"]').click()
+  cy.wait(1000)
+  cy.getButtonByTypeAndContent('submit', 'Update').click()
+  cy.wait(2000)
+  cy.get('mat-dialog-container').should('not.exist')
+}
+Cypress.Commands.add('updateProjectToTemplate', updateProjectToTemplate);
 
 // Blur all input has been focused
 declare namespace Cypress {
@@ -240,6 +325,35 @@ function editConfigTemplate(configTemplate: any, newValue: any): void {
 }
 Cypress.Commands.add('editConfigTemplate', editConfigTemplate);
 
+// Open Device/Template page
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    openPageInDeviceTemplate(pageName: string): typeof openPageInDeviceTemplate;
+  }
+}
+
+function openPageInDeviceTemplate(pageName: string): void {
+  cy.visit('/')
+  cy.getByDataCy('btn-devices').click()
+  cy.get('button>span').contains(pageName).click()
+  cy.wait(2000)
+}
+Cypress.Commands.add('openPageInDeviceTemplate', openPageInDeviceTemplate);
+
+// Select Device
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    selectDeviceByName(deviceName: string): typeof selectDeviceByName;
+  }
+}
+
+function selectDeviceByName(deviceName: string): void {
+  cy.get('.table__nav--search input').first().clear({force: true}).type(deviceName)
+  cy.wait(1000)
+  cy.get('.ag-row').contains(new RegExp(`^(${deviceName})`, "g")).first().click({ force: true })
+}
+Cypress.Commands.add('selectDeviceByName', selectDeviceByName);
+
 declare namespace Cypress {
   interface Chainable<Subject = any> {
     addBGPConfigTemplate(configTemplate: any, networksInvalid: any, metric: any): typeof addBGPConfigTemplate;
@@ -285,7 +399,7 @@ function addBGPConfigTemplate(configTemplate: any, networksInvalid: any, metric:
         cy.get('@bgpConnectedMetricCtr').clear().type(bgpConnectedMetricInvalid)
       }
     })
-    
+
     const bgpOSPFStateValid = configTemplate.bgp[0].redistribute.ospf.state
     if (bgpOSPFStateValid) {
       cy.get('.cy-bgp-ospfState span input[type="checkbox"]').check({ force: true }).should('be.checked')
@@ -482,8 +596,6 @@ function editOspfAndBgpConfigTemplate(configTemplate: any, newValue: any, defaul
 }
 Cypress.Commands.add('editOspfAndBgpConfigTemplate', editOspfAndBgpConfigTemplate);
 
-
-
 // Select All row on AG-Grid
 declare namespace Cypress {
   interface Chainable<Subject = any> {
@@ -611,7 +723,7 @@ function deleteRecordByName(name: string, matToolTipName: string, isRowSelected:
   cy.get('mat-dialog-container').should('exist')
   cy.wait(2000)
   cy.getButtonByTypeAndContent('submit', 'OK').click()
-  cy.wait(2000)
+  cy.wait(3000)
   cy.get('mat-dialog-container').should('not.exist')
   cy.log(`END: Delete ${name} successfully`)
 }
@@ -948,6 +1060,10 @@ function addUpdateMapPreferences (mapPreferences: any) {
 }
 Cypress.Commands.add('addUpdateMapPreferences', addUpdateMapPreferences);
 
+Cypress.on('fail', () => {
+  //@ts-ignore
+  Cypress.runner.stop()
+})
 
 Cypress.on('uncaught:exception', (err, runnable) => {
   // returning false here prevents Cypress from

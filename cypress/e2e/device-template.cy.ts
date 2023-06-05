@@ -28,35 +28,32 @@ describe('Device/Template e2e testing', () => {
   }
   beforeEach(() => {
     cy.viewport(1366, 768)
-    cy.visit('/login')
-    cy.fixture('login/admin.json').then(
-      adminData => admin = adminData
-    )
+    const setup = () => {
+      cy.visit('/login')
+      cy.login("admin", "password")
+    }
+    cy.session('login', setup)
   })
 
-  it('Test - Device/Template',() => {
-    cy.login(admin.username, admin.password)
-    cy.getByDataCy('btn-devices').click()
-    cy.log('Login Profile - Add new login profile')
-    cy.get('button>span').contains('Login Profiles').click()
-    cy.wait(2000)
 
+  it('Add new login profile', () => {
+    cy.openPageInDeviceTemplate('Login Profiles')
     cy.showFormAddByMatTooltip('Add')
     cy.addUpdateNewLoginProfile(loginProfile, 'add')
     cy.wait(2000)
-    cy.getByDataCy('btn-devices').click()
-    cy.log('Device Table')
-    cy.get('button>span').contains('Device/Template').click()
+  });
+
+  it('Add new device', () => {
+    cy.openPageInDeviceTemplate('Device/Template')
+    cy.showFormAddByMatTooltip('Add New Device')
     cy.wait(1000)
 
-    cy.log('Add new device')
-    cy.showFormAddByMatTooltip('Add New Device')
     cy.getByFormControlName('name').clear().type(newDevice.name)
 
     cy.getByFormControlName('category').click()
     cy.wait(1000)
     cy.get('ng-select input').type(newDevice.category)
-    cy.get('.ng-option').contains(newDevice.category).click()
+    cy.get('.ng-option').contains(new RegExp(`^(${newDevice.category})`, "g")).click()
 
     cy.wait(1000)
     cy.get('#device-icon').focus().clear().type(newDevice.icon)
@@ -66,11 +63,11 @@ describe('Device/Template e2e testing', () => {
     cy.getButtonByTypeAndContent('submit', 'Create').click()
     cy.wait(2000)
     cy.get('mat-dialog-container').should('not.exist')
+  });
 
-    cy.log('Add new template')
-    cy.get('.table__nav--search input').first().clear({force: true}).type(newDevice.name)
-    cy.wait(1000)
-    cy.get('.ag-row').contains(newDevice.name).first().click({ force: true })
+  it('Add new template', () => {
+    cy.openPageInDeviceTemplate('Device/Template')
+    cy.selectDeviceByName(newDevice.name)
 
     cy.showFormAddByMatTooltip('Add New Template')
     cy.getByFormControlName('displayName').clear().type(newTemplate.display_name)
@@ -83,6 +80,11 @@ describe('Device/Template e2e testing', () => {
     cy.getButtonByTypeAndContent('submit', 'Create').click()
     cy.wait(2000)
     cy.get('mat-dialog-container').should('not.exist')
+  });
+
+  it('Delete template', () => {
+    cy.openPageInDeviceTemplate('Device/Template')
+    cy.selectDeviceByName(newDevice.name)
 
     cy.get('.table__nav--search input#search-template').clear().type(newTemplate.name)
     cy.selectRowByName(newTemplate.name)
@@ -98,6 +100,13 @@ describe('Device/Template e2e testing', () => {
     cy.get('.table__nav--search input#search-template').clear()
     cy.log('Delete Template')
     cy.deleteRecordByName(templateUpdate.name, 'Delete Template', true)
+    cy.wait(2000)
+    cy.get('mat-dialog-container').should('not.exist')
+  });
+
+  it('Edit device',  () => {
+    cy.openPageInDeviceTemplate('Device/Template')
+    cy.selectDeviceByName(newDevice.name)
 
     cy.log('Edit Device')
     cy.getByMatToolTip('Edit Device').click()
@@ -106,16 +115,27 @@ describe('Device/Template e2e testing', () => {
     cy.getByFormControlName('category').click()
     cy.wait(1000)
     cy.get('ng-select input').type(deviceUpdate.category)
-    cy.get('.ng-option').contains(deviceUpdate.category).click()
+    cy.get('.ng-option').contains(new RegExp(`^(${deviceUpdate.category})`, "g")).click()
     cy.wait(1000)
     cy.get('#device-icon').focus().clear().type(deviceUpdate.icon)
     cy.getOptionByContent(deviceUpdate.icon).click()
     cy.wait(1000)
     cy.get('mat-error').should('not.exist')
     cy.getButtonByTypeAndContent('submit', 'Update').click()
+    cy.wait(3000)
+    cy.get('mat-dialog-container').should('not.exist')
+  });
 
-    cy.log('Delete Device')
+  it('Delete device', () => {
+    cy.openPageInDeviceTemplate('Device/Template')
+    cy.get('.table__nav--search input').first().clear({force: true}).type(deviceUpdate.name)
+    cy.wait(1000)
+    cy.get('.ag-row').contains(new RegExp(`^(${deviceUpdate.name})`, "g")).first().click({ force: true })
     cy.deleteRecordByName(deviceUpdate.name, 'Delete Device', true)
     cy.get('.table__nav--search input').first().clear()
   });
+
+  afterEach(() => {
+    Cypress.session.clearAllSavedSessions()
+  })
 })

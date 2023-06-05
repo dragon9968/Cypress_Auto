@@ -26,7 +26,7 @@ describe('Map Preferences e2e testing', () => {
     cy.getByDataCy('btn-nav-app-pref').click()
     cy.get('button>span').contains('Map Preferences').click()
     cy.wait(2000)
-    // Show form add 
+    // Show form add
     cy.showFormAddByMatTooltip('Add')
     cy.addUpdateMapPreferences(mapPreferences.mapPrefAdd[0])
     cy.wait(2000)
@@ -38,7 +38,7 @@ describe('Map Preferences e2e testing', () => {
     cy.getByDataCy('btn-nav-app-pref').click()
     cy.get('button>span').contains('Map Preferences').click({force: true})
     cy.wait(2000)
-    // Show form edit 
+    // Show form edit
     cy.showFormEditByName(mapPreferences.mapPrefAdd[0].name)
     cy.addUpdateMapPreferences(mapPreferences.mapPrefEdit[0])
     cy.wait(2000)
@@ -142,7 +142,9 @@ describe('Map Preferences e2e testing', () => {
     cy.get('mat-dialog-container').should('not.exist')
     cy.log(`END: Delete successfully`)
 
-    Cypress.session.clearAllSavedSessions()
   })
 
+  afterEach(() => {
+    Cypress.session.clearAllSavedSessions()
+  })
 })

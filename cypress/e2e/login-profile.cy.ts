@@ -12,14 +12,15 @@ describe('Login Profile e2e testing', () => {
   }
   beforeEach(() => {
     cy.viewport(1366, 768)
-    cy.visit('/login')
-    cy.fixture('login/admin.json').then(
-      adminData => admin = adminData
-    )
+    const setup = () => {
+      cy.visit('/login')
+      cy.login("admin", "password")
+    }
+    cy.session('login', setup)
   })
 
   it('Test - Login Profile',() => {
-    cy.login(admin.username, admin.password)
+    cy.visit('/')
     cy.getByDataCy('btn-devices').click()
     cy.get('button>span').contains('Login Profiles').click()
     cy.wait(2000)
@@ -30,12 +31,11 @@ describe('Login Profile e2e testing', () => {
     cy.wait(3000)
     cy.showFormEditByName(loginProfile.name)
     cy.addUpdateNewLoginProfile(loginProfileUpdate, 'update')
-
-
   });
 
   afterEach(() => {
     cy.wait(2000)
     cy.deleteRecordByName(loginProfile.name, 'Delete', false)
+    Cypress.session.clearAllSavedSessions()
   })
 })

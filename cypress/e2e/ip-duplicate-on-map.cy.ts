@@ -11,7 +11,7 @@ describe('Test duplicate IPs in a port group on map', () => {
   let nodeY2: number;
   let project:any = {}
   beforeEach(() => {
-    cy.viewport(1366, 768)
+    cy.viewport(window.screen.width, window.screen.height)
     cy.visit('/login')
     cy.fixture('login/admin.json').then(adminData => {
       admin = adminData
