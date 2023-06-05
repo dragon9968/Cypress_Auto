@@ -791,8 +791,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
               switch_id: data.switch_id
             }).subscribe(resp => {
               this.portgroupService.get(data.pg_id).subscribe(resp => {
-                data.groups = resp.result.groups
+                this.activePGs[0]?.data('groups', resp.result.groups);
                 this.toastr.success('Groups updated!');
+                this.groupService.getGroupByProjectId(this.projectId).subscribe(
+                  groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
+                );
               });
             });
           } else if (data.elem_category === 'node') {
@@ -800,8 +803,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
               domain_id: data.domain_id,
             }).subscribe(resp => {
               this.nodeService.get(data.node_id).subscribe(resp => {
-                data.groups = resp.result.groups
+                this.activeNodes[0]?.data('groups', resp.result.groups);
                 this.toastr.success('Groups updated!');
+                this.groupService.getGroupByProjectId(this.projectId).subscribe(
+                  groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
+                );
               });
             });
           }
@@ -818,9 +824,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       data.deleted = false;
     }
     this.helpersService.addNewGroupBoxByMovingNodes(this.cy, dropTarget, this.projectId, this.mapCategory);
-    this.groupService.getGroupByProjectId(this.projectId).subscribe(
-      groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
-    );
   }
 
   private _cdndOut(event: any, dropTarget: any) {
