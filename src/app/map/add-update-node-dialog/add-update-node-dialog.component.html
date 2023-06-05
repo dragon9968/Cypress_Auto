@@ -484,7 +484,7 @@
           </div>
         </section>
       </mat-tab>
-      <mat-tab *ngIf="data.mode !== 'add'"  label="Instance">
+      <mat-tab *ngIf="data.mode === 'view'"  label="Instance">
         <div class="info-area instance-area">
           <section class="info-area__list">
             <div class="info-area__list__item">
@@ -525,7 +525,7 @@
           </section>
         </div>
       </mat-tab>
-      <mat-tab *ngIf="data.mode !== 'add'" label="History">
+      <mat-tab *ngIf="data.mode === 'view'" label="History">
         <div class="info-area history-area">
           <section class="info-area__list">
             <div class="info-area__list__item">
