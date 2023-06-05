@@ -817,7 +817,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       data.updated = true;
       data.deleted = false;
     }
-    this.helpersService.addNewGroupBoxByMovingNodes(this.cy, dropTarget, this.projectId, this.mapCategory)
+    this.helpersService.addNewGroupBoxByMovingNodes(this.cy, dropTarget, this.projectId, this.mapCategory);
+    this.groupService.getGroupByProjectId(this.projectId).subscribe(
+      groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
+    );
   }
 
   private _cdndOut(event: any, dropTarget: any) {
