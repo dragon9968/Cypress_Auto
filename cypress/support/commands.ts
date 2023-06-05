@@ -732,26 +732,44 @@ Cypress.Commands.add('deleteRecordByName', deleteRecordByName);
 // Add new node on map
 declare namespace Cypress {
   interface Chainable<Subject = any> {
-    addNewNodeOnMap(node: any): typeof addNewNodeOnMap;
+    addNewNodeOnMap(node: any, positionX: any, positionY: any, custom: boolean): typeof addNewNodeOnMap;
   }
 }
 
-function addNewNodeOnMap(node: any): void {
+function addNewNodeOnMap(node: any, positionX: any, positionY: any, custom: boolean): void {
   cy.log(`START: Add new node ${node.name}`)
   cy.wait(2000)
   cy.getByFormControlName('deviceCtr').first().click()
   cy.get('.option-text').contains(node.device_name).first().click()
   cy.getByFormControlName('templateCtr').click()
   cy.get('.option-text').contains(node.template_name).first().click()
-  cy.getByDataCy('btn-add-node').click()
+  cy.getByDataCy('btn-add-node').click({ force: true })
   cy.wait(1000)
-  cy.get('canvas.expand-collapse-canvas').click(node.logical_map_position.x, node.logical_map_position.y, { force: true });
+  cy.get('canvas.expand-collapse-canvas').click(positionX, positionY, { force: true });
   cy.wait(1000)
-  cy.getByFormControlName('nameCtr').invoke('val').should('not.eq', '')
+  if (custom) {
+    cy.getByFormControlName('nameCtr').as('nameCtr').invoke('val').then(nameValue => {
+      if (nameValue !== node.name) {
+        cy.get('@nameCtr').clear().type(node.name)
+      }
+    })
+    cy.getByFormControlName('parentFolderCtr').as('parentFolderCtr').invoke('val').then(value => {
+      if (value !== node.parent_folder) {
+        cy.get('@parentFolderCtr').clear().type(node.parent_folder)
+      }
+    })
+    cy.getByFormControlName('folderCtr').as('folderCtr').invoke('val').then(value => {
+      if (value !== node.folder) {
+        cy.get('@folderCtr').clear().type(node.folder)
+      }
+    })
+  } else {
+    cy.getByFormControlName('nameCtr').invoke('val').should('not.eq', '')
     .then(nodeNameInput => {
       cy.wait(1000)
       cy.getByFormControlName('folderCtr').type(`${node.folder}-${nodeNameInput}`)
     })
+  }
   cy.get('mat-error').should('not.exist')
   cy.getByDataCy('nodeAddForm').submit()
   cy.wait(2000)
@@ -759,20 +777,41 @@ function addNewNodeOnMap(node: any): void {
 }
 Cypress.Commands.add('addNewNodeOnMap', addNewNodeOnMap);
 
-// Add new node on map
+// Add new port group on map
 declare namespace Cypress {
   interface Chainable<Subject = any> {
-    addNewPortGroupOnMap(portGroup: any): typeof addNewPortGroupOnMap;
+    addNewPortGroupOnMap(portGroup: any, positionX: any, positionY: any, custom: boolean): typeof addNewPortGroupOnMap;
   }
 }
 
-function addNewPortGroupOnMap(portGroup: any): void {
+function addNewPortGroupOnMap(portGroup: any, positionX: any, positionY: any, custom: boolean): void {
   cy.log(`START: Add new portGroup ${portGroup.name}`)
   cy.wait(2000)
   const portGroupCategory = portGroup.category == 'public' ? '[matTooltip="Add Public"]' : '[matTooltip="Add Private"]'
   cy.get(portGroupCategory).click()
-  cy.get('canvas.expand-collapse-canvas').click(portGroup.logical_map_position.x, portGroup.logical_map_position.y, { force: true });
+  cy.get('canvas.expand-collapse-canvas').click(positionX, positionY, { force: true });
   cy.wait(1000)
+  if (custom) {
+    cy.getByFormControlName('nameCtr').as('nameCtr').invoke('val').then(nameValue => {
+      if (nameValue !== portGroup.name) {
+        cy.get('@nameCtr').clear().type(portGroup.name)
+      }
+    })
+    cy.getByFormControlName('vlanCtr').as('vlanCtr').invoke('val').then(value => {
+      if (value !== portGroup.vlan) {
+        cy.get('@vlanCtr').clear().type(portGroup.vlan)
+      }
+    })
+    if (portGroup.subnet_allocation == 'static_manual') {
+      cy.getByFormControlName('subnetAllocationCtr').children(`mat-radio-button[value="${portGroup.subnet_allocation}"]`).click()
+      cy.wait(1000)
+      cy.getByFormControlName('subnetCtr').as('subnetCtr').invoke('val').then(value => {
+        if (value !== portGroup.subnet) {
+          cy.get('@subnetCtr').clear().type(portGroup.subnet)
+        }
+      })
+    }
+  }
   cy.get('mat-error').should('not.exist')
   cy.getByDataCy('pgAddForm').submit()
   cy.log(`END: Add new port group ${portGroup.name} successfully`)
@@ -825,6 +864,183 @@ function addNewInterface(edge: any, nodeX: any, nodeY: any, pgX: any, pgY: any, 
   cy.log('END: Add new interface successfully')
 }
 Cypress.Commands.add('addNewInterface', addNewInterface);
+
+
+// Select node, port group or interface
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    selectElementOnMap(type: any, name: string): typeof selectElementOnMap;
+  }
+}
+
+function selectElementOnMap(type: any, name: string): void {
+  cy.log('START: Select element')
+  if (type !== 'edge') {
+    cy.get('#cy').then((el: any) => {
+      const cytoscape = el[0]._cyreg.cy
+      cytoscape.nodes().unselect()
+      cytoscape.edges().unselect()
+      const newNode = cytoscape.nodes().filter(`[name="${name}"]`)[0]
+      newNode.select()
+    })
+  } else {
+    cy.get('#cy').then((el: any) => {
+      const cytoscape = el[0]._cyreg.cy
+      cytoscape.nodes().unselect()
+      cytoscape.edges().unselect()
+      const newNode = cytoscape.edges().filter(`[name="${name}"]`)[0]
+      newNode.select()
+    })
+  }
+  cy.log('END: Select element')
+}
+Cypress.Commands.add('selectElementOnMap', selectElementOnMap);
+
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    updateMapStyle(data: any, type: any): typeof updateMapStyle;
+  }
+}
+
+function updateMapStyle(data: any, type: any): void {
+  cy.log('START: Update style element')
+
+  const dataCy = `toolpanel-${type}-size`
+  const sizeElement = type == 'node' ? data.node_size : type == 'port-group' ? data.port_group_size : data.edge_width
+  const currentValue = type == 'node' ? 50 : type == 'port-group' ? 100 : 25
+  cy.getByDataCy(dataCy).as('size').then(value =>{
+    cy.get('@size').type(calcArrowsSlider(sizeElement, currentValue))
+  })
+  cy.wait(1000)
+  cy.get('#textColor').click()
+  cy.getColorPickerByClass('.text-color').clear({force: true}).type(data.text_color, {force: true}).type('{enter}', {force: true})
+  cy.wait(1000)
+  cy.getByDataCy('toolpanel-text-size').as('textSize').then(value =>{
+    cy.get('@textSize').type(calcArrowsSlider(data.text_size, 100))
+  })
+
+  if (type !== 'edge') {
+    cy.getByDataCy('select-valign').children(`mat-button-toggle[value="${data.text_valign}"]`).click()
+    cy.getByDataCy('select-halign').children(`mat-button-toggle[value="${data.text_halign}"]`).click()
+  } else {
+    cy.get('#edgeColor').click()
+    cy.getColorPickerByClass('.edge-color').clear().type(data.edge_color).type('{enter}')
+
+    cy.getByDataCy('select-direction').children(`mat-button-toggle[value="${data.edge_arrow_direction}"]`).click()
+    cy.getByDataCy('toolpanel-arrow-size').as('arrowsize').then(value =>{
+      cy.get('@arrowsize').type(calcArrowsSlider(data.edge_arrow_size, 5))
+    })
+  }
+
+  cy.get('#textBGColor').click()
+  cy.getColorPickerByClass('.text-bg-color').clear({force: true}).type(data.text_bg_color, {force: true}).type('{enter}', {force: true})
+  cy.wait(1000)
+
+  cy.getByDataCy('toolpanel-text-bgopacity').as('textbgopacity').then(value =>{
+    cy.get('@textbgopacity').type(calcArrowsSlider(data.text_bg_opacity * 100, 50))
+  })
+
+  cy.log('START: update style element')
+}
+Cypress.Commands.add('updateMapStyle', updateMapStyle);
+
+// Add update domain
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    addEditDomain(domain: any, mode: string): typeof addEditDomain;
+  }
+}
+
+function addEditDomain(domain: any, mode: string) {
+  cy.log('START: Add/edit domain')
+  cy.getByFormControlName('nameCtr').as('nameCtr').invoke('val').then(value => {
+    if (value !== domain.name) {
+      cy.get('@nameCtr').clear().type(domain.name)
+    }
+  })
+  cy.getByFormControlName('adminUserCtr').as('adminUserCtr').invoke('val').then(value => {
+    if (value !== domain.admin_user) {
+      cy.get('@adminUserCtr').clear().type(domain.admin_user)
+    }
+  })
+  cy.getByFormControlName('adminPasswordCtr').as('adminPasswordCtr').invoke('val').then(value => {
+    if (value !== domain.admin_password) {
+      cy.get('@adminPasswordCtr').clear().type(domain.admin_password)
+    }
+  })
+  cy.get('mat-error').should('not.exist')
+  cy.wait(2000)
+  cy.getByDataCy('domainAddForm').submit()
+  cy.log('END: Add/edit domain')
+}
+Cypress.Commands.add('addEditDomain', addEditDomain);
+
+// Create Users Domain
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    createUsersDomain(domain: any): typeof createUsersDomain;
+  }
+}
+
+function createUsersDomain(domain: any) {
+  cy.log('START: Create Users')
+  cy.getByFormControlName('numberUserCtr').as('numberUserCtr').invoke('val').then(value => {
+    if (value !== domain) {
+      cy.get('@numberUserCtr').clear().type(domain)
+    }
+  })
+  cy.get('mat-error').should('not.exist')
+  cy.wait(2000)
+  cy.getByDataCy('addDomainUserForm').submit()
+  cy.log('END: Create Users')
+}
+Cypress.Commands.add('createUsersDomain', createUsersDomain);
+
+// Add update domain
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    addEditGroup(group: any, mode: string): typeof addEditGroup;
+  }
+}
+
+function addEditGroup(group: any, mode: string) {
+  cy.log('START: Add/edit group')
+  cy.getByFormControlName('nameCtr').as('nameCtr').invoke('val').then(value => {
+    if (value !== group.name) {
+      cy.get('@nameCtr').clear().type(group.name)
+    }
+  })
+
+  if (mode == 'add' && group.category == 'domain') {
+    cy.getByFormControlName('categoryCtr').click()
+    cy.get('.option-text').contains(group.category).first().click()
+  } 
+
+  if (mode == 'edit') {
+    cy.getByFormControlName('categoryCtr').click()
+    cy.get('.option-text').contains(group.category).first().click();
+    cy.getByFormControlName('nodesCtr').click();
+    cy.wait(2000)
+    cy.get('ng-dropdown-panel .ng-dropdown-panel-items').contains(group.nodes).click();
+    cy.wait(2000)
+    group.port_groups.forEach((val: any) => {
+      cy.getByFormControlName('portGroupsCtr').click();
+      cy.wait(2000)
+      cy.get('ng-dropdown-panel .ng-dropdown-panel-items').contains(val).click();
+      cy.wait(2000)
+    })
+  }
+  cy.getByFormControlName('descriptionCtr').as('descriptionCtr').invoke('val').then(value => {
+    if (value !== group.description) {
+      cy.get('@descriptionCtr').clear().type(group.description)
+    }
+  })
+  cy.get('mat-error').should('not.exist')
+  cy.wait(2000)
+  cy.getByDataCy('groupAddForm').submit()
+  cy.log('END: Add/edit group')
+}
+Cypress.Commands.add('addEditGroup', addEditGroup);
 
 // Add new Connection Profile
 declare namespace Cypress {
@@ -1130,6 +1346,12 @@ declare namespace Cypress {
     getOptionByContent(content: string): Chainable<JQuery<HTMLElement>>
 
     getColorPickerByClass(value: string): Chainable<JQuery<HTMLElement>>
+
+    getMatSliderToggleByClass(value: string): Chainable<JQuery<HTMLElement>>
+
+    selectMatTabByLabel(content: any): Chainable<JQuery<HTMLElement>>
+
+    selectInfoPanelRowByLabelAndContent(label: string, content: string): Chainable<JQuery<HTMLElement>>
   }
 }
 Cypress.Commands.add(
@@ -1171,5 +1393,27 @@ Cypress.Commands.add(
   'getColorPickerByClass',
   (value: string) => {
     cy.get(`${value} color-picker > div.color-picker.open > div.hex-text.ng-star-inserted > div.box > input`)
+  }
+);
+
+Cypress.Commands.add(
+  'getMatSliderToggleByClass',
+  (value: string) => {
+    cy.get(`${value} label.mat-slide-toggle-label span input[type="checkbox"]`)
+  }
+);
+
+Cypress.Commands.add(
+  'selectMatTabByLabel',
+  (content: any) => {
+    cy.get('.mat-tab-label').contains(content)
+  }
+);
+
+Cypress.Commands.add(
+  'selectInfoPanelRowByLabelAndContent',
+  (label: string, content: string) => {
+    cy.get(`app-info-panel-${label} ag-grid-angular .ag-row`).contains(`${content}`)
+    .parent('.ag-cell-wrapper').parent('.ag-cell').parent('.ag-row').find('.ag-checkbox-input')
   }
 );

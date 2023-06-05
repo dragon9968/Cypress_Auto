@@ -49,13 +49,13 @@ describe('Test duplicate IPs in a port group on map', () => {
     cy.get('ag-grid-angular').contains(project.name).dblclick()
 
     // Add new node 1
-    cy.addNewNodeOnMap(node)
+    cy.addNewNodeOnMap(node, node.logical_map_position.x, node.logical_map_position.y, false)
 
     // Add new node 2
-    cy.addNewNodeOnMap(node2)
+    cy.addNewNodeOnMap(node2, node2.logical_map_position.x, node2.logical_map_position.y, false)
 
     // Add new port group
-    cy.addNewPortGroupOnMap(portGroup)
+    cy.addNewPortGroupOnMap(portGroup, portGroup.logical_map_position.x, portGroup.logical_map_position.y, false)
 
     const edgeData = {
       ip_allocation: 'static_manual',

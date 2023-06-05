@@ -62,7 +62,9 @@
             [matAutocomplete]="autoDirection" [readonly]="isViewMode">
           <mat-autocomplete #autoDirection="matAutocomplete" [displayWith]="helpers.optionDisplay">
             <mat-option *ngFor="let option of filteredDirections | async" [value]="option">
-              {{ option.name }}
+              <div class="option-text">
+                {{ option.name }}
+              </div>
             </mat-option>
           </mat-autocomplete>
           <mat-error *ngIf="directionCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
@@ -116,7 +118,9 @@
             [matAutocomplete]="autoNetmask" [readonly]="isViewMode">
           <mat-autocomplete #autoNetmask="matAutocomplete" [displayWith]="helpers.netmaskDisplay">
             <mat-option *ngFor="let option of filteredNetmasks | async" [value]="option">
-              {{ option.mask }}
+              <div class="option-text">
+                {{ option.mask }}
+              </div>
             </mat-option>
           </mat-autocomplete>
           <mat-error *ngIf="netMaskCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>

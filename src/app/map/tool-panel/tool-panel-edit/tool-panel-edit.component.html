@@ -91,7 +91,7 @@
   <section class="tab-section">
     <div *ngIf="!isTemplateCategory">
       <h4>Project</h4>
-      <form [formGroup]="linkProjectForm" (ngSubmit)="addProjectNode()" autocomplete="off">
+      <form [formGroup]="linkProjectForm" data-cy="linkProjectForm" (ngSubmit)="addProjectNode()" autocomplete="off">
         <div>
           <mat-form-field class="inline-select-field">
             <mat-label>Link Project</mat-label>

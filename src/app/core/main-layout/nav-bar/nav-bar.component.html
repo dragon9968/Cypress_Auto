@@ -295,12 +295,12 @@
             </ng-template>
           </ng-template>
           <ng-template [ngxPermissionsOnly]="['can_read on Project']">
-            <button mat-menu-item [matMenuTriggerFor]="open">
+            <button mat-menu-item [matMenuTriggerFor]="open" data-cy="btn-open-project-template">
               <mat-icon>create_new_folder</mat-icon>
               <span>Open</span>
             </button>
             <mat-menu #open="matMenu">
-              <button mat-menu-item [routerLink]="routeSegments.PROJECTS">
+              <button mat-menu-item [routerLink]="routeSegments.PROJECTS" data-cy="btn-open-navproject">
                 <mat-icon>folder_open</mat-icon>
                 <span>Project</span>
               </button>

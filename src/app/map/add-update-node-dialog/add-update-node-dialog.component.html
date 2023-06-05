@@ -116,7 +116,9 @@
                        [readonly]="isViewMode">
                 <mat-autocomplete #autoRole="matAutocomplete" [displayWith]="helpers.optionDisplay">
                   <mat-option *ngFor="let option of filteredRoles | async" [value]="option">
-                    {{ option.name }}
+                    <div class="option-text">
+                      {{ option.name }}
+                    </div>
                   </mat-option>
                 </mat-autocomplete>
                 <mat-error *ngIf="roleCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>

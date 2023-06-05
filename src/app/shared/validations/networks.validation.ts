@@ -5,7 +5,8 @@ export function networksValidation(type: any): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const ips = control.value;
     if (ips) {
-      let message = "Expected 4 octets and only decimal digits permitted. Invalid IP Address";
+      let message = "";
+      let invalidIpMessage = "Expected 4 octets and only decimal digits permitted. Invalid IP Address";
       const isSubnet = require("is-subnet");
       const isIpV4 = isIPv4(ips)
       let isMatchIP = !isIpV4
@@ -21,7 +22,7 @@ export function networksValidation(type: any): ValidatorFn {
             if (ipArr[ip].includes('/')) {
               const ipNetworks = ipArr[ip].split('/')[0]
               if (!isIPv4(ipNetworks)) {
-                message = message;
+                message = invalidIpMessage;
               } else {
                 const subnet = ipArr[ip].split('/')[1]
                 message = `'${subnet}' is invalid subnet mask`
@@ -30,10 +31,10 @@ export function networksValidation(type: any): ValidatorFn {
           }
         }
         isMatch = (isMatchIP && !matchSubnet)
-        message = message;
+        message = invalidIpMessage;
       } else {
         isMatch = isMatchIP;
-        message = message;
+        message = invalidIpMessage;
       }
       return isMatch ? {isNotMatchIP: true, value: message} : null;
     }

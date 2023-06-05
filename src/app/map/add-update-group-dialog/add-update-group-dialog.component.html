@@ -1,4 +1,4 @@
-<form [formGroup]="groupAddForm" (ngSubmit)="data.mode === 'add' ? addGroup() : updateGroup()" autocomplete="off">
+<form [formGroup]="groupAddForm" data-cy="groupAddForm" (ngSubmit)="data.mode === 'add' ? addGroup() : updateGroup()" autocomplete="off">
   <div class="dialog-title">
     <h1 mat-dialog-title>{{data.mode === 'add' ? 'Add New Group' : data.mode === 'update' ? 'Group Edit' : 'Group Info'}}</h1>
     <ng-template [ngxPermissionsOnly]="['can_write on Project']" [ngxPermissionsElse]="elseBlock">
@@ -25,7 +25,9 @@
              [matAutocomplete]="autoCategory" [readonly]="isViewMode">
       <mat-autocomplete #autoCategory="matAutocomplete" [displayWith]="helpers.optionDisplay">
         <mat-option *ngFor="let option of filteredCategories | async" [value]="option" (onSelectionChange)="changeCategory($event)">
-          {{ option.name }}
+          <div class="option-text">
+            {{ option.name }}
+          </div>
         </mat-option>
       </mat-autocomplete>
     </mat-form-field>
