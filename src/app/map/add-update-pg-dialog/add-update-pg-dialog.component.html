@@ -1,13 +1,16 @@
-<form [formGroup]="pgAddForm" data-cy="pgAddForm" (ngSubmit)="data.mode === 'add' ? addPG() : updatePG()" autocomplete="off">
+<form [formGroup]="pgAddForm" data-cy="pgAddForm" (ngSubmit)="data.mode === 'add' ? addPG() : updatePG()"
+  autocomplete="off">
   <div class="dialog-title">
     <h1 mat-dialog-title>{{data.mode === 'add' ? 'Port Group Add' : data.mode === 'update' ? 'Port Group Edit' : 'Port Group Info'}}</h1>
     <ng-template [ngxPermissionsOnly]="['can_write on Project']" [ngxPermissionsElse]="elseBlock">
-      <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+      <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button"
+        (click)="changeViewToEdit()">
         <mat-icon>edit</mat-icon>
       </button>
     </ng-template>
     <ng-template #elseBlock>
-      <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()" disabled="true">
+      <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button"
+        (click)="changeViewToEdit()" disabled="true">
         <mat-icon>edit</mat-icon>
       </button>
     </ng-template>
@@ -30,16 +33,18 @@
     </mat-form-field>
     <div *ngIf="data.mode !== 'add'" class="category">
       <label class="category-label">Category:</label>
-      <mat-radio-group class="category-group" color="primary" formControlName="categoryCtr">
-        <mat-radio-button class="category-items" [disabled]="isViewMode" value="private">Private</mat-radio-button>
-        <mat-radio-button class="category-items" [disabled]="isViewMode" value="public">Public</mat-radio-button>
-        <mat-radio-button [disabled]="tabName !== 'portGroupManagement'  || isViewMode" class="category-items" value="management">Management</mat-radio-button>
+      <mat-radio-group class="category-group" color="primary" formControlName="categoryCtr"
+        (change)="onCategoryChange($event)">
+        <mat-radio-button class="category-items" value="private">Private</mat-radio-button>
+        <mat-radio-button class="category-items" value="public">Public</mat-radio-button>
+        <mat-radio-button [disabled]="tabName !== 'portGroupManagement'  && data.mode !== 'add'" class="category-items"
+          value="management">Management</mat-radio-button>
       </mat-radio-group>
     </div>
     <mat-form-field class="field">
       <mat-label>Domain</mat-label>
-      <input autocomplete="off" id="pg-domain" matInput type="text" placeholder="Select a domain" formControlName="domainCtr"
-        [matAutocomplete]="autoDomain" [readonly]="isViewMode">
+      <input autocomplete="off" id="pg-domain" matInput type="text" placeholder="Select a domain"
+        formControlName="domainCtr" [matAutocomplete]="autoDomain" [readonly]="isViewMode">
       <mat-autocomplete #autoDomain="matAutocomplete" [displayWith]="helpers.optionDisplay">
         <mat-option *ngFor="let option of filteredDomains | async" [value]="option">
           {{ option.name }}
@@ -52,8 +57,10 @@
       <label class="category-label">Subnet Allocation:</label>
       <mat-radio-group class="category-group" color="primary" formControlName="subnetAllocationCtr"
         (change)="onSubnetAllocationChange($event)">
-        <mat-radio-button class="category-items"  [disabled]="isViewMode" value="static_auto">Static-Auto</mat-radio-button>
-        <mat-radio-button class="category-items" [disabled]="isViewMode" value="static_manual">Static-Manual</mat-radio-button>
+        <mat-radio-button class="category-items" [disabled]="isViewMode"
+          value="static_auto">Static-Auto</mat-radio-button>
+        <mat-radio-button class="category-items" [disabled]="isViewMode"
+          value="static_manual">Static-Manual</mat-radio-button>
       </mat-radio-group>
     </div>
     <mat-form-field class="field">
