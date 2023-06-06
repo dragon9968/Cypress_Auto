@@ -5,6 +5,10 @@ $margin: 8px;
     align-items: center;
 }
 
+.padding-field {
+    padding-top: 8px
+}
+
 .category {
     width: 100%;
     align-items: center;
@@ -50,7 +54,7 @@ $margin: 8px;
 }
 
 .interface-content {
-    height: 49vh;
+    height: 50vh;
     &__top, &__bottom {
         display: flex;
         justify-content: space-between;

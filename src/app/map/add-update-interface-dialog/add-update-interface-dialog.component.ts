@@ -9,7 +9,7 @@ import { DIRECTIONS } from 'src/app/shared/contants/directions.constant';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 import { selectPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { Store } from '@ngrx/store';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, catchError, throwError } from 'rxjs';
 import { selectInterfaces } from "../../store/map/map.selectors";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
@@ -22,6 +22,7 @@ import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
 import { selectNodesByProjectId } from 'src/app/store/node/node.selectors';
 import { validateNameExist } from "../../shared/validations/name-exist.validation";
 import { networksValidation } from 'src/app/shared/validations/networks.validation';
+import { showErrorFromServer } from 'src/app/shared/validations/error-server-response.validation';
 
 @Component({
   selector: 'app-add-update-interface-dialog',
@@ -48,7 +49,8 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   filteredPortGroups!: Observable<any[]>;
   filteredDirections!: Observable<any[]>;
   filteredNetmasks!: Observable<any[]>;
-  edgesConnected = []
+  edgesConnected = [];
+  errors: any[] = [];
 
   constructor(
     private store: Store,
@@ -71,7 +73,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       macAddressCtr: new FormControl(''),
       portGroupCtr: new FormControl(''),
       ipAllocationCtr: new FormControl(''),
-      ipCtr: new FormControl('', [Validators.required, networksValidation('single')]),
+      ipCtr: new FormControl('', [Validators.required]),
       dnsServerCtr: new FormControl(''),
       gatewayCtr: new FormControl(''),
       isGatewayCtr: new FormControl(''),
@@ -148,7 +150,9 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     this._disableItems(this.ipAllocationCtr?.value);
     this.ipCtr?.setValidators([
       Validators.required,
-      validateNameExist(() => this.edgesConnected, this.data.mode, this.data.genData.interface_id, 'ip')
+      networksValidation('single'),
+      validateNameExist(() => this.edgesConnected, this.data.mode, this.data.genData.interface_id, 'ip'),
+      showErrorFromServer(() => this.errors)
     ])
     if (!this.isViewMode) {
       this.interfaceAddForm?.markAllAsTouched();
@@ -229,7 +233,20 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       } : undefined,
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.interfaceService.add(jsonData).subscribe((respData: any) => {
+    this.interfaceService.add(jsonData).pipe(
+      catchError(err => {
+        const errorMessage = err.error.message;
+        if (err.status === 422) {
+          if (errorMessage.ip) {
+            this.ipCtr?.setErrors({
+              serverError: errorMessage.ip
+            });
+            this.errors.push({ 'valueCtr': this.ipCtr?.value, 'error': errorMessage.ip });
+          }
+        }
+        return throwError(() => err);
+      })
+    ).subscribe((respData: any) => {
       const portGroupId = respData.result.port_group_id;
       if (portGroupId) {
         const newEdgeData = this.data.newEdgeData;
@@ -287,7 +304,20 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       netmask_id: netmask_id ? netmask_id : null,
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.interfaceService.put(this.data.genData.interface_id, jsonData).subscribe((respData: any) => {
+    this.interfaceService.put(this.data.genData.interface_id, jsonData).pipe(
+      catchError(err => {
+        const errorMessage = err.error.message;
+        if (err.status === 422) {
+          if (errorMessage.ip) {
+            this.ipCtr?.setErrors({
+              serverError: errorMessage.ip
+            });
+            this.errors.push({ 'valueCtr': this.ipCtr?.value, 'error': errorMessage.ip });
+          }
+        }
+        return throwError(() => err);
+      })
+    ).subscribe((respData: any) => {
       const data = {
         ...this.data.genData,
         ...jsonData,
