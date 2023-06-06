@@ -35,9 +35,9 @@
       <label class="category-label">Category:</label>
       <mat-radio-group class="category-group" color="primary" formControlName="categoryCtr"
         (change)="onCategoryChange($event)">
-        <mat-radio-button class="category-items" value="private">Private</mat-radio-button>
-        <mat-radio-button class="category-items" value="public">Public</mat-radio-button>
-        <mat-radio-button [disabled]="tabName !== 'portGroupManagement'  && data.mode !== 'add'" class="category-items"
+        <mat-radio-button class="category-items" [disabled]="isViewMode" value="private">Private</mat-radio-button>
+        <mat-radio-button class="category-items" [disabled]="isViewMode" value="public">Public</mat-radio-button>
+        <mat-radio-button [disabled]="tabName !== 'portGroupManagement' || isViewMode" class="category-items"
           value="management">Management</mat-radio-button>
       </mat-radio-group>
     </div>
