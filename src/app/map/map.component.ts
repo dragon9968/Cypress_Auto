@@ -72,7 +72,6 @@ import { retrievedNodes } from "../store/node/node.actions";
 import { retrievedGroups } from "../store/group/group.actions";
 import { ValidateProjectDialogComponent } from "../project/validate-project-dialog/validate-project-dialog.component";
 import { selectProjectCategory, selectProjects } from "../store/project/project.selectors";
-import { NgxPermissionsService } from "ngx-permissions";
 import { CMProjectNodeService } from "./context-menu/cm-project-node/cm-project-node.service";
 import { MapLinkService } from "../core/services/map-link/map-link.service";
 import { NetmaskService } from '../core/services/netmask/netmask.service';
@@ -784,39 +783,14 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         if (g[0]?.id != dropTarget.data('group_id')) {
           data.domain = dropTarget.data('domain');
           data.domain_id = dropTarget.data('domain_id');
-
-          if (data.elem_category === 'port_group') {
-            this.portgroupService.put(data.pg_id, {
-              domain_id: data.domain_id,
-              switch_id: data.switch_id
-            }).subscribe(resp => {
-              this.portgroupService.get(data.pg_id).subscribe(resp => {
-                this.activePGs[0]?.data('groups', resp.result.groups);
-                this.toastr.success('Groups updated!');
-                this.groupService.getGroupByProjectId(this.projectId).subscribe(
-                  groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
-                );
-              });
-            });
-          } else if (data.elem_category === 'node') {
-            this.nodeService.put(data.node_id, {
-              domain_id: data.domain_id,
-            }).subscribe(resp => {
-              this.nodeService.get(data.node_id).subscribe(resp => {
-                this.activeNodes[0]?.data('groups', resp.result.groups);
-                this.toastr.success('Groups updated!');
-                this.groupService.getGroupByProjectId(this.projectId).subscribe(
-                  groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
-                );
-              });
-            });
-          }
+          this.updateGroups(data);
         }
       }
       target.move({ 'parent': 'group-' + dropTarget.data('group_id') });
     } else if (dropTarget.data('label') != 'group_box') {
-      data.in_groupbox = true;
-      // this.helpersService.reloadGroupBoxes(this.cy);
+      data.domain = 'default.test';
+      data.domain_id = this.domains.filter(d => d.name == 'default.test')[0].id;
+      this.updateGroups(data);
     }
     if (data.category != "bg_image") {
       data.new = false;
@@ -1876,5 +1850,33 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.toastr.success('Add map image successfully', 'Success');
       });
     });
+  }
+
+  private updateGroups(data: any) {
+    if (data.elem_category === 'port_group') {
+      this.portgroupService.put(data.pg_id, {
+        domain_id: data.domain_id,
+      }).subscribe(resp => {
+        this.portgroupService.get(data.pg_id).subscribe(resp => {
+          this.activePGs[0]?.data('groups', resp.result.groups);
+          this.toastr.success('Groups updated!');
+          this.groupService.getGroupByProjectId(this.projectId).subscribe(
+            groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
+          );
+        });
+      });
+    } else if (data.elem_category === 'node') {
+      this.nodeService.put(data.node_id, {
+        domain_id: data.domain_id,
+      }).subscribe(resp => {
+        this.nodeService.get(data.node_id).subscribe(resp => {
+          this.activeNodes[0]?.data('groups', resp.result.groups);
+          this.toastr.success('Groups updated!');
+          this.groupService.getGroupByProjectId(this.projectId).subscribe(
+            groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
+          );
+        });
+      });
+    }
   }
 }
