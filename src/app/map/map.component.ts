@@ -78,6 +78,7 @@ import { NetmaskService } from '../core/services/netmask/netmask.service';
 import { retrievedNetmasks } from '../store/netmask/netmask.actions';
 import { MapEditService } from "../core/services/map-edit/map-edit.service";
 import { RolesService } from '../core/services/roles/roles.service';
+import { CmGroupOptionService } from './context-menu/cm-group-option/cm-group-option.service';
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -229,7 +230,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     private contextMenuService: ContextMenuService,
     private netmaskService: NetmaskService,
     private mapEditService: MapEditService,
-    private rolesService: RolesService
+    private rolesService: RolesService,
+    private cmGroupOptionService: CmGroupOptionService
   ) {
     navigator(cytoscape);
     gridGuide(cytoscape);
@@ -579,7 +581,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         }
       }
       this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
-        this.activeMBs, this.activeMapLinks, this.isTemplateCategory);
+        this.activeMBs, this.activeMapLinks, this.isTemplateCategory, this.isGroupBoxesChecked);
       this.store.dispatch(retrievedMapSelection({ data: true }));
     }
   }
@@ -603,7 +605,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         }
       }
       this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
-        this.activeMBs, this.activeMapLinks, this.isTemplateCategory);
+        this.activeMBs, this.activeMapLinks, this.isTemplateCategory, this.isGroupBoxesChecked);
       this.store.dispatch(retrievedMapSelection({ data: true }));
     }
   }
@@ -1099,6 +1101,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.cmActionsService.getNodeActionsMenu(this.cy, this.activeNodes, this.isCanWriteOnProject),
         this.cmActionsService.getPortGroupActionsMenu(this.cy, this.projectId, this.activePGs),
         this.cmActionsService.getEdgeActionsMenu(this.cy, this.activeEdges),
+        this.cmGroupOptionService.getNodePgGroupMenu(this.cy, this.activeNodes, this.activePGs, this.projectId, this.isCanWriteOnProject),
+        // this.cmGroupOptionService.getPortGroupGroupMenu(this.cy, this.activePGs),
         this.cmRemoteService.getNodeRemoteMenu(this.activeNodes),
         this.cmRemoteService.getPortGroupRemoteMenu(this.activePGs),
         this.cmViewDetailsService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeMapLinks),
@@ -1128,7 +1132,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     const t = $event.target;
     t.select();
     this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs,
-      this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks, this.isTemplateCategory);
+      this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks, this.isTemplateCategory, this.isGroupBoxesChecked);
   }
 
   private _openAddUpdateNodeDialog(genData: any, newNodeData: any, newNodePosition: any) {

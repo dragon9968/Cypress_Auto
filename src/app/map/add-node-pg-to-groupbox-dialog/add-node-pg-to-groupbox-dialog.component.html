@@ -1,0 +1,28 @@
+<form [formGroup]="addGroupForm" data-cy="addGroupForm" (ngSubmit)="addGroup()" autocomplete="off">
+  <div class="dialog-title">
+    <h1 class="node-title" mat-dialog-title>Select Group</h1>
+  </div>
+  <mat-dialog-content>
+    <mat-form-field class="field">
+      <mat-label>Select Group</mat-label>
+      <input autocomplete="off" id="select-group" matInput type="text" placeholder="Select a group" formControlName="selectGroupCtr"
+             [matAutocomplete]="autoGroup">
+      <mat-autocomplete #autoGroup="matAutocomplete" [displayWith]="helpers.optionDisplay">
+        <mat-option *ngFor="let option of filteredGroups | async" [value]="option" style="height: 60px !important;">
+          <div class="option-text">
+            <span class="option-text-items">{{ option.name }}</span>
+          </div>
+        </mat-option>
+      </mat-autocomplete>
+      <mat-error *ngIf="selectGroupCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+    </mat-form-field>
+  </mat-dialog-content>
+  <div mat-dialog-actions [align]="'end'">
+    <button mat-raised-button type="button" (click)="onCancel()">
+      Cancel
+    </button>
+    <button mat-raised-button type="submit" color="primary" [disabled]="addGroupForm.invalid">
+      Add
+    </button>
+  </div>
+</form>

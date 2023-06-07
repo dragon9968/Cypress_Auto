@@ -33,7 +33,7 @@ export class ContextMenuService implements OnDestroy {
   }
 
   showContextMenu(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], activeMBs: any[],
-    activeMapLinks: any[], isTemplateCategory: any) {
+    activeMapLinks: any[], isTemplateCategory: any, isGroupBoxesChecked: boolean) {
     const activeNodesLength = activeNodes.length;
     const activePGsLength = activePGs.length;
     const activeEdgesLength = activeEdges.length;
@@ -58,6 +58,10 @@ export class ContextMenuService implements OnDestroy {
     if ((!this.isHypervisorConnect && !this.isConfiguratorConnect) || isTemplateCategory) {
       contextMenu.hideMenuItem('node_remote');
       contextMenu.hideMenuItem('pg_remote');
+    }
+
+    if (!isGroupBoxesChecked) {
+      contextMenu.hideMenuItem('group');
     }
   }
   showMenuOptionsForselectedMapLinks(contextMenu: any, activeMapLinksLength: number) {
@@ -89,6 +93,7 @@ export class ContextMenuService implements OnDestroy {
     contextMenu.showMenuItem('delete');
     contextMenu.showMenuItem('lock_node');
     contextMenu.showMenuItem('unlock_node');
+    contextMenu.showMenuItem('group');
     if (activeNodesLength == 0 && activeEdgesLength == 0) {
       if (activePGsLength > 1) {
         contextMenu.showMenuItem('pg_actions');
@@ -104,12 +109,14 @@ export class ContextMenuService implements OnDestroy {
     } else if (activeEdgesLength > 0) {
       contextMenu.hideMenuItem('lock_node');
       contextMenu.hideMenuItem('unlock_node');
+      contextMenu.hideMenuItem('group');
     }
   }
   showMenuOptionsForselectedNodes(contextMenu: any, activeNodesLength: number, activePGsLength: number, activeEdgesLength: number) {
     contextMenu.showMenuItem('delete');
     contextMenu.showMenuItem('lock_node');
     contextMenu.showMenuItem('unlock_node');
+    contextMenu.showMenuItem('group');
     if (activePGsLength == 0 && activeEdgesLength == 0) {
       if (activeNodesLength > 1) {
         contextMenu.showMenuItem('node_actions');
@@ -127,6 +134,7 @@ export class ContextMenuService implements OnDestroy {
     } else if (activeEdgesLength > 0) {
       contextMenu.hideMenuItem('lock_node');
       contextMenu.hideMenuItem('unlock_node');
+      contextMenu.hideMenuItem('group');
     }
   }
 
