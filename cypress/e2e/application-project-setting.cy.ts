@@ -25,6 +25,7 @@ describe('Project Settings', () => {
       cy.login("admin", "password")
     }
     cy.session('login', setup)
+    cy.waitingLoadingFinish()
   })
 
   it('1. Create a blank project', function () {
@@ -59,6 +60,7 @@ describe('Project Settings', () => {
     cy.visit('/')
     cy.importProject('cypress/fixtures/project/West_ISP.json')
     cy.openProjectByName(projectImport.collection[0].name)
+    cy.waitingLoadingFinish()
     cy.get('.tool-panel-actions button[mattooltip="Save"]').first().click()
     cy.wait(2000)
   });
@@ -70,6 +72,7 @@ describe('Project Settings', () => {
   })
 
   it('5. Save as Project Template (Editing project change category from project to template)', () => {
+    cy.visit('/')
     cy.openProjectByName(projectImport.collection[0].name)
     cy.updateProjectToTemplate(projectImport.collection[0].name, true)
   });

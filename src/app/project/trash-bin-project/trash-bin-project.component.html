@@ -6,8 +6,8 @@
         <mat-icon>keyboard_arrow_down</mat-icon>
       </button>
       <mat-menu #actionMenu="matMenu">
-        <button mat-menu-item (click)="recoverProject()"><mat-icon>restore_from_trash</mat-icon>Recover</button>
-        <button mat-menu-item (click)="permanentDeleteProject()" data-cy="btn-perdelete-project"><mat-icon>delete_forever</mat-icon>Permanent Delete</button>
+        <button type="button" mat-menu-item (click)="recoverProject()"><mat-icon>restore_from_trash</mat-icon>Recover</button>
+        <button type="button" mat-menu-item (click)="permanentDeleteProject()" data-cy="btn-perdelete-project"><mat-icon>delete_forever</mat-icon>Permanent Delete</button>
       </mat-menu>
     </div>
   </div>
