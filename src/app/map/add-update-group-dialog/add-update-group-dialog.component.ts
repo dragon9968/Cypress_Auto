@@ -120,15 +120,10 @@ export class AddUpdateGroupDialogComponent implements OnInit {
     this.descriptionCtr?.setValue(this.data.genData.description);
     if (this.data.mode == 'add') {
       this.categoryCtr?.setValue(this.CATEGORIES[0]);
-      this.nodesCtr?.setValue(this.data.genData.nodes?.map((ele: any) => ele.id));
-      this.portGroupsCtr?.setValue(this.data.genData.port_groups?.map((ele: any) => ele.id));
-      this.mapImagesCtr?.setValue(this.data.genData.map_images?.map((ele: any) => ele.id));
     } else {
-      this.nodesCtr?.setValue(this.data.genData.nodes?.map((ele: any) => ele.id));
-      this.portGroupsCtr?.setValue(this.data.genData.port_groups?.map((ele: any) => ele.id));
       this.helpers.setAutoCompleteValue(this.categoryCtr, this.CATEGORIES, this.data.genData.category);
-      this.mapImagesCtr?.setValue(this.data.genData.map_images?.map((ele: any) => ele.id));
     }
+    this.setNodesPgsMapImagesData()
     this.groupAddForm.controls['categoryCtr'].valueChanges.subscribe(value => {
       switch (value.name) {
         case 'domain':
@@ -166,9 +161,9 @@ export class AddUpdateGroupDialogComponent implements OnInit {
       description: this.descriptionCtr?.value,
       project_id: this.data.project_id,
       domain_id: this.categoryCtr?.value.id == 'domain' ? this.categoryIdCtr?.value.id : undefined,
-      nodes: this.data.genData.nodes?.map((ele: any) => ele.data('node_id')),
-      port_groups: this.data.genData.port_groups?.map((ele: any) => ele.data('pg_id')),
-      map_images: this.data.genData.map_images?.map((ele: any) => ele.data('map_image_id')),
+      nodes: this.getNodeIds(this.data.genData.nodes),
+      port_groups: this.getPGIds(this.data.genData.port_groups),
+      map_images: this.getMapImageIds(this.data.genData.map_images),
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.groupService.add(jsonData).subscribe(response => {
@@ -182,14 +177,20 @@ export class AddUpdateGroupDialogComponent implements OnInit {
   }
 
   updateGroup() {
+    const nodesEle = this.nodes.filter(ele => this.nodesCtr?.value.includes(ele.id))
+    const pgsEle = this.portGroups.filter(ele => this.portGroupsCtr?.value.includes(ele.id))
+    const mapImagesEle = this.mapImages.filter(ele => this.mapImagesCtr?.value.includes(ele.id))
+    const nodeIds = this.getNodeIds(nodesEle)
+    const pgIds = this.getPGIds(pgsEle)
+    const mapImageIds = this.getMapImageIds(mapImagesEle)
     const jsonDataValue = {
       name: this.nameCtr?.value,
       category: this.categoryCtr?.value.id,
       description: this.descriptionCtr?.value,
       project_id: this.data.project_id,
-      nodes: this.nodes.filter(ele => this.nodesCtr?.value.includes(ele.id)),
-      port_groups: this.portGroups.filter(ele => this.portGroupsCtr?.value.includes(ele.id)),
-      map_images: this.mapImages.filter(ele => this.mapImagesCtr?.value.includes(ele.id)),
+      nodes: nodeIds,
+      port_groups: pgIds,
+      map_images: mapImageIds,
       logical_map: {},
       physical_map: {},
     }
@@ -223,8 +224,25 @@ export class AddUpdateGroupDialogComponent implements OnInit {
     this.data.mode = 'update';
     this.isViewMode = false;
     this.nameCtr?.enable();
+    this.setNodesPgsMapImagesData()
+    this.helpers.setAutoCompleteValue(this.categoryCtr, this.CATEGORIES, this.data.genData.category);
+  }
+
+  setNodesPgsMapImagesData() {
     this.nodesCtr?.setValue(this.data.genData.nodes?.map((ele: any) => ele.id));
     this.portGroupsCtr?.setValue(this.data.genData.port_groups?.map((ele: any) => ele.id));
-    this.helpers.setAutoCompleteValue(this.categoryCtr, this.CATEGORIES, this.data.genData.category);
+    this.mapImagesCtr?.setValue(this.data.genData.map_images?.map((ele: any) => ele.id));
+  }
+
+  getNodeIds(nodesEle: any) {
+    return nodesEle?.map((nodeEle: any) => nodeEle.data ? nodeEle.data('node_id') : nodeEle.id)
+  }
+
+  getPGIds(pgsEle: any) {
+    return pgsEle?.map((pgEle: any) => pgEle.data ? pgEle.data('pg_id') : pgEle.id)
+  }
+
+  getMapImageIds(mapImagesEle: any) {
+    return mapImagesEle?.map((mapImageEle: any) => mapImageEle.data ? mapImageEle.data('map_image_id') : mapImageEle.id)
   }
 }
