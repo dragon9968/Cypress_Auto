@@ -167,6 +167,8 @@ export class ContextMenuService implements OnDestroy {
     contextMenu.hideMenuItem('expand_groupbox');
     contextMenu.hideMenuItem('lock_node');
     contextMenu.hideMenuItem('unlock_node');
+    contextMenu.hideMenuItem('collapse_node');
+    contextMenu.hideMenuItem('expand_node');
   }
 
   showMenuOptionsForselectedGBs(contextMenu: any) {
