@@ -414,10 +414,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.isDisableAddNode = true;
     this.isDisableAddPG = true;
     this.isDisableAddImage = true;
-    this.isDisableCancel = false;
     this.isDisableAddProjectTemplate = true;
     this.isDisableNewFromSelected = true;
     this.isDisableLinkProject = true;
+    this.isDisableCancel = false;
   }
 
   private _enableMapEditButtons() {
@@ -426,7 +426,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.isDisableLinkProject = !(Boolean(this.linkProjectId));
     this.isDisableNewFromSelected = false;
     this.isDisableAddPG = false;
-    this.isDisableAddImage = false;
+    this.isDisableAddImage = !(Boolean(this.mapImage.id));
     this.isDisableCancel = true;
   }
 
@@ -1608,6 +1608,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       })
     ).subscribe(response => {
       this.isAddProjectTemplate = false;
+      this.projectTemplateId = 0;
       this._enableMapEditButtons();
       const templateItems = response.result.map_items;
       this.domainService.getDomainByProjectId(projectId).subscribe(domainRes => {

@@ -115,7 +115,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
     this.selectTemplates$ = this.store.select(selectTemplates).subscribe((templates: any) => {
       if (templates) {
         this.templates = templates;
-        this.templateCtr?.setValidators([autoCompleteValidator(this.templates, 'display_name'), Validators.required]);
+        this.templateCtr?.setValidators([autoCompleteValidator(this.templates, 'display_name')]);
         this.filteredTemplatesByDevice = templates
         this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice, 'display_name');
       }
@@ -123,7 +123,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
     this.selectImages$ = this.store.select(selectImages).subscribe((images: any) => {
       if (images) {
         this.mapImages = images;
-        this.mapImageCtr?.setValidators([autoCompleteValidator(this.mapImages), Validators.required]);
+        this.mapImageCtr?.setValidators([autoCompleteValidator(this.mapImages)]);
         this.filteredMapImages = this.helpers.filterOptions(this.mapImageCtr, this.mapImages);
       }
     });
@@ -138,7 +138,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
     this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(projectTemplates => {
       if (projectTemplates != undefined) {
         this.projectTemplates = projectTemplates;
-        this.projectTemplateCtr.setValidators([autoCompleteValidator(this.projectTemplates), Validators.required]);
+        this.projectTemplateCtr.setValidators([autoCompleteValidator(this.projectTemplates)]);
         this.filteredProjectTemplates = this.helpers.filterOptions(this.projectTemplateCtr, this.projectTemplates)
       }
     });
@@ -155,7 +155,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
           }
           newProjectData = newProjectData.filter(project => project.id !== projectId);
           this.projects = newProjectData;
-          this.linkProjectCtr.setValidators([autoCompleteValidator(this.projects), Validators.required]);
+          this.linkProjectCtr.setValidators([autoCompleteValidator(this.projects)]);
           this.filteredProjects = this.helpers.filterOptions(this.linkProjectCtr, this.projects);
         })
       }
@@ -164,7 +164,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.isAddNode || this.isAddPrivatePG || this.isAddPublicPG || this.isAddMapImage
-                       || this.isAddProjectNode || this.isAddProjectTemplate) {
+      || this.isAddProjectNode || this.isAddProjectTemplate) {
       this.isCustomizeNodeCtr?.disable();
       this.deviceCtr?.disable();
       this.templateCtr?.disable();
@@ -178,8 +178,11 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
       this.deviceCtr?.enable();
       this.templateCtr?.enable();
       this.isDisableCustomizePG = false;
+      this.mapImageCtr?.setValue('');
       this.mapImageCtr?.enable();
+      this.linkProjectCtr?.setValue('');
       this.linkProjectCtr?.enable();
+      this.projectTemplateCtr?.setValue('');
       this.projectTemplateCtr?.enable();
       this.isLayoutOnlyCtr?.enable();
     }
@@ -199,7 +202,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
   ngOnInit(): void {
     this.templateCtr?.disable();
     this.projectService.getProjectByStatusAndCategory('active', 'template').subscribe(
-      data => this.store.dispatch(retrievedProjectsTemplate({template: data.result}))
+      data => this.store.dispatch(retrievedProjectsTemplate({ template: data.result }))
     );
   }
 
@@ -278,26 +281,25 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   addImage() {
-      const mapImage = this.mapImages.filter(image => image.id === this.mapImageCtr.value.id)[0];
-      const background = new Image();
-      background.src = ICON_PATH + mapImage.photo;
-      let width: any;
-      let height: any;
-      background.onload = () => {
-        width = background.width;
-        height = background.height;
-        this.isDisableAddImage = true;
-        this.store.dispatch(retrievedMapEdit({
-          data: {
-            isAddMapImage: true,
-            imageWidth: width,
-            imageHeight: height,
-            imageUrl: background.src,
-            mapImage: mapImage,
-          }
-        }));
-      };
-      // background.addEventListener("load", this.loadMapImage.bind(this, background));
+    const mapImage = this.mapImages.filter(image => image.id === this.mapImageCtr.value.id)[0];
+    const background = new Image();
+    background.src = ICON_PATH + mapImage.photo;
+    let width: any;
+    let height: any;
+    background.onload = () => {
+      width = background.width;
+      height = background.height;
+      this.isDisableAddImage = true;
+      this.store.dispatch(retrievedMapEdit({
+        data: {
+          isAddMapImage: true,
+          imageWidth: width,
+          imageHeight: height,
+          imageUrl: background.src,
+          mapImage: mapImage,
+        }
+      }));
+    };
   }
 
   selectProjectTemplate() {

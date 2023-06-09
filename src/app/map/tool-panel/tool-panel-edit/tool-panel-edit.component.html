@@ -4,41 +4,42 @@
     <form [formGroup]="nodeAddForm" (ngSubmit)="addNode()" autocomplete="off">
       <mat-form-field class="tab-select-field">
         <mat-label>Device</mat-label>
-        <input autocomplete="off" id="toolpanel-device" matInput type="text" placeholder="Select Device" formControlName="deviceCtr" [matAutocomplete]="autoDevice"
-	  (change)="changeDevice()">
+        <input autocomplete="off" id="toolpanel-device" matInput type="text" placeholder="Select Device"
+          formControlName="deviceCtr" [matAutocomplete]="autoDevice" (change)="changeDevice()">
         <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="helpers.optionDisplay"
-	  (optionSelected)="selectDevice($event)">
-	  <mat-option *ngFor="let option of filteredDevices | async" [value]="option">
-	    <div class="option-text">
-	      <img [src]="ICON_PATH + option.icon?.photo" height="24" width="24">
-	      &nbsp;
-	      <span>{{ option.name }}</span>
-	    </div>
-	  </mat-option>
+          (optionSelected)="selectDevice($event)">
+          <mat-option *ngFor="let option of filteredDevices | async" [value]="option">
+            <div class="option-text">
+              <img [src]="ICON_PATH + option.icon?.photo" height="24" width="24">
+              &nbsp;
+              <span>{{ option.name }}</span>
+            </div>
+          </mat-option>
         </mat-autocomplete>
         <mat-error *ngIf="deviceCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
       </mat-form-field>
       <mat-form-field class="tab-select-field">
         <mat-label>Template/Model</mat-label>
-        <input autocomplete="off" id="toolpanel-template" matInput type="text" placeholder="Select Template/Model" formControlName="templateCtr"
-	  [matAutocomplete]="autoTemplate" (change)="changeTemplate()">
+        <input autocomplete="off" id="toolpanel-template" matInput type="text" placeholder="Select Template/Model"
+          formControlName="templateCtr" [matAutocomplete]="autoTemplate" (change)="changeTemplate()">
         <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helpers.templateDisplay"
-	  (optionSelected)="selectTemplate($event)">
-	  <mat-option *ngFor="let option of filteredTemplates | async" [value]="option">
-	    <div class="option-text">
-	      <img [src]="ICON_PATH + option.icon?.photo" height="24" width="24">
-	      &nbsp;
-	      <span>{{ option.display_name }}</span>
-	    </div>
-	  </mat-option>
+          (optionSelected)="selectTemplate($event)">
+          <mat-option *ngFor="let option of filteredTemplates | async" [value]="option">
+            <div class="option-text">
+              <img [src]="ICON_PATH + option.icon?.photo" height="24" width="24">
+              &nbsp;
+              <span>{{ option.display_name }}</span>
+            </div>
+          </mat-option>
         </mat-autocomplete>
         <mat-error *ngIf="templateCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
         <mat-error *ngIf="templateCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
       </mat-form-field>
       <div class="tab-field">
         <mat-checkbox formControlName="isCustomizeNodeCtr">Customize</mat-checkbox>
-        <button mat-raised-button data-cy="btn-add-node" type="submit" color="primary" class="tab-field-btn" matTooltip="Add" [disabled]="isDisableAddNode || !nodeAddForm.valid ">
-	  <mat-icon>add</mat-icon>
+        <button mat-raised-button data-cy="btn-add-node" type="submit" color="primary" class="tab-field-btn"
+          matTooltip="Add" [disabled]="isDisableAddNode || !nodeAddForm.valid ">
+          <mat-icon>add</mat-icon>
         </button>
       </div>
       <div class="tab-field">
@@ -71,18 +72,22 @@
     <h4>Images</h4>
     <div>
       <form [formGroup]="mapImageForm" (ngSubmit)="addImage()" autocomplete="off">
-      <mat-form-field class="inline-select-field">
-        <mat-label>Image</mat-label>
-        <input autocomplete="off" id="toolpanel-image" matInput type="text" placeholder="Select Image" [formControl]="mapImageCtr" [matAutocomplete]="autoImage">
-        <mat-autocomplete #autoImage="matAutocomplete" [displayWith]="helpers.optionDisplay" (optionSelected)="selectMapImage()">
-	        <mat-option *ngFor="let option of filteredMapImages | async" [value]="option"> {{ option.name }} </mat-option>
-        </mat-autocomplete>
-        <mat-error *ngIf="mapImageCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-        <mat-error *ngIf="mapImageCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
-      </mat-form-field>
-      <button mat-raised-button color="primary" type="submit" class="add-inline-btn" matTooltip="Add" [disabled]="isDisableAddImage || !mapImageForm.valid">
-        <mat-icon>add</mat-icon>
-      </button>
+        <mat-form-field class="inline-select-field">
+          <mat-label>Image</mat-label>
+          <input autocomplete="off" id="toolpanel-image" matInput type="text" placeholder="Select Image"
+            [formControl]="mapImageCtr" [matAutocomplete]="autoImage">
+          <mat-autocomplete #autoImage="matAutocomplete" [displayWith]="helpers.optionDisplay"
+            (optionSelected)="selectMapImage()">
+            <mat-option *ngFor="let option of filteredMapImages | async" [value]="option"> {{ option.name }}
+            </mat-option>
+          </mat-autocomplete>
+          <mat-error *ngIf="mapImageCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+          <mat-error *ngIf="mapImageCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+        </mat-form-field>
+        <button mat-raised-button color="primary" type="submit" class="add-inline-btn" matTooltip="Add"
+          [disabled]="isDisableAddImage || !mapImageForm.valid || !this.mapImageCtr.value.id">
+          <mat-icon>add</mat-icon>
+        </button>
       </form>
     </div>
   </section>
@@ -95,15 +100,10 @@
         <div>
           <mat-form-field class="inline-select-field">
             <mat-label>Link Project</mat-label>
-            <input matInput autocomplete="off" id="toolpanel-linkproject"
-                   placeholder="Select a project"
-                   formControlName="linkProjectCtr"
-                   [matAutocomplete]="autoProject"
-            >
-            <mat-autocomplete #autoProject="matAutocomplete"
-                              [displayWith]="helpers.optionDisplay"
-                              (optionSelected)="selectProject()"
-            >
+            <input matInput autocomplete="off" id="toolpanel-linkproject" placeholder="Select a project"
+              formControlName="linkProjectCtr" [matAutocomplete]="autoProject">
+            <mat-autocomplete #autoProject="matAutocomplete" [displayWith]="helpers.optionDisplay"
+              (optionSelected)="selectProject()">
               <mat-option *ngFor="let project of filteredProjects | async" [value]="project">
                 <div class="template-option">
                   <span class="template-option__text">{{ project.name }}</span>
@@ -113,12 +113,8 @@
             <mat-error *ngIf="linkProjectCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
             <mat-error *ngIf="linkProjectCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
           </mat-form-field>
-          <button type="submit"
-                  color="primary"
-                  matTooltip="Link Project"
-                  mat-raised-button
-                  class="add-inline-btn"
-                  [disabled]="isDisableLinkProject || linkProjectForm.invalid">
+          <button type="submit" color="primary" matTooltip="Link Project" mat-raised-button class="add-inline-btn"
+            [disabled]="isDisableLinkProject || linkProjectForm.invalid || !this.linkProjectCtr.value.id">
             <mat-icon>add</mat-icon>
           </button>
         </div>
@@ -130,34 +126,25 @@
     <form [formGroup]="addTemplateForm" (ngSubmit)="addTemplate()" autocomplete="off">
       <mat-form-field class="tab-select-field">
         <mat-label>Template</mat-label>
-        <input autocomplete="off" id="toolpanel-add-template" matInput
-	       placeholder="Select a template"
-	       formControlName="projectTemplateCtr"
-	       [matAutocomplete]="autoProjectTemplate"
-        >
-        <mat-autocomplete #autoProjectTemplate="matAutocomplete"
-	                  [displayWith]="helpers.optionDisplay"
-	                  (optionSelected)="selectProjectTemplate()"
-        >
-	  <mat-option *ngFor="let template of filteredProjectTemplates | async" [value]="template">
-	    <div class="template-option">
-	      <span class="template-option__text">{{ template.name }}</span>
-	      <span class="template-option__text">{{ template.description }}</span>
-	    </div>
-	  </mat-option>
+        <input autocomplete="off" id="toolpanel-add-template" matInput placeholder="Select a template"
+          formControlName="projectTemplateCtr" [matAutocomplete]="autoProjectTemplate">
+        <mat-autocomplete #autoProjectTemplate="matAutocomplete" [displayWith]="helpers.optionDisplay"
+          (optionSelected)="selectProjectTemplate()">
+          <mat-option *ngFor="let template of filteredProjectTemplates | async" [value]="template">
+            <div class="template-option">
+              <span class="template-option__text">{{ template.name }}</span>
+              <span class="template-option__text">{{ template.description }}</span>
+            </div>
+          </mat-option>
         </mat-autocomplete>
         <mat-error *ngIf="projectTemplateCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
         <mat-error *ngIf="projectTemplateCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
       </mat-form-field>
       <div class="tab-field">
         <mat-checkbox formControlName="isLayoutOnlyCtr" [labelPosition]="'before'">Layout Only</mat-checkbox>
-        <button type="submit"
-	        color="primary"
-	        matTooltip="Add"
-	        mat-raised-button
-	        class="tab-field-btn"
-	        [disabled]="isDisableAddProjectTemplate || addTemplateForm.invalid">
-	  <mat-icon>add</mat-icon>
+        <button type="submit" color="primary" matTooltip="Add" mat-raised-button class="tab-field-btn"
+          [disabled]="isDisableAddProjectTemplate || addTemplateForm.invalid || !this.projectTemplateCtr.value.id">
+          <mat-icon>add</mat-icon>
         </button>
       </div>
     </form>
@@ -165,7 +152,8 @@
     <mat-divider></mat-divider>
     <div>
       <h5>Clone selected items to new a project</h5>
-      <button mat-raised-button color="primary" [disabled]="isDisableNewFromSelected" (click)="addNewProjectFromSelected()">
+      <button mat-raised-button color="primary" [disabled]="isDisableNewFromSelected"
+        (click)="addNewProjectFromSelected()">
         <mat-icon>add</mat-icon>
       </button>
     </div>
