@@ -42,6 +42,7 @@ import { AceEditorModule } from "ng2-ace-editor";
 import { InfoPanelShowValidationResultsComponent } from './components/info-panel-show-validation-results/info-panel-show-validation-results.component';
 import { SetAttributeDirective } from './directive/set-attribute.directive';
 import { InfoPanelTableComponent } from './components/info-panel-table/info-panel-table.component';
+import { ImportDialogComponent } from './components/import-dialog/import-dialog.component';
 
 
 const materialModules = [
@@ -76,7 +77,7 @@ const materialModules = [
 ];
 
 @NgModule({
-  declarations: [ConfirmationDialogComponent, SpinnerComponent, InfoPanelShowValidationResultsComponent, SetAttributeDirective, InfoPanelTableComponent],
+  declarations: [ConfirmationDialogComponent, SpinnerComponent, InfoPanelShowValidationResultsComponent, SetAttributeDirective, InfoPanelTableComponent, ImportDialogComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,

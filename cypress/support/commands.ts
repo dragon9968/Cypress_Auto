@@ -270,6 +270,62 @@ function blurAllInputFocused(): void {
 }
 Cypress.Commands.add('blurAllInputFocused', blurAllInputFocused);
 
+// Import Login Profile
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    importLoginProfile(filePath: string, validation: boolean): typeof importLoginProfile;
+  }
+}
+
+function importLoginProfile(filePath: string, validation: boolean): void {
+  cy.log(`Import login profiles from ${filePath}`)
+  cy.getByFormControlName('fileCtr').click({ force: true })
+  cy.get('input[type=file]').selectFile(`${filePath}`)
+  cy.wait(2000)
+  if (validation) {
+    cy.get('mat-error').should('exist')
+  } else {
+    cy.get('mat-error').should('not.exist')
+    cy.getByDataCy('importForm').submit()
+    cy.log(`Imported login profiles from ${filePath}`)
+    cy.wait(2000)
+    cy.get('mat-dialog-container').should('not.exist')
+  }
+}
+Cypress.Commands.add('importLoginProfile', importLoginProfile);
+
+
+// add update import Images/Icon
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    actionImages(data: any, mode: string, category: string, validation: boolean): typeof actionImages;
+  }
+}
+
+function actionImages(data: any, mode: string, category: string, validation: boolean): void {
+  cy.log(`Add/update ${category} from ${data.filePath}`)
+  const cySubmitForm = category === 'images' ? 'imageForm' : category === 'icon' ? 'iconForm' : 'importForm'
+  if (mode !== 'import') {
+    cy.getByFormControlName('name').as('name').invoke('val').then(value => {
+      if (data.name !== value) {
+        cy.get('@name').clear().type(data.name);
+      }
+    })
+  }
+  cy.getByFormControlName('fileCtr').click({ force: true })
+  cy.get('input[type=file]').selectFile(`${data.filePath}`)
+  if (!validation) {
+    cy.get('mat-error').should('not.exist')
+    cy.getByDataCy(`${cySubmitForm}`).submit()
+    cy.log(`Add/update ${category} from ${data.filePath}`)
+    cy.wait(2000)
+    cy.get('mat-dialog-container').should('not.exist')
+  } else {
+    cy.get('mat-error').should('exist')
+  }
+}
+Cypress.Commands.add('actionImages', actionImages);
+
 // Add a new configuration template
 declare namespace Cypress {
   interface Chainable<Subject = any> {
@@ -1383,6 +1439,8 @@ declare namespace Cypress {
     selectMatTabByLabel(content: any): Chainable<JQuery<HTMLElement>>
 
     selectInfoPanelRowByLabelAndContent(label: string, content: string): Chainable<JQuery<HTMLElement>>
+
+    getSelectImagesByName(content: string): Chainable<JQuery<HTMLElement>>
   }
 }
 Cypress.Commands.add(
@@ -1446,5 +1504,12 @@ Cypress.Commands.add(
   (label: string, content: string) => {
     cy.get(`app-info-panel-${label} ag-grid-angular .ag-row`).contains(`${content}`)
     .parent('.ag-cell-wrapper').parent('.ag-cell').parent('.ag-row').find('.ag-checkbox-input')
+  }
+);
+
+Cypress.Commands.add(
+  'getSelectImagesByName',
+  (content: string) => {
+    cy.get('mat-card-footer > .icon-name').contains(content).closest('mat-grid-tile').find('input[type="checkbox"]')
   }
 );

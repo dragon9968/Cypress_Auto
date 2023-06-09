@@ -1,4 +1,4 @@
-<form [formGroup]="imageForm" (ngSubmit)="data.mode === 'add' ? addImage() : updateImage()" autocomplete="off">
+<form [formGroup]="imageForm" data-cy="imageForm" (ngSubmit)="data.mode === 'add' ? addImage() : updateImage()" autocomplete="off">
   <div class="dialog-title">
     <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Image' : data.mode === 'update' ? 'Edit Image' : 'Show Image'}}</h1>
     <ng-template [ngxPermissionsOnly]="['can_write on Libraries']">

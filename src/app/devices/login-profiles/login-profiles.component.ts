@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent, RowDoubleClickedEvent } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, of, Subscription, throwError } from 'rxjs';
+import { forkJoin, Observable, of, Subscription, throwError } from 'rxjs';
 import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { LoginProfileService } from 'src/app/core/services/login-profile/login-profile.service';
 import { retrievedLoginProfiles } from 'src/app/store/login-profile/login-profile.actions';
@@ -14,6 +14,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { EditLoginProfilesDialogComponent } from './edit-login-profiles-dialog/edit-login-profiles-dialog.component';
 import { ConfirmationDialogComponent } from "../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { catchError } from "rxjs/operators";
+import { ImportDialogComponent } from 'src/app/shared/components/import-dialog/import-dialog.component';
+import { PageName } from 'src/app/shared/enums/page-name.enum';
 
 @Component({
   selector: 'app-login-profiles',
@@ -211,23 +213,35 @@ export class LoginProfilesComponent implements OnInit, OnDestroy {
       const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData });
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
-          this.rowsSelected.map(loginProfile => {
-            this.loginProfileService.delete(loginProfile.id).pipe(
+          forkJoin(this.rowsSelected.map(loginProfile => {
+            return this.loginProfileService.delete(loginProfile.id).pipe(
               catchError((error: any) => {
                 if (error.status == 422) {
                   this.toastr.warning('Associated data exists, please delete them first', 'Warning');
                 }
                 return throwError(() => error)
               })
-            ).subscribe( () => {
-              this.loginProfileService.getAll().subscribe((data: any) => this.store.dispatch(retrievedLoginProfiles({data: data.result})));
-              this.clearRow();
-              this.toastr.success(`Deleted ${loginProfile.name} login profile successfully`, 'Success');
-            })
+            )
+          })).subscribe( () => {
+            this.loginProfileService.getAll().subscribe((data: any) => this.store.dispatch(retrievedLoginProfiles({data: data.result})));
+            this.clearRow();
+            this.toastr.success(`Deleted login profile(s) successfully`, 'Success');
           })
         }
       })
     }
+  }
+
+  import() {
+    const dialogData = {
+      pageName: PageName.LOGIN_PROFILES
+    }
+    this.dialog.open(ImportDialogComponent, {
+      disableClose: true,
+      autoFocus: false,
+      width: '450px',
+      data: dialogData
+    });
   }
 
   clearRow() {

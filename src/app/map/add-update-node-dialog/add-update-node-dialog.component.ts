@@ -888,9 +888,9 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       neighbor_ip: this.neighborIpCtr?.value,
       neighbor_asn: this.neighborAsnCtr?.value,
       bgp_connected_state: this.bgpConnectedStateCtr?.value,
-      bgp_connected_metric: this.bgpConnectedMetricCtr?.value,
+      bgp_connected_metric: parseInt(this.bgpConnectedMetricCtr?.value),
       bgp_ospf_state: this.bgpOspfStateCtr?.value,
-      bgp_ospf_metric: this.bgpOspfMetricCtr?.value,
+      bgp_ospf_metric: parseInt(this.bgpOspfMetricCtr?.value),
       node_id: this.data.genData.node_id
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);

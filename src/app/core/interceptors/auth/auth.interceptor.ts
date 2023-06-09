@@ -64,7 +64,9 @@ export class AuthInterceptor implements HttpInterceptor {
       req.url.includes(ApiPaths.IMPORT_ROLES) ||
       req.url.includes(ApiPaths.LOOKUP_FEATURES_IMPORT) ||
       req.url.includes(ApiPaths.UPDATE_FEATURE) ||
-      req.url.includes(ApiPaths.LOOKUP_NAMES_IMPORT)
+      req.url.includes(ApiPaths.LOOKUP_NAMES_IMPORT) ||
+      req.url.includes(ApiPaths.IMPORT_LOGIN_PROFILES) || 
+      req.url.includes(ApiPaths.IMAGE_IMPORT)
     ) {
       authReq = req.clone({ url });
     } else {

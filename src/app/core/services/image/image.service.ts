@@ -41,4 +41,8 @@ export class ImageService {
   export(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.IMAGE_EXPORT, data)
   }
+
+  import(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.IMAGE_IMPORT, data);
+  }
 }

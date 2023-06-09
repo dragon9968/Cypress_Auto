@@ -1,0 +1,14 @@
+<form [formGroup]="importForm" (ngSubmit)="import()" data-cy="importForm">
+  <h1 mat-dialog-title>{{title}}?</h1>
+  <div mat-dialog-content class="import-file">
+    <input id="file" formControlName="fileCtr" type="file" name='file' (change)="onFileSelected($event)">
+    <mat-error *ngIf="fileCtr?.hasError('isNotFile')">The imported file is invalid</mat-error>
+    <label for="file">{{title}} from a JSON file</label>
+  </div>
+  <div mat-dialog-actions [align]="'end'" class="create-btn">
+    <button mat-raised-button type="button" mat-dialog-close>Cancel</button>
+    <button mat-raised-button type="submit" color="primary" [disabled]="!importForm.valid">
+      Import
+    </button>
+  </div>
+</form>

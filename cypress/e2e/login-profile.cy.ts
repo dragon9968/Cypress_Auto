@@ -31,11 +31,32 @@ describe('Login Profile e2e testing', () => {
     cy.wait(3000)
     cy.showFormEditByName(loginProfile.name)
     cy.addUpdateNewLoginProfile(loginProfileUpdate, 'update')
-  });
 
-  afterEach(() => {
     cy.wait(2000)
     cy.deleteRecordByName(loginProfile.name, 'Delete', false)
+    cy.wait(2000)
+  });
+
+  it ('Test - Check the Validation format file for import', () => {
+    cy.viewport(1366, 768)
+    cy.visit('/devices/login_profiles')
+    cy.wait(2000)
+    cy.getByMatToolTip('Import').click({ force: true })
+    cy.wait(2000)
+    cy.importLoginProfile(`cypress/fixtures/validation-data/login-profile/LoginProfile.csv`, true)
+    cy.wait(3000)
+    cy.importLoginProfile(`cypress/fixtures/validation-data/login-profile/images.jpg`, true)
+    cy.wait(4000)
+  })
+
+  it ('Test - Check import Login Profile', () => {
+    cy.viewport(1366, 768)
+    cy.visit('/devices/login_profiles')
+    cy.wait(2000)
+    cy.getByMatToolTip('Import').click({ force: true })
+    cy.wait(2000)
+    cy.importLoginProfile(`cypress/fixtures/devices-data/login-profile-data/LoginProfile-Data.json`, false)
+    cy.wait(4000)
     Cypress.session.clearAllSavedSessions()
   })
 })
