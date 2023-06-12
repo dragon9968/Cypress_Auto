@@ -545,13 +545,17 @@
           </section>
         </div>
       </mat-tab>
+      <mat-tab *ngIf="data.mode === 'view'" label="Interfaces">
+        <div class="info-area interfaces-area">
+          <div class="interfaces">
+            <div class="ag-theme-alpine interfaces__table" [style.height]="'225px'">
+              <ag-grid-angular style="width: 100%; height: 100%;" [rowData]="rowData$ | async" [gridOptions]="gridOptions" (gridReady)="onGridReady($event)">
+              </ag-grid-angular>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
     </mat-tab-group>
-    <div *ngIf="data.mode !== 'add'" class="interfaces">
-      <div class="ag-theme-alpine interfaces__table" [style.height]="'225px'">
-        <ag-grid-angular style="width: 100%; height: 100%;" [rowData]="rowData$ | async" [gridOptions]="gridOptions" (gridReady)="onGridReady($event)">
-        </ag-grid-angular>
-      </div>
-    </div>
   </mat-dialog-content>
   <div mat-dialog-actions [align]="'end'">
     <button mat-raised-button type="button" (click)="onCancel()">

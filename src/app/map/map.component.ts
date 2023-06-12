@@ -412,7 +412,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.isDisableLinkProject = !(Boolean(this.linkProjectId));
     this.isDisableNewFromSelected = false;
     this.isDisableAddPG = false;
-    this.isDisableAddImage = !(Boolean(this.mapImage.id));
+    this.isDisableAddImage = this.mapImage ? !(Boolean(this.mapImage.id)) : false;
     this.isDisableCancel = true;
   }
 

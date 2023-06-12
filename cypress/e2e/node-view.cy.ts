@@ -3,11 +3,24 @@ describe('Test for Node View', () => {
   let node: any = {}
   let nodeX: number;
   let nodeY: number;
+  let portGroup:any = {};
+  let pgX: number;
+  let pgY: number;
   let cytoscape: any;
   let nodeName: any;
+  let project: any = {};
+  let blankProject:any = {}
+  const random = (Math.random() + 1).toString(36).substring(5);
   beforeEach(() => {
     cy.viewport(1366, 768)
     cy.visit('/login')
+    cy.fixture('project/new-project.json').then(projectData => {
+      project = projectData
+      project.name += ` (${random})`
+      blankProject = JSON.parse(JSON.stringify(project))
+      blankProject.option = 'blank'
+      blankProject.name =  blankProject.name + ' blank'
+    })
     cy.fixture('login/admin.json').then(adminData => {
       admin = adminData
     })
@@ -16,43 +29,50 @@ describe('Test for Node View', () => {
       nodeX = node.logical_map_position.x
       nodeY = node.logical_map_position.y
     })
+    cy.fixture('map/port_group.json').then(portGroupData => {
+      portGroup = portGroupData
+      pgX = portGroup.logical_map_position.x
+      pgY = portGroup.logical_map_position.y
+    })
+    cy.waitingLoadingFinish()
   })
 
   it('Test - Node View', () => {
     cy.login(admin.username, admin.password)
-    // Landing project page
-    cy.getByDataCy('btn-open-project').click()
-    // Click on the first project
-    cy.get('.ag-row').first().dblclick({ force: true })
-    cy.wait(2000)
-    // Add new node
-    cy.log('START: Add new node')
-    cy.getByFormControlName('deviceCtr').click({ force: true })
-    cy.get('.option-text').contains(node.device_name).first().click()
-    cy.getByFormControlName('templateCtr').click()
-    cy.get('.option-text').contains(node.template_name).first().click()
-    cy.getByDataCy('btn-add-node').click()
-    cy.wait(100)
-    cy.get('canvas.expand-collapse-canvas').click(nodeX, nodeY, { force: true });
-    cy.getByFormControlName('nameCtr').invoke('val').should('not.eq', '')
-      .then(nodeNameInput => {
-        cy.wait(100)
-        nodeName = nodeNameInput ? nodeNameInput.toString() : 'None'
-        cy.getByFormControlName('folderCtr').type(`${node.folder}-${nodeNameInput}`)
-      })
-    cy.get('mat-error').should('not.exist')
-    cy.getByDataCy('nodeAddForm').submit()
 
-    cy.wait(2000)
+    // Landing project page
+    cy.getByDataCy('btn-create-new').click()
+
+    // Click on the first project
+    cy.addNewProject(blankProject, true)
+    
+    // Open project just created
+    cy.openProjectByName(blankProject.name)
+    cy.wait(3000)
+
+    // Add new node
+    cy.addNewNodeOnMap(node, node.logical_map_position.x, node.logical_map_position.y, false)
+
+    // Add new port group
+    cy.addNewPortGroupOnMap(portGroup, portGroup.logical_map_position.x, portGroup.logical_map_position.y, true)
+
+    const edgeData1 = {
+      ip_allocation: 'static_manual',
+      ip_address: '192.168.229.52'
+    }
+
+    // Add new interface from node
+    cy.addNewInterface(edgeData1, nodeX, nodeY, pgX, pgY, false)
+
+    cy.wait(3000)
     cy.log('END: Added new node')
     // Show View Node
     cy.get('#cy').then((el: any) => {
       cytoscape = el[0]._cyreg.cy
-      const newNode = cytoscape.nodes().filter(`[name="${nodeName}"]`)[0]
+      cytoscape.nodes().unselect()
+      cytoscape.edges().unselect()
 
-      // Select Node and check all required fields
-      newNode.select()
-      cy.get('canvas.expand-collapse-canvas').rightclick(newNode.position('x'), newNode.position('y'), {force: true}).then(() => {
+      cy.get('canvas.expand-collapse-canvas').rightclick(nodeX, nodeY, {force: true}).then(() => {
         cy.get('.cy-context-menus-cxt-menu').first().should('exist')
         cy.get('#view_details').should('exist').click({ force: true })
         cy.getByFormControlName('nameCtr').invoke('val').should('not.be.empty')
@@ -63,6 +83,11 @@ describe('Test for Node View', () => {
         cy.get('input[name="node-template"]').should('be.visible').invoke('val').should('not.be.empty')
         cy.getByFormControlName('roleCtr').should('be.visible').invoke('val').should('not.be.empty')
         cy.getByFormControlName('hostnameCtr').invoke('val').should('not.be.empty')
+
+        // Test interface view
+        cy.wait(2000)
+        cy.get('.node-area').find('.mat-tab-label').contains('Interfaces').should('be.visible')
+        cy.get('.node-area').find('.mat-tab-label').contains('Interfaces').click()
       })
       cy.log('Select Node and check all required fields SUCCESS')
     })
