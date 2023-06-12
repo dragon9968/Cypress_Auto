@@ -63,7 +63,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     private portGroupService: PortGroupService
   ) {
     this.edgesConnected = this.data.cy.nodes(`[id="pg-${this.data.genData.port_group_id}"]`).connectedEdges()
-                                        .map((ele: any) => ({...ele.data(), id: Number(ele.data('id'))}))
+      .map((ele: any) => ({ ...ele.data(), id: Number(ele.data('id')) }))
     this.interfaceAddForm = new FormGroup({
       orderCtr: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
       nameCtr: new FormControl('', Validators.required),
@@ -328,11 +328,30 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         this.store.dispatch(retrievedInterfacesManagement({ data: newInterfacesManagement }));
       } else {
         this._updateInterfaceOnMap(data);
-        this._showOrHideArrowDirectionOnEdge(this.data.genData.interface_id)
+        this._showOrHideArrowDirectionOnEdge(this.data.genData.interface_id);
+        const node = this.data.cy.getElementById(`node-${data.node_id}`);
+        const pg = this.data.cy.getElementById(`pg-${data.port_group_id}`);
+        const netmaskName = this.helpers.getOptionById(this.netmasks, data.netmask_id).name
+        this._updateInterfaceOnEle(node, {
+          id: this.data.genData.interface_id,
+          value: `${data.name} - ${data.ip + netmaskName}`
+        });
+        this._updateInterfaceOnEle(pg, {
+          id: this.data.genData.interface_id,
+          value: `${data.node} - ${data.name} - ${data.ip + netmaskName}`
+        });
         this.store.dispatch(retrievedMapSelection({ data: true }));
       }
       this.dialogRef.close();
       this.toastr.success('Edge details updated!');
+    });
+  }
+
+  private _updateInterfaceOnEle(ele: any, new_interface: any) {
+    ele.data('interfaces').forEach((item: any, index: number, array: any) => {
+      if (item.id == new_interface.id) {
+        array[index] = new_interface;
+      }
     });
   }
 
