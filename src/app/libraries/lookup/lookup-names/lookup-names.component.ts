@@ -71,14 +71,14 @@ export class LookupNamesComponent implements OnInit, OnDestroy {
         }
       })
 
-      iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json-info-panel.svg'));
+      iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
      }
 
   ngOnInit(): void {
     this.lookupNamesService.getAll().subscribe(data => this.store.dispatch(retrievedLookupNames({ data: data.result })))
   }
 
-  
+
   ngOnDestroy(): void {
     this.selectLookupNames$.unsubscribe();
   }

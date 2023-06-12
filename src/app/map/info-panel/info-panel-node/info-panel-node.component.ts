@@ -167,8 +167,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
     private helpers: HelpersService,
     private cmActionsService: CMActionsService,
   ) {
-    iconRegistry.addSvgIcon('export-csv', this.helpers.setIconPath('/assets/icons/export-csv-info-panel.svg'));
-    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json-info-panel.svg'));
+    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
     this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
       if (mapSelection) {
         const rowData = this.activeNodes.map((ele: any) => {

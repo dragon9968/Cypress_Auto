@@ -339,9 +339,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.isGroupBoxesChecked = mapOption?.isGroupBoxesChecked != undefined ? mapOption.isGroupBoxesChecked : false;
       this.groupCategoryId = mapOption?.groupCategoryId;
     })
-    this.projectService.getProjectByStatusAndCategory('active', 'project').subscribe(
-      (response: any) => this.store.dispatch(retrievedProjects({ data: response.result }))
-    );
+    this.projectService.getProjectsNotLinkedYet(Number(this.projectId)).subscribe(response => {
+      this.store.dispatch(retrievedProjects({ data: response.result }))
+    })
   }
 
   ngAfterViewInit(): void {
@@ -367,22 +367,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this._initUndoRedo();
         this._initCollapseExpandMapLink();
         this.helpersService.initCollapseExpandMapLink(this.cy)
-        this._initDataLinkProjects();
       }
     });
-  }
-
-  private _initDataLinkProjects() {
-    setTimeout(() => {
-      const newProjects = [...this.projects]
-      const mapsLinked = this.nodes.filter((node: any) => node.data.elem_category == 'map_link' && !Boolean(node.data.parent_id))
-      const mapLinkNodeIdsAdded = mapsLinked.map((mapLink: any) => mapLink.data.linked_project_id)
-      mapLinkNodeIdsAdded.map((projectId: any) => {
-        const index = newProjects.findIndex(ele => ele.id === projectId);
-        newProjects.splice(index, 1);
-      })
-      this.store.dispatch(retrievedProjects({ data: newProjects }));
-    }, 0)
   }
 
   ngOnDestroy(): void {

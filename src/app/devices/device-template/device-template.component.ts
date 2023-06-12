@@ -190,7 +190,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
         this.store.dispatch(retrievedIsDeviceChange({data: false}));
       }
     })
-    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json-info-panel.svg'));
+    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
    }
 
   ngOnInit(): void {

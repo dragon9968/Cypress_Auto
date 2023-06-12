@@ -93,7 +93,6 @@ export class LoginProfilesComponent implements OnInit, OnDestroy {
         this.updateRow();
       }
     });
-    iconRegistry.addSvgIcon('export-csv', this.helpers.setIconPath('/assets/icons/export-csv.svg'));
     iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
   }
 

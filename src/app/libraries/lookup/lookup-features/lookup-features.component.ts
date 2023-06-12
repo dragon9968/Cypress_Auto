@@ -71,7 +71,7 @@ export class LookupFeaturesComponent implements OnInit, OnDestroy {
         this.updateRow();
       }
     });
-    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json-info-panel.svg'));
+    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
    }
 
   ngOnDestroy(): void {
@@ -83,7 +83,7 @@ export class LookupFeaturesComponent implements OnInit, OnDestroy {
     this.gridApi.sizeColumnsToFit();
   }
 
-  
+
   updateRow() {
     if (this.gridApi && this.rowsSelectedId.length > 0) {
       this.gridApi.forEachNode(rowNode => {

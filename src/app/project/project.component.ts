@@ -140,7 +140,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
         }
       })
     }
-      iconRegistry.addSvgIcon('export-json', this.helpersService.setIconPath('/assets/icons/export-json-info-panel.svg'));
+    iconRegistry.addSvgIcon('export-json', this.helpersService.setIconPath('/assets/icons/export-json.svg'));
   }
 
   ngOnInit(): void {
@@ -159,6 +159,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.selectProjects$.unsubscribe();
     this.selectProjectTemplate$.unsubscribe();
+    this.selectAllProjects$.unsubscribe();
+    this.selectUser$.unsubscribe();
   }
 
   onGridReady(params: GridReadyEvent) {
@@ -291,8 +293,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.userService.getAll().subscribe(userData => {
       this.listUsers = userData.result;
       let projectData = data.map((item: any) => {
-        const fullName = this.listUsers.filter(val => item.changed_by_fk === val.id)[0]
-        const changedByValue = fullName.first_name + ' ' + fullName.last_name;
+        const fullName = this.listUsers.find(val => item.changed_by_fk === val.id)
+        const changedByValue = fullName?.first_name + ' ' + fullName?.last_name;
         return Object.assign({}, item, {changed_by: changedByValue})
       })
 

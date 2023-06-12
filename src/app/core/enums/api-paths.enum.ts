@@ -5,6 +5,7 @@ export enum ApiPaths {
   LOGOUT = '/api/v1/logout',
   GET_MAP_DATA = '/api/v1/map/get_data',
   PROJECTS = '/api/v1/project/',
+  PROJECTS_NOT_LINKED_YET = '/api/v1/project/get_projects_not_linked_yet/',
   SHARE_PROJECT = '/api/v1/shared/',
   PROJECTS_DEVICE_COUNT = '/api/v1/project/device_count/',
   PROJECT_VALIDATE = '/api/v1/project/validate',

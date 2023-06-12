@@ -110,7 +110,7 @@ export class RolesComponent implements OnInit {
       }
     })
 
-    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json-info-panel.svg'));
+    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
   }
 
   ngOnInit(): void {
