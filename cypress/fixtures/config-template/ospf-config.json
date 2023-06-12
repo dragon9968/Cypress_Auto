@@ -10,7 +10,7 @@
             "192.168.2.0/24",
             "172.16.87.0/24"
           ],
-          "redistibution": {
+          "redistribute": {
             "bgp": {
               "state": true,
               "metric_type": 2},
@@ -34,7 +34,7 @@
           "networks": [
             "192.168.1.0/300"
           ],
-          "redistibution": {
+          "redistribute": {
             "bgp": {
               "state": true,
               "metric_type": 2},
@@ -56,7 +56,7 @@
           "networks": [
             "192.168.1.0/24"
           ],
-          "redistibution": {
+          "redistribute": {
             "bgp": {
               "state": "error",
               "metric_type": 2},
@@ -78,7 +78,7 @@
           "networks": [
             "192.168.1.0/24"
           ],
-          "redistibution": {
+          "redistribute": {
             "bgp": {
               "state": true,
               "metric_type": "string"},
@@ -100,7 +100,7 @@
           "networks": [
             "192.168.1.0/24"
           ],
-          "redistibution": {
+          "redistribute": {
             "bgp": {
               "state": true,
               "metric_type": 3},
@@ -126,7 +126,7 @@
             "192.168.2.0/26",
             "172.16.87.0/26"
           ],
-          "redistibution": {
+          "redistribute": {
             "bgp": {
               "state": false,
               "metric_type": 2},

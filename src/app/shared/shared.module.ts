@@ -77,7 +77,13 @@ const materialModules = [
 ];
 
 @NgModule({
-  declarations: [ConfirmationDialogComponent, SpinnerComponent, InfoPanelShowValidationResultsComponent, SetAttributeDirective, InfoPanelTableComponent, ImportDialogComponent],
+  declarations: [
+    ConfirmationDialogComponent,
+    SpinnerComponent,
+    InfoPanelShowValidationResultsComponent,
+    SetAttributeDirective,
+    InfoPanelTableComponent,
+    ImportDialogComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -104,7 +110,8 @@ const materialModules = [
     NgxJsonViewerModule,
     AceEditorModule,
     SetAttributeDirective,
-    InfoPanelTableComponent
+    InfoPanelTableComponent,
+    ImportDialogComponent
   ],
 })
 export class SharedModule {}

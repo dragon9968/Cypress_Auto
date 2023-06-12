@@ -1,14 +1,28 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Injectable, OnDestroy } from '@angular/core';
+import { Observable, Subscription } from 'rxjs';
 import { ApiPaths } from '../../enums/api-paths.enum';
+import { Store } from "@ngrx/store";
+import { selectConfigTemplates } from "../../../store/config-template/config-template.selectors";
+import { retrievedConfigTemplates } from "../../../store/config-template/config-template.actions";
 
 @Injectable({
   providedIn: 'root'
 })
-export class ConfigTemplateService {
+export class ConfigTemplateService implements OnDestroy{
 
-  constructor(private http: HttpClient) { }
+  selectConfigTemplates$ = new Subscription()
+  configTemplates: any[] = []
+  constructor(private http: HttpClient,
+              private store: Store) {
+    this.selectConfigTemplates$ = this.store.select(selectConfigTemplates).subscribe(configTemplates => {
+      this.configTemplates = configTemplates
+    })
+  }
+
+  ngOnDestroy(): void {
+    this.selectConfigTemplates$.unsubscribe()
+  }
 
   getAll(): Observable<any> {
     return this.http.get<any>(ApiPaths.CONFIG_TEMPLATES, {
@@ -46,6 +60,10 @@ export class ConfigTemplateService {
     return this.http.post<any>(ApiPaths.CONFIG_TEMPLATES_EXPORT, data)
   }
 
+  import(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.CONFIG_TEMPLATE_IMPORT, data)
+  }
+
   deleteConfiguration(id: string, data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.DELETE_CONFIG_TEMPLATES + id, data);
   }
@@ -56,5 +74,11 @@ export class ConfigTemplateService {
 
   putConfiguration(data: any): Observable<any> {
     return this.http.put<any>(ApiPaths.CONFIG_TEMPLATE_UPDATE_CONFIGURATION, data)
+  }
+
+  updateConfigTemplate(newItem: any) {
+    const currentState = JSON.parse(JSON.stringify(this.configTemplates))
+    const newState = currentState.concat(newItem)
+    this.store.dispatch(retrievedConfigTemplates({ data: newState }))
   }
 }

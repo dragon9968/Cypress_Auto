@@ -53,6 +53,14 @@ describe('Connection Profile e2e testing', () => {
     cy.selectRowByName(configurator.name)
     cy.wait(2000)
     cy.getByMatToolTip('Export as JSON').click()
+
+    // Import
+    cy.waitingLoadingFinish()
+    cy.getByDataCy("btn-remote").click();
+    cy.get("button>span").contains('Connection Profiles').click();
+
+    cy.importJsonData('cypress/fixtures/connection-profile/connection-export.json')
+    cy.wait(3000)
   });
 
   afterEach(() => {

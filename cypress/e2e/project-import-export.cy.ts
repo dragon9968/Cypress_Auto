@@ -1,11 +1,7 @@
 describe('Project export, import, clone to template', () => {
-  let admin:any = {}
   let project:any = {}
   beforeEach(() => {
     cy.viewport(window.screen.width, window.screen.height)
-    cy.fixture('login/admin.json').then(adminData => {
-      admin = adminData
-    })
     const setup = () => {
       cy.visit('/login')
       cy.login("admin", "password")

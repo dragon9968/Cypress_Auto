@@ -54,6 +54,7 @@ export class ImportDialogComponent implements OnInit {
   ngOnInit(): void {
 
   }
+
   get fileCtr() { return this.importForm.get('fileCtr');}
 
   import() {
@@ -114,14 +115,14 @@ export class ImportDialogComponent implements OnInit {
   }
   private _getServiceByPageName(pageName: string) {
     switch (pageName) {
-      // case PageName.CONNECTION_PROFILE:
-      //   return this.serverConnectionService
-      // case PageName.CONFIGURATION_TEMPLATE:
-      //   return this.configTemplateService
-      // case PageName.DEVICE:
-      //   return this.deviceService
-      // case PageName.DEVICE_TEMPLATE:
-      //   return this.templateService
+      case PageName.CONNECTION_PROFILE:
+        return this.serverConnectionService
+      case PageName.CONFIGURATION_TEMPLATE:
+        return this.configTemplateService
+      case PageName.DEVICE:
+        return this.deviceService
+      case PageName.DEVICE_TEMPLATE:
+        return this.templateService
       case PageName.HARDWARE:
         return this.hardwareService
       case PageName.LOGIN_PROFILES:
@@ -140,10 +141,10 @@ export class ImportDialogComponent implements OnInit {
   private _updateDataInStore(pageName: string, newItem: any) {
     switch (pageName) {
       case PageName.CONNECTION_PROFILE:
-        this.toastr.success(`${this.title}`, 'Success');
+        this.serverConnectionService.updateConnectionStore(newItem)
         break;
       case PageName.CONFIGURATION_TEMPLATE:
-        this.toastr.success(`${this.title}`, 'Success');
+        this.configTemplateService.updateConfigTemplate(newItem)
         break;
       case PageName.DEVICE:
         this.toastr.success(`${this.title}`, 'Success');
@@ -170,4 +171,5 @@ export class ImportDialogComponent implements OnInit {
         this.toastr.warning('Page name is not match', 'Warning');
     }
   }
+
 }

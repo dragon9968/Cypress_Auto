@@ -33,4 +33,8 @@ export class TemplateService {
   export(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.TEMPLATES_EXPORT, data)
   }
+
+  import(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.TEMPLATE_IMPORT, data)
+  }
 }

@@ -33,4 +33,8 @@ export class DeviceService {
   export(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.DEVICES_EXPORT, data)
   }
+
+  import(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.DEVICE_IMPORT, data)
+  }
 }

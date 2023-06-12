@@ -31,9 +31,9 @@ declare namespace Cypress {
 function addNewProject(project: any, isUsingDefaultNetwork = true): void {
   cy.waitingLoadingFinish()
   cy.log('Add new project')
-  cy.getByFormControlName('name').type(project.name).blur()
+  cy.getByFormControlName('name').focus().type(project.name).blur()
   cy.get('mat-error').should('not.exist')
-  cy.getByFormControlName('description').type(project.description).blur()
+  cy.getByFormControlName('description').focus().type(project.description).blur()
   cy.getByFormControlName('category').children(`mat-radio-button[value="${project.category}"]`).click()
   cy.getByFormControlName('target').click().then(() => {
     cy.get('mat-option').contains(`${project.target}`).click()
@@ -557,7 +557,7 @@ function addOspfConfigTemplate(configTemplate: any, networksInvalid: any): void 
         cy.get('@networksCtr').clear().type(networksInvalid)
       }
     })
-    const ospfBGPMetricTypeValid = configTemplate.ospf[0].redistibution.bgp.metric_type
+    const ospfBGPMetricTypeValid = configTemplate.ospf[0].redistribute.bgp.metric_type
     cy.getByFormControlName('bgpMetricTypeCtr').click();
     cy.getOptionByContent(ospfBGPMetricTypeValid).click();
     cy.get('mat-error').should('exist')
@@ -571,36 +571,36 @@ function addOspfConfigTemplate(configTemplate: any, networksInvalid: any): void 
         cy.get('@networksCtr').clear().type(networks)
       }
     })
-    const bgp = configTemplate.ospf[0].redistibution.bgp.state
+    const bgp = configTemplate.ospf[0].redistribute.bgp.state
     if (bgp) {
       cy.get('.cy-ospf-bgpState span input[type="checkbox"]').check({ force: true }).should('be.checked')
     } else {
       cy.get('.cy-ospf-bgpState span input[type="checkbox"]').uncheck({ force: true })
     }
 
-    const ospfBGPMetricType = configTemplate.ospf[0].redistibution.bgp.metric_type
+    const ospfBGPMetricType = configTemplate.ospf[0].redistribute.bgp.metric_type
     cy.getByFormControlName('bgpMetricTypeCtr').click();
     cy.getOptionByContent(ospfBGPMetricType).click();
 
-    const ospfConnectedState = configTemplate.ospf[0].redistibution.connected.state
+    const ospfConnectedState = configTemplate.ospf[0].redistribute.connected.state
     if (ospfConnectedState) {
       cy.get('.cy-ospf-connectedState span input[type="checkbox"]').check({ force: true }).should('be.checked')
     } else {
       cy.get('.cy-ospf-connectedState span input[type="checkbox"]').uncheck({ force: true })
     }
 
-    const ospfConnectedMetricType = configTemplate.ospf[0].redistibution.connected.metric_type
+    const ospfConnectedMetricType = configTemplate.ospf[0].redistribute.connected.metric_type
     cy.getByFormControlName('connectedMetricTypeCtr').click();
     cy.getOptionByContent(ospfConnectedMetricType).click();
 
-    const ospfStaticState = configTemplate.ospf[0].redistibution.static.state
+    const ospfStaticState = configTemplate.ospf[0].redistribute.static.state
     if (ospfStaticState) {
       cy.get('.cy-ospf-staticState span input[type="checkbox"]').check({ force: true }).should('be.checked')
     } else {
       cy.get('.cy-ospf-staticState span input[type="checkbox"]').uncheck({ force: true })
     }
 
-    const ospfStaticMetricType = configTemplate.ospf[0].redistibution.static.metric_type
+    const ospfStaticMetricType = configTemplate.ospf[0].redistribute.static.metric_type
     cy.getByFormControlName('staticMetricTypeCtr').click();
     cy.getOptionByContent(ospfStaticMetricType).click();
 
@@ -692,7 +692,7 @@ declare namespace Cypress {
 }
 
 function selectRowByName(name: string): void {
-  cy.get('.ag-row').contains(name).first().click({ force: true }).type(" ");
+  cy.get('.ag-row').contains(name).first().click({ force: true }).focus().type(" ");
 }
 Cypress.Commands.add('selectRowByName', selectRowByName);
 
@@ -1039,9 +1039,9 @@ function addEditDomain(domain: any, mode: string) {
     })
   }
   cy.get('mat-error').should('not.exist')
-  cy.get('.toast-success', {timeout: 10000}).should('exist')
   cy.wait(2000)
   cy.getByDataCy('domainAddForm').submit()
+  cy.get('.toast-success', {timeout: 10000}).should('exist')
   cy.log('END: Add/edit domain')
 }
 Cypress.Commands.add('addEditDomain', addEditDomain);
@@ -1210,6 +1210,26 @@ function addEditConnectionProfile(connectionProfile: any, mode: string): void {
 
 Cypress.Commands.add('addEditConnectionProfile', addEditConnectionProfile);
 
+// Import project
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    importJsonData(filePath: string): typeof importJsonData;
+  }
+}
+
+function importJsonData(filePath: string): void {
+  cy.log(`Import connection profile from ${filePath}`)
+  // Show Add Connection Profile form
+  cy.showFormAddByMatTooltip('Import');
+  cy.get('input[type=file]').selectFile(`${filePath}`)
+  cy.wait(1000)
+  cy.get('mat-error').should('not.exist')
+  cy.getButtonByTypeAndContent('submit', 'Import').click()
+  cy.checkingToastSuccess()
+  cy.log(`Imported connection profile from ${filePath}`)
+}
+Cypress.Commands.add('importJsonData', importJsonData);
+
 // Update App Preferences
 declare namespace Cypress {
   interface Chainable<Subject = any> {
@@ -1358,6 +1378,18 @@ function addUpdateMapPreferences (mapPreferences: any) {
   cy.log(`END: Add/Update new ${mapPreferences.name}`)
 }
 Cypress.Commands.add('addUpdateMapPreferences', addUpdateMapPreferences);
+
+// Waiting loading API
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    checkingToastSuccess(): typeof checkingToastSuccess;
+  }
+}
+
+function checkingToastSuccess() {
+  cy.get('.toast-success', { timeout: 12000 }).should('not.exist')
+}
+Cypress.Commands.add('checkingToastSuccess', checkingToastSuccess);
 
 Cypress.on('fail', () => {
   //@ts-ignore

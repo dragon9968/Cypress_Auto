@@ -1,0 +1,75 @@
+{
+    "config_template": [
+        {
+            "id": 1201,
+            "name": "Test import config template",
+            "description": "test",
+            "category": "template",
+            "configuration": {
+                "static_routes": [
+                    {
+                        "route": "1.1.1.1",
+                        "next_hop": "1.1.1.1",
+                        "interface": "eth1"
+                    }
+                ],
+                "firewall_rule": [
+                    {
+                        "category": "rule",
+                        "name": "",
+                        "state": "present",
+                        "action": "pass",
+                        "interface": "",
+                        "protocol": "any",
+                        "source": "any",
+                        "source_port": "any",
+                        "destination": "any",
+                        "destination_port": "any"
+                    }
+                ],
+                "join_domain": false,
+                "ou_path": "test",
+                "role_services": [],
+                "ospf": [
+                    {
+                        "networks": [
+                            "192.168.1.0"
+                        ],
+                        "redistribute": {
+                            "bgp": {
+                                "metric_type": 1,
+                                "state": true
+                            },
+                            "connected": {
+                                "metric_type": 2,
+                                "state": true
+                            },
+                            "static": {
+                                "metric_type": 1,
+                                "state": true
+                            }
+                        }
+                    }
+                ],
+                "bgp": [
+                    {
+                        "ip_address": "10.1.10.0",
+                        "asn": "",
+                        "neighbor_ip": "",
+                        "neighbor_asn": "",
+                        "redistribute": {
+                            "connected": {
+                                "metric": 1,
+                                "state": true
+                            },
+                            "ospf": {
+                                "metric": 1,
+                                "state": true
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
