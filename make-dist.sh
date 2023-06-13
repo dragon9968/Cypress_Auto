@@ -5,7 +5,7 @@ else
     backenddist="$2"
 fi
 
-distver="1.1.2"
+distver="1.2.0"
 
 Help() {
     echo "Usage: $1 [test | cert] [backend_release_version] "
