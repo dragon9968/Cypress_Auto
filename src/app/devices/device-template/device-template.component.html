@@ -13,6 +13,9 @@
           <button mat-button mat-mini-fab color="primary" matTooltip="Delete Device" (click)="deleteDevice()">
             <mat-icon>delete</mat-icon>
           </button>
+          <button mat-button mat-mini-fab color="primary" matTooltip="Import Device" (click)="importDevice()">
+            <i class="fa fa-upload"></i>
+          </button>
         </ng-template>
         <button mat-button mat-mini-fab color="primary" matTooltip="Export as JSON" (click)="exportDevice()">
           <mat-icon svgIcon="export-json"></mat-icon>
@@ -60,6 +63,9 @@
           </button>
           <button mat-button mat-mini-fab color="primary" matTooltip="Delete Template" (click)="deleteTemplate()">
             <mat-icon>delete</mat-icon>
+          </button>
+          <button mat-button mat-mini-fab color="primary" matTooltip="Import Template" (click)="importTemplate()">
+            <i class="fa fa-upload"></i>
           </button>
         </ng-template>
         <button mat-button mat-mini-fab color="primary" matTooltip="Export as JSON" (click)="exportTemplate()">

@@ -1,14 +1,29 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Injectable, OnDestroy } from '@angular/core';
+import { Observable, Subscription } from 'rxjs';
 import { ApiPaths } from 'src/app/core/enums/api-paths.enum';
+import { Store } from "@ngrx/store";
+import { selectHardwares } from "../../../store/hardware/hardware.selectors";
+import { retrievedHardwares } from "../../../store/hardware/hardware.actions";
 
 @Injectable({
   providedIn: 'root'
 })
-export class HardwareService {
+export class HardwareService implements OnDestroy {
 
-  constructor(private http: HttpClient) { }
+  hardware: any[] = []
+  selectHardware$ = new Subscription()
+
+  constructor(
+    private store: Store,
+    private http: HttpClient
+  ) {
+    this.selectHardware$ = this.store.select(selectHardwares).subscribe(hardware => this.hardware = hardware)
+  }
+
+  ngOnDestroy(): void {
+    this.selectHardware$.unsubscribe()
+  }
 
   getAll(): Observable<any> {
     return this.http.get<any>(ApiPaths.HARDWARES);
@@ -36,5 +51,11 @@ export class HardwareService {
 
   import(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.HARDWARE_IMPORT, data);
+  }
+
+  updateHardwareStore(newServerConnect: any) {
+    const currentState: any[] = JSON.parse(JSON.stringify(this.hardware)) || []
+    const newState = currentState.concat(newServerConnect)
+    this.store.dispatch(retrievedHardwares({data: newState }))
   }
 }

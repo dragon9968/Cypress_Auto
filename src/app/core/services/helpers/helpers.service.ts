@@ -56,7 +56,7 @@ export class HelpersService implements OnDestroy {
   isValidOSPFBgpState: boolean = true;
   isValidOSPFConnectedState: boolean = true;
   isValidOSPFStaticState: boolean = true;
-  isValidOSPFMetric: boolean = true; 
+  isValidOSPFMetric: boolean = true;
   isValidOSPFState: boolean = true;
   isValidOSPFNetworks: boolean = true;
 
@@ -977,6 +977,13 @@ export class HelpersService implements OnDestroy {
     }, {});
   }
 
+  sortListByKeyInObject(array: any[], key: string = 'name') {
+    return array.sort((a: any, b: any) => {
+      if (a[key].toLowerCase() < b[key].toLowerCase()) return -1
+      return a[key].toLowerCase() > b[key].toLowerCase() ? 1 : 0
+    })
+  }
+
   validateAllFormFields(formGroup: FormGroup) {
     Object.keys(formGroup.controls).forEach(field => {
       const control = formGroup.get(field);
@@ -1279,7 +1286,7 @@ export class HelpersService implements OnDestroy {
   }
 
   validationBGP(json: any) {
-    let isValidBGPConnectedMetric: boolean = true; 
+    let isValidBGPConnectedMetric: boolean = true;
     let isValidBGPOSPFMetric: boolean = true;
     let isValidBGPConnectedState: boolean = true;
     let isValidBGPOSPFState: boolean = true;

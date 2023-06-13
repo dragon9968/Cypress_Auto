@@ -1,14 +1,29 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Injectable, OnDestroy } from '@angular/core';
+import { Observable, Subscription } from 'rxjs';
 import { ApiPaths } from '../../enums/api-paths.enum';
+import { Store } from "@ngrx/store";
+import { selectDevices } from "../../../store/device/device.selectors";
+import { retrievedDevices } from "../../../store/device/device.actions";
+import { HelpersService } from "../helpers/helpers.service";
 
 @Injectable({
   providedIn: 'root'
 })
-export class DeviceService {
+export class DeviceService implements OnDestroy {
+  devices: any[] = []
+  selectDevices$ = new Subscription()
+  constructor(
+    private store: Store,
+    private http: HttpClient,
+    private helpersService: HelpersService
+  ) {
+    this.selectDevices$ = this.store.select(selectDevices).subscribe(devices => this.devices = devices)
+  }
 
-  constructor(private http: HttpClient) { }
+  ngOnDestroy(): void {
+    this.selectDevices$.unsubscribe()
+  }
 
   getAll(): Observable<any> {
     return this.http.get<any>(ApiPaths.DEVICES);
@@ -36,5 +51,11 @@ export class DeviceService {
 
   import(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.DEVICE_IMPORT, data)
+  }
+
+  updateDeviceStore(newItem: any) {
+    const currentState = JSON.parse(JSON.stringify(this.devices))
+    const newState = this.helpersService.sortListByKeyInObject(currentState.concat(newItem))
+    this.store.dispatch(retrievedDevices({ data: newState }))
   }
 }

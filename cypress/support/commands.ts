@@ -392,17 +392,18 @@ Cypress.Commands.add('editConfigTemplate', editConfigTemplate);
 // Open Device/Template page
 declare namespace Cypress {
   interface Chainable<Subject = any> {
-    openPageInDeviceTemplate(pageName: string): typeof openPageInDeviceTemplate;
+    openPageInDevicesNav(pageName: string): typeof openPageInDevicesNav;
   }
 }
 
-function openPageInDeviceTemplate(pageName: string): void {
+function openPageInDevicesNav(pageName: string): void {
   cy.visit('/')
+  cy.waitingLoadingFinish()
   cy.getByDataCy('btn-devices').click()
   cy.get('button>span').contains(pageName).click()
   cy.wait(2000)
 }
-Cypress.Commands.add('openPageInDeviceTemplate', openPageInDeviceTemplate);
+Cypress.Commands.add('openPageInDevicesNav', openPageInDevicesNav);
 
 // Select Device
 declare namespace Cypress {
@@ -787,8 +788,7 @@ function deleteRecordByName(name: string, matToolTipName: string, isRowSelected:
   cy.get('mat-dialog-container').should('exist')
   cy.wait(2000)
   cy.getButtonByTypeAndContent('submit', 'OK').click()
-  cy.wait(3000)
-  cy.get('mat-dialog-container').should('not.exist')
+  cy.checkingToastSuccess()
   cy.log(`END: Delete ${name} successfully`)
 }
 Cypress.Commands.add('deleteRecordByName', deleteRecordByName);
@@ -1213,20 +1213,19 @@ Cypress.Commands.add('addEditConnectionProfile', addEditConnectionProfile);
 // Import project
 declare namespace Cypress {
   interface Chainable<Subject = any> {
-    importJsonData(filePath: string): typeof importJsonData;
+    importJsonData(filePath: string, importType?: string): typeof importJsonData;
   }
 }
 
-function importJsonData(filePath: string): void {
-  cy.log(`Import connection profile from ${filePath}`)
-  // Show Add Connection Profile form
-  cy.showFormAddByMatTooltip('Import');
+function importJsonData(filePath: string, importType = 'Import'): void {
+  cy.log(`Import JSON data from ${filePath}`)
+  cy.showFormAddByMatTooltip(importType);
   cy.get('input[type=file]').selectFile(`${filePath}`)
   cy.wait(1000)
   cy.get('mat-error').should('not.exist')
   cy.getButtonByTypeAndContent('submit', 'Import').click()
   cy.checkingToastSuccess()
-  cy.log(`Imported connection profile from ${filePath}`)
+  cy.log(`Imported JSON data from ${filePath}`)
 }
 Cypress.Commands.add('importJsonData', importJsonData);
 
@@ -1387,7 +1386,7 @@ declare namespace Cypress {
 }
 
 function checkingToastSuccess() {
-  cy.get('.toast-success', { timeout: 12000 }).should('not.exist')
+  cy.get('.toast-success', { timeout: 12000 }).should('exist')
 }
 Cypress.Commands.add('checkingToastSuccess', checkingToastSuccess);
 

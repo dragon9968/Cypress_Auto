@@ -18,6 +18,8 @@ import { DeviceService } from "../../core/services/device/device.service";
 import { TemplateService } from "../../core/services/template/template.service";
 import { retrievedDevices } from "../../store/device/device.actions";
 import { retrievedTemplates } from "../../store/template/template.actions";
+import { PageName } from "../../shared/enums/page-name.enum";
+import { ImportDialogComponent } from "../../shared/components/import-dialog/import-dialog.component";
 
 @Component({
   selector: 'app-hardware',
@@ -232,5 +234,17 @@ export class HardwareComponent implements OnInit, OnDestroy {
     this.gridApi.deselectAll();
     this.rowsSelected = [];
     this.rowsSelectedId = [];
+  }
+
+  importHardware() {
+    const dialogData = {
+      pageName: PageName.HARDWARE
+    }
+    this.dialog.open(ImportDialogComponent, {
+      data: dialogData,
+      disableClose: true,
+      autoFocus: false,
+      width: '450px'
+    })
   }
 }

@@ -26,6 +26,8 @@ import { selectIsDeviceChange } from "../../store/device-change/device-change.se
 import { retrievedIsDeviceChange } from "../../store/device-change/device-change.actions";
 import { ConfirmationDialogComponent } from "../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { catchError } from "rxjs/operators";
+import { PageName } from "../../shared/enums/page-name.enum";
+import { ImportDialogComponent } from "../../shared/components/import-dialog/import-dialog.component";
 
 @Component({
   selector: 'app-device-template',
@@ -488,4 +490,28 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
     this.rowsSelectedTemplateId = [];
   }
 
+  importDevice() {
+    const dialogData = {
+      pageName: PageName.DEVICE
+    }
+    this.dialog.open(ImportDialogComponent, {
+      data: dialogData,
+      disableClose: true,
+      autoFocus: false,
+      width: '450px'
+    })
+  }
+
+  importTemplate() {
+    const dialogData = {
+      pageName: PageName.DEVICE_TEMPLATE,
+      deviceId: this.deviceId
+    }
+    this.dialog.open(ImportDialogComponent, {
+      data: dialogData,
+      disableClose: true,
+      autoFocus: false,
+      width: '450px'
+    })
+  }
 }

@@ -5,16 +5,19 @@ import { ApiPaths } from '../../enums/api-paths.enum';
 import { Store } from "@ngrx/store";
 import { selectConfigTemplates } from "../../../store/config-template/config-template.selectors";
 import { retrievedConfigTemplates } from "../../../store/config-template/config-template.actions";
+import { HelpersService } from "../helpers/helpers.service";
 
 @Injectable({
   providedIn: 'root'
 })
-export class ConfigTemplateService implements OnDestroy{
+export class ConfigTemplateService implements OnDestroy {
 
   selectConfigTemplates$ = new Subscription()
   configTemplates: any[] = []
-  constructor(private http: HttpClient,
-              private store: Store) {
+  constructor(
+    private store: Store,
+    private http: HttpClient,
+    private helpersService: HelpersService) {
     this.selectConfigTemplates$ = this.store.select(selectConfigTemplates).subscribe(configTemplates => {
       this.configTemplates = configTemplates
     })
@@ -76,9 +79,9 @@ export class ConfigTemplateService implements OnDestroy{
     return this.http.put<any>(ApiPaths.CONFIG_TEMPLATE_UPDATE_CONFIGURATION, data)
   }
 
-  updateConfigTemplate(newItem: any) {
+  updateConfigTemplateStore(newItem: any) {
     const currentState = JSON.parse(JSON.stringify(this.configTemplates))
-    const newState = currentState.concat(newItem)
+    const newState = this.helpersService.sortListByKeyInObject(currentState.concat(newItem))
     this.store.dispatch(retrievedConfigTemplates({ data: newState }))
   }
 }

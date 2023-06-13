@@ -1,5 +1,4 @@
 describe('Device/Template e2e testing', () => {
-  let admin:any = {}
   const loginProfile = {
     name: 'Test Device Login',
     username: 'Test',
@@ -26,7 +25,14 @@ describe('Device/Template e2e testing', () => {
     name: 'Test VM Template',
     category: 'vm'
   }
+
+  let deviceImportName = ''
+  const deviceDataPath = 'devices-data/device/devices-export.json'
+  const templateDataPath = 'devices-data/template/templates-export.json'
   beforeEach(() => {
+    cy.fixture(deviceDataPath).then(
+      deviceImport => deviceImportName = deviceImport.device[0].name
+    )
     cy.viewport(1366, 768)
     const setup = () => {
       cy.visit('/login')
@@ -37,14 +43,14 @@ describe('Device/Template e2e testing', () => {
 
 
   it('Add new login profile', () => {
-    cy.openPageInDeviceTemplate('Login Profiles')
+    cy.openPageInDevicesNav('Login Profiles')
     cy.showFormAddByMatTooltip('Add')
     cy.addUpdateNewLoginProfile(loginProfile, 'add')
     cy.wait(2000)
   });
 
   it('Add new device', () => {
-    cy.openPageInDeviceTemplate('Device/Template')
+    cy.openPageInDevicesNav('Device/Template')
     cy.showFormAddByMatTooltip('Add New Device')
     cy.wait(1000)
 
@@ -66,7 +72,7 @@ describe('Device/Template e2e testing', () => {
   });
 
   it('Add new template', () => {
-    cy.openPageInDeviceTemplate('Device/Template')
+    cy.openPageInDevicesNav('Device/Template')
     cy.selectDeviceByName(newDevice.name)
 
     cy.showFormAddByMatTooltip('Add New Template')
@@ -82,8 +88,8 @@ describe('Device/Template e2e testing', () => {
     cy.get('mat-dialog-container').should('not.exist')
   });
 
-  it('Delete template', () => {
-    cy.openPageInDeviceTemplate('Device/Template')
+  it('Edit and delete template', () => {
+    cy.openPageInDevicesNav('Device/Template')
     cy.selectDeviceByName(newDevice.name)
 
     cy.get('.table__nav--search input#search-template').clear().type(newTemplate.name)
@@ -104,8 +110,8 @@ describe('Device/Template e2e testing', () => {
     cy.get('mat-dialog-container').should('not.exist')
   });
 
-  it('Edit device',  () => {
-    cy.openPageInDeviceTemplate('Device/Template')
+  it('Edit device', () => {
+    cy.openPageInDevicesNav('Device/Template')
     cy.selectDeviceByName(newDevice.name)
 
     cy.log('Edit Device')
@@ -127,11 +133,32 @@ describe('Device/Template e2e testing', () => {
   });
 
   it('Delete device', () => {
-    cy.openPageInDeviceTemplate('Device/Template')
+    cy.openPageInDevicesNav('Device/Template')
     cy.get('.table__nav--search input').first().clear({force: true}).type(deviceUpdate.name)
     cy.wait(1000)
     cy.get('.ag-row').contains(new RegExp(`^(${deviceUpdate.name})`, "g")).first().click({ force: true })
     cy.deleteRecordByName(deviceUpdate.name, 'Delete Device', true)
+    cy.get('.table__nav--search input').first().clear()
+  });
+
+  it('Import device', () => {
+    cy.openPageInDevicesNav('Device/Template')
+    cy.importJsonData(`cypress/fixtures/${deviceDataPath}`, 'Import Device')
+  });
+
+  it('Import template', () => {
+    cy.openPageInDevicesNav('Device/Template')
+    cy.get('.table__nav--search input').first().clear({force: true}).type(deviceImportName)
+    cy.get('.ag-row').contains(new RegExp(`^(${deviceImportName})`, "g")).first().click({ force: true })
+    cy.importJsonData(`cypress/fixtures/${templateDataPath}`, 'Import Template')
+  });
+
+  it('Delete device import', () => {
+    cy.openPageInDevicesNav('Device/Template')
+    cy.get('.table__nav--search input').first().clear({force: true}).type(deviceImportName)
+    cy.wait(1000)
+    cy.get('.ag-row').contains(new RegExp(`^(${deviceImportName})`, "g")).first().click({ force: true })
+    cy.deleteRecordByName(deviceImportName, 'Delete Device', true)
     cy.get('.table__nav--search input').first().clear()
   });
 

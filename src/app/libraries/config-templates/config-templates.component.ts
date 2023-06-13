@@ -413,6 +413,11 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
     const dialogData = {
       pageName: PageName.CONFIGURATION_TEMPLATE
     }
-    this.dialog.open(ImportDialogComponent, { data: dialogData, width: '450px' })
+    this.dialog.open(ImportDialogComponent, {
+      data: dialogData,
+      disableClose: true,
+      autoFocus: false,
+      width: '450px'
+    })
   }
 }
