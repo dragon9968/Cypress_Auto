@@ -417,9 +417,14 @@ export class InfoPanelService implements OnDestroy {
         )[0];
         // Add new deploy-status property for the port group
         ele.data('deploy-status', pg);
+        const d = pg;
+        if (d.status == "good") {
+          ele.style({ 'border-color': this.statusColorLookup.on });
+        } else if (d.status == "notGood") {
+          ele.style({ 'border-color': this.statusColorLookup.off });
+        } 
       })
       portGroupsDeployed.style({
-        'border-color': this.statusColorLookup.on,
         'border-style': 'double',
         'border-width': 0,
         'border-opacity': 0

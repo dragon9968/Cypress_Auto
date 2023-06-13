@@ -383,7 +383,22 @@ export class CMRemoteService implements OnDestroy{
         },
       ]
     }
-
+    const getFacts = {
+      id: "get_facts",
+      content: "Get Facts",
+      selector: "node[icon]",
+      onClickFunction: (event: any) => {
+        const dialogData = {
+          jobName: 'get_pg_facts',
+          activePGs,
+          message: 'Get port group facts?',
+          category: this.connectionCategory
+        };
+        this.dialog.open(AddDeletePGDeployDialogComponent, { disableClose: true, width: '450px', data: dialogData });
+      },
+      hasTrailingDivider: true,
+      disabled: false,
+    }
     return {
       id: "pg_remote",
       content: "Remote",
@@ -391,6 +406,7 @@ export class CMRemoteService implements OnDestroy{
       hasTrailingDivider: true,
       submenu: [
         deploy,
+        getFacts
       ]
     }
   }
