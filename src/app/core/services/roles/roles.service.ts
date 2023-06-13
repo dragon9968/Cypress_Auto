@@ -2,6 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiPaths } from '../../enums/api-paths.enum';
+import { LocalStorageService } from '../../storage/local-storage/local-storage.service';
+import { LocalStorageKeys } from '../../storage/local-storage/local-storage-keys.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +11,8 @@ import { ApiPaths } from '../../enums/api-paths.enum';
 export class RolesService {
 
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private localStorageService: LocalStorageService,
   ) { }
 
   getAll(): Observable<any> {
@@ -59,4 +62,13 @@ export class RolesService {
   getRolesProtected(): Observable<any> {
     return this.http.get<any>(ApiPaths.ROLES_PROTECTED);
   }
+
+  updateUserPermissions(permissions: string) {
+    this.localStorageService.setItem(LocalStorageKeys.PERMISSIONS, permissions);
+  }
+
+  getUserPermissions() {
+    return this.localStorageService.getItem(LocalStorageKeys.PERMISSIONS);
+  }
+
 }

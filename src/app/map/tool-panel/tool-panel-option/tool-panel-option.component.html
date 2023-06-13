@@ -1,7 +1,7 @@
 <section class="tab-section">
-  <mat-slide-toggle class="tab-field" color="primary" labelPosition="before" [(ngModel)]="isEdgeDirectionChecked"
+  <mat-slide-toggle class="tab-field direction-toggle" color="primary" labelPosition="before" [(ngModel)]="isEdgeDirectionChecked"
     (change)="toggleEdgeDirection()">Edge Direction</mat-slide-toggle>
-  <mat-slide-toggle class="tab-field" color="primary" labelPosition="before" [(ngModel)]="isGroupBoxesChecked"
+  <mat-slide-toggle class="tab-field groupboxes-toggle" color="primary" labelPosition="before" [(ngModel)]="isGroupBoxesChecked"
     (change)="toggleGroupBoxes()">Group Boxes</mat-slide-toggle>
   <mat-form-field *ngIf="isGroupBoxesChecked" class="tab-select-field">
     <mat-label>Group Category</mat-label>
@@ -14,7 +14,7 @@
       </mat-option>
     </mat-autocomplete>
   </mat-form-field>
-  <mat-slide-toggle class="tab-field" color="primary" labelPosition="before" [(ngModel)]="isMapGridChecked" (change)="toggleMapGrid()">
+  <mat-slide-toggle class="tab-field matgrid-toggle" color="primary" labelPosition="before" [(ngModel)]="isMapGridChecked" (change)="toggleMapGrid()">
     Map Grid</mat-slide-toggle>
   <mat-slide-toggle *ngIf="isMapGridChecked" color="primary"  class="tab-field" labelPosition="before" [(ngModel)]="isSnapToGridChecked"
     (change)="toggleSnapToGrid()">Snap To Grid</mat-slide-toggle>
@@ -24,7 +24,7 @@
     </mat-slider>
     <label>{{ gridSpacingSize }}px</label>
   </div>
-  <mat-slide-toggle class="tab-field" color="primary" labelPosition="before" [(ngModel)]="isMapOverviewChecked"
+  <mat-slide-toggle class="tab-field mapoverview-toggle" color="primary" labelPosition="before" [(ngModel)]="isMapOverviewChecked"
     (change)="toggleMapOverview()">Map Overview</mat-slide-toggle>
   <div class="tab-field">
     <button mat-raised-button color="primary" class="reinitialize-map-btn" (click)="reinitializeMap()">

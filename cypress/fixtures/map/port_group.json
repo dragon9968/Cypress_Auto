@@ -1,10 +1,10 @@
 {
   "name": "cro_net_66gzpdrp",
   "vlan": 2002,
-  "category": "public",
+  "category": "private",
   "domain_id": 78,
-  "subnet_allocation": "static_auto",
-  "subnet": "10.239.249.0/26",
+  "subnet_allocation": "static_manual",
+  "subnet": "192.168.229.0/24",
   "project_id": 21,
   "logical_map_position": {
     "x": 700,

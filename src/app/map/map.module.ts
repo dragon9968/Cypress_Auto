@@ -40,6 +40,7 @@ import { InfoPanelInterfaceManagementComponent } from './info-panel/info-panel-i
 import { NodeToolsDialogComponent } from './deployment-dialog/deployment-node-dialog/node-tools-dialog/node-tools-dialog.component';
 import { ConnectInterfaceToPgDialogComponent } from './context-menu/cm-dialog/connect-interface-to-pg-dialog/connect-interface-to-pg-dialog.component';
 import { ViewUpdateProjectNodeComponent } from './context-menu/cm-dialog/view-update-project-node/view-update-project-node.component';
+import { AddNodePgToGroupboxDialogComponent } from './add-node-pg-to-groupbox-dialog/add-node-pg-to-groupbox-dialog.component';
 
 
 @NgModule({
@@ -83,6 +84,7 @@ import { ViewUpdateProjectNodeComponent } from './context-menu/cm-dialog/view-up
     NodeToolsDialogComponent,
     ConnectInterfaceToPgDialogComponent,
     ViewUpdateProjectNodeComponent,
+    AddNodePgToGroupboxDialogComponent,
   ],
   imports: [
     MapRoutingModule,

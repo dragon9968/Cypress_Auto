@@ -167,8 +167,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
     private helpers: HelpersService,
     private cmActionsService: CMActionsService,
   ) {
-    iconRegistry.addSvgIcon('export-csv', this.helpers.setIconPath('/assets/icons/export-csv-info-panel.svg'));
-    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json-info-panel.svg'));
+    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
     this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
       if (mapSelection) {
         const rowData = this.activeNodes.map((ele: any) => {
@@ -181,11 +180,16 @@ export class InfoPanelNodeComponent implements OnDestroy {
           if (ele.data('domain')?.name) {
             ele.data('domain', ele.data('domain')?.name)
           }
-          if (ele.data('hardware')?.serial_number) {
-            ele.data('hardware', ele.data('hardware')?.serial_number)
-          }
           if (ele.data('login_profile')?.name) {
             ele.data('login_profile', ele.data('login_profile')?.name)
+          }
+          if (ele.data('category') == 'hw') {
+            if (ele.data('hardware')?.serial_number) {
+              ele.data('hardware', ele.data('hardware')?.serial_number)
+            }
+          } else {
+            ele.data('hardware', null)
+            ele.data('hardware_id', null)
           }
           return ele.data();
         });

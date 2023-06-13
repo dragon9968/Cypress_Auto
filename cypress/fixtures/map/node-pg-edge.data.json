@@ -1,0 +1,52 @@
+{
+  "nodeData": {
+      "name": "Test edit node",
+      "notes": "E2E - edit node",
+      "icon_name": "Windows Client",
+      "category": "vm",
+      "device_name": "Windows Client",
+      "template_name": "Windows 10 21H2 x64",
+      "folder": "east-edit",
+      "parent_folder": "E2E - edit node",
+      "role": "windows_client",
+      "domain_id": 1,
+      "hostname": "linux-client-4"
+  },
+  "portGroupData": {
+    "name": "Test edit port group",
+    "vlan": 2010,
+    "category": "public",
+    "subnet_allocation": "static_auto"
+  },
+  "edgeData": {
+    "name": "Test edit interface",
+    "description": "TEST EDIT INTERFACE",
+    "direction": "Outbound",
+    "mac_address": "90-42-AD-28-3C-14",
+    "dns_server": "1.0.0.1",
+    "subnet_allocation": "static_manual",
+    "ip_address": "192.168.12.158",
+    "netmask": "255.224.0.0"
+  },
+  "groupData": {
+    "name": "Test new group",
+    "category": "custom",
+    "description": "e2e - create new group"
+  },
+  "groupEditData": {
+    "name": "Test group",
+    "category": "domain",
+    "by_domain": "Test domain",
+    "description": "e2e - create new group",
+    "nodes": "Test edit node",
+    "port_groups": ["cro_net_pmk8310w", "Test edit port group"]
+  },
+  "groupEditDefaultData": {
+    "name": "default.test",
+    "category": "domain",
+    "by_domain": "Test domain",
+    "description": "",
+    "nodes": "Test edit node",
+    "port_groups": ["cro_net_pmk8310w", "Test edit port group"]
+  }
+}

@@ -115,9 +115,9 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
       neighborIpCtr: new FormControl('', [networksValidation('single')]),
       neighborAsnCtr: new FormControl(''),
       bgpConnectedStateCtr: new FormControl(''),
-      bgpConnectedMetricCtr: new FormControl(''),
+      bgpConnectedMetricCtr: new FormControl('', [Validators.pattern('^[0-9]*$')]),
       bgpOspfStateCtr: new FormControl(''),
-      bgpOspfMetricCtr: new FormControl('')
+      bgpOspfMetricCtr: new FormControl('', [Validators.pattern('^[0-9]*$')])
     })
     this.isViewMode = this.data.mode == 'view';
     this.isAddMode = this.data.mode == 'add';
@@ -257,7 +257,9 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
         const isUpdateConfigDefault = JSON.stringify(this.defaultConfig, null, 2) !== this.editor.value;
         if (isUpdateConfigDefault) {
           const isNodeConfigDataFormatted = this.helpersService.validateJSONFormat(this.editor.value)
-          if (isNodeConfigDataFormatted) {
+          const isValidJsonForm = this.helpersService.validateFieldFormat(this.editor.value)
+          const isValidJsonFormBGP = this.helpersService.validationBGP(this.editor.value)
+          if (isNodeConfigDataFormatted && isValidJsonForm && isValidJsonFormBGP) {
             const configDefaultNode = {
               node_id: undefined,
               config_id: this.data.genData.id,
@@ -465,11 +467,11 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
       config_id: this.data.genData.id,
       networks: this.helpersService.processNetworksField(this.networksCtr?.value),
       bgp_state: this.bgpStateCtr?.value,
-      bgp_metric_type: this.bgpMetricTypeCtr?.value,
+      bgp_metric_type: parseInt(this.bgpMetricTypeCtr?.value),
       connected_state: this.connectedStateCtr?.value,
-      connected_metric_type: this.connectedMetricTypeCtr?.value,
+      connected_metric_type: parseInt(this.connectedMetricTypeCtr?.value),
       static_state: this.staticStateCtr?.value,
-      static_metric_type: this.staticMetricTypeCtr?.value,
+      static_metric_type: parseInt(this.staticMetricTypeCtr?.value),
     }
     const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.configTemplateService.addConfiguration(jsonData).pipe(
@@ -492,9 +494,9 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
       neighbor_ip: this.neighborIpCtr?.value,
       neighbor_asn: this.neighborAsnCtr?.value,
       bgp_connected_state: this.bgpConnectedStateCtr?.value,
-      bgp_connected_metric: this.bgpConnectedMetricCtr?.value,
+      bgp_connected_metric: parseInt(this.bgpConnectedMetricCtr?.value),
       bgp_ospf_state: this.bgpOspfStateCtr?.value,
-      bgp_ospf_metric: this.bgpOspfMetricCtr?.value
+      bgp_ospf_metric: parseInt(this.bgpOspfMetricCtr?.value)
     }
     const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.configTemplateService.addConfiguration(jsonData).pipe(

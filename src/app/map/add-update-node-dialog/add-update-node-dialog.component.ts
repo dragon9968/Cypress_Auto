@@ -31,6 +31,9 @@ import { retrievedConfigTemplates } from "../../store/config-template/config-tem
 import { PORT } from "../../shared/contants/port.constant";
 import { AceEditorComponent } from "ng2-ace-editor";
 import { networksValidation } from 'src/app/shared/validations/networks.validation';
+import { selectIsConfiguratorConnect, selectIsDatasourceConnect, selectIsHypervisorConnect } from 'src/app/store/server-connect/server-connect.selectors';
+import { RemoteCategories } from 'src/app/core/enums/remote-categories.enum';
+import { ServerConnectService } from 'src/app/core/services/server-connect/server-connect.service';
 
 class CrossFieldErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -99,9 +102,6 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   isAddRolesAndService = false;
   isAddDomainMembership = false;
   isAddOSPF = false;
-  // isHiddenBgpMetricType = false;
-  // isHiddenConnectedMetricType = false;
-  // isHiddenStaticMetricType = false;
   bgpChecked = true;
   connectedChecked = true;
   staticChecked = true;
@@ -111,6 +111,13 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   rolesAndService: any[] = [];
   filteredAddActions!: Observable<any>[];
   listNodeIP: any[] = [];
+  selectIsHypervisorConnect$ = new Subscription();
+  selectIsDatasourceConnect$ = new Subscription();
+  selectIsConfiguratorConnect$ = new Subscription();
+  isHypervisorConnect = false;
+  isDatasourceConnect = false;
+  isConfiguratorConnect = false;
+  connectionCategory = '';
 
   public gridOptions: GridOptions = {
     headerHeight: 48,
@@ -168,7 +175,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     public helpers: HelpersService,
     private store: Store,
     private interfaceService: InterfaceService,
-    private configTemplateService: ConfigTemplateService
+    private configTemplateService: ConfigTemplateService,
+    private serverConnectionService: ServerConnectService,
   ) {
     this.actionsAddForm = new FormGroup({
       addTypeCtr: new FormControl('')
@@ -219,9 +227,9 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       neighborIpCtr: new FormControl('', [networksValidation('single')]),
       neighborAsnCtr: new FormControl(''),
       bgpConnectedStateCtr: new FormControl(''),
-      bgpConnectedMetricCtr: new FormControl(''),
+      bgpConnectedMetricCtr: new FormControl('', [Validators.pattern('^[0-9]*$')]),
       bgpOspfStateCtr: new FormControl(''),
-      bgpOspfMetricCtr: new FormControl('')
+      bgpOspfMetricCtr: new FormControl('', [Validators.pattern('^[0-9]*$')])
     })
     this.isViewMode = this.data.mode == 'view';
     this.nodeAddForm = new FormGroup({
@@ -298,7 +306,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       }
       this.listNodeIP = interfaceData.filter((ip: any) => ip.category !== 'management')
       this.ipCtr.setValidators([autoCompleteValidator(this.listNodeIP, 'ip')]);
-      this.filteredNodeIP = this.helpers.filterOptions(this.ipCtr, this.listNodeIP);
+      this.filteredNodeIP = this.helpers.filterOptions(this.ipCtr, this.listNodeIP, 'ip');
     })
     this.configTemplateAddsType = this.helpers.getConfigAddsTypeByDeviceCategory(this.data.genData.device_category);
     this.filteredAddActions = this.helpers.filterOptions(this.addTypeCtr, this.configTemplateAddsType);
@@ -306,6 +314,26 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       this.rolesAndService = data;
       this.rolesCtr.setValidators([Validators.required, autoCompleteValidator(this.rolesAndService)]);
     });
+    this.selectIsHypervisorConnect$ = this.store.select(selectIsHypervisorConnect).subscribe(isHypervisorConnect => {
+      if (isHypervisorConnect) {
+        this.isHypervisorConnect = isHypervisorConnect
+        this.connectionCategory = RemoteCategories.HYPERVISOR
+      }
+    })
+
+    this.selectIsDatasourceConnect$ = this.store.select(selectIsDatasourceConnect).subscribe(isDatasourceConnect => {
+      if (isDatasourceConnect) {
+        this.isDatasourceConnect = isDatasourceConnect
+        this.connectionCategory = RemoteCategories.DATASOURCE
+      }
+    })
+
+    this.selectIsConfiguratorConnect$ = this.store.select(selectIsConfiguratorConnect).subscribe(isConfiguratorConnect => {
+      if (isConfiguratorConnect) {
+        this.isConfiguratorConnect = isConfiguratorConnect
+        this.connectionCategory = RemoteCategories.CONFIGURATOR
+      }
+    })
   }
 
   ngAfterViewInit(): void {
@@ -420,6 +448,28 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     this.addTypeCtr?.setValue(this.configTemplateAddsType[0]);
     this.addTypeCtr?.setValidators([Validators.required, autoCompleteValidator(this.configTemplateAddsType)])
     this.helpers.setAutoCompleteValue(this.addTypeCtr, this.configTemplateAddsType, this.configTemplateAddsType[0].id)
+    if (this.data.mode === 'view') {
+      const connection = this.serverConnectionService.getConnection(this.connectionCategory);
+      const connectionId = connection ? connection?.id : 0;
+      const nodeId = this.data.genData.node_id
+      this.nodeService.getDeployData(nodeId, connectionId).subscribe((respData: any) => {
+        const resp = respData.result;
+        this.uuidCtr?.setValue(resp?.uuid)
+        if (resp?.info?.Hardware) {
+          let hardwareInfo = [];
+          for (const [key, value] of Object.entries(resp?.info?.Hardware)) {
+            hardwareInfo.push(`${key}: ${value}`)
+          }
+          this.hardwareInfoCtr?.setValue(hardwareInfo)
+        }
+        this.serviceCtr?.setValue(resp?.running_services)
+        if (resp?.installed_features) {
+          const features = resp?.installed_features.map((val: any) => val.name)
+          this.featuresCtr?.setValue(features)
+        }
+        this.runningConfigCtr?.setValue(resp?.deploy_config)
+      })
+    }
   }
 
   ngOnDestroy(): void {
@@ -582,7 +632,9 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
           const isUpdateConfigDefault = JSON.stringify(this.defaultConfig, null, 2) !== this.editor.value;
           if (isUpdateConfigDefault) {
             const isNodeConfigDataFormatted = this.helpers.validateJSONFormat(this.editor.value)
-            if (isNodeConfigDataFormatted) {
+            const isValidJsonForm = this.helpers.validateFieldFormat(this.editor.value)
+            const isValidJsonFormBGP = this.helpers.validationBGP(this.editor.value)
+            if (isNodeConfigDataFormatted && isValidJsonForm && isValidJsonFormBGP) {
               const configDefaultNode = {
                 node_id: this.data.genData.node_id,
                 config_id: this.data.genData.default_config_id,
@@ -807,11 +859,11 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       config_id: this.data.genData.default_config_id,
       networks: this.helpers.processNetworksField(this.networksCtr?.value),
       bgp_state: this.bgpStateCtr?.value,
-      bgp_metric_type: this.bgpMetricTypeCtr?.value,
+      bgp_metric_type: parseInt(this.bgpMetricTypeCtr?.value),
       connected_state: this.connectedStateCtr?.value,
-      connected_metric_type: this.connectedMetricTypeCtr?.value,
+      connected_metric_type: parseInt(this.connectedMetricTypeCtr?.value),
       static_state: this.staticStateCtr?.value,
-      static_metric_type: this.staticMetricTypeCtr?.value,
+      static_metric_type: parseInt(this.staticMetricTypeCtr?.value),
       node_id: this.data.genData.node_id
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
@@ -831,14 +883,14 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     const jsonDataValue = {
       config_type: "bgp",
       config_id: this.data.genData.default_config_id,
-      ip_address: this.ipCtr?.value.ip,
+      ip_address: this.ipCtr?.value.ip || this.ipCtr?.value,
       asn: this.asnCtr?.value,
       neighbor_ip: this.neighborIpCtr?.value,
       neighbor_asn: this.neighborAsnCtr?.value,
       bgp_connected_state: this.bgpConnectedStateCtr?.value,
-      bgp_connected_metric: this.bgpConnectedMetricCtr?.value,
+      bgp_connected_metric: parseInt(this.bgpConnectedMetricCtr?.value),
       bgp_ospf_state: this.bgpOspfStateCtr?.value,
-      bgp_ospf_metric: this.bgpOspfMetricCtr?.value,
+      bgp_ospf_metric: parseInt(this.bgpOspfMetricCtr?.value),
       node_id: this.data.genData.node_id
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);

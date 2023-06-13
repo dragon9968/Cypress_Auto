@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { Store } from '@ngrx/store';
@@ -27,7 +27,7 @@ import { AuthService } from "../../../core/services/auth/auth.service";
   templateUrl: './tool-panel-edit.component.html',
   styleUrls: ['./tool-panel-edit.component.scss']
 })
-export class ToolPanelEditComponent implements OnInit, OnDestroy {
+export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
   @Input() cy: any;
   @Input() config: any;
   @Input() activeNodes: any[] = [];
@@ -44,6 +44,12 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
   @Input() isDisableNewFromSelected = true;
   @Input() isDisableLinkProject = true;
   @Input() isTemplateCategory = false;
+  @Input() isAddNode = false;
+  @Input() isAddPublicPG = false;
+  @Input() isAddPrivatePG = false;
+  @Input() isAddMapImage = false;
+  @Input() isAddProjectNode = false;
+  @Input() isAddProjectTemplate = false;
   status = 'active';
   category = 'template';
   nodeAddForm!: FormGroup;
@@ -51,6 +57,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
   addTemplateForm: FormGroup;
   linkProjectForm!: FormGroup;
   isCustomizePG = true;
+  isDisableCustomizePG = false;
   errorMessages = ErrorMessages;
   selectDevices$ = new Subscription();
   selectTemplates$ = new Subscription();
@@ -108,7 +115,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
     this.selectTemplates$ = this.store.select(selectTemplates).subscribe((templates: any) => {
       if (templates) {
         this.templates = templates;
-        this.templateCtr?.setValidators([autoCompleteValidator(this.templates, 'display_name'), Validators.required]);
+        this.templateCtr?.setValidators([autoCompleteValidator(this.templates, 'display_name')]);
         this.filteredTemplatesByDevice = templates
         this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice, 'display_name');
       }
@@ -116,7 +123,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
     this.selectImages$ = this.store.select(selectImages).subscribe((images: any) => {
       if (images) {
         this.mapImages = images;
-        this.mapImageCtr?.setValidators([autoCompleteValidator(this.mapImages), Validators.required]);
+        this.mapImageCtr?.setValidators([autoCompleteValidator(this.mapImages)]);
         this.filteredMapImages = this.helpers.filterOptions(this.mapImageCtr, this.mapImages);
       }
     });
@@ -131,7 +138,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
     this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(projectTemplates => {
       if (projectTemplates != undefined) {
         this.projectTemplates = projectTemplates;
-        this.projectTemplateCtr.setValidators([autoCompleteValidator(this.projectTemplates), Validators.required]);
+        this.projectTemplateCtr.setValidators([autoCompleteValidator(this.projectTemplates)]);
         this.filteredProjectTemplates = this.helpers.filterOptions(this.projectTemplateCtr, this.projectTemplates)
       }
     });
@@ -148,12 +155,39 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
           }
           newProjectData = newProjectData.filter(project => project.id !== projectId);
           this.projects = newProjectData;
-          this.linkProjectCtr.setValidators([autoCompleteValidator(this.projects), Validators.required]);
+          this.linkProjectCtr.setValidators([autoCompleteValidator(this.projects)]);
           this.filteredProjects = this.helpers.filterOptions(this.linkProjectCtr, this.projects);
         })
       }
     })
   }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (this.isAddNode || this.isAddPrivatePG || this.isAddPublicPG || this.isAddMapImage
+      || this.isAddProjectNode || this.isAddProjectTemplate) {
+      this.isCustomizeNodeCtr?.disable();
+      this.deviceCtr?.disable();
+      this.templateCtr?.disable();
+      this.isDisableCustomizePG = true;
+      this.mapImageCtr?.disable();
+      this.linkProjectCtr?.disable();
+      this.projectTemplateCtr?.disable();
+      this.isLayoutOnlyCtr?.disable();
+    } else {
+      this.isCustomizeNodeCtr?.enable();
+      this.deviceCtr?.enable();
+      this.templateCtr?.enable();
+      this.isDisableCustomizePG = false;
+      this.mapImageCtr?.setValue('');
+      this.mapImageCtr?.enable();
+      this.linkProjectCtr?.setValue('');
+      this.linkProjectCtr?.enable();
+      this.projectTemplateCtr?.setValue('');
+      this.projectTemplateCtr?.enable();
+      this.isLayoutOnlyCtr?.enable();
+    }
+  }
+
 
   get deviceCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('deviceCtr'), this.devices); }
   get templateCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('templateCtr'), this.templates); }
@@ -168,7 +202,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.templateCtr?.disable();
     this.projectService.getProjectByStatusAndCategory('active', 'template').subscribe(
-      data => this.store.dispatch(retrievedProjectsTemplate({template: data.result}))
+      data => this.store.dispatch(retrievedProjectsTemplate({ template: data.result }))
     );
   }
 
@@ -247,26 +281,25 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy {
   }
 
   addImage() {
-      const mapImage = this.mapImages.filter(image => image.id === this.mapImageCtr.value.id)[0];
-      const background = new Image();
-      background.src = ICON_PATH + mapImage.photo;
-      let width: any;
-      let height: any;
-      background.onload = () => {
-        width = background.width;
-        height = background.height;
-        this.isDisableAddImage = true;
-        this.store.dispatch(retrievedMapEdit({
-          data: {
-            isAddMapImage: true,
-            imageWidth: width,
-            imageHeight: height,
-            imageUrl: background.src,
-            mapImage: mapImage,
-          }
-        }));
-      };
-      // background.addEventListener("load", this.loadMapImage.bind(this, background));
+    const mapImage = this.mapImages.filter(image => image.id === this.mapImageCtr.value.id)[0];
+    const background = new Image();
+    background.src = ICON_PATH + mapImage.photo;
+    let width: any;
+    let height: any;
+    background.onload = () => {
+      width = background.width;
+      height = background.height;
+      this.isDisableAddImage = true;
+      this.store.dispatch(retrievedMapEdit({
+        data: {
+          isAddMapImage: true,
+          imageWidth: width,
+          imageHeight: height,
+          imageUrl: background.src,
+          mapImage: mapImage,
+        }
+      }));
+    };
   }
 
   selectProjectTemplate() {

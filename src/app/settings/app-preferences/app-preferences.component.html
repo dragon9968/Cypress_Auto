@@ -81,7 +81,7 @@
         <mat-error *ngIf="managementNetworkIPsCtr?.errors?.isNotMatch">{{ errorMessages.IP_IN_NETWORK }}</mat-error>
         <mat-error *ngIf="managementNetworkIPsCtr?.errors?.isNotMatchIP">{{ managementNetworkIPsCtr?.errors?.value }}</mat-error>
       </mat-form-field>
-      <mat-form-field class="field">
+      <mat-form-field class="dhcp-field">
         <mat-label>DHCP Server</mat-label>
         <input autocomplete="off" id="apppref-dhcp" type="text" matInput formControlName="dhcpServerCtr">
         <mat-hint>DHCP lease file path</mat-hint>

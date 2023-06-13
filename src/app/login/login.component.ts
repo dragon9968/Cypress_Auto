@@ -68,6 +68,7 @@ export class LoginComponent implements OnInit {
                     permissions.push(...role.permissions)
                   })
                   const permissionsUnique:any[] = [...new Set(permissions)];
+                  this.rolesService.updateUserPermissions(JSON.stringify(permissionsUnique));
                   this.permissionsService.loadPermissions(permissionsUnique);
                 })
                 this.router.navigate([RouteSegments.ROOT]);

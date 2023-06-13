@@ -10,13 +10,103 @@
             "192.168.2.0/24",
             "172.16.87.0/24"
           ],
-          "redistibution": {
-            "bgb": {
+          "redistribute": {
+            "bgp": {
               "state": true,
               "metric_type": 2},
             "connected": {
               "state": true,
               "metric_type": 2},
+            "static": {
+              "state": true,
+              "metric_type": 2}
+          }
+        }
+      ]
+    }
+  ],
+  "ospfValidationJsonForm": [
+    {
+      "name": "OSPF Configuration",
+      "description": "Test ospf configuration",
+      "ospf": [
+        {
+          "networks": [
+            "192.168.1.0/300"
+          ],
+          "redistribute": {
+            "bgp": {
+              "state": true,
+              "metric_type": 2},
+            "connected": {
+              "state": true,
+              "metric_type": 2},
+            "static": {
+              "state": true,
+              "metric_type": 2}
+          }
+        }
+      ]
+    },
+    {
+      "name": "OSPF Configuration",
+      "description": "Test ospf configuration",
+      "ospf": [
+        {
+          "networks": [
+            "192.168.1.0/24"
+          ],
+          "redistribute": {
+            "bgp": {
+              "state": "error",
+              "metric_type": 2},
+            "connected": {
+              "state": true,
+              "metric_type": 2},
+            "static": {
+              "state": true,
+              "metric_type": 2}
+          }
+        }
+      ]
+    },
+    {
+      "name": "OSPF Configuration",
+      "description": "Test ospf configuration",
+      "ospf": [
+        {
+          "networks": [
+            "192.168.1.0/24"
+          ],
+          "redistribute": {
+            "bgp": {
+              "state": true,
+              "metric_type": "string"},
+            "connected": {
+              "state": true,
+              "metric_type": 2},
+            "static": {
+              "state": true,
+              "metric_type": 2}
+          }
+        }
+      ]
+    },
+    {
+      "name": "OSPF Configuration",
+      "description": "Test ospf configuration",
+      "ospf": [
+        {
+          "networks": [
+            "192.168.1.0/24"
+          ],
+          "redistribute": {
+            "bgp": {
+              "state": true,
+              "metric_type": 3},
+            "connected": {
+              "state": true,
+              "metric_type": 0},
             "static": {
               "state": true,
               "metric_type": 2}
@@ -36,16 +126,16 @@
             "192.168.2.0/26",
             "172.16.87.0/26"
           ],
-          "redistibution": {
-            "bgb": {
+          "redistribute": {
+            "bgp": {
               "state": false,
-              "metric_type": 3},
+              "metric_type": 2},
             "connected": {
               "state": true,
-              "metric_type": 4},
+              "metric_type": 1},
             "static": {
               "state": true,
-              "metric_type": 6}
+              "metric_type": 2}
           }
         }
       ]

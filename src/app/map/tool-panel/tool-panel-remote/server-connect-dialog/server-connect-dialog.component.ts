@@ -79,7 +79,7 @@ export class ServerConnectDialogComponent implements OnInit, OnDestroy {
           this.dialogRef.close();
         },
         error: err => {
-          this.toastr.error('Could not to connect the Server', 'Error');
+          this.toastr.error(err.error.message, 'Error');
           return throwError(() => err.error.message);
         }
       })

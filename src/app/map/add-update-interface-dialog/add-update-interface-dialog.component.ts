@@ -9,7 +9,7 @@ import { DIRECTIONS } from 'src/app/shared/contants/directions.constant';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 import { selectPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { Store } from '@ngrx/store';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, catchError, throwError } from 'rxjs';
 import { selectInterfaces } from "../../store/map/map.selectors";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
@@ -20,6 +20,9 @@ import { selectMapOption } from "../../store/map-option/map-option.selectors";
 import { PortGroupService } from "../../core/services/portgroup/portgroup.service";
 import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
 import { selectNodesByProjectId } from 'src/app/store/node/node.selectors';
+import { validateNameExist } from "../../shared/validations/name-exist.validation";
+import { networksValidation } from 'src/app/shared/validations/networks.validation';
+import { showErrorFromServer } from 'src/app/shared/validations/error-server-response.validation';
 
 @Component({
   selector: 'app-add-update-interface-dialog',
@@ -46,6 +49,8 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   filteredPortGroups!: Observable<any[]>;
   filteredDirections!: Observable<any[]>;
   filteredNetmasks!: Observable<any[]>;
+  edgesConnected = [];
+  errors: any[] = [];
 
   constructor(
     private store: Store,
@@ -57,21 +62,23 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     private infoPanelService: InfoPanelService,
     private portGroupService: PortGroupService
   ) {
+    this.edgesConnected = this.data.cy.nodes(`[id="pg-${this.data.genData.port_group_id}"]`).connectedEdges()
+      .map((ele: any) => ({ ...ele.data(), id: Number(ele.data('id')) }))
     this.interfaceAddForm = new FormGroup({
       orderCtr: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
       nameCtr: new FormControl('', Validators.required),
       descriptionCtr: new FormControl('', Validators.required),
-      categoryCtr: new FormControl({ value: '', disabled: this.isViewMode || this.tabName == 'edgeManagement' }),
+      categoryCtr: new FormControl(''),
       directionCtr: new FormControl(''),
       macAddressCtr: new FormControl(''),
       portGroupCtr: new FormControl(''),
-      ipAllocationCtr: new FormControl({ value: '', disabled: this.isViewMode }),
-      ipCtr: new FormControl('', Validators.required),
+      ipAllocationCtr: new FormControl(''),
+      ipCtr: new FormControl('', [Validators.required]),
       dnsServerCtr: new FormControl(''),
       gatewayCtr: new FormControl(''),
-      isGatewayCtr: new FormControl({ value: '', disabled: this.isViewMode }),
-      isNatCtr: new FormControl({ value: '', disabled: this.isViewMode }),
-      netMaskCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      isGatewayCtr: new FormControl(''),
+      isNatCtr: new FormControl(''),
+      netMaskCtr: new FormControl(''),
     });
     this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe((portGroups: any) => {
       this.portGroups = portGroups;
@@ -118,7 +125,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   get gatewayCtr() { return this.interfaceAddForm.get('gatewayCtr') }
   get isGatewayCtr() { return this.interfaceAddForm.get('isGatewayCtr'); }
   get isNatCtr() { return this.interfaceAddForm.get('isNatCtr'); }
-  get netMaskCtr() { return this.helpers.getAutoCompleteCtr(this.interfaceAddForm.get('netMaskCtr'), this.netmasks); }
+  get netMaskCtr() { return this.helpers.getAutoCompleteCtr(this.interfaceAddForm.get('netMaskCtr'), this.netmasks, 'mask'); }
 
   ngOnInit(): void {
     let directionValue = this.isEdgeDirectionChecked ? this.data.genData.direction : this.data.genData.prev_direction;
@@ -141,6 +148,15 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     this.isNatCtr?.setValue(this.data.genData.is_nat);
     this.helpers.setAutoCompleteValue(this.netMaskCtr, this.netmasks, this.data.genData.netmask_id);
     this._disableItems(this.ipAllocationCtr?.value);
+    this.ipCtr?.setValidators([
+      Validators.required,
+      networksValidation('single'),
+      validateNameExist(() => this.edgesConnected, this.data.mode, this.data.genData.interface_id, 'ip'),
+      showErrorFromServer(() => this.errors)
+    ])
+    if (!this.isViewMode) {
+      this.interfaceAddForm?.markAllAsTouched();
+    }
   }
 
   private _disableItems(subnetAllocation: string) {
@@ -197,7 +213,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       mac_address: this.macAddressCtr?.value,
       port_group_id: this.portGroupCtr?.value.id,
       ip_allocation: this.ipAllocationCtr?.value,
-      ip: this.ipCtr?.value,
+      ip: this.ipAllocationCtr?.value === 'static_auto' ? this.data.genData.ip : this.ipCtr?.value,
       dns_server: this.dnsServerCtr?.value,
       gateway: this.gatewayCtr?.value,
       is_gateway: this.isGatewayCtr?.value,
@@ -217,7 +233,20 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       } : undefined,
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.interfaceService.add(jsonData).subscribe((respData: any) => {
+    this.interfaceService.add(jsonData).pipe(
+      catchError(err => {
+        const errorMessage = err.error.message;
+        if (err.status === 422) {
+          if (errorMessage.ip) {
+            this.ipCtr?.setErrors({
+              serverError: errorMessage.ip
+            });
+            this.errors.push({ 'valueCtr': this.ipCtr?.value, 'error': errorMessage.ip });
+          }
+        }
+        return throwError(() => err);
+      })
+    ).subscribe((respData: any) => {
       const portGroupId = respData.result.port_group_id;
       if (portGroupId) {
         const newEdgeData = this.data.newEdgeData;
@@ -266,7 +295,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       mac_address: this.macAddressCtr?.value,
       port_group_id: this.portGroupCtr?.value.id,
       ip_allocation: this.ipAllocationCtr?.value,
-      ip: this.ipCtr?.value,
+      ip: this.ipAllocationCtr?.value === 'static_auto' ? this.data.genData.ip : this.ipCtr?.value,
       dns_server: this.dnsServerCtr?.value,
       gateway: this.gatewayCtr?.value,
       is_gateway: this.isGatewayCtr?.value,
@@ -275,7 +304,20 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       netmask_id: netmask_id ? netmask_id : null,
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.interfaceService.put(this.data.genData.interface_id, jsonData).subscribe((respData: any) => {
+    this.interfaceService.put(this.data.genData.interface_id, jsonData).pipe(
+      catchError(err => {
+        const errorMessage = err.error.message;
+        if (err.status === 422) {
+          if (errorMessage.ip) {
+            this.ipCtr?.setErrors({
+              serverError: errorMessage.ip
+            });
+            this.errors.push({ 'valueCtr': this.ipCtr?.value, 'error': errorMessage.ip });
+          }
+        }
+        return throwError(() => err);
+      })
+    ).subscribe((respData: any) => {
       const data = {
         ...this.data.genData,
         ...jsonData,
@@ -286,11 +328,30 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         this.store.dispatch(retrievedInterfacesManagement({ data: newInterfacesManagement }));
       } else {
         this._updateInterfaceOnMap(data);
-        this._showOrHideArrowDirectionOnEdge(this.data.genData.interface_id)
+        this._showOrHideArrowDirectionOnEdge(this.data.genData.interface_id);
+        const node = this.data.cy.getElementById(`node-${data.node_id}`);
+        const pg = this.data.cy.getElementById(`pg-${data.port_group_id}`);
+        const netmaskName = this.helpers.getOptionById(this.netmasks, data.netmask_id).name
+        this._updateInterfaceOnEle(node, {
+          id: this.data.genData.interface_id,
+          value: `${data.name} - ${data.ip + netmaskName}`
+        });
+        this._updateInterfaceOnEle(pg, {
+          id: this.data.genData.interface_id,
+          value: `${data.node} - ${data.name} - ${data.ip + netmaskName}`
+        });
         this.store.dispatch(retrievedMapSelection({ data: true }));
       }
       this.dialogRef.close();
       this.toastr.success('Edge details updated!');
+    });
+  }
+
+  private _updateInterfaceOnEle(ele: any, new_interface: any) {
+    ele.data('interfaces').forEach((item: any, index: number, array: any) => {
+      if (item.id == new_interface.id) {
+        array[index] = new_interface;
+      }
     });
   }
 
@@ -365,6 +426,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   changeViewToEdit() {
     this.data.mode = 'update';
     this.isViewMode = false;
+    this.interfaceAddForm.markAllAsTouched();
   }
 
   private _showOrHideArrowDirectionOnEdge(edgeId: any) {

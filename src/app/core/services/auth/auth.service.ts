@@ -26,7 +26,6 @@ export class AuthService {
     private http: HttpClient,
     private toastr: ToastrService,
     private localStorageService: LocalStorageService,
-    private projectService: ProjectService,
     private helperServices: HelpersService,
     private serverConnectionService: ServerConnectService,
     private ngxRolesService: NgxRolesService,
@@ -119,6 +118,7 @@ export class AuthService {
     this.localStorageService.removeItem(LocalStorageKeys.CONNECTIONS);
     this.localStorageService.removeItem(LocalStorageKeys.USER_ID);
     this.localStorageService.removeItem(LocalStorageKeys.PROJECT_ID);
+    this.localStorageService.removeItem(LocalStorageKeys.PERMISSIONS);
   }
 
 }

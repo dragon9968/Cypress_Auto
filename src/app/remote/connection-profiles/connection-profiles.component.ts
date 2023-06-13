@@ -15,6 +15,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { AddEditConnectionProfilesComponent } from './add-edit-connection-profiles/add-edit-connection-profiles.component';
 import { ConfirmationDialogComponent } from "../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { catchError } from "rxjs/operators";
+import { ImportDialogComponent } from "../../shared/components/import-dialog/import-dialog.component";
+import { PageName } from "../../shared/enums/page-name.enum";
 
 @Component({
   selector: 'app-connection-profiles',
@@ -312,12 +314,19 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
         }
       } else {
         if (typeAction == 'ping_test') {
-          this.toastr.success(`${newConnection.msg}`, 'Error')
+          this.toastr.error(`${newConnection.msg}`, 'Error')
         } else {
           this.toastr.error(`Login Check for ${newConnection.name} failed`, 'Error')
         }
       }
     })
     this.store.dispatch(retrievedServerConnect({data: newServerConnections}))
+  }
+
+  import() {
+    const dialogData = {
+      pageName: PageName.CONNECTION_PROFILE
+    }
+    this.dialog.open(ImportDialogComponent, { data: dialogData, width: '450px' })
   }
 }

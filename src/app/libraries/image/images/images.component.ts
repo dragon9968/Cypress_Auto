@@ -14,6 +14,8 @@ import { retrievedImages } from 'src/app/store/map-image/map-image.actions';
 import { selectImages } from 'src/app/store/map-image/map-image.selectors';
 import { AddEditImagesDialogComponent } from './add-edit-images-dialog/add-edit-images-dialog.component';
 import { WIDTH_DIALOG } from 'src/app/shared/contants/image.constant';
+import { PageName } from 'src/app/shared/enums/page-name.enum';
+import { ImportDialogComponent } from 'src/app/shared/components/import-dialog/import-dialog.component';
 
 @Component({
   selector: 'app-images',
@@ -220,5 +222,17 @@ export class ImagesComponent implements OnInit, OnDestroy {
     const firstCut = event.pageIndex * event.pageSize;
     const secondCut = firstCut + event.pageSize;
     this.activePageDataChunk = this.listImages.slice(firstCut, secondCut);
+  }
+
+  importImage() {
+    const dialogData = {
+      pageName: PageName.IMAGES
+    }
+    this.dialog.open(ImportDialogComponent, {
+      disableClose: true,
+      autoFocus: false,
+      width: '450px',
+      data: dialogData
+    });
   }
 }

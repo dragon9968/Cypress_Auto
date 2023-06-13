@@ -129,6 +129,7 @@ export class InfoPanelInterfaceManagementComponent implements OnDestroy {
       mode: 'view',
       genData: row.data,
       cy: this.cy,
+      tabName: this.tabName
     };
     this.dialog.open(AddUpdateInterfaceDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
   }

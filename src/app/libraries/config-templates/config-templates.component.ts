@@ -17,6 +17,8 @@ import { AddRouteDialogComponent } from "./add-route-dialog/add-route-dialog.com
 import { AddFirewallRuleDialogComponent } from "./add-firewall-rule-dialog/add-firewall-rule-dialog.component";
 import { AddDomainMembershipDialogComponent } from "./add-domain-membership-dialog/add-domain-membership-dialog.component";
 import { AddEditRolesServicesDialogComponent } from "./add-edit-roles-services-dialog/add-edit-roles-services-dialog.component";
+import { PageName } from "../../shared/enums/page-name.enum";
+import { ImportDialogComponent } from "../../shared/components/import-dialog/import-dialog.component";
 
 @Component({
   selector: 'app-config-templates',
@@ -177,7 +179,6 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
         this.updateRow();
       }
     });
-    iconRegistry.addSvgIcon('export-csv', this.helpers.setIconPath('/assets/icons/export-csv.svg'));
     iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
    }
 
@@ -406,5 +407,12 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
     this.gridApi.deselectAll();
     this.rowsSelectedId = [];
     this.rowsSelected = [];
+  }
+
+  import() {
+    const dialogData = {
+      pageName: PageName.CONFIGURATION_TEMPLATE
+    }
+    this.dialog.open(ImportDialogComponent, { data: dialogData, width: '450px' })
   }
 }

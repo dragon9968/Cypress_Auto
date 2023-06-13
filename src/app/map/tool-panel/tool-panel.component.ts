@@ -21,6 +21,7 @@ import { retrievedGroups } from "../../store/group/group.actions";
 import { selectPortGroups } from "../../store/portgroup/portgroup.selectors";
 import { ProjectService } from "../../project/services/project.service";
 import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
+import { retrievedMapOption } from "../../store/map-option/map-option.actions";
 
 @Component({
   selector: 'app-tool-panel',
@@ -50,6 +51,12 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterfaces: any[] = [];
   @Input() saveMapSubject!: Observable<any>;
+  @Input() isAddNode = false;
+  @Input() isAddPublicPG = false;
+  @Input() isAddPrivatePG = false;
+  @Input() isAddMapImage = false;
+  @Input() isAddProjectNode = false;
+  @Input() isAddProjectTemplate = false;
   updatedNodes: any[] = [];
   updatedInterfaces: any[] = [];
   updatedGroupBoxes: any[] = [];
@@ -257,6 +264,17 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       if (this.updatedNodeAndPGInGroups.length > 0) {
         this.updateNodesAndPGInGroupStorageAndMap();
       }
+      this.store.dispatch(retrievedMapOption({
+        data: {
+          isEdgeDirectionChecked: this.isEdgeDirectionChecked,
+          isGroupBoxesChecked: this.isGroupBoxesChecked,
+          isMapGridChecked: this.isMapGridChecked,
+          isSnapToGridChecked: this.isSnapToGridChecked,
+          isMapOverviewChecked: this.isMapOverviewChecked,
+          gridSpacingSize: this.gridSpacingSize,
+          groupCategoryId: this.groupCategoryId
+        }
+      }));
       this.toastr.success("Map saved");
     })
     this.updatedNodes.splice(0);
@@ -667,7 +685,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
             } else {
               this._assignElementWithType(newGroup, typeOfElement, [])
             }
-          } 
+          }
         } else {
           this._assignElementWithType(newGroup, typeOfElement, [])
         }

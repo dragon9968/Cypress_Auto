@@ -30,11 +30,13 @@
         [activeEdges]="activeEdges" [activeGBs]="activeGBs" [activeMBs]="activeMBs" [deletedNodes]="deletedNodes"
         [deletedInterfaces]="deletedInterfaces" [config]="config" [isDisableAddProjectTemplate]="isDisableAddProjectTemplate"
         [isDisableLinkProject]="isDisableLinkProject" [isDisableNewFromSelected]="isDisableNewFromSelected"
-        [isTemplateCategory]="isTemplateCategory"
+        [isTemplateCategory]="isTemplateCategory" [isAddNode]="isAddNode" [isAddPublicPG]="isAddPublicPG"
+        [isAddPrivatePG]="isAddPrivatePG" [isAddMapImage]="isAddMapImage" [isAddProjectNode]="isAddProjectNode"
+        [isAddProjectTemplate]="isAddProjectTemplate"
       >
       </app-tool-panel-edit>
     </mat-tab>
-    <mat-tab label="Style">
+    <mat-tab label="Style" data-cy="tool-panel-style">
       <app-tool-panel-style [cy]="cy" [ur]="ur" [config]="config" [activeNodes]="activeNodes" [activePGs]="activePGs"
         [activeEdges]="activeEdges" [activeGBs]="activeGBs" [activeMBs]="activeMBs" [activeMapLinks]="activeMapLinks">
       </app-tool-panel-style>

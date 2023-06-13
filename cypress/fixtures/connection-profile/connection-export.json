@@ -1,0 +1,32 @@
+{
+    "name": "server_connect",
+    "version": "v0.12.2-17-ga3b3e26",
+    "server_connect": [
+        {
+            "created_on": "2023-06-05T11:39:45.043669",
+            "changed_on": "2023-06-07T16:59:31.974984",
+            "id": 1,
+            "name": "CRO dev",
+            "category": "vmware_vcenter",
+            "parameters": {
+                "server": "172.19.0.10",
+                "port": null,
+                "datacenter": "CRO Dev",
+                "cluster": "Dev Cluster",
+                "datastore": "Dev VMStore",
+                "datastore_cluster": false,
+                "switch": "Dev DSwitch",
+                "switch_type": "dvswitch",
+                "management_network": "Dev VM Management",
+                "username": "sangtrung.nguyen@vsphere.local",
+                "password": "$ANSIBLE_VAULT;1.1;AES256\n34336163636534316532383738663739313664613431613662356361653731633735373737363765\n6639333931373861363966626364623365623339323834370a666637623232623132633638376334\n33343035306537333031333630316366613566373731663562313939343566663363323065363033\n3363333630663339620a643462376463333331313335383739333466636530376464326365323234\n66336336643764356666613366343363666335626463393466653764306261366230\n",
+                "hosts": [],
+                "switch_info": {},
+                "cert_file": "",
+                "status": "Good"
+            },
+            "created_by_fk": 1,
+            "changed_by_fk": 1
+        }
+    ]
+}

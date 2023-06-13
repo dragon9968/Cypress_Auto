@@ -27,7 +27,8 @@ import { selectAllProjects, selectRecentProjects } from 'src/app/store/project/p
 import { MatRadioChange } from '@angular/material/radio';
 import { selectUserProfile } from 'src/app/store/user-profile/user-profile.selectors';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
-import { NgxPermissionsService } from "ngx-permissions";
+import { RolesService } from 'src/app/core/services/roles/roles.service';
+import { selectIsMapOpen } from "../../store/map/map.selectors";
 
 @Component({
   selector: 'app-edit-project-dialog',
@@ -42,6 +43,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
   selectAllProjects$ = new Subscription();
   selectRecentProjects$ = new Subscription();
   selectProjectTemplate$ = new Subscription();
+  selectIsMapOpen$ = new Subscription();
   selectUser$ = new Subscription();
   currentUser: any = {};
   recentProjects: any[] = [];
@@ -54,6 +56,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
   usersData!: any[];
   listShared: any[] = [];
   status = 'active';
+  isMapOpen = false;
   defaultColDef: ColDef = {
     sortable: true,
     resizable: true,
@@ -102,7 +105,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private projectService: ProjectService,
     private userService: UserService,
-    private ngxPermissionsService: NgxPermissionsService,
+    private rolesService: RolesService,
     private router: Router,
     private store: Store,
     private toastr: ToastrService,
@@ -160,11 +163,17 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
         last_name: user.last_name
       }
     });
+    this.selectIsMapOpen$ = this.store.select(selectIsMapOpen).subscribe((isMapOpen: boolean) => {
+      this.isMapOpen = isMapOpen;
+    });
   }
 
   ngOnDestroy(): void {
     this.selectAllProjects$.unsubscribe();
     this.selectRecentProjects$.unsubscribe();
+    this.selectUser$.unsubscribe();
+    this.selectIsMapOpen$.unsubscribe();
+    this.selectProjectTemplate$.unsubscribe();
   }
 
   get nameCtr() { return this.editProjectForm.get('nameCtr'); }
@@ -175,15 +184,17 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
   get categoryCtr() { return this.editProjectForm.get('categoryCtr'); }
 
   ngOnInit(): void {
-    let permissions = this.ngxPermissionsService.getPermissions();
-    let isCanWriteProject = false
-    let isCanReadSettings = false
-    for (let p in permissions) {
-      if (p === "can_write on Project") {
-        isCanWriteProject = true
-      }
-      if (p === "can_read on Settings") {
-        isCanReadSettings = true
+    let isCanWriteProject = false;
+    let isCanReadSettings = false;
+    const permissions = this.rolesService.getUserPermissions();
+    if (permissions) {
+      for (let p of JSON.parse(permissions)) {
+        if (p === "can_write on Project") {
+          isCanWriteProject = true
+        }
+        if (p === "can_read on Settings") {
+          isCanReadSettings = true
+        }
       }
     }
     if (!isCanWriteProject || !isCanReadSettings) {
@@ -258,7 +269,13 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
         this.projectService.associate(configData).subscribe(respData => {
           this.toastr.success(`Update ${jsonData.category} successfully`)
           if (jsonData.category === 'project') {
-            this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
+            if (this.isMapOpen) {
+              this.projectService.getProjectsNotLinkedYet(this.projectService.getProjectId()).subscribe(res => {
+                this.store.dispatch(retrievedProjects({ data: res.result }))
+              })
+            } else {
+              this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
+            }
           } else {
             this.projectService.getProjectByStatusAndCategory(this.status, 'template').subscribe((data: any) => this.store.dispatch(retrievedProjectsTemplate({ template: data.result })));
           }
@@ -320,7 +337,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
   }
 
   changeCategory($event: MatRadioChange) {
-    if($event.value == 'template') {
+    if ($event.value == 'template') {
       this.listUser = [];
       this.listShared = [];
       this.sharedCtr.disable();

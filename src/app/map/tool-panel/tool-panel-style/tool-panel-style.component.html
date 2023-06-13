@@ -39,7 +39,7 @@
     <h4>Node</h4>
     <div class="tab-field">
         <label class="control-label">Size</label>
-        <mat-slider class="slider" step="1" min="1" max="100" [(ngModel)]="nodeSize"
+        <mat-slider class="slider" step="1" min="1" max="100" [(ngModel)]="nodeSize" data-cy="toolpanel-node-size"
             (change)="setNodeSize($event)"></mat-slider>
         <label class="control-label">{{ nodeSize }}px</label>
     </div>
@@ -48,21 +48,21 @@
 <section class="tab-section" [hidden]="isHideEdge">
     <mat-divider></mat-divider>
     <h4>Edge</h4>
-    <div class="tab-field">
+    <div class="tab-field edge-color">
         <label for="edgeColor">Color</label>
         <button mat-mini-fab id="edgeColor" class="color-picker" [(colorPicker)]="edgeColor"
             [style.background]="edgeColor" cpPosition="bottom" (colorPickerChange)="setEdgeColor($event)"></button>
     </div>
     <div class="tab-field">
         <label class="control-label">Size</label>
-        <mat-slider class="slider" step="1" min="1" max="50" [(ngModel)]="edgeSize"
+        <mat-slider class="slider" step="1" min="1" max="50" [(ngModel)]="edgeSize" data-cy="toolpanel-edge-size"
             (change)="setEdgeSize($event)"></mat-slider>
         <label class="control-label">{{ edgeSize }}px</label>
     </div>
     <h4>Arrow</h4>
     <div class="tab-field direction">
         <label>Direction</label>
-        <mat-button-toggle-group color="primary" class="button-group" (change)="setDirection($event)" [(ngModel)]="arrowActivated">
+        <mat-button-toggle-group color="primary" class="button-group" (change)="setDirection($event)" [(ngModel)]="arrowActivated" data-cy="select-direction">
             <mat-button-toggle value="both"><mat-icon>sync_alt</mat-icon></mat-button-toggle>
             <mat-button-toggle value="inbound"><mat-icon>west</mat-icon></mat-button-toggle>
             <mat-button-toggle value="outbound"><mat-icon>east</mat-icon></mat-button-toggle>
@@ -70,7 +70,7 @@
     </div>
     <div class="tab-field">
         <label class="control-label">Size</label>
-        <mat-slider class="slider" step="1" min="1" max="10" [(ngModel)]="arrowSize"
+        <mat-slider class="slider" step="1" min="1" max="10" [(ngModel)]="arrowSize" data-cy="toolpanel-arrow-size"
             (change)="setArrowScale($event)"></mat-slider>
         <label class="control-label">{{ arrowSize }}px</label>
     </div>
@@ -85,7 +85,7 @@
     </div>
     <div class="tab-field">
         <label class="control-label">Size</label>
-        <mat-slider class="slider" step="1" min="1" max="200" [(ngModel)]="pgSize"
+        <mat-slider class="slider" step="1" min="1" max="200" [(ngModel)]="pgSize" data-cy="toolpanel-port-group-size"
             (change)="setPGSize($event)"></mat-slider>
         <label class="control-label">{{ pgSize }}px</label>
     </div>
@@ -130,42 +130,42 @@
 <section class="tab-section" [hidden]="isHideText">
     <mat-divider></mat-divider>
     <h4>Text</h4>
-    <div class="tab-field">
+    <div class="tab-field text-color">
         <label class="control-label" for="textColor">Color</label>
         <button mat-mini-fab id="textColor" class="color-picker" [(colorPicker)]="textColor"
             [style.background]="textColor" cpPosition="bottom" (colorPickerChange)="setTextColor($event)"></button>
     </div>
     <div class="tab-field">
         <label class="control-label">Size</label>
-        <mat-slider class="slider" step="1" min="0" max="200" [(ngModel)]="textSize"
+        <mat-slider class="slider" step="1" min="0" max="200" [(ngModel)]="textSize" data-cy="toolpanel-text-size"
             (change)="setTextSize($event)"></mat-slider>
         <label class="control-label">{{ textSize }}px</label>
     </div>
-    <div *ngIf="isHideEdge" class="tab-field text-align">
+    <div *ngIf="isHideEdge" class="tab-field text-valign">
         <label class="control-label">V Align</label>
-        <mat-button-toggle-group class="button-group" (change)="setTextVAlign($event)" [(ngModel)]="vAlignSelect">
+        <mat-button-toggle-group class="button-group" (change)="setTextVAlign($event)" [(ngModel)]="vAlignSelect" data-cy="select-valign">
             <mat-button-toggle value="top"><mat-icon>align_vertical_top</mat-icon></mat-button-toggle>
             <mat-button-toggle value="center"><mat-icon>align_vertical_center</mat-icon></mat-button-toggle>
             <mat-button-toggle value="bottom"><mat-icon>align_vertical_bottom</mat-icon></mat-button-toggle>
         </mat-button-toggle-group>
     </div>
-    <div *ngIf="isHideEdge" class="tab-field text-align">
+    <div *ngIf="isHideEdge" class="tab-field text-halign">
         <label class="control-label">H Align</label>
-        <mat-button-toggle-group class="button-group" (change)="setTextHAlign($event)" [(ngModel)]="hAlignSelect">
+        <mat-button-toggle-group class="button-group" (change)="setTextHAlign($event)" [(ngModel)]="hAlignSelect" data-cy="select-halign">
             <mat-button-toggle value="left"><mat-icon>align_horizontal_left</mat-icon></mat-button-toggle>
             <mat-button-toggle value="center"><mat-icon>align_horizontal_center</mat-icon></mat-button-toggle>
             <mat-button-toggle value="right"><mat-icon>align_horizontal_right</mat-icon></mat-button-toggle>
         </mat-button-toggle-group>
     </div>
     <h4>Text Background</h4>
-    <div class="tab-field">
+    <div class="tab-field text-bg-color">
         <label class="control-label" for="textBGColor">Color</label>
         <button mat-mini-fab id="textBGColor" class="color-picker" [(colorPicker)]="textBGColor"
             [style.background]="textBGColor" cpPosition="bottom" (colorPickerChange)="setTextBGColor($event)"></button>
     </div>
     <div class="tab-field">
         <label class="control-label">Opacity</label>
-        <mat-slider class="slider" step="0.01" min="0" max="1" [(ngModel)]="textBGOpacity"
+        <mat-slider class="slider" step="0.01" min="0" max="1" [(ngModel)]="textBGOpacity" data-cy="toolpanel-text-bgopacity"
             (change)="setTextBGOpacity($event)"></mat-slider>
         <label>{{ textBGOpacityLabel }}%</label>
     </div>

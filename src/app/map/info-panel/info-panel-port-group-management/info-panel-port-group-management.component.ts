@@ -116,6 +116,7 @@ export class InfoPanelPortGroupManagementComponent implements OnInit, OnDestroy 
       mode: 'view',
       genData: row.data,
       cy: this.cy,
+      tabName: this.tabName
     }
     this.dialog.open(AddUpdatePGDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
   }

@@ -51,6 +51,10 @@ export class ProjectService {
     });
   }
 
+  getProjectsNotLinkedYet(projectId: number): Observable<any> {
+    return this.http.get<any>(ApiPaths.PROJECTS_NOT_LINKED_YET + projectId)
+  }
+
   get(id: number): Observable<any>  {
     return this.http.get<any>(ApiPaths.PROJECTS + id);
   }

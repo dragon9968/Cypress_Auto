@@ -33,6 +33,10 @@ describe('Configuration Template e2e testing', () => {
     invalid_chars: "AAAAAAA",
   }
 
+  const metricInvalidBgp = {
+    metric: 'e-',
+  }
+
   beforeEach(() => {
     cy.viewport(1366, 768)
     cy.visit('/login')
@@ -64,6 +68,8 @@ describe('Configuration Template e2e testing', () => {
 
   it('Test - Configuration Template',() => {
     cy.login(admin.username, admin.password)
+
+    cy.waitingLoadingFinish()
     cy.getByDataCy('btn-libraries').click()
     cy.get('button>span').contains('Configuration Templates').click()
     cy.wait(3000)
@@ -102,6 +108,8 @@ describe('Configuration Template e2e testing', () => {
     cy.showFormEditByName(windowRolesAndServiceConfig.name)
     cy.editConfigTemplate(windowRolesAndServiceEditConfig, { role_services: windowRolesAndServiceEditConfig.role_services })
 
+    cy.importJsonData('cypress/fixtures/config-template/config-export.json')
+
   });
 
   it('Test - OSPF Configuration',() => {
@@ -111,11 +119,25 @@ describe('Configuration Template e2e testing', () => {
 
     cy.addNewConfigTemplate(ospfConfig.ospfDataEditor[0])
     cy.showFormEditByName(ospfConfig.ospfDataEditor[0].name)
-    cy.editOspfAndBgpConfigTemplate(ospfConfig.ospfDataEditor[0], { ospf: ospfConfig.ospfDataEditor[0].ospf }, defaultConfig)
+
+    // Validation Networks invalid in json form
+    cy.editOspfAndBgpConfigTemplate(ospfConfig.ospfDataEditor[0], { ospf: ospfConfig.ospfValidationJsonForm[0].ospf }, defaultConfig, true)
+
+    // Validation State invalid in json form
+    cy.editOspfAndBgpConfigTemplate(ospfConfig.ospfDataEditor[0], { ospf: ospfConfig.ospfValidationJsonForm[1].ospf }, defaultConfig, true)
+
+    // Validation Metric Type invalid in json form
+    cy.editOspfAndBgpConfigTemplate(ospfConfig.ospfDataEditor[0], { ospf: ospfConfig.ospfValidationJsonForm[2].ospf }, defaultConfig, true)
+
+    // Validation Metric Type invalid(metric type > 2 or metric type < 1) in json form
+    cy.editOspfAndBgpConfigTemplate(ospfConfig.ospfDataEditor[0], { ospf: ospfConfig.ospfValidationJsonForm[3].ospf }, defaultConfig, true)
+
+    cy.editOspfAndBgpConfigTemplate(ospfConfig.ospfDataEditor[0], { ospf: ospfConfig.ospfDataEditor[0].ospf }, defaultConfig, false)
 
 
     cy.showFormEditByName(ospfConfig.ospfDataEditor[0].name)
-    cy.get('#config-select-type').clear({force: true}).type('Add OSPF')
+    cy.waitingLoadingFinish()
+    cy.get('#config-select-type').focus().clear({force: true}).type('Add OSPF')
     cy.getOptionByContent('Add OSPF').click();
     // Validation Networks invalid IP
     cy.addOspfConfigTemplate(ospfConfig.ospfDataShowForm[0], networksInvalidOspf.invalid_ip)
@@ -147,16 +169,30 @@ describe('Configuration Template e2e testing', () => {
     cy.get('button>span').contains('Configuration Templates').click()
     cy.addNewConfigTemplate(bgpConfig.bgpDataEditor[0])
     cy.showFormEditByName(bgpConfig.bgpDataEditor[0].name)
-    cy.editOspfAndBgpConfigTemplate(bgpConfig.bgpDataEditor[0], { bgp: bgpConfig.bgpDataEditor[0].bgp }, defaultConfig)
+
+    // Validation for ip_address invalid
+    cy.editOspfAndBgpConfigTemplate(bgpConfig.bgpDataEditor[0], { bgp: bgpConfig.bgpValidationDataEditor[0].bgp }, defaultConfig, true)
+
+    // Validation state field
+    cy.editOspfAndBgpConfigTemplate(bgpConfig.bgpDataEditor[0], { bgp: bgpConfig.bgpValidationDataEditor[1].bgp }, defaultConfig, true)
+
+    // Validation metric field
+    cy.editOspfAndBgpConfigTemplate(bgpConfig.bgpDataEditor[0], { bgp: bgpConfig.bgpValidationDataEditor[2].bgp }, defaultConfig, true)
+
+    cy.editOspfAndBgpConfigTemplate(bgpConfig.bgpDataEditor[0], { bgp: bgpConfig.bgpDataEditor[0].bgp }, defaultConfig, false)
     cy.showFormEditByName(bgpConfig.bgpDataEditor[0].name)
-    cy.get('#config-select-type').clear({force: true}).type('Add BGP')
+    cy.waitingLoadingFinish()
+    cy.get('#config-select-type').focus().clear({force: true}).type('Add BGP')
     cy.getOptionByContent('Add BGP').click();
     // Validation IP Address field invalid IP
-    cy.addBGPConfigTemplate(bgpConfig.bgpDataShowForm[0], networksInvalidBgp.invalid_ip)
+    cy.addBGPConfigTemplate(bgpConfig.bgpDataShowForm[0], networksInvalidBgp.invalid_ip, undefined)
     // Validation IP Address field invalid Chars
-    cy.addBGPConfigTemplate(bgpConfig.bgpDataShowForm[0], networksInvalidBgp.invalid_chars)
+    cy.addBGPConfigTemplate(bgpConfig.bgpDataShowForm[0], networksInvalidBgp.invalid_chars, undefined)
 
-    cy.addBGPConfigTemplate(bgpConfig.bgpDataShowForm[0], undefined)
+    // Validation metric field invalid Chars
+    cy.addBGPConfigTemplate(bgpConfig.bgpDataShowForm[0], undefined, metricInvalidBgp)
+
+    cy.addBGPConfigTemplate(bgpConfig.bgpDataShowForm[0], undefined, undefined)
 
     cy.wait(3000)
     cy.selectRowByName(bgpConfig.bgpDataShowForm[0].name)

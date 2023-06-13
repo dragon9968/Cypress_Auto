@@ -1,0 +1,1511 @@
+{
+  "name": "project",
+  "version": "1.0.0",
+  "collection": [
+      {
+          "created_on": "2023-03-07T20:07:11.280134",
+          "changed_on": "2023-04-20T21:39:10.704735",
+          "map_data": {
+              "logical": {
+                  "map_style": {
+                      "node": {
+                          "width": "70px",
+                          "height": "70px"
+                      },
+                      "port_group": {
+                          "size": "20px",
+                          "color": "#0000ff"
+                      },
+                      "edge": {
+                          "size": "2px",
+                          "color": "#000000"
+                      },
+                      "text": {
+                          "size": "25px",
+                          "color": "#000000"
+                      },
+                      "group_box": {
+                          "color": "#00dcff",
+                          "group_opacity": "20%",
+                          "zIndex": 997,
+                          "gbs": []
+                      },
+                      "map_background": {
+                          "zIndex": 998,
+                          "bgs": []
+                      },
+                      "grid_settings": {
+                          "enabled": true,
+                          "spacing": "100",
+                          "snap_to_grid": true
+                      },
+                      "accessed": true,
+                      "cleared": false,
+                      "default_map_pref_id": 1,
+                      "group_category": "domain",
+                      "groupbox_checkbox": true
+                  }
+              },
+              "physical": {
+                  "map_style": {
+                      "node": {
+                          "width": "70px",
+                          "height": "70px"
+                      },
+                      "port_group": {
+                          "size": "20px",
+                          "color": "#0000ff"
+                      },
+                      "edge": {
+                          "size": "2px",
+                          "color": "#000000"
+                      },
+                      "text": {
+                          "size": "25px",
+                          "color": "#000000"
+                      },
+                      "group_box": {
+                          "color": "#00dcff",
+                          "group_opacity": "20%",
+                          "zIndex": 997,
+                          "gbs": []
+                      },
+                      "map_background": {
+                          "zIndex": 998,
+                          "bgs": []
+                      },
+                      "grid_settings": {
+                          "enabled": false,
+                          "spacing": "100px",
+                          "snap": false
+                      },
+                      "accessed": false,
+                      "cleared": false,
+                      "default_map_pref_id": 1
+                  }
+              }
+          },
+          "id": 1,
+          "name": "East ISP",
+          "description": "East cluster representing part of the grayspace",
+          "lock": false,
+          "status": "active",
+          "category": "project",
+          "configuration": {
+              "build_options": {
+                  "map_data": {
+                      "logical": {
+                          "node": {
+                              "width": "70px",
+                              "height": "70px"
+                          },
+                          "port_group": {
+                              "size": "20px",
+                              "color": "#0000ff"
+                          },
+                          "edge": {
+                              "size": "2px",
+                              "color": "#000000"
+                          },
+                          "text": {
+                              "size": "25px",
+                              "color": "#000000"
+                          },
+                          "group_box": {
+                              "color": "#00dcff",
+                              "group_opacity": "20%",
+                              "zIndex": 997,
+                              "gbs": []
+                          },
+                          "map_background": {
+                              "zIndex": 998,
+                              "bgs": []
+                          },
+                          "grid_settings": {
+                              "enabled": false,
+                              "spacing": "100px",
+                              "snap": false
+                          },
+                          "accessed": false,
+                          "cleared": false,
+                          "default_map_pref_id": 1
+                      },
+                      "physical": {
+                          "node": {
+                              "width": "70px",
+                              "height": "70px"
+                          },
+                          "port_group": {
+                              "size": "20px",
+                              "color": "#0000ff"
+                          },
+                          "edge": {
+                              "size": "2px",
+                              "color": "#000000"
+                          },
+                          "text": {
+                              "size": "25px",
+                              "color": "#000000"
+                          },
+                          "group_box": {
+                              "color": "#00dcff",
+                              "group_opacity": "20%",
+                              "zIndex": 997,
+                              "gbs": []
+                          },
+                          "map_background": {
+                              "zIndex": 998,
+                              "bgs": []
+                          },
+                          "grid_settings": {
+                              "enabled": false,
+                              "spacing": "100px",
+                              "snap": false
+                          },
+                          "accessed": false,
+                          "cleared": false,
+                          "default_map_pref_id": 1
+                      }
+                  },
+                  "build_options": {
+                      "option": "simple",
+                      "target": "vmware_vcenter",
+                      "enclave_type": "simple",
+                      "enclave_number": 0,
+                      "enclave_clients": 0,
+                      "enclave_servers": 0,
+                      "enclave_users": 0
+                  },
+                  "features": [],
+                  "dashboard": {
+                      "map": true,
+                      "calendar": true,
+                      "scenario": false,
+                      "system": false
+                  },
+                  "properties": {
+                      "enclaves": 0,
+                      "switches": 1,
+                      "port_groups": {
+                          "public": 0,
+                          "private": 0
+                      },
+                      "domains": 0,
+                      "domain_users": 0,
+                      "nodes": 0
+                  },
+                  "vlan_min": 2000,
+                  "vlan_max": 2100
+              },
+              "networks": [
+                  {
+                      "category": "public",
+                      "network": "10.0.0.0/8",
+                      "reserved_ip": []
+                  },
+                  {
+                      "category": "private",
+                      "network": "192.168.0.0/16",
+                      "reserved_ip": []
+                  },
+                  {
+                      "category": "management",
+                      "network": "172.16.0.0/22",
+                      "reserved_ip": []
+                  }
+              ]
+          },
+          "created_by_fk": 1,
+          "changed_by_fk": 1,
+          "domain": [
+              {
+                  "created_on": "2023-03-10T20:28:53.611933",
+                  "changed_on": "2023-03-10T20:28:53.611933",
+                  "id": 1,
+                  "name": "default.test",
+                  "collection_id": 1,
+                  "admin_user": null,
+                  "admin_password": null,
+                  "created_by_fk": 1,
+                  "changed_by_fk": 1
+              },
+              {
+                  "created_on": "2023-03-10T20:28:53.611933",
+                  "changed_on": "2023-03-10T20:28:53.611933",
+                  "id": 3,
+                  "name": "east.test",
+                  "collection_id": 1,
+                  "admin_user": "administrator@east.test",
+                  "admin_password": "P@ssw0rd",
+                  "created_by_fk": 1,
+                  "changed_by_fk": 1
+              },
+              {
+                  "created_on": "2023-03-10T20:28:53.611933",
+                  "changed_on": "2023-03-10T20:28:53.611933",
+                  "id": 2,
+                  "name": "management.test",
+                  "collection_id": 1,
+                  "admin_user": null,
+                  "admin_password": null,
+                  "created_by_fk": 1,
+                  "changed_by_fk": 1
+              }
+          ],
+          "group": [
+              {
+                  "created_on": "2023-03-10T20:28:53.611933",
+                  "changed_on": "2023-04-20T21:39:10.622973",
+                  "map_data": {
+                      "logical": {
+                          "map_style": {
+                              "label": "group_box",
+                              "elem_category": "group",
+                              "color": "#00DCFF",
+                              "group_opacity": 0.2,
+                              "border-width": "4",
+                              "text-valign": "top",
+                              "zIndex": "997",
+                              "text_color": "#000000",
+                              "text_size": "25px",
+                              "collapsed": false
+                          },
+                          "locked": false,
+                          "position": null,
+                          "parent_id": null
+                      }
+                  },
+                  "id": 1,
+                  "name": "default.test",
+                  "category": "domain",
+                  "description": "",
+                  "collection_id": 1,
+                  "domain_id": 1,
+                  "created_by_fk": 1,
+                  "changed_by_fk": 1
+              },
+              {
+                  "created_on": "2023-03-10T20:28:53.611933",
+                  "changed_on": "2023-04-20T21:39:10.677701",
+                  "map_data": {
+                      "logical": {
+                          "map_style": {
+                              "group_id": 2,
+                              "collapsed": false,
+                              "label": "group_box",
+                              "color": "rgb(0,220,255)",
+                              "group_opacity": "0.2",
+                              "border_color": "rgb(204,204,204)",
+                              "border_style": "solid",
+                              "text_size": "25px",
+                              "text_color": "rgb(0,0,0)",
+                              "zIndex": "997",
+                              "locked": false
+                          },
+                          "locked": false,
+                          "position": null,
+                          "parent_id": null
+                      }
+                  },
+                  "id": 2,
+                  "name": "east.test",
+                  "category": "domain",
+                  "description": "",
+                  "collection_id": 1,
+                  "domain_id": 3,
+                  "created_by_fk": 1,
+                  "changed_by_fk": 1
+              }
+          ],
+          "port_group": [
+              {
+                  "created_on": "2023-04-06T06:14:12.457004",
+                  "changed_on": "2023-04-20T21:39:10.413261",
+                  "map_data": {
+                      "logical": {
+                          "map_style": {
+                              "height": "20px",
+                              "width": "20px",
+                              "text_size": "25px",
+                              "text_color": "rgb(0,0,0)",
+                              "text_bg_color": "rgb(0,0,0)",
+                              "text_bg_opacity": "0",
+                              "text_valign": "bottom",
+                              "text_halign": "center",
+                              "text-wrap": "wrap",
+                              "background-image": "none",
+                              "background-fit": "contain",
+                              "color": "rgb(0,0,255)"
+                          },
+                          "locked": false,
+                          "position": {
+                              "x": 1000,
+                              "y": 500
+                          },
+                          "parent_id": null
+                      }
+                  },
+                  "id": 49,
+                  "name": "EASTNET-2",
+                  "vlan": 2007,
+                  "collection_id": 1,
+                  "domain_id": 3,
+                  "switch_id": null,
+                  "subnet_allocation": "static_manual",
+                  "subnet": "192.168.11.0/24",
+                  "category": "private",
+                  "configuration": null,
+                  "created_by_fk": 1,
+                  "changed_by_fk": 1,
+                  "domain": "east.test",
+                  "groups": [
+                      "east.test"
+                  ]
+              },
+              {
+                  "created_on": "2023-04-06T06:19:32.218337",
+                  "changed_on": "2023-04-20T21:39:10.418367",
+                  "map_data": {
+                      "logical": {
+                          "map_style": {
+                              "height": "20px",
+                              "width": "20px",
+                              "text_size": "25px",
+                              "text_color": "rgb(0,0,0)",
+                              "text_bg_color": "rgb(0,0,0)",
+                              "text_bg_opacity": "0",
+                              "text_valign": "bottom",
+                              "text_halign": "center",
+                              "text-wrap": "wrap",
+                              "background-image": "none",
+                              "background-fit": "contain",
+                              "color": "rgb(0,0,255)"
+                          },
+                          "locked": false,
+                          "position": {
+                              "x": 800,
+                              "y": 400
+                          },
+                          "parent_id": null
+                      }
+                  },
+                  "id": 50,
+                  "name": "EASTNET-3",
+                  "vlan": 2008,
+                  "collection_id": 1,
+                  "domain_id": 1,
+                  "switch_id": null,
+                  "subnet_allocation": "static_manual",
+                  "subnet": "192.168.12.0/24",
+                  "category": "private",
+                  "configuration": null,
+                  "created_by_fk": 1,
+                  "changed_by_fk": 1,
+                  "domain": "default.test",
+                  "groups": [
+                      "east.test"
+                  ]
+              },
+              {
+                  "created_on": "2023-03-10T20:28:53.611933",
+                  "changed_on": "2023-04-20T21:39:10.265133",
+                  "map_data": {
+                      "logical": {
+                          "map_style": {
+                              "height": "20px",
+                              "width": "20px",
+                              "text_size": "25px",
+                              "text_color": "rgb(0,0,0)",
+                              "text_bg_color": "rgb(0,0,0)",
+                              "text_bg_opacity": "0",
+                              "text_valign": "bottom",
+                              "text_halign": "center",
+                              "text-wrap": "wrap",
+                              "background-image": "none",
+                              "background-fit": "contain",
+                              "color": "rgb(0,0,255)"
+                          },
+                          "locked": false,
+                          "position": {
+                              "x": 250,
+                              "y": 600
+                          }
+                      }
+                  },
+                  "id": 16,
+                  "name": "cro_net_pmk8310w",
+                  "vlan": 2006,
+                  "collection_id": 1,
+                  "domain_id": 1,
+                  "switch_id": null,
+                  "subnet_allocation": "static_manual",
+                  "subnet": "192.168.10.0/24",
+                  "category": "private",
+                  "configuration": {},
+                  "created_by_fk": 1,
+                  "changed_by_fk": 1,
+                  "domain": "default.test",
+                  "groups": [
+                      "east.test"
+                  ]
+              }
+          ],
+          "node": [
+                {
+                    "created_on": "2023-03-10T20:28:53.611933",
+                    "changed_on": "2023-04-20T21:39:09.920052",
+                    "deploy_data": {
+                        "test_uuid": {
+                            "uuid": "test_value"
+                        }
+                    },
+                    "map_data": {
+                        "logical": {
+                            "map_style": {
+                                "height": "70px",
+                                "width": "70px",
+                                "text_size": "25px",
+                                "text_color": "rgb(0,0,0)",
+                                "text_bg_color": "rgb(0,0,0)",
+                                "text_bg_opacity": "0",
+                                "text_valign": "top",
+                                "text_halign": "center",
+                                "text-wrap": "wrap",
+                                "background-image": "/static/img/uploads/76f41fb6-b78b-11ed-8f73-0242c0a80b04_sep_router_black.png",
+                                "background-fit": "contain"
+                            },
+                            "locked": false,
+                            "position": {
+                                "x": 300,
+                                "y": 200
+                            }
+                        }
+                    },
+                    "id": 3,
+                    "name": "er-3",
+                    "category": "vm",
+                    "notes": null,
+                    "parent_folder": "Grayspace",
+                    "folder": "east",
+                    "collection_id": 1,
+                    "hardware_id": null,
+                    "device_id": 5,
+                    "template_id": 15,
+                    "domain_id": 3,
+                    "role": "router",
+                    "icon_id": 3,
+                    "configuration": {
+                        "notes": "",
+                        "hostname": "e-router-3",
+                        "link_project_id": null
+                    },
+                    "default_config_id": 3,
+                    "login_profile_id": null,
+                    "created_by_fk": 1,
+                    "changed_by_fk": 1,
+                    "domain": "east.test",
+                    "interface": [],
+                    "groups": [
+                        "east.test"
+                    ],
+                    "configs": [],
+                    "template": "vyos_1.2.4-template",
+                    "icon": "Router (Black)",
+                    "device": "VyOS",
+                    "template_name": "VyOS 1.2.4",
+                    "device_name": "VyOS"
+                },
+                {
+                    "created_on": "2023-04-06T06:16:12.945974",
+                    "changed_on": "2023-04-20T21:39:10.131671",
+                    "deploy_data": {
+                        "test_uuid": {
+                            "uuid": "test_value"
+                        }
+                    },
+                    "map_data": {
+                        "logical": {
+                            "map_style": {
+                                "height": "70px",
+                                "width": "70px",
+                                "text_size": "25px",
+                                "text_color": "rgb(0,0,0)",
+                                "text_bg_color": "rgb(0,0,0)",
+                                "text_bg_opacity": "0",
+                                "text_valign": "bottom",
+                                "text_halign": "center",
+                                "text-wrap": "wrap",
+                                "background-image": "/static/img/uploads/76fc3d2c-b78b-11ed-8f73-0242c0a80b04_sep_win_server_black.png",
+                                "background-fit": "contain"
+                            },
+                            "locked": false,
+                            "position": {
+                                "x": 700,
+                                "y": 200
+                            },
+                            "parent_id": null
+                        }
+                    },
+                    "id": 38,
+                    "name": "mikroTik-device",
+                    "category": "vm",
+                    "notes": "",
+                    "parent_folder": "East ISP",
+                    "folder": "east",
+                    "domain_id": 3,
+                    "role": "router",
+                    "icon_id": 16,
+                    "configuration": {
+                        "hostname": "mikroTik-device"
+                    },
+                    "default_config_id": 24,
+                    "login_profile_id": null,
+                    "created_by_fk": 1,
+                    "changed_by_fk": 1,
+                    "domain": "east.test",
+                    "interface": [],
+                    "groups": [
+                        "east.test"
+                    ],
+                    "configs": [],
+                    "template": "mikrotik_5.26_licensed-template",
+                    "icon": "Router (Black)",
+                    "device": "MikroTik",
+                    "template_name": "MikroTik 5.26 Licensed",
+                    "device_name": "MikroTik"
+                },
+                {
+                    "created_on": "2023-04-06T06:16:12.945974",
+                    "changed_on": "2023-04-20T21:39:10.131671",
+                    "deploy_data": {
+                        "test_uuid": {
+                            "uuid": "test_value"
+                        }
+                    },
+                    "map_data": {
+                        "logical": {
+                            "map_style": {
+                                "height": "70px",
+                                "width": "70px",
+                                "text_size": "25px",
+                                "text_color": "rgb(0,0,0)",
+                                "text_bg_color": "rgb(0,0,0)",
+                                "text_bg_opacity": "0",
+                                "text_valign": "bottom",
+                                "text_halign": "center",
+                                "text-wrap": "wrap",
+                                "background-image": "/static/img/uploads/76fc3d2c-b78b-11ed-8f73-0242c0a80b04_sep_win_server_black.png",
+                                "background-fit": "contain"
+                            },
+                            "locked": false,
+                            "position": {
+                                "x": 500,
+                                "y": 200
+                            },
+                            "parent_id": null
+                        }
+                    },
+                    "id": 38,
+                    "name": "other-device",
+                    "category": "other",
+                    "notes": "",
+                    "parent_folder": "East ISP",
+                    "folder": "east",
+                    "domain_id": 3,
+                    "role": "none",
+                    "configuration": {
+                        "hostname": "other-device"
+                    },
+                    "default_config_id": 24,
+                    "login_profile_id": null,
+                    "created_by_fk": 1,
+                    "changed_by_fk": 1,
+                    "domain": "east.test",
+                    "interface": [],
+                    "groups": [
+                        "east.test"
+                    ],
+                    "configs": [],
+                    "template": "Cloud",
+                    "icon": "Cloud (Black)",
+                    "device": "Other",
+                    "template_name": "Cloud",
+                    "device_name": "Other"
+                },
+                {
+                    "created_on": "2023-03-10T20:28:53.611933",
+                    "changed_on": "2023-04-20T21:39:09.920052",
+                    "deploy_data": {
+                        "test_uuid": {
+                            "uuid": "test_value"
+                        }
+                    },
+                    "map_data": {
+                        "logical": {
+                            "map_style": {
+                                "height": "70px",
+                                "width": "70px",
+                                "text_size": "25px",
+                                "text_color": "rgb(0,0,0)",
+                                "text_bg_color": "rgb(0,0,0)",
+                                "text_bg_opacity": "0",
+                                "text_valign": "top",
+                                "text_halign": "center",
+                                "text-wrap": "wrap",
+                                "background-image": "/static/img/uploads/76f41fb6-b78b-11ed-8f73-0242c0a80b04_sep_router_black.png",
+                                "background-fit": "contain"
+                            },
+                            "locked": false,
+                            "position": {
+                                "x": 1300,
+                                "y": 400
+                            }
+                        }
+                    },
+                    "id": 3,
+                    "name": "wr-1",
+                    "category": "hw",
+                    "notes": null,
+                    "parent_folder": "Grayspace",
+                    "folder": "east",
+                    "collection_id": 1,
+                    "hardware_id": 4,
+                    "domain_id": 3,
+                    "role": "router",
+                    "icon_id": 9,
+                    "configuration": {
+                        "notes": "",
+                        "hostname": "wifi-router-1",
+                        "link_project_id": null
+                    },
+                    "default_config_id": 3,
+                    "login_profile_id": null,
+                    "created_by_fk": 1,
+                    "changed_by_fk": 1,
+                    "domain": "east.test",
+                    "interface": [],
+                    "groups": [
+                        "east.test"
+                    ],
+                    "configs": [],
+                    "template": "Generic WIFI Router",
+                    "icon": "Router (Black)",
+                    "device": "WIFI Router",
+                    "template_name": "Generic WIFI Router",
+                    "device_name": "WIFI Router"
+                },
+                {
+                    "created_on": "2023-03-10T20:28:53.611933",
+                    "changed_on": "2023-04-20T21:39:09.920052",
+                    "deploy_data": {
+                        "test_uuid": {
+                            "uuid": "test_value"
+                        }
+                    },
+                    "map_data": {
+                        "logical": {
+                            "map_style": {
+                                "height": "70px",
+                                "width": "70px",
+                                "text_size": "25px",
+                                "text_color": "rgb(0,0,0)",
+                                "text_bg_color": "rgb(0,0,0)",
+                                "text_bg_opacity": "0",
+                                "text_valign": "top",
+                                "text_halign": "center",
+                                "text-wrap": "wrap",
+                                "background-image": "/static/img/uploads/76f41fb6-b78b-11ed-8f73-0242c0a80b04_sep_router_black.png",
+                                "background-fit": "contain"
+                            },
+                            "locked": false,
+                            "position": {
+                                "x": 1500,
+                                "y": 600
+                            }
+                        }
+                    },
+                    "id": 10,
+                    "name": "wc-1",
+                    "category": "vm",
+                    "notes": null,
+                    "parent_folder": "Grayspace",
+                    "folder": "east",
+                    "domain_id": 3,
+                    "role": "windows_client",
+                    "configuration": {
+                        "notes": "",
+                        "hostname": "windows-client-1",
+                        "link_project_id": null
+                    },
+                    "default_config_id": 3,
+                    "login_profile_id": null,
+                    "created_by_fk": 1,
+                    "changed_by_fk": 1,
+                    "domain": "east.test",
+                    "interface": [],
+                    "groups": [
+                        "east.test"
+                    ],
+                    "configs": [],
+                    "template": "win10_21H2_x64-template",
+                    "icon": "Windows Client (Black)",
+                    "device": "Windows Client",
+                    "template_name": "Windows 10 21H2 x64",
+                    "device_name": "Windows Client"
+                },
+                {
+                    "created_on": "2023-03-10T20:28:53.611933",
+                    "changed_on": "2023-04-20T21:39:09.920052",
+                    "deploy_data": {
+                        "test_uuid": {
+                            "uuid": "test_value"
+                        }
+                    },
+                    "map_data": {
+                        "logical": {
+                            "map_style": {
+                                "height": "70px",
+                                "width": "70px",
+                                "text_size": "25px",
+                                "text_color": "rgb(0,0,0)",
+                                "text_bg_color": "rgb(0,0,0)",
+                                "text_bg_opacity": "0",
+                                "text_valign": "top",
+                                "text_halign": "center",
+                                "text-wrap": "wrap",
+                                "background-image": "/static/img/uploads/76f41fb6-b78b-11ed-8f73-0242c0a80b04_sep_router_black.png",
+                                "background-fit": "contain"
+                            },
+                            "locked": false,
+                            "position": {
+                                "x": 1300,
+                                "y": 600
+                            }
+                        }
+                    },
+                    "id": 3,
+                    "name": "lc-1",
+                    "category": "vm",
+                    "notes": null,
+                    "parent_folder": "Grayspace",
+                    "folder": "east",
+                    "domain_id": 3,
+                    "role": "linux_client",
+                    "configuration": {
+                        "notes": "",
+                        "hostname": "linux-client-1",
+                        "link_project_id": null
+                    },
+                    "default_config_id": 3,
+                    "login_profile_id": null,
+                    "created_by_fk": 1,
+                    "changed_by_fk": 1,
+                    "domain": "east.test",
+                    "interface": [],
+                    "groups": [
+                        "east.test"
+                    ],
+                    "configs": [],
+                    "template": "ubuntu_20.04-template",
+                    "icon": "Linux Client (Black)",
+                    "device": "Linux Client",
+                    "template_name": "Ubuntu 20.04",
+                    "device_name": "Linux Client"
+                },
+                {
+                  "created_on": "2023-04-06T06:17:11.074613",
+                  "changed_on": "2023-04-20T21:39:10.146038",
+                  "deploy_data": {
+                      "test_uuid": {
+                          "uuid": "test_value"
+                      }
+                  },
+                  "map_data": {
+                      "logical": {
+                          "map_style": {
+                              "height": "70px",
+                              "width": "70px",
+                              "text_size": "25px",
+                              "text_color": "rgb(0,0,0)",
+                              "text_bg_color": "rgb(0,0,0)",
+                              "text_bg_opacity": "0",
+                              "text_valign": "bottom",
+                              "text_halign": "center",
+                              "text-wrap": "wrap",
+                              "background-image": "/static/img/uploads/76ff0b56-b78b-11ed-8f73-0242c0a80b04_sep_server_black.png",
+                              "background-fit": "contain"
+                          },
+                          "locked": false,
+                          "position": {
+                              "x": 300,
+                              "y": 500
+                          },
+                          "parent_id": null
+                      }
+                  },
+                  "id": 39,
+                  "name": "e-dns-1",
+                  "category": "vm",
+                  "notes": "",
+                  "parent_folder": "East ISP",
+                  "folder": "east",
+                  "collection_id": 1,
+                  "hardware_id": null,
+                  "device_id": 2,
+                  "template_id": 8,
+                  "domain_id": 3,
+                  "role": "linux_server",
+                  "icon_id": 10,
+                  "configuration": {
+                      "hostname": "e-dns-1"
+                  },
+                  "default_config_id": 25,
+                  "login_profile_id": null,
+                  "created_by_fk": 1,
+                  "changed_by_fk": 1,
+                  "domain": "east.test",
+                  "interface": [
+                      {
+                          "created_on": "2023-04-06T06:17:24.469286",
+                          "changed_on": "2023-04-06T06:17:24.469297",
+                          "id": 106,
+                          "order": 2,
+                          "name": "eth1",
+                          "description": "ETH1",
+                          "category": "wired",
+                          "port_group_id": 49,
+                          "node_id": 39,
+                          "map_link_id": null,
+                          "ip_allocation": "static_auto",
+                          "ip": "192.168.11.29",
+                          "netmask_id": 17,
+                          "configuration": {
+                              "direction": "both",
+                              "dns_server": null,
+                              "gateway": false,
+                              "mac_address": null,
+                              "protocol": [],
+                              "map_data": {
+                                  "logical": {
+                                      "map_style": {
+                                          "width": "2",
+                                          "color": "#000000",
+                                          "text_size": "25",
+                                          "text_color": "#000000",
+                                          "text_halign": "center",
+                                          "text_valign": "bottom",
+                                          "text_bg_color": "#000000",
+                                          "text_bg_opacity": 0
+                                      }
+                                  },
+                                  "management": {
+                                      "map_style": {
+                                          "width": "2",
+                                          "color": "#000000",
+                                          "text_size": "25",
+                                          "text_color": "#000000",
+                                          "text_halign": "center",
+                                          "text_valign": "bottom",
+                                          "text_bg_color": "#000000",
+                                          "text_bg_opacity": 0
+                                      }
+                                  },
+                                  "version": ""
+                              }
+                          },
+                          "created_by_fk": 1,
+                          "changed_by_fk": 1,
+                          "port_group": "EASTNET-2",
+                          "node": "e-dns-1",
+                          "netmask_bit": 24
+                      }
+                  ],
+                  "groups": [
+                      "east.test"
+                  ],
+                  "configs": [],
+                  "template": "ubuntu_server_20.04-template",
+                  "icon": "Server (Black)",
+                  "device": "Linux Server",
+                  "template_name": "Ubuntu Server 22.04",
+                  "device_name": "Linux Server"
+              },
+              {
+                  "created_on": "2023-04-06T06:16:12.945974",
+                  "changed_on": "2023-04-20T21:39:10.131671",
+                  "deploy_data": {
+                      "test_uuid": {
+                          "uuid": "test_value"
+                      }
+                  },
+                  "map_data": {
+                      "logical": {
+                          "map_style": {
+                              "height": "70px",
+                              "width": "70px",
+                              "text_size": "25px",
+                              "text_color": "rgb(0,0,0)",
+                              "text_bg_color": "rgb(0,0,0)",
+                              "text_bg_opacity": "0",
+                              "text_valign": "bottom",
+                              "text_halign": "center",
+                              "text-wrap": "wrap",
+                              "background-image": "/static/img/uploads/76fc3d2c-b78b-11ed-8f73-0242c0a80b04_sep_win_server_black.png",
+                              "background-fit": "contain"
+                          },
+                          "locked": false,
+                          "position": {
+                              "x": 1100,
+                              "y": 200
+                          },
+                          "parent_id": null
+                      }
+                  },
+                  "id": 38,
+                  "name": "peripheral-device",
+                  "category": "hw",
+                  "notes": "",
+                  "parent_folder": "East ISP",
+                  "folder": "east",
+                  "domain_id": 3,
+                  "role": "none",
+                  "icon_id": 16,
+                  "configuration": {
+                      "hostname": "peripheral-device"
+                  },
+                  "default_config_id": 24,
+                  "login_profile_id": null,
+                  "created_by_fk": 1,
+                  "changed_by_fk": 1,
+                  "domain": "east.test",
+                  "interface": [
+                      {
+                          "created_on": "2023-04-06T06:16:12.961106",
+                          "changed_on": "2023-04-06T06:16:12.961115",
+                          "id": 103,
+                          "order": 1,
+                          "name": "eth0",
+                          "description": "Management",
+                          "category": "management",
+                          "port_group_id": 1,
+                          "node_id": 38,
+                          "map_link_id": null,
+                          "ip_allocation": "dhcp",
+                          "ip": null,
+                          "netmask_id": null,
+                          "configuration": {
+                              "map_data": null
+                          },
+                          "created_by_fk": 1,
+                          "changed_by_fk": 1,
+                          "port_group": "Management",
+                          "node": "peripheral-device",
+                          "netmask_bit": null
+                      },
+                      {
+                          "created_on": "2023-04-06T06:20:21.448691",
+                          "changed_on": "2023-04-06T06:20:21.448702",
+                          "id": 110,
+                          "order": 2,
+                          "name": "eth1",
+                          "description": "ETH1",
+                          "category": "wired",
+                          "port_group_id": 50,
+                          "node_id": 38,
+                          "map_link_id": null,
+                          "ip_allocation": "static_auto",
+                          "ip": "192.168.12.82",
+                          "netmask_id": 17,
+                          "configuration": {
+                              "direction": "both",
+                              "dns_server": null,
+                              "gateway": false,
+                              "mac_address": null,
+                              "protocol": [],
+                              "map_data": {
+                                  "logical": {
+                                      "map_style": {
+                                          "width": "2",
+                                          "color": "#000000",
+                                          "text_size": "25",
+                                          "text_color": "#000000",
+                                          "text_halign": "center",
+                                          "text_valign": "bottom",
+                                          "text_bg_color": "#000000",
+                                          "text_bg_opacity": 0
+                                      }
+                                  },
+                                  "management": {
+                                      "map_style": {
+                                          "width": "2",
+                                          "color": "#000000",
+                                          "text_size": "25",
+                                          "text_color": "#000000",
+                                          "text_halign": "center",
+                                          "text_valign": "bottom",
+                                          "text_bg_color": "#000000",
+                                          "text_bg_opacity": 0
+                                      }
+                                  },
+                                  "version": ""
+                              }
+                          },
+                          "created_by_fk": 1,
+                          "changed_by_fk": 1,
+                          "port_group": "EASTNET-3",
+                          "node": "peripheral-device",
+                          "netmask_bit": 24
+                      }
+                  ],
+                  "groups": [
+                      "east.test"
+                  ],
+                  "configs": [],
+                  "template": "Generic Copier",
+                  "icon": "Copier (Black)",
+                  "device": "Peripheral",
+                  "template_name": "Generic Copier",
+                  "device_name": "Peripheral"
+              },
+              {
+                  "created_on": "2023-04-06T06:16:12.945974",
+                  "changed_on": "2023-04-20T21:39:10.182772",
+                  "deploy_data": {
+                      "test_uuid": {
+                          "uuid": "test_value"
+                      }
+                  },
+                  "map_data": {
+                      "logical": {
+                          "map_style": {
+                              "height": "70px",
+                              "width": "70px",
+                              "text_size": "25px",
+                              "text_color": "rgb(0,0,0)",
+                              "text_bg_color": "rgb(0,0,0)",
+                              "text_bg_opacity": "0",
+                              "text_valign": "bottom",
+                              "text_halign": "center",
+                              "text-wrap": "wrap",
+                              "background-image": "/static/img/uploads/76fc3d2c-b78b-11ed-8f73-0242c0a80b04_sep_win_server_black.png",
+                              "background-fit": "contain"
+                          },
+                          "locked": false,
+                          "position": {
+                              "x": 900,
+                              "y": 200
+                          },
+                          "parent_id": null
+                      }
+                  },
+                  "id": 42,
+                  "name": "e-file-svr2",
+                  "category": "vm",
+                  "notes": "",
+                  "parent_folder": "East ISP",
+                  "folder": "east",
+                  "collection_id": 1,
+                  "hardware_id": null,
+                  "device_id": 7,
+                  "template_id": 18,
+                  "domain_id": 3,
+                  "role": "windows_server",
+                  "icon_id": 8,
+                  "configuration": {
+                      "hostname": "e-file-svr2",
+                      "link_project_id": null
+                  },
+                  "default_config_id": 24,
+                  "login_profile_id": null,
+                  "created_by_fk": 1,
+                  "changed_by_fk": 1,
+                  "domain": "east.test",
+                  "interface": [
+                      {
+                          "created_on": "2023-04-06T06:16:12.961106",
+                          "changed_on": "2023-04-06T06:16:12.961115",
+                          "id": 113,
+                          "order": 1,
+                          "name": "eth0",
+                          "description": "Management",
+                          "category": "management",
+                          "port_group_id": 1,
+                          "node_id": 42,
+                          "map_link_id": null,
+                          "ip_allocation": "dhcp",
+                          "ip": null,
+                          "netmask_id": null,
+                          "configuration": {
+                              "map_data": null
+                          },
+                          "created_by_fk": 1,
+                          "changed_by_fk": 1,
+                          "port_group": "Management",
+                          "node": "e-file-svr2",
+                          "netmask_bit": null
+                      },
+                      {
+                          "created_on": "2023-04-06T06:20:21.448691",
+                          "changed_on": "2023-04-06T06:21:26.526849",
+                          "id": 114,
+                          "order": 2,
+                          "name": "eth1",
+                          "description": "ETH1",
+                          "category": "wired",
+                          "port_group_id": 50,
+                          "node_id": 42,
+                          "map_link_id": null,
+                          "ip_allocation": "static_auto",
+                          "ip": "192.168.12.35",
+                          "netmask_id": 17,
+                          "configuration": {
+                              "direction": "both",
+                              "dns_server": null,
+                              "gateway": false,
+                              "mac_address": null,
+                              "protocol": [],
+                              "map_data": {
+                                  "logical": {
+                                      "map_style": {
+                                          "width": "2",
+                                          "color": "#000000",
+                                          "text_size": "25",
+                                          "text_color": "#000000",
+                                          "text_halign": "center",
+                                          "text_valign": "bottom",
+                                          "text_bg_color": "#000000",
+                                          "text_bg_opacity": 0
+                                      }
+                                  },
+                                  "management": {
+                                      "map_style": {
+                                          "width": "2",
+                                          "color": "#000000",
+                                          "text_size": "25",
+                                          "text_color": "#000000",
+                                          "text_halign": "center",
+                                          "text_valign": "bottom",
+                                          "text_bg_color": "#000000",
+                                          "text_bg_opacity": 0
+                                      }
+                                  },
+                                  "version": ""
+                              }
+                          },
+                          "created_by_fk": 1,
+                          "changed_by_fk": 1,
+                          "port_group": "EASTNET-3",
+                          "node": "e-file-svr2",
+                          "netmask_bit": 24
+                      }
+                  ],
+                  "groups": [
+                      "east.test"
+                  ],
+                  "configs": [],
+                  "template": "winsrv2016_1809-template",
+                  "icon": "Window Server (Black)",
+                  "device": "Windows Server",
+                  "template_name": "Windows Server 2019 1809",
+                  "device_name": "Windows Server"
+              },
+              {
+                  "created_on": "2023-04-06T06:16:12.945974",
+                  "changed_on": "2023-04-20T21:39:10.107837",
+                  "deploy_data": {
+                      "test_uuid": {
+                          "uuid": "test_value"
+                      }
+                  },
+                  "map_data": {
+                      "logical": {
+                          "map_style": {
+                              "height": "70px",
+                              "width": "70px",
+                              "text_size": "25px",
+                              "text_color": "rgb(0,0,0)",
+                              "text_bg_color": "rgb(0,0,0)",
+                              "text_bg_opacity": "0",
+                              "text_valign": "bottom",
+                              "text_halign": "center",
+                              "text-wrap": "wrap",
+                              "background-image": "/static/img/uploads/76fc3d2c-b78b-11ed-8f73-0242c0a80b04_sep_win_server_black.png",
+                              "background-fit": "contain"
+                          },
+                          "locked": false,
+                          "position": {
+                              "x": 1300,
+                              "y": 200
+                          },
+                          "parent_id": null
+                      }
+                  },
+                  "id": 41,
+                  "name": "pfSense-device",
+                  "category": "vm",
+                  "notes": "",
+                  "parent_folder": "East ISP",
+                  "folder": "east",
+                  "collection_id": 1,
+                  "hardware_id": null,
+                  "device_id": 9,
+                  "template_id": 22,
+                  "domain_id": 3,
+                  "role": "firewall",
+                  "icon_id": 8,
+                  "configuration": {
+                      "hostname": "pfSense-device",
+                      "link_project_id": null
+                  },
+                  "default_config_id": 24,
+                  "login_profile_id": null,
+                  "created_by_fk": 1,
+                  "changed_by_fk": 1,
+                  "domain": "east.test",
+                  "interface": [
+                      {
+                          "created_on": "2023-04-06T06:16:12.961106",
+                          "changed_on": "2023-04-06T06:16:12.961115",
+                          "id": 111,
+                          "order": 1,
+                          "name": "eth0",
+                          "description": "Management",
+                          "category": "management",
+                          "port_group_id": 1,
+                          "node_id": 41,
+                          "map_link_id": null,
+                          "ip_allocation": "dhcp",
+                          "ip": null,
+                          "netmask_id": null,
+                          "configuration": {
+                              "map_data": null
+                          },
+                          "created_by_fk": 1,
+                          "changed_by_fk": 1,
+                          "port_group": "Management",
+                          "node": "pfSense-device",
+                          "netmask_bit": null
+                      },
+                      {
+                          "created_on": "2023-04-06T06:20:21.448691",
+                          "changed_on": "2023-04-06T06:21:18.084503",
+                          "id": 112,
+                          "order": 2,
+                          "name": "eth1",
+                          "description": "ETH1",
+                          "category": "wired",
+                          "port_group_id": 50,
+                          "node_id": 41,
+                          "map_link_id": null,
+                          "ip_allocation": "static_auto",
+                          "ip": "192.168.12.50",
+                          "netmask_id": 17,
+                          "configuration": {
+                              "direction": "both",
+                              "dns_server": null,
+                              "gateway": false,
+                              "mac_address": null,
+                              "protocol": [],
+                              "map_data": {
+                                  "logical": {
+                                      "map_style": {
+                                          "width": "2",
+                                          "color": "#000000",
+                                          "text_size": "25",
+                                          "text_color": "#000000",
+                                          "text_halign": "center",
+                                          "text_valign": "bottom",
+                                          "text_bg_color": "#000000",
+                                          "text_bg_opacity": 0
+                                      }
+                                  },
+                                  "management": {
+                                      "map_style": {
+                                          "width": "2",
+                                          "color": "#000000",
+                                          "text_size": "25",
+                                          "text_color": "#000000",
+                                          "text_halign": "center",
+                                          "text_valign": "bottom",
+                                          "text_bg_color": "#000000",
+                                          "text_bg_opacity": 0
+                                      }
+                                  },
+                                  "version": ""
+                              }
+                          },
+                          "created_by_fk": 1,
+                          "changed_by_fk": 1,
+                          "port_group": "EASTNET-3",
+                          "node": "pfSense-device",
+                          "netmask_bit": 24
+                      }
+                  ],
+                  "groups": [
+                      "east.test"
+                  ],
+                  "configs": [],
+                  "template": "pfsense_2.6.0-template",
+                  "icon": "Firwall (Black)",
+                  "device": "pfSense",
+                  "template_name": "pfSense 2.6.0",
+                  "device_name": "pfSense"
+              }
+          ],
+          "map_image": [],
+          "map_link": []
+      }
+  ],
+  "config_template": [],
+  "hardware": [],
+  "image": [
+  ],
+  "device": [
+      {
+          "id": 2,
+          "name": "Linux Server",
+          "icon_id": 10,
+          "default": true,
+          "category": [
+              "Linux Server"
+          ],
+          "template": [
+              {
+                  "id": 8,
+                  "name": "ubuntu_server_20.04-template",
+                  "display_name": "Ubuntu Server 20.04",
+                  "category": "vm",
+                  "device_id": 2,
+                  "icon_id": 10,
+                  "properties": {},
+                  "login_profile_id": null,
+                  "device": "Linux Server",
+                  "login_profile": null
+              }
+          ]
+      },
+      {
+          "id": 7,
+          "name": "Windows Server",
+          "icon_id": 8,
+          "default": true,
+          "category": [
+              "Windows Server"
+          ],
+          "template": [
+              {
+                  "id": 18,
+                  "name": "winsrv2016_1809-template",
+                  "display_name": "Windows Server 2019 1809",
+                  "category": "vm",
+                  "device_id": 7,
+                  "icon_id": 8,
+                  "properties": {},
+                  "login_profile_id": null,
+                  "device": "Windows Server",
+                  "login_profile": null
+              }
+          ]
+      },
+      {
+          "id": 9,
+          "name": "pfSense",
+          "icon_id": 4,
+          "default": true,
+          "category": [
+              "Firewall"
+          ],
+          "template": [
+              {
+                  "id": 22,
+                  "name": "pfsense_2.6.0-template",
+                  "display_name": "pfSense 2.6.0",
+                  "category": "vm",
+                  "device_id": 9,
+                  "icon_id": 4,
+                  "properties": {
+                      "default_config": null
+                  },
+                  "login_profile_id": 2,
+                  "device": "pfSense",
+                  "login_profile": "pfSense Default Login"
+              }
+          ]
+      },
+      {
+          "id": 5,
+          "name": "VyOS",
+          "icon_id": 3,
+          "default": true,
+          "category": [
+              "Router",
+              "Firewall"
+          ],
+          "template": [
+              {
+                  "id": 15,
+                  "name": "vyos_1.2.4-template",
+                  "display_name": "VyOS 1.2.4",
+                  "category": "vm",
+                  "device_id": 5,
+                  "icon_id": 3,
+                  "properties": {
+                      "default_config": null
+                  },
+                  "login_profile_id": null,
+                  "device": "VyOS",
+                  "login_profile": null
+              }
+          ]
+      }
+  ],
+  "device_category": [
+      {
+          "id": 2,
+          "name": "Linux Server"
+      },
+      {
+          "id": 8,
+          "name": "Windows Server"
+      },
+      {
+          "id": 7,
+          "name": "Firewall"
+      },
+      {
+          "id": 6,
+          "name": "Router"
+      }
+  ],
+  "login_profile": [
+      {
+          "created_on": "2023-03-10T20:28:53.611933",
+          "changed_on": "2023-03-10T20:28:53.611933",
+          "id": 2,
+          "name": "pfSense Default Login",
+          "description": "Default login for pfSense device",
+          "username": "root",
+          "password": "pfsense",
+          "created_by_fk": 1,
+          "changed_by_fk": 1,
+          "category": "local",
+          "connection_type": null,
+          "extra_args": []
+      },
+      {
+          "created_on": "2023-03-10T20:28:53.611933",
+          "changed_on": "2023-05-02T15:06:51.184367",
+          "id": 1,
+          "name": "Default Maintenance Account",
+          "description": "Default account for configuration and deployment",
+          "username": "maint",
+          "password": "$ANSIBLE_VAULT;1.1;AES256\n36333065636631376661626661663435383537663638306265353438363133393436343436613834\n3863633332333536353138326465653663306235363337350a633665333131616331306462636565\n64633435616566323730386131633462343937323330373233353263616630396338363135336637\n3161306433613434360a343239353062626233613964653833653636353961376362303736393463\n3836\n",
+          "created_by_fk": 1,
+          "changed_by_fk": 1,
+          "category": "local",
+          "connection_type": null,
+          "extra_args": []
+      }
+  ],
+  "system": []
+}

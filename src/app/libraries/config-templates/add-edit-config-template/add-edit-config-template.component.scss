@@ -89,10 +89,14 @@
               &--divider {
                 padding-bottom: 15px;
               }
-              &--field {
+              &--input-field {
+                width: 100%;
+                padding-bottom: 15px;
+              }
+              &--checkboxfield {
                 width: 50%;
                 display: flex;
-                padding: 18px 0;
+                padding: 25.5px 0;
                 justify-content: space-between;
                 label {
                   font-family: 'Roboto', sans-serif;

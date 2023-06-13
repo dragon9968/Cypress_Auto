@@ -15,6 +15,8 @@ import { PageEvent } from "@angular/material/paginator";
 import { catchError } from "rxjs/operators";
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { WIDTH_DIALOG } from 'src/app/shared/contants/image.constant';
+import { PageName } from 'src/app/shared/enums/page-name.enum';
+import { ImportDialogComponent } from 'src/app/shared/components/import-dialog/import-dialog.component';
 
 @Component({
   selector: 'app-icon-gallery',
@@ -220,5 +222,17 @@ export class IconGalleryComponent implements OnInit, OnDestroy {
     const firstCut = event.pageIndex * event.pageSize;
     const secondCut = firstCut + event.pageSize;
     this.activePageDataChunk = this.listIcons.slice(firstCut, secondCut);
+  }
+
+  importIcon() {
+    const dialogData = {
+      pageName: PageName.ICON
+    }
+    this.dialog.open(ImportDialogComponent, {
+      disableClose: true,
+      autoFocus: false,
+      width: '450px',
+      data: dialogData
+    });
   }
 }

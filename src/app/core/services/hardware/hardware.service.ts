@@ -33,4 +33,8 @@ export class HardwareService {
   export(format: string, data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.HARDWARE_EXPORT + format, data);
   }
+
+  import(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.HARDWARE_IMPORT, data);
+  }
 }

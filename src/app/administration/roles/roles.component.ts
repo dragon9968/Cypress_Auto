@@ -16,6 +16,8 @@ import { AddEditRoleDialogComponent } from './add-edit-role-dialog/add-edit-role
 import { CloneRoleDialogComponent } from './clone-role-dialog/clone-role-dialog.component';
 import { ExportRoleDialogComponent } from './export-role-dialog/export-role-dialog.component';
 import { ImportRoleDialogComponent } from './import-role-dialog/import-role-dialog.component';
+import { ImportDialogComponent } from 'src/app/shared/components/import-dialog/import-dialog.component';
+import { PageName } from 'src/app/shared/enums/page-name.enum';
 
 @Component({
   selector: 'app-roles',
@@ -108,7 +110,7 @@ export class RolesComponent implements OnInit {
       }
     })
 
-    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json-info-panel.svg'));
+    iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
   }
 
   ngOnInit(): void {
@@ -225,10 +227,14 @@ export class RolesComponent implements OnInit {
   }
 
   importRoles() {
-    const dialogRef = this.dialog.open(ImportRoleDialogComponent, {
+    const dialogData = {
+      pageName: PageName.ROLES
+    }
+    this.dialog.open(ImportDialogComponent, {
       disableClose: true,
       autoFocus: false,
       width: '450px',
+      data: dialogData
     });
   }
 

@@ -184,8 +184,11 @@ export class CMActionsService {
         return throwError(() => e);
       })
     ).subscribe(response => {
-      const newNodeIds = response.result.map((ele: any) => ele.data.id);
-      newNodeIds.map((id: any) => {
+      const newNodes = response.result;
+      newNodes.map((node: any) => {
+        const id = node.data.id
+        const deviceCategory = cy.nodes(`[node_id=${node.ids}]`).data('device_category')
+        const configs = cy.nodes(`[node_id=${node.ids}]`).data('configs')
         this.nodeService.get(id).subscribe(nodeData => {
           const cyData = nodeData.result;
           cyData.id = 'node-' + id;
@@ -195,6 +198,8 @@ export class CMActionsService {
           cyData.text_color = cyData.logical_map_style.text_color;
           cyData.text_size = cyData.logical_map_style.text_size;
           cyData.elem_category = "node";
+          cyData.device_category = deviceCategory
+          cyData.configs = configs
           cyData.icon = ICON_PATH + cyData.icon.photo;
           cyData.type = cyData.role;
           cyData.zIndex = 999;

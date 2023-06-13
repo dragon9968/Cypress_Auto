@@ -38,4 +38,8 @@ export class LoginProfileService {
   exportJson(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.LOGIN_PROFILE_EXPORT_JSON, data)
   }
+
+  import(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.IMPORT_LOGIN_PROFILES, data);
+  }
 }

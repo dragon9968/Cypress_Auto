@@ -29,24 +29,13 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.version$ = this.versionService.version$;
     if (this.authService.isLoggedIn()) {
-      this.rolesService.getRolesUser().pipe(
-        catchError(err => {
-          if (err.status === 401) {
-            this.toastr.info('The session login has expired!', 'Info');
-          } else {
-            this.toastr.error('Get roles for the user failed!', 'Error');
-          }
-          return throwError(() => err);
-        })
-      ).subscribe(response => {
-        let permissions:any[] = []
-        response.roles.map((role: any) => {
-          this.ngxRolesService.addRole(role.name, role.permissions)
-          permissions.push(...role.permissions)
-        })
-        const permissionsUnique:any[] = [...new Set(permissions)];
-        this.permissionsService.loadPermissions(permissionsUnique);
-      })
+      const permissionsString = this.rolesService.getUserPermissions();
+      if (permissionsString) {
+        const permissionsObject = JSON.parse(permissionsString)
+        this.permissionsService.loadPermissions(permissionsObject);
+      } else {
+        this.toastr.error('Get roles for the user failed!', 'Error');
+      }
     }
   }
 }
