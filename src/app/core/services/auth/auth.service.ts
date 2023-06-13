@@ -9,11 +9,12 @@ import { RouteSegments } from '../../enums/route-segments.enum';
 import { ProjectService } from "../../../project/services/project.service";
 import { ServerConnectService } from "../server-connect/server-connect.service";
 import { catchError } from "rxjs/operators";
-import { throwError } from "rxjs";
+import { forkJoin, of, throwError } from "rxjs";
 import { ToastrService } from "ngx-toastr";
-import { retrievedIsConnect } from "../../../store/server-connect/server-connect.actions";
-import { retrievedVMStatus } from "../../../store/project/project.actions";
+import { retrievedIsOpen, retrievedVMStatus } from "../../../store/project/project.actions";
 import { Store } from "@ngrx/store";
+import { NgxPermissionsService, NgxRolesService } from "ngx-permissions";
+import { HelpersService } from "../helpers/helpers.service";
 
 @Injectable({
   providedIn: 'root',
@@ -26,14 +27,17 @@ export class AuthService {
     private toastr: ToastrService,
     private localStorageService: LocalStorageService,
     private projectService: ProjectService,
-    private serverConnectionService: ServerConnectService
+    private helperServices: HelpersService,
+    private serverConnectionService: ServerConnectService,
+    private ngxRolesService: NgxRolesService,
+    private ngxPermissionsService: NgxPermissionsService,
   ) {}
 
-  login(username: string, password: string) {
+  login(username: string, password: string, option: any) {
     return this.http.post<Tokens>(ApiPaths.LOGIN, {
       username: username,
       password: password,
-      provider: "db",
+      provider: option,
       refresh: true
     });
   }
@@ -58,31 +62,63 @@ export class AuthService {
     return this.localStorageService.getItem(LocalStorageKeys.REFRESH_TOKEN);
   }
 
+  updateUserId(userId: string) {
+    return this.localStorageService.setItem(LocalStorageKeys.USER_ID, userId);
+  }
+
+  getUserId(): any {
+    return this.localStorageService.getItem(LocalStorageKeys.USER_ID);
+  }
+
   isLoggedIn(): boolean {
     const accessToken = this.getAccessToken();
     return accessToken != null;
   }
 
+  isAdminRole() {
+    let roles = this.ngxRolesService.getRoles();
+    return Boolean(roles['Admin']);
+  }
+
   logout() {
-    const connection = this.serverConnectionService.getConnection();
-    if (connection) {
-      const jsonData = {
-        pk: connection.id,
-      }
-      this.serverConnectionService.disconnect(jsonData).pipe(
-        catchError(err => {
-          this.toastr.error('Could not to disconnect from Server', 'Error');
-          return throwError(() => err.error.message);
-        })).subscribe(() => {
-        this.store.dispatch(retrievedIsConnect({ data: false }));
-        this.store.dispatch(retrievedVMStatus({ vmStatus: undefined }));
-        this.toastr.info(`Disconnected from ${connection.name} server!`);
+    const connections = this.serverConnectionService.getAllConnection();
+    if (connections) {
+      forkJoin(
+        Object.values(connections).map((connection: any) => {
+          const jsonData = {
+            pk: connection.id,
+          }
+          this.serverConnectionService.disconnect(connection.category, jsonData).pipe(
+            catchError(err => {
+              this.toastr.error(`Could not to disconnect from ${connection.name} server`, 'Error');
+              return throwError(() => err.error.message);
+            }))
+          return of(connection);
+        })
+      ).subscribe(connectionsResponse => {
+        connectionsResponse.map(connection => {
+              this.helperServices.changeConnectionStatus(connection.category, false)
+              this.store.dispatch(retrievedVMStatus({ vmStatus: undefined }));
+              this.toastr.info(`Disconnected from ${connection.name} server!`, 'Info');
+        })
+        this._removeDataInLocalStorageAndPermission();
+        this.router.navigate([RouteSegments.ROOT, RouteSegments.LOGIN]);
       })
+    } else {
+      this._removeDataInLocalStorageAndPermission();
+      this.router.navigate([RouteSegments.ROOT, RouteSegments.LOGIN]);
     }
+  }
+
+  private _removeDataInLocalStorageAndPermission() {
+    this.ngxRolesService.flushRolesAndPermissions();
+    this.ngxPermissionsService.flushPermissions();
+    this.store.dispatch(retrievedIsOpen({data: false}));
     this.localStorageService.removeItem(LocalStorageKeys.ACCESS_TOKEN);
     this.localStorageService.removeItem(LocalStorageKeys.REFRESH_TOKEN);
-    this.localStorageService.removeItem(LocalStorageKeys.CONNECTION);
-    this.router.navigate([RouteSegments.ROOT, RouteSegments.LOGIN]);
+    this.localStorageService.removeItem(LocalStorageKeys.CONNECTIONS);
+    this.localStorageService.removeItem(LocalStorageKeys.USER_ID);
+    this.localStorageService.removeItem(LocalStorageKeys.PROJECT_ID);
   }
 
 }

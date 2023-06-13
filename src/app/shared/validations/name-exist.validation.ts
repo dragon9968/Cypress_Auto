@@ -11,7 +11,7 @@ export function validateNameExist(getData: () => any[], mode: string, id: any, d
       const index = data.findIndex(ele => ele.id === id);
       data.splice(index, 1);
     }
-    const isExistName = data.some((ele: any) => ele[displayColumnName] === nameValue);
+    const isExistName = data.some((ele: any) => ele[displayColumnName] === nameValue.trim());
     return isExistName ? {isExist: true} : null;
   }
 }

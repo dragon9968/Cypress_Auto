@@ -10,9 +10,9 @@ import { ToolPanelOptionComponent } from './tool-panel/tool-panel-option/tool-pa
 import { AddUpdateNodeDialogComponent } from './add-update-node-dialog/add-update-node-dialog.component';
 import { AddUpdatePGDialogComponent } from './add-update-pg-dialog/add-update-pg-dialog.component';
 import { AddUpdateInterfaceDialogComponent } from './add-update-interface-dialog/add-update-interface-dialog.component';
-import { AddUpdateNodeDeployDialogComponent } from './add-update-node-deploy-dialog/add-update-node-deploy-dialog.component';
-import { CreateNodeSnapshotDialogComponent } from './create-node-snapshot-dialog/create-node-snapshot-dialog.component';
-import { DeleteNodeSnapshotDialogComponent } from './delete-node-snapshot-dialog/delete-node-snapshot-dialog.component';
+import { AddUpdateNodeDeployDialogComponent } from './deployment-dialog/deployment-node-dialog/add-update-node-deploy-dialog/add-update-node-deploy-dialog.component';
+import { CreateNodeSnapshotDialogComponent } from './deployment-dialog/deployment-node-dialog/create-node-snapshot-dialog/create-node-snapshot-dialog.component';
+import { DeleteNodeSnapshotDialogComponent } from './deployment-dialog/deployment-node-dialog/delete-node-snapshot-dialog/delete-node-snapshot-dialog.component';
 import { InfoPanelNodeComponent } from './info-panel/info-panel-node/info-panel-node.component';
 import { InfoPanelPortGroupComponent } from './info-panel/info-panel-port-group/info-panel-port-group.component';
 import { InfoPanelInterfaceComponent } from './info-panel/info-panel-interface/info-panel-interface.component';
@@ -29,15 +29,17 @@ import { DomainBulkEditDialogComponent } from './bulk-edit-dialog/domain-bulk-ed
 import { AddDomainUserDialogComponent } from './info-panel/info-panel-domain/add-domain-user-dialog/add-domain-user-dialog.component';
 import { InfoPanelTaskComponent } from './info-panel/info-panel-task/info-panel-task.component';
 import { ShowUserTaskDialogComponent } from './info-panel/info-panel-task/show-user-task-dialog/show-user-task-dialog.component';
-import { RevertNodeSnapshotDialogComponent } from './revert-node-snapshot-dialog/revert-node-snapshot-dialog.component';
-import { DeleteNodeDeployDialogComponent } from './delete-node-deploy-dialog/delete-node-deploy-dialog.component';
+import { RevertNodeSnapshotDialogComponent } from './deployment-dialog/deployment-node-dialog/revert-node-snapshot-dialog/revert-node-snapshot-dialog.component';
+import { DeleteNodeDeployDialogComponent } from './deployment-dialog/deployment-node-dialog/delete-node-deploy-dialog/delete-node-deploy-dialog.component';
 import { DomainUserDialogComponent } from './info-panel/info-panel-domain/domain-user-dialog/domain-user-dialog.component';
 import { UpdateDomainUserDialogComponent } from './info-panel/info-panel-domain/update-domain-user-dialog/update-domain-user-dialog.component';
-import { AddDeletePGDeployDialogComponent } from './add-delete-pg-deploy-dialog/add-delete-pg-deploy-dialog.component';
-import { UpdateFactsNodeDialogComponent } from './update-facts-node-dialog/update-facts-node-dialog.component';
-import { InfoPanelShowValidationNodesComponent } from './info-panel/info-panel-show-validation-nodes/info-panel-show-validation-nodes.component';
+import { AddDeletePGDeployDialogComponent } from './deployment-dialog/deployment-pg-dialog/add-delete-pg-deploy-dialog/add-delete-pg-deploy-dialog.component';
+import { UpdateFactsNodeDialogComponent } from './deployment-dialog/deployment-node-dialog/update-facts-node-dialog/update-facts-node-dialog.component';
 import { InfoPanelPortGroupManagementComponent } from './info-panel/info-panel-port-group-management/info-panel-port-group-management.component';
 import { InfoPanelInterfaceManagementComponent } from './info-panel/info-panel-interface-management/info-panel-interface-management.component';
+import { NodeToolsDialogComponent } from './deployment-dialog/deployment-node-dialog/node-tools-dialog/node-tools-dialog.component';
+import { ConnectInterfaceToPgDialogComponent } from './context-menu/cm-dialog/connect-interface-to-pg-dialog/connect-interface-to-pg-dialog.component';
+import { ViewUpdateProjectNodeComponent } from './context-menu/cm-dialog/view-update-project-node/view-update-project-node.component';
 
 
 @NgModule({
@@ -76,9 +78,11 @@ import { InfoPanelInterfaceManagementComponent } from './info-panel/info-panel-i
     UpdateDomainUserDialogComponent,
     AddDeletePGDeployDialogComponent,
     UpdateFactsNodeDialogComponent,
-    InfoPanelShowValidationNodesComponent,
     InfoPanelPortGroupManagementComponent,
-    InfoPanelInterfaceManagementComponent
+    InfoPanelInterfaceManagementComponent,
+    NodeToolsDialogComponent,
+    ConnectInterfaceToPgDialogComponent,
+    ViewUpdateProjectNodeComponent,
   ],
   imports: [
     MapRoutingModule,

@@ -3,19 +3,18 @@ import { MatDialog } from "@angular/material/dialog";
 import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
 import { MatIconRegistry } from "@angular/material/icon";
-import { ActivatedRoute, Params } from "@angular/router";
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Observable, of, Subscription, throwError } from "rxjs";
-import { GridApi, GridOptions, GridReadyEvent, RowDoubleClickedEvent } from "ag-grid-community";
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Subscription, throwError } from "rxjs";
+import { GridOptions, RowDoubleClickedEvent } from "ag-grid-community";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
+import { ProjectService } from "../../../project/services/project.service";
 import { PortGroupService } from "../../../core/services/portgroup/portgroup.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
-import { retrievedMapSelection } from "../../../store/map-selection/map-selection.actions";
 import { selectPortGroupsManagement } from "../../../store/portgroup/portgroup.selectors";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { AddUpdatePGDialogComponent } from "../../add-update-pg-dialog/add-update-pg-dialog.component";
-import { PortGroupBulkEditDialogComponent } from "../../bulk-edit-dialog/port-group-bulk-edit-dialog/port-group-bulk-edit-dialog.component";
 import { retrievedPortGroupsManagement } from "../../../store/portgroup/portgroup.actions";
+import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
 
 @Component({
   selector: 'app-info-panel-port-group-management',
@@ -23,6 +22,7 @@ import { retrievedPortGroupsManagement } from "../../../store/portgroup/portgrou
   styleUrls: ['./info-panel-port-group-management.component.scss']
 })
 export class InfoPanelPortGroupManagementComponent implements OnInit, OnDestroy {
+  @ViewChild(InfoPanelTableComponent) infoPanelTableComponent: InfoPanelTableComponent | undefined;
 
   @Input() cy: any;
   @Input() activeNodes: any[] = [];
@@ -32,58 +32,11 @@ export class InfoPanelPortGroupManagementComponent implements OnInit, OnDestroy 
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterfaces: any[] = [];
   @Input() infoPanelheight = '300px';
-  private gridApi!: GridApi;
-  rowData$!: Observable<any[]>;
-  rowsSelected: any[] = [];
-  rowsSelectedId: any[] = [];
-  isClickAction = false;
   tabName = 'portGroupManagement';
-  collectionId = '0';
-  selectMapSelection$ = new Subscription();
+  projectId = '0';
   selectPortGroupsManagement = new Subscription();
   portGroupsManagement: any[] = [];
-
-  constructor(
-    private store: Store,
-    private dialog: MatDialog,
-    private toastr: ToastrService,
-    private route: ActivatedRoute,
-    private iconRegistry: MatIconRegistry,
-    private helpers: HelpersService,
-    private portGroupService: PortGroupService,
-    private infoPanelService: InfoPanelService
-  ) {
-    this.iconRegistry.addSvgIcon('randomize-subnet', this.helpers.setIconPath('/assets/icons/randomize-subnet.svg'));
-    this.selectPortGroupsManagement = this.store.select(selectPortGroupsManagement).subscribe(pgsManagement => {
-      if (pgsManagement) {
-        this.portGroupsManagement = pgsManagement;
-        if (this.gridApi) {
-          this.gridApi.setRowData(pgsManagement);
-        } else {
-          this.rowData$ = of(pgsManagement);
-        }
-      }
-      this._setRowActive();
-    })
-  }
-
-  get gridHeight() {
-    const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
-    return infoPanelHeightNumber >= 300 ? (infoPanelHeightNumber - 100) + 'px' : '200px';
-  }
-
-  ngOnInit(): void {
-    this.route.queryParams.subscribe((params: Params) => {
-      this.collectionId = params['collection_id'];
-    })
-  }
-
-  ngOnDestroy(): void {
-    this.selectMapSelection$.unsubscribe();
-    this.selectPortGroupsManagement.unsubscribe();
-  }
-
-  public gridOptions: GridOptions = {
+  gridOptions: GridOptions = {
     headerHeight: 48,
     defaultColDef: {
       sortable: true,
@@ -143,42 +96,65 @@ export class InfoPanelPortGroupManagementComponent implements OnInit, OnDestroy 
         field: 'interfaces',
         minWidth: 300,
         flex: 1,
-        cellRenderer: (param: any) => param.value,
+        cellRenderer: (param: any) => {
+          let html_str = "<ul>";
+          param.value?.forEach((i: any) => {
+            const item_html = `<li>${i.value}</li>`
+            html_str += item_html
+          });
+          html_str += "</ul>"
+          return html_str != '<ul></ul>' ? html_str : '';
+        },
         cellClass: 'row-interface',
         autoHeight: true
       }
     ]
   };
 
-  onGridReady(params: GridReadyEvent) {
-    this.gridApi = params.api;
-  }
-
   onRowDoubleClicked(row: RowDoubleClickedEvent) {
     const dialogData = {
       mode: 'view',
       genData: row.data,
+      cy: this.cy,
     }
-    this.dialog.open(AddUpdatePGDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
+    this.dialog.open(AddUpdatePGDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
   }
 
-  private _setRowActive() {
-    if (this.rowsSelected.length > 0 && this.gridApi) {
-      this.gridApi.forEachNode(rowNode => {
-        if(this.rowsSelectedId.includes(rowNode.data.pg_id)) {
-          rowNode.setSelected(true);
-        }
-      })
-    }
+  constructor(
+    private store: Store,
+    private dialog: MatDialog,
+    private toastr: ToastrService,
+    private iconRegistry: MatIconRegistry,
+    private helpers: HelpersService,
+    private projectService: ProjectService,
+    private portGroupService: PortGroupService,
+    private infoPanelService: InfoPanelService
+  ) {
+    this.iconRegistry.addSvgIcon('randomize-subnet', this.helpers.setIconPath('/assets/icons/randomize-subnet.svg'));
+    this.selectPortGroupsManagement = this.store.select(selectPortGroupsManagement).subscribe(pgsManagement => {
+      if (pgsManagement) {
+        this.portGroupsManagement = pgsManagement;
+        this.infoPanelTableComponent?.setRowData(pgsManagement);
+        this.infoPanelTableComponent?.setRowActive(this.infoPanelTableComponent?.rowsSelectedId);
+      }
+    })
   }
 
-  selectedRows() {
-    this.rowsSelected = this.gridApi.getSelectedRows();
-    this.rowsSelectedId = this.rowsSelected.map(ele => ele.pg_id);
+  get gridHeight() {
+    const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
+    return infoPanelHeightNumber >= 300 ? (infoPanelHeightNumber - 100) + 'px' : '200px';
+  }
+
+  ngOnInit(): void {
+    this.projectId = this.projectService.getProjectId();
+  }
+
+  ngOnDestroy(): void {
+    this.selectPortGroupsManagement.unsubscribe();
   }
 
   deletePortGroup() {
-    if (this.rowsSelected.length === 0) {
+    if (this.infoPanelTableComponent?.rowsSelected.length === 0) {
       this.toastr.info('No row selected');
     } else {
       const dialogData = {
@@ -186,12 +162,12 @@ export class InfoPanelPortGroupManagementComponent implements OnInit, OnDestroy 
         message: 'Delete port_group(s) from this switch?',
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '500px', data: dialogData });
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '500px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
           const newPGsManagement = [...this.portGroupsManagement];
           this.portGroupsManagement.map(portGroup => {
-            if (this.rowsSelectedId.includes(portGroup.pg_id)) {
+            if (this.infoPanelTableComponent?.rowsSelectedId.includes(portGroup.pg_id)) {
               this.deletedNodes.push({
                 'elem_category': 'port_group',
                 'label': portGroup.label,
@@ -202,44 +178,22 @@ export class InfoPanelPortGroupManagementComponent implements OnInit, OnDestroy 
             }
           })
           this.clearRow();
-          this.store.dispatch(retrievedPortGroupsManagement({data: newPGsManagement}))
+          this.store.dispatch(retrievedPortGroupsManagement({ data: newPGsManagement }))
         }
       })
     }
   }
 
   editPortGroup() {
-    if (this.rowsSelected.length === 0) {
-      this.toastr.info('No row selected');
-    } else {
-      if (this.rowsSelectedId.length === 1) {
-        const dialogData = {
-          mode: 'update',
-          genData: this.rowsSelected[0],
-          cy: this.cy,
-          tabName: this.tabName
-        }
-        this.dialog.open(AddUpdatePGDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-      } else {
-        const dialogData = {
-          genData: {
-            ids: this.rowsSelectedId,
-            activePGs: this.rowsSelected
-          },
-          cy: this.cy,
-          tabName: this.tabName
-        }
-        this.dialog.open(PortGroupBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-      }
-    }
+    this.infoPanelTableComponent?.edit();
   }
 
   exportPortGroup(format: string) {
-    if (this.rowsSelected.length == 0) {
+    if (this.infoPanelTableComponent?.rowsSelected.length == 0) {
       this.toastr.info('No row selected');
     } else {
       const jsonData = {
-        pks: this.rowsSelectedId,
+        pks: this.infoPanelTableComponent?.rowsSelectedId,
         format: format
       }
       let file = new Blob();
@@ -249,9 +203,7 @@ export class InfoPanelPortGroupManagementComponent implements OnInit, OnDestroy 
           return throwError(() => e);
         })
       ).subscribe(response => {
-        if (format == 'csv') {
-          file = new Blob([response.data], { type: 'application/json' });
-        } else if (format == 'json') {
+        if (format == 'json') {
           file = new Blob([response.data], { type: 'text/csv;charset=utf-8;' })
         }
         const fileName = response.filename;
@@ -262,22 +214,22 @@ export class InfoPanelPortGroupManagementComponent implements OnInit, OnDestroy 
   }
 
   randomizeSubnet() {
-    if (this.rowsSelected.length == 0) {
+    if (this.infoPanelTableComponent?.rowsSelected.length == 0) {
       this.toastr.info('No row selected');
     } else {
-      const item = this.rowsSelectedId.length === 1 ? 'this' : 'those';
-      const sSuffix = this.rowsSelectedId.length === 1 ? '' : 's';
+      const item = this.infoPanelTableComponent?.rowsSelectedId.length === 1 ? 'this' : 'these';
+      const sSuffix = this.infoPanelTableComponent?.rowsSelectedId.length === 1 ? '' : 's';
       const dialogData = {
         title: 'User confirmation needed',
         message: `Generate a new randomize subnet for ${item} port_group${sSuffix}?`,
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '500px', data: dialogData });
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '500px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
           const jsonData = {
-            pks: this.rowsSelectedId,
-            collection_id: this.collectionId
+            pks: this.infoPanelTableComponent?.rowsSelectedId,
+            project_id: this.projectId
           }
           this.portGroupService.randomizeSubnetBulk(jsonData).pipe(
             catchError((e: any) => {
@@ -287,7 +239,7 @@ export class InfoPanelPortGroupManagementComponent implements OnInit, OnDestroy 
           ).subscribe(response => {
             this.toastr.success(response.message);
             const newPGsManagement = this.infoPanelService.getNewPortGroupsManagement(response.result);
-            this.infoPanelService.updateInterfaceIPBasedOnPGId(this.rowsSelectedId);
+            this.infoPanelService.updateInterfaceIPBasedOnPGId(this.infoPanelTableComponent?.rowsSelectedId);
             this.store.dispatch(retrievedPortGroupsManagement({ data: newPGsManagement }));
           })
         }
@@ -296,23 +248,10 @@ export class InfoPanelPortGroupManagementComponent implements OnInit, OnDestroy 
   }
 
   validatePortGroup() {
-    if (this.rowsSelected.length == 0) {
-      this.toastr.info('No row selected');
-    } else {
-      this.portGroupService.validate({ pks: this.rowsSelectedId }).pipe(
-        catchError((e: any) => {
-          this.toastr.error(e.error.message);
-          return throwError(() => e);
-        })
-      ).subscribe(response => {
-        this.toastr.success(response.message);
-      })
-    }
+    this.infoPanelTableComponent?.validate();
   }
 
   clearRow() {
-    this.rowsSelected = [];
-    this.rowsSelectedId = [];
-    this.gridApi.deselectAll();
+    this.infoPanelTableComponent?.deselectAll();
   }
 }

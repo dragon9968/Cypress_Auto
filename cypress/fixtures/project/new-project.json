@@ -1,0 +1,31 @@
+{
+  "name": "E2E - New project 21",
+  "description": "Create new project by the e2e testing",
+  "category": "project",
+  "target": "VMWare vCenter",
+  "option": "random",
+  "layout_only": false,
+  "enclave_number": 1,
+  "enclave_clients": 3,
+  "enclave_servers": 2,
+  "enclave_users": 5,
+  "vlan_min": 2000,
+  "vlan_max": 2100,
+  "networks": [
+    {
+      "network": "10.0.0.0/8",
+      "category": "public",
+      "reserved_ip": ""
+    },
+    {
+      "network": "192.168.0.0/16",
+      "category": "private",
+      "reserved_ip": ""
+    },
+    {
+      "network": "172.16.0.0/22",
+      "category": "management",
+      "reserved_ip": ""
+    }
+  ]
+}

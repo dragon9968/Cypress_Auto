@@ -1,0 +1,20 @@
+.field {
+  width: 100%;
+}
+
+.sub-title {
+  padding-top: 10px;
+  font-weight: 600;
+  font-family: 'Roboto', sans-serif;
+}
+
+mat-divider {
+  padding-bottom: 15px;
+}
+
+::ng-deep div[data-lastpass-icon-root] {
+  display: none;
+}
+::ng-deep div.css-1obar3y {
+  display: none!important;
+}

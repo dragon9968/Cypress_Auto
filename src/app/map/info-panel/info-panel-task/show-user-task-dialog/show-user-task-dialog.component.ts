@@ -1,18 +1,19 @@
 import { ToastrService } from "ngx-toastr";
 import { FormGroup , FormControl} from "@angular/forms";
-import { Component, Inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { UserTaskService } from "../../../../core/services/user-task/user-task.service";
 import { InfoPanelService } from "../../../../core/services/info-panel/info-panel.service";
 import { ConfirmationDialogComponent } from "../../../../shared/components/confirmation-dialog/confirmation-dialog.component";
+import { AceEditorComponent } from "ng2-ace-editor";
 
 @Component({
   selector: 'app-show-user-task-dialog',
   templateUrl: './show-user-task-dialog.component.html',
   styleUrls: ['./show-user-task-dialog.component.scss']
 })
-export class ShowUserTaskDialogComponent implements OnInit {
-
+export class ShowUserTaskDialogComponent implements OnInit, AfterViewInit {
+  @ViewChild("editor") editor!: AceEditorComponent;
   showUserTaskForm: FormGroup;
   textareaRows = 1;
 
@@ -52,9 +53,6 @@ export class ShowUserTaskDialogComponent implements OnInit {
     this.taskIdCtr?.setValue(this.data.genData.task_id);
     this.displayNameCtr?.setValue(this.data.genData.display_name);
     this.taskResultCtr?.setValue(this.data.genData.task_result);
-    if (this.data.genData.task_result) {
-      this.textareaRows = 10;
-    }
     if (this.data.genData.start_time) {
       this.startTimeCtr?.setValue(this.data.genData.start_time.replace('T', ' '));
     } else {
@@ -67,7 +65,23 @@ export class ShowUserTaskDialogComponent implements OnInit {
     }
     this.revokedCtr?.setValue(this.data.genData.revoked);
     this.taskStateCtr?.setValue(this.data.genData.task_state);
+    if (this.data.genData.task_metadata) {
+      this.textareaRows = 6;
+    }
     this.taskMetadataCtr?.setValue(JSON.stringify(this.data.genData.task_metadata));
+  }
+
+  ngAfterViewInit(): void {
+    this.editor.getEditor().setOptions({
+      tabSize: 2,
+      useWorker: false,
+      fontSize: '12px'
+    });
+    this.editor.mode = 'text';
+    this.editor.setTheme('textmate');
+    this.editor.value = this.data.genData.task_result;
+    this.editor.getEditor().setShowPrintMargin(false);
+    this.editor.setReadOnly(true);
   }
 
   postTask() {
@@ -76,7 +90,7 @@ export class ShowUserTaskDialogComponent implements OnInit {
       message: 'Rerun post task?',
       submitButtonName: 'OK'
     }
-    const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
+    const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {disableClose: true, width: '450px', data: dialogData});
     dialogConfirm.afterClosed().subscribe(confirm => {
       if (confirm) {
         this.infoPanelService.postTask([this.data.genData.id]);
@@ -91,7 +105,7 @@ export class ShowUserTaskDialogComponent implements OnInit {
       message: 'Rerun this task?',
       submitButtonName: 'OK'
     }
-    const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
+    const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {disableClose: true, width: '450px', data: dialogData});
     dialogConfirm.afterClosed().subscribe(confirm => {
       if (confirm) {
         this.infoPanelService.rerunTask([this.data.genData.id]);
@@ -106,7 +120,7 @@ export class ShowUserTaskDialogComponent implements OnInit {
       message: 'Revoke this task?',
       submitButtonName: 'OK'
     }
-    const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
+    const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {disableClose: true, width: '450px', data: dialogData});
     dialogConfirm.afterClosed().subscribe(confirm => {
       if (confirm) {
         this.infoPanelService.revokeTask([this.data.genData.id]);

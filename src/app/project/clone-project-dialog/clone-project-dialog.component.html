@@ -1,0 +1,29 @@
+<form [formGroup]="cloneForm" (ngSubmit)="cloneProject()" autocomplete="off">
+  <h1 mat-dialog-title>{{ data.category === 'project' ? 'Clone Project' : 'Clone Project Template' }}</h1>
+  <div mat-dialog-content>
+    <mat-form-field class="field">
+      <mat-label>Name</mat-label>
+      <input autocomplete="off" id="clone-project-name" type="text" formControlName="nameCtr" matInput>
+      <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="nameCtr?.errors?.minlength || nameCtr?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH_50 }}</mat-error>
+      <mat-error *ngIf="nameCtr?.errors?.isExist">{{ errorMessages.NAME_EXISTS }}</mat-error>
+    </mat-form-field>
+    <div class="form-option">
+      <section class="build-option">
+        <div class="lable-option">
+          <label>Option:</label>
+        </div>
+        <mat-radio-group class="content-option" color="primary" formControlName="categoryCtr">
+          <mat-radio-button class="margin-button" value="project">Project</mat-radio-button>
+          <mat-radio-button class="margin-button" value="template">Template</mat-radio-button>
+        </mat-radio-group>
+      </section>
+    </div>
+  </div>
+  <div mat-dialog-actions [align]="'end'" class="create-btn">
+    <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+    <button mat-raised-button type="submit" color="primary" [disabled]="cloneForm.invalid">
+      Clone
+    </button>
+  </div>
+</form>

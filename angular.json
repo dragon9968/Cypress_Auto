@@ -31,11 +31,16 @@
               "src/styles.scss"
             ],
             "scripts": [
-            ],  
+              "node_modules/ace-builds/src-min/ace.js",
+              "node_modules/ace-builds/src-min/mode-json.js",
+              "node_modules/ace-builds/src-min/mode-html.js",
+              "node_modules/ace-builds/src-min/theme-textmate.js"
+            ],
             "allowedCommonJsDependencies": [
-              "cytoscape", 
+              "cytoscape",
               "src/app/shared/validations/ip-subnet.validation.ag-grid",
-              "src/app/shared/validations/ip-subnet.validation"
+              "src/app/shared/validations/ip-subnet.validation",
+              "src/app/shared/validations/networks.validation"
             ]
           },
           "configurations": {
@@ -104,8 +109,7 @@
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": [
-            ]
+            "scripts": []
           }
         },
         "lint": {
@@ -147,6 +151,20 @@
               "devServerTarget": "keromatsu-angular:serve:production"
             }
           }
+        },
+        "ct": {
+          "builder": "@cypress/schematic:cypress",
+          "options": {
+            "devServerTarget": "keromatsu-angular:serve",
+            "watch": true,
+            "headless": false,
+            "testingType": "component"
+          },
+          "configurations": {
+            "development": {
+              "devServerTarget": "keromatsu-angular:serve:development"
+            }
+          }
         }
       }
     }
@@ -154,7 +172,9 @@
   "cli": {
     "analytics": false,
     "schematicCollections": [
-      "@angular-eslint/schematics"
+      "@cypress/schematic",
+      "@angular-eslint/schematics",
+      "@schematics/angular"
     ]
   }
 }

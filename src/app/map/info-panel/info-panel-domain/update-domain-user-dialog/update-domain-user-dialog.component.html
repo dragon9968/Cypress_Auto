@@ -15,16 +15,16 @@
       <mat-label>Firstname</mat-label>
       <input type="text" matInput formControlName="firstnameCtr" placeholder="Firstname" [readonly]="isViewMode">
       <mat-error *ngIf="firstnameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-      <mat-error *ngIf="firstnameCtr?.errors?.minlength">{{ errorMessages.RANGE_LENGTH }}</mat-error>
-      <mat-error *ngIf="firstnameCtr?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH }}</mat-error>
+      <mat-error *ngIf="firstnameCtr?.errors?.minlength">{{ errorMessages.RANGE_LENGTH_2_TO_20 }}</mat-error>
+      <mat-error *ngIf="firstnameCtr?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH_2_TO_20 }}</mat-error>
       <mat-error *ngIf="firstnameCtr?.errors?.pattern">{{ errorMessages.FIELD_IS_ALPHABET }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Lastname</mat-label>
       <input type="text" matInput formControlName="lastnameCtr" placeholder="Lastname" [readonly]="isViewMode">
       <mat-error *ngIf="lastnameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-      <mat-error *ngIf="lastnameCtr?.errors?.minlength">{{ errorMessages.RANGE_LENGTH }}</mat-error>
-      <mat-error *ngIf="lastnameCtr?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH }}</mat-error>
+      <mat-error *ngIf="lastnameCtr?.errors?.minlength">{{ errorMessages.RANGE_LENGTH_2_TO_20 }}</mat-error>
+      <mat-error *ngIf="lastnameCtr?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH_2_TO_20 }}</mat-error>
       <mat-error *ngIf="lastnameCtr?.errors?.pattern">{{ errorMessages.FIELD_IS_ALPHABET }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">

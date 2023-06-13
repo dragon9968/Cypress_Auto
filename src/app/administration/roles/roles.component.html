@@ -1,0 +1,53 @@
+<mat-card class="table">
+  <mat-card-title class="table__title">List Roles</mat-card-title>
+  <div class="table__nav">
+    <div class="table__nav--actions">
+      <ng-template [ngxPermissionsOnly]="['can_write on Security']">
+        <button mat-mini-fab color="primary" matTooltip="Add" (click)="addRoles()">
+          <mat-icon>add</mat-icon>
+        </button>
+        <button mat-mini-fab color="primary" matTooltip="Edit" (click)="editRoles()">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteRoles()">
+          <mat-icon>delete</mat-icon>
+        </button>
+        <button mat-mini-fab color="primary" matTooltip="Import" (click)="importRoles()">
+          <mat-icon>add_circle_outline</mat-icon>
+        </button>
+        <button mat-mini-fab color="primary" matTooltip="Clone" (click)="cloneRoles()">
+          <mat-icon>file_copy</mat-icon>
+        </button>
+        <button mat-mini-fab color="primary" matTooltip="Export As Json" (click)="exportRoles()">
+          <mat-icon svgIcon="export-json"></mat-icon>
+        </button>
+      </ng-template>
+    </div>
+    <div class="table__nav--search">
+      <input
+        name="rolessearch" id="search-roles"
+        matInput
+        type="search"
+        [(ngModel)]="quickFilterValue"
+        placeholder="Search..."
+        (input)="onQuickFilterInput($event)"
+      >
+    </div>
+  </div>
+  <mat-card-content class="table__content">
+    <ag-grid-angular
+      class="ag-theme-alpine"
+      [pagination]="true"
+      [paginationPageSize]="25"
+      [columnDefs]="columnDefs"
+      [defaultColDef]="defaultColDef"
+      [rowData]="rowData$ | async"
+      [rowSelection]="'multiple'"
+      [suppressRowClickSelection]="true"
+      [animateRows]="true"
+      (rowSelected)="selectedRows()"
+      (gridReady)="onGridReady($event)"
+    >
+    </ag-grid-angular>
+  </mat-card-content>
+</mat-card>

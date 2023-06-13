@@ -1,10 +1,53 @@
 <div class="home-container">
   <mat-card class="home-content">
-    <mat-card-title><span>C</span>yber <span>R</span>ange <span>O</span>rchestrator</mat-card-title>
-    <mat-card-subtitle>Create or open a project to start.</mat-card-subtitle>
-    <mat-card-content>
-      <button mat-raised-button color="primary" [routerLink]="routeSegments.PROJECTS + '/add' "><p>Create a<br>Project</p></button>
-      <button mat-raised-button color="primary" [routerLink]="routeSegments.PROJECTS">Open a<br>Project</button>
-    </mat-card-content>
+    <mat-card-title>Get Started</mat-card-title>
+    <ng-template [ngxPermissionsOnly]="['can_read on Project', 'can_write on Project']">
+      <!-- <mat-card-subtitle>Create or open a project to start.</mat-card-subtitle> -->
+      <mat-card-content>
+        <section class="btn-areas">
+          <ng-template [ngxPermissionsOnly]="['can_write on Project']">
+            <ng-template [ngxPermissionsOnly]="['can_read on Settings']">
+              <button data-cy="btn-create-new" mat-mini-fab color="primary" matTooltip="Create new project" [routerLink]="routeSegments.PROJECTS + '/add' "><mat-icon>add</mat-icon></button>
+            </ng-template>
+          </ng-template>
+          <ng-template [ngxPermissionsOnly]="['can_read on Project']">
+            <button data-cy="btn-open-project" mat-mini-fab color="primary" matTooltip="Open projects" [routerLink]="routeSegments.PROJECTS"><i class="fa fa-folder-open" aria-hidden="true"></i></button>
+          </ng-template>
+          <ng-template [ngxPermissionsOnly]="['can_write on Project']">
+            <ng-template [ngxPermissionsOnly]="['can_read on Project']">
+              <button mat-mini-fab color="primary" matTooltip="Import Project" (click)="importProject()"><i class="fa fa-upload"></i></button>
+            </ng-template>
+          </ng-template>
+          <p>Create a new, open or import a project to get started.</p>
+        </section>
+
+        <section class="recent-project" *ngIf="recentProjects.length >= 1">
+          <mat-divider></mat-divider>
+          <h3 class="recent-project__title">Open Recent</h3>
+          <mat-list class="recent-project__list" *ngFor="let project of recentProjects">
+            <mat-list-item class="recent-project-item">
+              <mat-icon mat-list-icon>folder</mat-icon>
+              <h4 mat-line class="recent-project-item__title" (click)="openProject(project.id)">{{ project.name }}</h4>
+              <p mat-line class="recent-project-item__subtitle">{{ project.description }}</p>
+            </mat-list-item>
+          </mat-list>
+          <!-- <ul class="recent-project__list" *ngFor="let project of recentProjects">
+            <li class="recent-project-item">
+              <div>
+                <div class="recent-project-item__icon">
+                  <mat-icon>folder</mat-icon>
+                </div>
+                <div>
+                  <h4 class="recent-project-item__title" (click)="openProject(project.id)">{{ project.name }}</h4>
+                  <h5 *ngIf="project.description" class="recent-project-item__desc">Description</h5>
+                  <p class="recent-project-item__subtitle">{{ project.description }}</p>
+                </div>
+              </div>
+            </li>
+          </ul> -->
+          <!-- <p class="no-recent-project" *ngIf="recentProjects.length === 0">You've not opened any projects!</p> -->
+        </section>
+      </mat-card-content>
+    </ng-template>
   </mat-card>
-</div> 
+</div>

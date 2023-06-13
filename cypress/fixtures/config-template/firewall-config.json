@@ -1,0 +1,30 @@
+{
+  "name": "Firewall Rules Template",
+  "description": "Template for default outbound and inbound rules",
+  "firewall_rule": [
+    {
+      "action": "pass",
+      "category": "rule",
+      "destination": "any",
+      "destination_port": "any",
+      "interface": "",
+      "name": "Outbound",
+      "protocol": "any",
+      "source": "any",
+      "source_port": "Any",
+      "state": "present"
+    },
+    {
+      "action": "block",
+      "category": "rule",
+      "destination": "any",
+      "destination_port": "any",
+      "interface": "",
+      "name": "Inbound",
+      "protocol": "any",
+      "source": "any",
+      "source_port": "Any",
+      "state": "present"
+    }
+  ]
+}

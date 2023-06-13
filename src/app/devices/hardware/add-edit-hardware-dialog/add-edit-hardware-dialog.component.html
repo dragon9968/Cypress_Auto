@@ -1,14 +1,21 @@
-<form [formGroup]="hardwareForm" (ngSubmit)="data.mode === 'add' ? addHardware() : updateHardware()">
-  <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Hardware' : data.mode === 'update' ? 'Edit Hardware' : 'Haware Detail' }}</h1>
+<form [formGroup]="hardwareForm" (ngSubmit)="data.mode === 'add' ? addHardware() : updateHardware()" autocomplete="off">
+  <div class="dialog-title">
+    <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Hardware' : data.mode === 'update' ? 'Edit Hardware' : 'Hardware Detail' }}</h1>
+    <ng-template [ngxPermissionsOnly]="['can_write on Devices']">
+      <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </ng-template>
+  </div>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Device</mat-label>
-      <input matInput type="text" placeholder="Select a device" [formControl]="device" [matAutocomplete]="autoDevice">
+      <input autocomplete="off" id="hardware-device" [readonly]="data.mode === 'view'" matInput type="text" placeholder="Select a device" [formControl]="device" [matAutocomplete]="autoDevice">
       <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="helpers.optionDisplay"
         (optionSelected)="selectDevice($event)">
-        <mat-option *ngFor="let option of listDevices" [value]="option">
+        <mat-option *ngFor="let option of filteredDevices | async" [value]="option">
           <div class="option-text">
-            <img [src]="ICON_PATH + option.icon.photo" height="24" width="24">
+            <img [src]="ICON_PATH + option.icon?.photo" height="24" width="24">
             &nbsp;
             <span>{{ option.name }}</span>
           </div>
@@ -19,12 +26,12 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Template</mat-label>
-      <input matInput type="text" placeholder="Select a template" [formControl]="template"
+      <input autocomplete="off" id="hardware-template" [readonly]="data.mode === 'view'" matInput type="text" placeholder="Select a template" [formControl]="template"
         [matAutocomplete]="autoTemplate">
       <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helpers.templateDisplay">
-        <mat-option *ngFor="let option of filteredTemplates" [value]="option">
+        <mat-option *ngFor="let option of filteredTemplates | async" [value]="option">
           <div class="option-text">
-            <img [src]="ICON_PATH + option.icon.photo" height="15" width="15">
+            <img [src]="ICON_PATH + option.icon?.photo" height="24" width="24">
             &nbsp;
             <span>{{ option.display_name }}</span>
           </div>
@@ -35,18 +42,18 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Serial Number</mat-label>
-      <input type="text" formControlName="serialNumber" matInput>
+      <input autocomplete="off" id="hardware-serialnumber" [readonly]="data.mode === 'view'" type="text" formControlName="serialNumber" matInput>
       <mat-error *ngIf="serialNumber?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="serialNumber?.errors?.isExist">{{ errorMessages.SERIAL_NUMBER_EXIST }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Asset Tag</mat-label>
-      <input type="text" formControlName="assetTag" matInput>
+      <input autocomplete="off" id="hardware-asset" [readonly]="data.mode === 'view'" type="text" formControlName="assetTag" matInput>
     </mat-form-field>
   </div>
   <div mat-dialog-actions [align]="'end'" class="create-btn">
     <button mat-raised-button type="button" (click)="onCancel()">{{data.mode === 'view' ? 'Close' : 'Cancel'}}</button>
-    <button *ngIf="data.mode !== 'view'" mat-raised-button color="primary" [disabled]="!hardwareForm.valid">
+    <button *ngIf="data.mode !== 'view'" type="submit" mat-raised-button color="primary" [disabled]="!hardwareForm.valid">
      {{ data.mode === 'add' ? 'Create' : 'Update' }}
     </button>
   </div>

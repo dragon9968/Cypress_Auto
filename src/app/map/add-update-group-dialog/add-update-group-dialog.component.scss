@@ -9,3 +9,15 @@
   height: 0;
   width: 0;
 }
+
+.ng-select-nodes, .ng-select-port-groups {
+  font-family: 'Roboto', sans-serif;
+}
+
+::ng-deep .ng-placeholder {
+  margin-top: 4px;
+}
+
+::ng-deep ng-dropdown-panel {
+  position: relative !important;
+}

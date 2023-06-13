@@ -3,5 +3,9 @@ export interface ProjectState {
   vmStatus: any,
   isOpen: boolean,
   dashboard: any,
-  projectName: any
+  projectName: any,
+  recentProjects: any[],
+  template: any[],
+  listAllProject: any[],
+  projectCategory: string
 }

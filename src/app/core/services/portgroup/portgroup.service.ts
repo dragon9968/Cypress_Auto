@@ -10,27 +10,27 @@ export class PortGroupService {
 
   constructor(private http: HttpClient) { }
 
-  genData(collectionId: string, category: string): Observable<any> {
+  genData(projectId: string, category: string): Observable<any> {
     return this.http.post<any>(ApiPaths.GEN_PG_DATA, {
-      collection_id: collectionId,
+      project_id: projectId,
       category
     });
   }
 
-  getByCollectionId(collectionId: string): Observable<any> {
+  getByProjectId(projectId: string): Observable<any> {
     return this.http.get<any>(ApiPaths.PORTGROUP, {
       params: {
-        q: '(columns:!(id,name,subnet,vlan,collection_id,domain_id),' +
-           'filters:!((col:collection_id,opr:eq,value:' + collectionId + ')),' +
+        q: '(columns:!(id,name,subnet,vlan,project_id,domain_id),' +
+           'filters:!((col:project_id,opr:eq,value:' + projectId + ')),' +
            'keys:!(list_columns),page:0,page_size:1000)'
       }
     });
   }
 
-  getByCollectionIdAndCategory(collectionId: string, category: string): Observable<any> {
+  getByProjectIdAndCategory(projectId: string, category: string): Observable<any> {
     return this.http.get<any>(ApiPaths.PORTGROUP, {
       params: {
-        q: '(filters:!((col:collection_id,opr:eq,value:' + collectionId +'),(col:category,opr:eq,value:' + category + '))' +
+        q: '(filters:!((col:project_id,opr:eq,value:' + projectId +'),(col:category,opr:eq,value:' + category + '))' +
            ',keys:!(list_columns),page:0,page_size:1000)'
       }
     })
@@ -48,8 +48,8 @@ export class PortGroupService {
     return this.http.put<any>(ApiPaths.PORTGROUP + id, data);
   }
 
-  randomizeSubnet(id: string, collectionId: string): Observable<any> {
-    const params = new HttpParams().set('collection_id', collectionId);
+  randomizeSubnet(id: string, projectId: string): Observable<any> {
+    const params = new HttpParams().set('project_id', projectId);
     return this.http.get<any>(ApiPaths.PORTGROUP_RANDOMIZE_SUBNET + id, {
       params
     });
@@ -69,5 +69,9 @@ export class PortGroupService {
 
   randomizeSubnetBulk(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.PORTGROUP_RANDOMIZE_SUBNET_BULK, data);
+  }
+
+  getPortGroupCommon(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.PORTGROUP_COMMON, data);
   }
 }

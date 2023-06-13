@@ -7,6 +7,7 @@ import { PermissionLevels } from 'src/app/core/enums/permission-levels.enum';
 import { PageNotFoundComponent } from '../page-not-found/page-not-found.component';
 import { RouteSegments } from '../enums/route-segments.enum';
 import { UserProfileComponent } from 'src/app/user-profile/user-profile.component';
+import { AuthGuardAdmin } from '../guards/auth-admin.guard';
 
 const routes: AppRoute[] = [
   {
@@ -42,6 +43,17 @@ const routes: AppRoute[] = [
           ),
       },
       {
+        path: RouteSegments.PROJECTS_ADMINISTRATION,
+        canActivateChild: [AuthGuardAdmin],
+        data: {
+          permissionLevel: PermissionLevels.ADMIN,
+        },
+        loadChildren: () =>
+          import('../../project/project.module').then(
+            (m) => m.ProjectModule
+          ),
+      },
+      {
         path: RouteSegments.DEVICES,
         data: {
           permissionLevel: PermissionLevels.USER,
@@ -52,13 +64,23 @@ const routes: AppRoute[] = [
           ),
       },
       {
-        path: RouteSegments.TEMPLATES,
+        path: RouteSegments.PROJECTS_TEMPLATES,
         data: {
           permissionLevel: PermissionLevels.USER,
         },
         loadChildren: () =>
-          import('../../templates/templates.module').then(
-            (m) => m.TemplatesModule
+          import('../../project/project.module').then(
+            (m) => m.ProjectModule
+          ),
+      },
+      {
+        path: RouteSegments.LIBRATIES,
+        data: {
+          permissionLevel: PermissionLevels.USER,
+        },
+        loadChildren: () =>
+        import('../../libraries/libraries.module').then(
+          (m) => m.LibrariesModule
           ),
       },
       {
@@ -89,6 +111,16 @@ const routes: AppRoute[] = [
         loadChildren: () =>
           import('../../help/help.module').then(
             (m) => m.HelpModule
+          ),
+      },
+      {
+        path: RouteSegments.ADMINISTRATION,
+        data: {
+          permissionLevel: PermissionLevels.ADMIN,
+        },
+        loadChildren: () =>
+          import('../../administration/administration.module').then(
+            (m) => m.AdministrationModule
           ),
       },
       {

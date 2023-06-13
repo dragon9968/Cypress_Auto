@@ -1,17 +1,16 @@
 import { Store } from "@ngrx/store";
 import { ToastrService } from "ngx-toastr";
 import { MAT_DIALOG_DATA, MatDialog } from "@angular/material/dialog";
-import { Observable, of, Subscription } from "rxjs";
+import { Observable, of, Subscription, throwError } from "rxjs";
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { GridApi, GridOptions, GridReadyEvent, RowDoubleClickedEvent } from "ag-grid-community";
+import { CellValueChangedEvent, GridApi, GridOptions, GridReadyEvent, ValueSetterParams } from "ag-grid-community";
+import { ErrorMessages } from "../../../../shared/enums/error-messages.enum";
 import { InfoPanelService } from "../../../../core/services/info-panel/info-panel.service";
 import { DomainUserService } from "../../../../core/services/domain-user/domain-user.service";
 import { selectIsChangeDomainUsers } from "../../../../store/domain-user-change/domain-user-change.selectors";
 import { retrievedIsChangeDomainUsers } from "../../../../store/domain-user-change/domain-user-change.actions";
 import { ConfirmationDialogComponent } from "../../../../shared/components/confirmation-dialog/confirmation-dialog.component";
-import { UpdateDomainUserDialogComponent } from "../update-domain-user-dialog/update-domain-user-dialog.component";
-import { DomainService } from "src/app/core/services/domain/domain.service";
-
+import { HelpersService } from "../../../../core/services/helpers/helpers.service";
 
 @Component({
   selector: 'app-domain-user-dialog',
@@ -35,12 +34,12 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
       sortable: true,
       resizable: true,
       singleClickEdit: true,
-      filter: true
+      filter: true,
+      editable: true
     },
     rowSelection: 'multiple',
-    onRowDoubleClicked: this.onRowDoubleClicked.bind(this),
     suppressRowDeselection: true,
-    suppressCellFocus: true,
+    onCellValueChanged: this.onCellValueChanged.bind(this),
     enableCellTextSelection: true,
     pagination: true,
     paginationPageSize: 25,
@@ -52,6 +51,7 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
         headerCheckboxSelection: true,
         checkboxSelection: true,
         width: 52,
+        editable: false
       },
       {
         field: 'id',
@@ -60,18 +60,21 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
       {
         headerName: 'First Name',
         field: 'firstname',
+        valueSetter: this.setFirstName.bind(this),
         minWidth: 150,
         flex: 1,
       },
       {
         headerName: 'Last Name',
         field: 'lastname',
+        valueSetter: this.setLastName.bind(this),
         minWidth: 150,
         flex: 1,
       },
       {
         headerName: 'Username',
         field: 'username',
+        valueSetter: this.setUsername.bind(this),
         minWidth: 300,
         flex: 1,
       },
@@ -89,6 +92,7 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
       {
         headerName: 'UPN',
         field: 'upn',
+        valueSetter: this.setUpn.bind(this),
         minWidth: 250,
         flex: 1,
       },
@@ -117,6 +121,7 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
       {
         headerName: 'Postal Code',
         field: 'postal_code',
+        valueSetter: this.setPostalCode.bind(this),
         minWidth: 150,
         flex: 1,
       },
@@ -135,7 +140,7 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
     private toastr: ToastrService,
     private domainUserService: DomainUserService,
     private infoPanelService: InfoPanelService,
-    private domainService: DomainService,
+    private helpersService: HelpersService
   ) {
     this.domain = this.data.domain;
     this.rowData$ = of(this.convertDomainUsers(this.data.genData));
@@ -154,6 +159,76 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
     })
   }
 
+  setFirstName(params: ValueSetterParams) {
+    const newValue = params.newValue;
+    const isValueRequired = this.helpersService.validateRequiredInCell(newValue);
+    if (!isValueRequired) return false;
+    const isValueCharacter = this.helpersService.validateCharacterInCell(newValue);
+    if (!isValueCharacter) return false;
+    const isValueInRange = this.helpersService.validateLengthRangeInCell(newValue, 2, 20);
+    if (!isValueInRange) return false;
+    const data = params.data;
+    data.firstname = params.newValue;
+    return true;
+  }
+
+  setLastName(params: ValueSetterParams) {
+    const newValue = params.newValue;
+    const isValueRequired = this.helpersService.validateRequiredInCell(newValue);
+    if (!isValueRequired) return false;
+    const isValueCharacter = this.helpersService.validateCharacterInCell(newValue);
+    if (!isValueCharacter) return false;
+    const isValueInRange = this.helpersService.validateLengthRangeInCell(newValue, 2, 20);
+    if (!isValueInRange) return false;
+    const data = params.data;
+    data.lastname = params.newValue;
+    return true;
+  }
+
+  setUsername(params: ValueSetterParams) {
+    const isValueRequired = this.helpersService.validateRequiredInCell(params.newValue);
+    if (!isValueRequired) return false;
+    let isExistUsername = false;
+    const data = params.data;
+    this.gridApi.forEachNode((rowNode: any) => {
+      if (rowNode.data.username === params.newValue) {
+        this.toastr.error(`Already exists ${params.newValue} username.<br>Please enter a different username`,
+          'Error', { enableHtml: true });
+        isExistUsername = true;
+      }
+    })
+    if (isExistUsername) {
+      return false;
+    } else {
+      data.username = params.newValue;
+      return true;
+    }
+  }
+
+  setUpn(params: ValueSetterParams) {
+    const newValue = params.newValue;
+    const isValueRequired = this.helpersService.validateRequiredInCell(newValue);
+    if (!isValueRequired) {
+      return false;
+    } else {
+      const data = params.data;
+      data.upn = newValue;
+      return true;
+    }
+  }
+
+  setPostalCode(params: ValueSetterParams) {
+    const newValue = params.newValue;
+    const isValueNumber = this.helpersService.validateNumberInCell(newValue);
+    if (!isValueNumber) {
+      return false;
+    } else {
+      const data = params.data;
+      data.postal_code = newValue;
+      return true;
+    }
+  }
+
   ngOnDestroy(): void {
     this.isChangeDomainUsers$.unsubscribe();
   }
@@ -163,20 +238,6 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
 
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
-  }
-
-  onRowDoubleClicked(row: RowDoubleClickedEvent) {
-    this.domainUserService.get(row.data.id).subscribe(domainUserData => {
-      this.domainService.get(domainUserData.result.domain_id).subscribe(domainData => {
-        const dialogData = {
-          genData: domainUserData.result,
-          domain: domainData.result,
-          mode: 'view'
-        };
-        this.dialog.open(UpdateDomainUserDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-      }
-      )
-    });
   }
 
   convertDomainUsers(data: any) {
@@ -205,20 +266,38 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
   editDomainUser() {
     if (this.rowsSelectedId.length === 0) {
       this.toastr.info('No row selected');
-    } else if (this.rowsSelectedId.length === 1) {
-      this.domainUserService.get(this.rowsSelectedId[0]).subscribe(domainUserData => {
-        this.domainService.get(domainUserData.result.domain_id).subscribe(domainData => {
-          const dialogData = {
-            genData: domainUserData.result,
-            domain: domainData.result,
-            mode: 'update'
-          };
-          this.dialog.open(UpdateDomainUserDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-        })
-      })
     } else {
-      this.toastr.info('Bulk edit do not apply to the domain user.<br> Please select only one domain user',
-                  'Info', {enableHtml: true});
+      this.gridApi.forEachNode(rowNode => {
+        if (this.rowsSelectedId.includes(rowNode.data.id)) {
+          const domainUser = rowNode.data;
+          const jsonDataValue = {
+            firstname: domainUser.firstname,
+            lastname: domainUser.lastname,
+            username: domainUser.username,
+            password: domainUser.password ? domainUser.password : 'P@ssw0rd123',
+            company: domainUser.company,
+            upn: domainUser.upn ? domainUser.upn :`${domainUser.username}@${this.data.domain.name}`,
+            email: domainUser.email,
+            street_address: domainUser.street_address,
+            city: domainUser.city,
+            state_province: domainUser.state_province,
+            postal_code: domainUser.postal_code,
+            country: domainUser.country
+          }
+          const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
+          this.domainUserService.put(domainUser.id, jsonData).subscribe({
+            next: () => {
+              this.store.dispatch(retrievedIsChangeDomainUsers({ isChangeDomainUsers: true }));
+              this.toastr.success('Updated Row');
+              this.clearRowSelected();
+            },
+            error: err => {
+              this.toastr.error('Update Row Failed');
+              throwError(() => err);
+            }
+          })
+        }
+      })
     }
   }
 
@@ -226,13 +305,13 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
     if (this.rowsSelectedId.length === 0) {
       this.toastr.info('No row selected');
     } else {
-      const item = this.rowsSelectedId.length === 1 ? 'this' : 'those';
+      const item = this.rowsSelectedId.length === 1 ? 'this' : 'these';
       const dialogData = {
         title: 'User confirmation needed',
         message: `Are you sure you want to delete ${item}?`,
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {width: '450px', data: dialogData});
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {disableClose: true, width: '450px', data: dialogData});
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
           this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.rowsSelectedId);
@@ -258,4 +337,8 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
     this.gridApi.deselectAll();
   }
 
+  onCellValueChanged(event: CellValueChangedEvent) {
+    event.node.setSelected(true);
+    this.selectRow();
+  }
 }

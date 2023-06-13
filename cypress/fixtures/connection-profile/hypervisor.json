@@ -1,0 +1,25 @@
+{
+"hypervisorAdd": [
+  {
+    "name": "Test Connection",
+    "category": "vmware_vcenter",
+    "server": "192.168.1.1",
+    "datacenter": "Test Datacenter",
+    "cluster": "Test Cluster",
+    "datastore": "Test Datastore",
+    "datastore_cluster": "True",
+    "switch": "Test Switch",
+    "switch_type": "dvswitch",
+    "management_network": "Test VM Management",
+    "username": "admin@test.local",
+    "password": "Password"
+  }
+],
+"hypervisorUpdate": [
+  {
+    "name": "Test Hypervisor Connection",
+    "datastore_cluster": "False",
+    "password": "Password1234"
+  }
+]
+}

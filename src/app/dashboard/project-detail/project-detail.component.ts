@@ -14,7 +14,7 @@ export class ProjectDetailComponent {
   @Output() disableCard = new EventEmitter<any>();
   isMaximize = true;
   isExpand = false;
-  collectionId = 0;
+  projectId = 0;
   project: any;
   user: any;
   name = '';
@@ -55,19 +55,19 @@ export class ProjectDetailComponent {
     this.iconRegistry.addSvgIcon('linux-server', this.helpersService.setIconPath('/assets/icons/dashboard/linux-server.svg'));
     this.iconRegistry.addSvgIcon('windows-client', this.helpersService.setIconPath('/assets/icons/dashboard/windows-client.svg'));
     this.iconRegistry.addSvgIcon('windows-server', this.helpersService.setIconPath('/assets/icons/dashboard/windows-server.svg'));
-    this.collectionId = this.projectService.getCollectionId();
-    this.projectService.get(+this.collectionId).subscribe(projectData => {
+    this.projectId = this.projectService.getProjectId();
+    this.projectService.get(+this.projectId).subscribe(projectData => {
       this.project = projectData.result;
       this.name = this.project.name;
       this.description = this.project.description;
       const sharedList = this.project.share?.map((ele: any) => `${ele.first_name} ${ele.last_name}`);
       this.shared = `[${sharedList.join(', ')}]`;
     });
-    this.userService.getCreatorProject(this.collectionId).subscribe(userData => {
+    this.userService.getCreatorProject(this.projectId).subscribe(userData => {
       this.user = userData.result;
       this.creator = `${this.user.first_name} ${this.user.last_name}`;
     });
-    this.projectService.getDeviceCount(this.collectionId).subscribe(data => {
+    this.projectService.getDeviceCount(this.projectId).subscribe(data => {
       const deviceCount = data.result;
       this.vmTotal = deviceCount.vm;
       this.hwTotal = deviceCount.hw;

@@ -1,0 +1,26 @@
+<form [formGroup]="configForm" (ngSubmit)="addRoute()">
+  <h1 mat-dialog-title>Add Static Route</h1>
+  <div mat-dialog-content>
+    <mat-form-field class="field">
+      <mat-label>Route</mat-label>
+      <input  type="text" formControlName="routeCtr" matInput>
+      <mat-error *ngIf="routeCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Next Hop</mat-label>
+      <input  type="text" formControlName="nextHopCtr" matInput>
+      <mat-error *ngIf="nextHopCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Interface</mat-label>
+      <input  type="text" formControlName="interfaceCtr" matInput>
+      <mat-error *ngIf="interfaceCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+  </div>
+  <div mat-dialog-actions [align]="'end'" class="create-btn">
+    <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+    <button mat-raised-button color="primary" [disabled]="!configForm.valid">
+     Add
+    </button>
+  </div>
+</form>

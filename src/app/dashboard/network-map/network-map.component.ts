@@ -15,11 +15,17 @@ import { ProjectService } from "../../project/services/project.service";
 import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
 import { ServerConnectService } from "../../core/services/server-connect/server-connect.service";
 import { retrievedMap } from "../../store/map/map.actions";
-import { selectIsConnect } from "../../store/server-connect/server-connect.selectors";
+import { selectIsHypervisorConnect } from "../../store/server-connect/server-connect.selectors";
 import { selectMapFeature } from "../../store/map/map.selectors";
-import { retrievedIsConnect } from "../../store/server-connect/server-connect.actions";
+import { retrievedIsHypervisorConnect } from "../../store/server-connect/server-connect.actions";
 import { selectDashboard, selectVMStatus } from "../../store/project/project.selectors";
 import { retrievedDashboard, retrievedIsOpen, retrievedVMStatus } from "../../store/project/project.actions";
+import { RemoteCategories } from "../../core/enums/remote-categories.enum";
+
+const expandCollapse = require('cytoscape-expand-collapse');
+const nodeEditing = require('cytoscape-node-editing');
+const konva = require('konva');
+const jquery = require('jquery');
 
 @Component({
   selector: 'app-network-map',
@@ -32,22 +38,22 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
   cy: any;
   eles: any;
   config: any;
-  collectionId = '0';
+  projectId = '0';
   category = 'logical';
   vmStatusChecked: any;
   selectMap$ = new Subscription();
   selectVMStatus$ = new Subscription();
-  selectIsConnect$ = new Subscription();
+  selectIsHypervisorConnect$ = new Subscription();
   selectDashboard$ = new Subscription();
+  isEdgeDirectionChecked = false;
   styleExists: any;
   cleared: any;
   nodes: any[] = [];
   interfaces: any[] = [];
-  mapBackgrounds: any[] = [];
   defaultPreferences: any;
   dashboard: any;
   isMaximize = true;
-  isConnect = false;
+  isHypervisorConnect = false;
   connection = {
     name: 'Test Connection',
     id: 0
@@ -64,24 +70,26 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
     private infoPanelService: InfoPanelService,
     private serverConnectionService: ServerConnectService
   ) {
+    expandCollapse(cytoscape);
+    nodeEditing(cytoscape, jquery, konva);
     this.iconRegistry.addSvgIcon('minus', this.helpersService.setIconPath('/assets/icons/dashboard/minus.svg'));
     this.iconRegistry.addSvgIcon('plus', this.helpersService.setIconPath('/assets/icons/dashboard/plus.svg'));
-    this.collectionId = this.projectService.getCollectionId();
-    this.mapService.getMapData(this.category, this.collectionId).subscribe(
+    this.projectId = this.projectService.getProjectId();
+    this.mapService.getMapData(this.category, this.projectId).subscribe(
       (data: any) => this.store.dispatch(retrievedMap({ data }))
     );
-    const connection = this.serverConnectionService.getConnection();
+    const connection = this.serverConnectionService.getConnection(RemoteCategories.HYPERVISOR);
     this.connection = connection ? connection : this.connection;
-    this.selectIsConnect$ = this.store.select(selectIsConnect).subscribe(isConnect => {
-      if (isConnect !== undefined) {
-        this.isConnect = isConnect;
+    this.selectIsHypervisorConnect$ = this.store.select(selectIsHypervisorConnect).subscribe(isHypervisorConnect => {
+      if (isHypervisorConnect !== undefined) {
+        this.isHypervisorConnect = isHypervisorConnect;
       }
     })
     this.selectVMStatus$ = this.store.select(selectVMStatus).subscribe(vmStatusChecked => {
-      if (this.isConnect && vmStatusChecked !== undefined) {
+      if (this.isHypervisorConnect && vmStatusChecked !== undefined) {
         this.vmStatusChecked = vmStatusChecked;
         if (this.vmStatusChecked) {
-          this.infoPanelService.changeVMStatusOnMap(+this.collectionId, this.connection.id);
+          this.infoPanelService.changeVMStatusOnMap(+this.projectId, this.connection.id);
         } else {
           this.infoPanelService.removeMapStatusOnMap();
         }
@@ -95,25 +103,28 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.projectService.get(+this.collectionId).subscribe((data: any) => {
+    this.projectService.get(+this.projectId).subscribe((data: any) => {
       if (this.connection.id !== 0) {
         this.store.dispatch(retrievedVMStatus({ vmStatus: data.result.configuration.vm_status }));
       }
     })
     if (this.connection && this.connection.id !== 0) {
-      this.store.dispatch(retrievedIsConnect({ data: true }));
+      this.store.dispatch(retrievedIsHypervisorConnect({ data: true }));
     }
     if (this.dashboard?.map) {
       this.selectMap$ = this.store.select(selectMapFeature).subscribe((map: MapState) => {
         if (map.defaultPreferences) {
           this.nodes = map.nodes;
           this.interfaces = map.interfaces;
-          this.mapBackgrounds = map.mapBackgrounds;
           this.defaultPreferences = map.defaultPreferences;
+          this.isEdgeDirectionChecked = map.defaultPreferences.edge_direction_checkbox != undefined
+            ? map.defaultPreferences.edge_direction_checkbox : this.isEdgeDirectionChecked;
           this._initCytoscapeNetworkMap();
           if (this.connection && this.connection.id !== 0 && this.vmStatusChecked) {
-            this.infoPanelService.changeVMStatusOnMap(+this.collectionId, this.connection.id);
+            this.infoPanelService.changeVMStatusOnMap(+this.projectId, this.connection.id);
           }
+          this.helpersService.initCollapseExpandMapLink(this.cy)
+          this.helpersService.changeEdgeDirectionOnMap(this.cy, this.isEdgeDirectionChecked)
         }
       });
     }
@@ -122,7 +133,7 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.selectMap$.unsubscribe();
     this.selectVMStatus$.unsubscribe();
-    this.selectIsConnect$.unsubscribe();
+    this.selectIsHypervisorConnect$.unsubscribe();
     this.selectDashboard$.unsubscribe();
   }
 
@@ -141,13 +152,13 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
     }
     this.styleExists = this.config.styleExists;
     this.cleared = this.config.cleared;
-    this.eles = JSON.parse(JSON.stringify(this.nodes
-      .concat(this.interfaces)
-      .concat(this.mapBackgrounds)));
+    this.eles = JSON.parse(JSON.stringify(this.nodes.concat(this.interfaces)));
     this.eles.forEach((ele: any) => {
       ele.locked = ele.data.locked
-      if (ele.data.elem_category == 'node') {
+      if (ele.data.elem_category == 'node' || ele.data.elem_category == 'map_link') {
         ele.data.icon = environment.apiBaseUrl + ele.data.icon;
+      } else if (ele.data.elem_category == 'bg_image') {
+        ele.data.src = environment.apiBaseUrl + ele.data.image;
       }
     });
     const style = this.helpersService.generateCyStyle(this.defaultPreferences);
@@ -172,11 +183,25 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
       wheelSensitivity: 0.2,
     });
     this.infoPanelService.cy = this.cy;
+    this.helpersService.randomPositionForElementsNoPosition(this.cy)
+    this.cy.expandCollapse({
+      layoutBy: null,
+      fisheye: false,
+      undoable: false,
+      animate: false
+    });
+    this.cy.nodes().on('expandcollapse.beforecollapse', ($event: any) => {
+      let a = this.cy.nodeEditing('get');
+      if (a) {
+        a.removeGrapples()
+      }
+      a = null;
+    });
   }
 
   toggleVMStatus($event: any) {
     const jsonData = {
-      project_id: this.collectionId,
+      project_id: this.projectId,
       connection_id: this.connection.id,
     }
     if ($event.checked) {
@@ -198,27 +223,19 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
 
   openMap() {
     this.store.dispatch(retrievedIsOpen({data: true}));
-    this.router.navigate(
-      [RouteSegments.MAP],
-      {
-        queryParams: {
-          category: 'logical',
-          collection_id: this.collectionId
-        }
-      }
-    );
+    this.router.navigate([RouteSegments.MAP]);
   }
 
   removeDashboard() {
     const mode = 'remove';
     const card = 'map';
-    this.projectService.putProjectDashboard(+this.collectionId, mode, card).pipe(
+    this.projectService.putProjectDashboard(+this.projectId, mode, card).pipe(
       catchError(err => {
         this.toastr.error(`Update dashboard (${mode}-${card}) failed`, 'Error');
         return throwError(() => err);
       })
     ).subscribe(response => {
-      this.projectService.get(+this.collectionId).subscribe(projectData => {
+      this.projectService.get(+this.projectId).subscribe(projectData => {
         this.store.dispatch(retrievedDashboard({dashboard: projectData.result.dashboard}));
       });
       this.toastr.success(response.message, 'Success');

@@ -1,42 +1,35 @@
 import { Store } from "@ngrx/store";
-import { MatDialog } from "@angular/material/dialog";
 import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
-import { Subscription, throwError } from "rxjs";
+import { forkJoin, of, Subscription, throwError } from "rxjs";
 import { Injectable, Input, OnDestroy } from '@angular/core';
 import { MapService } from "../map/map.service";
-import { NodeService } from "../node/node.service";
 import { GroupService } from "../group/group.service";
 import { DomainService } from "../domain/domain.service";
 import { ProjectService } from "../../../project/services/project.service";
-import { HelpersService } from "../helpers/helpers.service";
 import { UserTaskService } from "../user-task/user-task.service";
 import { PortGroupService } from "../portgroup/portgroup.service";
+import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { InterfaceService } from "../interface/interface.service";
 import { DomainUserService } from "../domain-user/domain-user.service";
+import { retrievedMap } from "../../../store/map/map.actions";
+import { ServerConnectService } from "../server-connect/server-connect.service";
 import { selectVMStatus } from "../../../store/project/project.selectors";
 import { selectMapOption } from "../../../store/map-option/map-option.selectors";
 import { retrievedGroups } from "../../../store/group/group.actions";
-import { selectIsConnect } from "../../../store/server-connect/server-connect.selectors";
 import { retrievedDomains } from "../../../store/domain/domain.actions";
-import { selectInterfaces } from "../../../store/map/map.selectors";
 import { selectDomainUsers } from "../../../store/domain-user/domain-user.selectors";
 import { retrievedUserTasks } from "../../../store/user-task/user-task.actions";
 import { retrievedMapSelection } from "../../../store/map-selection/map-selection.actions";
-import { selectNodesByCollectionId } from "../../../store/node/node.selectors";
+import { selectNodesByProjectId } from "../../../store/node/node.selectors";
 import { selectInterfacesManagement } from "../../../store/interface/interface.selectors";
 import { retrievedIsChangeDomainUsers } from "../../../store/domain-user-change/domain-user-change.actions";
 import { retrievedPortGroupsManagement } from "../../../store/portgroup/portgroup.actions";
+import { retrievedInterfacesManagement } from "../../../store/interface/interface.actions";
 import { selectPortGroups, selectPortGroupsManagement } from "../../../store/portgroup/portgroup.selectors";
-import { retrievedInterfacesByIds, retrievedInterfacesManagement } from "../../../store/interface/interface.actions";
-import { AddUpdatePGDialogComponent } from "../../../map/add-update-pg-dialog/add-update-pg-dialog.component";
-import { ShowUserTaskDialogComponent } from "../../../map/info-panel/info-panel-task/show-user-task-dialog/show-user-task-dialog.component";
-import { AddUpdateNodeDialogComponent } from "../../../map/add-update-node-dialog/add-update-node-dialog.component";
-import { AddUpdateGroupDialogComponent } from "../../../map/add-update-group-dialog/add-update-group-dialog.component";
-import { AddUpdateDomainDialogComponent } from "../../../map/add-update-domain-dialog/add-update-domain-dialog.component";
-import { UpdateDomainUserDialogComponent } from "../../../map/info-panel/info-panel-domain/update-domain-user-dialog/update-domain-user-dialog.component";
-import { AddUpdateInterfaceDialogComponent } from "../../../map/add-update-interface-dialog/add-update-interface-dialog.component";
-
+import { retrievedIsHypervisorConnect } from "src/app/store/server-connect/server-connect.actions";
+import { retrievedVMStatus } from "src/app/store/project/project.actions";
+import { RemoteCategories } from "../../enums/remote-categories.enum";
 @Injectable({
   providedIn: 'root'
 })
@@ -48,7 +41,6 @@ export class InfoPanelService implements OnDestroy {
   selectPortGroup$ = new Subscription();
   selectDomainUser$ = new Subscription();
   selectVMStatus$ = new Subscription();
-  selectIsConnect$ = new Subscription();
   selectPortGroupsManagement$ = new Subscription();
   selectInterfacesManagement$ = new Subscription();
   nodes!: any[];
@@ -58,7 +50,6 @@ export class InfoPanelService implements OnDestroy {
   interfacesManagement: any[] = [];
   vmStatus!: boolean;
   isGroupBoxesChecked!: boolean;
-  isConnect!: boolean;
   statusColorLookup = {
     off: '#D63222', //red
     on: '#44D62C', // green
@@ -70,29 +61,27 @@ export class InfoPanelService implements OnDestroy {
 
   constructor(
     private store: Store,
-    private dialog: MatDialog,
     private toastr: ToastrService,
     private mapService: MapService,
-    private helpers: HelpersService,
-    private nodeService: NodeService,
     private interfaceService: InterfaceService,
     private portGroupService: PortGroupService,
     private groupService: GroupService,
     private domainService: DomainService,
+    private helperServices: HelpersService,
     private userTaskService: UserTaskService,
     private projectService: ProjectService,
     private domainUserService: DomainUserService,
+    private serverConnectionService: ServerConnectService
   ) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
         this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
       }
     });
-    this.selectNode$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => this.nodes = nodes);
+    this.selectNode$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes);
     this.selectPortGroup$ = this.store.select(selectPortGroups).subscribe(portGroups => this.portGroups = portGroups);
     this.selectDomainUser$ = this.store.select(selectDomainUsers).subscribe(domainUsers => this.domainUsers = domainUsers);
     this.selectVMStatus$ = this.store.select(selectVMStatus).subscribe(vmStatus => this.vmStatus = vmStatus);
-    this.selectIsConnect$ = this.store.select(selectIsConnect).subscribe(isConnect => this.isConnect = isConnect);
     this.selectPortGroupsManagement$ = this.store.select(selectPortGroupsManagement).subscribe(
       portGroupsData => this.portGroupsManagement = portGroupsData
     )
@@ -107,16 +96,14 @@ export class InfoPanelService implements OnDestroy {
     this.selectPortGroup$.unsubscribe();
     this.selectDomainUser$.unsubscribe();
     this.selectVMStatus$.unsubscribe();
-    this.selectIsConnect$.unsubscribe();
     this.selectPortGroupsManagement$.unsubscribe();
   }
 
-  deleteInfoPanelAssociateMap(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[],
-    deletedNodes: any[], deletedInterfaces: any[], tabName: string, id: any) {
+  deleteInfoPanelAssociateMap(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], tabName: string, id: any) {
     let idName = '';
     if (tabName == 'node') {
       idName = 'node_id';
-    } else if (tabName == 'portGroup') {
+    } else if (tabName == 'portgroup') {
       idName = 'pg_id';
     } else if (tabName == 'edge') {
       idName = 'interface_id';
@@ -127,10 +114,9 @@ export class InfoPanelService implements OnDestroy {
       if ('temp' in sourceData || 'temp' in targetData) {
         return
       } else {
-        this.ur?.do('removeEdge', edge);
+        this.ur?.do('removeEdge', { cy, edge });
         const index = activeEdges.findIndex(ele => ele.data(idName) === id);
         activeEdges.splice(index, 1);
-        // TODO: this.tool_panel.update_components();
       }
     });
 
@@ -188,7 +174,20 @@ export class InfoPanelService implements OnDestroy {
           ids.map(id => this.deleteDomain(id));
           break;
         case 'group':
-          ids.map(id => this.deleteGroup(id));
+          forkJoin(ids.map(id => {
+            return this.groupService.delete(id).pipe(
+              catchError(err => {
+                this.toastr.error('Delete group failed', 'Error');
+                return throwError(() => err)
+              })
+            )
+          })).subscribe((_) => {
+            const projectId = this.projectService.getProjectId();
+            this.groupService.getGroupByProjectId(projectId).subscribe(data => {
+              this.store.dispatch(retrievedGroups({ data: data.result }));
+            })
+            this.mapService.getMapData('logical', projectId).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
+          })
           break;
         case 'domainUser':
           ids.map(id => this.deleteDomainUser(id));
@@ -220,28 +219,32 @@ export class InfoPanelService implements OnDestroy {
         this.domainUsers
           .filter(ele => ele.domain_id === domain.id)
           .map(ele => {
-            return this.domainUserService.delete(ele.id).subscribe({
-              next: () => {
-                this.toastr.success(`Deleted domain user ${ele.username}`, 'Success');
-              },
-              error: err => {
+            return this.domainUserService.delete(ele.id).pipe(
+              catchError(err => {
                 this.toastr.error('Delete domain user failed', 'Error');
-                throwError(() => err.message);
-              }
+                return throwError(() => err.message);
+              })
+            ).subscribe((_) => {
+              this.toastr.success(`Deleted domain user ${ele.username}`, 'Success');
             })
           });
-        this.domainService.delete(domain.id).subscribe({
-          next: () => {
-            const collectionId = this.projectService.getCollectionId();
-            this.domainService.getDomainByCollectionId(collectionId).subscribe(
-              (data: any) => this.store.dispatch(retrievedDomains({ data: data.result }))
-            );
-            this.toastr.success(`Deleted domain ${domainName}`);
-          },
-          error: err => {
+        this.domainService.delete(domain.id).pipe(
+          catchError(err => {
             this.toastr.error(`Delete domain ${domainName} failed`, 'Error');
-            throwError(() => err.message);
-          }
+            return throwError(() => err.message);
+          })
+        ).subscribe(() => {
+          const projectId = this.projectService.getProjectId();
+          this.domainService.getDomainByProjectId(projectId).subscribe(
+            (data: any) => {
+              this.toastr.success(`Deleted domain ${domainName}`);
+              this.store.dispatch(retrievedDomains({ data: data.result }))
+            }
+          );
+          this.groupService.getGroupByProjectId(projectId).subscribe(data => {
+            this.toastr.success(`Deleted group related to domain ${domainName}`);
+            this.store.dispatch(retrievedGroups({ data: data.result }));
+          })
         })
       }
     });
@@ -250,8 +253,8 @@ export class InfoPanelService implements OnDestroy {
   deleteGroup(id: any) {
     this.groupService.delete(id).subscribe({
       next: () => {
-        const collectionId = this.projectService.getCollectionId();
-        this.groupService.getGroupByCollectionId(collectionId).subscribe(data => {
+        const projectId = this.projectService.getProjectId();
+        this.groupService.getGroupByProjectId(projectId).subscribe(data => {
           this.store.dispatch(retrievedGroups({ data: data.result }));
         })
         this.toastr.success('Deleted Row', 'Success');
@@ -410,7 +413,7 @@ export class InfoPanelService implements OnDestroy {
     if (portGroupsDeployed && portGroupsDeployed.length > 0) {
       portGroupStatus.map((pg: any) => {
         const ele = this.cy.nodes().filter(
-          (portGroup: any) => portGroup.data('elem_category') === 'port_group' &&  portGroup.data('pg_id') === pg.id
+          (portGroup: any) => portGroup.data('elem_category') === 'port_group' && portGroup.data('pg_id') === pg.id
         )[0];
         // Add new deploy-status property for the port group
         ele.data('deploy-status', pg);
@@ -483,33 +486,55 @@ export class InfoPanelService implements OnDestroy {
     }
   }
 
-  changeVMStatusOnMap(collectionId: number, connectionId: number) {
-    this.mapService.getMapStatus(collectionId, connectionId).subscribe(mapStatus => {
-      if (this.cy) {
-        let nodesDeployed, portGroupsDeployed, vmStatus, portGroupStatus;
-        if (mapStatus.vm_status) {
-          vmStatus = Object.values(mapStatus.vm_status);
-          this.nodeIdsDeployed = vmStatus.map((ele: any) => ele.id);
-          nodesDeployed = this.cy.nodes().filter((node: any) => this.nodeIdsDeployed.includes(node.data('node_id')));
-        }
+  changeVMStatusOnMap(projectId: number, connectionId: number) {
+    this.mapService.getMapStatus(projectId, connectionId)
+      .pipe(
+        catchError((e: any) => {
+          this.toastr.error(e.error.message);
+          const connection = this.serverConnectionService.getConnection(RemoteCategories.HYPERVISOR);
+          if (connection) {
+            const jsonData = {
+              pk: connection.id,
+            }
+            this.serverConnectionService.disconnect(RemoteCategories.HYPERVISOR, jsonData).pipe(
+              catchError(err => {
+                this.toastr.error('Could not to disconnect from Server', 'Error');
+                return throwError(() => err.error.message);
+              })).subscribe(() => {
+                this.store.dispatch(retrievedIsHypervisorConnect({ data: false }));
+                this.store.dispatch(retrievedVMStatus({ vmStatus: undefined }));
+                this.toastr.info(`Disconnected from ${connection.name} server!`, 'Info');
+              })
+          }
+          return throwError(() => e);
+        })
+      )
+      .subscribe(mapStatus => {
+        if (this.cy) {
+          let nodesDeployed, portGroupsDeployed, vmStatus, portGroupStatus;
+          if (mapStatus.vm_status) {
+            vmStatus = Object.values(mapStatus.vm_status);
+            this.nodeIdsDeployed = vmStatus.map((ele: any) => ele.id);
+            nodesDeployed = this.cy.nodes().filter((node: any) => this.nodeIdsDeployed.includes(node.data('node_id')));
+          }
 
-        if (mapStatus.pg_status) {
-          portGroupStatus = Object.values(mapStatus.pg_status);
-          this.portGroupIdsDeployed = portGroupStatus.map((ele: any) => ele.id);
-          portGroupsDeployed = this.cy.nodes().filter((portGroup: any) => this.portGroupIdsDeployed.includes(portGroup.data('pg_id')));
-        }
+          if (mapStatus.pg_status) {
+            portGroupStatus = Object.values(mapStatus.pg_status);
+            this.portGroupIdsDeployed = portGroupStatus.map((ele: any) => ele.id);
+            portGroupsDeployed = this.cy.nodes().filter((portGroup: any) => this.portGroupIdsDeployed.includes(portGroup.data('pg_id')));
+          }
 
-        if (!this.isNodesDeployedShowed(vmStatus)) {
-          this.removeNodesStatusOnMap();
-          this.showNodesDeployed(nodesDeployed, vmStatus);
-        }
+          if (!this.isNodesDeployedShowed(vmStatus)) {
+            this.removeNodesStatusOnMap();
+            this.showNodesDeployed(nodesDeployed, vmStatus);
+          }
 
-        if (!this.isPortGroupsDeployedShowed(portGroupStatus)) {
-          this.removePortGroupsStatusOnMap();
-          this.showPortGroupsDeployed(portGroupsDeployed, portGroupStatus);
+          if (!this.isPortGroupsDeployedShowed(portGroupStatus)) {
+            this.removePortGroupsStatusOnMap();
+            this.showPortGroupsDeployed(portGroupsDeployed, portGroupStatus);
+          }
         }
-      }
-    })
+      });
   }
 
   isNodesDeployedShowed(vmStatus: any) {
@@ -556,16 +581,8 @@ export class InfoPanelService implements OnDestroy {
     return result;
   }
 
-  initVMStatus(collectionId: number, connectionId: number) {
-    if (this.isConnect && this.vmStatus) {
-      this.changeVMStatusOnMap(collectionId, connectionId);
-    } else {
-      this.removeMapStatusOnMap();
-    }
-  }
-
-  initPortGroupManagementStorage(collectionId: string, category = 'management') {
-    this.portGroupService.getByCollectionIdAndCategory(collectionId, category).subscribe(
+  initPortGroupManagementStorage(projectId: string, category = 'management') {
+    this.portGroupService.getByProjectIdAndCategory(projectId, category).subscribe(
       data => {
         const portGroupData = data.result;
         const portGroups = portGroupData.map((portGroup: any) => {
@@ -574,7 +591,7 @@ export class InfoPanelService implements OnDestroy {
           portGroup.domain = portGroup.domain?.name;
           return portGroup;
         });
-        this.store.dispatch(retrievedPortGroupsManagement({data: portGroups}))
+        this.store.dispatch(retrievedPortGroupsManagement({ data: portGroups }))
       }
     )
   }
@@ -596,8 +613,8 @@ export class InfoPanelService implements OnDestroy {
     return newPGsManagement;
   }
 
-  initInterfaceManagementStorage(collectionId: string, category = 'management') {
-    this.interfaceService.getByCollectionIdAndCategory(collectionId, category).subscribe(
+  initInterfaceManagementStorage(projectId: string, category = 'management') {
+    this.interfaceService.getByProjectIdAndCategory(projectId, category).subscribe(
       data => {
         const portGroupData = data.result;
         const edges = portGroupData.map((edge: any) => {
@@ -624,10 +641,10 @@ export class InfoPanelService implements OnDestroy {
     return newInterfacesManagement;
   }
 
-  randomizeSubnetPortGroups(pks: any, collectionId: any) {
+  randomizeSubnetPortGroups(pks: any, projectId: any) {
     const jsonData = {
       pks: pks,
-      collection_id: collectionId
+      project_id: projectId
     }
     this.portGroupService.randomizeSubnetBulk(jsonData).pipe(
       catchError((e: any) => {
@@ -676,10 +693,12 @@ export class InfoPanelService implements OnDestroy {
     })
   }
 
-  randomizeIpInterfaces(listInterfaces: any) {
-    this.checkIpAlocation(listInterfaces)
+  randomizeIpInterfaces(listInterfaces: any[]) {
+    this.checkIpAlocation(listInterfaces);
+    let pks;
     if (this.interfaceIds.length > 0) {
-      this.interfaceService.randomizeIpBulk({ pks: this.interfaceIds }).pipe(
+      pks = this.interfaceIds
+      this.interfaceService.randomizeIpBulk({ pks }).pipe(
         catchError((error: any) => {
           this.toastr.error(error.error.message);
           return throwError(() => error.error.message);
@@ -698,24 +717,20 @@ export class InfoPanelService implements OnDestroy {
           this.toastr.success(message);
         });
         this.store.dispatch(retrievedMapSelection({ data: true }));
-        this.store.select(selectInterfaces).subscribe(interfaces => {
-          const interfaceIds = interfaces.map((ele: any) => ele.data.id);
-          this.interfaceService.getDataByPks({ pks: interfaceIds }).subscribe(response => {
-            this.store.dispatch(retrievedInterfacesByIds({ data: response.result }));
-          })
-        })
       });
     }
   }
 
-  checkIpAlocation(data: any) {
+  checkIpAlocation(data: any[]) {
     this.interfaceIds = []
     data.forEach((val: any) => {
       if (val.ip_allocation === 'static_manual') {
         this.toastr.warning(`Interface ${val.name}'s IP address of “static_manual” interfaces cannot be randomized.`)
       } else {
-        const ids = val.interface_id ? val.interface_id : val.id
-        this.interfaceIds.push(ids)
+        const id = val.interface_id ? val.interface_id : val.id
+        if (id) {
+          this.interfaceIds.push(id)
+        }
       }
     });
   }

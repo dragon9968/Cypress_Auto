@@ -3,11 +3,11 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ErrorMessages } from "../../shared/enums/error-messages.enum";
 import { Store } from "@ngrx/store";
 import { ToastrService } from "ngx-toastr";
-import { Subscription } from "rxjs";
+import { Observable, Subscription } from "rxjs";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { selectGroups } from "../../store/group/group.selectors";
 import { HelpersService } from "../../core/services/helpers/helpers.service";
-import { selectNodesByCollectionId } from "../../store/node/node.selectors";
+import { selectNodesByProjectId } from "../../store/node/node.selectors";
 import { selectDomains } from "../../store/domain/domain.selectors";
 import { selectDevices } from "../../store/device/device.selectors";
 import { selectPortGroups } from "../../store/portgroup/portgroup.selectors";
@@ -19,6 +19,7 @@ import { CATEGORIES } from 'src/app/shared/contants/categories.constant';
 import { ROLES } from 'src/app/shared/contants/roles.constant';
 import { retrievedMap } from 'src/app/store/map/map.actions';
 import { MapService } from 'src/app/core/services/map/map.service';
+import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
 
 @Component({
   selector: 'app-add-update-group-dialog',
@@ -35,6 +36,7 @@ export class AddUpdateGroupDialogComponent implements OnInit {
   selectDevice$ = new Subscription();
   selectRoles$ = new Subscription();
   selectTemplates$ = new Subscription();
+  selectMapImages$ = new Subscription();
   template!: any[];
   ROLES = ROLES;
   CATEGORIES = CATEGORIES;
@@ -45,10 +47,12 @@ export class AddUpdateGroupDialogComponent implements OnInit {
   domains!: any[];
   devices!: any[];
   roles!: any[];
-
+  mapImages!: any[];
   categoryName: string = 'custom';
   isHiddenCategoryChild: boolean = true;
-  dataCategoryChild!: any[];
+  categoryChilds!: any[];
+  filteredCategories!: Observable<any[]>;
+  filteredCategoryChild!: Observable<any[]>;
 
   constructor(
     private store: Store,
@@ -59,24 +63,27 @@ export class AddUpdateGroupDialogComponent implements OnInit {
     private groupService: GroupService,
     private mapService: MapService,
   ) {
-    this.selectNodes$ = this.store.select(selectNodesByCollectionId).subscribe(nodeData => this.nodes = nodeData);
+    this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodeData => this.nodes = nodeData);
     this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe(pgData => this.portGroups = pgData);
     this.selectTemplates$ = this.store.select(selectTemplates).subscribe(templateData => this.template = templateData);
     this.selectDomains$ = this.store.select(selectDomains).subscribe(domainData => this.domains = domainData);
     this.selectDevice$ = this.store.select(selectDevices).subscribe(deviceData => this.devices = deviceData);
     this.selectGroup$ = this.store.select(selectGroups).subscribe(groups => this.groups = groups);
+    this.selectMapImages$ = this.store.select(selectMapImages).subscribe(mapImage => this.mapImages = mapImage);
     this.isViewMode = this.data.mode == 'view';
     this.groupAddForm = new FormGroup({
       nameCtr: new FormControl(
         { value: '', disabled: this.isViewMode },
         [Validators.required, validateNameExist(() => this.groups, this.data.mode, this.data.genData.id)]
       ),
-      categoryCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      categoryCtr: new FormControl(''),
       categoryIdCtr: new FormControl(''),
       descriptionCtr: new FormControl(''),
-      nodesCtr: new FormControl({ value: '', disabled: this.isViewMode }),
-      portGroupsCtr: new FormControl({ value: '', disabled: this.isViewMode }),
-    })
+      nodesCtr: new FormControl(''),
+      portGroupsCtr: new FormControl(''),
+      mapImagesCtr: new FormControl(''),
+    });
+    this.filteredCategories = this.helpers.filterOptions(this.categoryCtr, this.CATEGORIES);
   }
 
   get nameCtr() {
@@ -103,98 +110,121 @@ export class AddUpdateGroupDialogComponent implements OnInit {
     return this.groupAddForm.get('portGroupsCtr');
   };
 
+  get mapImagesCtr() {
+    return this.groupAddForm.get('mapImagesCtr');
+  };
+
 
   ngOnInit(): void {
     this.nameCtr?.setValue(this.data.genData.name);
     this.descriptionCtr?.setValue(this.data.genData.description);
-    if (this.data.mode == 'update') {
+    if (this.data.mode == 'add') {
+      this.categoryCtr?.setValue(this.CATEGORIES[0]);
+      this.nodesCtr?.setValue(this.data.genData.nodes?.map((ele: any) => ele.id));
+      this.portGroupsCtr?.setValue(this.data.genData.port_groups?.map((ele: any) => ele.id));
+      this.mapImagesCtr?.setValue(this.data.genData.map_images?.map((ele: any) => ele.id));
+    } else {
       this.nodesCtr?.setValue(this.data.genData.nodes?.map((ele: any) => ele.id));
       this.portGroupsCtr?.setValue(this.data.genData.port_groups?.map((ele: any) => ele.id));
       this.helpers.setAutoCompleteValue(this.categoryCtr, this.CATEGORIES, this.data.genData.category);
-    } else {
-      this.categoryCtr?.setValue(this.CATEGORIES[0]);
-      this.nodesCtr?.setValue(this.data.genData.nodes);
-      this.portGroupsCtr?.setValue(this.data.genData.port_groups);
+      this.mapImagesCtr?.setValue(this.data.genData.map_images?.map((ele: any) => ele.id));
     }
     this.groupAddForm.controls['categoryCtr'].valueChanges.subscribe(value => {
       switch (value.name) {
         case 'domain':
-          this.dataCategoryChild = this.domains;
+          this.categoryChilds = this.domains;
           this.categoryIdCtr?.setValue(this.domains[0]);
           this.categoryName = 'By Domain';
           break;
         case 'device':
-          this.dataCategoryChild = this.devices;
+          this.categoryChilds = this.devices;
           this.categoryIdCtr?.setValue(this.devices[0]);
           this.categoryName = 'By Device';
           break;
         case 'role':
-          this.dataCategoryChild = this.ROLES;
+          this.categoryChilds = this.ROLES;
           this.categoryIdCtr?.setValue(this.ROLES[0]);
           this.categoryName = 'By Role';
           break;
         case 'template':
-          this.dataCategoryChild = this.template;
+          this.categoryChilds = this.template;
           this.categoryIdCtr?.setValue(this.template[0]);
           this.categoryName = 'By Template/Model';
           break;
         default:
           this.isHiddenCategoryChild = true;
-          this.dataCategoryChild = [];
+          this.categoryChilds = [];
       }
+      this.filteredCategoryChild = this.helpers.filterOptions(this.categoryIdCtr, this.categoryChilds);
     })
   }
 
   addGroup() {
-    const jsonData = {
+    const jsonDataValue = {
       name: this.nameCtr?.value,
       category: this.categoryCtr?.value.id,
       description: this.descriptionCtr?.value,
-      collection_id: this.data.collection_id,
-      domain_id: this.categoryCtr?.value.id == 'domain' ? this.categoryIdCtr?.value.id : undefined
+      project_id: this.data.project_id,
+      domain_id: this.categoryCtr?.value.id == 'domain' ? this.categoryIdCtr?.value.id : undefined,
+      nodes: this.data.genData.nodes?.map((ele: any) => ele.data('node_id')),
+      port_groups: this.data.genData.port_groups?.map((ele: any) => ele.data('pg_id')),
+      map_images: this.data.genData.map_images?.map((ele: any) => ele.data('map_image_id')),
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.groupService.add(jsonData).subscribe(response => {
       this.toastr.success('Added Row');
-      this.groupService.getGroupByCollectionId(this.data.collection_id).subscribe(
+      this.groupService.getGroupByProjectId(this.data.project_id).subscribe(
         groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
       )
-      this.mapService.getMapData(this.data.map_category, this.data.collection_id).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
+      this.mapService.getMapData(this.data.map_category, this.data.project_id).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
       this.dialogRef.close();
     })
   }
 
   updateGroup() {
-    const jsonData = {
+    const jsonDataValue = {
       name: this.nameCtr?.value,
       category: this.categoryCtr?.value.id,
       description: this.descriptionCtr?.value,
-      collection_id: this.data.collection_id,
+      project_id: this.data.project_id,
       nodes: this.nodes.filter(ele => this.nodesCtr?.value.includes(ele.id)),
       port_groups: this.portGroups.filter(ele => this.portGroupsCtr?.value.includes(ele.id)),
+      map_images: this.mapImages.filter(ele => this.mapImagesCtr?.value.includes(ele.id)),
       logical_map: {},
       physical_map: {},
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.groupService.put(this.data.genData.id, jsonData).subscribe(response => {
       this.toastr.success(`Updated for the ${response.result} successfully`);
-      this.groupService.getGroupByCollectionId(this.data.collection_id).subscribe(
+      this.groupService.getGroupByProjectId(this.data.project_id).subscribe(
         groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
       )
-      this.mapService.getMapData(this.data.map_category, this.data.collection_id).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
-      this.dialogRef.close();
+      this.mapService.getMapData(this.data.map_category, this.data.project_id).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
+      this.dialogRef.close(true);
     })
   }
 
   onCancel() {
-    this.dialogRef.close();
+    this.dialogRef.close({isCanceled: true});
   }
 
   changeCategory(event: any) {
     this.categoryName = event.source.name;
     this.isHiddenCategoryChild = this.categoryName === 'custom';
     if (this.categoryName === 'domain') {
-      this.dataCategoryChild = this.domains;
+      this.categoryChilds = this.domains;
     } else if (this.categoryName === 'device') {
-      this.dataCategoryChild = this.devices;
+      this.categoryChilds = this.devices;
     }
+    this.filteredCategoryChild = this.helpers.filterOptions(this.categoryIdCtr, this.categoryChilds);
+  }
+
+  changeViewToEdit() {
+    this.data.mode = 'update';
+    this.isViewMode = false;
+    this.nameCtr?.enable();
+    this.nodesCtr?.setValue(this.data.genData.nodes?.map((ele: any) => ele.id));
+    this.portGroupsCtr?.setValue(this.data.genData.port_groups?.map((ele: any) => ele.id));
+    this.helpers.setAutoCompleteValue(this.categoryCtr, this.CATEGORIES, this.data.genData.category);
   }
 }

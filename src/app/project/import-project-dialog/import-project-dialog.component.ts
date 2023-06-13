@@ -17,7 +17,6 @@ import { ProjectService } from '../services/project.service';
 export class ImportProjectDialogComponent implements OnInit {
   importForm!: FormGroup;
   selectedFile: any = null;
-  isLoading = false;
   constructor(
     private projectService: ProjectService,
     private store: Store,
@@ -38,7 +37,6 @@ export class ImportProjectDialogComponent implements OnInit {
 
   importProject() {
     if (this.importForm.valid) {
-      this.isLoading = true;
       const formData = new FormData();
       formData.append('file', this.selectedFile);
       this.projectService.importProject(formData).subscribe({
@@ -46,12 +44,10 @@ export class ImportProjectDialogComponent implements OnInit {
           this.toastr.success(`Import project successfully`);
           this.dialogRef.close();
           this.router.navigate([RouteSegments.PROJECTS]);
-          this.projectService.getProjectByStatus('active').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
-          this.isLoading = false;
+          this.projectService.getProjectByStatusAndCategory('active', 'project').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
           },
         error:(err) => {
             this.toastr.error(`Error while Import project`);
-            this.isLoading = false;
           }
         })
     }

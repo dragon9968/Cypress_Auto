@@ -5,3 +5,4 @@ import { MapPrefState } from './map-pref.state';
 
 export const selectMapPrefFeature = createFeatureSelector<MapPrefState>(ReducerKeys.MAP_PREFS);
 export const selectMapPrefs = createSelector(selectMapPrefFeature, (state: MapPrefState) => state.mapPrefs);
+export const selectDefaultMapPref = createSelector(selectMapPrefFeature, (state: MapPrefState) => state.defaultMapPref);

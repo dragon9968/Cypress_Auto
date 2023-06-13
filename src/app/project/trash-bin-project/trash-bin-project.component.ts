@@ -5,8 +5,8 @@ import { Store } from '@ngrx/store';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, of, Subscription } from 'rxjs';
-import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
+import { catchError, Observable, of, Subscription, throwError } from 'rxjs';
+import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { retrievedProjects } from 'src/app/store/project/project.actions';
 import { selectProjects } from 'src/app/store/project/project.selectors';
@@ -25,7 +25,6 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
   rowsSelected: any[] = [];
   rowsSelectedId: any[] = [];
   status = 'delete';
-  isLoading = false;
   isSubmitBtnDisabled: boolean = true;
   private gridApi!: GridApi;
   private selectProjects$ = new Subscription();
@@ -41,7 +40,7 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
       suppressSizeToFit: true,
       width: 52
     },
-    { field: 'name'},
+    { field: 'name' },
     { field: 'description' },
     { field: 'status' },
     { field: 'category' }
@@ -52,12 +51,15 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
     private store: Store,
     private router: Router,
     private dialog: MatDialog,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private authService: AuthService,
   ) {
+    const userId = this.authService.getUserId();
     this.selectProjects$ = this.store.select(selectProjects)
-    .subscribe((data: any) => {
-      this.rowData$ = of(data)
-    });
+      .subscribe((data: any) => {
+        const filteredProjectsByUserId = data?.filter((val: any) => val.created_by_fk === userId);
+        this.rowData$ = of(filteredProjectsByUserId);
+      });
   }
 
   ngOnInit(): void {
@@ -87,7 +89,7 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
     if (this.rowsSelectedId.length == 0) {
       this.toastr.info('No row selected');
     } else {
-      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData });
       dialogRef.afterClosed().subscribe(result => {
         const jsonData = {
           pk: this.rowsSelectedId,
@@ -117,24 +119,22 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
     }
     if (this.rowsSelectedId.length == 0) {
       this.toastr.info('No row selected');
-    }else {
-      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData });
+    } else {
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData });
       dialogRef.afterClosed().subscribe(result => {
         const jsonData = {
           pk: this.rowsSelectedId,
         }
         if (result) {
-          this.isLoading = true;
           this.projectService.permanentDeteleProject(jsonData).subscribe({
             next: (rest) => {
               this.toastr.success(`Permanent delete Project successfully`);
               this.projectService.getProjectByStatus(this.status).subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
-              this.isLoading = false;
               this.clearRowSelected();
             },
             error: (error) => {
               this.toastr.error(`Error while Permanent delete Project`);
-              this.isLoading = false;
+
             }
           })
         }

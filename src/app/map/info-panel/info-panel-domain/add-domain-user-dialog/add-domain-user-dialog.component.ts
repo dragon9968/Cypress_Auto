@@ -4,6 +4,7 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { ErrorMessages } from "../../../../shared/enums/error-messages.enum";
 import { DomainService } from "../../../../core/services/domain/domain.service";
+import { HelpersService } from "../../../../core/services/helpers/helpers.service";
 
 @Component({
   selector: 'app-add-domain-user-dialog',
@@ -18,7 +19,8 @@ export class AddDomainUserDialogComponent implements OnInit {
     private toastr: ToastrService,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private dialogRef: MatDialogRef<AddDomainUserDialogComponent>,
-    private domainService: DomainService
+    private domainService: DomainService,
+    private helpersService: HelpersService
   ) {
     this.addDomainUserForm = new FormGroup({
       numberUserCtr: new FormControl('', [Validators.required, Validators.min(1), Validators.pattern('^[0-9]*$') ]),
@@ -33,16 +35,13 @@ export class AddDomainUserDialogComponent implements OnInit {
     this.userPasswordCtr?.setValue('P@ssw0rd123');
   }
 
-  onCancel() {
-    this.dialogRef.close()
-  }
-
   addDomainUsers() {
-    const jsonData = {
+    const jsonDataValue = {
       domain_id: this.data.genData.domainId,
       number_user: Number(this.numberUserCtr?.value),
       user_password: this.userPasswordCtr?.value
     }
+    const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.domainService.addDomainUser(jsonData).subscribe(response => {
       this.toastr.success(response.message);
       this.dialogRef.close();

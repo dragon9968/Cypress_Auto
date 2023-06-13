@@ -4,4 +4,5 @@ import { MapImageState } from './map-image.state';
 
 export const selectMapImageFeature = createFeatureSelector<MapImageState>(ReducerKeys.MAP_IMAGE);
 export const selectMapImages = createSelector(selectMapImageFeature, (state: MapImageState) => state.mapImages);
+export const selectImages = createSelector(selectMapImageFeature, (state: MapImageState) => state.images);
 

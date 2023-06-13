@@ -1,16 +1,27 @@
-<mat-card class="device-category">
-  <mat-card-title class="title">Device Category</mat-card-title>
-  <mat-card-actions class="device-category__action">
-    <button mat-raised-button color="primary" (click)="addDeviceCategory()">
-      <mat-icon>add</mat-icon>
-    </button>
-  </mat-card-actions>
-  <mat-card-content>
+<mat-card class="table">
+  <mat-card-title class="table__title">Device Category</mat-card-title>
+  <div class="table__nav">
+    <div class="table__nav--actions">
+      <ng-template [ngxPermissionsOnly]="['can_write on Devices']">
+        <button mat-button mat-mini-fab color="primary" matTooltip="Add" (click)="addDeviceCategory()">
+          <mat-icon>add</mat-icon>
+        </button>
+        <button mat-button mat-mini-fab color="primary" matTooltip="Edit" (click)="editDeviceCategory()">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteCategory()">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </ng-template>
+    </div>
+  </div>
+  <mat-card-content class="table__content">
     <ag-grid-angular
-      class="ag-theme-alpine device-category__ag"
+      class="ag-theme-alpine"
       [gridOptions]="gridOptions"
       (gridReady)="onGridReady($event)"
-      [rowData]="rowData$ | async">
+      [rowData]="rowData$ | async"
+      (rowSelected)="selectRow()">
     </ag-grid-angular>
   </mat-card-content>
 </mat-card>

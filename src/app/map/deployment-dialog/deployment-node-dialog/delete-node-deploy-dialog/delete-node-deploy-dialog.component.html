@@ -1,0 +1,28 @@
+<form [formGroup]="deleteNodeDeployForm" (ngSubmit)="deleteNodeDeployed()" autocomplete="off" >
+  <h1 mat-dialog-title>Delete node from remote server {{ connection.name}}?</h1>
+  <mat-dialog-content>
+    <mat-form-field class="field">
+      <input
+        autocomplete="off" id="delete-deploy-loginprofile" 
+        matInput
+        type="text"
+        formControlName="loginProfileCtr"
+        [matAutocomplete]="autoLoginProfile"
+        placeholder="Required when deleting domain client node">
+      <mat-autocomplete #autoLoginProfile="matAutocomplete" [displayWith]="helperService.optionDisplay">
+        <mat-option *ngFor="let option of filteredLoginProfiles | async" [value]="option" style="height: 60px !important;">
+          <div class="login-profiles-option-text">
+            <span class="option-text-items"><b>{{ option.name }}</b></span>
+            <span class="option-text-items">Username: {{ option.username }}</span>
+            <span class="option-text-items">Password: {{ option.password }}</span>
+          </div>
+        </mat-option>
+      </mat-autocomplete>
+      <mat-error *ngIf="loginProfileCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions [align]="'end'">
+    <button mat-raised-button type="button" mat-dialog-close>Cancel</button>
+    <button mat-raised-button type="submit" color="primary" [disabled]="deleteNodeDeployForm.invalid">OK</button>
+  </mat-dialog-actions>
+</form>

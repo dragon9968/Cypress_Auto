@@ -1,0 +1,2829 @@
+{
+  "name": "project",
+  "version": "v0.12.2-17-ga3b3e26",
+  "collection": [
+    {
+      "created_on": "2023-05-11T15:07:23.725734",
+      "changed_on": "2023-05-11T15:07:58.745564",
+      "map_data": {
+        "logical": {
+          "map_style": {
+            "node": {
+              "width": "70px",
+              "height": "70px"
+            },
+            "port_group": {
+              "size": "20px",
+              "color": "#0000FF"
+            },
+            "edge": {
+              "size": "2px",
+              "color": "#000000"
+            },
+            "text": {
+              "size": "25px",
+              "color": "#000000"
+            },
+            "group_box": {
+              "color": "#00DCFF",
+              "group_opacity": "20%",
+              "zIndex": 997,
+              "gbs": []
+            },
+            "map_background": {
+              "zIndex": 998,
+              "bgs": []
+            },
+            "grid_settings": {
+              "enabled": false,
+              "spacing": "100"
+            },
+            "accessed": true,
+            "cleared": false,
+            "default_map_pref_id": 1,
+            "edge_direction_checkbox": false,
+            "groupbox_checkbox": false,
+            "group_category": "domain"
+          },
+          "locked": false,
+          "position": null,
+          "parent_id": null
+        }
+      },
+      "id": 2,
+      "name": "Collection Project - 2",
+      "description": "",
+      "lock": false,
+      "status": "active",
+      "category": "project",
+      "configuration": {
+        "build_options": {
+          "build_options": {
+            "option": "simple",
+            "target": "vmware_vcenter",
+            "enclave_type": "simple",
+            "enclave_number": 0,
+            "enclave_clients": 0,
+            "enclave_servers": 0,
+            "enclave_users": 0
+          },
+          "features": [],
+          "dashboard": {
+            "map": true,
+            "calendar": true,
+            "scenario": false,
+            "system": false
+          },
+          "properties": {
+            "enclaves": 0,
+            "switches": 1,
+            "port_groups": {
+              "public": 0,
+              "private": 0
+            },
+            "domains": 0,
+            "domain_users": 0,
+            "nodes": 0
+          },
+          "vlan_min": 2000,
+          "vlan_max": 2100
+        },
+        "networks": [
+          {
+            "network": "10.0.0.0/8",
+            "category": "public",
+            "reserved_ip": []
+          },
+          {
+            "network": "192.168.0.0/16",
+            "category": "private",
+            "reserved_ip": []
+          },
+          {
+            "network": "172.16.0.0/22",
+            "category": "management",
+            "reserved_ip": []
+          }
+        ]
+      },
+      "created_by_fk": 1,
+      "changed_by_fk": 1,
+      "domain": [
+        {
+          "created_on": "2023-05-11T15:07:24.169443",
+          "changed_on": "2023-05-11T15:07:24.169452",
+          "id": 8,
+          "name": "beta.test",
+          "collection_id": 2,
+          "admin_user": "administrator@beta.test",
+          "admin_password": "P@ssw0rd",
+          "created_by_fk": 1,
+          "changed_by_fk": 1,
+          "domain_user": [
+            {
+              "created_on": "2023-05-11T15:07:24.187204",
+              "changed_on": "2023-05-11T15:07:24.187211",
+              "id": 6,
+              "username": "delbert.myers1",
+              "firstname": "Delbert",
+              "lastname": "Myers",
+              "domain_id": 8,
+              "configuration": {
+                "password": "P@ssw0rd123"
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1
+            },
+            {
+              "created_on": "2023-05-11T15:07:24.195864",
+              "changed_on": "2023-05-11T15:07:24.195869",
+              "id": 7,
+              "username": "carmen.garner1",
+              "firstname": "Carmen",
+              "lastname": "Garner",
+              "domain_id": 8,
+              "configuration": {
+                "password": "P@ssw0rd123"
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1
+            },
+            {
+              "created_on": "2023-05-11T15:07:24.203508",
+              "changed_on": "2023-05-11T15:07:24.203518",
+              "id": 8,
+              "username": "michale.booth1",
+              "firstname": "Michale",
+              "lastname": "Booth",
+              "domain_id": 8,
+              "configuration": {
+                "password": "P@ssw0rd123"
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1
+            },
+            {
+              "created_on": "2023-05-11T15:07:24.212371",
+              "changed_on": "2023-05-11T15:07:24.212376",
+              "id": 9,
+              "username": "alicia.fox1",
+              "firstname": "Alicia",
+              "lastname": "Fox",
+              "domain_id": 8,
+              "configuration": {
+                "password": "P@ssw0rd123"
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1
+            },
+            {
+              "created_on": "2023-05-11T15:07:24.220883",
+              "changed_on": "2023-05-11T15:07:24.220890",
+              "id": 10,
+              "username": "bennett.mueller1",
+              "firstname": "Bennett",
+              "lastname": "Mueller",
+              "domain_id": 8,
+              "configuration": {
+                "password": "P@ssw0rd123"
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1
+            }
+          ]
+        },
+        {
+          "created_on": "2023-05-11T15:07:23.734892",
+          "changed_on": "2023-05-11T15:07:23.734899",
+          "id": 5,
+          "name": "default.test",
+          "collection_id": 2,
+          "admin_user": null,
+          "admin_password": null,
+          "created_by_fk": 1,
+          "changed_by_fk": 1
+        },
+        {
+          "created_on": "2023-05-11T15:07:23.763020",
+          "changed_on": "2023-05-11T15:07:23.763026",
+          "id": 7,
+          "name": "dynamic.test",
+          "collection_id": 2,
+          "admin_user": "administrator@dynamic.test",
+          "admin_password": "P@ssw0rd",
+          "created_by_fk": 1,
+          "changed_by_fk": 1
+        },
+        {
+          "created_on": "2023-05-11T15:07:23.748412",
+          "changed_on": "2023-05-11T15:07:23.748418",
+          "id": 6,
+          "name": "management.test",
+          "collection_id": 2,
+          "admin_user": null,
+          "admin_password": null,
+          "created_by_fk": 1,
+          "changed_by_fk": 1
+        }
+      ],
+      "group": [
+        {
+          "created_on": "2023-05-11T15:07:23.745315",
+          "changed_on": "2023-05-11T15:07:23.745323",
+          "map_data": {
+            "logical": {
+              "map_style": {
+                "color": "#00DCFF",
+                "group_opacity": 0.2
+              },
+              "locked": false,
+              "position": null,
+              "parent_id": null
+            }
+          },
+          "id": 4,
+          "name": "default.test",
+          "category": "domain",
+          "description": "",
+          "collection_id": 2,
+          "domain_id": 5,
+          "created_by_fk": 1,
+          "changed_by_fk": 1
+        },
+        {
+          "created_on": "2023-05-11T15:07:23.770962",
+          "changed_on": "2023-05-11T15:07:23.770970",
+          "map_data": {
+            "logical": {
+              "map_style": {
+                "color": "#00DCFF",
+                "group_opacity": 0.2
+              },
+              "locked": false,
+              "position": null,
+              "parent_id": null
+            }
+          },
+          "id": 5,
+          "name": "dynamic.test",
+          "category": "domain",
+          "description": "",
+          "collection_id": 2,
+          "domain_id": 7,
+          "created_by_fk": 1,
+          "changed_by_fk": 1
+        },
+        {
+          "created_on": "2023-05-11T15:07:24.177631",
+          "changed_on": "2023-05-11T15:07:24.177638",
+          "map_data": {
+            "logical": {
+              "map_style": {
+                "color": "#00DCFF",
+                "group_opacity": 0.2
+              },
+              "locked": false,
+              "position": null,
+              "parent_id": null
+            }
+          },
+          "id": 6,
+          "name": "beta.test",
+          "category": "domain",
+          "description": "",
+          "collection_id": 2,
+          "domain_id": 8,
+          "created_by_fk": 1,
+          "changed_by_fk": 1
+        }
+      ],
+      "port_group": [
+        {
+          "created_on": "2023-05-11T15:07:23.829492",
+          "changed_on": "2023-05-11T15:07:58.710121",
+          "map_data": {
+            "logical": {
+              "map_style": {
+                "height": "20px",
+                "width": "20px",
+                "text_size": "25px",
+                "text_color": "rgb(0,0,0)",
+                "text_bg_color": "rgb(0,0,0)",
+                "text_bg_opacity": "0",
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "text-wrap": "wrap",
+                "background-image": "none",
+                "background-fit": "contain",
+                "color": "rgb(0,0,255)"
+              },
+              "locked": false,
+              "position": {
+                "x": 1047.1150487316402,
+                "y": 992.1543697720931
+              }
+            },
+            "physical": {
+              "map_style": {
+                "text_color": "#000000",
+                "text_size": "25",
+                "text_bg_color": "#000000",
+                "text_bg_opacity": 0.0,
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "width": "20",
+                "height": "20",
+                "color": "#0000FF"
+              }
+            }
+          },
+          "id": 10,
+          "name": "cro_net_64ldd4lp",
+          "vlan": 2002,
+          "collection_id": 2,
+          "domain_id": 7,
+          "switch_id": null,
+          "subnet_allocation": "static_auto",
+          "subnet": "10.215.88.128/26",
+          "category": "public",
+          "configuration": null,
+          "created_by_fk": 1,
+          "changed_by_fk": 1,
+          "domain": "dynamic.test",
+          "groups": [
+            "dynamic.test"
+          ]
+        },
+        {
+          "created_on": "2023-05-11T15:07:24.233003",
+          "changed_on": "2023-05-11T15:07:58.715775",
+          "map_data": {
+            "logical": {
+              "map_style": {
+                "height": "20px",
+                "width": "20px",
+                "text_size": "25px",
+                "text_color": "rgb(0,0,0)",
+                "text_bg_color": "rgb(0,0,0)",
+                "text_bg_opacity": "0",
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "text-wrap": "wrap",
+                "background-image": "none",
+                "background-fit": "contain",
+                "color": "rgb(0,0,255)"
+              },
+              "locked": false,
+              "position": {
+                "x": 536.0972376980864,
+                "y": 122.28056688938642
+              }
+            },
+            "physical": {
+              "map_style": {
+                "text_color": "#000000",
+                "text_size": "25",
+                "text_bg_color": "#000000",
+                "text_bg_opacity": 0.0,
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "width": "20",
+                "height": "20",
+                "color": "#0000FF"
+              }
+            }
+          },
+          "id": 11,
+          "name": "cro_net_8jdccd1p",
+          "vlan": 2003,
+          "collection_id": 2,
+          "domain_id": 7,
+          "switch_id": null,
+          "subnet_allocation": "static_auto",
+          "subnet": "10.161.226.64/26",
+          "category": "public",
+          "configuration": null,
+          "created_by_fk": 1,
+          "changed_by_fk": 1,
+          "domain": "dynamic.test",
+          "groups": [
+            "beta.test"
+          ]
+        },
+        {
+          "created_on": "2023-05-11T15:07:23.784140",
+          "changed_on": "2023-05-11T15:07:58.727880",
+          "map_data": {
+            "logical": {
+              "map_style": {
+                "height": "20px",
+                "width": "20px",
+                "text_size": "25px",
+                "text_color": "rgb(0,0,0)",
+                "text_bg_color": "rgb(0,0,0)",
+                "text_bg_opacity": "0",
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "text-wrap": "wrap",
+                "background-image": "none",
+                "background-fit": "contain",
+                "color": "rgb(0,0,255)"
+              },
+              "locked": false,
+              "position": {
+                "x": 1007.7319480000182,
+                "y": 400.77128751632523
+              }
+            },
+            "physical": {
+              "map_style": {
+                "text_color": "#000000",
+                "text_size": "25",
+                "text_bg_color": "#000000",
+                "text_bg_opacity": 0.0,
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "width": "20",
+                "height": "20",
+                "color": "#0000FF"
+              }
+            }
+          },
+          "id": 8,
+          "name": "cro_net_8uq063ll",
+          "vlan": 2000,
+          "collection_id": 2,
+          "domain_id": 7,
+          "switch_id": null,
+          "subnet_allocation": "static_auto",
+          "subnet": "10.98.157.128/28",
+          "category": "public",
+          "configuration": null,
+          "created_by_fk": 1,
+          "changed_by_fk": 1,
+          "domain": "dynamic.test",
+          "groups": [
+            "dynamic.test"
+          ]
+        },
+        {
+          "created_on": "2023-05-11T15:07:24.249885",
+          "changed_on": "2023-05-11T15:07:58.733712",
+          "map_data": {
+            "logical": {
+              "map_style": {
+                "height": "20px",
+                "width": "20px",
+                "text_size": "25px",
+                "text_color": "rgb(0,0,0)",
+                "text_bg_color": "rgb(0,0,0)",
+                "text_bg_opacity": "0",
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "text-wrap": "wrap",
+                "background-image": "none",
+                "background-fit": "contain",
+                "color": "rgb(0,0,255)"
+              },
+              "locked": false,
+              "position": {
+                "x": 216.83493998253186,
+                "y": 403.83637519935337
+              }
+            },
+            "physical": {
+              "map_style": {
+                "text_color": "#000000",
+                "text_size": "25",
+                "text_bg_color": "#000000",
+                "text_bg_opacity": 0.0,
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "width": "20",
+                "height": "20",
+                "color": "#0000FF"
+              }
+            }
+          },
+          "id": 12,
+          "name": "cro_net_pg7w01wv",
+          "vlan": 2004,
+          "collection_id": 2,
+          "domain_id": 8,
+          "switch_id": null,
+          "subnet_allocation": "static_auto",
+          "subnet": "192.168.154.0/24",
+          "category": "private",
+          "configuration": null,
+          "created_by_fk": 1,
+          "changed_by_fk": 1,
+          "domain": "beta.test",
+          "groups": [
+            "beta.test"
+          ]
+        },
+        {
+          "created_on": "2023-05-11T15:07:23.810485",
+          "changed_on": "2023-05-11T15:07:58.740257",
+          "map_data": {
+            "logical": {
+              "map_style": {
+                "height": "20px",
+                "width": "20px",
+                "text_size": "25px",
+                "text_color": "rgb(0,0,0)",
+                "text_bg_color": "rgb(0,0,0)",
+                "text_bg_opacity": "0",
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "text-wrap": "wrap",
+                "background-image": "none",
+                "background-fit": "contain",
+                "color": "rgb(0,0,255)"
+              },
+              "locked": false,
+              "position": {
+                "x": 793.0988357316346,
+                "y": 607.5060613382801
+              }
+            },
+            "physical": {
+              "map_style": {
+                "text_color": "#000000",
+                "text_size": "25",
+                "text_bg_color": "#000000",
+                "text_bg_opacity": 0.0,
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "width": "20",
+                "height": "20",
+                "color": "#0000FF"
+              }
+            }
+          },
+          "id": 9,
+          "name": "cro_net_vrj4byxo",
+          "vlan": 2001,
+          "collection_id": 2,
+          "domain_id": 7,
+          "switch_id": null,
+          "subnet_allocation": "static_auto",
+          "subnet": "10.50.144.128/27",
+          "category": "public",
+          "configuration": null,
+          "created_by_fk": 1,
+          "changed_by_fk": 1,
+          "domain": "dynamic.test",
+          "groups": [
+            "dynamic.test"
+          ]
+        },
+        {
+          "created_on": "2023-05-11T15:07:23.755958",
+          "changed_on": "2023-05-11T15:07:23.755966",
+          "map_data": {},
+          "id": 7,
+          "name": "Management",
+          "vlan": 404,
+          "collection_id": 2,
+          "domain_id": null,
+          "switch_id": null,
+          "subnet_allocation": "static_manual",
+          "subnet": "172.16.0.0/22",
+          "category": "management",
+          "configuration": {
+            "map_data": {
+              "management": {
+                "height": "20px",
+                "width": "20px",
+                "color": "#0000FF",
+                "parent": null
+              }
+            }
+          },
+          "created_by_fk": 1,
+          "changed_by_fk": 1,
+          "domain": null,
+          "groups": []
+        }
+      ],
+      "node": [
+        {
+          "created_on": "2023-05-11T15:07:24.376942",
+          "changed_on": "2023-05-11T15:07:58.646003",
+          "deploy_data": null,
+          "map_data": {
+            "logical": {
+              "map_style": {
+                "height": "70px",
+                "width": "70px",
+                "text_size": "25px",
+                "text_color": "rgb(0,0,0)",
+                "text_bg_color": "rgb(0,0,0)",
+                "text_bg_opacity": "0",
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "text-wrap": "wrap",
+                "background-image": "http://localhost:5000/static/img/uploads/a7beaea7-efd2-11ed-bfcd-0bfe6eabd776_sep_linux_client_black.png",
+                "background-fit": "contain"
+              },
+              "locked": false,
+              "position": {
+                "x": 365.60452583578,
+                "y": 649.0199847828652
+              }
+            },
+            "physical": {
+              "map_style": {
+                "text_color": "#000000",
+                "text_size": "25",
+                "text_bg_color": "#000000",
+                "text_bg_opacity": 0.0,
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "width": 70,
+                "height": 70
+              }
+            }
+          },
+          "id": 16,
+          "name": "linux-client-3",
+          "category": "vm",
+          "notes": null,
+          "parent_folder": "Collection Project - 2",
+          "folder": "beta",
+          "collection_id": 2,
+          "hardware_id": null,
+          "device_id": 1,
+          "template_id": 3,
+          "domain_id": 8,
+          "role": "linux_client",
+          "icon_id": 6,
+          "configuration": {
+            "hostname": "linux-client-3"
+          },
+          "default_config_id": 16,
+          "login_profile_id": null,
+          "created_by_fk": 1,
+          "changed_by_fk": 1,
+          "domain": "beta.test",
+          "interface": [
+            {
+              "created_on": "2023-05-11T15:07:24.404093",
+              "changed_on": "2023-05-11T15:07:24.404101",
+              "id": 40,
+              "order": 1,
+              "name": "eth0",
+              "description": "Management",
+              "category": "management",
+              "port_group_id": 7,
+              "node_id": 16,
+              "map_link_id": null,
+              "ip_allocation": "dhcp",
+              "ip": null,
+              "netmask_id": null,
+              "configuration": {
+                "map_data": {
+                  "logical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  },
+                  "physical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  }
+                }
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1,
+              "port_group": "Management",
+              "node": "linux-client-3",
+              "netmask_bit": null
+            },
+            {
+              "created_on": "2023-05-11T15:07:24.424671",
+              "changed_on": "2023-05-11T15:07:24.643389",
+              "id": 41,
+              "order": 2,
+              "name": "eth1",
+              "description": "ETH1",
+              "category": "wired",
+              "port_group_id": 12,
+              "node_id": 16,
+              "map_link_id": null,
+              "ip_allocation": "static_auto",
+              "ip": "192.168.154.8",
+              "netmask_id": 17,
+              "configuration": {
+                "map_data": {
+                  "logical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  },
+                  "physical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  }
+                },
+                "gateway": null,
+                "is_gateway": false
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1,
+              "port_group": "cro_net_pg7w01wv",
+              "node": "linux-client-3",
+              "netmask_bit": 24
+            }
+          ],
+          "groups": [
+            "beta.test"
+          ],
+          "configs": [],
+          "template": "ubuntu_16.04-template",
+          "icon": "Linux Client (Black)",
+          "device": "Linux Client"
+        },
+        {
+          "created_on": "2023-05-11T15:07:24.564349",
+          "changed_on": "2023-05-11T15:07:58.652242",
+          "deploy_data": null,
+          "map_data": {
+            "logical": {
+              "map_style": {
+                "height": "70px",
+                "width": "70px",
+                "text_size": "25px",
+                "text_color": "rgb(0,0,0)",
+                "text_bg_color": "rgb(0,0,0)",
+                "text_bg_opacity": "0",
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "text-wrap": "wrap",
+                "background-image": "http://localhost:5000/static/img/uploads/a7beaeab-efd2-11ed-bfcd-0bfe6eabd776_sep_server_black.png",
+                "background-fit": "contain"
+              },
+              "locked": false,
+              "position": {
+                "x": 49.75,
+                "y": 474.0660953482814
+              }
+            },
+            "physical": {
+              "map_style": {
+                "text_color": "#000000",
+                "text_size": "25",
+                "text_bg_color": "#000000",
+                "text_bg_opacity": 0.0,
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "width": 70,
+                "height": 70
+              }
+            }
+          },
+          "id": 19,
+          "name": "linux-srvr-2",
+          "category": "vm",
+          "notes": null,
+          "parent_folder": "Collection Project - 2",
+          "folder": "beta",
+          "collection_id": 2,
+          "hardware_id": null,
+          "device_id": 2,
+          "template_id": 8,
+          "domain_id": 8,
+          "role": "linux_server",
+          "icon_id": 10,
+          "configuration": {
+            "hostname": "linux-srvr-2"
+          },
+          "default_config_id": 19,
+          "login_profile_id": null,
+          "created_by_fk": 1,
+          "changed_by_fk": 1,
+          "domain": "beta.test",
+          "interface": [
+            {
+              "created_on": "2023-05-11T15:07:24.580023",
+              "changed_on": "2023-05-11T15:07:24.580029",
+              "id": 46,
+              "order": 1,
+              "name": "eth0",
+              "description": "Management",
+              "category": "management",
+              "port_group_id": 7,
+              "node_id": 19,
+              "map_link_id": null,
+              "ip_allocation": "dhcp",
+              "ip": null,
+              "netmask_id": null,
+              "configuration": {
+                "map_data": {
+                  "logical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  },
+                  "physical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  }
+                }
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1,
+              "port_group": "Management",
+              "node": "linux-srvr-2",
+              "netmask_bit": null
+            },
+            {
+              "created_on": "2023-05-11T15:07:24.599506",
+              "changed_on": "2023-05-11T15:07:24.643407",
+              "id": 47,
+              "order": 2,
+              "name": "eth1",
+              "description": "ETH1",
+              "category": "wired",
+              "port_group_id": 12,
+              "node_id": 19,
+              "map_link_id": null,
+              "ip_allocation": "static_auto",
+              "ip": "192.168.154.223",
+              "netmask_id": 17,
+              "configuration": {
+                "map_data": {
+                  "logical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  },
+                  "physical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  }
+                },
+                "gateway": null,
+                "is_gateway": false
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1,
+              "port_group": "cro_net_pg7w01wv",
+              "node": "linux-srvr-2",
+              "netmask_bit": 24
+            }
+          ],
+          "groups": [
+            "beta.test"
+          ],
+          "configs": [],
+          "template": "ubuntu_server_22.04-template",
+          "icon": "Server (Black)",
+          "device": "Linux Server"
+        },
+        {
+          "created_on": "2023-05-11T15:07:24.614846",
+          "changed_on": "2023-05-11T15:07:58.660051",
+          "deploy_data": null,
+          "map_data": {
+            "logical": {
+              "map_style": {
+                "height": "70px",
+                "width": "70px",
+                "text_size": "25px",
+                "text_color": "rgb(0,0,0)",
+                "text_bg_color": "rgb(0,0,0)",
+                "text_bg_opacity": "0",
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "text-wrap": "wrap",
+                "background-image": "http://localhost:5000/static/img/uploads/a7beaeab-efd2-11ed-bfcd-0bfe6eabd776_sep_server_black.png",
+                "background-fit": "contain"
+              },
+              "locked": false,
+              "position": {
+                "x": 166.68415431547146,
+                "y": 735.3837458520537
+              }
+            },
+            "physical": {
+              "map_style": {
+                "text_color": "#000000",
+                "text_size": "25",
+                "text_bg_color": "#000000",
+                "text_bg_opacity": 0.0,
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "width": 70,
+                "height": 70
+              }
+            }
+          },
+          "id": 20,
+          "name": "linux-srvr-3",
+          "category": "vm",
+          "notes": null,
+          "parent_folder": "Collection Project - 2",
+          "folder": "beta",
+          "collection_id": 2,
+          "hardware_id": null,
+          "device_id": 2,
+          "template_id": 6,
+          "domain_id": 8,
+          "role": "linux_server",
+          "icon_id": 10,
+          "configuration": {
+            "hostname": "linux-srvr-3"
+          },
+          "default_config_id": 20,
+          "login_profile_id": null,
+          "created_by_fk": 1,
+          "changed_by_fk": 1,
+          "domain": "beta.test",
+          "interface": [
+            {
+              "created_on": "2023-05-11T15:07:24.629698",
+              "changed_on": "2023-05-11T15:07:24.629703",
+              "id": 48,
+              "order": 1,
+              "name": "eth0",
+              "description": "Management",
+              "category": "management",
+              "port_group_id": 7,
+              "node_id": 20,
+              "map_link_id": null,
+              "ip_allocation": "dhcp",
+              "ip": null,
+              "netmask_id": null,
+              "configuration": {
+                "map_data": {
+                  "logical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  },
+                  "physical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  }
+                }
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1,
+              "port_group": "Management",
+              "node": "linux-srvr-3",
+              "netmask_bit": null
+            },
+            {
+              "created_on": "2023-05-11T15:07:24.650462",
+              "changed_on": "2023-05-11T15:07:24.650469",
+              "id": 49,
+              "order": 2,
+              "name": "eth1",
+              "description": "ETH1",
+              "category": "wired",
+              "port_group_id": 12,
+              "node_id": 20,
+              "map_link_id": null,
+              "ip_allocation": "static_auto",
+              "ip": "192.168.154.208",
+              "netmask_id": 17,
+              "configuration": {
+                "map_data": {
+                  "logical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  },
+                  "physical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  }
+                },
+                "gateway": null
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1,
+              "port_group": "cro_net_pg7w01wv",
+              "node": "linux-srvr-3",
+              "netmask_bit": 24
+            }
+          ],
+          "groups": [],
+          "configs": [],
+          "template": "ubuntu_server_18.04-template",
+          "icon": "Server (Black)",
+          "device": "Linux Server"
+        },
+        {
+          "created_on": "2023-05-11T15:07:24.300421",
+          "changed_on": "2023-05-11T15:07:58.666238",
+          "deploy_data": null,
+          "map_data": {
+            "logical": {
+              "map_style": {
+                "height": "70px",
+                "width": "70px",
+                "text_size": "25px",
+                "text_color": "rgb(0,0,0)",
+                "text_bg_color": "rgb(0,0,0)",
+                "text_bg_opacity": "0",
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "text-wrap": "wrap",
+                "background-image": "http://localhost:5000/static/img/uploads/a7beaea4-efd2-11ed-bfcd-0bfe6eabd776_sep_router_black.png",
+                "background-fit": "contain"
+              },
+              "locked": false,
+              "position": {
+                "x": 388.3721099881899,
+                "y": 332.6211414198492
+              }
+            },
+            "physical": {
+              "map_style": {
+                "text_color": "#000000",
+                "text_size": "25",
+                "text_bg_color": "#000000",
+                "text_bg_opacity": 0.0,
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "width": 70,
+                "height": 70
+              }
+            }
+          },
+          "id": 15,
+          "name": "vyos-firewall-2",
+          "category": "vm",
+          "notes": null,
+          "parent_folder": "Collection Project - 2",
+          "folder": "beta",
+          "collection_id": 2,
+          "hardware_id": null,
+          "device_id": 5,
+          "template_id": 15,
+          "domain_id": 8,
+          "role": "firewall",
+          "icon_id": 3,
+          "configuration": {
+            "hostname": "vyos-firewall-2"
+          },
+          "default_config_id": 15,
+          "login_profile_id": null,
+          "created_by_fk": 1,
+          "changed_by_fk": 1,
+          "domain": "beta.test",
+          "interface": [
+            {
+              "created_on": "2023-05-11T15:07:24.315492",
+              "changed_on": "2023-05-11T15:07:24.315498",
+              "id": 37,
+              "order": 1,
+              "name": "eth0",
+              "description": "Management",
+              "category": "management",
+              "port_group_id": 7,
+              "node_id": 15,
+              "map_link_id": null,
+              "ip_allocation": "dhcp",
+              "ip": null,
+              "netmask_id": null,
+              "configuration": {
+                "map_data": {
+                  "logical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  },
+                  "physical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  }
+                }
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1,
+              "port_group": "Management",
+              "node": "vyos-firewall-2",
+              "netmask_bit": null
+            },
+            {
+              "created_on": "2023-05-11T15:07:24.334867",
+              "changed_on": "2023-05-11T15:07:24.334875",
+              "id": 38,
+              "order": 2,
+              "name": "eth1",
+              "description": "ETH1",
+              "category": "wired",
+              "port_group_id": 11,
+              "node_id": 15,
+              "map_link_id": null,
+              "ip_allocation": "static_auto",
+              "ip": "10.161.226.66",
+              "netmask_id": 19,
+              "configuration": {
+                "map_data": {
+                  "logical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  },
+                  "physical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  }
+                },
+                "is_gateway": null,
+                "gateway": {
+                  "gateway": "10.161.226.65"
+                }
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1,
+              "port_group": "cro_net_8jdccd1p",
+              "node": "vyos-firewall-2",
+              "netmask_bit": 26
+            },
+            {
+              "created_on": "2023-05-11T15:07:24.359122",
+              "changed_on": "2023-05-11T15:07:24.642670",
+              "id": 39,
+              "order": 3,
+              "name": "eth2",
+              "description": "ETH2",
+              "category": "wired",
+              "port_group_id": 12,
+              "node_id": 15,
+              "map_link_id": null,
+              "ip_allocation": "static_auto",
+              "ip": "192.168.154.1",
+              "netmask_id": 17,
+              "configuration": {
+                "map_data": {
+                  "logical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  },
+                  "physical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  }
+                },
+                "is_gateway": false,
+                "gateway": null
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1,
+              "port_group": "cro_net_pg7w01wv",
+              "node": "vyos-firewall-2",
+              "netmask_bit": 24
+            }
+          ],
+          "groups": [
+            "beta.test"
+          ],
+          "configs": [],
+          "template": "vyos_1.2.4-template",
+          "icon": "Router (Black)",
+          "device": "VyOS"
+        },
+        {
+          "created_on": "2023-05-11T15:07:23.850658",
+          "changed_on": "2023-05-11T15:07:58.673278",
+          "deploy_data": null,
+          "map_data": {
+            "logical": {
+              "map_style": {
+                "height": "70px",
+                "width": "70px",
+                "text_size": "25px",
+                "text_color": "rgb(0,0,0)",
+                "text_bg_color": "rgb(0,0,0)",
+                "text_bg_opacity": "0",
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "text-wrap": "wrap",
+                "background-image": "http://localhost:5000/static/img/uploads/a7beaea4-efd2-11ed-bfcd-0bfe6eabd776_sep_router_black.png",
+                "background-fit": "contain"
+              },
+              "locked": false,
+              "position": {
+                "x": 942.1407410315287,
+                "y": 717.347428292237
+              }
+            },
+            "physical": {
+              "map_style": {
+                "text_color": "#000000",
+                "text_size": "25",
+                "text_bg_color": "#000000",
+                "text_bg_opacity": 0.0,
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "width": 70,
+                "height": 70
+              }
+            }
+          },
+          "id": 11,
+          "name": "vyos-router-5",
+          "category": "vm",
+          "notes": null,
+          "parent_folder": "Collection Project - 2",
+          "folder": "dynamic",
+          "collection_id": 2,
+          "hardware_id": null,
+          "device_id": 5,
+          "template_id": 15,
+          "domain_id": 7,
+          "role": "router",
+          "icon_id": 3,
+          "configuration": {
+            "hostname": "vyos-router-5",
+            "tag": "isp"
+          },
+          "default_config_id": 11,
+          "login_profile_id": null,
+          "created_by_fk": 1,
+          "changed_by_fk": 1,
+          "domain": "dynamic.test",
+          "interface": [
+            {
+              "created_on": "2023-05-11T15:07:23.866810",
+              "changed_on": "2023-05-11T15:07:23.866815",
+              "id": 26,
+              "order": 1,
+              "name": "eth0",
+              "description": "Management",
+              "category": "management",
+              "port_group_id": 7,
+              "node_id": 11,
+              "map_link_id": null,
+              "ip_allocation": "dhcp",
+              "ip": null,
+              "netmask_id": null,
+              "configuration": {
+                "map_data": {
+                  "logical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  },
+                  "physical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  }
+                }
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1,
+              "port_group": "Management",
+              "node": "vyos-router-5",
+              "netmask_bit": null
+            },
+            {
+              "created_on": "2023-05-11T15:07:23.887664",
+              "changed_on": "2023-05-11T15:07:23.887670",
+              "id": 27,
+              "order": 2,
+              "name": "eth1",
+              "description": "ETH1",
+              "category": "wired",
+              "port_group_id": 8,
+              "node_id": 11,
+              "map_link_id": null,
+              "ip_allocation": "static_auto",
+              "ip": "10.98.157.129",
+              "netmask_id": 21,
+              "configuration": {
+                "map_data": {
+                  "logical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  },
+                  "physical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  }
+                },
+                "is_gateway": true,
+                "protocol": [
+                  {
+                    "name": "OSPF"
+                  }
+                ],
+                "gateway": null
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1,
+              "port_group": "cro_net_8uq063ll",
+              "node": "vyos-router-5",
+              "netmask_bit": 28
+            },
+            {
+              "created_on": "2023-05-11T15:07:23.919988",
+              "changed_on": "2023-05-11T15:07:23.919996",
+              "id": 28,
+              "order": 3,
+              "name": "eth2",
+              "description": "ETH2",
+              "category": "wired",
+              "port_group_id": 9,
+              "node_id": 11,
+              "map_link_id": null,
+              "ip_allocation": "static_auto",
+              "ip": "10.50.144.129",
+              "netmask_id": 20,
+              "configuration": {
+                "map_data": {
+                  "logical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  },
+                  "physical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  }
+                },
+                "is_gateway": true,
+                "protocol": [
+                  {
+                    "name": "OSPF"
+                  }
+                ],
+                "gateway": null
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1,
+              "port_group": "cro_net_vrj4byxo",
+              "node": "vyos-router-5",
+              "netmask_bit": 27
+            },
+            {
+              "created_on": "2023-05-11T15:07:23.951166",
+              "changed_on": "2023-05-11T15:07:23.951176",
+              "id": 29,
+              "order": 4,
+              "name": "eth3",
+              "description": "ETH3",
+              "category": "wired",
+              "port_group_id": 10,
+              "node_id": 11,
+              "map_link_id": null,
+              "ip_allocation": "static_auto",
+              "ip": "10.215.88.129",
+              "netmask_id": 19,
+              "configuration": {
+                "map_data": {
+                  "logical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  },
+                  "physical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  }
+                },
+                "is_gateway": true,
+                "protocol": [
+                  {
+                    "name": "OSPF"
+                  }
+                ],
+                "gateway": null
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1,
+              "port_group": "cro_net_64ldd4lp",
+              "node": "vyos-router-5",
+              "netmask_bit": 26
+            }
+          ],
+          "groups": [
+            "dynamic.test"
+          ],
+          "configs": [],
+          "template": "vyos_1.2.4-template",
+          "icon": "Router (Black)",
+          "device": "VyOS"
+        },
+        {
+          "created_on": "2023-05-11T15:07:23.977682",
+          "changed_on": "2023-05-11T15:07:58.678907",
+          "deploy_data": null,
+          "map_data": {
+            "logical": {
+              "map_style": {
+                "height": "70px",
+                "width": "70px",
+                "text_size": "25px",
+                "text_color": "rgb(0,0,0)",
+                "text_bg_color": "rgb(0,0,0)",
+                "text_bg_opacity": "0",
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "text-wrap": "wrap",
+                "background-image": "http://localhost:5000/static/img/uploads/a7beaea4-efd2-11ed-bfcd-0bfe6eabd776_sep_router_black.png",
+                "background-fit": "contain"
+              },
+              "locked": false,
+              "position": {
+                "x": 1082.3924461090883,
+                "y": 86.86868828805365
+              }
+            },
+            "physical": {
+              "map_style": {
+                "text_color": "#000000",
+                "text_size": "25",
+                "text_bg_color": "#000000",
+                "text_bg_opacity": 0.0,
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "width": 70,
+                "height": 70
+              }
+            }
+          },
+          "id": 12,
+          "name": "vyos-router-6",
+          "category": "vm",
+          "notes": null,
+          "parent_folder": "Collection Project - 2",
+          "folder": "dynamic",
+          "collection_id": 2,
+          "hardware_id": null,
+          "device_id": 5,
+          "template_id": 15,
+          "domain_id": 7,
+          "role": "router",
+          "icon_id": 3,
+          "configuration": {
+            "hostname": "vyos-router-6",
+            "tag": "isp"
+          },
+          "default_config_id": 12,
+          "login_profile_id": null,
+          "created_by_fk": 1,
+          "changed_by_fk": 1,
+          "domain": "dynamic.test",
+          "interface": [
+            {
+              "created_on": "2023-05-11T15:07:23.996236",
+              "changed_on": "2023-05-11T15:07:23.996241",
+              "id": 30,
+              "order": 1,
+              "name": "eth0",
+              "description": "Management",
+              "category": "management",
+              "port_group_id": 7,
+              "node_id": 12,
+              "map_link_id": null,
+              "ip_allocation": "dhcp",
+              "ip": null,
+              "netmask_id": null,
+              "configuration": {
+                "map_data": {
+                  "logical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  },
+                  "physical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  }
+                }
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1,
+              "port_group": "Management",
+              "node": "vyos-router-6",
+              "netmask_bit": null
+            },
+            {
+              "created_on": "2023-05-11T15:07:24.015883",
+              "changed_on": "2023-05-11T15:07:24.015889",
+              "id": 31,
+              "order": 2,
+              "name": "eth1",
+              "description": "ETH1",
+              "category": "wired",
+              "port_group_id": 8,
+              "node_id": 12,
+              "map_link_id": null,
+              "ip_allocation": "static_auto",
+              "ip": "10.98.157.130",
+              "netmask_id": 21,
+              "configuration": {
+                "map_data": {
+                  "logical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  },
+                  "physical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  }
+                },
+                "is_gateway": true,
+                "protocol": [
+                  {
+                    "name": "OSPF"
+                  }
+                ],
+                "gateway": null
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1,
+              "port_group": "cro_net_8uq063ll",
+              "node": "vyos-router-6",
+              "netmask_bit": 28
+            }
+          ],
+          "groups": [
+            "dynamic.test"
+          ],
+          "configs": [],
+          "template": "vyos_1.2.4-template",
+          "icon": "Router (Black)",
+          "device": "VyOS"
+        },
+        {
+          "created_on": "2023-05-11T15:07:24.051812",
+          "changed_on": "2023-05-11T15:07:58.684657",
+          "deploy_data": null,
+          "map_data": {
+            "logical": {
+              "map_style": {
+                "height": "70px",
+                "width": "70px",
+                "text_size": "25px",
+                "text_color": "rgb(0,0,0)",
+                "text_bg_color": "rgb(0,0,0)",
+                "text_bg_opacity": "0",
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "text-wrap": "wrap",
+                "background-image": "http://localhost:5000/static/img/uploads/a7beaea4-efd2-11ed-bfcd-0bfe6eabd776_sep_router_black.png",
+                "background-fit": "contain"
+              },
+              "locked": false,
+              "position": {
+                "x": 686.3912219581375,
+                "y": 333.84210192772457
+              }
+            },
+            "physical": {
+              "map_style": {
+                "text_color": "#000000",
+                "text_size": "25",
+                "text_bg_color": "#000000",
+                "text_bg_opacity": 0.0,
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "width": 70,
+                "height": 70
+              }
+            }
+          },
+          "id": 13,
+          "name": "vyos-router-7",
+          "category": "vm",
+          "notes": null,
+          "parent_folder": "Collection Project - 2",
+          "folder": "dynamic",
+          "collection_id": 2,
+          "hardware_id": null,
+          "device_id": 5,
+          "template_id": 15,
+          "domain_id": 7,
+          "role": "router",
+          "icon_id": 3,
+          "configuration": {
+            "hostname": "vyos-router-7",
+            "tag": "isp"
+          },
+          "default_config_id": 13,
+          "login_profile_id": null,
+          "created_by_fk": 1,
+          "changed_by_fk": 1,
+          "domain": "dynamic.test",
+          "interface": [
+            {
+              "created_on": "2023-05-11T15:07:24.067008",
+              "changed_on": "2023-05-11T15:07:24.067013",
+              "id": 32,
+              "order": 1,
+              "name": "eth0",
+              "description": "Management",
+              "category": "management",
+              "port_group_id": 7,
+              "node_id": 13,
+              "map_link_id": null,
+              "ip_allocation": "dhcp",
+              "ip": null,
+              "netmask_id": null,
+              "configuration": {
+                "map_data": {
+                  "logical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  },
+                  "physical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  }
+                }
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1,
+              "port_group": "Management",
+              "node": "vyos-router-7",
+              "netmask_bit": null
+            },
+            {
+              "created_on": "2023-05-11T15:07:24.089329",
+              "changed_on": "2023-05-11T15:07:24.089336",
+              "id": 33,
+              "order": 2,
+              "name": "eth1",
+              "description": "ETH1",
+              "category": "wired",
+              "port_group_id": 9,
+              "node_id": 13,
+              "map_link_id": null,
+              "ip_allocation": "static_auto",
+              "ip": "10.50.144.130",
+              "netmask_id": 20,
+              "configuration": {
+                "map_data": {
+                  "logical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  },
+                  "physical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  }
+                },
+                "is_gateway": true,
+                "protocol": [
+                  {
+                    "name": "OSPF"
+                  }
+                ],
+                "gateway": null
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1,
+              "port_group": "cro_net_vrj4byxo",
+              "node": "vyos-router-7",
+              "netmask_bit": 27
+            },
+            {
+              "created_on": "2023-05-11T15:07:24.286681",
+              "changed_on": "2023-05-11T15:07:24.286691",
+              "id": 36,
+              "order": 3,
+              "name": "eth2",
+              "description": "ETH2",
+              "category": "wired",
+              "port_group_id": 11,
+              "node_id": 13,
+              "map_link_id": null,
+              "ip_allocation": "static_auto",
+              "ip": "10.161.226.65",
+              "netmask_id": 19,
+              "configuration": {
+                "map_data": {
+                  "logical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  },
+                  "physical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  }
+                },
+                "is_gateway": true,
+                "protocol": [
+                  {
+                    "name": "OSPF"
+                  }
+                ],
+                "gateway": null
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1,
+              "port_group": "cro_net_8jdccd1p",
+              "node": "vyos-router-7",
+              "netmask_bit": 26
+            }
+          ],
+          "groups": [
+            "dynamic.test"
+          ],
+          "configs": [],
+          "template": "vyos_1.2.4-template",
+          "icon": "Router (Black)",
+          "device": "VyOS"
+        },
+        {
+          "created_on": "2023-05-11T15:07:24.117771",
+          "changed_on": "2023-05-11T15:07:58.691723",
+          "deploy_data": null,
+          "map_data": {
+            "logical": {
+              "map_style": {
+                "height": "70px",
+                "width": "70px",
+                "text_size": "25px",
+                "text_color": "rgb(0,0,0)",
+                "text_bg_color": "rgb(0,0,0)",
+                "text_bg_opacity": "0",
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "text-wrap": "wrap",
+                "background-image": "http://localhost:5000/static/img/uploads/a7beaea4-efd2-11ed-bfcd-0bfe6eabd776_sep_router_black.png",
+                "background-fit": "contain"
+              },
+              "locked": false,
+              "position": {
+                "x": 1004.8108201062342,
+                "y": 1320.7472767023432
+              }
+            },
+            "physical": {
+              "map_style": {
+                "text_color": "#000000",
+                "text_size": "25",
+                "text_bg_color": "#000000",
+                "text_bg_opacity": 0.0,
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "width": 70,
+                "height": 70
+              }
+            }
+          },
+          "id": 14,
+          "name": "vyos-router-8",
+          "category": "vm",
+          "notes": null,
+          "parent_folder": "Collection Project - 2",
+          "folder": "dynamic",
+          "collection_id": 2,
+          "hardware_id": null,
+          "device_id": 5,
+          "template_id": 15,
+          "domain_id": 7,
+          "role": "router",
+          "icon_id": 3,
+          "configuration": {
+            "hostname": "vyos-router-8",
+            "tag": "isp"
+          },
+          "default_config_id": 14,
+          "login_profile_id": null,
+          "created_by_fk": 1,
+          "changed_by_fk": 1,
+          "domain": "dynamic.test",
+          "interface": [
+            {
+              "created_on": "2023-05-11T15:07:24.133554",
+              "changed_on": "2023-05-11T15:07:24.133561",
+              "id": 34,
+              "order": 1,
+              "name": "eth0",
+              "description": "Management",
+              "category": "management",
+              "port_group_id": 7,
+              "node_id": 14,
+              "map_link_id": null,
+              "ip_allocation": "dhcp",
+              "ip": null,
+              "netmask_id": null,
+              "configuration": {
+                "map_data": {
+                  "logical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  },
+                  "physical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  }
+                }
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1,
+              "port_group": "Management",
+              "node": "vyos-router-8",
+              "netmask_bit": null
+            },
+            {
+              "created_on": "2023-05-11T15:07:24.154393",
+              "changed_on": "2023-05-11T15:07:24.154402",
+              "id": 35,
+              "order": 2,
+              "name": "eth1",
+              "description": "ETH1",
+              "category": "wired",
+              "port_group_id": 10,
+              "node_id": 14,
+              "map_link_id": null,
+              "ip_allocation": "static_auto",
+              "ip": "10.215.88.130",
+              "netmask_id": 19,
+              "configuration": {
+                "map_data": {
+                  "logical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  },
+                  "physical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  }
+                },
+                "is_gateway": true,
+                "protocol": [
+                  {
+                    "name": "OSPF"
+                  }
+                ],
+                "gateway": null
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1,
+              "port_group": "cro_net_64ldd4lp",
+              "node": "vyos-router-8",
+              "netmask_bit": 26
+            }
+          ],
+          "groups": [
+            "dynamic.test"
+          ],
+          "configs": [],
+          "template": "vyos_1.2.4-template",
+          "icon": "Router (Black)",
+          "device": "VyOS"
+        },
+        {
+          "created_on": "2023-05-11T15:07:24.440476",
+          "changed_on": "2023-05-11T15:07:58.698419",
+          "deploy_data": null,
+          "map_data": {
+            "logical": {
+              "map_style": {
+                "height": "70px",
+                "width": "70px",
+                "text_size": "25px",
+                "text_color": "rgb(0,0,0)",
+                "text_bg_color": "rgb(0,0,0)",
+                "text_bg_opacity": "0",
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "text-wrap": "wrap",
+                "background-image": "http://localhost:5000/static/img/uploads/a7beaea8-efd2-11ed-bfcd-0bfe6eabd776_sep_win_client_black.png",
+                "background-fit": "contain"
+              },
+              "locked": false,
+              "position": {
+                "x": 261.76830782213483,
+                "y": 67
+              }
+            },
+            "physical": {
+              "map_style": {
+                "text_color": "#000000",
+                "text_size": "25",
+                "text_bg_color": "#000000",
+                "text_bg_opacity": 0.0,
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "width": 70,
+                "height": 70
+              }
+            }
+          },
+          "id": 17,
+          "name": "win-client-2",
+          "category": "vm",
+          "notes": null,
+          "parent_folder": "Collection Project - 2",
+          "folder": "beta",
+          "collection_id": 2,
+          "hardware_id": null,
+          "device_id": 8,
+          "template_id": 19,
+          "domain_id": 8,
+          "role": "windows_client",
+          "icon_id": 7,
+          "configuration": {
+            "hostname": "win-client-2"
+          },
+          "default_config_id": 17,
+          "login_profile_id": null,
+          "created_by_fk": 1,
+          "changed_by_fk": 1,
+          "domain": "beta.test",
+          "interface": [
+            {
+              "created_on": "2023-05-11T15:07:24.456305",
+              "changed_on": "2023-05-11T15:07:24.456312",
+              "id": 42,
+              "order": 1,
+              "name": "eth0",
+              "description": "Management",
+              "category": "management",
+              "port_group_id": 7,
+              "node_id": 17,
+              "map_link_id": null,
+              "ip_allocation": "dhcp",
+              "ip": null,
+              "netmask_id": null,
+              "configuration": {
+                "map_data": {
+                  "logical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  },
+                  "physical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  }
+                }
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1,
+              "port_group": "Management",
+              "node": "win-client-2",
+              "netmask_bit": null
+            },
+            {
+              "created_on": "2023-05-11T15:07:24.476021",
+              "changed_on": "2023-05-11T15:07:24.643401",
+              "id": 43,
+              "order": 2,
+              "name": "eth1",
+              "description": "ETH1",
+              "category": "wired",
+              "port_group_id": 12,
+              "node_id": 17,
+              "map_link_id": null,
+              "ip_allocation": "static_auto",
+              "ip": "192.168.154.242",
+              "netmask_id": 17,
+              "configuration": {
+                "map_data": {
+                  "logical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  },
+                  "physical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  }
+                },
+                "gateway": null,
+                "is_gateway": false
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1,
+              "port_group": "cro_net_pg7w01wv",
+              "node": "win-client-2",
+              "netmask_bit": 24
+            }
+          ],
+          "groups": [
+            "beta.test"
+          ],
+          "configs": [],
+          "template": "win10_1703_x64-template",
+          "icon": "Windows Client (Black)",
+          "device": "Windows Client"
+        },
+        {
+          "created_on": "2023-05-11T15:07:24.506956",
+          "changed_on": "2023-05-11T15:07:58.704594",
+          "deploy_data": null,
+          "map_data": {
+            "logical": {
+              "map_style": {
+                "height": "70px",
+                "width": "70px",
+                "text_size": "25px",
+                "text_color": "rgb(0,0,0)",
+                "text_bg_color": "rgb(0,0,0)",
+                "text_bg_opacity": "0",
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "text-wrap": "wrap",
+                "background-image": "http://localhost:5000/static/img/uploads/a7beaea8-efd2-11ed-bfcd-0bfe6eabd776_sep_win_client_black.png",
+                "background-fit": "contain"
+              },
+              "locked": false,
+              "position": {
+                "x": 62.65077923436115,
+                "y": 209.65005757705245
+              }
+            },
+            "physical": {
+              "map_style": {
+                "text_color": "#000000",
+                "text_size": "25",
+                "text_bg_color": "#000000",
+                "text_bg_opacity": 0.0,
+                "text_valign": "bottom",
+                "text_halign": "center",
+                "width": 70,
+                "height": 70
+              }
+            }
+          },
+          "id": 18,
+          "name": "win-client-3",
+          "category": "vm",
+          "notes": null,
+          "parent_folder": "Collection Project - 2",
+          "folder": "beta",
+          "collection_id": 2,
+          "hardware_id": null,
+          "device_id": 8,
+          "template_id": 21,
+          "domain_id": 8,
+          "role": "windows_client",
+          "icon_id": 7,
+          "configuration": {
+            "hostname": "win-client-3"
+          },
+          "default_config_id": 18,
+          "login_profile_id": null,
+          "created_by_fk": 1,
+          "changed_by_fk": 1,
+          "domain": "beta.test",
+          "interface": [
+            {
+              "created_on": "2023-05-11T15:07:24.525358",
+              "changed_on": "2023-05-11T15:07:24.525365",
+              "id": 44,
+              "order": 1,
+              "name": "eth0",
+              "description": "Management",
+              "category": "management",
+              "port_group_id": 7,
+              "node_id": 18,
+              "map_link_id": null,
+              "ip_allocation": "dhcp",
+              "ip": null,
+              "netmask_id": null,
+              "configuration": {
+                "map_data": {
+                  "logical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  },
+                  "physical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  }
+                }
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1,
+              "port_group": "Management",
+              "node": "win-client-3",
+              "netmask_bit": null
+            },
+            {
+              "created_on": "2023-05-11T15:07:24.545147",
+              "changed_on": "2023-05-11T15:07:24.643405",
+              "id": 45,
+              "order": 2,
+              "name": "eth1",
+              "description": "ETH1",
+              "category": "wired",
+              "port_group_id": 12,
+              "node_id": 18,
+              "map_link_id": null,
+              "ip_allocation": "static_auto",
+              "ip": "192.168.154.95",
+              "netmask_id": 17,
+              "configuration": {
+                "map_data": {
+                  "logical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  },
+                  "physical": {
+                    "map_style": {
+                      "text_color": "#000000",
+                      "text_size": "25",
+                      "text_bg_color": "#000000",
+                      "text_bg_opacity": 0.0,
+                      "text_valign": "bottom",
+                      "text_halign": "center",
+                      "width": "2",
+                      "color": "#000000"
+                    }
+                  }
+                },
+                "gateway": null,
+                "is_gateway": false
+              },
+              "created_by_fk": 1,
+              "changed_by_fk": 1,
+              "port_group": "cro_net_pg7w01wv",
+              "node": "win-client-3",
+              "netmask_bit": 24
+            }
+          ],
+          "groups": [
+            "beta.test"
+          ],
+          "configs": [],
+          "template": "win10_21H2_x64-template",
+          "icon": "Windows Client (Black)",
+          "device": "Windows Client"
+        }
+      ],
+      "map_image": [],
+      "map_link": []
+    }
+  ],
+  "config_template": [],
+  "hardware": [],
+  "image": [
+    {
+      "created_on": "2023-05-11T15:05:55.552426",
+      "changed_on": "2023-05-11T15:05:55.552432",
+      "id": 6,
+      "name": "Linux Client (Black)",
+      "category": "icon",
+      "photo": "linux_client_black.png",
+      "ext": "png",
+      "created_by_fk": 1,
+      "changed_by_fk": 1,
+      "binary": "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"
+    },
+    {
+      "created_on": "2023-05-11T15:05:55.597040",
+      "changed_on": "2023-05-11T15:05:55.597047",
+      "id": 10,
+      "name": "Server (Black)",
+      "category": "icon",
+      "photo": "server_black.png",
+      "ext": "png",
+      "created_by_fk": 1,
+      "changed_by_fk": 1,
+      "binary": "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"
+    },
+    {
+      "created_on": "2023-05-11T15:05:55.517697",
+      "changed_on": "2023-05-11T15:05:55.517706",
+      "id": 3,
+      "name": "Router (Black)",
+      "category": "icon",
+      "photo": "router_black.png",
+      "ext": "png",
+      "created_by_fk": 1,
+      "changed_by_fk": 1,
+      "binary": "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"
+    },
+    {
+      "created_on": "2023-05-11T15:05:55.567154",
+      "changed_on": "2023-05-11T15:05:55.567161",
+      "id": 7,
+      "name": "Windows Client (Black)",
+      "category": "icon",
+      "photo": "win_client_black.png",
+      "ext": "png",
+      "created_by_fk": 1,
+      "changed_by_fk": 1,
+      "binary": "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"
+    },
+    {
+      "created_on": "2023-05-11T15:05:55.529924",
+      "changed_on": "2023-05-11T15:05:55.529934",
+      "id": 4,
+      "name": "Firwall (Black)",
+      "category": "icon",
+      "photo": "firewall_black.png",
+      "ext": "png",
+      "created_by_fk": 1,
+      "changed_by_fk": 1,
+      "binary": "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"
+    },
+    {
+      "created_on": "2023-05-11T15:05:55.580155",
+      "changed_on": "2023-05-11T15:05:55.580161",
+      "id": 8,
+      "name": "Window Server (Black)",
+      "category": "icon",
+      "photo": "win_server_black.png",
+      "ext": "png",
+      "created_by_fk": 1,
+      "changed_by_fk": 1,
+      "binary": "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"
+    }
+  ],
+  "device": [
+    {
+      "id": 1,
+      "name": "Linux Client",
+      "icon_id": 6,
+      "default": true,
+      "category": [
+        "Linux Client"
+      ],
+      "template": [
+        {
+          "id": 3,
+          "name": "ubuntu_16.04-template",
+          "display_name": "Ubuntu 16.04",
+          "category": "vm",
+          "device_id": 1,
+          "icon_id": 6,
+          "properties": {},
+          "login_profile_id": null,
+          "device": "Linux Client",
+          "login_profile": null
+        },
+        {
+          "id": 1,
+          "name": "ubuntu_18.04-template",
+          "display_name": "Ubuntu 18.04",
+          "category": "vm",
+          "device_id": 1,
+          "icon_id": 6,
+          "properties": {},
+          "login_profile_id": null,
+          "device": "Linux Client",
+          "login_profile": null
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Linux Server",
+      "icon_id": 10,
+      "default": true,
+      "category": [
+        "Linux Server"
+      ],
+      "template": [
+        {
+          "id": 8,
+          "name": "ubuntu_server_22.04-template",
+          "display_name": "Ubuntu Server 22.04",
+          "category": "vm",
+          "device_id": 2,
+          "icon_id": 10,
+          "properties": {},
+          "login_profile_id": null,
+          "device": "Linux Server",
+          "login_profile": null
+        },
+        {
+          "id": 6,
+          "name": "ubuntu_server_18.04-template",
+          "display_name": "Ubuntu Server 18.04",
+          "category": "vm",
+          "device_id": 2,
+          "icon_id": 10,
+          "properties": {},
+          "login_profile_id": null,
+          "device": "Linux Server",
+          "login_profile": null
+        },
+        {
+          "id": 7,
+          "name": "ubuntu_server_20.04-template",
+          "display_name": "Ubuntu Server 20.04",
+          "category": "vm",
+          "device_id": 2,
+          "icon_id": 10,
+          "properties": {},
+          "login_profile_id": null,
+          "device": "Linux Server",
+          "login_profile": null
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "VyOS",
+      "icon_id": 3,
+      "default": true,
+      "category": [
+        "Router",
+        "Firewall"
+      ],
+      "template": [
+        {
+          "id": 15,
+          "name": "vyos_1.2.4-template",
+          "display_name": "VyOS 1.2.4",
+          "category": "vm",
+          "device_id": 5,
+          "icon_id": 3,
+          "properties": {},
+          "login_profile_id": null,
+          "device": "VyOS",
+          "login_profile": null
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Windows Client",
+      "icon_id": 7,
+      "default": true,
+      "category": [
+        "Windows Client"
+      ],
+      "template": [
+        {
+          "id": 19,
+          "name": "win10_1703_x64-template",
+          "display_name": "Windows 10 1703 x64",
+          "category": "vm",
+          "device_id": 8,
+          "icon_id": 7,
+          "properties": {},
+          "login_profile_id": null,
+          "device": "Windows Client",
+          "login_profile": null
+        },
+        {
+          "id": 21,
+          "name": "win10_21H2_x64-template",
+          "display_name": "Windows 10 21H2 x64",
+          "category": "vm",
+          "device_id": 8,
+          "icon_id": 7,
+          "properties": {},
+          "login_profile_id": null,
+          "device": "Windows Client",
+          "login_profile": null
+        },
+        {
+          "id": 20,
+          "name": "win10_1903_x86-template",
+          "display_name": "Windows 10 1903 x86",
+          "category": "vm",
+          "device_id": 8,
+          "icon_id": 7,
+          "properties": {},
+          "login_profile_id": null,
+          "device": "Windows Client",
+          "login_profile": null
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "pfSense",
+      "icon_id": 4,
+      "default": true,
+      "category": [
+        "Firewall"
+      ],
+      "template": [
+        {
+          "id": 22,
+          "name": "pfsense_2.4.4-template",
+          "display_name": "pfSense 2.4.4",
+          "category": "vm",
+          "device_id": 9,
+          "icon_id": 4,
+          "properties": {},
+          "login_profile_id": null,
+          "device": "pfSense",
+          "login_profile": null
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Windows Server",
+      "icon_id": 8,
+      "default": true,
+      "category": [
+        "Windows Server"
+      ],
+      "template": [
+        {
+          "id": 17,
+          "name": "winsrv2016_1607_x64-template",
+          "display_name": "Windows Server 2016 1607",
+          "category": "vm",
+          "device_id": 7,
+          "icon_id": 8,
+          "properties": {},
+          "login_profile_id": null,
+          "device": "Windows Server",
+          "login_profile": null
+        }
+      ]
+    }
+  ],
+  "device_category": [
+    {
+      "id": 1,
+      "name": "Linux Client"
+    },
+    {
+      "id": 2,
+      "name": "Linux Server"
+    },
+    {
+      "id": 6,
+      "name": "Router"
+    },
+    {
+      "id": 7,
+      "name": "Firewall"
+    },
+    {
+      "id": 9,
+      "name": "Windows Client"
+    },
+    {
+      "id": 8,
+      "name": "Windows Server"
+    }
+  ],
+  "login_profile": [],
+  "system": []
+}

@@ -13,6 +13,7 @@ import { ToastrModule } from 'ngx-toastr';
 import { CoreModule } from './core/core.module';
 import { AuthInterceptor } from './core/interceptors/auth/auth.interceptor';
 import { LoadingInterceptor } from './core/interceptors/loading/loading.interceptor';
+import { NgxPermissionsModule } from "ngx-permissions";
 
 
 @NgModule({
@@ -29,6 +30,7 @@ import { LoadingInterceptor } from './core/interceptors/loading/loading.intercep
     SharedModule,
     StoreModule.forRoot(reducers),
     ToastrModule.forRoot(),
+    NgxPermissionsModule.forRoot()
   ],
   providers: [
     {

@@ -1,0 +1,321 @@
+<form [formGroup]="configTemplateForm" data-cy="configTemplateForm" (ngSubmit)="data.mode === 'add' ? addConfigTemplate() : updateConfigTemplate()" autocomplete="off">
+  <div class="dialog-title">
+    <h1 mat-dialog-title class="add-config-title">{{ data.mode === 'add' ? 'Add Config Template' : data.mode === 'update' ? 'Edit Config Template' : 'Show Config Template' }}</h1>
+    <ng-template [ngxPermissionsOnly]="['can_write on Libraries']">
+      <button *ngIf="data.mode === 'view'" data-cy="btn-change-mode" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </ng-template>
+  </div>
+  <mat-dialog-content class="configuration-template">
+    <section class="configuration-template__left" [style.width]="isAddMode ? '100%' : '50%'">
+      <h3 *ngIf="!isAddMode" class="configuration-template__title">Information</h3>
+      <div class="configuration-template__left__info">
+        <mat-form-field class="field">
+          <mat-label>Name</mat-label>
+          <input autocomplete="off" type="text" name="name" id="config-name" formControlName="name" matInput [readonly]="isViewMode">
+          <mat-error *ngIf="name?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+          <mat-error *ngIf="name?.errors?.minlength || name?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH_50 }}</mat-error>
+        </mat-form-field>
+        <mat-form-field *ngIf="data.mode === 'view'" class="field">
+          <mat-label>Category</mat-label>
+          <input type="text" formControlName="category" matInput [readonly]="isViewMode">
+        </mat-form-field>
+        <mat-form-field class="field">
+          <mat-label>Description</mat-label>
+          <input autocomplete="off" name="description" id="config-description" type="text" formControlName="description" matInput [readonly]="isViewMode">
+        </mat-form-field>
+      </div>
+      <div *ngIf="!isAddMode" class="configuration-template__left__actions-add">
+        <form class="configuration-template__left__actions-add__form--show" [formGroup]="actionsAddForm" (ngSubmit)="showAddConfigForm()" autocomplete="off">
+          <mat-form-field class="configuration-template__left__actions-add__form--show--field">
+            <mat-label>Add Configuration Type</mat-label>
+            <input autocomplete="off" id="config-select-type" matInput placeholder="Select a add type"
+                   formControlName="addTypeCtr"
+                   [matAutocomplete]="autoActionsAdd" [readonly]="isViewMode">
+            <mat-autocomplete #autoActionsAdd="matAutocomplete" [displayWith]="helpersService.optionDisplay"
+                              (optionSelected)="selectAddType($event)">
+              <mat-option *ngFor="let addType of filteredAddActions | async" [value]="addType">
+                {{ addType.name }}
+              </mat-option>
+            </mat-autocomplete>
+            <mat-error *ngIf="addTypeCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+            <mat-error *ngIf="addTypeCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+          </mat-form-field>
+          <button mat-raised-button type="submit" color="primary" class="btn-show-form" [disabled]="actionsAddForm.invalid || data.mode != 'update'">
+            Show Form
+          </button>
+          <button mat-raised-button type="button" color="primary" [disabled]="actionsAddForm.invalid || data.mode != 'update'" (click)="hideAddForm()">
+            <mat-icon>cancel</mat-icon>
+          </button>
+        </form>
+        <div class="configuration-template__left__actions-add__form--add">
+          <!-- Add Route -->
+          <form *ngIf="isAddRoute" [formGroup]="configForm" (ngSubmit)="addRoute()" autocomplete="off">
+            <mat-dialog-content>
+              <mat-form-field class="field">
+                <mat-label>Route</mat-label>
+                <input autocomplete="off" id="config-route" type="text" formControlName="routeCtr" matInput>
+                <mat-error *ngIf="routeCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+              </mat-form-field>
+              <mat-form-field class="field">
+                <mat-label>Next Hop</mat-label>
+                <input autocomplete="off" id="config-nexthop" type="text" formControlName="nextHopCtr" matInput>
+                <mat-error *ngIf="nextHopCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+              </mat-form-field>
+              <mat-form-field class="field">
+                <mat-label>Interface</mat-label>
+                <input autocomplete="off" id="config-interface" type="text" formControlName="interfaceCtr" matInput>
+                <mat-error *ngIf="interfaceCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+              </mat-form-field>
+            </mat-dialog-content>
+            <mat-dialog-actions [align]="'end'">
+              <button mat-raised-button color="primary" type="submit" [disabled]="!configForm.valid">Add</button>
+            </mat-dialog-actions>
+          </form>
+          <!-- Add Firewall Rule -->
+          <form *ngIf="isAddFirewallRule" class="fw-form" [formGroup]="firewallRuleForm" (ngSubmit)="addFirewallRule()" autocomplete="off">
+            <mat-dialog-content class="fw-form__content">
+              <section class="fw-form__content__item">
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Category</mat-label>
+                  <mat-select formControlName="categoryFirewallRuleCtr" (selectionChange)="onCategoryChange($event)">
+                    <mat-option value="rule">Rule</mat-option>
+                    <mat-option value="port_forward">Port Forward</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Name</mat-label>
+                  <input autocomplete="off" id="config-firewall" type="text" formControlName="nameFirewallRuleCtr" matInput>
+                </mat-form-field>
+                <mat-form-field class="fw-form--field">
+                  <mat-label>State</mat-label>
+                  <mat-select formControlName="stateCtr">
+                    <mat-option value="present">Present</mat-option>
+                    <mat-option value="absent">Absent</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Action</mat-label>
+                  <mat-select formControlName="actionCtr">
+                    <mat-option value="pass">Pass</mat-option>
+                    <mat-option value="block">Block</mat-option>
+                    <mat-option value="reject">Reject</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Interface</mat-label>
+                  <mat-select formControlName="interfaceFirewallCtr">
+                    <mat-option value="eth0">eth0</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </section>
+              <section class="fw-form__content__item">
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Protocol</mat-label>
+                  <mat-select formControlName="protocolCtr">
+                    <mat-option value="any">Any</mat-option>
+                    <mat-option value="tcp">TCP</mat-option>
+                    <mat-option value="udp">UDP</mat-option>
+                    <mat-option value="tcp/udp">TCP/UDP</mat-option>
+                    <mat-option value="icmp">ICMP</mat-option>
+                    <mat-option value="igmp">IGMP</mat-option>
+                    <mat-option value="ospf">OSPF</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Source</mat-label>
+                  <input autocomplete="off" id="config-source" type="text" formControlName="sourceCtr" matInput>
+                </mat-form-field>
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Source Port</mat-label>
+                  <mat-select formControlName="sourcePortCtr" (selectionChange)="onChangeSourcePort($event)">
+                    <mat-option *ngFor="let option of PORT" [value]="option.id"> {{ option.name }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Source Custom Port</mat-label>
+                  <input autocomplete="off" id="config-custom-port" type="text" formControlName="sourceCustomPortCtr" matInput>
+                </mat-form-field>
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Destination</mat-label>
+                  <input autocomplete="off" id="config-firewall-description" type="text" formControlName="destinationCtr" matInput>
+                </mat-form-field>
+              </section>
+              <section class="fw-form__content__item">
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Destination Port</mat-label>
+                  <mat-select formControlName="destinationPortCtr" (selectionChange)="onChangeDestinationPort($event)"  >
+                    <mat-option *ngFor="let option of PORT" [value]="option.id"> {{ option.name }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Dest Custom Port</mat-label>
+                  <input autocomplete="off" id="config-dest-custom" type="text" formControlName="destCustomPortCtr" matInput>
+                </mat-form-field>
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Target</mat-label>
+                  <input autocomplete="off" id="config-target" type="text" formControlName="targetCtr" matInput>
+                </mat-form-field>
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Target Port</mat-label>
+                  <mat-select formControlName="targetPortCtr" (selectionChange)="onChangeTargetPort($event)"  >
+                    <mat-option *ngFor="let option of PORT" [value]="option.id"> {{ option.name }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field class="fw-form--field">
+                  <mat-label>Target Custom Port</mat-label>
+                  <input autocomplete="off" id="config-target-custom" type="text" formControlName="targetCustomPortCtr" matInput>
+                </mat-form-field>
+              </section>
+            </mat-dialog-content>
+            <div mat-dialog-actions [align]="'end'" class="fw-form__btn-submit">
+              <button mat-raised-button type="submit" color="primary" [disabled]="!firewallRuleForm.valid">Add</button>
+            </div>
+          </form>
+          <!-- Add Domain Membership -->
+          <form *ngIf="isAddDomainMembership" [formGroup]="domainMemberForm" (ngSubmit)="addDomainMembership()" autocomplete="off">
+            <mat-dialog-content class="domain-membership-form">
+              <section class="domain-membership-form__join-domain">
+                <label>Join Domain</label>
+                <mat-checkbox formControlName="joinDomainCtr"></mat-checkbox>
+              </section>
+              <mat-form-field class="field">
+                <mat-label>OU Path</mat-label>
+                <input autocomplete="off" id="config-ou-path" type="text" formControlName="ouPathCtr" matInput>
+              </mat-form-field>
+            </mat-dialog-content>
+            <mat-dialog-actions [align]="'end'">
+              <button mat-raised-button type="submit" color="primary" [disabled]="!domainMemberForm.valid">Add</button>
+            </mat-dialog-actions>
+          </form>
+          <!-- Add Roles & Service -->
+          <form *ngIf="isAddRolesAndService" class="roles-service-form" [formGroup]="roleServicesForm" (ngSubmit)="addRoleServices()">
+            <mat-dialog-content>
+<!--              <mat-label>Device</mat-label>-->
+              <ng-select
+                class="ng-select-roles-service"
+                formControlName="rolesCtr"
+                [items]="rolesAndService"
+                [multiple]="true"
+                bindLabel="name"
+                bindValue="name"
+                placeholder="Select roles or services"
+              >
+              </ng-select>
+            </mat-dialog-content>
+            <mat-dialog-actions [align]="'end'">
+              <button mat-raised-button type="submit" color="primary" [disabled]="roleServicesForm.invalid">Add</button>
+            </mat-dialog-actions>
+          </form>
+          <!-- Add OSPF configuration  -->
+          <form *ngIf="isAddOSPF" class="ospf-form" [formGroup]="ospfForm" data-cy="ospfForm" (ngSubmit)="addOSPF()" autocomplete="off">
+            <mat-dialog-content>
+              <mat-form-field class="field">
+                <mat-label>Networks</mat-label>
+                <input autocomplete="off" id="config-networks" type="text" matInput formControlName="networksCtr">
+                <mat-error *ngIf="networksCtr?.errors?.isNotMatchIP">{{ networksCtr?.errors?.value }}</mat-error>
+              </mat-form-field>
+              <section>
+                <span class="ospf-form--section"><strong>Redistribute</strong></span>
+                <mat-divider class="ospf-form--divider"></mat-divider>
+                <div class="ospf-form--field">
+                  <label>BGP</label>
+                  <mat-checkbox color="primary" class="cy-ospf-bgpState" formControlName="bgpStateCtr" [(ngModel)]="bgpChecked"></mat-checkbox>
+                </div>
+                <mat-form-field class="field">
+                  <mat-label>Metric Type</mat-label>
+                  <input autocomplete="off" id="config-bgp-metrictype" type="number" matInput formControlName="bgpMetricTypeCtr">
+                </mat-form-field>
+                <div class="ospf-form--field">
+                  <label>Connected</label>
+                  <mat-checkbox color="primary" class="cy-ospf-connectedState" formControlName="connectedStateCtr" [(ngModel)]="connectedChecked"></mat-checkbox>
+                </div>
+                <mat-form-field class="field">
+                  <mat-label>Metric Type</mat-label>
+                  <input autocomplete="off" id="config-connected-metrictype" type="number" matInput formControlName="connectedMetricTypeCtr">
+                </mat-form-field>
+                <div class="ospf-form--field">
+                  <label>Static</label>
+                  <mat-checkbox color="primary" class="cy-ospf-staticState" formControlName="staticStateCtr" [(ngModel)]="staticChecked"></mat-checkbox>
+                </div>
+                <mat-form-field class="field">
+                  <mat-label>Metric Type</mat-label>
+                  <input autocomplete="off" id="config-static-metrictype" type="number" matInput formControlName="staticMetricTypeCtr">
+                </mat-form-field>
+              </section>
+            </mat-dialog-content>
+            <mat-dialog-actions [align]="'end'">
+              <button mat-raised-button type="submit" color="primary" data-cy="btn-add-ospf" [disabled]="ospfForm.invalid">Add</button>
+            </mat-dialog-actions>
+          </form>
+          <!-- Add BGP Configuration -->
+          <form *ngIf="isAddBGP" class="bgp-form" data-cy="bgpForm" [formGroup]="bgpForm" (ngSubmit)="addBGP()" autocomplete="off">
+            <mat-dialog-content class="bgp-form__content">
+              <section class="bgp-form__content__item">
+                <mat-form-field class="field">
+                  <mat-label>IP</mat-label>
+                  <input autocomplete="off" id="config-bgp-ip" type="text" matInput formControlName="ipCtr">
+                  <mat-error *ngIf="ipCtr?.errors?.isNotMatchIP">{{ ipCtr?.errors?.value }}</mat-error>
+                </mat-form-field>
+                <mat-form-field class="field">
+                  <mat-label>ASN</mat-label>
+                  <input autocomplete="off" id="config-bgp-asn" type="text" matInput formControlName="asnCtr">
+                </mat-form-field>
+                <mat-form-field class="field">
+                  <mat-label>Neighbor IP</mat-label>
+                  <input autocomplete="off" id="config-neighborip" type="text" matInput formControlName="neighborIpCtr">
+                  <mat-error *ngIf="neighborIpCtr?.errors?.isNotMatchIP">{{ neighborIpCtr?.errors?.value }}</mat-error>
+                </mat-form-field>
+                <mat-form-field class="field">
+                  <mat-label>Neighbor ASN</mat-label>
+                  <input autocomplete="off" id="config-neighborasn" type="text" matInput formControlName="neighborAsnCtr">
+                </mat-form-field>
+              </section>
+              <section class="bgp-form__content__item">
+                <!-- <span class="bgp-form__content__item--section"><strong>Redistribute</strong></span> -->
+                <!-- <mat-divider class="bgp-form__content__item--divider"></mat-divider> -->
+                <div class="bgp-form__content__item--field">
+                  <label>Connected</label>
+                  <mat-checkbox color="primary" class="cy-bgp-connectedState" formControlName="bgpConnectedStateCtr" [(ngModel)]="bgpConnectedChecked"></mat-checkbox>
+                </div>
+                <mat-form-field class="field">
+                  <mat-label>Metric</mat-label>
+                  <input autocomplete="off" id="config-bgp-connected-metric" type="number" matInput formControlName="bgpConnectedMetricCtr">
+                </mat-form-field>
+                <div class="bgp-form__content__item--field">
+                  <label>OSPF</label>
+                  <mat-checkbox color="primary" class="cy-bgp-ospfState" formControlName="bgpOspfStateCtr" [(ngModel)]="bgpOspfChecked"></mat-checkbox>
+                </div>
+                <mat-form-field class="field">
+                  <mat-label>Metric</mat-label>
+                  <input autocomplete="off" id="config-bgpOspf-metric" type="number" matInput formControlName="bgpOspfMetricCtr">
+                </mat-form-field>
+              </section>
+            </mat-dialog-content>
+            <mat-dialog-actions [align]="'end'">
+              <button mat-raised-button type="submit" data-cy="btn-add-bgp" color="primary" [disabled]="bgpForm.invalid">Add</button>
+            </mat-dialog-actions>
+          </form>
+        </div>
+      </div>
+    </section>
+    <section class="configuration-template__right" *ngIf="data.mode !== 'add'">
+      <h3 class="configuration-template__title">Configuration</h3>
+      <div [ngClass]="isViewMode ? 'configuration-template__right__view' : 'configuration-template__right__edit'">
+        <div *ngIf="isViewMode">
+          <ngx-json-viewer [json]="defaultConfig" [expanded]="true"></ngx-json-viewer>
+        </div>
+        <div [style.display]="isViewMode ? 'none' : 'block'">
+          <ace-editor #editor></ace-editor>
+        </div>
+      </div>
+    </section>
+  </mat-dialog-content>
+  <mat-dialog-actions [align]="'end'">
+    <button mat-raised-button type="button" (click)="onCancel()">{{data.mode === 'view' ? 'Close' : 'Cancel'}}</button>
+    <button *ngIf="data.mode !== 'view'" mat-raised-button color="primary" [disabled]="!configTemplateForm.valid">
+     {{ data.mode === 'add' ? 'Create' : 'Update' }}
+    </button>
+  </mat-dialog-actions>
+</form>

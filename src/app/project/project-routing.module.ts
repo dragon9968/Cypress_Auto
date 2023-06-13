@@ -30,6 +30,13 @@ const routes: AppRoute[] = [
         }
       },
       {
+        path: 'templates',
+        component: ProjectComponent,
+        data: {
+          permissionLevel: PermissionLevels.USER,
+        }
+      },
+      {
         path: '',
         component: ProjectComponent,
         data: {

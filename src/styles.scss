@@ -8,12 +8,20 @@
 @import 'font-awesome/css/font-awesome.min.css';
 @import '~ngx-toastr/toastr';
 @import "~@ng-select/ng-select/themes/material.theme.css";
-$tool-panel-width: 300px;
-.project-actions {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+@font-face {
+  font-display: swap;
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/assets/fonts/roboto-v30-latin-regular.eot');
+  src: url('/assets/fonts/roboto-v30-latin-regular.eot?#iefix') format('embedded-opentype'),
+       url('/assets/fonts/roboto-v30-latin-regular.woff2') format('woff2'),
+       url('/assets/fonts/roboto-v30-latin-regular.woff') format('woff'),
+       url('/assets/fonts/roboto-v30-latin-regular.ttf') format('truetype'),
+       url('/assets/fonts/roboto-v30-latin-regular.svg#Roboto') format('svg');
 }
+$tool-panel-width: 300px;
+$margin: 8px;
 
 .mat-tab-label {
     min-width: calc($tool-panel-width/4) !important;
@@ -33,8 +41,6 @@ ul {
 
 .cy-panzoom {
     position: relative;
-    //font-size: 12px;
-    //color: #faf;
     font-family: arial, helvetica, sans-serif;
     line-height: 1;
     color: #666;
@@ -63,6 +69,32 @@ ag-grid-angular .ag-cell-focus,
     right: 0;
 }
 
+.field-checkbox {
+  padding-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Roboto', sans-serif;
+}
+
+.project-table {
+  height: calc(100vh - 200px);
+  text-align: center !important;
+}
+
+.content {
+  max-width: 70%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 16px;
+  box-shadow: 3px 6px 12px #a9a9a9;
+}
+
+.content-option {
+  display: flex;
+  flex-direction: column
+}
+
 
 /* Transparent Overlay */
 
@@ -87,4 +119,103 @@ ag-grid-angular .ag-cell-focus,
 
 .rounded-circle {
   border-radius: 50%;
+}
+
+/* START TABLE STYLE COMMON */
+.table {
+  width: 80%;
+  margin: 16px auto;
+  box-shadow: 3px 6px 12px #a9a9a9 !important;
+
+  // Table title
+  &__title {
+    text-align: center;
+    font-weight: 600;
+    font-size: 28px;
+  }
+
+  // Table nav
+  &__nav {
+    display: flex;
+    height: 50px;
+    justify-content: space-between;
+    padding-bottom: $margin;
+
+    // Actions button
+    &--actions {
+      padding: 0 5px 0 10px;
+      margin: $margin 0;
+      button {
+        margin-right: $margin;
+      }
+      button:last-child {
+        margin-right: 0;
+      }
+    }
+
+    // Search input
+    &--search {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      input {
+        font-size: 14px;
+        font-family: 'Roboto', sans-serif;
+        height: 80%;
+        padding: 0 calc($margin*2);
+        border-radius: 5px;
+        border: 1px solid #a9a9a9;
+      }
+      input:focus {
+        outline: none;
+        border-color: #719ECE;
+        box-shadow: 0 0 calc($margin/2) #719ECE;
+      }
+      input::placeholder {
+        color: #555;
+      }
+    }
+  }
+
+  // Table content
+  &__content ag-grid-angular {
+    height: calc(100vh - 240px);
+    text-align: center;
+    .ag-header-cell-label {
+      justify-content: center;
+    }
+    .ag-cell-wrap-text {
+      word-break: break-word;
+    }
+  }
+
+  &__content_open ag-grid-angular {
+    height: calc(100vh - 290px);
+    text-align: center;
+    .ag-header-cell-label {
+      justify-content: center;
+    }
+    .ag-cell-wrap-text {
+      word-break: break-word;
+    }
+  }
+}
+/* END TABLE STYLE COMMON */
+
+.dialog-title {
+  display: flex;
+  justify-content: space-between;
+}
+
+@media only screen and (max-width: 1500px) {
+  .cy-panzoom {
+    padding-top: 175px;
+  }
+}
+
+/* Define class for the node form modal */
+.custom-node-form-modal {
+  mat-dialog-container {
+    background-color: #eaeaea;
+  }
 }

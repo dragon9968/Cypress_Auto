@@ -2,7 +2,7 @@ import { Component, Input, OnChanges, OnDestroy } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { retrievedMapOption } from 'src/app/store/map-option/map-option.actions';
@@ -34,6 +34,7 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
   selectMapOption$ = new Subscription();
   groupBoxes: any;
   groupCategoryId!: string;
+  filteredGroupCategories!: Observable<any[]>;
 
   constructor(
     private store: Store,
@@ -46,12 +47,15 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
         this.groupCategoryId = mapOption.groupCategoryId;
       }
     });
+    this.filteredGroupCategories = this.helpers.filterOptions(this.groupCategoryCtr, this.groupCategories);
   }
 
   ngOnChanges(valueChange: any) {
     if (valueChange.cy?.currentValue && valueChange.config.currentValue) {
-      this.isEdgeDirectionChecked = this.config.default_preferences.edge_direction_checkbox;
-      this.isGroupBoxesChecked = this.config.default_preferences.groupbox_checkbox;
+      this.isEdgeDirectionChecked = this.config.default_preferences.edge_direction_checkbox != undefined
+                                  ? this.config.default_preferences.edge_direction_checkbox : this.isEdgeDirectionChecked;
+      this.isGroupBoxesChecked = this.config.default_preferences.groupbox_checkbox
+                               ? this.config.default_preferences.groupbox_checkbox : false;
       if (!this.groupCategoryId) {
         const groupCategory = this.groupCategories.filter(category => category.id == this.config.default_preferences.group_category)[0];
         this.groupCategoryCtr.setValue(groupCategory ? groupCategory : this.groupCategories[0]);
@@ -109,23 +113,7 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
   }
 
   toggleEdgeDirection() {
-    if (!this.isEdgeDirectionChecked) {
-      for (let i = 0; i < this.cy.edges().length; i++) {
-        const edge = this.cy.edges()[i];
-        const current_dir = edge.data('direction');
-        edge.data('prev_direction', current_dir);
-        edge.data('direction', 'none');
-      }
-    } else {
-      for (let i = 0; i < this.cy.edges().length; i++) {
-        const edge = this.cy.edges()[i];
-        let prev_dir = edge.data('prev_direction');
-        if (!prev_dir || prev_dir == 'none') {
-          prev_dir = 'both';
-        }
-        edge.data('direction', prev_dir);
-      }
-    }
+    this.helpers.changeEdgeDirectionOnMap(this.cy, this.isEdgeDirectionChecked)
     this.store.dispatch(retrievedMapOption({
       data: {
         isEdgeDirectionChecked: this.isEdgeDirectionChecked,
@@ -264,7 +252,7 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
       title: 'Network Map',
       message: 'Do you want to remove all custom stylings and/or map background?'
     }
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '600px', data: dialogData });
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '600px', data: dialogData });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         // remove Group Boxes if present

@@ -28,6 +28,10 @@ import { appPrefReducer } from "./app-pref/app-pref.reducer";
 import { mapPrefReducer } from "./map-pref/map-pref.reducer";
 import { userReducer } from "./user/user.reducer";
 import { userGuideReducer } from "./user-guide/user-guide.reducer";
+import { userProfileReducer } from "./user-profile/user-profile.reducer";
+import { lookupFeaturesReducer } from "./lookup-features/lookup-features.reducer";
+import { LookupNamesReducer } from "./lookup-names/lookup-names.reducer";
+import { netmaskReducer } from "./netmask/netmask.reducer";
 
 export const reducers = {
     [ReducerKeys.MAP]: mapReducer,
@@ -57,6 +61,10 @@ export const reducers = {
     [ReducerKeys.DOMAIN_USER_CHANGE]: isChangeDomainUserReducer,
     [ReducerKeys.APP_PREF]: appPrefReducer,
     [ReducerKeys.MAP_PREFS]: mapPrefReducer,
-    [ReducerKeys.USER]: userReducer,
+    [ReducerKeys.USERS]: userReducer,
+    [ReducerKeys.USER_PROFILE]: userProfileReducer,
     [ReducerKeys.USER_GUIDE]: userGuideReducer,
+    [ReducerKeys.LOOKUP_FEATURES]: lookupFeaturesReducer,
+    [ReducerKeys.LOOKUP_NAMES]: LookupNamesReducer,
+    [ReducerKeys.NETMASKS]: netmaskReducer,
 }

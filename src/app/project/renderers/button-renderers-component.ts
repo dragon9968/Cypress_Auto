@@ -5,7 +5,7 @@ import { ICellRendererParams } from 'ag-grid-community';
 @Component({
   selector: 'app-button-renderer',
   template: `
-    <button mat-icon-button type="button" color="primary" (click)="onClick($event)">
+    <button mat-icon-button data-cy="btn-delete-network" type="button" color="primary" (click)="onClick($event)">
       <mat-icon>delete</mat-icon>
     </button>
     `

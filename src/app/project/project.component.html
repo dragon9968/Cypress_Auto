@@ -1,9 +1,38 @@
-<mat-card class="content">
-    <mat-card-title class="title">Open a Project</mat-card-title>
-    <ag-grid-angular class="ag-theme-alpine project-table" [pagination]="true" [paginationPageSize]="25" [columnDefs]="columnDefs" [defaultColDef]="defaultColDef" [rowData]="rowData$ | async" rowSelection="multiple" (gridReady)="onGridReady($event)" (selectionChanged)="onSelectionChanged()"
-        (rowDoubleClicked)="onRowDoubleClicked()">
-    </ag-grid-angular>
-    <mat-card-actions align="end" class="open-btn">
-        <button mat-raised-button [disabled]="isSubmitBtnDisabled" color="primary" (click)="openProject()">Open</button>
-    </mat-card-actions>
+<mat-card class="table">
+    <mat-card-title class="table__title">{{ categoryPage === 'project' ? 'Projects' : categoryPage === 'template' ? 'Project Templates' : 'List All Projects' }}</mat-card-title>
+    <div class="table__nav">
+        <div class="table__nav--actions">
+            <div *ngIf="isAdmin">
+                <button mat-button mat-mini-fab color="primary" type="button" matTooltip="Edit" (click)="editProject()">
+                    <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-button mat-mini-fab color="primary" type="button" matTooltip="Delete" (click)="deleteProject()">
+                    <mat-icon>delete</mat-icon>
+                </button>
+                <button mat-button mat-mini-fab color="primary" type="button" matTooltip="Export as JSON" (click)="exportProject()">
+                    <mat-icon svgIcon="export-json"></mat-icon>
+                </button>
+            </div>
+        </div>
+        <div class="table__nav--search">
+          <input
+            matInput
+            name="projectsearch" id="search-project"
+            type="search"
+            [(ngModel)]="quickFilterValue"
+            placeholder="Search..."
+            (input)="onQuickFilterInput($event)"
+          >
+        </div>
+    </div>
+    <mat-card-content class="table__content_open">
+        <ag-grid-angular class="ag-theme-alpine" [pagination]="true" [paginationPageSize]="25"
+            [columnDefs]="columnDefs" [defaultColDef]="defaultColDef" [rowData]="rowData$ | async" rowSelection="multiple"
+            (gridReady)="onGridReady($event)" (selectionChanged)="onSelectionChanged()" (rowSelected)="selectedRows()"
+            (rowDoubleClicked)="onRowDoubleClicked()">
+        </ag-grid-angular>
+        <mat-card-actions *ngIf="!isAdmin" align="end" class="open-btn">
+            <button mat-raised-button [disabled]="isSubmitBtnDisabled" color="primary" (click)="openProject()">Open</button>
+        </mat-card-actions>
+    </mat-card-content>
 </mat-card>

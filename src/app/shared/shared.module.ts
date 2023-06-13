@@ -33,6 +33,15 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SpinnerComponent } from './components/spinner/spinner.component';
 import { MatPaginatorModule } from "@angular/material/paginator";
 import { DragDropModule } from "@angular/cdk/drag-drop";
+import { MatButtonToggleModule } from "@angular/material/button-toggle";
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { AngularDualListBoxModule } from 'angular-dual-listbox';
+import { NgxPermissionsModule } from "ngx-permissions";
+import { NgxJsonViewerModule } from "ngx-json-viewer";
+import { AceEditorModule } from "ng2-ace-editor";
+import { InfoPanelShowValidationResultsComponent } from './components/info-panel-show-validation-results/info-panel-show-validation-results.component';
+import { SetAttributeDirective } from './directive/set-attribute.directive';
+import { InfoPanelTableComponent } from './components/info-panel-table/info-panel-table.component';
 
 
 const materialModules = [
@@ -60,11 +69,14 @@ const materialModules = [
   MatChipsModule,
   MatProgressSpinnerModule,
   MatPaginatorModule,
-  DragDropModule
+  DragDropModule,
+  MatButtonToggleModule,
+  FlexLayoutModule,
+  AngularDualListBoxModule
 ];
 
 @NgModule({
-  declarations: [ConfirmationDialogComponent, SpinnerComponent],
+  declarations: [ConfirmationDialogComponent, SpinnerComponent, InfoPanelShowValidationResultsComponent, SetAttributeDirective, InfoPanelTableComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -86,7 +98,12 @@ const materialModules = [
     NgSelectModule,
     ...materialModules,
     ConfirmationDialogComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    NgxPermissionsModule,
+    NgxJsonViewerModule,
+    AceEditorModule,
+    SetAttributeDirective,
+    InfoPanelTableComponent
   ],
 })
 export class SharedModule {}

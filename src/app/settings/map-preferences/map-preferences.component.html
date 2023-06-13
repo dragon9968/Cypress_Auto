@@ -1,21 +1,26 @@
-<mat-card class="content">
-  <mat-card-title class="mappre-title">Map Preferences</mat-card-title>
-  <div class="sub-title">
-    <div class="left">
-      <button mat-raised-button color="primary" (click)="addMapPref()">
-        <mat-icon>add</mat-icon>
+<mat-card class="table">
+  <mat-card-title class="table__title">Map Preferences</mat-card-title>
+  <div class="table__nav">
+    <div class="table__nav--actions">
+      <ng-template [ngxPermissionsOnly]="['can_write on Settings']">
+        <button mat-button mat-mini-fab color="primary" matTooltip="Add" (click)="addMapPref()">
+          <mat-icon>add</mat-icon>
+        </button>
+        <button mat-button mat-mini-fab color="primary" matTooltip="Edit" (click)="updateMapPref()">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteMapPref()">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </ng-template>
+      <button mat-button mat-mini-fab color="primary" matTooltip="Export as JSON" (click)="export()">
+        <mat-icon svgIcon="export-json"></mat-icon>
       </button>
-      <button mat-button [matMenuTriggerFor]="actionMenu" class="actions">Actions
-        <mat-icon>keyboard_arrow_down</mat-icon>
-      </button>
-      <mat-menu #actionMenu="matMenu">
-        <button mat-menu-item (click)="export()"><mat-icon svgIcon="export-json"></mat-icon>Export as JSON</button>
-      </mat-menu>
     </div>
-    <div class="right">
+    <div class="table__nav--search">
       <input
         matInput
-        class="search"
+        name="mappref-search" id="search-mappref"
         type="search"
         [(ngModel)]="quickFilterValue"
         placeholder="Search..."
@@ -23,18 +28,21 @@
       >
     </div>
   </div>
-  <ag-grid-angular
-  class="ag-theme-alpine map-pre-table"
-  [pagination]="true"
-  [paginationPageSize]="25"
-  [columnDefs]="columnDefs"
-  [defaultColDef]="defaultColDef"
-  [rowData]="rowData$ | async"
-  [rowSelection]="'multiple'"
-  [suppressRowClickSelection]="true"
-  [animateRows]="true"
-  (gridReady)="onGridReady($event)"
-  (rowSelected)="selectedRows()"
-  >
-  </ag-grid-angular>
+  <mat-card-content class="table__content">
+    <ag-grid-angular
+      class="ag-theme-alpine map-pref-content"
+      [pagination]="true"
+      [paginationPageSize]="25"
+      [columnDefs]="columnDefs"
+      [defaultColDef]="defaultColDef"
+      [rowData]="rowData$ | async"
+      [rowSelection]="'multiple'"
+      [suppressRowClickSelection]="true"
+      [animateRows]="true"
+      (gridReady)="onGridReady($event)"
+      (rowSelected)="selectedRows()"
+      (rowDoubleClicked)="onRowDoubleClick($event)"
+    >
+    </ag-grid-angular>
+  </mat-card-content>
 </mat-card>

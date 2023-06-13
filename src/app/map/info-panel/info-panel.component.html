@@ -1,6 +1,6 @@
 <div class="map-info-panel-wrapper" [ngStyle]="style" mwlResizable [validateResize]="validate" [enableGhostResize]="true"
   [resizeSnapGrid]="{ left: 1, right: 1 }" (resizeEnd)="onResizeEnd($event)">
-  <mat-tab-group class="map-info-panel">
+  <mat-tab-group dynamicHeight class="map-info-panel">
     <mat-tab label="Nodes">
       <app-info-panel-node [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs" [activeEdges]="activeEdges"
         [activeGBs]="activeGBs" [deletedNodes]="deletedNodes" [deletedInterfaces]="deletedInterfaces" [infoPanelheight]="style.height">
@@ -34,11 +34,13 @@
       <app-info-panel-domain [infoPanelheight]="style.height"></app-info-panel-domain>
     </mat-tab>
     <mat-tab label="Group">
-      <app-info-panel-group [infoPanelheight]="style.height"></app-info-panel-group>
+      <app-info-panel-group [activeNodes]="activeNodes" [activePGs]="activePGs" [activeEdges]="activeEdges" [infoPanelheight]="style.height"></app-info-panel-group>
     </mat-tab>
-    <mat-tab label="Task List">
-      <app-info-panel-task [infoPanelheight]="style.height"></app-info-panel-task>
-    </mat-tab>
+    <ng-template [ngxPermissionsOnly]="['can_read on Tasks']">
+      <mat-tab label="Task List">
+        <app-info-panel-task [infoPanelheight]="style.height"></app-info-panel-task>
+      </mat-tab>
+    </ng-template>
   </mat-tab-group>
   <div class="resize-handle-top" mwlResizeHandle [resizeEdges]="{ top: true }"></div>
 </div>

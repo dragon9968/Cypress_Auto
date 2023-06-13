@@ -1,14 +1,26 @@
-<form [formGroup]="pgAddForm" (ngSubmit)="data.mode === 'add' ? addPG() : updatePG()">
-  <h1 mat-dialog-title>{{data.mode === 'add' ? 'Port Group Add' : data.mode === 'update' ? 'Port Group Edit' : 'Port Group Info'}}</h1>
+<form [formGroup]="pgAddForm" data-cy="pgAddForm" (ngSubmit)="data.mode === 'add' ? addPG() : updatePG()" autocomplete="off">
+  <div class="dialog-title">
+    <h1 mat-dialog-title>{{data.mode === 'add' ? 'Port Group Add' : data.mode === 'update' ? 'Port Group Edit' : 'Port Group Info'}}</h1>
+    <ng-template [ngxPermissionsOnly]="['can_write on Project']" [ngxPermissionsElse]="elseBlock">
+      <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </ng-template>
+    <ng-template #elseBlock>
+      <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()" disabled="true">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </ng-template>
+  </div>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
-      <input matInput formControlName="nameCtr" [readonly]="isViewMode">
+      <input autocomplete="off" id="pg-name" matInput formControlName="nameCtr" [readonly]="isViewMode">
       <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>VLAN ID</mat-label>
-      <input matInput formControlName="vlanCtr" [readonly]="isViewMode">
+      <input autocomplete="off" id="pg-vlan" matInput formControlName="vlanCtr" [readonly]="isViewMode">
       <mat-error *ngIf="vlanCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="vlanCtr?.errors?.pattern">{{ errorMessages.FIELD_IS_NUMBER }}</mat-error>
       <mat-error *ngIf="vlanCtr?.errors?.min">{{ errorMessages.VLAN_RANGE_VALUE_0_4095 }}</mat-error>
@@ -16,7 +28,7 @@
       <mat-error *ngIf="vlanCtr?.errors?.serverError">{{ vlanCtr?.errors?.serverError }}</mat-error>
       <mat-error *ngIf="vlanCtr?.errors?.errorServerExist">{{ vlanCtr?.errors?.errorServerExist }}</mat-error>
     </mat-form-field>
-    <div class="category">
+    <div *ngIf="data.mode !== 'add'" class="category">
       <label class="category-label">Category:</label>
       <mat-radio-group class="category-group" color="primary" formControlName="categoryCtr">
         <mat-radio-button class="category-items" value="private">Private</mat-radio-button>
@@ -26,10 +38,10 @@
     </div>
     <mat-form-field class="field">
       <mat-label>Domain</mat-label>
-      <input matInput type="text" placeholder="Select a domain" formControlName="domainCtr"
+      <input autocomplete="off" id="pg-domain" matInput type="text" placeholder="Select a domain" formControlName="domainCtr"
         [matAutocomplete]="autoDomain" [readonly]="isViewMode">
       <mat-autocomplete #autoDomain="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of domains" [value]="option">
+        <mat-option *ngFor="let option of filteredDomains | async" [value]="option">
           {{ option.name }}
         </mat-option>
       </mat-autocomplete>
@@ -46,7 +58,7 @@
     </div>
     <mat-form-field class="field">
       <mat-label>Subnet</mat-label>
-      <input matInput formControlName="subnetCtr" [readonly]="isViewMode">
+      <input autocomplete="off" id="pg-subnet" matInput formControlName="subnetCtr" [readonly]="isViewMode">
       <mat-error *ngIf="subnetCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="subnetCtr?.errors?.serverError">{{ subnetCtr?.errors?.serverError }}</mat-error>
       <mat-error *ngIf="subnetCtr?.errors?.errorServerExist">{{ subnetCtr?.errors?.errorServerExist }}</mat-error>
@@ -56,7 +68,7 @@
     <button mat-raised-button type="button" (click)="onCancel()">
       {{data.mode === 'view' ? 'Close' : 'Cancel'}}
     </button>
-    <button *ngIf="data.mode !== 'view'" mat-raised-button type="submit" color="primary" [disabled]="!pgAddForm.valid">
+    <button *ngIf="data.mode !== 'view'" mat-raised-button type="submit" color="primary" [disabled]="pgAddForm.invalid">
       {{data.mode === 'add' ? 'Add' : 'Update'}}
     </button>
   </div>

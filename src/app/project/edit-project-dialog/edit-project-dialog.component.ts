@@ -1,50 +1,67 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Router } from '@angular/router';
+import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { Store } from '@ngrx/store';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
+import { ColDef, GridApi, GridReadyEvent, ValueSetterParams } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
-import { catchError, Subscription, throwError } from 'rxjs';
+import { catchError, Observable, Subscription, throwError } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { UserService } from 'src/app/core/services/user/user.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
-import { asyncValidateValueSetter } from 'src/app/shared/validations/ip-subnet.validation.ag-grid';
-import { retrievedProjectName, retrievedProjects } from 'src/app/store/project/project.actions';
+import {
+  retrievedAllProjects, retrievedProjectCategory,
+  retrievedProjectName,
+  retrievedProjects,
+  retrievedProjectsTemplate,
+  retrievedRecentProjects
+} from 'src/app/store/project/project.actions';
 import { ButtonRenderersComponent } from '../renderers/button-renderers-component';
 import { ProjectService } from '../services/project.service';
-import { CustomTooltip } from '../../shared/components/tool-tip/custom-tool-tip';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
-import { selectProjects } from 'src/app/store/project/project.selectors';
+import { selectAllProjects, selectRecentProjects } from 'src/app/store/project/project.selectors';
+import { MatRadioChange } from '@angular/material/radio';
+import { selectUserProfile } from 'src/app/store/user-profile/user-profile.selectors';
+import { AuthService } from 'src/app/core/services/auth/auth.service';
+import { NgxPermissionsService } from "ngx-permissions";
 
 @Component({
   selector: 'app-edit-project-dialog',
   templateUrl: './edit-project-dialog.component.html',
   styleUrls: ['./edit-project-dialog.component.scss']
 })
-export class EditProjectDialogComponent implements OnInit {
+export class EditProjectDialogComponent implements OnInit, OnDestroy {
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
   private gridApi!: GridApi;
   editProjectForm!: FormGroup;
   errorMessages = ErrorMessages;
-  selectUserTasks$ = new Subscription();
-  selectProjects$ = new Subscription();
+  selectAllProjects$ = new Subscription();
+  selectRecentProjects$ = new Subscription();
+  selectProjectTemplate$ = new Subscription();
+  selectUser$ = new Subscription();
+  currentUser: any = {};
+  recentProjects: any[] = [];
   listProjects!: any[];
+  listTemplates!: any[];
   isDisableButton = false;
   rowData!: any[];
   listUser!: any[];
+  filteredListUser!: Observable<any[]>;
+  usersData!: any[];
   listShared: any[] = [];
-  isLoading = false;
+  status = 'active';
   defaultColDef: ColDef = {
     sortable: true,
     resizable: true,
     editable: true,
-    tooltipComponent: CustomTooltip,
   };
   columnDefs: ColDef[] = [
-    { headerName: '',
+    {
+      headerName: '',
       editable: false,
       maxWidth: 90,
       cellRenderer: ButtonRenderersComponent,
@@ -52,39 +69,41 @@ export class EditProjectDialogComponent implements OnInit {
         onClick: this.onDelete.bind(this),
       }
     },
-    { field: 'category',
+    {
+      field: 'category',
       valueFormatter: (params) => params.value,
       cellEditor: 'agSelectCellEditor',
       cellEditorParams: {
         values: ['public', 'private', 'management'],
       },
     },
-    { field: 'network',
-      valueSetter: asyncValidateValueSetter,
-      tooltipComponent: CustomTooltip,
-      tooltipValueGetter: (params: any) => {
-        return params
-      },
+    {
+      field: 'network',
+      valueSetter: this.setterValueNetwork.bind(this),
     },
-    { field: 'reserved_ip',
+    {
+      field: 'reserved_ip',
       headerName: 'Reserved IP Addresses',
       autoHeight: true,
-      valueGetter: function(params) {
+      valueGetter: function (params) {
         if (Array.isArray(params.data.reserved_ip)) {
           return params.data.reserved_ip.map((cat: any) => cat.ip).join(',');
         }
         return params.data.reserved_ip;
       },
-      valueSetter: asyncValidateValueSetter,
-      cellRenderer: function(params: any) {
+      valueSetter: this.setterValueNetwork.bind(this),
+      cellRenderer: function (params: any) {
         return params.value ? `[${params.value}]` : '[]'
       }
     }
   ];
   constructor(
     public helpers: HelpersService,
+    private authService: AuthService,
     private projectService: ProjectService,
     private userService: UserService,
+    private ngxPermissionsService: NgxPermissionsService,
+    private router: Router,
     private store: Store,
     private toastr: ToastrService,
     private dialog: MatDialog,
@@ -92,44 +111,86 @@ export class EditProjectDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
     this.rowData = this.data.genData.networks
+    const userId = this.authService.getUserId();
     this.userService.getAll().subscribe(data => {
-      this.listUser = data.result;
+      data.result.forEach((u: any) => u.full_name = u.first_name + ' ' + u.last_name);
+      this.listUser = data.result.filter((value: any) => value.id != userId)
+      this.filteredListUser = this.helpers.filterOptions(this.sharedCtr, this.listUser, 'full_name');
+      this.usersData = data.result;
       if (this.data) {
         this.nameCtr?.setValue(this.data.genData.name);
         this.descriptionCtr?.setValue(this.data.genData.description);
         this.minVlanCtr?.setValue(this.data.genData.vlan_min);
         this.maxVlanCtr?.setValue(this.data.genData.vlan_max);
+        this.categoryCtr?.setValue(this.data.genData.category);
         this.data.genData.share.forEach((el: any) => {
           this.listShared.push(el)
           if (this.listUser) {
             this.listUser = this.listUser.filter(value => value.username != el.username)
+            this.filteredListUser = this.helpers.filterOptions(this.sharedCtr, this.listUser, 'full_name');
           }
         });
       }
     })
-    this.selectProjects$ = this.store.select(selectProjects).subscribe(name => {
-      this.listProjects = name;
-    })
+    this.selectAllProjects$ = this.store.select(selectAllProjects).subscribe(projects => {
+      this.listProjects = projects;
+    });
+
     this.editProjectForm = new FormGroup({
       nameCtr: new FormControl('', [Validators.required,
-        Validators.minLength(3),
-        Validators.maxLength(50),
-        validateNameExist(() => this.listProjects, this.data.mode, this.data.genData.id)]),
+      Validators.minLength(3),
+      Validators.maxLength(50),
+      validateNameExist(() => this.listProjects, this.data.mode, this.data.genData.id)]),
       descriptionCtr: new FormControl(''),
-      minVlanCtr: new FormControl('', [Validators.min(1), Validators.max(4093),Validators.required]),
-      maxVlanCtr: new FormControl('', [Validators.min(2), Validators.max(4094),Validators.required]),
+      minVlanCtr: new FormControl('', [Validators.min(1), Validators.max(4093), Validators.required]),
+      maxVlanCtr: new FormControl('', [Validators.min(2), Validators.max(4094), Validators.required]),
       sharedCtr: new FormControl(''),
+      categoryCtr: new FormControl(''),
     })
-
+    this.selectRecentProjects$ = this.store.select(selectRecentProjects).subscribe(recentProjects => {
+      if (recentProjects) {
+        this.recentProjects = recentProjects;
+      }
+    })
+    this.selectUser$ = this.store.select(selectUserProfile).subscribe((user: any) => {
+      this.currentUser = {
+        id: user.id,
+        username: user.username,
+        first_name: user.first_name,
+        last_name: user.last_name
+      }
+    });
   }
 
-  get nameCtr() { return this.editProjectForm.get('nameCtr');}
-  get descriptionCtr() { return this.editProjectForm.get('descriptionCtr');}
-  get minVlanCtr() { return this.editProjectForm.get('minVlanCtr');}
-  get maxVlanCtr() {  return this.editProjectForm.get('maxVlanCtr');}
+  ngOnDestroy(): void {
+    this.selectAllProjects$.unsubscribe();
+    this.selectRecentProjects$.unsubscribe();
+  }
+
+  get nameCtr() { return this.editProjectForm.get('nameCtr'); }
+  get descriptionCtr() { return this.editProjectForm.get('descriptionCtr'); }
+  get minVlanCtr() { return this.editProjectForm.get('minVlanCtr'); }
+  get maxVlanCtr() { return this.editProjectForm.get('maxVlanCtr'); }
   get sharedCtr() { return this.helpers.getAutoCompleteCtr(this.editProjectForm.get('sharedCtr'), this.listUser); }
+  get categoryCtr() { return this.editProjectForm.get('categoryCtr'); }
 
   ngOnInit(): void {
+    let permissions = this.ngxPermissionsService.getPermissions();
+    let isCanWriteProject = false
+    let isCanReadSettings = false
+    for (let p in permissions) {
+      if (p === "can_write on Project") {
+        isCanWriteProject = true
+      }
+      if (p === "can_read on Settings") {
+        isCanReadSettings = true
+      }
+    }
+    if (!isCanWriteProject || !isCanReadSettings) {
+      console.log('You are not authorized to view this page !')
+      this.toastr.warning('Not authorized!', 'Warning');
+      this.router.navigate([RouteSegments.ROOT]);
+    }
   }
 
   onGridReady(params: GridReadyEvent) {
@@ -149,61 +210,62 @@ export class EditProjectDialogComponent implements OnInit {
     this.dialogRef.close();
   }
 
-  processForm(data: string) {
-    let arr: any[] = [];
-    if (data.length == 0) {
-      arr = []
-    } else if (data.length > 1) {
-      const value = data.split(',');
-      for (let i = 0; i < value.length; i++) {
-        arr.push({
-          "ip": value[i].trim(),
-        })
-      }
-    }
-    return arr
-  }
-
   updateProject() {
     const sharedUpdate = this.listShared.map(el => el.username)
     let items: any[] = [];
     this.gridApi.forEachNode(node => items.push(node.data));
     Object.values(items).forEach(val => {
       if (!Array.isArray(val.reserved_ip)) {
-        val.reserved_ip = this.processForm(val.reserved_ip)
+        val.reserved_ip = this.helpers.processIpForm(val.reserved_ip)
       }
-      delete val['validation']
-      delete val['validation_isExists']
-      delete val['validation_required']
       this.isDisableButton = true ? ((val.network === '') || (val.category === '')) : false
     })
     if (this.editProjectForm.valid && !this.isDisableButton) {
-      const jsonData = {
+      const jsonDataValue = {
         name: this.nameCtr?.value,
         description: this.descriptionCtr?.value,
         vlan_min: this.minVlanCtr?.value,
         vlan_max: this.maxVlanCtr?.value,
+        category: this.categoryCtr?.value,
         networks: items
       }
+      const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.projectService.put(this.data.genData.id, jsonData).pipe(
         catchError((e: any) => {
           this.toastr.error(e.error.message);
           return throwError(() => e);
         })
-        ).subscribe((_respData: any) => {
-          this.projectService.get(this.data.genData.id).subscribe(projectData => {
-            this.store.dispatch(retrievedProjectName({ projectName: projectData.result.name}));
-            const configData = {
-                pk: this.data.genData.id,
-                username: sharedUpdate
-              }
-              this.projectService.associate(configData).subscribe(respData => {
-                this.toastr.success(`Update Project successfully`)
-                this.projectService.getProjectByStatus('active').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
-              });
-            this.dialogRef.close();
-          });
+      ).subscribe((_respData: any) => {
+        this.store.dispatch(retrievedProjectCategory({ projectCategory: jsonData.category }))
+        this.store.dispatch(retrievedProjectName({ projectName: jsonData.name }));
+        // Update Recent Projects Storage if the project in recent projects and project is updated
+        const recentProject = this.recentProjects.find(project => project.id === this.data.genData.id);
+        if (recentProject && recentProject.name !== jsonData.name || recentProject?.description !== jsonData.description) {
+          const newRecentProjects = [...this.recentProjects];
+          const index = newRecentProjects.findIndex(project => project.id === this.data.genData.id);
+          const newRecentProject = {
+            id: this.data.genData.id,
+            name: jsonData.name,
+            description: jsonData.description
+          }
+          newRecentProjects.splice(index, 1, newRecentProject);
+          this.store.dispatch(retrievedRecentProjects({ recentProjects: newRecentProjects }));
+        }
+        const configData = {
+          pk: this.data.genData.id,
+          username: sharedUpdate
+        }
+        this.projectService.associate(configData).subscribe(respData => {
+          this.toastr.success(`Update ${jsonData.category} successfully`)
+          if (jsonData.category === 'project') {
+            this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
+          } else {
+            this.projectService.getProjectByStatusAndCategory(this.status, 'template').subscribe((data: any) => this.store.dispatch(retrievedProjectsTemplate({ template: data.result })));
+          }
+          this.projectService.getProjectByStatus(this.status).subscribe((data: any) => this.store.dispatch(retrievedAllProjects({ listAllProject: data.result })));
         });
+        this.dialogRef.close();
+      });
     }
     else {
       this.toastr.warning('Category and network fields are required.')
@@ -214,7 +276,8 @@ export class EditProjectDialogComponent implements OnInit {
     const index = this.listShared.indexOf(option);
     if (index >= 0) {
       this.listShared.splice(index, 1);
-        this.listUser.unshift(option)
+      this.listUser.unshift(option)
+      this.filteredListUser = this.helpers.filterOptions(this.sharedCtr, this.listUser, 'full_name');
     }
   }
 
@@ -222,6 +285,7 @@ export class EditProjectDialogComponent implements OnInit {
     this.listShared.push(event.option.value)
     Object.values(this.listShared).forEach(val => {
       this.listUser = this.listUser.filter(value => value.username != val.username)
+      this.filteredListUser = this.helpers.filterOptions(this.sharedCtr, this.listUser, 'full_name');
     });
   }
 
@@ -231,7 +295,7 @@ export class EditProjectDialogComponent implements OnInit {
       message: 'You sure you want to delete this item?',
       submitButtonName: 'OK'
     }
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { width: '400px', data: dialogData, autoFocus: false });
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData, autoFocus: false });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.rowData.splice(params.rowData.index, 1);
@@ -249,5 +313,27 @@ export class EditProjectDialogComponent implements OnInit {
       reserved_ip: []
     }
     this.gridApi.applyTransaction({ add: [jsonData] });
+  }
+
+  setterValueNetwork(params: ValueSetterParams) {
+    return this.helpers.setterValue(params)
+  }
+
+  changeCategory($event: MatRadioChange) {
+    if($event.value == 'template') {
+      this.listUser = [];
+      this.listShared = [];
+      this.sharedCtr.disable();
+    } else {
+      this.sharedCtr.enable();
+      this.listUser = this.usersData;
+      if (this.data.genData.share.length > 0) {
+        this.data.genData.share.forEach((el: any) => {
+          this.listShared.push(el);
+          this.listUser = this.listUser.filter(value => value.username != el.username)
+        });
+      }
+    }
+    this.filteredListUser = this.helpers.filterOptions(this.sharedCtr, this.listUser, 'full_name');
   }
 }

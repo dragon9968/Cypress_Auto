@@ -2,20 +2,23 @@ import { Store } from "@ngrx/store";
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-import { catchError, throwError } from 'rxjs';
+import { Subscription, catchError, throwError } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 import { NodeService } from 'src/app/core/services/node/node.service';
 import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
-import { InfoPanelShowValidationNodesComponent } from '../../info-panel/info-panel-show-validation-nodes/info-panel-show-validation-nodes.component';
+import { InfoPanelShowValidationResultsComponent } from '../../../shared/components/info-panel-show-validation-results/info-panel-show-validation-results.component';
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
+import { environment } from "../../../../environments/environment";
+import { selectMapOption } from "src/app/store/map-option/map-option.selectors";
 
 @Injectable({
   providedIn: 'root'
 })
 export class CMActionsService {
-
+  selectMapOption$ = new Subscription();
+  isEdgeDirectionChecked = false;
   constructor(
     private store: Store,
     private dialog: MatDialog,
@@ -25,9 +28,13 @@ export class CMActionsService {
     private portGroupService: PortGroupService,
     private interfaceService: InterfaceService,
     private infoPanelService: InfoPanelService
-  ) { }
+  ) {
+    this.selectMapOption$ = this.store.select(selectMapOption).subscribe(mapOption => {
+      this.isEdgeDirectionChecked = mapOption?.isEdgeDirectionChecked != undefined ? mapOption.isEdgeDirectionChecked : false;
+    })
+   }
 
-  getNodeActionsMenu(cy: any, activeNodes: any[]) {
+  getNodeActionsMenu(cy: any, activeNodes: any[], isCanWriteOnProject: boolean) {
     return {
       id: "node_actions",
       content: "Actions",
@@ -42,7 +49,7 @@ export class CMActionsService {
             this.cloneNodes(cy, ids);
           },
           hasTrailingDivider: true,
-          disabled: false,
+          disabled: !isCanWriteOnProject,
         },
         {
           id: "validate_node",
@@ -52,7 +59,8 @@ export class CMActionsService {
             this.nodeService.validate({ pks }).pipe(
               catchError((e: any) => {
                 this.toastr.error(e.error.message);
-                const dialogRef = this.dialog.open(InfoPanelShowValidationNodesComponent, {
+                this.dialog.open(InfoPanelShowValidationResultsComponent, {
+                  disableClose: true,
                   autoFocus: false,
                   width: 'auto',
                   data: e.error.result
@@ -69,7 +77,7 @@ export class CMActionsService {
     }
   }
 
-  getPortGroupActionsMenu(cy: any, collectionId: string, activePGs: any[]) {
+  getPortGroupActionsMenu(cy: any, projectId: string, activePGs: any[]) {
     return {
       id: "pg_actions",
       content: "Actions",
@@ -81,7 +89,7 @@ export class CMActionsService {
           content: "Randomize Subnet",
           onClickFunction: (event: any) => {
             const pks = activePGs.map(pg => pg.data('pg_id'));
-            this.infoPanelService.randomizeSubnetPortGroups(pks, collectionId);
+            this.infoPanelService.randomizeSubnetPortGroups(pks, projectId);
           },
           hasTrailingDivider: true,
           disabled: false,
@@ -94,6 +102,12 @@ export class CMActionsService {
             this.portGroupService.validate({ pks }).pipe(
               catchError((e: any) => {
                 this.toastr.error(e.error.message);
+                this.dialog.open(InfoPanelShowValidationResultsComponent, {
+                  disableClose: true,
+                  autoFocus: false,
+                  width: 'auto',
+                  data: e.error.result
+                });
                 return throwError(() => e);
               })
             ).subscribe(respData => {
@@ -143,6 +157,12 @@ export class CMActionsService {
             this.interfaceService.validate({ pks }).pipe(
               catchError((e: any) => {
                 this.toastr.error(e.error.message);
+                this.dialog.open(InfoPanelShowValidationResultsComponent, {
+                  disableClose: true,
+                  autoFocus: false,
+                  width: 'auto',
+                  data: e.error.result
+                });
                 return throwError(() => e);
               })
             ).subscribe(respData => {
@@ -201,6 +221,9 @@ export class CMActionsService {
                 cyData.text_color = logicalMapStyle.text_color;
                 cyData.text_size = logicalMapStyle.text_size;
                 cyData.color = logicalMapStyle.color;
+                cyData.node = nodeData.result.name;
+                cyData.port_group = cyData.port_group.name;
+                cyData.netmask = cyData.netmask.mask;
                 const newEdgeData = {
                   source: 'node-' + edgeData.node_id,
                   target: 'pg-' + edgeData.port_group_id,
@@ -208,11 +231,12 @@ export class CMActionsService {
                   name: "",
                   category: cyData.category,
                   direction: cyData.direction,
-                  curve_style: cyData.category == 'tunnel' ? 'bezier' : 'straight',
+                  curve_style: 'bezier',
                   color: logicalMapStyle.color,
                   width: logicalMapStyle.width,
                 }
                 this.helpers.addCYEdge(cy, { ...newEdgeData, ...cyData });
+                this.helpers.changeEdgeDirectionOnMap(cy, this.isEdgeDirectionChecked);
               }
             })
           });

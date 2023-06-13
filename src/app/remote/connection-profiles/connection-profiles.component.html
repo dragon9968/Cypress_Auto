@@ -1,37 +1,37 @@
-<mat-card class="connection-container">
-  <mat-card-title class="connection-title">Connection List</mat-card-title>
-  <div class="sub-title">
-    <div class="left">
-    <button mat-raised-button color="primary" (click)="addConnection()">
-      <mat-icon>add</mat-icon>
-    </button>
-    <button class="btn-menu"mat-raised-button [matMenuTriggerFor]="actionMenu" (click)="isClickAction = !isClickAction">
-      Actions
-      <mat-icon *ngIf="isClickAction">keyboard_arrow_down</mat-icon>
-      <mat-icon *ngIf="!isClickAction">keyboard_arrow_up</mat-icon>
-    </button>
-    <mat-menu #actionMenu="matMenu" yPosition="below">
-      <button mat-menu-item (click)="clearParameters()">
-        <mat-icon>delete_sweep</mat-icon>
-        <span>Clear Parameters</span>
-      </button>
-      <button mat-menu-item (click)="exportJson()">
-        <mat-icon svgIcon="export_json"></mat-icon>
-        <span>Export JSON</span>
-      </button>
-      <button mat-menu-item (click)="loginCheck()">
-        <mat-icon>key</mat-icon>
-        <span>Login Check</span>
-      </button>
-      <button mat-menu-item (click)="pingTest()">
-        <mat-icon>terminal</mat-icon>
-        <span>Ping Test</span>
-      </button>
-    </mat-menu>
+<mat-card class="table">
+  <mat-card-title class="table__title">Connection List</mat-card-title>
+  <div class="table__nav">
+    <div class="table__nav--actions">
+      <ng-template [ngxPermissionsOnly]="['can_write on Settings']">
+        <button mat-button mat-mini-fab color="primary" matTooltip="Add" (click)="addConnection()">
+          <mat-icon>add</mat-icon>
+        </button>
+        <button mat-button mat-mini-fab color="primary" matTooltip="Edit" (click)="updateConnection()">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteConnection()">
+          <mat-icon>delete</mat-icon>
+        </button>
+        <button mat-button mat-mini-fab color="primary" matTooltip="Login Check" (click)="loginCheck()">
+          <mat-icon>key</mat-icon>
+        </button>
+        <button mat-button mat-mini-fab color="primary" matTooltip="Ping Test" (click)="pingTest()">
+          <mat-icon>terminal</mat-icon>
+        </button>
+        <button mat-button mat-mini-fab color="primary" matTooltip="Clear Parameters" (click)="clearParameters()">
+          <mat-icon>delete_sweep</mat-icon>
+        </button>
+      </ng-template>
+      <ng-template [ngxPermissionsOnly]="['can_write on Settings']">
+        <button mat-button mat-mini-fab color="primary" matTooltip="Export as JSON" (click)="exportJson()">
+          <mat-icon svgIcon="export-json"></mat-icon>
+        </button>
+      </ng-template>
     </div>
-    <div class="right">
+    <div class="table__nav--search">
         <input
           matInput
+          name="connection-search" id="search-connection"
           class="search"
           type="search"
           [(ngModel)]="quickFilterValue"
@@ -40,9 +40,9 @@
           />
     </div>
   </div>
-  <mat-card-content>
+  <mat-card-content class="table__content">
     <ag-grid-angular
-        class="ag-theme-alpine connection-table"
+        class="ag-theme-alpine"
         [pagination]="true"
         [columnDefs]="columnDefs"
         [defaultColDef]="defaultColDef"
@@ -52,6 +52,7 @@
         [animateRows]="true"
         (gridReady)="onGridReady($event)"
         (rowSelected)="selectedRows()"
+        (rowDoubleClicked)="onRowDoubleClick($event)"
         >
     </ag-grid-angular>
   </mat-card-content>

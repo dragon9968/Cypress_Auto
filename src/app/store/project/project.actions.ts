@@ -25,3 +25,23 @@ export const retrievedProjectName = createAction(
   props<{ projectName: any }>()
 );
 
+export const retrievedRecentProjects = createAction(
+  'retrievedRecentProjects',
+  props<{ recentProjects: any }>()
+);
+
+export const retrievedProjectsTemplate = createAction(
+  'retrievedProjectsTemplate',
+  props<{ template: any }>()
+);
+
+export const retrievedAllProjects = createAction(
+  'retrievedAllProjects',
+  props<{ listAllProject: any }>()
+);
+
+export const retrievedProjectCategory = createAction(
+  'retrievedProjectCategory',
+  props<{ projectCategory: string }>()
+)
+

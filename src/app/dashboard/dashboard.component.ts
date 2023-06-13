@@ -12,7 +12,7 @@ import { selectDashboard } from "../store/project/project.selectors";
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-  collectionId = '0';
+  projectId = '0';
   project: any;
   selectDashboard$ = new Subscription();
   dashboard: any;
@@ -23,8 +23,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private store: Store,
     private projectService: ProjectService
   ) {
-    this.collectionId = this.projectService.getCollectionId();
-    this.projectService.get(+this.collectionId).subscribe(projectData => {
+    this.projectId = this.projectService.getProjectId();
+    this.projectService.get(+this.projectId).subscribe(projectData => {
       this.project = projectData.result;
       this.store.dispatch(retrievedDashboard({dashboard: projectData.result.dashboard}));
     });

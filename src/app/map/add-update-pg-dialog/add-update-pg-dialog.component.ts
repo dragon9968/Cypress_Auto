@@ -3,11 +3,10 @@ import { ToastrService } from 'ngx-toastr';
 import { MatRadioChange } from '@angular/material/radio';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { catchError, Subscription, throwError } from 'rxjs';
+import { catchError, Observable, Subscription, throwError } from 'rxjs';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
-import { ProjectService } from "../../project/services/project.service";
 import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
 import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
 import { selectDomains } from 'src/app/store/domain/domain.selectors';
@@ -16,6 +15,7 @@ import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 import { selectPortGroupsManagement } from "../../store/portgroup/portgroup.selectors";
 import { retrievedPortGroupsManagement } from "../../store/portgroup/portgroup.actions";
+import { NgxPermissionsService } from "ngx-permissions";
 
 @Component({
   selector: 'app-add-update-pg-dialog',
@@ -32,6 +32,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
   isViewMode = false;
   tabName = '';
   errors: any[] = [];
+  filteredDomains!: Observable<any[]>;
 
   constructor(
     private store: Store,
@@ -39,18 +40,10 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<AddUpdatePGDialogComponent>,
     public helpers: HelpersService,
-    private projectService: ProjectService,
     private portGroupService: PortGroupService,
     private infoPanelService: InfoPanelService,
+    private ngxPermissionsService: NgxPermissionsService,
   ) {
-    this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
-      this.domains = domains;
-    });
-    this.selectPortGroupsManagement$ = this.store.select(selectPortGroupsManagement).subscribe(
-      portGroupsManagement => this.portGroupsManagement = portGroupsManagement
-    )
-    this.isViewMode = this.data.mode == 'view';
-    this.tabName = this.data.tabName;
     this.pgAddForm = new FormGroup({
       nameCtr: new FormControl('', Validators.required),
       vlanCtr: new FormControl('', [
@@ -61,12 +54,22 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
         showErrorFromServer(() => this.errors)
       ]),
       categoryCtr: new FormControl({ value: '', disabled: this.isViewMode || this.tabName == 'portGroupManagement' }),
-      domainCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.domains)]),
+      domainCtr: new FormControl(''),
       subnetAllocationCtr: new FormControl({ value: '', disabled: this.isViewMode }),
       subnetCtr: new FormControl('', [
         Validators.required,
         showErrorFromServer(() => this.errors)])
     });
+    this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
+      this.domains = domains;
+      this.domainCtr.setValidators([Validators.required, autoCompleteValidator(this.domains)]);
+      this.filteredDomains = this.helpers.filterOptions(this.domainCtr, this.domains);
+    });
+    this.selectPortGroupsManagement$ = this.store.select(selectPortGroupsManagement).subscribe(
+      portGroupsManagement => this.portGroupsManagement = portGroupsManagement
+    )
+    this.isViewMode = this.data.mode == 'view';
+    this.tabName = this.data.tabName;
   }
 
   get nameCtr() { return this.pgAddForm.get('nameCtr'); }
@@ -77,6 +80,19 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
   get subnetCtr() { return this.pgAddForm.get('subnetCtr'); }
 
   ngOnInit(): void {
+    // let permissions = this.ngxPermissionsService.getPermissions();
+    // let isCanWriteProject = false
+    // for (let p in permissions) {
+    //   if (p === "can_write on Project") {
+    //     isCanWriteProject = true
+    //   }
+    // }
+
+    // if (!isCanWriteProject) {
+    //   console.log('You are not authorized to view this page !')
+    //   this.toastr.warning('Not authorized!', 'Warning');
+    //   this.onCancel()
+    // }
     this.nameCtr?.setValue(this.data.genData.name);
     this.vlanCtr?.setValue(this.data.genData.vlan);
     this.categoryCtr?.setValue(this.data.genData.category);
@@ -109,6 +125,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
     ele.data('groups', data.groups);
     ele.data('domain', data.domain);
     ele.data('domain_id', data.domain_id);
+    ele.data('interfaces', data.interfaces);
   }
 
   onSubnetAllocationChange($event: MatRadioChange) {
@@ -120,14 +137,14 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
   }
 
   addPG() {
-    const jsonData = {
+    const jsonDataValue = {
       name: this.nameCtr?.value,
       vlan: this.vlanCtr?.value,
       category: this.categoryCtr?.value,
       domain_id: this.domainCtr?.value.id,
       subnet_allocation: this.subnetAllocationCtr?.value,
-      subnet: this.subnetCtr?.value,
-      collection_id: this.data.collectionId,
+      subnet: this.subnetAllocationCtr?.value == 'static_auto' ? this.data.genData.subnet : this.subnetCtr?.value,
+      project_id: this.data.projectId,
       logical_map_position: this.data.newNodePosition,
       logical_map_style: (this.data.mode == 'add') ? {
         "height": this.data.selectedMapPref.port_group_size,
@@ -141,6 +158,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
         "text_bg_opacity": this.data.selectedMapPref.text_bg_opacity,
       } : undefined,
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.portGroupService.add(jsonData).pipe(
       catchError(err => {
         const errorMessage = err.error.message;
@@ -188,16 +206,17 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
 
   updatePG() {
     const ele = this.data.cy.getElementById(this.data.genData.id);
-    const jsonData = {
+    const jsonDataValue = {
       name: this.nameCtr?.value,
       vlan: this.vlanCtr?.value,
       category: this.categoryCtr?.value,
       domain_id: this.domainCtr?.value.id,
       subnet_allocation: this.subnetAllocationCtr?.value,
-      subnet: this.subnetCtr?.value,
-      collection_id: this.data.genData.collection_id,
+      subnet: this.subnetAllocationCtr?.value == 'static_auto' ? undefined : this.subnetCtr?.value,
+      project_id: this.data.genData.project_id,
       logical_map_position: ele.position(),
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.portGroupService.put(this.data.genData.pg_id, jsonData).pipe(
       catchError(err => {
         const errorMessage = err.error.message;
@@ -225,6 +244,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
           this.store.dispatch(retrievedPortGroupsManagement({ data: newPGsManagement }));
         } else {
           this._updatePGOnMap(portGroup);
+          this.helpers.updateNodesOnGroupStorage(portGroup, 'port_groups');
           this.helpers.reloadGroupBoxes(this.data.cy);
           this.store.dispatch(retrievedMapSelection({ data: true }));
         }
@@ -232,5 +252,10 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
         this.toastr.success('Port group details updated!');
       });
     });
+  }
+
+  changeViewToEdit() {
+    this.data.mode = 'update';
+    this.isViewMode = false;
   }
 }

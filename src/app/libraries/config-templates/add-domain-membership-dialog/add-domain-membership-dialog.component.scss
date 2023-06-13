@@ -1,0 +1,17 @@
+.field {
+  width: 100%;
+}
+
+.domain-field {
+  display: flex;
+  width: 100%;
+}
+
+label {
+  font-family: sans-serif;
+  width: 30%;
+}
+
+::ng-deep div[data-lastpass-icon-root] {
+  display: none;
+}

@@ -1,12 +1,12 @@
-<form [formGroup]="portGroupBulkEdit" (ngSubmit)="updatePortGroupBulk()">
+<form [formGroup]="portGroupBulkEdit" (ngSubmit)="updatePortGroupBulk()" autocomplete="off">
   <h1 mat-dialog-title>Port group Bulk Edit Form</h1>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Domain</mat-label>
-      <input matInput type="text" placeholder="Select a domain" formControlName="domainCtr"
+      <input autocomplete="off" id="pgbulk-domain" matInput type="text" placeholder="Select a domain" formControlName="domainCtr"
              [matAutocomplete]="autoDomain">
       <mat-autocomplete #autoDomain="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of domains" [value]="option">
+        <mat-option *ngFor="let option of filteredDomains | async" [value]="option">
           {{ option.name }}
         </mat-option>
       </mat-autocomplete>
@@ -14,7 +14,7 @@
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>VLAN ID</mat-label>
-      <input matInput formControlName="vlanCtr">
+      <input autocomplete="off" id="pgbulk-vlan" matInput formControlName="vlanCtr">
       <mat-error *ngIf="vlanCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="vlanCtr?.errors?.pattern">{{ errorMessages.FIELD_IS_NUMBER }}</mat-error>
       <mat-error *ngIf="vlanCtr?.errors?.min">{{ errorMessages.VLAN_RANGE_VALUE_0_4095 }}</mat-error>

@@ -1,4 +1,5 @@
 export interface InterfaceState {
-  interfaces: any[],
-  interfacesManagement: any[]
+  interfacesNotConnectPG: any[],
+  interfacesManagement: any[],
+  interfaceIdConnectPG: any
 }

@@ -1,4 +1,4 @@
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
@@ -10,7 +10,7 @@ import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { ToastrService } from 'ngx-toastr';
 import { NodeService } from 'src/app/core/services/node/node.service';
 import { Store } from '@ngrx/store';
-import { catchError, Subscription, throwError } from 'rxjs';
+import { catchError, Observable, of, Subscription, throwError } from 'rxjs';
 import { selectIcons } from '../../store/icon/icon.selectors';
 import { selectDevices } from '../../store/device/device.selectors';
 import { selectTemplates } from '../../store/template/template.selectors';
@@ -20,10 +20,17 @@ import { selectConfigTemplates } from '../../store/config-template/config-templa
 import { selectLoginProfiles } from '../../store/login-profile/login-profile.selectors';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
-import { selectNodesByCollectionId } from 'src/app/store/node/node.selectors';
+import { selectNodesByProjectId } from 'src/app/store/node/node.selectors';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 import { hostnameValidator } from 'src/app/shared/validations/hostname.validation';
 import { ErrorStateMatcher } from '@angular/material/core';
+import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
+import { InterfaceService } from "../../core/services/interface/interface.service";
+import { ConfigTemplateService } from "../../core/services/config-template/config-template.service";
+import { retrievedConfigTemplates } from "../../store/config-template/config-template.actions";
+import { PORT } from "../../shared/contants/port.constant";
+import { AceEditorComponent } from "ng2-ace-editor";
+import { networksValidation } from 'src/app/shared/validations/networks.validation';
 
 class CrossFieldErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -40,12 +47,15 @@ class CrossFieldErrorMatcher implements ErrorStateMatcher {
   templateUrl: './add-update-node-dialog.component.html',
   styleUrls: ['./add-update-node-dialog.component.scss']
 })
-export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
+export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterViewInit {
+  @ViewChild("editor") editor!: AceEditorComponent;
+  private gridApi!: GridApi;
   nodeAddForm: FormGroup;
   errorMatcher = new CrossFieldErrorMatcher();
   ROLES = ROLES;
+  PORT = PORT;
   ICON_PATH = ICON_PATH;
-  filteredTemplates!: any[];
+  filteredTemplatesByDevice!: any[];
   errorMessages = ErrorMessages;
   icons!: any[];
   devices!: any[];
@@ -64,6 +74,91 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   selectLoginProfiles$ = new Subscription();
   selectNodes$ = new Subscription();
   isViewMode = false;
+  filteredIcons!: Observable<any[]>;
+  filteredDevices!: Observable<any[]>;
+  filteredTemplates!: Observable<any[]>;
+  filteredHardwares!: Observable<any[]>;
+  filteredDomains!: Observable<any[]>;
+  filteredRoles!: Observable<any[]>;
+  filteredConfigTemplates!: Observable<any[]>;
+  filteredLoginProfiles!: Observable<any[]>;
+  filteredNodeIP!: Observable<any[]>;
+  rowData$!: Observable<any[]>;
+  configTemplateAddsType: any[] = [];
+  configTemplateForm!: FormGroup;
+  actionsAddForm!: FormGroup;
+  configForm!: FormGroup;
+  firewallRuleForm!: FormGroup;
+  domainMemberForm!: FormGroup;
+  roleServicesForm!: FormGroup;
+  ospfForm!: FormGroup;
+  bgpForm!: FormGroup;
+  isAddMode = false;
+  isAddRoute = false;
+  isAddFirewallRule = false;
+  isAddRolesAndService = false;
+  isAddDomainMembership = false;
+  isAddOSPF = false;
+  // isHiddenBgpMetricType = false;
+  // isHiddenConnectedMetricType = false;
+  // isHiddenStaticMetricType = false;
+  bgpChecked = true;
+  connectedChecked = true;
+  staticChecked = true;
+  isAddBGP = false;
+  bgpConnectedChecked = true;
+  bgpOspfChecked = true;
+  rolesAndService: any[] = [];
+  filteredAddActions!: Observable<any>[];
+  listNodeIP: any[] = [];
+
+  public gridOptions: GridOptions = {
+    headerHeight: 48,
+    defaultColDef: {
+      sortable: true,
+      resizable: true,
+      singleClickEdit: true,
+      filter: true
+    },
+    rowSelection: 'multiple',
+    suppressRowDeselection: true,
+    suppressCellFocus: true,
+    enableCellTextSelection: true,
+    pagination: true,
+    paginationPageSize: 25,
+    suppressRowClickSelection: true,
+    animateRows: true,
+    rowData: [],
+    columnDefs: [
+      {
+        field: 'id',
+        hide: true
+      },
+      {
+        field: 'name',
+        headerName: 'Interface Name',
+        minWidth: 145,
+        flex: 1,
+      },
+      {
+        field: 'ip',
+        headerName: 'IP Address',
+        minWidth: 160,
+        flex: 1,
+      },
+      {
+        field: 'port_group.subnet',
+        headerName: 'Subnet',
+        minWidth: 160,
+        flex: 1,
+      },
+      {
+        field: 'description',
+        flex: 1,
+      }
+    ]
+  };
+  defaultConfig: any = {}
 
   constructor(
     private nodeService: NodeService,
@@ -72,47 +167,165 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: any,
     public helpers: HelpersService,
     private store: Store,
+    private interfaceService: InterfaceService,
+    private configTemplateService: ConfigTemplateService
   ) {
+    this.actionsAddForm = new FormGroup({
+      addTypeCtr: new FormControl('')
+    })
+    this.configForm = new FormGroup({
+      routeCtr: new FormControl('', [Validators.required]),
+      nextHopCtr: new FormControl('', [Validators.required]),
+      interfaceCtr: new FormControl('')
+    });
+    this.firewallRuleForm = new FormGroup({
+      categoryFirewallRuleCtr: new FormControl({value: 'rule', disabled: false}),
+      nameFirewallRuleCtr: new FormControl({value: '', disabled: false}),
+      stateCtr: new FormControl({value: 'present', disabled: false}),
+      actionCtr: new FormControl('pass'),
+      interfaceFirewallCtr: new FormControl({value: '', disabled: false}),
+      protocolCtr: new FormControl({value: 'any', disabled: false}),
+      sourceCtr: new FormControl({value: 'any', disabled: false}),
+      sourcePortCtr: new FormControl({value: 'any', disabled: false}),
+      sourceCustomPortCtr: new FormControl({value: 'any', disabled: true}),
+      destinationCtr: new FormControl({value: 'any', disabled: false}),
+      destinationPortCtr: new FormControl({value: 'any', disabled: false}),
+      destCustomPortCtr: new FormControl({value: '', disabled: true}),
+      targetCtr: new FormControl({value: '', disabled: true}),
+      targetPortCtr: new FormControl({value: 'any', disabled: true}),
+      targetCustomPortCtr: new FormControl({value: '', disabled: true}),
+    });
+    this.domainMemberForm = new FormGroup({
+      joinDomainCtr: new FormControl(false),
+      ouPathCtr: new FormControl(''),
+    })
+    this.roleServicesForm = new FormGroup({
+      rolesCtr: new FormControl('')
+    })
+
+    this.ospfForm = new FormGroup({
+      networksCtr: new FormControl('', [networksValidation('multi')]),
+      bgpStateCtr: new FormControl(''),
+      bgpMetricTypeCtr: new FormControl(''),
+      connectedStateCtr: new FormControl(''),
+      connectedMetricTypeCtr: new FormControl(''),
+      staticStateCtr: new FormControl(''),
+      staticMetricTypeCtr: new FormControl('')
+    })
+
+    this.bgpForm = new FormGroup({
+      ipCtr: new FormControl(''),
+      asnCtr: new FormControl(''),
+      neighborIpCtr: new FormControl('', [networksValidation('single')]),
+      neighborAsnCtr: new FormControl(''),
+      bgpConnectedStateCtr: new FormControl(''),
+      bgpConnectedMetricCtr: new FormControl(''),
+      bgpOspfStateCtr: new FormControl(''),
+      bgpOspfMetricCtr: new FormControl('')
+    })
+    this.isViewMode = this.data.mode == 'view';
+    this.nodeAddForm = new FormGroup({
+      nameCtr: new FormControl('', [
+        Validators.required, Validators.minLength(3), Validators.maxLength(50),
+        validateNameExist(() => this.nodes, this.data.mode, this.data.genData.node_id)
+      ]),
+      notesCtr: new FormControl(''),
+      iconCtr: new FormControl(''),
+      categoryCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      deviceCtr: new FormControl(''),
+      templateCtr: new FormControl(''),
+      hardwareCtr: new FormControl(''),
+      folderCtr: new FormControl(''),
+      parentFolderCtr: new FormControl(''),
+      roleCtr: new FormControl(''),
+      domainCtr: new FormControl(''),
+      hostnameCtr: new FormControl('', Validators.required),
+      configTemplateCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      loginProfileCtr: new FormControl(''),
+      hardwareInfoCtr: new FormControl(''),
+      uuidCtr: new FormControl(''),
+      webConsoleCtr: new FormControl(''),
+      featuresCtr: new FormControl(''),
+      softwareCtr: new FormControl(''),
+      serviceCtr: new FormControl(''),
+      runningConfigCtr: new FormControl(''),
+      changeCtr: new FormControl(''),
+      tasksCtr: new FormControl(''),
+    }, { validators: hostnameValidator });
     this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
       this.icons = icons;
+      this.iconCtr.setValidators([autoCompleteValidator(this.icons)]);
+      this.filteredIcons = this.helpers.filterOptions(this.iconCtr, this.icons);
     });
     this.selectDevices$ = this.store.select(selectDevices).subscribe((devices: any) => {
       this.devices = devices;
+      this.deviceCtr.setValidators([Validators.required, autoCompleteValidator(this.devices)]);
+      this.filteredDevices = this.helpers.filterOptions(this.deviceCtr, this.devices);
     });
     this.selectTemplates$ = this.store.select(selectTemplates).subscribe((templates: any) => {
       this.templates = templates;
+      this.templateCtr.setValidators([Validators.required, autoCompleteValidator(this.templates, 'display_name')]);
       this.filteredTemplates = templates;
+      this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice, 'display_name');
     });
     this.selectHardwares$ = this.store.select(selectHardwares).subscribe((hardwares: any) => {
       this.hardwares = hardwares;
+      this.hardwareCtr.setValidators([Validators.required, autoCompleteValidator(this.hardwares)]);
+      this.filteredHardwares = this.helpers.filterOptions(this.hardwareCtr, this.hardwares);
     });
     this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
       this.domains = domains;
+      this.domainCtr.setValidators([Validators.required, autoCompleteValidator(this.domains)]);
+      this.filteredDomains = this.helpers.filterOptions(this.domainCtr, this.domains);
     });
     this.selectConfigTemplates$ = this.store.select(selectConfigTemplates).subscribe((configTemplates: any) => {
       this.configTemplates = configTemplates;
+      this.configTemplateCtr?.setValidators([autoCompleteValidator(this.configTemplates)]);
+      this.filteredConfigTemplates = this.helpers.filterOptions(this.configTemplateCtr, this.configTemplates);
     });
     this.selectLoginProfiles$ = this.store.select(selectLoginProfiles).subscribe((loginProfiles: any) => {
       this.loginProfiles = loginProfiles;
+      this.loginProfileCtr.setValidators([autoCompleteValidator(this.loginProfiles)]);
+      this.filteredLoginProfiles = this.helpers.filterOptions(this.loginProfileCtr, this.loginProfiles);
     });
-    this.selectNodes$ = this.store.select(selectNodesByCollectionId).subscribe(nodes => this.nodes = nodes);
-    this.isViewMode = this.data.mode == 'view';
-    this.nodeAddForm = new FormGroup({
-      nameCtr: new FormControl('', [Validators.required, validateNameExist(() => this.nodes, this.data.mode, this.data.genData.node_id)]),
-      notesCtr: new FormControl(''),
-      iconCtr: new FormControl('', [autoCompleteValidator(this.icons)]),
-      categoryCtr: new FormControl({ value: '', disabled: this.isViewMode }),
-      deviceCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.devices)]),
-      templateCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.templates, 'display_name')]),
-      hardwareCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.hardwares)]),
-      folderCtr: new FormControl('', Validators.required),
-      parentFolderCtr: new FormControl(''),
-      roleCtr: new FormControl('', [Validators.required, autoCompleteValidator(ROLES)]),
-      domainCtr: new FormControl('', [Validators.required, autoCompleteValidator(this.domains)]),
-      hostnameCtr: new FormControl('', Validators.required),
-      configTemplateCtr: new FormControl({ value: '', disabled: this.isViewMode }),
-      loginProfileCtr: new FormControl('', [autoCompleteValidator(this.loginProfiles)]),
-    }, { validators: hostnameValidator });
+    this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes);
+    this.interfaceService.getByNode(this.data.genData.node_id).subscribe(response => {
+      const interfaceData = response.result;
+      if (this.gridApi) {
+        this.gridApi.setRowData(interfaceData);
+      } else {
+        this.rowData$ = of(interfaceData);
+      }
+      this.listNodeIP = interfaceData.filter((ip: any) => ip.category !== 'management')
+      this.ipCtr.setValidators([autoCompleteValidator(this.listNodeIP, 'ip')]);
+      this.filteredNodeIP = this.helpers.filterOptions(this.ipCtr, this.listNodeIP);
+    })
+    this.configTemplateAddsType = this.helpers.getConfigAddsTypeByDeviceCategory(this.data.genData.device_category);
+    this.filteredAddActions = this.helpers.filterOptions(this.addTypeCtr, this.configTemplateAddsType);
+    this.configTemplateService.getWinRoles().subscribe(data => {
+      this.rolesAndService = data;
+      this.rolesCtr.setValidators([Validators.required, autoCompleteValidator(this.rolesAndService)]);
+    });
+  }
+
+  ngAfterViewInit(): void {
+    if (this.data.mode !== 'add') {
+      this.editor.getEditor().setOptions({
+        tabSize: 2,
+        useWorker: false,
+        fontSize: '16px'
+      });
+      this.editor.mode = 'json';
+      this.editor.setTheme('textmate');
+      const data = {
+        config_id: this.data.genData.default_config_id,
+        node_id: this.data.genData.node_id
+      }
+      this.configTemplateService.getNodeDefaultConfiguration(data).subscribe(res => {
+        this.defaultConfig = res.configuration;
+        this.editor.value = JSON.stringify(this.defaultConfig, null, 2);
+      })
+    }
   }
 
   get nameCtr() { return this.nodeAddForm.get('nameCtr'); }
@@ -129,17 +342,72 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   get hostnameCtr() { return this.nodeAddForm.get('hostnameCtr'); }
   get configTemplateCtr() { return this.nodeAddForm.get('configTemplateCtr'); }
   get loginProfileCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('loginProfileCtr'), this.loginProfiles); }
+  get hardwareInfoCtr() { return this.nodeAddForm.get('hardwareInfoCtr'); }
+  get uuidCtr() { return this.nodeAddForm.get('uuidCtr'); }
+  get webConsoleCtr() { return this.nodeAddForm.get('webConsoleCtr'); }
+  get featuresCtr() { return this.nodeAddForm.get('featuresCtr'); }
+  get softwareCtr() { return this.nodeAddForm.get('softwareCtr'); }
+  get serviceCtr() { return this.nodeAddForm.get('serviceCtr'); }
+  get runningConfigCtr() { return this.nodeAddForm.get('runningConfigCtr'); }
+  get changeCtr() { return this.nodeAddForm.get('changeCtr'); }
+  get tasksCtr() { return this.nodeAddForm.get('tasksCtr'); }
+  get addTypeCtr() { return this.helpers.getAutoCompleteCtr(this.actionsAddForm.get('addTypeCtr'), this.configTemplateAddsType) }
+  get routeCtr() { return this.configForm.get('routeCtr'); }
+  get nextHopCtr() { return this.configForm.get('nextHopCtr'); }
+  get interfaceCtr() { return this.configForm.get('interfaceCtr'); }
+  get categoryFirewallRuleCtr() { return this.firewallRuleForm.get('categoryFirewallRuleCtr'); }
+  get nameFirewallRuleCtr() { return this.firewallRuleForm.get('nameFirewallRuleCtr'); }
+  get stateCtr() { return this.firewallRuleForm.get('stateCtr'); }
+  get actionCtr() { return this.firewallRuleForm.get('actionCtr'); }
+  get interfaceFirewallCtr() { return this.firewallRuleForm.get('interfaceFirewallCtr'); }
+  get protocolCtr() { return this.firewallRuleForm.get('protocolCtr'); }
+  get sourceCtr() { return this.firewallRuleForm.get('sourceCtr'); }
+  get sourcePortCtr() { return this.firewallRuleForm.get('sourcePortCtr'); }
+  get sourceCustomPortCtr() { return this.firewallRuleForm.get('sourceCustomPortCtr'); }
+  get destinationCtr() { return this.firewallRuleForm.get('destinationCtr'); }
+  get destinationPortCtr() { return this.firewallRuleForm.get('destinationPortCtr'); }
+  get destCustomPortCtr() { return this.firewallRuleForm.get('destCustomPortCtr'); }
+  get targetCtr() { return this.firewallRuleForm.get('targetCtr'); }
+  get targetPortCtr() { return this.firewallRuleForm.get('targetPortCtr'); }
+  get targetCustomPortCtr() { return this.firewallRuleForm.get('targetCustomPortCtr'); }
+  get joinDomainCtr() { return this.domainMemberForm.get('joinDomainCtr'); }
+  get ouPathCtr() { return this.domainMemberForm.get('ouPathCtr');}
+  get rolesCtr() { return this.helpers.getAutoCompleteCtr(this.roleServicesForm.get('rolesCtr'), this.rolesAndService);}
+  get networksCtr() { return this.ospfForm.get('networksCtr');}
+  get bgpStateCtr() { return this.ospfForm.get('bgpStateCtr');}
+  get bgpMetricTypeCtr() { return this.ospfForm.get('bgpMetricTypeCtr');}
+  get connectedStateCtr() { return this.ospfForm.get('connectedStateCtr');}
+  get connectedMetricTypeCtr() { return this.ospfForm.get('connectedMetricTypeCtr');}
+  get staticStateCtr() { return this.ospfForm.get('staticStateCtr');}
+  get staticMetricTypeCtr() { return this.ospfForm.get('staticMetricTypeCtr');}
+
+  get ipCtr() { return this.helpers.getAutoCompleteCtr(this.bgpForm.get('ipCtr'), this.listNodeIP); }
+  get asnCtr() { return this.bgpForm.get('asnCtr');}
+  get neighborIpCtr() { return this.bgpForm.get('neighborIpCtr');}
+  get neighborAsnCtr() { return this.bgpForm.get('neighborAsnCtr');}
+  get bgpConnectedStateCtr() { return this.bgpForm.get('bgpConnectedStateCtr');}
+  get bgpConnectedMetricCtr() { return this.bgpForm.get('bgpConnectedMetricCtr');}
+  get bgpOspfStateCtr() { return this.bgpForm.get('bgpOspfStateCtr');}
+  get bgpOspfMetricCtr() { return this.bgpForm.get('bgpOspfMetricCtr');}
+
 
   ngOnInit(): void {
+    this.roleCtr.setValidators([Validators.required, autoCompleteValidator(this.ROLES)]);
+    this.filteredRoles = this.helpers.filterOptions(this.roleCtr, this.ROLES);
     this.helpers.setAutoCompleteValue(this.iconCtr, this.icons, this.data.genData.icon_id);
     this.nameCtr?.setValue(this.data.genData.name);
+    this.notesCtr?.setValue(this.data.genData.notes);
     this.categoryCtr?.setValue(this.data.genData.category);
     this.disableItems(this.categoryCtr?.value);
     this.helpers.setAutoCompleteValue(this.deviceCtr, this.devices, this.data.genData.device_id);
-    this.filteredTemplates = this.templates.filter((template: any) => template.device_id == this.data.genData.device_id);
+    this.filteredTemplatesByDevice = this.templates.filter((template: any) => template.device_id == this.data.genData.device_id);
+    this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice, 'display_name');
     this.helpers.setAutoCompleteValue(this.templateCtr, this.templates, this.data.genData.template_id);
     this.helpers.setAutoCompleteValue(this.hardwareCtr, this.hardwares, this.data.genData.hardware_id);
     this.folderCtr?.setValue(this.data.genData.folder);
+    if (!this.isViewMode) {
+      this.folderCtr?.setValidators([Validators.required])
+    }
     this.parentFolderCtr?.setValue(this.data.genData.parent_folder);
     this.helpers.setAutoCompleteValue(this.roleCtr, ROLES, this.data.genData.role);
     this.helpers.setAutoCompleteValue(this.domainCtr, this.domains, this.data.genData.domain_id);
@@ -149,6 +417,9 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
       this.configTemplateCtr?.setValue(this.data.genData.configs.map((item: any) => item.id));
     }
     this.helpers.validateAllFormFields(this.nodeAddForm);
+    this.addTypeCtr?.setValue(this.configTemplateAddsType[0]);
+    this.addTypeCtr?.setValidators([Validators.required, autoCompleteValidator(this.configTemplateAddsType)])
+    this.helpers.setAutoCompleteValue(this.addTypeCtr, this.configTemplateAddsType, this.configTemplateAddsType[0].id)
   }
 
   ngOnDestroy(): void {
@@ -159,6 +430,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
     this.selectDomains$.unsubscribe();
     this.selectConfigTemplates$.unsubscribe();
     this.selectLoginProfiles$.unsubscribe();
+    this.selectNodes$.unsubscribe();
   }
 
   private disableItems(category: string) {
@@ -173,40 +445,15 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
     }
   }
 
-  private _updateNodeOnMap(data: any) {
-    const ele = this.data.cy.getElementById(this.data.genData.id);
-    ele.data('name', data.name);
-    ele.data('notes', data.notes);
-    ele.data('icon', ICON_PATH + data.icon.photo);
-    ele.data('icon_id', data.icon_id);
-    ele.data('category', data.category);
-    ele.data('device', data.device);
-    ele.data('device_id', data.device_id);
-    ele.data('template', data.template);
-    ele.data('template_id', data.template_id);
-    ele.data('hardware', data.hardware);
-    ele.data('hardware_id', data.hardware_id);
-    ele.data('folder', data.folder);
-    ele.data('parent_folder', data.parent_folder);
-    ele.data('role', data.role);
-    ele.data('domain', data.domain);
-    ele.data('domain_id', data.domain_id);
-    ele.data('hostname', data.hostname);
-    ele.data('login_profile_id', data.login_profile_id);
-    ele.data('login_profile_show', data.login_profile_show);
-    ele.data('configs', data.configs);
-    ele.data('configuration_show', data.configuration_show);
-    ele.data('groups', data.groups);
-  }
-
   onCategoryChange($event: MatRadioChange) {
     this.disableItems($event.value);
   }
 
   disableTemplate(deviceId: string) {
-    this.filteredTemplates = this.templates.filter(template => template.device.id == deviceId);
+    this.filteredTemplatesByDevice = this.templates.filter(template => template.device.id == deviceId);
+    this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice, 'display_name');
     this.templateCtr?.setValue('');
-    if (this.filteredTemplates.length > 0) {
+    if (this.filteredTemplatesByDevice.length > 0) {
       this.templateCtr?.enable();
     } else {
       this.templateCtr?.disable();
@@ -226,7 +473,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   }
 
   addNode() {
-    const jsonData = {
+    const jsonDataValue = {
       name: this.nameCtr?.value,
       notes: this.notesCtr?.value,
       icon_id: this.iconCtr?.value.id,
@@ -240,7 +487,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
       domain_id: this.domainCtr?.value.id,
       hostname: this.hostnameCtr?.value,
       login_profile_id: this.loginProfileCtr?.value.id,
-      collection_id: this.data.collectionId,
+      project_id: this.data.projectId,
       logical_map_position: this.data.newNodePosition,
       logical_map_style: (this.data.mode == 'add') ? {
         "height": this.data.selectedMapPref.node_size,
@@ -256,17 +503,20 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
         "background-fit": "contain"
       } : undefined,
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.nodeService.add(jsonData).pipe(
       catchError((e: any) => {
-        this.toastr.error(e.error.message);
+        this.toastr.error('Add new node failed', 'Error');
         return throwError(() => e);
       })
     ).subscribe((respData: any) => {
       this.nodeService.get(respData.id).subscribe(respData => {
         const cyData = respData.result;
+        this.helpers.updateNodesStorage({...cyData});
         cyData.id = 'node-' + respData.id;
         cyData.node_id = respData.id;
         cyData.domain = this.domainCtr?.value.name;
+        cyData.device_category = this.data.genData.device_category;
         cyData.height = cyData.logical_map_style.height;
         cyData.width = cyData.logical_map_style.width;
         cyData.text_color = cyData.logical_map_style.text_color;
@@ -283,7 +533,12 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
             pk: respData.id,
             config_ids: this.configTemplateCtr?.value
           }
-          this.nodeService.associate(configData).subscribe(respData => { });
+          this.nodeService.associate(configData).subscribe(respData => {
+            this.nodeService.get(cyData.node_id).subscribe(nodeData => {
+              this.data.genData.id = cyData.id;
+              this.helpers.updateNodeOnMap(this.data.cy, this.data.genData.id, nodeData.result);
+            })
+          });
         }
         this.helpers.reloadGroupBoxes(this.data.cy);
         this.toastr.success('Node details added!');
@@ -293,8 +548,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
   }
 
   updateNode() {
-    const ele = this.data.cy.getElementById('node-' + this.data.genData.id);
-    const jsonData = {
+    const ele = this.data.cy.getElementById(this.data.genData.id);
+    const jsonDataValue = {
       name: this.nameCtr?.value,
       notes: this.notesCtr?.value,
       icon_id: this.iconCtr?.value.id,
@@ -307,13 +562,14 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
       role: this.roleCtr?.value.id,
       domain_id: this.domainCtr?.value.id,
       hostname: this.hostnameCtr?.value,
-      login_profile_id: this.loginProfileCtr?.value.id,
-      collection_id: this.data.genData.collection_id,
+      login_profile_id: this.loginProfileCtr?.value.id ? this.loginProfileCtr?.value.id : null,
+      project_id: this.data.genData.project_id,
       logical_map_position: ele.position(),
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.nodeService.put(this.data.genData.node_id, jsonData).pipe(
       catchError((e: any) => {
-        this.toastr.error(e.error.message);
+        this.toastr.error('Update node failed!', 'Error');
         return throwError(() => e);
       })
     ).subscribe((_respData: any) => {
@@ -323,16 +579,352 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy {
           config_ids: this.configTemplateCtr?.value
         }
         this.nodeService.associate(configData).subscribe(respData => {
-          this.store.dispatch(retrievedMapSelection({ data: true }));
+          const isUpdateConfigDefault = JSON.stringify(this.defaultConfig, null, 2) !== this.editor.value;
+          if (isUpdateConfigDefault) {
+            const isNodeConfigDataFormatted = this.helpers.validateJSONFormat(this.editor.value)
+            if (isNodeConfigDataFormatted) {
+              const configDefaultNode = {
+                node_id: this.data.genData.node_id,
+                config_id: this.data.genData.default_config_id,
+                ...JSON.parse(this.editor.value)
+              }
+              this.configTemplateService.putConfiguration(configDefaultNode).subscribe(res => {
+                this._updateNodeOnMapAndStorage();
+              })
+            }
+          } else {
+            this._updateNodeOnMapAndStorage();
+          }
         });
       }
-      this.nodeService.get(this.data.genData.node_id).subscribe(nodeData => {
-        this._updateNodeOnMap(nodeData.result);
-        this.helpers.reloadGroupBoxes(this.data.cy);
-        this.dialogRef.close();
-        this.store.dispatch(retrievedMapSelection({ data: true }));
-        this.toastr.success('Node details updated!');
-      });
     });
+  }
+
+  private _updateNodeOnMapAndStorage() {
+    this.store.dispatch(retrievedMapSelection({ data: true }));
+    this.nodeService.get(this.data.genData.node_id).subscribe(nodeData => {
+      this.helpers.updateNodesStorage(nodeData.result);
+      this.helpers.updateNodesOnGroupStorage(nodeData.result, 'node');
+      this.helpers.updateNodeOnMap(this.data.cy, this.data.genData.id, nodeData.result);
+      this.helpers.reloadGroupBoxes(this.data.cy);
+      this.dialogRef.close();
+      this.store.dispatch(retrievedMapSelection({ data: true }));
+      this.toastr.success('Node details updated!');
+    });
+  }
+
+  changeViewToEdit() {
+    this.configTemplateCtr?.enable();
+    this.categoryCtr?.enable();
+    this.data.mode = 'update';
+    this.isViewMode = false;
+    this.folderCtr?.setValidators([Validators.required])
+    this.folderCtr?.updateValueAndValidity()
+  }
+
+  onGridReady(params: GridReadyEvent) {
+    this.gridApi = params.api;
+  }
+
+  showAddConfigForm() {
+    this.showFormAdd(this.addTypeCtr?.value.id);
+  }
+
+  selectAddType($event: MatAutocompleteSelectedEvent) {
+    this.showFormAdd($event.option.value.id)
+  }
+
+  disableItemsConfig(category: string) {
+    if (category === 'port_forward') {
+      this.actionCtr?.disable();
+      this.protocolCtr?.disable();
+      this.sourcePortCtr?.disable();
+      this.targetCtr?.enable();
+      this.targetPortCtr?.enable();
+    } else {
+      this.actionCtr?.enable();
+      this.protocolCtr?.enable();
+      this.sourcePortCtr?.enable();
+      this.targetCtr?.disable();
+      this.targetPortCtr?.disable();
+      this.targetCustomPortCtr?.disable();
+    }
+  }
+
+  onCategoryChangeConfig($event: any) {
+    this.disableItemsConfig($event.value)
+  }
+
+  onChangeSourcePort($event: any) {
+    if ($event.value === "other") {
+      this.sourceCustomPortCtr?.enable();
+    } else {
+      this.sourceCustomPortCtr?.disable();
+    }
+  }
+
+  onChangeDestinationPort($event: any) {
+    if ($event.value === "other") {
+      this.destCustomPortCtr?.enable();
+    } else {
+      this.destCustomPortCtr?.disable();
+    }
+  }
+
+  onChangeTargetPort($event: any) {
+    if ($event.value === "other") {
+      this.targetCustomPortCtr?.enable();
+    }else {
+      this.targetCustomPortCtr?.disable();
+    }
+  }
+
+  // selectBgpState(event: any) {
+  //   if (event.checked) {
+  //     this.isHiddenBgpMetricType = false;
+  //   } else {
+  //     this.isHiddenBgpMetricType = true;
+  //   }
+  // }
+
+  // selectConnectedState(event: any) {
+  //   if (event.checked) {
+  //     this.isHiddenConnectedMetricType = false;
+  //   } else {
+  //     this.isHiddenConnectedMetricType = true;
+  //   }
+  // }
+
+  // selectStaticState(event: any) {
+  //   if (event.checked) {
+  //     this.isHiddenStaticMetricType = false;
+  //   } else {
+  //     this.isHiddenStaticMetricType = true;
+  //   }
+  // }
+
+  addRoute() {
+    const jsonDataValue = {
+      config_type: "static_route",
+      config_id: this.data.genData.default_config_id,
+      name: this.data.genData.name,
+      description: this.data.genData.description,
+      route: this.routeCtr?.value,
+      next_hop: this.nextHopCtr?.value,
+      interface: this.interfaceCtr?.value,
+      node_id: this.data.genData.node_id
+    }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
+    this.configTemplateService.addConfiguration(jsonData).pipe(
+      catchError(err => {
+        this.toastr.error('Add Route failed', 'Error');
+        return throwError(() => err);
+      })
+    ).subscribe((response) => {
+      this._setEditorData(response.result)
+      this.toastr.success('Add Route successfully', 'Success');
+      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
+    });
+  }
+
+  addFirewallRule() {
+    const jsonDataValue = {
+      config_type: "firewall",
+      config_id: this.data.genData.default_config_id,
+      category: this.categoryFirewallRuleCtr?.value,
+      name: this.nameFirewallRuleCtr?.value,
+      state: this.stateCtr?.value,
+      action: this.actionCtr?.value,
+      interface: this.interfaceFirewallCtr?.value,
+      protocol: this.protocolCtr?.value,
+      source: this.sourceCtr?.value,
+      source_port: this.sourcePortCtr?.value,
+      source_port_custom: this.sourceCustomPortCtr?.value,
+      destination: this.destinationCtr?.value,
+      dest_port: this.destinationPortCtr?.value,
+      dest_port_custom: this.destCustomPortCtr?.value,
+      target: this.targetCtr?.value,
+      target_port: this.targetPortCtr?.value,
+      target_port_custom: this.targetCustomPortCtr?.value,
+      node_id: this.data.genData.node_id
+    }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
+    this.configTemplateService.addConfiguration(jsonData).pipe(
+      catchError(err => {
+        this.toastr.error('Add Firewall Rule failed', 'Error');
+        return throwError(() => err);
+      })
+    ).subscribe((response) => {
+      this._setEditorData(response.result)
+      this.toastr.success('Add Firewall Rule successfully', 'Success');
+      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
+    });
+  }
+
+  addDomainMembership() {
+    const jsonDataValue = {
+      config_type: "domain_membership",
+      config_id: this.data.genData.default_config_id,
+      join_domain: this.joinDomainCtr?.value,
+      ou_path: this.ouPathCtr?.value,
+      node_id: this.data.genData.node_id
+    }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
+    this.configTemplateService.addConfiguration(jsonData).pipe(
+      catchError(err => {
+        this.toastr.error('Add Domain Membership failed', 'Error');
+        return throwError(() => err);
+      })
+    ).subscribe((response) => {
+      this._setEditorData(response.result)
+      this.toastr.success('Add Domain Membership successfully', 'Success');
+      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
+    });
+  }
+
+  addRoleServices() {
+    const jsonData = {
+      config_type: "role_services",
+      config_id: this.data.genData.default_config_id,
+      role_services: this.rolesCtr?.value,
+      node_id: this.data.genData.node_id
+    }
+    this.configTemplateService.addConfiguration(jsonData).pipe(
+      catchError(err => {
+        this.toastr.error('Add Roles & Service failed', 'Error')
+        return throwError(() => err);
+      })
+    ).subscribe((response) => {
+      this._setEditorData(response.result)
+      this.toastr.success('Add Roles & Service successfully', 'Success');
+      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
+    });
+  }
+
+  addOSPF() {
+    const jsonDataValue = {
+      config_type: "ospf",
+      config_id: this.data.genData.default_config_id,
+      networks: this.helpers.processNetworksField(this.networksCtr?.value),
+      bgp_state: this.bgpStateCtr?.value,
+      bgp_metric_type: this.bgpMetricTypeCtr?.value,
+      connected_state: this.connectedStateCtr?.value,
+      connected_metric_type: this.connectedMetricTypeCtr?.value,
+      static_state: this.staticStateCtr?.value,
+      static_metric_type: this.staticMetricTypeCtr?.value,
+      node_id: this.data.genData.node_id
+    }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
+    this.configTemplateService.addConfiguration(jsonData).pipe(
+      catchError(err => {
+        this.toastr.error('Add OPSF failed', 'Error');
+        return throwError(() => err);
+      })
+    ).subscribe((response) => {
+      this._setEditorData(response.result);
+      this.toastr.success('Add OPSF successfully', 'Success');
+      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
+    });
+  }
+
+  addBGP() {
+    const jsonDataValue = {
+      config_type: "bgp",
+      config_id: this.data.genData.default_config_id,
+      ip_address: this.ipCtr?.value.ip,
+      asn: this.asnCtr?.value,
+      neighbor_ip: this.neighborIpCtr?.value,
+      neighbor_asn: this.neighborAsnCtr?.value,
+      bgp_connected_state: this.bgpConnectedStateCtr?.value,
+      bgp_connected_metric: this.bgpConnectedMetricCtr?.value,
+      bgp_ospf_state: this.bgpOspfStateCtr?.value,
+      bgp_ospf_metric: this.bgpOspfMetricCtr?.value,
+      node_id: this.data.genData.node_id
+    }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
+    this.configTemplateService.addConfiguration(jsonData).pipe(
+      catchError(err => {
+        this.toastr.error('Add BGP failed', 'Error');
+        return throwError(() => err);
+      })
+    ).subscribe((response) => {
+      this._setEditorData(response.result)
+      this.toastr.success('Add BGP successfully', 'Success');
+      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
+    });
+  }
+
+  showFormAdd(addType: string) {
+    switch (addType) {
+      case 'add_route':
+        this.isAddRoute = true;
+        this.isAddFirewallRule = false;
+        this.isAddDomainMembership = false;
+        this.isAddRolesAndService = false;
+        this.isAddOSPF = false;
+        this.isAddBGP = false;
+        break;
+      case 'add_firewall_rule':
+        this.isAddRoute = false;
+        this.isAddFirewallRule = true;
+        this.isAddDomainMembership = false;
+        this.isAddRolesAndService = false;
+        this.isAddOSPF = false;
+        this.isAddBGP = false;
+        break;
+      case 'add_domain_membership':
+        this.isAddRoute = false;
+        this.isAddFirewallRule = false;
+        this.isAddDomainMembership = true;
+        this.isAddRolesAndService = false;
+        this.isAddOSPF = false;
+        this.isAddBGP = false;
+        break;
+      case 'add_roles_service':
+        this.isAddRoute = false;
+        this.isAddFirewallRule = false;
+        this.isAddDomainMembership = false;
+        this.isAddRolesAndService = true;
+        this.isAddOSPF = false;
+        this.isAddBGP = false;
+        break;
+      case 'add_ospf':
+        this.isAddRoute = false;
+        this.isAddFirewallRule = false;
+        this.isAddDomainMembership = false;
+        this.isAddRolesAndService = false;
+        this.isAddOSPF = true;
+        this.isAddBGP = false;
+        break;
+      case 'add_bgp':
+        this.isAddRoute = false;
+        this.isAddFirewallRule = false;
+        this.isAddDomainMembership = false;
+        this.isAddRolesAndService = false;
+        this.isAddOSPF = false;
+        this.isAddBGP = true;
+        break;
+      default:
+        this.isAddRoute = false;
+        this.isAddFirewallRule = false;
+        this.isAddDomainMembership = false;
+        this.isAddRolesAndService = false;
+        this.isAddOSPF = false;
+        this.isAddBGP = false;
+    }
+  }
+
+  private _setEditorData(data: any) {
+    this.defaultConfig = data;
+    this.editor.value = JSON.stringify(this.defaultConfig, null, 2);
+  }
+
+  hideAddForm() {
+    this.isAddRoute = false;
+    this.isAddFirewallRule = false;
+    this.isAddDomainMembership = false;
+    this.isAddRolesAndService = false;
+    this.isAddOSPF = false;
+    this.isAddBGP = false;
   }
 }

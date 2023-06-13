@@ -1,0 +1,64 @@
+$margin: 8px;
+
+.icon-gallery-container {
+  text-align: center;
+}
+
+.name-footer {
+  margin-top: $margin;
+  display: flex;
+  flex-direction: column;
+}
+
+.checkbox-icons {
+  position: absolute;
+  top: calc($margin*2);
+  left: calc($margin*3);
+  z-index: 1;
+}
+
+.icon-name {
+  margin: $margin 0 calc($margin*2) 0;
+}
+
+.icon-container {
+  width: 90%;
+  height: 80%;
+  border: 0.5px solid #eee;
+  cursor: pointer;
+  padding: $margin;
+}
+
+.select-all {
+  display: block;
+  text-align: left;
+  padding: 0 0 $margin calc($margin*2);
+}
+
+.no-photo {
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.no-photo button {
+  height: 80px;
+  width: 80px;
+}
+
+.no-photo mat-icon {
+  height: 80px;
+  width: 80px;
+  font-size: 80px;
+  line-height: 1;
+}
+
+.mat-card-content, .mat-card-title {
+  margin-bottom: 0;
+}
+
+.icon-title {
+  font-size: 20px;
+  padding-top: 20px;
+}

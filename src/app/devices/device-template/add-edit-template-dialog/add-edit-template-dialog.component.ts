@@ -1,5 +1,5 @@
 import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -11,6 +11,9 @@ import { selectLoginProfiles } from 'src/app/store/login-profile/login-profile.s
 import { retrievedTemplates } from "../../../store/template/template.actions";
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
+import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
+import { selectTemplates } from 'src/app/store/template/template.selectors';
+import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 
 @Component({
   selector: 'app-add-edit-template-dialog',
@@ -22,9 +25,15 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
   errorMessages = ErrorMessages;
   selectIcons$ = new Subscription();
   selectLoginProfiles$ = new Subscription();
-  listIcon!: any[];
-  listLoginProfiles!: any[];
+  selectTemplates$ = new Subscription();
+  icons!: any[];
+  loginProfiles!: any[];
+  listTemplate!: any[];
   selectedFile: any = null;
+  filteredIcons!: Observable<any[]>;
+  filteredLoginProfiles!: Observable<any[]>;
+  ICON_PATH = ICON_PATH;
+
   constructor(
     private store: Store,
     public helpers: HelpersService,
@@ -33,21 +42,28 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
     public dialogRef: MatDialogRef<AddEditTemplateDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
-    this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
-      this.listIcon = icons;
-    })
-    this.selectLoginProfiles$ = this.store.select(selectLoginProfiles).subscribe(loginProfile => {
-      this.listLoginProfiles = loginProfile;
+    this.selectTemplates$= this.store.select(selectTemplates).subscribe(templateData => {
+      this.listTemplate = templateData;
     })
 
     this.templateForm = new FormGroup({
-      displayName: new FormControl({value: '', disabled: false}),
-      name: new FormControl({value: '', disabled: false}, [Validators.required, Validators.minLength(3),
-        Validators.maxLength(50)]),
+      displayName: new FormControl({ value: '', disabled: false }),
+      name: new FormControl({ value: '', disabled: false }, [Validators.required, validateNameExist(() => this.listTemplate, this.data.mode, this.data.genData.id), Validators.minLength(3),
+      Validators.maxLength(50)]),
       category: new FormControl(['vm']),
-      icon: new FormControl('', [autoCompleteValidator(this.listIcon)]),
-      loginProfile: new FormControl({value: '', disabled: false}, [autoCompleteValidator(this.listLoginProfiles)]),
-      defaultConfigFile: new FormControl({value: '', disabled: false}),
+      icon: new FormControl(''),
+      loginProfile: new FormControl({ value: '', disabled: false }),
+      defaultConfigFile: new FormControl({ value: '', disabled: false }),
+    });
+    this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
+      this.icons = icons;
+      this.icon.setValidators([autoCompleteValidator(this.icons)]);
+      this.filteredIcons = this.helpers.filterOptions(this.icon, this.icons);
+    })
+    this.selectLoginProfiles$ = this.store.select(selectLoginProfiles).subscribe(loginProfiles => {
+      this.loginProfiles = loginProfiles;
+      this.loginProfile.setValidators([autoCompleteValidator(this.loginProfiles)]);
+      this.filteredLoginProfiles = this.helpers.filterOptions(this.loginProfile, this.loginProfiles);
     })
   }
   ngOnDestroy(): void {
@@ -55,19 +71,19 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
     this.selectLoginProfiles$.unsubscribe();
   }
 
-  get displayName() {return this.templateForm.get('displayName')}
-  get name() {return this.templateForm.get('name')}
-  get category() {return this.templateForm.get('category')}
-  get icon() { return this.helpers.getAutoCompleteCtr(this.templateForm.get('icon'), this.listIcon); }
-  get loginProfile() {return this.helpers.getAutoCompleteCtr(this.templateForm.get('loginProfile'), this.listLoginProfiles);}
+  get displayName() { return this.templateForm.get('displayName') }
+  get name() { return this.templateForm.get('name') }
+  get category() { return this.templateForm.get('category') }
+  get icon() { return this.helpers.getAutoCompleteCtr(this.templateForm.get('icon'), this.icons); }
+  get loginProfile() { return this.helpers.getAutoCompleteCtr(this.templateForm.get('loginProfile'), this.loginProfiles); }
   get defaultConfigFile() { return this.templateForm.get('defaultConfigFile') }
 
   ngOnInit(): void {
     this.displayName?.setValue(this.data.genData.display_name)
     this.name?.setValue(this.data.genData.name)
     this.category?.setValue(this.data.genData.category)
-    this.helpers.setAutoCompleteValue(this.icon, this.listIcon, this.data.genData.icon.id);
-    this.helpers.setAutoCompleteValue(this.loginProfile, this.listLoginProfiles, this.data.genData.login_profile_id);
+    this.helpers.setAutoCompleteValue(this.icon, this.icons, this.data.genData.icon.id);
+    this.helpers.setAutoCompleteValue(this.loginProfile, this.loginProfiles, this.data.genData.login_profile_id);
   }
 
   onCancel() {
@@ -75,7 +91,7 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
   }
 
   addTemplate() {
-    const jsonData = {
+    const jsonDataValue = {
       display_name: this.displayName?.value,
       name: this.name?.value,
       category: this.category?.value,
@@ -83,9 +99,10 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
       icon_id: this.icon?.value.id,
       login_profile_id: this.loginProfile?.value.id
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.templateService.add(jsonData).subscribe({
       next: (rest) => {
-        this.templateService.getAll().subscribe((data: any)  => {
+        this.templateService.getAll().subscribe((data: any) => {
           let templateData = data.result.filter((val: any) => val.device_id === this.data.genData.deviceId);
           this.store.dispatch(retrievedTemplates({ data: templateData }));
         })
@@ -99,17 +116,18 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
   }
 
   updateTemplate() {
-    const jsonData = {
+    const jsonDataValue = {
       display_name: this.displayName?.value,
       name: this.name?.value,
       category: this.category?.value,
       device_id: this.data.deviceId,
       icon_id: this.icon?.value.id,
-      login_profile_id: this.loginProfile?.value.id
+      login_profile_id: this.loginProfile?.value.id ? this.loginProfile?.value.id : null
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.templateService.put(this.data.genData.id, jsonData).subscribe({
       next: (rest) => {
-        this.templateService.getAll().subscribe((data: any)  => {
+        this.templateService.getAll().subscribe((data: any) => {
           let templateData = data.result.filter((val: any) => val.device_id === this.data.deviceId);
           this.store.dispatch(retrievedTemplates({ data: templateData }));
         })

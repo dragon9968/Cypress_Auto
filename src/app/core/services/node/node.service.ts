@@ -10,9 +10,9 @@ export class NodeService {
 
   constructor(private http: HttpClient) { }
 
-  genData(collectionId: string, deviceId: string, templateId: string): Observable<any> {
+  genData(projectId: string, deviceId: string, templateId: string): Observable<any> {
     return this.http.post<any>(ApiPaths.GEN_NODE_DATA, {
-      collection_id: collectionId,
+      project_id: projectId,
       device_id: deviceId,
       template_id: templateId
     });
@@ -42,10 +42,10 @@ export class NodeService {
     return this.http.post<any>(ApiPaths.VALIDATE_NODE, data);
   }
 
-  getNodesByCollectionId(collectionId: string): Observable<any> {
+  getNodesByProjectId(projectId: string): Observable<any> {
     return this.http.get<any>(ApiPaths.NODE, {
       params: {
-        q: '(filters:!((col:collection_id,opr:eq,value:' + collectionId +')),keys:!(list_columns),page:0,page_size:1000)'
+        q: '(filters:!((col:project_id,opr:eq,value:' + projectId +')),keys:!(list_columns),page:0,page_size:1000)'
       }
     })
   }

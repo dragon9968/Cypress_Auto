@@ -1,5 +1,5 @@
 import { Store } from "@ngrx/store";
-import { forkJoin, map, Subscription } from "rxjs";
+import { forkJoin, map, Observable, Subscription } from "rxjs";
 import { ToastrService } from "ngx-toastr";
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from "@angular/forms";
@@ -26,6 +26,7 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
   selectDomains$ = new Subscription();
   errors: any[] = [];
   tabName = '';
+  filteredDomains!: Observable<any[]>;
 
   constructor(
     private store: Store,
@@ -36,10 +37,8 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
     private portGroupService: PortGroupService,
     private infoPanelService: InfoPanelService
   ) {
-    this.selectDomains$ = this.store.select(selectDomains).subscribe(domains => this.domains = domains);
-    this.tabName = this.data.tabName;
     this.portGroupBulkEdit = new FormGroup({
-      domainCtr: new FormControl('', [autoCompleteValidator(this.domains)]),
+      domainCtr: new FormControl(''),
       vlanCtr: new FormControl('', [
         Validators.min(0),
         Validators.max(4095),
@@ -48,7 +47,13 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
       ]),
       categoryCtr: new FormControl({ value: '', disabled: this.tabName == 'portGroupManagement'}),
       subnetAllocationCtr: new FormControl(''),
-    })
+    });
+    this.selectDomains$ = this.store.select(selectDomains).subscribe(domains => {
+      this.domains = domains;
+      this.domainCtr.setValidators([autoCompleteValidator(this.domains)]);
+      this.filteredDomains = this.helpers.filterOptions(this.domainCtr, this.domains);
+    });
+    this.tabName = this.data.tabName;
   }
 
   get domainCtr() { return this.helpers.getAutoCompleteCtr(this.portGroupBulkEdit.get('domainCtr'), this.domains); }
@@ -71,6 +76,7 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
     ele.data('groups', data.groups);
     ele.data('domain', data.domain);
     ele.data('domain_id', data.domain_id);
+    ele.data('subnet', data.subnet);
   }
 
   updatePortGroupBulk() {
@@ -80,15 +86,16 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
     const category = this.categoryCtr?.value !== '' ? this.categoryCtr?.value: undefined;
     const subnetAllocation = this.subnetAllocationCtr?.value !== '' ? this.subnetAllocationCtr?.value: undefined;
     if (domainId || vlan || category || subnetAllocation) {
-      const jsonData = {
+      const jsonDataValue = {
         ids: ids,
         domain_id: domainId,
         vlan: vlan,
         category: category,
         subnet_allocation: subnetAllocation
       }
+      const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.portGroupService.editBulk(jsonData).subscribe((response: any) => {
-        return forkJoin(this.data.genData.activePGs.map((pg: any) => {
+        return forkJoin(this.data.genData.activeEles.map((pg: any) => {
           return this.portGroupService.get(pg.pg_id).pipe(map(pgData => {
             const portGroup = pgData.result;
             if (portGroup.category == 'management') {
@@ -98,17 +105,23 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
             }
           }));
         }))
-          .subscribe((resData: any) => {
-            if (resData[0]) {
-              const newPGsManagement = this.infoPanelService.getNewPortGroupsManagement(resData);
-              this.store.dispatch(retrievedPortGroupsManagement({ data: newPGsManagement }));
-            } else {
-              this.helpers.reloadGroupBoxes(this.data.cy);
-              this.store.dispatch(retrievedMapSelection({ data: true }));
-            }
-            this.dialogRef.close();
-            this.toastr.success(response.message, 'Success');
+          .subscribe(() => {
+            return forkJoin(this.data.genData.activeEles.map((pg: any) => {
+              return this.portGroupService.get(pg.pg_id).pipe(map(pgData => {
+                this._updatePGOnMap(pgData.result);
+              }))
+            })).subscribe((resData: any) => {
+              if (resData[0]) {
+                const newPGsManagement = this.infoPanelService.getNewPortGroupsManagement(resData);
+                this.store.dispatch(retrievedPortGroupsManagement({ data: newPGsManagement }));
+              } else {
+                this.helpers.reloadGroupBoxes(this.data.cy);
+                this.store.dispatch(retrievedMapSelection({ data: true }));
+              }
+              this.dialogRef.close();
+              this.toastr.success(response.message, 'Success');
           });
+        });
       });
     } else {
       this.dialogRef.close();

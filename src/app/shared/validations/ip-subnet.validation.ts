@@ -1,6 +1,5 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from "@angular/forms";
-import {isIP, isIPv4} from 'is-ip';
-import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
+import {isIPv4} from 'is-ip';
 
 export function ipSubnetValidation(subnet: boolean): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {

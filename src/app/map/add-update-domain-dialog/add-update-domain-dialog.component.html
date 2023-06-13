@@ -1,27 +1,47 @@
-<form [formGroup]="domainAddForm" (ngSubmit)="data.mode === 'add' ? addDomain() : updateDomain()">
-  <h1 mat-dialog-title>{{data.mode === 'add' ? 'Add Domain' : data.mode === 'update' ? 'Domain Edit': 'Domain Info'}}</h1>
+<form [formGroup]="domainAddForm" (ngSubmit)="data.mode === 'add' ? addDomain() : updateDomain()" autocomplete="off">
+  <div class="dialog-title">
+    <h1 mat-dialog-title>{{data.mode === 'add' ? 'Add Domain' : data.mode === 'update' ? 'Domain Edit': 'Domain Info'}}</h1>
+    <ng-template [ngxPermissionsOnly]="['can_write on Project']" [ngxPermissionsElse]="elseBlock">
+      <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </ng-template>
+    <ng-template #elseBlock>
+      <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()" disabled="true">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </ng-template>
+  </div>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
-      <input matInput formControlName="nameCtr" [readonly]="isViewMode">
+      <input autocomplete="off" id="domain-name" matInput formControlName="nameCtr" [readonly]="isViewMode">
       <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="nameCtr?.errors?.isExist">{{ errorMessages.DOMAIN_NAME_EXIST }}</mat-error>
+      <mat-error *ngIf="nameCtr?.errors?.pattern">{{ errorMessages.DOMAIN_NAME_MUST_NOT_UNDERSCORE }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Admin User</mat-label>
-      <input matInput formControlName="adminUserCtr" [readonly]="isViewMode">
+      <input autocomplete="off" id="domain-admin-user" matInput formControlName="adminUserCtr" [readonly]="isViewMode">
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Admin Password</mat-label>
-      <input matInput formControlName="adminPasswordCtr" [readonly]="isViewMode">
+      <input autocomplete="off" id="domain-admin-password" matInput formControlName="adminPasswordCtr" [readonly]="isViewMode">
     </mat-form-field>
   </div>
   <div mat-dialog-actions [align]="'end'">
     <button mat-raised-button type="button" (click)="onCancel()">
       {{data.mode === 'view' ? 'Close' : 'Cancel'}}
     </button>
-    <button *ngIf="data.mode !== 'view'" mat-raised-button type="submit" color="primary" [disabled]="!domainAddForm.valid">
-      {{data.mode === 'add' ? 'Add' : 'Update'}}
-    </button>
+    <ng-template [ngxPermissionsOnly]="['can_write on Project']" [ngxPermissionsElse]="elseBlockBtnAddEdit">
+      <button *ngIf="data.mode !== 'view'" mat-raised-button type="submit" color="primary" [disabled]="!domainAddForm.valid">
+        {{data.mode === 'add' ? 'Add' : 'Update'}}
+      </button>
+    </ng-template>
+    <ng-template #elseBlockBtnAddEdit>
+      <button *ngIf="data.mode !== 'view'" mat-raised-button type="submit" color="primary" [disabled]="!domainAddForm.valid" disabled="true">
+        {{data.mode === 'add' ? 'Add' : 'Update'}}
+      </button>
+    </ng-template>
   </div>
 </form>

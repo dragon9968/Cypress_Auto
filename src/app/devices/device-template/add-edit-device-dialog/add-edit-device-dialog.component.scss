@@ -1,3 +1,24 @@
 .field {
   width: 100%;
 }
+
+.option-text {
+  display: flex;
+  align-items: center;
+}
+
+.ng-select-categories {
+  font-family: 'Roboto', sans-serif;
+}
+
+::ng-deep .ng-placeholder {
+  margin-top: 4px;
+}
+
+::ng-deep ng-dropdown-panel {
+  position: relative !important;
+}
+
+::ng-deep div[data-lastpass-icon-root] {
+  display: none;
+}

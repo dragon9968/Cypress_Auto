@@ -1,0 +1,40 @@
+<form [formGroup]="lookupFeaturesForm" (ngSubmit)="data.mode === 'add' ? addLookupFeatures() : updateLookupFeatures()" autocomplete="off">
+  <div class="dialog-title">
+    <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Lookup Features' : data.mode === 'update' ? 'Edit Lookup Features' : 'Show Lookup Features' }}</h1>
+    <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+      <mat-icon>edit</mat-icon>
+    </button>
+  </div>
+  <div mat-dialog-content>
+    <mat-form-field class="field">
+      <mat-label>Name</mat-label>
+      <input autocomplete="off" id="lookupfeatures-name" type="text" formControlName="nameCtr" matInput>
+      <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="nameCtr?.errors?.isExist">{{ errorMessages.NAME_EXISTS }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Display Name</mat-label>
+      <input autocomplete="off" id="lookupfeatures-displayname" type="text" formControlName="displayNameCtr" matInput>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Platform</mat-label>
+      <input autocomplete="off" id="lookupfeatures-platform" type="text" formControlName="platformCtr" matInput>
+    </mat-form-field>
+    <!-- <div *ngIf="data.mode === 'view'">
+      <div class="features-section">
+        <label class="features-label">Features:</label>
+      </div>
+      <div class="features-section">
+        <ag-grid-angular class="ag-theme-alpine features-table" [pagination]="true" [paginationPageSize]="25"
+          [columnDefs]="columnDefs" [defaultColDef]="defaultColDef" [rowData]="rowData" rowSelection="multiple" (gridReady)="onGridReady($event)">
+        </ag-grid-angular>
+      </div>
+    </div> -->
+  </div>
+  <div mat-dialog-actions [align]="'end'" class="create-btn">
+    <button mat-raised-button type="button" (click)="onCancel()">{{ data.mode === 'view' ? 'Close' : 'Cancel' }}</button>
+    <button *ngIf="data.mode !== 'view'" mat-raised-button color="primary" [disabled]="!lookupFeaturesForm.valid">
+     {{ data.mode === 'add' ? 'Create' : 'Update' }}
+    </button>
+  </div>
+</form>

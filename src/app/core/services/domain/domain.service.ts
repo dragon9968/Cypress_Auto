@@ -14,10 +14,10 @@ export class DomainService {
     return this.http.get<any>(ApiPaths.DOMAINS);
   }
 
-  getDomainByCollectionId(collectionId: string): Observable<any> {
+  getDomainByProjectId(projectId: string): Observable<any> {
     return this.http.get<any>(ApiPaths.DOMAINS, {
       params: {
-        q: '(columns:!(id,name,admin_user,admin_password),filters:!((col:collection_id,opr:eq,value:' + collectionId + ')),keys:!(list_columns),page:0,page_size:1000)'
+        q: '(columns:!(id,name,admin_user,admin_password),filters:!((col:project_id,opr:eq,value:' + projectId + ')),keys:!(list_columns),page:0,page_size:1000)'
       }
     })
   }

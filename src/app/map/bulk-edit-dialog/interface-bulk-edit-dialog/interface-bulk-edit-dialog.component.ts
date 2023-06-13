@@ -1,7 +1,7 @@
 import { Store } from "@ngrx/store";
 import { ToastrService } from "ngx-toastr";
 import { FormControl, FormGroup } from "@angular/forms";
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { DIRECTIONS } from "../../../shared/contants/directions.constant";
 import { STATUS } from "../../../shared/contants/status.constant";
@@ -12,19 +12,24 @@ import { InfoPanelService } from "../../../core/services/info-panel/info-panel.s
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { retrievedInterfacesManagement } from "../../../store/interface/interface.actions";
+import { Observable, Subscription } from "rxjs";
+import { selectMapOption } from "../../../store/map-option/map-option.selectors";
 
 @Component({
   selector: 'app-interface-bulk-edit-dialog',
   templateUrl: './interface-bulk-edit-dialog.component.html',
   styleUrls: ['./interface-bulk-edit-dialog.component.scss']
 })
-export class InterfaceBulkEditDialogComponent {
+export class InterfaceBulkEditDialogComponent implements OnInit, OnDestroy {
   interfaceBulkEditForm: FormGroup;
   DIRECTIONS = DIRECTIONS;
   STATUS = STATUS;
   errorMessages = ErrorMessages;
+  isEdgeDirectionChecked = false;
   mapCategory = '';
-  collectionId = '0';
+  filteredStatus!: Observable<any[]>;
+  filteredDirections!: Observable<any[]>;
+  selectMapOption$ = new Subscription();
 
   constructor(
     private store: Store,
@@ -37,13 +42,16 @@ export class InterfaceBulkEditDialogComponent {
   ) {
     this.interfaceBulkEditForm = new FormGroup({
       statusCtr: new FormControl(''),
-      directionCtr: new FormControl('', [autoCompleteValidator(this.DIRECTIONS)]),
+      directionCtr: new FormControl(''),
       ipAllocationCtr: new FormControl(''),
       dnsServerCtr: new FormControl(''),
       gatewayCtr: new FormControl(''),
       isGatewayCtr: new FormControl(''),
       isNatCtr: new FormControl('')
     });
+    this.selectMapOption$ = this.store.select(selectMapOption).subscribe(mapOption => {
+      this.isEdgeDirectionChecked = mapOption.isEdgeDirectionChecked
+    })
   }
 
   get statusCtr() { return this.interfaceBulkEditForm.get('statusCtr'); }
@@ -53,6 +61,16 @@ export class InterfaceBulkEditDialogComponent {
   get gatewayCtr() { return this.interfaceBulkEditForm.get('gatewayCtr'); }
   get isGatewayCtr() { return this.interfaceBulkEditForm.get('isGatewayCtr'); }
   get isNatCtr() { return this.interfaceBulkEditForm.get('isNatCtr'); }
+
+  ngOnInit(): void {
+    this.filteredStatus = this.helpers.filterOptions(this.statusCtr, this.STATUS);
+    this.directionCtr.setValidators([autoCompleteValidator(this.DIRECTIONS)]);
+    this.filteredDirections = this.helpers.filterOptions(this.directionCtr, this.DIRECTIONS);
+  }
+
+  ngOnDestroy(): void {
+    this.selectMapOption$.unsubscribe();
+  }
 
   private _updateInterfaceOnMap(data: any) {
     const ele = this.data.cy.getElementById(data.id);
@@ -79,7 +97,7 @@ export class InterfaceBulkEditDialogComponent {
     const isGateway =  this.isGatewayCtr?.value !== '' ? this.isGatewayCtr?.value : undefined;
     const isNat = this.isNatCtr?.value !== '' ? this.isNatCtr?.value : undefined;
     if ( status || direction || ipAllocation || dnsServer || gateway || isGateway || isNat ) {
-      const jsonData = {
+      const jsonDataValue = {
         ids: ids,
         status: status,
         direction: direction,
@@ -89,9 +107,10 @@ export class InterfaceBulkEditDialogComponent {
         is_gateway: isGateway,
         is_nat: isNat
       }
+      const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.interfaceService.editBulk(jsonData).subscribe(response => {
         let interfacesData: any[] = [];
-        this.data.genData.activeEdges.map((edge: any) => {
+        this.data.genData.activeEles.map((edge: any) => {
           const data = {
             ...edge,
             ...jsonData,
@@ -100,6 +119,12 @@ export class InterfaceBulkEditDialogComponent {
             interfacesData.push(data);
           } else {
             this._updateInterfaceOnMap(data);
+            const edgeEle = this.data.cy.getElementById(edge.id);
+            if (!this.isEdgeDirectionChecked) {
+              const current_dir = edgeEle.data('direction');
+              edgeEle.data('prev_direction', current_dir);
+              edgeEle.data('direction', 'none');
+            }
           }
         });
         if (interfacesData.length > 0) {

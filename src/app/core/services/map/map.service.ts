@@ -10,15 +10,14 @@ export class MapService {
 
   constructor(private http: HttpClient) { }
 
-  getMapData(mapCategory: string, collectionId: string): Observable<any> {
-    const url = ApiPaths.GET_MAP_DATA + '/' + mapCategory;
-    const params = new HttpParams().set('collection_id', collectionId);
-    return this.http.get<any>(url, { params });
+  getMapData(mapCategory: string, projectId: string): Observable<any> {
+    const params = new HttpParams().set('project_id', projectId).set('category', mapCategory);
+    return this.http.get<any>(ApiPaths.GET_MAP_DATA, { params });
   }
 
-  saveMap(collectionId: string, mapCategory: string, data: any): Observable<any> {
+  saveMap(projectId: string, mapCategory: string, data: any): Observable<any> {
     const params = new HttpParams()
-      .set('collection_id', collectionId)
+      .set('project_id', projectId)
       .set('map_category', mapCategory);
     return this.http.post<any>(ApiPaths.SAVE_MAP, data, { params });
   }
@@ -30,8 +29,15 @@ export class MapService {
     return this.http.get<any>(ApiPaths.MAP_STATUS, { params });
   }
 
-  // saveVMStatus(data: any, value: string): Observable<any> {
-  //   const url = ApiPaths.SAVE_VM_STATUS + '/' + value;
-  //   return this.http.post<any>(url, data);
-  // }
+  uploadMapOverviewImage(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.SAVE_MAP_OVERVIEW, data);
+  }
+
+  addTemplateIntoMap(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.PROJECT_TEMPLATE_ADD, data);
+  }
+
+  getLinkProjectData(data: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.GET_LINK_PROJECT_DATA, data);
+  }
 }

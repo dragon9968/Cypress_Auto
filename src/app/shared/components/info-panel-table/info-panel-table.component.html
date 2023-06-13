@@ -1,0 +1,5 @@
+<div class="ag-theme-alpine info-panel-table" [style.height]="gridHeight">
+  <ag-grid-angular style="width: 100%; height: 100%;" [gridOptions]="gridOptions" (gridReady)="onGridReady($event)"
+    (rowSelected)="selectedRows()">
+  </ag-grid-angular>
+</div>

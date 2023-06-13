@@ -5,28 +5,27 @@ $margin: 8px;
     margin: $margin;
     width: calc($tool-panel-width - $margin*2);
     text-align: center;
-    display: table;
 }
 
-.tab-select-field,
+.tab-select-field {
+    width: 100%;
+}
+
 .tab-field {
     width: 100%;
-    align-items: center;
-}
-
-.tab-field {
     margin: $margin 0;
+    align-items: center;
     display: flex;
 }
 
-.add-node-btn,
-.add-image-btn {
-    width: 100%;
+.tab-field-btn {
+    margin-left:auto;
+    margin-right: 0;
 }
 
 .pg-actions {
-    display: flex;
-    justify-content: space-between;
+    // display: flex;
+    justify-content: center;
 }
 
 .node-actions {
@@ -38,10 +37,29 @@ $margin: 8px;
 }
 
 .add-pg-btn {
-    width: calc(50% - $margin/2);
+    margin: 0 5px;
 }
 
 .option-text {
     display: flex;
     align-items: center;
 }
+
+.inline-select-field {
+    width: 75%;
+}
+
+.add-inline-btn {
+    margin-left: 5px;
+}
+
+.template-option {
+  line-height: normal;
+  &__text {
+    display: block;
+  }
+}
+
+::ng-deep div[data-lastpass-icon-root] {
+    display: none;
+  }

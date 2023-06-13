@@ -1,42 +1,46 @@
 <form [formGroup]="showUserTaskForm">
   <h1 mat-dialog-title>Show User Task</h1>
-  <mat-dialog-content>
-    <mat-form-field class="field">
-      <mat-label>Appuser Id</mat-label>
-      <input matInput formControlName="appuserIdCtr" [readonly]="true">
-    </mat-form-field>
-    <mat-form-field class="field">
-      <mat-label>Task Id</mat-label>
-      <input matInput formControlName="taskIdCtr" [readonly]="true">
-    </mat-form-field>
-    <mat-form-field class="field">
-      <mat-label>Display Name</mat-label>
-      <input matInput formControlName="displayNameCtr" [readonly]="true">
-    </mat-form-field>
-    <mat-form-field class="field">
+  <mat-dialog-content class="task">
+    <section class="task__info">
+      <mat-form-field class="field">
+        <mat-label>Appuser Id</mat-label>
+        <input matInput formControlName="appuserIdCtr" [readonly]="true">
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>Task Id</mat-label>
+        <input matInput formControlName="taskIdCtr" [readonly]="true">
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>Display Name</mat-label>
+        <input matInput formControlName="displayNameCtr" [readonly]="true">
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>Start Time</mat-label>
+        <input matInput formControlName="startTimeCtr" [readonly]="true">
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>End Time</mat-label>
+        <input matInput formControlName="endTimeCtr" [readonly]="true">
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>Revoked</mat-label>
+        <input matInput formControlName="revokedCtr" [readonly]="true">
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>Task State</mat-label>
+        <input matInput formControlName="taskStateCtr" [readonly]="true">
+      </mat-form-field>
+      <mat-form-field class="field">
+        <mat-label>Task Metadata</mat-label>
+        <textarea matInput formControlName="taskMetadataCtr" [readonly]="true" [rows]="textareaRows"></textarea>
+      </mat-form-field>
+    </section>
+    <section class="task__result">
       <mat-label>Task Result</mat-label>
-      <textarea matInput formControlName="taskResultCtr" [readonly]="true" [rows]="textareaRows"></textarea>
-    </mat-form-field>
-    <mat-form-field class="field">
-      <mat-label>Start Time</mat-label>
-      <input matInput formControlName="startTimeCtr" [readonly]="true">
-    </mat-form-field>
-    <mat-form-field class="field">
-      <mat-label>End Time</mat-label>
-      <input matInput formControlName="endTimeCtr" [readonly]="true">
-    </mat-form-field>
-    <mat-form-field class="field">
-      <mat-label>Revoked</mat-label>
-      <input matInput formControlName="revokedCtr" [readonly]="true">
-    </mat-form-field>
-    <mat-form-field class="field">
-      <mat-label>Task State</mat-label>
-      <input matInput formControlName="taskStateCtr" [readonly]="true">
-    </mat-form-field>
-    <mat-form-field class="field">
-      <mat-label>Task Metadata</mat-label>
-      <textarea matInput formControlName="taskMetadataCtr" [readonly]="true" rows='10'></textarea>
-    </mat-form-field>
+      <div class="task__result__editor">
+        <ace-editor #editor></ace-editor>
+      </div>
+    </section>
   </mat-dialog-content>
   <mat-dialog-actions>
     <div>

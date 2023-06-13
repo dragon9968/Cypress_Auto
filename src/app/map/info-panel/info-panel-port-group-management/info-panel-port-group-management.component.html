@@ -1,25 +1,35 @@
 <div class="btn-actions-group">
-  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deletePortGroup()">
-    <mat-icon>delete_forever</mat-icon>
-  </button>
-  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Edit" (click)="editPortGroup()">
-    <mat-icon>edit</mat-icon>
-  </button>
-  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Export as CSV" (click)="exportPortGroup('csv')">
-    <mat-icon svgIcon="export-csv"></mat-icon>
-  </button>
+  <ng-template [ngxPermissionsOnly]="['can_write on Project']" [ngxPermissionsElse]="elseBlock">
+    <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deletePortGroup()">
+      <mat-icon>delete_forever</mat-icon>
+    </button>
+    <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Edit" (click)="editPortGroup()">
+      <mat-icon>edit</mat-icon>
+    </button>
+  </ng-template>
+  <ng-template #elseBlock>
+    <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deletePortGroup()" disabled="true">
+      <mat-icon>delete_forever</mat-icon>
+    </button>
+    <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Edit" (click)="editPortGroup()" disabled="true">
+      <mat-icon>edit</mat-icon>
+    </button>
+  </ng-template>
   <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Export as JSON" (click)="exportPortGroup('json')">
     <mat-icon svgIcon="export-json"></mat-icon>
   </button>
-  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Randomize Subnet" (click)="randomizeSubnet()">
-    <mat-icon svgIcon="randomize-subnet"></mat-icon>
-  </button>
+  <ng-template [ngxPermissionsOnly]="['can_write on Project']" [ngxPermissionsElse]="elseBlockRandomizeSubnet">
+    <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Randomize Subnet" (click)="randomizeSubnet()">
+      <mat-icon svgIcon="randomize-subnet"></mat-icon>
+    </button>
+  </ng-template>
+  <ng-template #elseBlockRandomizeSubnet>
+    <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Randomize Subnet" (click)="randomizeSubnet()" disabled="true">
+      <mat-icon svgIcon="randomize-subnet"></mat-icon>
+    </button>
+  </ng-template>
   <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Validate" (click)="validatePortGroup()">
     <mat-icon>check</mat-icon>
   </button>
 </div>
-<div class="ag-theme-alpine info-panel-pg" [style.height]="gridHeight">
-  <ag-grid-angular style="width: 100%; height: 100%;" [gridOptions]="gridOptions" (gridReady)="onGridReady($event)"
-                   [rowData]="rowData$ | async" (rowSelected)="selectedRows()">
-  </ag-grid-angular>
-</div>
+<app-info-panel-table [cy]="cy" [infoPanelheight]="infoPanelheight" [gridOptions]="gridOptions" [tabName]="tabName"></app-info-panel-table>

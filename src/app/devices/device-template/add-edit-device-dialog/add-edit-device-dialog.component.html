@@ -1,45 +1,32 @@
-<form [formGroup]="deviceForm" (ngSubmit)="data.mode === 'add' ? addDevice() : updateDevice()">
+<form [formGroup]="deviceForm" (ngSubmit)="data.mode === 'add' ? addDevice() : updateDevice()" autocomplete="off">
   <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add Device' : 'Update Device'}}</h1>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
-      <input type="text" formControlName="name" matInput>
+      <input autocomplete="off" id="device-name" type="text" formControlName="name" matInput>
       <mat-error *ngIf="name?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="name?.errors?.isExist">{{ errorMessages.NAME_EXISTS }}</mat-error>
     </mat-form-field>
 
-    <mat-form-field class="field">
-      <mat-label>Category</mat-label>
-      <mat-chip-list #chipList aria-label="category selection">
-        <mat-chip
-          *ngFor="let category of listCategory"
-          (removed)="remove(category)">
-          {{category.name}}
-          <button matChipRemove>
-            <mat-icon>cancel</mat-icon>
-          </button>
-        </mat-chip>
-        <input matInput type="text" placeholder="Select Value" 
-        [formControl]="category" 
-        [matAutocomplete]="autoCategory"
-        [matChipInputFor]="chipList">
-      </mat-chip-list>
-      <mat-autocomplete #autoCategory="matAutocomplete" [displayWith]="helpers.optionDisplay"
-        (optionSelected)="selectDeviceCategory($event)">
-        <mat-option *ngFor="let option of listDeviceCategory" [value]="option">
-            <span>{{ option.name }}</span>
-        </mat-option>
-      </mat-autocomplete>
-    </mat-form-field>
+    <ng-select formControlName="category" [items]="listDeviceCategory" [multiple]="true" bindLabel="name" bindValue="name"
+      placeholder="Category" class="ng-select-categories">
+      <ng-template ng-option-tmp let-item="item" let-index="index">
+        <div class="configurations-option-text">
+          <span class="option-text-items"><b>{{ item.name }}</b></span>
+        </div>
+      </ng-template>
+    </ng-select>
 
     <mat-form-field class="field">
       <mat-label>Icon</mat-label>
-      <input matInput type="text"
-        [formControl]="icon" 
-        [matAutocomplete]="autoIcon">
+      <input autocomplete="off" id="device-icon" matInput type="text" [formControl]="icon" [matAutocomplete]="autoIcon">
       <mat-autocomplete #autoIcon="matAutocomplete" [displayWith]="helpers.optionDisplay">
-        <mat-option *ngFor="let option of listIcon" [value]="option">
+        <mat-option *ngFor="let option of filteredIcons | async" [value]="option">
+          <div class="option-text">
+            <img [src]="ICON_PATH + option.photo" height="24" width="24">
+            &nbsp;
             <span>{{ option.name }}</span>
+          </div>
         </mat-option>
       </mat-autocomplete>
       <mat-error *ngIf="icon?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
@@ -47,8 +34,8 @@
   </div>
   <div mat-dialog-actions [align]="'end'" class="create-btn">
     <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
-    <button *ngIf="data.mode !== 'view'" mat-raised-button color="primary" [disabled]="!deviceForm.valid">
-     {{ data.mode === 'add' ? 'Create' : 'Update' }}
+    <button *ngIf="data.mode !== 'view'" type="submit" mat-raised-button color="primary" [disabled]="!deviceForm.valid">
+      {{ data.mode === 'add' ? 'Create' : 'Update' }}
     </button>
   </div>
 </form>

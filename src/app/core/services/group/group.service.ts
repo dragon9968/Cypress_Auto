@@ -17,10 +17,10 @@ export class GroupService {
     return this.http.get<any>(ApiPaths.GROUP);
   }
 
-  getGroupByCollectionId(collectionId: string): Observable<any> {
+  getGroupByProjectId(projectId: string): Observable<any> {
     return this.http.get<any>(ApiPaths.GROUP, {
       params: {
-        q: '(columns:!(id,name,collection,collection_id,description,domain,domain_id,category,nodes,port_groups),filters:!((col:collection_id,opr:eq,value:' + collectionId + ')),keys:!(list_columns),page:0,page_size:1000)'
+        q: '(columns:!(id,name,project,project_id,description,domain,domain_id,category,nodes,map_images,port_groups),filters:!((col:project_id,opr:eq,value:' + projectId + ')),keys:!(list_columns),page:0,page_size:1000)'
       }
     });
   }
@@ -30,7 +30,7 @@ export class GroupService {
   }
 
   add(data: any): Observable<any> {
-    return this.http.post<any>(ApiPaths.GROUP, data);
+    return this.http.post<any>(ApiPaths.GROUP + 'add', data);
   }
 
   put(groupId: string, data: any): Observable<any> {

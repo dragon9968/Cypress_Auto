@@ -1,27 +1,38 @@
-<form [formGroup]="loginProfileEditForm" (ngSubmit)="data.mode === 'add' ? addLoginProfile() : updateLogin()">
-  <h1 mat-dialog-title>{{data.mode === 'add' ? 'Add Login Profile' : data.mode === 'update' ? 'Edit Login Profiles':
-    'Login Profile Detail'}}</h1>
+<form [formGroup]="loginProfileEditForm" data-cy="loginProfileEditForm" (ngSubmit)="data.mode === 'add' ? addLoginProfile() : updateLogin()" autocomplete="off">
+  <div class="dialog-title">
+    <h1 mat-dialog-title>{{data.mode === 'add' ? 'Add Login Profile' : data.mode === 'update' ? 'Edit Login Profiles':
+      'Login Profile Detail'}}</h1>
+    <ng-template [ngxPermissionsOnly]="['can_write on Devices']">
+      <button *ngIf="data.mode === 'view'" data-cy="btn-change-mode" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </ng-template>
+  </div>
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
-      <input type="text" formControlName="name" matInput [readonly]="isViewMode">
+      <input autocomplete="off" id="loginprofile-name" type="text" formControlName="name" matInput [readonly]="isViewMode">
       <mat-error *ngIf="name?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="name?.errors?.minlength || name?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH_50
         }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Description</mat-label>
-      <input type="text" formControlName="description" matInput [readonly]="isViewMode">
+      <input autocomplete="off" id="loginprofile-description" type="text" formControlName="description" matInput [readonly]="isViewMode">
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Username</mat-label>
-      <input type="text" formControlName="username" matInput [readonly]="isViewMode">
+      <input autocomplete="off" id="loginprofile-username" type="text" formControlName="username" matInput [readonly]="isViewMode">
       <mat-error *ngIf="username?.hasError('required')">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
-    <mat-form-field class="field">
+    <mat-form-field *ngIf="data.mode != 'update'" class="field">
       <mat-label>Password</mat-label>
       <input type="text" formControlName="password" matInput [readonly]="isViewMode">
       <mat-error *ngIf="username?.hasError('required')">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+    <mat-form-field *ngIf="data.mode == 'update'" class="field">
+      <mat-label>Update Password</mat-label>
+      <input type="password" formControlName="updatePassword" matInput [readonly]="isViewMode">
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Category</mat-label>
@@ -38,7 +49,7 @@
           {{value}}
           <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
         </mat-chip>
-        <input placeholder="" [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+        <input autocomplete="off" id="loginprofile-extra" placeholder="" [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
           [matChipInputAddOnBlur]="addOnBlur" (matChipInputTokenEnd)="addExtraArgs($event)" [readonly]="isViewMode">
       </mat-chip-list>
     </mat-form-field>

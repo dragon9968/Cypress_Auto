@@ -1,6 +1,11 @@
 import { ServerConnectState } from "./server-connect.state";
 import { createReducer, on } from "@ngrx/store";
-import { retrievedIsConnect, retrievedServerConnect } from "./server-connect.actions";
+import {
+  retrievedIsConfiguratorConnect,
+  retrievedIsHypervisorConnect,
+  retrievedIsDatasourceConnect,
+  retrievedServerConnect
+} from "./server-connect.actions";
 
 const initialState = {} as ServerConnectState;
 
@@ -10,8 +15,16 @@ export const serverConnect = createReducer(
     ...state,
     serverConnects: data
   })),
-  on(retrievedIsConnect, (state, { data}) => ({
+  on(retrievedIsHypervisorConnect, (state, { data }) => ({
     ...state,
-    isConnect: data
+    isHypervisorConnect: data
+  })),
+  on(retrievedIsDatasourceConnect, (state, { data }) => ({
+    ...state,
+    isDatasourceConnect: data
+  })),
+  on(retrievedIsConfiguratorConnect, (state, { data }) => ({
+    ...state,
+    isConfiguratorConnect: data
   }))
 )

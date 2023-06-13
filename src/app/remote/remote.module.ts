@@ -4,7 +4,6 @@ import { ConnectComponent } from './connect/connect.component';
 import { ConnectionProfilesComponent } from './connection-profiles/connection-profiles.component';
 import { SharedModule } from '../shared/shared.module';
 import { AddEditConnectionProfilesComponent } from './connection-profiles/add-edit-connection-profiles/add-edit-connection-profiles.component';
-import { ConnectionActionsRendererComponent } from './renderers/connection-actions/connection-actions-renderer.component';
 import { ConnectionStatusRendererComponent } from './renderers/connection-status/connection-status-renderer.component';
 
 
@@ -12,7 +11,6 @@ import { ConnectionStatusRendererComponent } from './renderers/connection-status
   declarations: [
     ConnectComponent,
     ConnectionProfilesComponent,
-    ConnectionActionsRendererComponent,
     AddEditConnectionProfilesComponent,
     ConnectionStatusRendererComponent
   ],

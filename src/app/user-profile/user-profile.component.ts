@@ -3,6 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { ErrorMessages } from '../shared/enums/error-messages.enum';
+import { selectUserProfile } from '../store/user-profile/user-profile.selectors';
 import { selectUser } from '../store/user/user.selectors';
 
 @Component({
@@ -35,7 +36,7 @@ export class UserProfileComponent implements OnInit {
   get activeCtr() { return this.userProfileForm.get('activeCtr'); }
 
   ngOnInit(): void {
-    this.selectUser$ = this.store.select(selectUser).subscribe((user: any) => {
+    this.selectUser$ = this.store.select(selectUserProfile).subscribe((user: any) => {
       this.usernameCtr?.setValue(user.username);
       this.firstNameCtr?.setValue(user.first_name);
       this.lastNameCtr?.setValue(user.last_name);

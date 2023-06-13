@@ -10,8 +10,17 @@ export class InterfaceService {
 
   constructor(private http: HttpClient) { }
 
-  genData(nodeId: string, portgroupId: string): Observable<any> {
+  genData(nodeId: string, portgroupId: any, category = 'wired'): Observable<any> {
     return this.http.post<any>(ApiPaths.GEN_INTERFACE_DATA, {
+      node_id: nodeId,
+      pg_id: portgroupId,
+      category: category
+    });
+  }
+
+  genDataConnectPG(interfaceId: any, nodeId: string, portgroupId: any): Observable<any> {
+    return this.http.post<any>(ApiPaths.GEN_INTERFACE_DATA_CONNECT_PG, {
+      interface_id: interfaceId,
       node_id: nodeId,
       pg_id: portgroupId
     });
@@ -57,6 +66,22 @@ export class InterfaceService {
     });
   }
 
+  getByNodeAndNotConnectToPG(nodeId: any): Observable<any> {
+    return this.http.get<any>(ApiPaths.INTERFACE, {
+      params: {
+        q: `(filters:!((col:node_id,opr:eq,value:${nodeId}),(col:port_group_id,opr:eq,value:null)),page:0,page_size:1000)`
+      }
+    });
+  }
+
+  getByNodeAndConnectedToPG(nodeId: any): Observable<any> {
+    return this.http.get<any>(ApiPaths.INTERFACE, {
+      params: {
+        q: `(filters:!((col:node_id,opr:eq,value:${nodeId}),(col:port_group_id,opr:neq,value:null)),page:0,page_size:1000)`
+      }
+    });
+  }
+
   getByPortGroup(portGroupId: any): Observable<any> {
     return this.http.get<any>(ApiPaths.INTERFACE, {
       params: {
@@ -65,7 +90,7 @@ export class InterfaceService {
     });
   }
 
-  getByCollectionIdAndCategory(collectionId: any, category: string): Observable<any> {
-    return this.http.get<any>(ApiPaths.INTERFACE_DATA_CATEGORY + collectionId + '/' + category)
+  getByProjectIdAndCategory(projectId: any, category: string): Observable<any> {
+    return this.http.get<any>(ApiPaths.INTERFACE_DATA_CATEGORY + projectId + '/' + category)
   }
 }

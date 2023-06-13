@@ -1,12 +1,12 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { DeviceService } from 'src/app/core/services/device/device.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
+import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 import { selectDeviceCategories } from 'src/app/store/device-category/device-category.selectors';
@@ -30,6 +30,9 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
   listIcon!: any[];
   listCategory: any[] = [];
   removeCategory: any[] = [];
+  filteredIcons!: Observable<any[]>;
+  ICON_PATH = ICON_PATH;
+
   constructor(
     private store: Store,
     public helpers: HelpersService,
@@ -38,22 +41,22 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
     public dialogRef: MatDialogRef<AddEditDeviceDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
+    this.deviceForm = new FormGroup({
+      name: new FormControl({value: '', disabled: false}, [Validators.required, validateNameExist(() => this.deviceName, data.mode, this.data.genData.id)]),
+      category: new FormControl({value: '', disabled: false}),
+      icon: new FormControl(''),
+    });
     this.selectDeviceCategories$ = this.store.select(selectDeviceCategories).subscribe(data => {
       this.listDeviceCategory = data;
     })
     this.selectIcons$ = this.store.select(selectIcons).subscribe(icons => {
       this.listIcon = icons;
+      this.filteredIcons = this.helpers.filterOptions(this.icon, this.listIcon);
     })
 
     this.selectDevices$ = this.store.select(selectDevices).subscribe((devicesData: any) => {
       this.deviceName = devicesData;
     });
-
-    this.deviceForm = new FormGroup({
-      name: new FormControl({value: '', disabled: false}, [Validators.required, validateNameExist(() => this.deviceName, data.mode, this.data.genData.id)]),
-      category: new FormControl({value: '', disabled: false}),
-      icon: new FormControl(''),
-    })
     if (this.data) {
       this.name?.setValue(this.data.genData.name);
     }
@@ -70,10 +73,11 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
       else {
         this.helpers.setAutoCompleteValue(this.icon, this.listIcon, '');
       }
-        this.data.genData.category.forEach((el: any) => {
-        this.listCategory.push(el);
-        this.listDeviceCategory = this.listDeviceCategory.filter(value => value.id != el.id)
-      });
+      this.category?.setValue(this.data.genData.category.map((ele: any) => ele.name));
+      // this.data.genData.category.forEach((el: any) => {
+      //   this.listCategory.push(el);
+      //   this.listDeviceCategory = this.listDeviceCategory.filter(value => value.id != el.id)
+      // });
     }
   }
 
@@ -83,12 +87,12 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
   }
 
   addDevice() {
-    const categoryAdd = this.listCategory.map(el => el.name)
-    const jsonData = {
+    const jsonDataValue = {
       name: this.name?.value,
-      category: categoryAdd,
+      category: this.category?.value,
       icon_id: this.icon?.value.id,
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.deviceService.add(jsonData).subscribe({
       next: (rest) => {
         this.dialogRef.close();
@@ -103,12 +107,13 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
 
   updateDevice() {
     const categoryAdd = this.listCategory.map(el => el.name)
-    const jsonData = {
+    const jsonDataValue = {
       id: this.data.genData.id,
       name: this.name?.value,
       icon_id: this.icon?.value.id,
-      category: categoryAdd,
+      category: this.category?.value,
     }
+    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.deviceService.put(jsonData).subscribe({
       next: (rest) => {
         this.deviceService.getAll().subscribe((data: any) => this.store.dispatch(retrievedDevices({data: data.result})));
@@ -125,21 +130,21 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
     this.dialogRef.close();
   }
 
-  remove(category: any): void {
-    const index = this.listCategory.indexOf(category);
-    if (index >= 0) {
-      this.listCategory.splice(index, 1);
-      if ((this.data.mode === 'add') || (this.data.mode === 'update')) {
-        this.listDeviceCategory.unshift(category)
-      }
-    }
-  }
+  // remove(category: any): void {
+  //   const index = this.listCategory.indexOf(category);
+  //   if (index >= 0) {
+  //     this.listCategory.splice(index, 1);
+  //     if ((this.data.mode === 'add') || (this.data.mode === 'update')) {
+  //       this.listDeviceCategory.unshift(category)
+  //     }
+  //   }
+  // }
 
-  selectDeviceCategory(event: MatAutocompleteSelectedEvent) {
-    this.listCategory.push(event.option.value)
-    Object.values(this.listCategory).forEach(val => {
-      this.listDeviceCategory = this.listDeviceCategory.filter(value => value.id != val.id)
-    });
-  }
+  // selectDeviceCategory(event: MatAutocompleteSelectedEvent) {
+  //   this.listCategory.push(event.option.value)
+  //   Object.values(this.listCategory).forEach(val => {
+  //     this.listDeviceCategory = this.listDeviceCategory.filter(value => value.id != val.id)
+  //   });
+  // }
 
 }

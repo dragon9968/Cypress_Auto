@@ -1,0 +1,29 @@
+<form [formGroup]="deployNewNodeForm" (ngSubmit)="deployNodeAddUpdate()" autocomplete="off">
+  <h1 mat-dialog-title>Deploy {{ data.jobName === 'deploy_node' ? 'New' : 'Update' }} Node Form</h1>
+  <div mat-dialog-content>
+    <mat-form-field class="field">
+      <input autocomplete="off" id="deploynode-login-profile" type="text" matInput formControlName="loginProfileCtr" placeholder="Assign a login profile" [matAutocomplete]="autoLoginProfile">
+      <mat-autocomplete #autoLoginProfile="matAutocomplete" [displayWith]="helpers.optionDisplay">
+        <mat-option *ngFor="let option of filteredLoginProfiles | async" [value]="option" style="height: 60px !important;">
+          <div class="login-profiles-option-text">
+            <span class="option-text-items"><b>{{ option.name }}</b></span>
+            <span class="option-text-items">Username: {{ option.username }}</span>
+            <span class="option-text-items">Password: {{ option.password }}</span>
+          </div>
+        </mat-option>
+      </mat-autocomplete>
+      <mat-error *ngIf="loginProfileCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+    </mat-form-field>
+    <div class="field">
+      <mat-checkbox formControlName="isBackupVMCtr">Backup Existing</mat-checkbox>
+    </div>
+    <div class="field">
+      <mat-checkbox formControlName="isOSCustomizationCtr">OS Customization</mat-checkbox>
+    </div>
+  </div>
+  <div mat-dialog-actions [align]="'end'">
+    <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+    <button mat-raised-button type="submit" color="primary"
+      [disabled]="!deployNewNodeForm.valid">{{ data.jobName === 'deploy_node' ? 'Add' : 'Update' }}</button>
+  </div>
+</form>

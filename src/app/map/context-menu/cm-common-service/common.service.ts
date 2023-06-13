@@ -22,18 +22,18 @@ export class CommonService {
     });
   }
 
-  delete(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[]) {
+  delete(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], activeMBs: any[], activeMapLinks: any[]) {
     [...activeEdges].forEach((edge: any) => {
       const sourceData = cy.getElementById(edge.data('source')).data();
       const targetData = cy.getElementById(edge.data('target')).data();
       if ('temp' in sourceData || 'temp' in targetData) {
         return
       } else {
-        this.ur?.do('removeEdge', edge);
+        this.ur?.do('removeEdge', { cy, edge });
         activeEdges.splice(0);
       }
     });
-    activeNodes.concat(activePGs, activeGBs).forEach((node: any) => {
+    activeNodes.concat(activePGs, activeGBs, activeMapLinks).forEach((node: any) => {
       this.ur?.do('removeNode', node);
       if (this.isGroupBoxesChecked) {
         cy.nodes().filter('[label="group_box"]').forEach((gb: any) => {
@@ -45,13 +45,23 @@ export class CommonService {
       activeNodes.splice(0);
       activePGs.splice(0);
       activeGBs.splice(0);
+      activeMapLinks.splice(0);
     });
+    [...activeMBs].forEach((mbs: any) => {
+      this.ur?.do('removeNode', mbs);
+      activeMBs.splice(0);
+    })
     this.store.dispatch(retrievedMapSelection({data: true}));
   }
 
   changeNodeSize(size: any, activeNodes: any[]) {
     const newNodeSize = size.value;
     this.ur?.do('changeNodeSize', { activeNodes, newNodeSize });
+  }
+
+  changeMapImageSize(size: any, activeMBs: any[]) {
+    const newMapImageSize = size.value;
+    this.ur?.do('changeMapImageSize', { activeMBs, newMapImageSize})
   }
 
   textColor(color: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[]) {
@@ -151,5 +161,10 @@ export class CommonService {
 
   gBType(newGBBorderType: any, activeGBs: any[]) {
     this.ur?.do('changeGBType', {activeGBs, newGBBorderType});
+  }
+
+  gbBorderSize(event: any, activeGBs: any[]){
+    const newGBBorderSize = event.value;
+    this.ur?.do('changeGBBorderSize', {activeGBs, newGBBorderSize});
   }
 }

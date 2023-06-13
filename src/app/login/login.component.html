@@ -1,7 +1,13 @@
+<div>
+<div class="logo-login">
+    <img alt="App icon" src="/assets/images/cro_logo.png" style="height: 120px" class="logo">
+    <br>
+    <!-- <h3 class="logo">Cyber Range Orchestrator</h3> -->
+</div>
 <mat-card>
   <mat-card-title>Login</mat-card-title>
   <mat-card-content>
-    <form [formGroup]="loginForm" (ngSubmit)="login()">
+    <form [formGroup]="loginForm" (ngSubmit)="login()" data-cy="login-form">
         <p>
             <mat-form-field>
                 <mat-label>Username</mat-label>
@@ -14,11 +20,15 @@
                 <input type="password" matInput formControlName="password">
             </mat-form-field>
         </p>
+        <p class="field-checkbox">
+            <label>Option:</label>
+            <mat-checkbox color="primary" formControlName="option">LDAP authentication.</mat-checkbox>
+        </p>
         <p *ngIf="error" class="error">
             {{ error }}
         </p>
         <div class="login-btn">
-            <button mat-raised-button type="submit" color="primary">
+            <button mat-raised-button type="submit" color="primary" data-cy="submit-login">
                 <mat-icon>login</mat-icon>
                 <span> Login</span>
             </button>
@@ -26,3 +36,4 @@
     </form>
   </mat-card-content>
 </mat-card>
+</div>

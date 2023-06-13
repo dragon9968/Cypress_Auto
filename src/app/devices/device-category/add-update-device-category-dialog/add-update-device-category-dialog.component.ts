@@ -6,6 +6,7 @@ import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { ErrorMessages } from "../../../shared/enums/error-messages.enum";
+import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { validateNameExist } from "../../../shared/validations/name-exist.validation";
 import { DeviceCategoryService } from "../../../core/services/device-category/device-category.service";
 import { selectDeviceCategories } from "../../../store/device-category/device-category.selectors";
@@ -28,6 +29,7 @@ export class AddUpdateDeviceCategoryDialogComponent implements OnInit, OnDestroy
     private dialog: MatDialog,
     private toastr: ToastrService,
     @Inject(MAT_DIALOG_DATA) public data: any,
+    private helpersService: HelpersService,
     private dialogRef: MatDialogRef<AddUpdateDeviceCategoryDialogComponent>,
     private deviceCategoryService: DeviceCategoryService
   ) {
@@ -52,9 +54,10 @@ export class AddUpdateDeviceCategoryDialogComponent implements OnInit, OnDestroy
   }
 
   addDeviceCategory() {
-    const jsonData = {
+    const jsonDataValue = {
       name: this.nameCtr?.value
-    }
+    };
+    const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.deviceCategoryService.add(jsonData).pipe(
       catchError((error: any) => {
         this.toastr.error(`Add device category failed!`);
@@ -70,9 +73,10 @@ export class AddUpdateDeviceCategoryDialogComponent implements OnInit, OnDestroy
   }
 
   editDeviceCategory() {
-    const jsonData = {
+    const jsonDataValue = {
       name: this.nameCtr?.value
-    }
+    };
+    const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.deviceCategoryService.put(this.data.genData.id, jsonData).pipe(
       catchError((error: any) => {
         this.toastr.error(`Edit device category failed due to ${error.messages}`, 'Error');

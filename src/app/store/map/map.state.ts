@@ -5,7 +5,6 @@ export interface MapState {
   nodes: any;
   interfaces: any;
   groupBoxes: any;
-  mapBackgrounds: any;
   icons: any;
   devices: any;
   templates: any;

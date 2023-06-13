@@ -3,9 +3,11 @@
     <button mat-mini-fab color="primary" matTooltip="Download" (click)="download()">
       <mat-icon>download</mat-icon>
     </button>
-    <button mat-mini-fab color="primary" matTooltip="Save" (click)="save()">
-      <mat-icon>save</mat-icon>
-    </button>
+    <ng-template [ngxPermissionsOnly]="['can_write on Project']">
+      <button mat-mini-fab color="primary" matTooltip="Save" (click)="save()">
+        <mat-icon>save</mat-icon>
+      </button>
+    </ng-template>
     <button mat-mini-fab color="primary" matTooltip="Refresh" (click)="refresh()">
       <mat-icon>refresh</mat-icon>
     </button>
@@ -26,18 +28,22 @@
       <app-tool-panel-edit [cy]="cy" [isDisableAddNode]="isDisableAddNode" [isDisableAddPG]="isDisableAddPG"
         [isDisableAddImage]="isDisableAddImage" [activeNodes]="activeNodes" [activePGs]="activePGs"
         [activeEdges]="activeEdges" [activeGBs]="activeGBs" [activeMBs]="activeMBs" [deletedNodes]="deletedNodes"
-        [deletedInterfaces]="deletedInterfaces" [config]="config">
+        [deletedInterfaces]="deletedInterfaces" [config]="config" [isDisableAddProjectTemplate]="isDisableAddProjectTemplate"
+        [isDisableLinkProject]="isDisableLinkProject" [isDisableNewFromSelected]="isDisableNewFromSelected"
+        [isTemplateCategory]="isTemplateCategory"
+      >
       </app-tool-panel-edit>
     </mat-tab>
     <mat-tab label="Style">
       <app-tool-panel-style [cy]="cy" [ur]="ur" [config]="config" [activeNodes]="activeNodes" [activePGs]="activePGs"
-        [activeEdges]="activeEdges" [activeGBs]="activeGBs" [activeMBs]="activeMBs"></app-tool-panel-style>
+        [activeEdges]="activeEdges" [activeGBs]="activeGBs" [activeMBs]="activeMBs" [activeMapLinks]="activeMapLinks">
+      </app-tool-panel-style>
     </mat-tab>
     <mat-tab label="Option">
       <app-tool-panel-option [cy]="cy" [config]="config"></app-tool-panel-option>
     </mat-tab>
-    <mat-tab label="Remote">
-      <app-tool-panel-remote [cy]="cy"></app-tool-panel-remote>
+    <mat-tab *ngIf="!isTemplateCategory" label="Remote">
+      <app-tool-panel-remote [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs"></app-tool-panel-remote>
     </mat-tab>
   </mat-tab-group>
 </section>

@@ -1,21 +1,17 @@
 import { Store } from "@ngrx/store";
 import { MatDialog } from "@angular/material/dialog";
-import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
 import { MatIconRegistry } from "@angular/material/icon";
-import { Subscription, throwError } from "rxjs";
-import { Component, Input, OnDestroy } from '@angular/core';
-import { GridApi, GridOptions, GridReadyEvent, RowDoubleClickedEvent } from "ag-grid-community";
+import { Subscription } from "rxjs";
+import { Component, Input, OnDestroy, ViewChild } from '@angular/core';
+import { GridOptions, RowDoubleClickedEvent } from "ag-grid-community";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
-import { InterfaceService } from "../../../core/services/interface/interface.service";
-import { selectInterfaces } from "../../../store/map/map.selectors";
 import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
-import { retrievedInterfacesByIds } from "../../../store/interface/interface.actions";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { AddUpdateInterfaceDialogComponent } from "../../add-update-interface-dialog/add-update-interface-dialog.component";
-import { InterfaceBulkEditDialogComponent } from "../../bulk-edit-dialog/interface-bulk-edit-dialog/interface-bulk-edit-dialog.component";
+import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
 
 @Component({
   selector: 'app-info-panel-interface',
@@ -23,6 +19,7 @@ import { InterfaceBulkEditDialogComponent } from "../../bulk-edit-dialog/interfa
   styleUrls: ['./info-panel-interface.component.scss']
 })
 export class InfoPanelInterfaceComponent implements OnDestroy {
+  @ViewChild(InfoPanelTableComponent) infoPanelTableComponent: InfoPanelTableComponent | undefined;
 
   @Input() cy: any;
   @Input() activeNodes: any[] = [];
@@ -32,14 +29,10 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterfaces: any[] = [];
   @Input() infoPanelheight = '300px';
-  private gridApi!: GridApi;
-  rowsSelected: any[] = [];
-  rowsSelectedId: any[] = [];
-  isClickAction = false;
+
   tabName = 'edge';
   selectMapSelection$ = new Subscription();
-
-  public gridOptions: GridOptions = {
+  gridOptions: GridOptions = {
     headerHeight: 48,
     defaultColDef: {
       sortable: true,
@@ -93,6 +86,11 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
         flex: 1,
       },
       {
+        field: 'node',
+        minWidth: 100,
+        flex: 1,
+      },
+      {
         field: 'mac_address',
         headerName: 'Mac Address',
         minWidth: 100,
@@ -124,19 +122,29 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
     ]
   };
 
+  onRowDoubleClicked(row: RowDoubleClickedEvent) {
+    const dialogData = {
+      mode: 'view',
+      genData: row.data,
+      cy: this.cy
+    };
+    this.dialog.open(AddUpdateInterfaceDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
+  }
+
   constructor(
     private store: Store,
     private dialog: MatDialog,
     private toastr: ToastrService,
     private iconRegistry: MatIconRegistry,
     private helpers: HelpersService,
-    private interfaceService: InterfaceService,
     private infoPanelService: InfoPanelService
   ) {
     this.iconRegistry.addSvgIcon('randomize-subnet', this.helpers.setIconPath('/assets/icons/randomize-subnet.svg'));
     this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
       if (mapSelection) {
-        this._setEdgeInfoPanel(this.activeEdges);
+        const rowData = this.activeEdges.map(ele => ele.data())
+        const activeEleIds = this.activeEdges.map(ele => ele.data('id'));
+        this.infoPanelTableComponent?.setSelectedEles(activeEleIds, rowData);
         this.store.dispatch(retrievedMapSelection({ data: false }));
       }
     });
@@ -151,132 +159,39 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
     this.selectMapSelection$.unsubscribe();
   }
 
-  onGridReady(params: GridReadyEvent) {
-    this.gridApi = params.api;
-  }
-
-  onRowDoubleClicked(row: RowDoubleClickedEvent) {
-    const dialogData = {
-      mode: 'view',
-      genData: row.data,
-    };
-    this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-  }
-
-  private _setRowActive() {
-    this.gridApi.forEachNode(rowNode => {
-      const activeEdgeIds = this.activeEdges.map(ele => ele.data('id'));
-      if (activeEdgeIds.includes(rowNode.data.id)) {
-        rowNode.setSelected(true);
-      }
-    });
-  }
-
-  private _setEdgeInfoPanel(activeEdges: any[]) {
-    if (this.activeEdges.length === 0) {
-      this.rowsSelected = [];
-      this.rowsSelectedId = [];
-      if (this.gridApi != null) {
-        this.gridApi.setRowData([]);
-      }
-    } else {
-      if (this.gridApi != null) {
-        const rowData = activeEdges.map(ele => ele.data())
-        this.gridApi.setRowData(rowData);
-        this._setRowActive();
-      }
-    }
-  }
-
-  selectedRows() {
-    this.rowsSelected = this.gridApi.getSelectedRows();
-    this.rowsSelectedId = this.rowsSelected.map(ele => ele.interface_id);
-  }
-
   deleteInterfaces() {
-    if (this.rowsSelected.length == 0) {
-      this.toastr.info('No row selected');
-    } else {
-      const dialogData = {
-        title: 'User confirmation needed',
-        message: 'Delete edge(s) from this project?',
-        submitButtonName: 'OK'
-      }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '500px', data: dialogData });
-      dialogConfirm.afterClosed().subscribe(confirm => {
-        if (confirm) {
-          this.rowsSelectedId.map(edgeId => {
-            this.infoPanelService.deleteInfoPanelAssociateMap(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
-              this.deletedNodes, this.deletedInterfaces, this.tabName, edgeId);
-          })
-          this.clearTable();
-          this.store.dispatch(retrievedMapSelection({ data: true }));
-        }
-      })
-    }
+    this.infoPanelTableComponent?.delete(this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs);
   }
 
   editInterfaces() {
-    if (this.rowsSelected.length == 0) {
-      this.toastr.info('No row selected');
-    } else {
-      if (this.rowsSelectedId.length == 1) {
-        const dialogData = {
-          mode: 'update',
-          genData: this.rowsSelected[0],
-          cy: this.cy
-        }
-        this.dialog.open(AddUpdateInterfaceDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-      } else {
-        const dialogData = {
-          genData: {
-            ids: this.rowsSelectedId,
-            activeEdges: this.rowsSelected
-          },
-          cy: this.cy
-        };
-        this.dialog.open(InterfaceBulkEditDialogComponent, { width: '600px', autoFocus: false, data: dialogData });
-      }
-    }
+    this.infoPanelTableComponent?.edit();
   }
 
   randomizeIp() {
-    if (this.rowsSelected.length == 0) {
+    const selectedRows = this.infoPanelTableComponent?.rowsSelectedId
+    if (selectedRows?.length == 0) {
       this.toastr.info('No row selected');
     } else {
-      const message = this.rowsSelectedId.length == 1 ? 'Generate a new randomized IP for this interface?' : 'Generate a new randomized IP for those interfaces?';
+      const message = selectedRows?.length == 1 ? 'Generate a new randomized IP for this interface?' : 'Generate a new randomized IP for these interfaces?';
       const dialogData = {
         title: 'User confirmation needed',
         message: message,
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { width: '500px', data: dialogData });
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '500px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
-        if (confirm) {
-          this.infoPanelService.randomizeIpInterfaces(this.rowsSelectedId);
+        if (confirm && this.infoPanelTableComponent) {
+          this.infoPanelService.randomizeIpInterfaces(this.infoPanelTableComponent.rowsSelected);
         }
       });
     }
   }
 
-  validateNode() {
-    if (this.rowsSelected.length == 0) {
-      this.toastr.info('No row selected');
-    } else {
-      this.interfaceService.validate({ pks: this.rowsSelectedId }).pipe(
-        catchError((error: any) => {
-          this.toastr.error(error.error.message);
-          return throwError(() => error.error.message);
-        })
-      ).subscribe(response => {
-        this.toastr.success(response.message);
-      })
-    }
+  validateInterface() {
+    this.infoPanelTableComponent?.validate();
   }
 
   clearTable() {
-    this.rowsSelected = [];
-    this.rowsSelectedId = [];
-    this.gridApi.setRowData([]);
+    this.infoPanelTableComponent?.clearTable();
   }
 }

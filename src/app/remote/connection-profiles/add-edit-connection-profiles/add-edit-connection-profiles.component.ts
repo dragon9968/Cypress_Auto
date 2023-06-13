@@ -7,6 +7,7 @@ import { catchError, throwError } from 'rxjs';
 import { ServerConnectService } from 'src/app/core/services/server-connect/server-connect.service';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { retrievedServerConnect } from 'src/app/store/server-connect/server-connect.actions';
+import { HelpersService } from "../../../core/services/helpers/helpers.service";
 
 @Component({
   selector: 'app-add-edit-connection-profiles',
@@ -22,12 +23,14 @@ export class AddEditConnectionProfilesComponent implements OnInit {
   selectedFile: any = null;
   connectionForm?: FormGroup;
   errorMessages = ErrorMessages;
+  public showPassword: boolean = false;
   constructor(
     private serverConnectService: ServerConnectService,
     private toastr: ToastrService,
     private store: Store,
     public dialogRef: MatDialogRef<AddEditConnectionProfilesComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
+    private helpersService: HelpersService
   ) {
     this.isViewMode = this.data.mode == 'view';
     this.connectionForm =  new FormGroup({
@@ -37,9 +40,12 @@ export class AddEditConnectionProfilesComponent implements OnInit {
       dataCenter: new FormControl({value: '', disabled: this.isViewMode}),
       cluster: new FormControl({value: '', disabled: this.isViewMode}),
       dataStore: new FormControl({value: '', disabled: this.isViewMode}),
+      datastoreCluster: new FormControl({value: false, disabled: this.isViewMode}),
       switch: new FormControl({value: '', disabled: this.isViewMode}),
       switchType: new FormControl({value: '', disabled: this.isViewMode}),
       managementNetwork: new FormControl({value: '', disabled: this.isViewMode}),
+      version: new FormControl({value: '', disabled: this.isViewMode}),
+      uuid: new FormControl({value: '', disabled: this.isViewMode}),
       username: new FormControl({value: '', disabled: this.isViewMode}, [Validators.required]),
       password: new FormControl({value: '', disabled: this.isViewMode}),
       updatePassword: new FormControl({value: '', disabled: this.isViewMode}),
@@ -54,9 +60,12 @@ export class AddEditConnectionProfilesComponent implements OnInit {
    get dataCenter() { return this.connectionForm?.get('dataCenter'); }
    get cluster() { return this.connectionForm?.get('cluster'); }
    get dataStore() { return this.connectionForm?.get('dataStore'); }
+   get datastoreCluster() { return this.connectionForm?.get('datastoreCluster'); }
    get switch() { return this.connectionForm?.get('switch'); }
    get switchType() { return this.connectionForm?.get('switchType'); }
    get managementNetwork() { return this.connectionForm?.get('managementNetwork'); }
+   get version() { return this.connectionForm?.get('version'); }
+   get uuid() { return this.connectionForm?.get('uuid'); }
    get username() { return this.connectionForm?.get('username'); }
    get password() { return this.connectionForm?.get('password'); }
    get updatePassword() {return this.connectionForm?.get('updatePassword');}
@@ -72,10 +81,25 @@ export class AddEditConnectionProfilesComponent implements OnInit {
       this.dataCenter?.setValue(this.data.genData.parameters.datacenter === '' ? 'None' : this.data.genData.parameters.datacenter);
       this.cluster?.setValue(this.data.genData.parameters.cluster === '' ? 'None' : this.data.genData.parameters.cluster);
       this.dataStore?.setValue(this.data.genData.parameters.datastore === '' ? 'None' : this.data.genData.parameters.datastore);
+      this.datastoreCluster?.setValue(this.data.genData.parameters.datastore_cluster);
       this.switch?.setValue(this.data.genData.parameters.switch === '' ? 'None' : this.data.genData.parameters.switch);
       this.switchType?.setValue(this.data.genData.parameters.switch_type === '' ? 'None' : this.data.genData.parameters.switch_type);
       this.managementNetwork?.setValue(this.data.genData.parameters.management_network === '' ? 'None' : this.data.genData.parameters.management_network);
+      this.version?.setValue(this.data.genData.parameters.version === '' ? 'None' : this.data.genData.parameters.version);
+      this.uuid?.setValue(this.data.genData.parameters.uuid === '' ? 'None' : this.data.genData.parameters.uuid);
       this.username?.setValue(this.data.genData.parameters.username === '' ? 'None' : this.data.genData.parameters.username);
+      if (this.data.genData.category === 'datasource') {
+        this.isHiddenField = true;
+        // this.certFile?.setValue(this.data.genData.parameters.cert_file);
+        // if (this.data.genData.parameters.cert_file === '') {
+        //   this.isHiddenDeleteButton = true;
+        // } else {
+        //   this.isHiddenDeleteButton = false;
+        // }
+      }
+      else if (this.data.genData.category === 'configurator') {
+        this.isHiddenField = true;
+      }
     } else {
         this.isHiddenDeleteButton = true;
         this.name?.setValue(this.data.genData.name)
@@ -84,25 +108,32 @@ export class AddEditConnectionProfilesComponent implements OnInit {
         this.dataCenter?.setValue(this.data.genData.parameters.datacenter);
         this.cluster?.setValue(this.data.genData.parameters.cluster);
         this.dataStore?.setValue(this.data.genData.parameters.datastore);
+        this.datastoreCluster?.setValue(this.data.genData.parameters.datastore_cluster);
         this.switch?.setValue(this.data.genData.parameters.switch);
         this.switchType?.setValue(this.data.genData.parameters.switch_type);
         this.managementNetwork?.setValue(this.data.genData.parameters.management_network);
         this.username?.setValue(this.data.genData.parameters.username);
         this.password?.setValue(this.data.genData.parameters.password);
-        this.updatePassword?.setValue('update');
         if (this.data.genData.category === 'datasource') {
           this.isHiddenField = true;
-          this.certFile?.setValue(this.data.genData.parameters.cert_file);
-          if (this.data.genData.parameters.cert_file === '') {
-            this.isHiddenDeleteButton = true;
-          } else {
-            this.isHiddenDeleteButton = false;
-          }
+          // this.certFile?.setValue(this.data.genData.parameters.cert_file);
+          // if (this.data.genData.parameters.cert_file === '') {
+          //   this.isHiddenDeleteButton = true;
+          // } else {
+          //   this.isHiddenDeleteButton = false;
+          // }
+        }
+        else if (this.data.genData.category === 'configurator') {
+          this.isHiddenField = true;
         }
         if (this.data.mode === 'add') {
           this.password?.setValidators([Validators.required]);
         }
     }
+  }
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
   }
 
   onCancel() {
@@ -119,7 +150,7 @@ export class AddEditConnectionProfilesComponent implements OnInit {
 
   onFileSelected(event: any): void {
     this.selectedFile = <File>event.target.files[0] ?? null;
-    
+
   }
 
   onSelectChangeDelete(event: any) {
@@ -132,7 +163,7 @@ export class AddEditConnectionProfilesComponent implements OnInit {
 
   addServerConnect() {
     if (this.connectionForm?.valid) {
-      const jsonData = {
+      const jsonDataValue = {
         name: this.name?.value,
         category: this.category?.value,
         server: this.server?.value,
@@ -140,12 +171,14 @@ export class AddEditConnectionProfilesComponent implements OnInit {
         datacenter: this.dataCenter?.value,
         cluster: this.cluster?.value,
         datastore: this.dataStore?.value,
+        datastore_cluster: this.datastoreCluster?.value,
         switch: this.switch?.value,
         switch_type: this.switchType?.value,
         management_network: this.managementNetwork?.value,
         username: this.username?.value,
         password: this.password?.value,
       }
+      const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
       if (this.category?.value === 'vmware_vcenter') {
         this.serverConnectService.add(jsonData).subscribe({
           next:(rest) => {
@@ -154,7 +187,7 @@ export class AddEditConnectionProfilesComponent implements OnInit {
             this.dialogRef.close();
           },
           error:(err) => {
-            this.toastr.error(`Error while add connection ${err.result.name}`);
+            this.toastr.error(`Error while add connection`);
           }
         });
       } else {
@@ -180,19 +213,21 @@ export class AddEditConnectionProfilesComponent implements OnInit {
   }
 
   updateServerConnect() {
-    const jsonData = {
+    const jsonDataValue = {
       name: this.name?.value,
       category: this.category?.value,
       server: this.server?.value,
       datacenter: this.dataCenter?.value,
       cluster: this.cluster?.value,
       datastore: this.dataStore?.value,
+      datastore_cluster: this.datastoreCluster?.value,
       switch: this.switch?.value,
       switch_type: this.switchType?.value,
       management_network: this.managementNetwork?.value,
       username: this.username?.value,
       update_password: this.updatePassword?.value
     }
+    const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.serverConnectService.put(this.data.genData.id, jsonData).pipe(
       catchError((e: any) => {
         this.toastr.error(e.error.message);
@@ -222,5 +257,25 @@ export class AddEditConnectionProfilesComponent implements OnInit {
         this.dialogRef.close();
       }
     })
+  }
+
+  changeViewToEdit() {
+    this.data.mode = 'update';
+    this.isViewMode = false;
+    this.name?.enable();
+    this.category?.enable();
+    this.server?.enable();
+    this.dataCenter?.enable();
+    this.cluster?.enable();
+    this.dataStore?.enable();
+    this.datastoreCluster?.enable();
+    this.switch?.enable();
+    this.switchType?.enable();
+    this.managementNetwork?.enable();
+    this.username?.enable();
+    this.password?.enable();
+    this.updatePassword?.enable();
+    this.file?.enable();
+    this.certFile?.enable();
   }
 }
