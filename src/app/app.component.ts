@@ -29,12 +29,19 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.version$ = this.versionService.version$;
     if (this.authService.isLoggedIn()) {
-      const permissionsString = this.rolesService.getUserPermissions();
-      if (permissionsString) {
-        const permissionsObject = JSON.parse(permissionsString)
-        this.permissionsService.loadPermissions(permissionsObject);
+      const roles = this.rolesService.getUserRoles();
+      if (roles) {
+        roles.map((role: any) => {
+          this.ngxRolesService.addRole(role.name, role.permissions)
+        })
       } else {
         this.toastr.error('Get roles for the user failed!', 'Error');
+      }
+      const permissions = this.rolesService.getUserPermissions();
+      if (permissions) {
+        this.permissionsService.loadPermissions(permissions);
+      } else {
+        this.toastr.error('get Permissions for the user failed!', 'Error');
       }
     }
   }

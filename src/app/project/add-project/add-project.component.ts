@@ -199,7 +199,7 @@ export class AddProjectComponent implements OnInit {
     let isCanWriteProject = false
     let isCanReadSettings = false
     if (permissions) {
-      for (let p of JSON.parse(permissions)) {
+      for (let p of permissions) {
         if (p === "can_write on Project") {
           isCanWriteProject = true
         }

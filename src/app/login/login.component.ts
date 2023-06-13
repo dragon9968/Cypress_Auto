@@ -22,9 +22,7 @@ export class LoginComponent implements OnInit {
     error: string | undefined;
 
     constructor(
-        private store: Store,
         private authService: AuthService,
-        private toastr: ToastrService,
         private router: Router,
         private rolesService: RolesService,
         private projectService: ProjectService,
@@ -63,12 +61,13 @@ export class LoginComponent implements OnInit {
                 this.authService.updateRefreshToken(token.refresh_token);
                 this.rolesService.getRolesUser().subscribe(response => {
                   let permissions:any[] = []
+                  this.rolesService.setUserRoles(response.roles);
                   response.roles.map((role: any) => {
                     this.ngxRolesService.addRole(role.name, role.permissions)
                     permissions.push(...role.permissions)
-                  })
+                  });
                   const permissionsUnique:any[] = [...new Set(permissions)];
-                  this.rolesService.updateUserPermissions(JSON.stringify(permissionsUnique));
+                  this.rolesService.setUserPermissions(permissionsUnique);
                   this.permissionsService.loadPermissions(permissionsUnique);
                 })
                 this.router.navigate([RouteSegments.ROOT]);

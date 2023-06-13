@@ -347,7 +347,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     const permissions = this.rolesService.getUserPermissions();
     if (permissions) {
-      for (let p of JSON.parse(permissions)) {
+      for (let p of permissions) {
         if (p === "can_write on Project") {
           this.isCanWriteOnProject = true
           break

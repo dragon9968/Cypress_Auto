@@ -6,5 +6,6 @@ export type LocalStorageData = {
   [LocalStorageKeys.CONNECTIONS]: string;
   [LocalStorageKeys.PROJECT_ID]: string;
   [LocalStorageKeys.USER_ID]: string;
-  [LocalStorageKeys.PERMISSIONS]: string;
+  [LocalStorageKeys.PERMISSIONS]: any[];
+  [LocalStorageKeys.ROLES]: any[];
 };

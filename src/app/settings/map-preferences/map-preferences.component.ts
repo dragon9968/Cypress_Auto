@@ -157,7 +157,7 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
     let isCanReadSettings = false
     const permissions = this.rolesService.getUserPermissions();
     if (permissions) {
-      for (let p of JSON.parse(permissions)) {
+      for (let p of permissions) {
         if (p === "can_read on Settings") {
           isCanReadSettings = true
         }
