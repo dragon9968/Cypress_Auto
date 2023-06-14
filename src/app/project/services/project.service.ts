@@ -96,7 +96,7 @@ export class ProjectService {
   }
 
   getProjectId(): any {
-    return JSON.parse(<any>this.localStorageService.getItem(LocalStorageKeys.PROJECT_ID));
+    return this.localStorageService.getItem(LocalStorageKeys.PROJECT_ID);
   }
 
   closeProject(): any {

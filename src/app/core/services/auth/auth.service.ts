@@ -101,24 +101,27 @@ export class AuthService {
               this.toastr.info(`Disconnected from ${connection.name} server!`, 'Info');
         })
         this._removeDataInLocalStorageAndPermission();
+        this.store.dispatch(retrievedIsOpen({data: false}));
         this.router.navigate([RouteSegments.ROOT, RouteSegments.LOGIN]);
       })
     } else {
       this._removeDataInLocalStorageAndPermission();
+      this.store.dispatch(retrievedIsOpen({data: false}));
       this.router.navigate([RouteSegments.ROOT, RouteSegments.LOGIN]);
     }
   }
 
   private _removeDataInLocalStorageAndPermission() {
-    this.ngxRolesService.flushRolesAndPermissions();
-    this.ngxPermissionsService.flushPermissions();
-    this.store.dispatch(retrievedIsOpen({data: false}));
     this.localStorageService.removeItem(LocalStorageKeys.ACCESS_TOKEN);
     this.localStorageService.removeItem(LocalStorageKeys.REFRESH_TOKEN);
     this.localStorageService.removeItem(LocalStorageKeys.CONNECTIONS);
     this.localStorageService.removeItem(LocalStorageKeys.USER_ID);
     this.localStorageService.removeItem(LocalStorageKeys.PROJECT_ID);
     this.localStorageService.removeItem(LocalStorageKeys.PERMISSIONS);
+    this.localStorageService.removeItem(LocalStorageKeys.ROLES);
+    this.localStorageService.removeItem(LocalStorageKeys.PROJECT_ID);
+    this.ngxRolesService.flushRolesAndPermissions();
+    this.ngxPermissionsService.flushPermissions();
   }
 
 }

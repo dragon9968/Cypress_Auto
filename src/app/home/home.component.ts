@@ -77,7 +77,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const project = this.recentProjects.filter(val => val.id === projectId);
     const projectName = project.map(el => el.name)
     if (listProjectId.includes(projectId)) {
-      this.projectService.openProject(projectId);
+      this.projectService.openProject(projectId.toString());
       this.store.dispatch(retrievedProjectName({ projectName: projectName }));
     } else {
       this.toastr.warning(`The user is not the owner of project ${projectName}. Cannot open the project ${projectName}`)
