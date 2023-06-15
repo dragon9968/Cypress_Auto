@@ -10,8 +10,8 @@ import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.serv
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { InfoPanelShowValidationResultsComponent } from '../../../shared/components/info-panel-show-validation-results/info-panel-show-validation-results.component';
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
-import { environment } from "../../../../environments/environment";
 import { selectMapOption } from "src/app/store/map-option/map-option.selectors";
+import { PortGroupValidateModel } from "../../../core/models/port-group.model";
 
 @Injectable({
   providedIn: 'root'
@@ -77,7 +77,7 @@ export class CMActionsService {
     }
   }
 
-  getPortGroupActionsMenu(cy: any, projectId: string, activePGs: any[]) {
+  getPortGroupActionsMenu(cy: any, projectId: number, activePGs: any[]) {
     return {
       id: "pg_actions",
       content: "Actions",
@@ -98,8 +98,10 @@ export class CMActionsService {
           id: "validate_pg",
           content: "Validate",
           onClickFunction: (event: any) => {
-            const pks = activePGs.map((ele: any) => ele.data('pg_id'));
-            this.portGroupService.validate({ pks }).pipe(
+            const jsonData: PortGroupValidateModel = {
+              pks: activePGs.map((ele: any) => ele.data('pg_id'))
+            }
+            this.portGroupService.validate(jsonData).pipe(
               catchError((e: any) => {
                 this.toastr.error(e.error.message);
                 this.dialog.open(InfoPanelShowValidationResultsComponent, {

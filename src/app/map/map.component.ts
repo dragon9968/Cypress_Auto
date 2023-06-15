@@ -79,6 +79,7 @@ import { retrievedNetmasks } from '../store/netmask/netmask.actions';
 import { MapEditService } from "../core/services/map-edit/map-edit.service";
 import { RolesService } from '../core/services/roles/roles.service';
 import { CmGroupOptionService } from './context-menu/cm-group-option/cm-group-option.service';
+import { PortGroupAddModel } from "../core/models/port-group.model";
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -763,29 +764,31 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   private _cdndDrop($event: any, dropTarget: any, dropSibling: any) {
-    const target = $event.target;
-    const data = target.data();
-    if (dropTarget.data('label') == 'group_box') {
-      if (this.groupCategoryId == 'domain') {
-        const g = data.groups.filter((gb: any) => gb.category == 'domain');
-        if (g[0]?.id != dropTarget.data('group_id')) {
-          data.domain = dropTarget.data('domain');
-          data.domain_id = dropTarget.data('domain_id');
-          this.updateGroups(data);
+    if (this.isGroupBoxesChecked) {
+      const target = $event.target;
+      const data = target.data();
+      if (dropTarget.data('label') == 'group_box') {
+        if (this.groupCategoryId == 'domain') {
+          const g = data.groups.filter((gb: any) => gb.category == 'domain');
+          if (g[0]?.id != dropTarget.data('group_id')) {
+            data.domain = dropTarget.data('domain');
+            data.domain_id = dropTarget.data('domain_id');
+            this.updateGroups(data);
+          }
         }
+        target.move({ 'parent': 'group-' + dropTarget.data('group_id') });
+      } else if (dropTarget.data('label') != 'group_box') {
+        data.domain = 'default.test';
+        data.domain_id = this.domains.filter(d => d.name == 'default.test')[0].id;
+        this.updateGroups(data);
       }
-      target.move({ 'parent': 'group-' + dropTarget.data('group_id') });
-    } else if (dropTarget.data('label') != 'group_box') {
-      data.domain = 'default.test';
-      data.domain_id = this.domains.filter(d => d.name == 'default.test')[0].id;
-      this.updateGroups(data);
+      if (data.category != "bg_image") {
+        data.new = false;
+        data.updated = true;
+        data.deleted = false;
+      }
+      this.helpersService.addNewGroupBoxByMovingNodes(this.cy, dropTarget, this.projectId, this.mapCategory);
     }
-    if (data.category != "bg_image") {
-      data.new = false;
-      data.updated = true;
-      data.deleted = false;
-    }
-    this.helpersService.addNewGroupBoxByMovingNodes(this.cy, dropTarget, this.projectId, this.mapCategory);
   }
 
   private _cdndOut(event: any, dropTarget: any) {
@@ -1085,7 +1088,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.cmInterfaceService.getPortGroupInterfaceMenu(this.queueEdge.bind(this)),
         this.cmAddService.getEdgeAddMenu(),
         this.cmActionsService.getNodeActionsMenu(this.cy, this.activeNodes, this.isCanWriteOnProject),
-        this.cmActionsService.getPortGroupActionsMenu(this.cy, this.projectId, this.activePGs),
+        this.cmActionsService.getPortGroupActionsMenu(this.cy, Number(this.projectId), this.activePGs),
         this.cmActionsService.getEdgeActionsMenu(this.cy, this.activeEdges),
         this.cmGroupOptionService.getNodePgGroupMenu(this.cy, this.activeNodes, this.activePGs, this.projectId, this.isCanWriteOnProject),
         // this.cmGroupOptionService.getPortGroupGroupMenu(this.cy, this.activePGs),
@@ -1220,14 +1223,14 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   private _addNewPortGroup(genData: any, newNodeData: any, newNodePosition: any) {
-    const jsonData = {
+    const jsonData: PortGroupAddModel = {
       name: genData.name,
       vlan: genData.vlan,
       category: genData.category,
       domain_id: genData.domain_id,
       subnet_allocation: genData.subnet_allocation,
       subnet: genData.subnet,
-      project_id: this.projectId,
+      project_id: Number(this.projectId),
       logical_map_position: newNodePosition,
       logical_map_style: {
         "height": this.selectedMapPref.port_group_size,

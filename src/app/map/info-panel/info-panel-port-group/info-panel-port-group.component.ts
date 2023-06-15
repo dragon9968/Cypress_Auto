@@ -15,6 +15,8 @@ import { retrievedMapSelection } from "src/app/store/map-selection/map-selection
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { AddUpdatePGDialogComponent } from "../../add-update-pg-dialog/add-update-pg-dialog.component";
 import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
+import { ExportType } from "../../../core/models/common.model";
+import { PortGroupExportModel } from "../../../core/models/port-group.model";
 
 @Component({
   selector: 'app-info-panel-port-group',
@@ -170,12 +172,12 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
     this.infoPanelTableComponent?.edit();
   }
 
-  exportPortGroup(format: string) {
+  exportPortGroup(format: ExportType) {
     if (this.infoPanelTableComponent?.rowsSelected.length == 0) {
       this.toastr.info('No row selected');
     } else {
-      const jsonData = {
-        pks: this.infoPanelTableComponent?.rowsSelectedId,
+      const jsonData: PortGroupExportModel = {
+        pks: this.infoPanelTableComponent?.rowsSelectedId as number[],
         format: format
       }
       let file = new Blob();
@@ -209,7 +211,7 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '500px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
-          this.infoPanelService.randomizeSubnetPortGroups(this.infoPanelTableComponent?.rowsSelectedId, this.projectId);
+          this.infoPanelService.randomizeSubnetPortGroups(this.infoPanelTableComponent?.rowsSelectedId as number[], Number(this.projectId));
         }
       })
     }

@@ -4,6 +4,7 @@ import { catchError } from "rxjs/operators";
 import { throwError } from "rxjs";
 import { PortGroupService } from "../../../core/services/portgroup/portgroup.service";
 import { ProjectService } from "../../../project/services/project.service";
+import { PortGroupGetCommonModel } from "../../../core/models/port-group.model";
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +30,7 @@ export class CMProjectNodeService {
         if (isProjectConnected) {
           this.toastr.warning('The project has been linked', 'Warning');
         } else {
-          const jsonData = {
+          const jsonData: PortGroupGetCommonModel = {
             project_id: projectId,
             linked_project_id: linkProjectId
           }

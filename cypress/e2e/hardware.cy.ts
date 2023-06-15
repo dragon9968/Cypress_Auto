@@ -36,6 +36,7 @@ describe('Hardware e2e testing', () => {
     cy.getByFormControlName('assetTag').type(hardware.asset_tag)
 
     cy.getButtonByTypeAndContent('submit', 'Create').click()
+    cy.checkingToastSuccess()
     cy.get('mat-error').should('not.exist')
   });
 

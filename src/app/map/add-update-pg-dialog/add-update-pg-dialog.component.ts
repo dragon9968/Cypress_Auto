@@ -15,6 +15,7 @@ import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 import { selectPortGroupsManagement } from "../../store/portgroup/portgroup.selectors";
 import { retrievedPortGroupsManagement } from "../../store/portgroup/portgroup.actions";
+import { PortGroupAddModel, PortGroupGetRandomModel, PortGroupPutModel } from "../../core/models/port-group.model";
 
 @Component({
   selector: 'app-add-update-pg-dialog',
@@ -115,10 +116,12 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
 
   onSubnetAllocationChange($event: MatRadioChange) {
     this._disableItems($event.value);
+    this._changeSubnet()
   }
 
   onCategoryChange($event: MatRadioChange) {
     this.subnetCtr?.setErrors(null);
+    this._changeSubnet()
   }
 
   onCancel() {
@@ -126,13 +129,13 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
   }
 
   addPG() {
-    const jsonDataValue = {
+    const jsonDataValue: PortGroupAddModel = {
       name: this.nameCtr?.value,
       vlan: this.vlanCtr?.value,
       category: this.categoryCtr?.value,
       domain_id: this.domainCtr?.value.id,
       subnet_allocation: this.subnetAllocationCtr?.value,
-      subnet: this.subnetAllocationCtr?.value == 'static_auto' ? this.data.genData.subnet : this.subnetCtr?.value,
+      subnet: this.subnetCtr?.value,
       project_id: this.data.projectId,
       logical_map_position: this.data.newNodePosition,
       logical_map_style: (this.data.mode == 'add') ? {
@@ -195,13 +198,13 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
 
   updatePG() {
     const ele = this.data.cy.getElementById(this.data.genData.id);
-    const jsonDataValue = {
+    const jsonDataValue: PortGroupPutModel = {
       name: this.nameCtr?.value,
       vlan: this.vlanCtr?.value,
       category: this.categoryCtr?.value,
       domain_id: this.domainCtr?.value.id,
       subnet_allocation: this.subnetAllocationCtr?.value,
-      subnet: this.subnetAllocationCtr?.value == 'static_auto' ? undefined : this.subnetCtr?.value,
+      subnet: this.subnetCtr?.value,
       project_id: this.data.genData.project_id,
       logical_map_position: ele.position(),
     }
@@ -246,5 +249,22 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
   changeViewToEdit() {
     this.data.mode = 'update';
     this.isViewMode = false;
+  }
+
+  private _changeSubnet() {
+    if (this.subnetAllocationCtr?.value == 'static_auto') {
+      const jsonData: PortGroupGetRandomModel = {
+        project_id: this.data.genData.project_id,
+        category: this.categoryCtr?.value
+      }
+      this.portGroupService.getRandomSubnet(jsonData).pipe(
+        catchError(error => {
+          this.toastr.error('Get random subnet for the port group failed!', 'Error')
+          return throwError(() => error)
+        })
+      ).subscribe(response => {
+        this.subnetCtr?.setValue(response.result)
+      })
+    }
   }
 }

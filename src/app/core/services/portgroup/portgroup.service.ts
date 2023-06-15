@@ -2,6 +2,14 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiPaths } from 'src/app/core/enums/api-paths.enum';
+import {
+  PortGroupAddModel,
+  PortGroupEditBulkModel,
+  PortGroupExportModel,
+  PortGroupGetCommonModel,
+  PortGroupGetRandomModel, PortGroupPutModel,
+  PortGroupRandomizeSubnetModel, PortGroupValidateModel
+} from "../../models/port-group.model";
 
 @Injectable({
   providedIn: 'root'
@@ -40,11 +48,11 @@ export class PortGroupService {
     return this.http.get<any>(ApiPaths.PORTGROUP + id);
   }
 
-  add(data: any): Observable<any> {
+  add(data: PortGroupAddModel): Observable<any> {
     return this.http.post<any>(ApiPaths.PORTGROUP, data);
   }
 
-  put(id: string, data: any): Observable<any> {
+  put(id: string, data: PortGroupPutModel): Observable<any> {
     return this.http.put<any>(ApiPaths.PORTGROUP + id, data);
   }
 
@@ -55,23 +63,27 @@ export class PortGroupService {
     });
   }
 
-  validate(data: any): Observable<any> {
+  validate(data: PortGroupValidateModel): Observable<any> {
     return this.http.post<any>(ApiPaths.PORTGROUP_VALIDATE, data);
   }
 
-  editBulk(data: any): Observable<any> {
+  editBulk(data: PortGroupEditBulkModel): Observable<any> {
     return this.http.put<any>(ApiPaths.PORTGROUP + 'bulk_edit', data);
   }
 
-  export(data: any): Observable<any> {
+  export(data: PortGroupExportModel): Observable<any> {
     return this.http.post<any>(ApiPaths.PORTGROUP_EXPORT, data);
   }
 
-  randomizeSubnetBulk(data: any): Observable<any> {
+  randomizeSubnetBulk(data: PortGroupRandomizeSubnetModel): Observable<any> {
     return this.http.post<any>(ApiPaths.PORTGROUP_RANDOMIZE_SUBNET_BULK, data);
   }
 
-  getPortGroupCommon(data: any): Observable<any> {
+  getPortGroupCommon(data: PortGroupGetCommonModel): Observable<any> {
     return this.http.post<any>(ApiPaths.PORTGROUP_COMMON, data);
+  }
+
+  getRandomSubnet(data: PortGroupGetRandomModel): Observable<any> {
+    return this.http.post<any>(ApiPaths.PORT_GROUP_GET_RANDOM_SUBNET, data)
   }
 }

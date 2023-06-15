@@ -13,6 +13,7 @@ import { autoCompleteValidator } from "../../../shared/validations/auto-complete
 import { selectDomains } from "../../../store/domain/domain.selectors";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { retrievedPortGroupsManagement } from "../../../store/portgroup/portgroup.actions";
+import { PortGroupEditBulkModel } from "../../../core/models/port-group.model";
 
 @Component({
   selector: 'app-port-group-bulk-edit-dialog',
@@ -86,7 +87,7 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
     const category = this.categoryCtr?.value !== '' ? this.categoryCtr?.value: undefined;
     const subnetAllocation = this.subnetAllocationCtr?.value !== '' ? this.subnetAllocationCtr?.value: undefined;
     if (domainId || vlan || category || subnetAllocation) {
-      const jsonDataValue = {
+      const jsonDataValue: PortGroupEditBulkModel = {
         ids: ids,
         domain_id: domainId,
         vlan: vlan,

@@ -30,6 +30,7 @@ import { selectPortGroups, selectPortGroupsManagement } from "../../../store/por
 import { retrievedIsHypervisorConnect } from "src/app/store/server-connect/server-connect.actions";
 import { retrievedVMStatus } from "src/app/store/project/project.actions";
 import { RemoteCategories } from "../../enums/remote-categories.enum";
+import { PortGroupRandomizeSubnetModel } from "../../models/port-group.model";
 @Injectable({
   providedIn: 'root'
 })
@@ -648,8 +649,8 @@ export class InfoPanelService implements OnDestroy {
     return newInterfacesManagement;
   }
 
-  randomizeSubnetPortGroups(pks: any, projectId: any) {
-    const jsonData = {
+  randomizeSubnetPortGroups(pks: number[], projectId: number) {
+    const jsonData: PortGroupRandomizeSubnetModel = {
       pks: pks,
       project_id: projectId
     }

@@ -32,6 +32,7 @@ export enum ApiPaths {
   VALIDATE_NODE = '/api/v1/node/validate',
   GET_DEPLOY_DATA = '/api/v1/node/get_deploy_data',
   PORTGROUP = '/api/v1/portgroup/',
+  PORT_GROUP_GET_RANDOM_SUBNET = '/api/v1/portgroup/get_random_subnet',
   PORTGROUP_EXPORT  = '/api/v1/portgroup/export',
   MAP_PREF = '/api/v1/mappref/',
   APP_PREF = '/api/v1/apppref/',
