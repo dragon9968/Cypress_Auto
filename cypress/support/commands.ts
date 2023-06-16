@@ -405,6 +405,23 @@ function openPageInDevicesNav(pageName: string): void {
 }
 Cypress.Commands.add('openPageInDevicesNav', openPageInDevicesNav);
 
+// Open Administration page
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    openPageInAdministrationNav(pageName: string): typeof openPageInAdministrationNav;
+  }
+}
+
+function openPageInAdministrationNav(pageName: string): void {
+  cy.visit('/')
+  cy.waitingLoadingFinish()
+  cy.getByDataCy('btn-admin').click()
+  cy.get('button>span').contains(pageName).click()
+  cy.waitingLoadingFinish()
+
+}
+Cypress.Commands.add('openPageInAdministrationNav', openPageInAdministrationNav);
+
 // Select Device
 declare namespace Cypress {
   interface Chainable<Subject = any> {
@@ -693,7 +710,7 @@ declare namespace Cypress {
 }
 
 function selectRowByName(name: string): void {
-  cy.get('.ag-row').contains(name).first().click({ force: true }).focus().type(" ");
+  cy.get('.ag-row').contains(name).first().click({ force: true }).type(" ");
 }
 Cypress.Commands.add('selectRowByName', selectRowByName);
 
@@ -721,7 +738,7 @@ declare namespace Cypress {
 }
 
 function showFormAddByMatTooltip(name: string): void {
-  cy.wait(2000)
+  cy.waitingLoadingFinish()
   cy.getByMatToolTip(name).first().click()
   cy.get('mat-dialog-container').should('exist')
 }
@@ -767,9 +784,115 @@ function addUpdateNewLoginProfile(loginProfile: any, mode: string): void {
   cy.get('mat-error').should('not.exist')
   cy.wait(3000)
   cy.getByDataCy('loginProfileEditForm').submit()
+  cy.checkingToastSuccess()
   cy.log(`END: Add/Update ${loginProfile.name}`)
 }
 Cypress.Commands.add('addUpdateNewLoginProfile', addUpdateNewLoginProfile);
+
+// Add/update a role
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    addUpdateRole(role: any, mode?: string): typeof addUpdateRole;
+  }
+}
+
+function addUpdateRole(role: any,  mode: string = 'add'): void {
+  cy.log(`START: Add/Update new ${role.name}`)
+  const buttonContent = mode === 'add' ? 'Create' : 'Update'
+  cy.getByFormControlName('nameCtr').as('name').invoke('val').then(nameValue => {
+    if (nameValue !== role.name) {
+      cy.get('@name').clear().type(role.name)
+    }
+  })
+  cy.get('mat-error').should('not.exist')
+  if (mode !== 'add') {
+    cy.get('.pull-left').last().click()
+    cy.getButtonByTypeAndContent('button', 'Remove').click()
+  }
+  if (role.permissions.length > 0) {
+    role.permissions.map((roleName: string) => {
+      cy.get('dual-list ul li label').contains(roleName).click()
+    })
+  }
+  cy.get('mat-error').should('not.exist')
+  cy.getButtonByTypeAndContent('button', 'Add').click()
+  cy.wait(1000)
+  cy.getButtonByTypeAndContent('submit', buttonContent).click()
+  cy.checkingToastSuccess()
+  cy.log(`END: Add/Update ${role.name}`)
+}
+Cypress.Commands.add('addUpdateRole', addUpdateRole);
+
+// // Add/update a user
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    addUpdateUser(user: any, mode?: string): typeof addUpdateUser;
+  }
+}
+
+function addUpdateUser(user: any,  mode: string = 'add'): void {
+  cy.log(`START: Add/Update new ${user.first_name} ${user.last_name}`)
+  const buttonContent = mode === 'add' ? 'Create' : 'Update'
+  cy.getByFormControlName('firstNameCtr').as('firstName').invoke('val').then(firstName => {
+    if (firstName !== user.firstName) {
+      cy.get('@firstName').clear().type(user.first_name)
+    }
+  })
+
+  cy.getByFormControlName('lastNameCtr').as('lastName').invoke('val').then(lastName => {
+    if (lastName !== user.last_name) {
+      cy.get('@lastName').clear().type(user.last_name)
+    }
+  })
+
+  cy.getByFormControlName('userNameCtr').as('userName').invoke('val').then(userName => {
+    if (userName !== user.username) {
+      cy.get('@userName').clear().type(user.username)
+    }
+  })
+
+  if (user.active) {
+    cy.getByFormControlName('activeCtr').get('mat-checkbox span input[type="checkbox"]').check({force: true})
+  } else {
+    cy.getByFormControlName('activeCtr').get('mat-checkbox span input[type="checkbox"]').uncheck({force: true})
+  }
+
+  cy.getByFormControlName('emailCtr').as('email').invoke('val').then(email => {
+    if (email !== user.email) {
+      cy.get('@email').clear().type(user.email)
+    }
+  })
+
+  if (mode !== 'add') {
+    cy.get('mat-chip-list mat-chip').each((chip: any) => {
+      chip.wrap().find('button mat-icon').click()
+    })
+  }
+  user.role.map((role: string) => {
+    cy.getByFormControlName('roleCtr').first().click()
+    cy.get('.mat-option-text').contains(role).first().click()
+  })
+
+  if (mode == 'add') {
+    cy.getByFormControlName('passwordCtr').as('password').invoke('val').then(password => {
+      if (password !== user.password) {
+        cy.get('@password').clear().type(user.password)
+      }
+    })
+
+    cy.getByFormControlName('confirmPasswordCtr').as('confirmPassword').invoke('val').then(confirmPassword => {
+      if (confirmPassword !== user.confirmPassword) {
+        cy.get('@confirmPassword').clear().type(user.confirm_password)
+      }
+    })
+  }
+  cy.get('mat-error').should('not.exist')
+  cy.wait(1000)
+  cy.getButtonByTypeAndContent('submit', buttonContent).click()
+  cy.checkingToastSuccess()
+  cy.log(`END: Add/Update ${user.first_name} ${user.last_name}`)
+}
+Cypress.Commands.add('addUpdateUser', addUpdateUser);
 
 // Delete record by name
 declare namespace Cypress {
