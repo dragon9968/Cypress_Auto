@@ -239,6 +239,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
           this.helpers.updateNodesOnGroupStorage(portGroup, 'port_groups');
           this.helpers.reloadGroupBoxes(this.data.cy);
           this.store.dispatch(retrievedMapSelection({ data: true }));
+          this.helpers.updateNodePGInInterfaceOnMap(this.data.cy, 'port_group', this.data.genData.pg_id)
         }
         this.dialogRef.close();
         this.toastr.success('Port group details updated!');

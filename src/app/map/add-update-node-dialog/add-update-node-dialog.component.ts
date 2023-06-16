@@ -658,6 +658,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       this.helpers.updateNodesStorage(nodeData.result);
       this.helpers.updateNodesOnGroupStorage(nodeData.result, 'node');
       this.helpers.updateNodeOnMap(this.data.cy, this.data.genData.id, nodeData.result);
+      this.helpers.updateNodePGInInterfaceOnMap(this.data.cy, 'node', this.data.genData.node_id)
       this.helpers.reloadGroupBoxes(this.data.cy);
       this.dialogRef.close();
       this.store.dispatch(retrievedMapSelection({ data: true }));
@@ -730,30 +731,6 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       this.targetCustomPortCtr?.disable();
     }
   }
-
-  // selectBgpState(event: any) {
-  //   if (event.checked) {
-  //     this.isHiddenBgpMetricType = false;
-  //   } else {
-  //     this.isHiddenBgpMetricType = true;
-  //   }
-  // }
-
-  // selectConnectedState(event: any) {
-  //   if (event.checked) {
-  //     this.isHiddenConnectedMetricType = false;
-  //   } else {
-  //     this.isHiddenConnectedMetricType = true;
-  //   }
-  // }
-
-  // selectStaticState(event: any) {
-  //   if (event.checked) {
-  //     this.isHiddenStaticMetricType = false;
-  //   } else {
-  //     this.isHiddenStaticMetricType = true;
-  //   }
-  // }
 
   addRoute() {
     const jsonDataValue = {

@@ -585,6 +585,15 @@ export class HelpersService implements OnDestroy {
     }
   }
 
+  updateNodePGInInterfaceOnMap(cy: any, type: string, elementId: number) {
+    const idPrefix = type !== 'node' ? 'pg' : 'node'
+    const element = cy.getElementById(`${idPrefix}-${elementId}`)
+    const edgesConnectedElement = element.connectedEdges()
+    edgesConnectedElement.map((edge: any) => {
+      edge.data(type, element.data('name'))
+    })
+  }
+
   createUUID() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
       const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
