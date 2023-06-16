@@ -155,7 +155,7 @@ export class CMActionsService {
           content: "Validate",
           selector: "edge",
           onClickFunction: (event: any) => {
-            const pks = activeEdges.map((ele: any) => ele.data('interface_id'));
+            const pks = activeEdges.map((ele: any) => ele.data('interface_pk'));
             this.interfaceService.validate({ pks }).pipe(
               catchError((e: any) => {
                 this.toastr.error(e.error.message);
@@ -221,7 +221,7 @@ export class CMActionsService {
                 const last_octet = ip.length == 4 ? "." + ip[3] : "";
                 const cyData = edgeData;
                 cyData.id = id;
-                cyData.interface_id = id;
+                cyData.interface_pk = id;
                 cyData.ip_last_octet = last_octet;
                 const logicalMapStyle = cyData.logical_map_style;
                 cyData.width = logicalMapStyle.width;

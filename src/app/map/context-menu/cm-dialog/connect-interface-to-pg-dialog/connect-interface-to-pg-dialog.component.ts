@@ -8,7 +8,7 @@ import { ErrorMessages } from "../../../../shared/enums/error-messages.enum";
 import { HelpersService } from "../../../../core/services/helpers/helpers.service";
 import { InterfaceService } from "../../../../core/services/interface/interface.service";
 import { autoCompleteValidator } from "../../../../shared/validations/auto-complete.validation";
-import { retrievedInterfaceIdConnectPG } from "../../../../store/interface/interface.actions";
+import { retrievedInterfacePkConnectPG } from "../../../../store/interface/interface.actions";
 import { selectInterfacesNotConnectPG } from "../../../../store/interface/interface.selectors";
 
 
@@ -56,8 +56,8 @@ export class ConnectInterfaceToPgDialogComponent implements OnInit, OnDestroy {
   }
 
   connectToPortGroup() {
-    const interfaceId = this.interfaceCtr?.value?.id;
-    this.store.dispatch(retrievedInterfaceIdConnectPG({ interfaceIdConnectPG: interfaceId }))
+    const interfacePk = this.interfaceCtr?.value?.id;
+    this.store.dispatch(retrievedInterfacePkConnectPG({ interfacePkConnectPG: interfacePk }))
     this.data.queueEdge(this.data.event.target, this.data.event.position, "wired");
     this.dialogRef.close();
   }

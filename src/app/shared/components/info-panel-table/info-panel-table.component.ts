@@ -76,7 +76,7 @@ export class InfoPanelTableComponent {
       } else if (this.tabName == 'portgroup' || this.tabName == 'portGroupManagement') {
         return ele.pg_id;
       } else if (this.tabName == 'edge' || this.tabName == 'edgeManagement') {
-        return ele.interface_id;
+        return ele.interface_pk;
       } else {
         return ele.id;
       }

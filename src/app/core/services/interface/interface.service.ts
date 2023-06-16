@@ -18,9 +18,9 @@ export class InterfaceService {
     });
   }
 
-  genDataConnectPG(interfaceId: any, nodeId: string, portgroupId: any): Observable<any> {
+  genDataConnectPG(interfacePk: any, nodeId: string, portgroupId: any): Observable<any> {
     return this.http.post<any>(ApiPaths.GEN_INTERFACE_DATA_CONNECT_PG, {
-      interface_id: interfaceId,
+      interface_pk: interfacePk,
       node_id: nodeId,
       pg_id: portgroupId
     });

@@ -348,7 +348,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       source: data.source,
       subnet: data.subnet,
       target: data.target,
-      id: data.updated ? data.interface_id : null,
+      id: data.updated ? data.interface_pk : null,
       label: "edge",
       map_style: {
         direction: data?.direction,

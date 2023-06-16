@@ -151,7 +151,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     this.ipCtr?.setValidators([
       Validators.required,
       networksValidation('single'),
-      validateNameExist(() => this.edgesConnected, this.data.mode, this.data.genData.interface_id, 'ip'),
+      validateNameExist(() => this.edgesConnected, this.data.mode, this.data.genData.interface_pk, 'ip'),
       showErrorFromServer(() => this.errors)
     ])
     if (!this.isViewMode) {
@@ -263,7 +263,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         const netmaskFilterById = this.netmasks.filter(netmask => netmask.id === respData.result.netmask_id)
         const mask = netmaskFilterById.map(el => el.mask)
         cyData.id = id;
-        cyData.interface_id = id;
+        cyData.interface_pk = id;
         cyData.ip_last_octet = last_octet
         cyData.width = cyData.logical_map_style.width;
         cyData.text_color = cyData.logical_map_style.text_color;
@@ -304,7 +304,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       netmask_id: netmask_id ? netmask_id : null,
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.interfaceService.put(this.data.genData.interface_id, jsonData).pipe(
+    this.interfaceService.put(this.data.genData.interface_pk, jsonData).pipe(
       catchError(err => {
         const errorMessage = err.error.message;
         if (err.status === 422) {
@@ -328,16 +328,16 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         this.store.dispatch(retrievedInterfacesManagement({ data: newInterfacesManagement }));
       } else {
         this._updateInterfaceOnMap(data);
-        this._showOrHideArrowDirectionOnEdge(this.data.genData.interface_id);
+        this._showOrHideArrowDirectionOnEdge(this.data.genData.interface_pk);
         const node = this.data.cy.getElementById(`node-${data.node_id}`);
         const pg = this.data.cy.getElementById(`pg-${data.port_group_id}`);
         const netmaskName = this.helpers.getOptionById(this.netmasks, data.netmask_id).name
         this._updateInterfaceOnEle(node, {
-          id: this.data.genData.interface_id,
+          id: this.data.genData.interface_pk,
           value: `${data.name} - ${data.ip + netmaskName}`
         });
         this._updateInterfaceOnEle(pg, {
-          id: this.data.genData.interface_id,
+          id: this.data.genData.interface_pk,
           value: `${data.node} - ${data.name} - ${data.ip + netmaskName}`
         });
         this.store.dispatch(retrievedMapSelection({ data: true }));
@@ -374,7 +374,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       netmask_id: this.netMaskCtr?.value.id,
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.interfaceService.put(this.data.genData.interface_id, jsonData).subscribe((respData: any) => {
+    this.interfaceService.put(this.data.genData.interface_pk, jsonData).subscribe((respData: any) => {
       const data = {
         ...this.data.genData,
         ...jsonData,
@@ -396,13 +396,13 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       } else {
         const newEdgeData = this.data.newEdgeData;
         newEdgeData.target = newEdgeData.target === `pg-${data.port_group_id}` ? newEdgeData.target : `pg-${data.port_group_id}`;
-        const id = this.data.genData.interface_id
+        const id = this.data.genData.interface_pk
         const ip_str = data.ip ? data.ip : ""
         const ip = ip_str.split(".")
         const last_octet = ip.length == 4 ? "." + ip[3] : ""
         const cyData = respData.result;
         cyData.id = id;
-        cyData.interface_id = id;
+        cyData.interface_pk = id;
         cyData.ip_last_octet = last_octet
         cyData.width = cyData.logical_map_style.width;
         cyData.text_color = cyData.logical_map_style.text_color;

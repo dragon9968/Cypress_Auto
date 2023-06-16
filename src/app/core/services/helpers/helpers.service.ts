@@ -757,7 +757,7 @@ export class HelpersService implements OnDestroy {
           data.deleted = true;
           this.deletedInterfaces.push({
             'name': data.id,
-            'interface_id': data.interface_id
+            'interface_pk': data.interface_pk
           });
         }
       });
@@ -833,24 +833,24 @@ export class HelpersService implements OnDestroy {
     }
   }
 
-  removeInterface(ele: any, interface_id: number) {
-    const interfaces = ele.data('interfaces').filter((i: any) => i.id != interface_id);
+  removeInterface(ele: any, interface_pk: number) {
+    const interfaces = ele.data('interfaces').filter((i: any) => i.id != interface_pk);
     ele.data('interfaces', interfaces);
   }
 
   removeEdge(data: any) {
     const edgeData = data.edge.data();
     const pg = data.cy.getElementById(`pg-${edgeData.port_group_id}`);
-    const pg_interface = pg.data('interfaces').filter((i: any) => i.id == edgeData.interface_id)[0];
-    this.removeInterface(pg, edgeData.interface_id);
+    const pg_interface = pg.data('interfaces').filter((i: any) => i.id == edgeData.interface_pk)[0];
+    this.removeInterface(pg, edgeData.interface_pk);
     const node = data.cy.getElementById(`node-${edgeData.node_id}`);
-    const node_interface = node.data('interfaces').filter((i: any) => i.id == edgeData.interface_id)[0];
-    this.removeInterface(node, edgeData.interface_id);
+    const node_interface = node.data('interfaces').filter((i: any) => i.id == edgeData.interface_pk)[0];
+    this.removeInterface(node, edgeData.interface_pk);
 
     if (edgeData && !edgeData.new) {
       this.deletedInterfaces.push({
         'name': edgeData.id,
-        'interface_id': edgeData.interface_id,
+        'interface_pk': edgeData.interface_pk,
         'pg_interface_value': pg_interface.value,
         'node_interface_value': node_interface.value
       });
@@ -860,10 +860,10 @@ export class HelpersService implements OnDestroy {
     return { cy: data.cy, edge: data.edge.remove() };
   }
 
-  restoreInterface(ele: any, interface_id: number) {
-    const i = this.deletedInterfaces.filter((i: any) => i.interface_id == interface_id)[0];
+  restoreInterface(ele: any, interface_pk: number) {
+    const i = this.deletedInterfaces.filter((i: any) => i.interface_pk == interface_pk)[0];
     const interfaces = [...ele.data('interfaces'), {
-      id: interface_id,
+      id: interface_pk,
       value: ele.data('elem_category') == 'node' ? i.node_interface_value : i.pg_interface_value
     }];
     ele.data('interfaces', interfaces);
@@ -873,9 +873,9 @@ export class HelpersService implements OnDestroy {
     const edge_restore = data.edge.restore();
     const edgeData = edge_restore.data();
     const pg = data.cy.getElementById(`pg-${edgeData.port_group_id}`);
-    this.restoreInterface(pg, edgeData.interface_id);
+    this.restoreInterface(pg, edgeData.interface_pk);
     const node = data.cy.getElementById(`node-${edgeData.node_id}`);
-    this.restoreInterface(node, edgeData.interface_id);
+    this.restoreInterface(node, edgeData.interface_pk);
     if (edgeData && !edgeData.new) {
       edgeData.deleted = false;
       this.deletedInterfaces.pop();

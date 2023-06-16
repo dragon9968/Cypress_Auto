@@ -48,7 +48,7 @@ export class CMEditService {
       this.dialog.open(ViewUpdateProjectNodeComponent, { disableClose: true, width: '450px', autoFocus: false, data: dialogData });
     } else if (activeNodesLength == 0 && activePGsLength == 0) {
       if (activeEdgesLength > 1) {
-        const edgeActiveIds = activeEdges.map((ele: any) => ele.data('interface_id'));
+        const edgeActiveIds = activeEdges.map((ele: any) => ele.data('interface_pk'));
         const dialogData = {
           genData: {
             ids: edgeActiveIds,

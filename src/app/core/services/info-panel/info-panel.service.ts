@@ -58,7 +58,7 @@ export class InfoPanelService implements OnDestroy {
   }
   nodeIdsDeployed: any[] = [];
   portGroupIdsDeployed: any[] = [];
-  interfaceIds: any[] = [];
+  interfacePks: any[] = [];
 
   constructor(
     private store: Store,
@@ -107,7 +107,7 @@ export class InfoPanelService implements OnDestroy {
     } else if (tabName == 'portgroup') {
       idName = 'pg_id';
     } else if (tabName == 'edge') {
-      idName = 'interface_id';
+      idName = 'interface_pk';
     }
     activeEdges.filter(ele => ele.data(idName) === id).forEach((edge: any) => {
       const sourceData = cy.getElementById(edge.data('source')).data();
@@ -128,7 +128,7 @@ export class InfoPanelService implements OnDestroy {
         const interfacesDeleted = this.getEdgesConnectingToNode(node);
         for (let i = 0; i < activeEdges.length; i++) {
           const data = activeEdges[i].data();
-          if (interfacesDeleted.includes(data.interface_id)) {
+          if (interfacesDeleted.includes(data.interface_pk)) {
             activeEdges.splice(i, 1);
             i--;
           }
@@ -161,11 +161,11 @@ export class InfoPanelService implements OnDestroy {
         data.deleted = true;
         interfacesDeleted.push({
           'name': data.id,
-          'interface_id': data.interface_id
+          'interface_pk': data.interface_pk
         });
       }
     });
-    return interfacesDeleted.map(ele => ele.interface_id);
+    return interfacesDeleted.map(ele => ele.interface_pk);
   }
 
   deleteInfoPanelNotAssociateMap(tabName: string, ids: any[] = []) {
@@ -626,7 +626,7 @@ export class InfoPanelService implements OnDestroy {
       data => {
         const portGroupData = data.result;
         const edges = portGroupData.map((edge: any) => {
-          edge.interface_id = edge.id;
+          edge.interface_pk = edge.id;
           return edge;
         });
         this.store.dispatch(retrievedInterfacesManagement({ data: edges }))
@@ -637,10 +637,10 @@ export class InfoPanelService implements OnDestroy {
   getNewInterfacesManagement(newInterfaces: any) {
     let newInterfacesManagement = [...this.interfacesManagement];
     newInterfaces.map((newEdge: any) => {
-      const isExistInEdgesManagement = this.interfacesManagement.some(edge => edge.interface_id === newEdge.id);
-      newEdge.interface_id = newEdge.id;
+      const isExistInEdgesManagement = this.interfacesManagement.some(edge => edge.interface_pk === newEdge.id);
+      newEdge.interface_pk = newEdge.id;
       if (isExistInEdgesManagement) {
-        const index = newInterfacesManagement.findIndex(ele => ele.interface_id === newEdge.interface_id);
+        const index = newInterfacesManagement.findIndex(ele => ele.interface_pk === newEdge.interface_pk);
         newInterfacesManagement.splice(index, 1, newEdge);
       } else {
         newInterfacesManagement = newInterfacesManagement.concat(newEdge);
@@ -675,8 +675,8 @@ export class InfoPanelService implements OnDestroy {
     portGroupIds.map((portGroupId: any) => {
       this.interfaceService.getByPortGroup(portGroupId).subscribe(response => {
         this.checkIpAlocation(response.result)
-        if (this.interfaceIds.length > 0) {
-          this.interfaceService.randomizeIpBulk({ pks: this.interfaceIds }).pipe(
+        if (this.interfacePks.length > 0) {
+          this.interfaceService.randomizeIpBulk({ pks: this.interfacePks }).pipe(
             catchError((error: any) => {
               this.toastr.error(error.error.message);
               return throwError(error.error.message);
@@ -704,8 +704,8 @@ export class InfoPanelService implements OnDestroy {
   randomizeIpInterfaces(listInterfaces: any[]) {
     this.checkIpAlocation(listInterfaces);
     let pks;
-    if (this.interfaceIds.length > 0) {
-      pks = this.interfaceIds
+    if (this.interfacePks.length > 0) {
+      pks = this.interfacePks
       this.interfaceService.randomizeIpBulk({ pks }).pipe(
         catchError((error: any) => {
           this.toastr.error(error.error.message);
@@ -730,14 +730,14 @@ export class InfoPanelService implements OnDestroy {
   }
 
   checkIpAlocation(data: any[]) {
-    this.interfaceIds = []
+    this.interfacePks = []
     data.forEach((val: any) => {
       if (val.ip_allocation === 'static_manual') {
         this.toastr.warning(`Interface ${val.name}'s IP address of “static_manual” interfaces cannot be randomized.`)
       } else {
-        const id = val.interface_id ? val.interface_id : val.id
+        const id = val.interface_pk ? val.interface_pk : val.id
         if (id) {
-          this.interfaceIds.push(id)
+          this.interfacePks.push(id)
         }
       }
     });

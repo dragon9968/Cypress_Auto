@@ -171,12 +171,12 @@ export class InfoPanelInterfaceManagementComponent implements OnDestroy {
         if (confirm) {
           const newInterfacesManagement = [...this.interfacesManagement];
           this.interfacesManagement.map(edge => {
-            if (this.infoPanelTableComponent?.rowsSelectedId.includes(edge.interface_id)) {
+            if (this.infoPanelTableComponent?.rowsSelectedId.includes(edge.interface_pk)) {
               this.deletedInterfaces.push({
                 'name': edge.id,
-                'interface_id': edge.interface_id
+                'interface_pk': edge.interface_pk
               });
-              const index = newInterfacesManagement.findIndex(ele => ele.interface_id === edge.interface_id);
+              const index = newInterfacesManagement.findIndex(ele => ele.interface_pk === edge.interface_pk);
               newInterfacesManagement.splice(index, 1);
             }
           })
