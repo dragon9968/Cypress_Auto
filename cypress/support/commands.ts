@@ -32,8 +32,7 @@ function addNewProject(project: any, isUsingDefaultNetwork = true): void {
   cy.waitingLoadingFinish()
   cy.log('Add new project')
   cy.getByFormControlName('name').focus().type(project.name).blur()
-  cy.get('mat-error').should('not.exist')
-  cy.waitingLoadingFinish()
+  cy.checkingMatErrorIsExistOrNot(false)
   cy.getByFormControlName('description').focus().type(project.description).blur()
   cy.getByFormControlName('category').children(`mat-radio-button[value="${project.category}"]`).click()
   cy.getByFormControlName('target').click().then(() => {
@@ -47,17 +46,16 @@ function addNewProject(project: any, isUsingDefaultNetwork = true): void {
     cy.getByFormControlName('enclave_users').clear().type(project.enclave_users).blur()
   }
   cy.getByFormControlName('vlan_min').clear().type(project.vlan_min).blur()
-  cy.get('mat-error').should('not.exist')
+  cy.checkingMatErrorIsExistOrNot(false)
   cy.getByFormControlName('vlan_max').clear().type(project.vlan_max).blur()
-  cy.get('mat-error').should('not.exist')
+  cy.checkingMatErrorIsExistOrNot(false)
   if (!isUsingDefaultNetwork) {
     cy.log('Delete all networks')
     cy.getByDataCy('btn-delete-network').each(($row) => {
       cy.wrap($row).click()
       cy.wait(1000)
-      cy.get('mat-dialog-container', { timeout: 10000}).should('exist')
       cy.getButtonByTypeAndContent('submit', 'OK').click()
-      cy.wait(1000)
+      cy.checkingToastSuccess()
     })
     cy.log('Re-add all networks')
     project.networks.map((network: any) => {
@@ -77,12 +75,9 @@ function addNewProject(project: any, isUsingDefaultNetwork = true): void {
       cy.wait(1000)
     })
   }
-  cy.wait(2000)
   cy.getByDataCy('projectForm').submit().log(`Create project ${project.name} successfully`)
   cy.window().scrollTo('top', { ensureScrollable: false })
-  cy.get('.toast-success', {timeout: 10000}).should('exist')
-  cy.waitingLoadingFinish()
-  cy.url().should('include', 'projects')
+  cy.checkingToastSuccess()
 }
 Cypress.Commands.add('addNewProject', addNewProject);
 
@@ -96,9 +91,9 @@ declare namespace Cypress {
 function openProjectByName(projectName: string): void {
   cy.visit('/projects')
   cy.waitingLoadingFinish()
-  cy.get('#search-project').type(projectName, { timeout: 10000})
+  cy.get('#search-project').type(projectName)
   cy.wait(2000)
-  cy.get('ag-grid-angular').contains(projectName, { timeout: 10000}).first().dblclick()
+  cy.get('ag-grid-angular').contains(projectName).first().dblclick()
   cy.waitingLoadingFinish()
   cy.get('#cy', { timeout: 10000 }).should('exist')
   cy.url().should('include', 'map')
@@ -117,14 +112,11 @@ function importProject(filePath: string): void {
   cy.log(`Import project from ${filePath}`)
   cy.waitingLoadingFinish()
   cy.getByDataCy('btn-nav-project').should('exist').click()
-  cy.wait(1000)
   cy.getByDataCy('btn-export-import-project').should('exist').click()
-  cy.wait(1000)
   cy.getByDataCy('btn-import-project').should('exist').click()
   cy.get('input[type=file]').selectFile(`${filePath}`)
-  cy.wait(1000)
   cy.getByDataCy('importForm').submit()
-  cy.get('.toast-success', {timeout: 10000}).should('exist')
+  cy.checkingToastSuccess()
   cy.log(`Imported project from ${filePath}`)
 }
 Cypress.Commands.add('importProject', importProject);
@@ -143,13 +135,11 @@ function exportProject(projectName: string, isProjectOpened: boolean): void {
   }
   cy.waitingLoadingFinish()
   cy.getByDataCy('btn-nav-project').should('exist').click()
-  cy.wait(1000)
   cy.getByDataCy('btn-export-import-project').should('exist').click()
-  cy.wait(1000)
   cy.getByDataCy('btn-export-project').should('exist').click()
-  cy.wait(1000)
   cy.getByDataCy('exportForm').submit()
-  cy.get('.toast-success', {timeout: 10000}).should('exist')
+  cy.checkingToastSuccess()
+  cy.log('Exported project')
 }
 Cypress.Commands.add('exportProject', exportProject);
 
@@ -172,34 +162,34 @@ function deleteProject(projectName: string, isProjectOpened: boolean): void {
   cy.getByDataCy('btn-delete-project').should('exist').click()
   cy.wait(1000)
   cy.getButtonByTypeAndContent('submit', 'Delete').click()
-  cy.get('.toast-success', {timeout: 10000}).should('exist')
-  cy.get('mat-dialog-container').should('not.exist')
+  cy.checkingToastSuccess()
 }
 Cypress.Commands.add('deleteProject', deleteProject);
 
 // Permanently delete project by name
 declare namespace Cypress {
   interface Chainable<Subject = any> {
-      deletePermanentlyProject(projectName: string, isProjectOpened: boolean): typeof deletePermanentlyProject;
+      deletePermanentlyProject(projectName: string, isDeleteAllProjects: boolean): typeof deletePermanentlyProject;
   }
 }
 
-function deletePermanentlyProject(projectName: string, isProjectOpened: boolean): void {
+function deletePermanentlyProject(projectName: string, isDeleteAllProjects: boolean): void {
   cy.log('Permanently Delete project')
   cy.waitingLoadingFinish()
   cy.getByDataCy('btn-nav-project').should('exist').click()
-  cy.wait(1000)
   cy.getByDataCy('btn-delete-permanently-project').should('exist').click()
-  cy.wait(3000)
-  cy.get('.ag-row').contains(projectName).first().click({ force: true });
-  cy.wait(1000)
+  cy.waitingLoadingFinish()
+  if (isDeleteAllProjects) {
+    cy.get('.ag-header-cell').first().click()
+  } else {
+    cy.get('.ag-row').contains(projectName).first().click({ force: true });
+  }
   cy.get('.actions').click()
-  cy.wait(1000)
   cy.getButtonByTypeAndContent('button', 'Permanent Delete').click()
-  cy.wait(2000)
   cy.getButtonByTypeAndContent('submit', 'Delete').click()
-  cy.get('.toast-success', {timeout: 10000}).should('exist')
-  cy.wait(1000)
+  cy.checkingToastSuccess()
+  cy.log('Permanently Delete project successfully')
+
 }
 Cypress.Commands.add('deletePermanentlyProject', deletePermanentlyProject);
 
@@ -218,15 +208,12 @@ function cloneProject(projectName: string, option: string, isProjectOpened: bool
   }
   cy.waitingLoadingFinish()
   cy.getByDataCy('btn-nav-project').should('exist').click()
-  cy.wait(1000)
   cy.getByDataCy('btn-new-clone-project').should('exist').click()
-  cy.wait(1000)
   cy.getByDataCy('btn-clone-project').should('exist').click()
   cy.getByFormControlName('nameCtr').clear().type(`${projectName} clone`)
   cy.getByFormControlName('categoryCtr').children(`mat-radio-button[value=${option}]`).click()
-  cy.wait(1000)
   cy.getButtonByTypeAndContent('submit', 'Clone').click()
-  cy.get('.toast-success', {timeout: 10000}).should('exist')
+  cy.checkingToastSuccess()
 }
 Cypress.Commands.add('cloneProject', cloneProject);
 
@@ -244,14 +231,11 @@ function updateProjectToTemplate(projectName: string, isProjectOpened: boolean):
   }
   cy.waitingLoadingFinish()
   cy.getByDataCy('btn-nav-project').should('exist').click()
-  cy.wait(1000)
   cy.getByDataCy('btn-edit-project').should('exist').click()
-  cy.wait(3000)
-  cy.get('mat-dialog-container', { timeout: 10000}).should('exist')
+  cy.waitingLoadingFinish()
   cy.getByFormControlName('categoryCtr').children('mat-radio-button[value="template"]').click()
-  cy.wait(1000)
   cy.getButtonByTypeAndContent('submit', 'Update').click()
-  cy.get('.toast-success', {timeout: 10000}).should('exist')
+  cy.checkingToastSuccess()
   cy.get('mat-dialog-container').should('not.exist')
 }
 Cypress.Commands.add('updateProjectToTemplate', updateProjectToTemplate);
@@ -282,15 +266,13 @@ function importLoginProfile(filePath: string, validation: boolean): void {
   cy.log(`Import login profiles from ${filePath}`)
   cy.getByFormControlName('fileCtr').click({ force: true })
   cy.get('input[type=file]').selectFile(`${filePath}`)
-  cy.wait(2000)
   if (validation) {
-    cy.get('mat-error').should('exist')
+    cy.checkingMatErrorIsExistOrNot(true)
   } else {
-    cy.get('mat-error').should('not.exist')
+    cy.checkingMatErrorIsExistOrNot(false)
     cy.getByDataCy('importForm').submit()
+    cy.checkingToastSuccess()
     cy.log(`Imported login profiles from ${filePath}`)
-    cy.wait(2000)
-    cy.get('mat-dialog-container').should('not.exist')
   }
 }
 Cypress.Commands.add('importLoginProfile', importLoginProfile);
@@ -316,13 +298,13 @@ function actionImages(data: any, mode: string, category: string, validation: boo
   cy.getByFormControlName('fileCtr').click({ force: true })
   cy.get('input[type=file]').selectFile(`${data.filePath}`)
   if (!validation) {
-    cy.get('mat-error').should('not.exist')
+    cy.checkingMatErrorIsExistOrNot(false)
     cy.getByDataCy(`${cySubmitForm}`).submit()
     cy.log(`Add/update ${category} from ${data.filePath}`)
     cy.wait(2000)
     cy.get('mat-dialog-container').should('not.exist')
   } else {
-    cy.get('mat-error').should('exist')
+    cy.checkingMatErrorIsExistOrNot(true)
   }
 }
 Cypress.Commands.add('actionImages', actionImages);
@@ -339,9 +321,9 @@ function addNewConfigTemplate(configTemplate: any): void {
   cy.getByMatToolTip('Add New Config Template').click()
   cy.getByFormControlName('name').type(configTemplate.name)
   cy.getByFormControlName('description').type(configTemplate.description)
-  cy.get('mat-error').should('not.exist')
-  cy.wait(3000)
+  cy.checkingMatErrorIsExistOrNot(false)
   cy.getByDataCy('configTemplateForm').submit()
+  cy.checkingToastSuccess()
   cy.log(`END: Added new ${configTemplate.name} config`)
 }
 Cypress.Commands.add('addNewConfigTemplate', addNewConfigTemplate);
@@ -356,7 +338,6 @@ declare namespace Cypress {
 
 function editConfigTemplate(configTemplate: any, newValue: any): void {
   cy.log(`START: Edit ${configTemplate.name} Config`)
-  cy.wait(3000)
 
   cy.getByFormControlName('name').as('name').invoke('val').then(nameValue => {
     if (nameValue !== configTemplate.name) {
@@ -368,25 +349,20 @@ function editConfigTemplate(configTemplate: any, newValue: any): void {
       cy.get('@description').clear().type(configTemplate.description)
     }
   })
-
-  cy.wait(2000)
   cy.get('.ace_content').first().then((aceContentEle: any) => {
     let aceContent = JSON.parse(aceContentEle[0].textContent)
     Object.entries(newValue).forEach(([key, value]) => {
       aceContent[key] = value
     })
-    cy.wait(2000)
+    cy.wait(1000)
     cy.get('.ace_text-input').focus().clear({force: true})
-    cy.wait(2000)
+    cy.wait(1000)
     cy.get('.ace_text-input').type(JSON.stringify(aceContent, null, 2), { force: true })
   })
-  cy.get('mat-error').should('not.exist')
+  cy.checkingMatErrorIsExistOrNot(false)
   cy.getByDataCy('configTemplateForm').as('configTemplateForm').submit()
-  cy.wait(2000)
-  cy.get('.toast-warning').should('not.exist')
+  cy.checkingToastSuccess()
   cy.log(`END: Edited ${configTemplate.name} Config`)
-  cy.wait(2000)
-  cy.get('mat-dialog-container').should('not.exist')
 }
 Cypress.Commands.add('editConfigTemplate', editConfigTemplate);
 
@@ -402,7 +378,7 @@ function openPageInDevicesNav(pageName: string): void {
   cy.waitingLoadingFinish()
   cy.getByDataCy('btn-devices').click()
   cy.get('button>span').contains(pageName).click()
-  cy.wait(2000)
+  cy.waitingLoadingFinish()
 }
 Cypress.Commands.add('openPageInDevicesNav', openPageInDevicesNav);
 
@@ -470,10 +446,8 @@ function addBGPConfigTemplate(configTemplate: any, networksInvalid: any, metric:
         cy.get('@neighborAsnCtr').clear().type(BGPNeighborAsnCtrTest)
       }
     })
-
-    cy.get('mat-error').should('exist')
+    cy.checkingMatErrorIsExistOrNot(true)
     cy.getByDataCy('btn-add-bgp').should("be.disabled")
-    cy.wait(3000)
     // END
   } else if (metric) {
     const bgpConnectedMetricInvalid = metric.metric
@@ -489,10 +463,8 @@ function addBGPConfigTemplate(configTemplate: any, networksInvalid: any, metric:
     } else {
       cy.get('.cy-bgp-ospfState span input[type="checkbox"]').uncheck({ force: true })
     }
-
-    cy.get('mat-error').should('exist')
+    cy.checkingMatErrorIsExistOrNot(true)
     cy.getByDataCy('btn-add-bgp').should("be.disabled")
-    cy.wait(3000)
 
   } else {
     const ip = configTemplate.bgp[0].ip_address
@@ -550,22 +522,20 @@ function addBGPConfigTemplate(configTemplate: any, networksInvalid: any, metric:
       }
     })
 
-    cy.get('mat-error').should('not.exist')
+    cy.checkingMatErrorIsExistOrNot(false)
     cy.getByDataCy('bgpForm').as('bgpForm').submit()
-    cy.get('mat-error').should('not.exist')
+    cy.checkingMatErrorIsExistOrNot(false)
     cy.getByDataCy('configTemplateForm').as('configTemplateForm').submit()
-    cy.wait(3000)
+    cy.checkingToastSuccess()
   }
 }
 Cypress.Commands.add('addBGPConfigTemplate', addBGPConfigTemplate);
-
 
 declare namespace Cypress {
   interface Chainable<Subject = any> {
     addOspfConfigTemplate(configTemplate: any, networksInvalid: any): typeof addOspfConfigTemplate;
   }
 }
-
 
 function addOspfConfigTemplate(configTemplate: any, networksInvalid: any): void {
   cy.log(`START: Add ${configTemplate.name} Config`)
@@ -579,9 +549,8 @@ function addOspfConfigTemplate(configTemplate: any, networksInvalid: any): void 
     const ospfBGPMetricTypeValid = configTemplate.ospf[0].redistribute.bgp.metric_type
     cy.getByFormControlName('bgpMetricTypeCtr').click();
     cy.getOptionByContent(ospfBGPMetricTypeValid).click();
-    cy.get('mat-error').should('exist')
+    cy.checkingMatErrorIsExistOrNot(true)
     cy.getByDataCy('btn-add-ospf').should("be.disabled")
-    cy.wait(3000)
     // END
   } else {
     const networks = (configTemplate.ospf[0].networks).join()
@@ -623,11 +592,12 @@ function addOspfConfigTemplate(configTemplate: any, networksInvalid: any): void 
     cy.getByFormControlName('staticMetricTypeCtr').click();
     cy.getOptionByContent(ospfStaticMetricType).click();
 
-    cy.get('mat-error').should('not.exist')
+    cy.checkingMatErrorIsExistOrNot(false)
     cy.getByDataCy('ospfForm').as('ospfForm').submit()
-    cy.get('mat-error').should('not.exist')
+    cy.checkingToastSuccess()
+    cy.checkingMatErrorIsExistOrNot(false)
     cy.getByDataCy('configTemplateForm').as('configTemplateForm').submit()
-    cy.wait(3000)
+    cy.checkingToastSuccess()
   }
 }
 
@@ -641,8 +611,6 @@ declare namespace Cypress {
 
 function editOspfAndBgpConfigTemplate(configTemplate: any, newValue: any, defaultConfig: any, validation: boolean): void {
   cy.log(`START: Edit ${configTemplate.name} Config`)
-  cy.wait(3000)
-
   cy.getByFormControlName('name').as('name').invoke('val').then(nameValue => {
     if (nameValue !== configTemplate.name) {
       cy.get('@name').clear().type(configTemplate.name)
@@ -654,27 +622,19 @@ function editOspfAndBgpConfigTemplate(configTemplate: any, newValue: any, defaul
     }
   })
 
-  cy.wait(2000)
   Object.entries(newValue).forEach(([key, value]) => {
     defaultConfig[key] = value
   })
-  cy.wait(2000)
   cy.get('.ace_text-input').focus().clear({force: true})
-  cy.wait(2000)
-  cy.get('.ace_text-input').type(JSON.stringify(defaultConfig, null, 2), { force: true })
-  cy.get('mat-error').should('not.exist')
+  cy.get('.ace_text-input').type(JSON.stringify(defaultConfig, null, 2), {force: true})
+  cy.checkingMatErrorIsExistOrNot(false)
   cy.getByDataCy('configTemplateForm').as('configTemplateForm').submit()
-  cy.wait(2000)
   if (validation) {
-    cy.get('.toast-warning').should('exist')
+    cy.checkingIsToastWarningExistOrNot(true)
     cy.log(`END: Edited ${configTemplate.name} Config`)
-    cy.wait(2000)
-    cy.get('mat-dialog-container').should('exist')
   } else {
-    cy.get('.toast-warning').should('not.exist')
+    cy.checkingIsToastWarningExistOrNot(false)
     cy.log(`END: Edited ${configTemplate.name} Config`)
-    cy.wait(2000)
-    cy.get('mat-dialog-container').should('not.exist')
   }
 }
 Cypress.Commands.add('editOspfAndBgpConfigTemplate', editOspfAndBgpConfigTemplate);
@@ -711,7 +671,10 @@ declare namespace Cypress {
 }
 
 function selectRowByName(name: string): void {
-  cy.get('.ag-row').contains(name).first().click({ force: true }).type(" ");
+  cy.waitingLoadingFinish()
+  cy.get('input[type="search"]').as('searchInput').focus().type(name)
+  cy.get('.ag-row').contains(name, {timeout: 5000}).first().click({ force: true }).type(" ");
+  cy.get('@searchInput').clear({ force: true })
 }
 Cypress.Commands.add('selectRowByName', selectRowByName);
 
@@ -723,8 +686,10 @@ declare namespace Cypress {
 }
 
 function showFormEditByName(name: string): void {
-  cy.wait(2000)
+  cy.waitingLoadingFinish()
+  cy.get('input[type="search"]').as('searchInput').focus().type(name)
   cy.get('.ag-row').contains(name).first().dblclick({ force: true })
+  cy.get('@searchInput').clear({ force: true })
   cy.get('mat-dialog-container').should('exist')
   cy.getByDataCy('btn-change-mode').click()
 }
@@ -782,8 +747,7 @@ function addUpdateNewLoginProfile(loginProfile: any, mode: string): void {
       }
     })
   }
-  cy.get('mat-error').should('not.exist')
-  cy.wait(3000)
+  cy.checkingMatErrorIsExistOrNot(false)
   cy.getByDataCy('loginProfileEditForm').submit()
   cy.checkingToastSuccess()
   cy.log(`END: Add/Update ${loginProfile.name}`)
@@ -805,7 +769,7 @@ function addUpdateRole(role: any,  mode: string = 'add'): void {
       cy.get('@name').clear().type(role.name)
     }
   })
-  cy.get('mat-error').should('not.exist')
+  cy.checkingMatErrorIsExistOrNot(false)
   if (mode !== 'add') {
     cy.get('.pull-left').last().click()
     cy.getButtonByTypeAndContent('button', 'Remove').click()
@@ -815,7 +779,7 @@ function addUpdateRole(role: any,  mode: string = 'add'): void {
       cy.get('dual-list ul li label').contains(roleName).click()
     })
   }
-  cy.get('mat-error').should('not.exist')
+  cy.checkingMatErrorIsExistOrNot(false)
   cy.getButtonByTypeAndContent('button', 'Add').click()
   cy.wait(1000)
   cy.getButtonByTypeAndContent('submit', buttonContent).click()
@@ -887,8 +851,7 @@ function addUpdateUser(user: any,  mode: string = 'add'): void {
       }
     })
   }
-  cy.get('mat-error').should('not.exist')
-  cy.wait(1000)
+  cy.checkingMatErrorIsExistOrNot(false)
   cy.getButtonByTypeAndContent('submit', buttonContent).click()
   cy.checkingToastSuccess()
   cy.log(`END: Add/Update ${user.first_name} ${user.last_name}`)
@@ -904,13 +867,11 @@ declare namespace Cypress {
 
 function deleteRecordByName(name: string, matToolTipName: string, isRowSelected: boolean): void {
   cy.log(`START: Delete ${name}`)
-  cy.wait(2000)
   if (!isRowSelected) {
     cy.selectRowByName(name)
   }
   cy.getByMatToolTip(matToolTipName).click()
   cy.get('mat-dialog-container').should('exist')
-  cy.wait(2000)
   cy.getButtonByTypeAndContent('submit', 'OK').click()
   cy.checkingToastSuccess()
   cy.log(`END: Delete ${name} successfully`)
@@ -958,8 +919,9 @@ function addNewNodeOnMap(node: any, positionX: any, positionY: any, custom: bool
       cy.getByFormControlName('folderCtr').type(`${node.folder}-${nodeNameInput}`)
     })
   }
-  cy.get('mat-error').should('not.exist')
+  cy.checkingMatErrorIsExistOrNot()
   cy.getByDataCy('nodeAddForm').submit()
+  cy.checkingToastSuccess()
   cy.wait(2000)
   cy.log(`END: Added new node ${node.name} successfully`)
 }
@@ -1000,7 +962,7 @@ function addNewPortGroupOnMap(portGroup: any, positionX: any, positionY: any, cu
       })
     }
   }
-  cy.get('mat-error').should('not.exist')
+  cy.checkingMatErrorIsExistOrNot(false)
   cy.getByDataCy('pgAddForm').submit()
   cy.log(`END: Add new port group ${portGroup.name} successfully`)
   cy.wait(2000)
@@ -1038,17 +1000,18 @@ function addNewInterface(edge: any, nodeX: any, nodeY: any, pgX: any, pgY: any, 
       if (edge.ip_address) {
         cy.getByFormControlName('ipCtr').clear().type(edge.ip_address)
         if (isValidateIP) {
-          cy.get('mat-error').should('exist')
+          cy.checkingMatErrorIsExistOrNot(true)
           return;
         } else {
-          cy.get('mat-error').should('not.exist')
+          cy.checkingMatErrorIsExistOrNot(false)
         }
         cy.wait(1000)
       }
     }
-    cy.get('mat-error').should('not.exist')
+    cy.checkingMatErrorIsExistOrNot(false)
     cy.getByDataCy('interfaceAddForm').should('be.visible').submit()
     cy.get('button[matTooltip="Save"]').click()
+    cy.checkingToastSuccess()
   })
   cy.wait(2000)
   cy.log('END: Add new interface successfully')
@@ -1162,10 +1125,10 @@ function addEditDomain(domain: any, mode: string) {
       }
     })
   }
-  cy.get('mat-error').should('not.exist')
+  cy.checkingMatErrorIsExistOrNot(false)
   cy.wait(2000)
   cy.getByDataCy('domainAddForm').submit()
-  cy.get('.toast-success', {timeout: 10000}).should('exist')
+  cy.checkingToastSuccess()
   cy.log('END: Add/edit domain')
 }
 Cypress.Commands.add('addEditDomain', addEditDomain);
@@ -1184,9 +1147,10 @@ function createUsersDomain(domain: any) {
       cy.get('@numberUserCtr').clear().type(domain)
     }
   })
-  cy.get('mat-error').should('not.exist')
+  cy.checkingMatErrorIsExistOrNot(false)
   cy.wait(2000)
   cy.getByDataCy('addDomainUserForm').submit()
+  cy.checkingToastSuccess()
   cy.log('END: Create Users')
 }
 Cypress.Commands.add('createUsersDomain', createUsersDomain);
@@ -1230,9 +1194,10 @@ function addEditGroup(group: any, mode: string) {
       cy.get('@descriptionCtr').clear().type(group.description)
     }
   })
-  cy.get('mat-error').should('not.exist')
+  cy.checkingMatErrorIsExistOrNot(false)
   cy.wait(2000)
   cy.getByDataCy('groupAddForm').submit()
+  cy.checkingToastSuccess()
   cy.log('END: Add/edit group')
 }
 Cypress.Commands.add('addEditGroup', addEditGroup);
@@ -1325,9 +1290,9 @@ function addEditConnectionProfile(connectionProfile: any, mode: string): void {
       }
     })
   }
-  cy.get('mat-error').should('not.exist')
-  cy.wait(2000)
+  cy.checkingMatErrorIsExistOrNot(false)
   cy.getByDataCy('connectionForm').submit()
+  cy.checkingToastSuccess()
   cy.log(`END: Add/Update ${connectionProfile.name}`)
 
 }
@@ -1346,7 +1311,7 @@ function importJsonData(filePath: string, importType = 'Import'): void {
   cy.showFormAddByMatTooltip(importType);
   cy.get('input[type=file]').selectFile(`${filePath}`)
   cy.wait(1000)
-  cy.get('mat-error').should('not.exist')
+  cy.checkingMatErrorIsExistOrNot(false)
   cy.getButtonByTypeAndContent('submit', 'Import').click()
   cy.checkingToastSuccess()
   cy.log(`Imported JSON data from ${filePath}`)
@@ -1494,15 +1459,14 @@ function addUpdateMapPreferences (mapPreferences: any) {
       cy.get('@mapImageSizeCtr').type('{rightArrow}'.repeat((mapPreferences.scale_image - 20)))
     }
   })
-
-  cy.get('mat-error').should('not.exist')
-  cy.wait(2000)
+  cy.checkingMatErrorIsExistOrNot(false)
   cy.getByDataCy('mapPrefForm').submit()
+  cy.checkingToastSuccess()
   cy.log(`END: Add/Update new ${mapPreferences.name}`)
 }
 Cypress.Commands.add('addUpdateMapPreferences', addUpdateMapPreferences);
 
-// Waiting loading API
+// Checking toast message success
 declare namespace Cypress {
   interface Chainable<Subject = any> {
     checkingToastSuccess(): typeof checkingToastSuccess;
@@ -1513,6 +1477,35 @@ function checkingToastSuccess() {
   cy.get('.toast-success', { timeout: 12000 }).should('exist')
 }
 Cypress.Commands.add('checkingToastSuccess', checkingToastSuccess);
+
+
+// Checking toast message warning
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    checkingIsToastWarningExistOrNot(isCheckExist?: boolean): typeof checkingIsToastWarningExistOrNot;
+  }
+}
+
+function checkingIsToastWarningExistOrNot(isCheckExist: boolean = true) {
+  const condition = isCheckExist ? 'exist' : 'not.exist'
+  cy.get('.toast-warning', {timeout: 10000}).should(condition)
+}
+Cypress.Commands.add('checkingIsToastWarningExistOrNot', checkingIsToastWarningExistOrNot);
+
+
+// Checking mat-error tag
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    checkingMatErrorIsExistOrNot(isCheckExist?: boolean): typeof checkingMatErrorIsExistOrNot;
+  }
+}
+
+function checkingMatErrorIsExistOrNot(isCheckExist: boolean = false) {
+  const condition = isCheckExist ? 'exist' : 'not.exist'
+  cy.get('mat-error', {timeout: 10000}).should(condition)
+}
+Cypress.Commands.add('checkingMatErrorIsExistOrNot', checkingMatErrorIsExistOrNot);
+
 
 Cypress.on('fail', () => {
   //@ts-ignore

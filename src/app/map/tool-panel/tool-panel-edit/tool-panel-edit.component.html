@@ -152,7 +152,7 @@
     <mat-divider></mat-divider>
     <div>
       <h5>Clone selected items to new a project</h5>
-      <button mat-raised-button color="primary" [disabled]="isDisableNewFromSelected"
+      <button mat-raised-button color="primary" [disabled]="isDisableNewFromSelected" data-cy="btn-create-from-selected"
         (click)="addNewProjectFromSelected()">
         <mat-icon>add</mat-icon>
       </button>

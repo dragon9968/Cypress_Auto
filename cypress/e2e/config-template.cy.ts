@@ -1,4 +1,4 @@
-describe('Configuration Template e2e testing', () => {
+describe('Configuration Template e2e testing', {testIsolation: true},  () => {
   let admin:any = {}
   let routeConfig: any = {}
   let firewallConfig: any = {}
@@ -64,26 +64,29 @@ describe('Configuration Template e2e testing', () => {
     cy.fixture('config-template/bgp-config.json').then(
       bgpConfigData => bgpConfig = bgpConfigData
     )
+    const setup = () => {
+      cy.visit('/login')
+      cy.login("admin", "password")
+    }
+    cy.session('login', setup)
   })
 
   it('Test - Configuration Template',() => {
-    cy.login(admin.username, admin.password)
-
-    cy.waitingLoadingFinish()
+    cy.visit('/')
     cy.getByDataCy('btn-libraries').click()
     cy.get('button>span').contains('Configuration Templates').click()
-    cy.wait(3000)
+    cy.waitingLoadingFinish()
 
     cy.addNewConfigTemplate(routeConfig)
     cy.showFormEditByName(routeConfig.name)
     cy.editConfigTemplate(routeConfig, { static_routes: routeConfig.static_routes })
 
-    cy.wait(3000)
+    cy.waitingLoadingFinish()
     cy.addNewConfigTemplate(firewallConfig)
     cy.showFormEditByName(firewallConfig.name)
     cy.editConfigTemplate(firewallConfig, { firewall_rule: firewallConfig.firewall_rule })
 
-    cy.wait(3000)
+    cy.waitingLoadingFinish()
     cy.addNewConfigTemplate(domainMembershipConfig)
     cy.showFormEditByName(domainMembershipConfig.name)
     cy.editConfigTemplate(domainMembershipConfig, {
@@ -91,19 +94,20 @@ describe('Configuration Template e2e testing', () => {
       ou_path: domainMembershipConfig.ou_path
     })
 
-    cy.wait(3000)
+    cy.waitingLoadingFinish()
     cy.addNewConfigTemplate(windowRolesAndServiceConfig)
     cy.showFormEditByName(windowRolesAndServiceConfig.name)
     cy.editConfigTemplate(windowRolesAndServiceConfig, { role_services: windowRolesAndServiceConfig.role_services })
 
-    cy.wait(3000)
+    cy.waitingLoadingFinish()
     cy.selectRowByName(routeConfig.name)
     cy.selectRowByName(firewallConfig.name)
     cy.selectRowByName(domainMembershipConfig.name)
     cy.selectRowByName(windowRolesAndServiceConfig.name)
 
-    cy.wait(3000)
+    cy.waitingLoadingFinish()
     cy.getByMatToolTip('Export as JSON').click()
+    cy.checkingToastSuccess()
 
     cy.showFormEditByName(windowRolesAndServiceConfig.name)
     cy.editConfigTemplate(windowRolesAndServiceEditConfig, { role_services: windowRolesAndServiceEditConfig.role_services })
@@ -113,9 +117,10 @@ describe('Configuration Template e2e testing', () => {
   });
 
   it('Test - OSPF Configuration',() => {
-    cy.login(admin.username, admin.password)
+    cy.visit('/')
     cy.getByDataCy('btn-libraries').click()
     cy.get('button>span').contains('Configuration Templates').click()
+    cy.waitingLoadingFinish()
 
     cy.addNewConfigTemplate(ospfConfig.ospfDataEditor[0])
     cy.showFormEditByName(ospfConfig.ospfDataEditor[0].name)
@@ -154,19 +159,17 @@ describe('Configuration Template e2e testing', () => {
     cy.addOspfConfigTemplate(ospfConfig.ospfDataShowForm[0], undefined)
 
     cy.selectRowByName(ospfConfig.ospfDataShowForm[0].name)
-    cy.wait(3000)
     cy.getByMatToolTip('Export as JSON').click()
-
-    cy.wait(2000)
+    cy.waitingLoadingFinish()
     cy.deleteRecordByName(ospfConfig.ospfDataShowForm[0].name, 'Delete', true)
 
   });
 
-
   it('Test - BGP Configuration',() => {
-    cy.login(admin.username, admin.password)
+    cy.visit('/')
     cy.getByDataCy('btn-libraries').click()
     cy.get('button>span').contains('Configuration Templates').click()
+    cy.waitingLoadingFinish()
     cy.addNewConfigTemplate(bgpConfig.bgpDataEditor[0])
     cy.showFormEditByName(bgpConfig.bgpDataEditor[0].name)
 
@@ -194,12 +197,9 @@ describe('Configuration Template e2e testing', () => {
 
     cy.addBGPConfigTemplate(bgpConfig.bgpDataShowForm[0], undefined, undefined)
 
-    cy.wait(3000)
     cy.selectRowByName(bgpConfig.bgpDataShowForm[0].name)
-    cy.wait(3000)
     cy.getByMatToolTip('Export as JSON').click()
-
-    cy.wait(2000)
+    cy.checkingToastSuccess()
     cy.deleteRecordByName(bgpConfig.bgpDataShowForm[0].name, 'Delete', true)
   });
 })
