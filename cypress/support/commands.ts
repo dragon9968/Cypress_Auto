@@ -33,6 +33,7 @@ function addNewProject(project: any, isUsingDefaultNetwork = true): void {
   cy.log('Add new project')
   cy.getByFormControlName('name').focus().type(project.name).blur()
   cy.get('mat-error').should('not.exist')
+  cy.waitingLoadingFinish()
   cy.getByFormControlName('description').focus().type(project.description).blur()
   cy.getByFormControlName('category').children(`mat-radio-button[value="${project.category}"]`).click()
   cy.getByFormControlName('target').click().then(() => {

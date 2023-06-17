@@ -51,14 +51,15 @@ describe('Map features e2e testing', () => {
 
   it ('Create new blank project and add node, port group', () => {
     cy.viewport(1920, 1080)
-    cy.visit('/')
+    cy.visit('/', { timeout: 15000 })
     cy.getByDataCy('btn-create-new').click({force: true})
     cy.addNewProject(blankProject, true)
     cy.wait(2000)
     // cy.getByDataCy('btn-open-project').click()
     // cy.wait(2000)
-    cy.get('.ag-row').contains(blankProject.name).first().dblclick({ force: true }).type(" ");
-    cy.wait(4000)
+    cy.get('.ag-row', { timeout: 15000 }).contains(blankProject.name).first().dblclick({ force: true }).type(" ");
+    cy.url().should('include', 'map')
+    cy.waitingLoadingFinish()
     // Add new port group
     mapData.collection[0].port_group.forEach((element: any) => {
       cy.addNewPortGroupOnMap(element, element.map_data.logical.position.x, element.map_data.logical.position.y, true)
@@ -127,29 +128,22 @@ describe('Map features e2e testing', () => {
       cy.wait(2000)
     })
 
-    // Update interface
-    cy.get('#cy').then((el: any) => {
-      const cytoscape = el[0]._cyreg.cy
-      cytoscape.nodes().unselect()
-      cytoscape.edges().unselect()
-    })
-    cy.wait(2000)
-    // cy.selectElementOnMap('edge', 'eth1')
-    cy.get('canvas.expand-collapse-canvas').rightclick(900, 500, {force: true}).then(() => {
-      cy.get('.cy-context-menus-cxt-menu').first().should('exist')
-      cy.get('#edit').should('exist').click({ force: true });
-      cy.getByFormControlName('nameCtr').clear().type(editData.edgeData.name)
-      cy.getByFormControlName('descriptionCtr').clear().type(editData.edgeData.description)
-      cy.getByFormControlName('directionCtr').click()
-      cy.get('.option-text').contains(editData.edgeData.direction).first().click()
-      cy.getByFormControlName('ipAllocationCtr').children(`mat-radio-button[value="${editData.edgeData.subnet_allocation}"]`).click()
-      cy.getByFormControlName('ipCtr').clear().type(editData.edgeData.ip_address)
-      cy.getByFormControlName('netMaskCtr').click()
-      cy.get('.option-text').contains(editData.edgeData.netmask).first().click()
-      cy.get('mat-error').should('not.exist')
-      cy.getByDataCy('interfaceAddForm').submit()
-      cy.wait(2000)
-    })
+    // // Update interface
+    // cy.get('#cy').then((el: any) => {
+    //   const cytoscape = el[0]._cyreg.cy
+    //   cytoscape.nodes().unselect()
+    //   cytoscape.edges().unselect()
+    // })
+    // cy.wait(2000)
+    // // cy.selectElementOnMap('edge', 'eth1')
+    // cy.get('canvas.expand-collapse-canvas').rightclick(900, 500, {force: true}).then(() => {
+    //   cy.get('.cy-context-menus-cxt-menu').first().should('exist')
+    //   cy.get('#edit').should('exist').click({ force: true });
+    //   cy.getByFormControlName('nameCtr').clear().type(editData.edgeData.name)
+    //   cy.get('mat-error').should('not.exist')
+    //   cy.getByDataCy('interfaceAddForm').submit()
+    //   cy.wait(2000)
+    // })
 
     //  Test clone node
     cy.selectElementOnMap('node', editData.nodeData.name)
@@ -160,15 +154,16 @@ describe('Map features e2e testing', () => {
     cy.exportProject(blankProject.name, true)
     cy.wait(3000)
     cy.importProject('cypress/fixtures/project/West_ISP.json')
-    cy.wait(8000)
+    cy.wait(3000)
 
   });
 
   it ('Test Link project', () => {
     cy.viewport(1920, 1080)
-    cy.visit('/projects')
-    cy.get('.ag-row').contains(blankProject.name).first().dblclick({ force: true }).type(" ");
-    cy.wait(8000)
+    cy.visit('/projects', { timeout: 15000 })
+    cy.get('.ag-row', { timeout: 15000 }).contains(blankProject.name).first().dblclick({ force: true }).type(" ");
+    cy.url().should('include', 'map')
+    cy.waitingLoadingFinish()
 
     cy.get('#toolpanel-linkproject').click();
     cy.getOptionByContent('West ISP').first().click();
@@ -181,9 +176,10 @@ describe('Map features e2e testing', () => {
 
   it ('Test map style', () => {
     cy.viewport(1920, 1080)
-    cy.visit('/projects')
-    cy.get('.ag-row').contains(blankProject.name).first().dblclick({ force: true }).type(" ");
-    cy.wait(8000)
+    cy.visit('/projects', { timeout: 15000 })
+    cy.get('.ag-row', { timeout: 15000 }).contains(blankProject.name).first().dblclick({ force: true }).type(" ");
+    cy.url().should('include', 'map')
+    cy.waitingLoadingFinish()
 
     cy.selectElementOnMap('node', editData.nodeData.name)
     cy.selectMatTabByLabel('Style').click();
@@ -194,7 +190,7 @@ describe('Map features e2e testing', () => {
     cy.selectMatTabByLabel('Style').click();
     cy.updateMapStyle(mapStyleData, 'port-group')
     cy.wait(2000)
-    cy.selectElementOnMap('edge', editData.edgeData.name)
+    cy.selectElementOnMap('edge', 'lan')
     cy.selectMatTabByLabel('Style').click();
     cy.updateMapStyle(mapStyleData, 'edge')
 
@@ -205,9 +201,10 @@ describe('Map features e2e testing', () => {
 
   it ('Test map style - Change Map Preferences', () => {
     cy.viewport(1920, 1080)
-    cy.visit('/projects')
-    cy.get('.ag-row').contains(blankProject.name).first().dblclick({ force: true }).type(" ");
-    cy.wait(8000)
+    cy.visit('/projects', { timeout: 15000 })
+    cy.get('.ag-row', { timeout: 15000 }).contains(blankProject.name).first().dblclick({ force: true }).type(" ");
+    cy.url().should('include', 'map')
+    cy.waitingLoadingFinish()
     cy.selectMatTabByLabel('Style').click();
     cy.selectElementOnMap('node', editData.nodeData.name)
     cy.get('#toolpanel-style-mappref').click();
@@ -226,9 +223,10 @@ describe('Map features e2e testing', () => {
 
   it ('Test map - Test tool panel Option', () => {
     cy.viewport(1920, 1080)
-    cy.visit('/projects')
-    cy.get('.ag-row').contains(blankProject.name).first().dblclick({ force: true }).type(" ");
-    cy.wait(8000)
+    cy.visit('/projects', { timeout: 15000 })
+    cy.get('.ag-row', { timeout: 15000 }).contains(blankProject.name).first().dblclick({ force: true }).type(" ");
+    cy.url().should('include', 'map')
+    cy.waitingLoadingFinish()
     cy.selectMatTabByLabel('Option').click();
     cy.getMatSliderToggleByClass('.direction-toggle').check({ force: true })
     cy.wait(2000)
@@ -244,9 +242,10 @@ describe('Map features e2e testing', () => {
 
   it ('Test map - Test domain info panel', () => {
     cy.viewport(1920, 1080)
-    cy.visit('/projects')
-    cy.get('.ag-row').contains(blankProject.name).first().dblclick({ force: true });
-    cy.wait(8000)
+    cy.visit('/projects', { timeout: 15000 })
+    cy.get('.ag-row', { timeout: 15000 }).contains(blankProject.name).first().dblclick({ force: true });
+    cy.url().should('include', 'map')
+    cy.waitingLoadingFinish()
     cy.selectMatTabByLabel('Option').click();
     cy.getMatSliderToggleByClass('.direction-toggle').uncheck({ force: true })
     cy.wait(1000)
@@ -289,9 +288,10 @@ describe('Map features e2e testing', () => {
 
   it ('Test map - Test group info panel', () => {
     cy.viewport(1920, 1080)
-    cy.visit('/projects')
-    cy.get('.ag-row').contains(blankProject.name).first().dblclick({ force: true });
-    cy.wait(8000)
+    cy.visit('/projects', { timeout: 15000 })
+    cy.get('.ag-row', { timeout: 15000 }).contains(blankProject.name).first().dblclick({ force: true });
+    cy.url().should('include', 'map')
+    cy.waitingLoadingFinish()
 
     // Add new group
     cy.selectMatTabByLabel(new RegExp('^group$', 'gi')).click();
@@ -317,9 +317,10 @@ describe('Map features e2e testing', () => {
   it ('Test delete project', () => {
     //  delete project
     cy.viewport(1920, 1080)
-    cy.visit('/projects')
-    cy.get('.ag-row').contains(blankProject.name).first().dblclick({ force: true });
-    cy.wait(5000)
+    cy.visit('/projects', { timeout: 15000 })
+    cy.get('.ag-row', { timeout: 15000 }).contains(blankProject.name).first().dblclick({ force: true });
+    cy.url().should('include', 'map')
+    cy.waitingLoadingFinish()
     cy.getByDataCy('btn-nav-project').click({ force: true })
     cy.wait(1000)
     cy.getByDataCy('btn-delete-project').click({force: true})

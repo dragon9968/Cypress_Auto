@@ -540,65 +540,6 @@
                             },
                             "locked": false,
                             "position": {
-                                "x": 700,
-                                "y": 200
-                            },
-                            "parent_id": null
-                        }
-                    },
-                    "id": 38,
-                    "name": "mikroTik-device",
-                    "category": "vm",
-                    "notes": "",
-                    "parent_folder": "East ISP",
-                    "folder": "east",
-                    "domain_id": 3,
-                    "role": "router",
-                    "icon_id": 16,
-                    "configuration": {
-                        "hostname": "mikroTik-device"
-                    },
-                    "default_config_id": 24,
-                    "login_profile_id": null,
-                    "created_by_fk": 1,
-                    "changed_by_fk": 1,
-                    "domain": "east.test",
-                    "interface": [],
-                    "groups": [
-                        "east.test"
-                    ],
-                    "configs": [],
-                    "template": "mikrotik_5.26_licensed-template",
-                    "icon": "Router (Black)",
-                    "device": "MikroTik",
-                    "template_name": "MikroTik 5.26 Licensed",
-                    "device_name": "MikroTik"
-                },
-                {
-                    "created_on": "2023-04-06T06:16:12.945974",
-                    "changed_on": "2023-04-20T21:39:10.131671",
-                    "deploy_data": {
-                        "test_uuid": {
-                            "uuid": "test_value"
-                        }
-                    },
-                    "map_data": {
-                        "logical": {
-                            "map_style": {
-                                "height": "70px",
-                                "width": "70px",
-                                "text_size": "25px",
-                                "text_color": "rgb(0,0,0)",
-                                "text_bg_color": "rgb(0,0,0)",
-                                "text_bg_opacity": "0",
-                                "text_valign": "bottom",
-                                "text_halign": "center",
-                                "text-wrap": "wrap",
-                                "background-image": "/static/img/uploads/76fc3d2c-b78b-11ed-8f73-0242c0a80b04_sep_win_server_black.png",
-                                "background-fit": "contain"
-                            },
-                            "locked": false,
-                            "position": {
                                 "x": 500,
                                 "y": 200
                             },

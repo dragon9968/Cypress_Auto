@@ -350,7 +350,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   private _updateInterfaceOnEle(ele: any, new_interface: any) {
     ele.data('interfaces').forEach((item: any, index: number, array: any) => {
       if (item.id == new_interface.id) {
-        array[index] = new_interface;
+        [...array[index]] = new_interface;
       }
     });
   }

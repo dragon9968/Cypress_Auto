@@ -71,7 +71,7 @@
   <section class="tab-section">
     <h4>Images</h4>
     <div>
-      <form [formGroup]="mapImageForm" (ngSubmit)="addImage()" autocomplete="off">
+      <form [formGroup]="mapImageForm" data-cy="mapImageForm" (ngSubmit)="addImage()" autocomplete="off">
         <mat-form-field class="inline-select-field">
           <mat-label>Image</mat-label>
           <input autocomplete="off" id="toolpanel-image" matInput type="text" placeholder="Select Image"
@@ -123,7 +123,7 @@
     </div>
 
     <h4>Template</h4>
-    <form [formGroup]="addTemplateForm" (ngSubmit)="addTemplate()" autocomplete="off">
+    <form [formGroup]="addTemplateForm" data-cy="addTemplateForm" (ngSubmit)="addTemplate()" autocomplete="off">
       <mat-form-field class="tab-select-field">
         <mat-label>Template</mat-label>
         <input autocomplete="off" id="toolpanel-add-template" matInput placeholder="Select a template"
