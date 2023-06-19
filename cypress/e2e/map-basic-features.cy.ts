@@ -2,16 +2,19 @@ describe('Map features e2e testing', () => {
   let mapData: any = {};
   let mapStyleData: any = {};
   let editData: any = {};
+  let project: any = {};
+  let blankProject:any = {}
+  const random = (Math.random() + 1).toString(36).substring(5);
 
-  const blankProject = {
-    name: "Test map - East ISP",
-    description: "East cluster representing part of the grayspace",
-    category: "project",
-    target: "VMWare vCenter",
-    option: "blank",
-    vlan_min: 2000,
-    vlan_max: 2100
-  }
+  // const blankProject = {
+  //   name: "Test map - East ISP",
+  //   description: "East cluster representing part of the grayspace",
+  //   category: "project",
+  //   target: "VMWare vCenter",
+  //   option: "blank",
+  //   vlan_min: 2000,
+  //   vlan_max: 2100
+  // }
 
   const domainData = {
     name: 'Test new domain',
@@ -45,6 +48,15 @@ describe('Map features e2e testing', () => {
     })
     cy.fixture('map/node-pg-edge.data.json').then(data => {
       editData = data
+    })
+    cy.fixture('project/new-project.json').then(projectData => {
+      project = projectData
+      project.name = "Test map - East ISP"
+      project.description = "East cluster representing part of the grayspace"
+      project.name += ` (${random})`
+      blankProject = JSON.parse(JSON.stringify(project))
+      blankProject.option = 'blank'
+      blankProject.name =  blankProject.name + ' blank'
     })
     cy.session('login', setup)
   })

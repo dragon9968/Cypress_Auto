@@ -68,6 +68,7 @@ export class ContextMenuService implements OnDestroy {
     contextMenu.showMenuItem('delete');
     contextMenu.showMenuItem('lock_node');
     contextMenu.showMenuItem('unlock_node');
+    contextMenu.hideMenuItem('group');
     if (activeMapLinksLength == 1) {
       contextMenu.showMenuItem('link_project');
       contextMenu.showMenuItem('view_details');
