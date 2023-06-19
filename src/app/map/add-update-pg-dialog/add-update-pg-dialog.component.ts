@@ -209,7 +209,8 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
       subnet: this.subnetCtr?.value,
       project_id: this.data.genData.project_id,
       logical_map: {
-        position: ele.position(),
+        ...ele.data('logical_map'),
+        position: ele.position()
       }
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);

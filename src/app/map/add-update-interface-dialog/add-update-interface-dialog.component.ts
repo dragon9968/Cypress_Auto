@@ -374,6 +374,9 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         ...this.data.genData,
         ...jsonData,
       }
+      if (!Boolean(data.logical_map)) {
+        data.logical_map = {}
+      }
       data.logical_map.position = this.data.newNodePosition;
       data.logical_map.map_style = (this.data.mode == 'connect') ? {
         "width": this.data.selectedMapPref.edge_width,
@@ -383,8 +386,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         "text_halign": this.data.selectedMapPref.text_halign,
         "text_valign": this.data.selectedMapPref.text_valign,
         "text_bg_color": this.data.selectedMapPref.text_bg_color,
-        "text_bg_opacity": this.data.selectedMapPref.text_bg_opacity,
-        
+        "text_bg_opacity": this.data.selectedMapPref.text_bg_opacity
       } : undefined;
       if (data.category == 'management') {
         const newInterfacesManagement = this.infoPanelService.getNewInterfacesManagement([data]);
