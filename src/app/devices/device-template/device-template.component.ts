@@ -18,8 +18,8 @@ import { retrievedDevices } from 'src/app/store/device/device.actions';
 import { selectDevices } from 'src/app/store/device/device.selectors';
 import { retrievedIcons } from 'src/app/store/icon/icon.actions';
 import { retrievedLoginProfiles } from 'src/app/store/login-profile/login-profile.actions';
-import { retrievedTemplates } from 'src/app/store/template/template.actions';
-import { selectTemplates } from 'src/app/store/template/template.selectors';
+import { retrievedTemplates, retrievedTemplatesByDevice } from 'src/app/store/template/template.actions';
+import { selectTemplates, selectTemplatesByDevice } from 'src/app/store/template/template.selectors';
 import { AddEditDeviceDialogComponent } from './add-edit-device-dialog/add-edit-device-dialog.component';
 import { AddEditTemplateDialogComponent } from './add-edit-template-dialog/add-edit-template-dialog.component';
 import { selectIsDeviceChange } from "../../store/device-change/device-change.selectors";
@@ -176,12 +176,12 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
         this.updateRowDevice();
       }
     });
-    this.selectTemplates$ = this.store.select(selectTemplates).subscribe((templateData: any) => {
-      if (templateData) {
+    this.selectTemplates$ = this.store.select(selectTemplatesByDevice).subscribe((templatesByDeviceData: any) => {
+      if (templatesByDeviceData) {
         if (this.agGrid2) {
-          this.agGrid2.api.setRowData(templateData);
+          this.agGrid2.api.setRowData(templatesByDeviceData);
         } else {
-          this.rowDataTemplate$ = of(templateData);
+          this.rowDataTemplate$ = of(templatesByDeviceData);
         }
         this.updateRowDeviceTemplate();
       }
@@ -231,11 +231,11 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
       this.isDisableTemplate = false;
       this.deviceId = this.id[0].id;
       this.templateService.getAll().subscribe((data: any)  => {
-        let template = data.result.filter((val: any) => val.device_id === this.deviceId)
-        this.store.dispatch(retrievedTemplates({ data: template }))
+        const filteredTemplatesByDevice = data.result.filter((val: any) => val.device_id === this.deviceId)
+        this.store.dispatch(retrievedTemplatesByDevice({ templatesByDevice: filteredTemplatesByDevice }))
       })
     } else {
-      this.store.dispatch(retrievedTemplates({ data: null }));
+      this.store.dispatch(retrievedTemplatesByDevice({ templatesByDevice: null }));
       this.isDisableTemplate = true;
     }
   }
