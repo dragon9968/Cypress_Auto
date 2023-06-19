@@ -11,5 +11,7 @@
   "domain_id": 1,
   "hostname": "linux-client-4",
   "is_customize_node": true,
-  "logical_map_position": {"x": 300, "y": 300}
+  "logical_map": {
+    "position": {"x": 300, "y": 300}
+  }
 }

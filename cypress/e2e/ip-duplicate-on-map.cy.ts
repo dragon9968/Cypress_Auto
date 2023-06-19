@@ -18,17 +18,17 @@ describe('Test duplicate IPs in a port group on map', () => {
     })
     cy.fixture('map/node.json').then(nodeData => {
       node = nodeData
-      nodeX = node.logical_map_position.x
-      nodeY = node.logical_map_position.y
+      nodeX = node.logical_map.position.x
+      nodeY = node.logical_map.position.y
       nodeX2 = nodeX
       nodeY2 = nodeY - 200
       node2 = JSON.parse(JSON.stringify(node))
-      node2.logical_map_position.y = nodeY2
+      node2.logical_map.position.y = nodeY2
     })
     cy.fixture('map/port_group.json').then(portGroupData => {
       portGroup = portGroupData
-      pgX = portGroup.logical_map_position.x
-      pgY = portGroup.logical_map_position.y
+      pgX = portGroup.logical_map.position.x
+      pgY = portGroup.logical_map.position.y
     })
 
     cy.fixture('project/new-project.json').then(projectData => {
@@ -49,13 +49,13 @@ describe('Test duplicate IPs in a port group on map', () => {
     cy.get('ag-grid-angular').contains(project.name).dblclick()
 
     // Add new node 1
-    cy.addNewNodeOnMap(node, node.logical_map_position.x, node.logical_map_position.y, false)
+    cy.addNewNodeOnMap(node, node.logical_map.position.x, node.logical_map.position.y, false)
 
     // Add new node 2
-    cy.addNewNodeOnMap(node2, node2.logical_map_position.x, node2.logical_map_position.y, false)
+    cy.addNewNodeOnMap(node2, node2.logical_map.position.x, node2.logical_map.position.y, false)
 
     // Add new port group
-    cy.addNewPortGroupOnMap(portGroup, portGroup.logical_map_position.x, portGroup.logical_map_position.y, false)
+    cy.addNewPortGroupOnMap(portGroup, portGroup.logical_map.position.x, portGroup.logical_map.position.y, false)
 
     const edgeData = {
       ip_allocation: 'static_manual',

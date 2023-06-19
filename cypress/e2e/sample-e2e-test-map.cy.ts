@@ -19,13 +19,13 @@ describe('Testing for the login', () => {
     })
     cy.fixture('map/node.json').then(nodeData => {
       node = nodeData
-      nodeX = node.logical_map_position.x
-      nodeY = node.logical_map_position.y
+      nodeX = node.logical_map.position.x
+      nodeY = node.logical_map.position.y
     })
     cy.fixture('map/port_group.json').then(portGroupData => {
       portGroup = portGroupData
-      pgX = portGroup.logical_map_position.x
-      pgY = portGroup.logical_map_position.y
+      pgX = portGroup.logical_map.position.x
+      pgY = portGroup.logical_map.position.y
     })
   })
 

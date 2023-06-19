@@ -137,17 +137,19 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
       subnet_allocation: this.subnetAllocationCtr?.value,
       subnet: this.subnetCtr?.value,
       project_id: this.data.projectId,
-      logical_map_position: this.data.newNodePosition,
-      logical_map_style: (this.data.mode == 'add') ? {
-        "height": this.data.selectedMapPref.port_group_size,
-        "width": this.data.selectedMapPref.port_group_size,
-        "color": this.data.selectedMapPref.port_group_color,
-        "text_size": this.data.selectedMapPref.text_size,
-        "text_color": this.data.selectedMapPref.text_color,
-        "text_halign": this.data.selectedMapPref.text_halign,
-        "text_valign": this.data.selectedMapPref.text_valign,
-        "text_bg_color": this.data.selectedMapPref.text_bg_color,
-        "text_bg_opacity": this.data.selectedMapPref.text_bg_opacity,
+      logical_map: (this.data.mode == 'add') ? {
+        map_style: {
+          "height": this.data.selectedMapPref.port_group_size,
+          "width": this.data.selectedMapPref.port_group_size,
+          "color": this.data.selectedMapPref.port_group_color,
+          "text_size": this.data.selectedMapPref.text_size,
+          "text_color": this.data.selectedMapPref.text_color,
+          "text_halign": this.data.selectedMapPref.text_halign,
+          "text_valign": this.data.selectedMapPref.text_valign,
+          "text_bg_color": this.data.selectedMapPref.text_bg_color,
+          "text_bg_opacity": this.data.selectedMapPref.text_bg_opacity,
+        },
+        position: this.data.newNodePosition
       } : undefined,
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
@@ -181,11 +183,11 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
           cyData.id = 'pg-' + respData.id;
           cyData.pg_id = respData.id;
           cyData.domain = this.domainCtr?.value.name;
-          cyData.height = cyData.logical_map_style.height;
-          cyData.width = cyData.logical_map_style.width;
-          cyData.text_color = cyData.logical_map_style.text_color;
-          cyData.text_size = cyData.logical_map_style.text_size;
-          cyData.color = cyData.logical_map_style.color;
+          cyData.height = cyData.logical_map.map_style.height;
+          cyData.width = cyData.logical_map.map_style.width;
+          cyData.text_color = cyData.logical_map.map_style.text_color;
+          cyData.text_size = cyData.logical_map.map_style.text_size;
+          cyData.color = cyData.logical_map.map_style.color;
           this.helpers.addCYNode(this.data.cy, { newNodeData: { ...this.data.newNodeData, ...cyData }, newNodePosition: this.data.newNodePosition });
           cyData.groups = portGroup.groups;
           this.helpers.reloadGroupBoxes(this.data.cy);
@@ -206,7 +208,9 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
       subnet_allocation: this.subnetAllocationCtr?.value,
       subnet: this.subnetCtr?.value,
       project_id: this.data.genData.project_id,
-      logical_map_position: ele.position(),
+      logical_map: {
+        position: ele.position(),
+      }
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.portGroupService.put(this.data.genData.pg_id, jsonData).pipe(

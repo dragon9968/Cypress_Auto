@@ -195,10 +195,10 @@ export class CMActionsService {
           const cyData = nodeData.result;
           cyData.id = 'node-' + id;
           cyData.node_id = id;
-          cyData.height = cyData.logical_map_style.height;
-          cyData.width = cyData.logical_map_style.width;
-          cyData.text_color = cyData.logical_map_style.text_color;
-          cyData.text_size = cyData.logical_map_style.text_size;
+          cyData.height = cyData.logical_map.map_style.height;
+          cyData.width = cyData.logical_map.map_style.width;
+          cyData.text_color = cyData.logical_map.map_style.text_color;
+          cyData.text_size = cyData.logical_map.map_style.text_size;
           cyData.elem_category = "node";
           cyData.device_category = deviceCategory
           cyData.configs = configs
@@ -209,7 +209,7 @@ export class CMActionsService {
           cyData['background-opacity'] = 0;
           cyData.shape = "roundrectangle";
           cyData['text-opacity'] = 1;
-          this.helpers.addCYNode(cy, { newNodeData: cyData, newNodePosition: cyData.logical_map_position });
+          this.helpers.addCYNode(cy, { newNodeData: cyData, newNodePosition: cyData.logical_map.position });
           this.helpers.reloadGroupBoxes(cy);
           // Draw interface related to Nodes
           this.interfaceService.getByNode(id).subscribe((respData: any) => {
@@ -223,7 +223,7 @@ export class CMActionsService {
                 cyData.id = id;
                 cyData.interface_pk = id;
                 cyData.ip_last_octet = last_octet;
-                const logicalMapStyle = cyData.logical_map_style;
+                const logicalMapStyle = cyData.logical_map.map_style;
                 cyData.width = logicalMapStyle.width;
                 cyData.text_color = logicalMapStyle.text_color;
                 cyData.text_size = logicalMapStyle.text_size;

@@ -8,8 +8,7 @@ export interface PortGroupAddModel {
   subnet_allocation: string,
   subnet: string,
   project_id: number,
-  logical_map_position: any,
-  logical_map_style: any
+  logical_map: any
 }
 
 export interface PortGroupPutModel {
@@ -20,7 +19,7 @@ export interface PortGroupPutModel {
   subnet_allocation?: string,
   subnet?: string,
   project_id?: number,
-  logical_map_position?: any
+  logical_map?: any
 }
 
 export interface PortGroupValidateModel {

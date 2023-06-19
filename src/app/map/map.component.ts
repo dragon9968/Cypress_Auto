@@ -1155,20 +1155,22 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       domain_id: genData.domain_id,
       hostname: genData.hostname,
       project_id: this.projectId,
-      logical_map_position: newNodePosition,
-      logical_map_style: {
-        "height": this.selectedMapPref.node_size,
-        "width": this.selectedMapPref.node_size,
-        "text_size": this.selectedMapPref.text_size,
-        "text_color": this.selectedMapPref.text_color,
-        "text_halign": this.selectedMapPref.text_halign,
-        "text_valign": this.selectedMapPref.text_valign,
-        "text_bg_color": this.selectedMapPref.text_bg_color,
-        "text_bg_opacity": this.selectedMapPref.text_bg_opacity,
-        "background-color": "rgb(255,255,255)",
-        "background-image": "",
-        "background-fit": "contain"
-      },
+      logical_map: {
+        "map_style": {
+          "height": this.selectedMapPref.node_size,
+          "width": this.selectedMapPref.node_size,
+          "text_size": this.selectedMapPref.text_size,
+          "text_color": this.selectedMapPref.text_color,
+          "text_halign": this.selectedMapPref.text_halign,
+          "text_valign": this.selectedMapPref.text_valign,
+          "text_bg_color": this.selectedMapPref.text_bg_color,
+          "text_bg_opacity": this.selectedMapPref.text_bg_opacity,
+          "background-color": "rgb(255,255,255)",
+          "background-image": "",
+          "background-fit": "contain"
+        }, 
+        "position": newNodePosition
+      }
     };
     this.nodeService.add(jsonData).pipe(
       catchError((resp: any) => {
@@ -1188,10 +1190,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         cyData.node_id = respData.id;
         cyData.domain = respData.result.domain.name;
         cyData.device_category = genData.device_category;
-        cyData.height = cyData.logical_map_style.height;
-        cyData.width = cyData.logical_map_style.width;
-        cyData.text_color = cyData.logical_map_style.text_color;
-        cyData.text_size = cyData.logical_map_style.text_size;
+        cyData.height = cyData.logical_map.map_style.height;
+        cyData.width = cyData.logical_map.map_style.width;
+        cyData.text_color = cyData.logical_map.map_style.text_color;
+        cyData.text_size = cyData.logical_map.map_style.text_size;
         cyData.groups = respData.result.groups;
         cyData.icon = ICON_PATH + respData.result.icon.photo;
         this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
@@ -1231,18 +1233,20 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       subnet_allocation: genData.subnet_allocation,
       subnet: genData.subnet,
       project_id: Number(this.projectId),
-      logical_map_position: newNodePosition,
-      logical_map_style: {
-        "height": this.selectedMapPref.port_group_size,
-        "width": this.selectedMapPref.port_group_size,
-        "color": this.selectedMapPref.port_group_color,
-        "text_size": this.selectedMapPref.text_size,
-        "text_color": this.selectedMapPref.text_color,
-        "text_halign": this.selectedMapPref.text_halign,
-        "text_valign": this.selectedMapPref.text_valign,
-        "text_bg_color": this.selectedMapPref.text_bg_color,
-        "text_bg_opacity": this.selectedMapPref.text_bg_opacity,
-      },
+      logical_map: {
+        "map_style": {
+          "height": this.selectedMapPref.port_group_size,
+          "width": this.selectedMapPref.port_group_size,
+          "color": this.selectedMapPref.port_group_color,
+          "text_size": this.selectedMapPref.text_size,
+          "text_color": this.selectedMapPref.text_color,
+          "text_halign": this.selectedMapPref.text_halign,
+          "text_valign": this.selectedMapPref.text_valign,
+          "text_bg_color": this.selectedMapPref.text_bg_color,
+          "text_bg_opacity": this.selectedMapPref.text_bg_opacity,
+        },
+        "position": newNodePosition
+      }
     };
     this.portgroupService.add(jsonData).subscribe((respData: any) => {
       this.portgroupService.get(respData.id).subscribe(respData => {
@@ -1250,11 +1254,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         cyData.id = 'pg-' + respData.id;
         cyData.pg_id = respData.id;
         cyData.domain = respData.result.domain.name;
-        cyData.height = cyData.logical_map_style.height;
-        cyData.width = cyData.logical_map_style.width;
-        cyData.text_color = cyData.logical_map_style.text_color;
-        cyData.text_size = cyData.logical_map_style.text_size;
-        cyData.color = cyData.logical_map_style.color;
+        cyData.height = cyData.logical_map.map_style.height;
+        cyData.width = cyData.logical_map.map_style.width;
+        cyData.text_color = cyData.logical_map.map_style.text_color;
+        cyData.text_size = cyData.logical_map.map_style.text_size;
+        cyData.color = cyData.logical_map.map_style.color;
         cyData.groups = respData.result.groups;
         this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
         this.helpersService.reloadGroupBoxes(this.cy);
@@ -1315,16 +1319,18 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       is_nat: genData.is_nat,
       map_link_id: nodeData.map_link_id,
       netmask_id: genData.netmask_id,
-      logical_map_style: {
-        'width': '4',
-        'color': '#000000',
-        'text_size': '25',
-        'text_color': '#000000',
-        'text_halign': 'center',
-        'text_valign': 'bottom',
-        'text_bg_color': '#000000',
-        'text_bg_opacity': 0,
-        'line-style': 'dotted'
+      logical_map: {
+        "map_style": {
+          'width': '4',
+          'color': '#000000',
+          'text_size': '25',
+          'text_color': '#000000',
+          'text_halign': 'center',
+          'text_valign': 'bottom',
+          'text_bg_color': '#000000',
+          'text_bg_opacity': 0,
+          'line-style': 'dotted'
+        }
       }
     }
     this.interfaceService.add(jsonData).pipe(
@@ -1346,10 +1352,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       cyData.id = id;
       cyData.interface_pk = id;
       cyData.ip_last_octet = last_octet;
-      cyData.width = cyData.logical_map_style.width;
-      cyData.text_color = cyData.logical_map_style.text_color;
-      cyData.text_size = cyData.logical_map_style.text_size;
-      cyData.color = cyData.logical_map_style.color;
+      cyData.width = cyData.logical_map.map_style.width;
+      cyData.text_color = cyData.logical_map.map_style.text_color;
+      cyData.text_size = cyData.logical_map.map_style.text_size;
+      cyData.color = cyData.logical_map.map_style.color;
       this.helpersService.addCYEdge(this.cy, { ...newEdgeData, ...cyData });
       const edge = this.cy.getElementById(cyData.id);
       edge.style('line-style', 'dotted');
@@ -1684,22 +1690,24 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         name: linkProject.name,
         linked_project_id: linkProjectId,
         project_id: projectId,
-        logical_map_position: newNodePosition,
-        logical_map_style: {
-          height: '70',
-          width: '70',
-          text_size: '25',
-          text_color: '#000000',
-          text_halign: 'center',
-          text_valign: 'bottom',
-          text_bg_color: '#000000',
-          text_bg_opacity: 0,
-          'background-color': 'rgb(255,255,255)',
-          'background-image': '',
-          'background-fit': 'contain',
-          collapsed: true
+        logical_map: {
+          map_style: {
+            height: '70',
+            width: '70',
+            text_size: '25',
+            text_color: '#000000',
+            text_halign: 'center',
+            text_valign: 'bottom',
+            text_bg_color: '#000000',
+            text_bg_opacity: 0,
+            'background-color': 'rgb(255,255,255)',
+            'background-image': '',
+            'background-fit': 'contain',
+            collapsed: true
+          },
+          locked: false,
+          position: newNodePosition,
         },
-        logical_map_locked: false
       };
       this.mapLinkService.add(jsonData).pipe(
         catchError((resp: any) => {
@@ -1720,11 +1728,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         const mapLinkData = response.result;
         mapLinkData.id = 'project-link-' + response.id;
         mapLinkData.map_link_id = response.id;
-        mapLinkData.collapsed = mapLinkData.logical_map_style.collapsed;
-        mapLinkData.height = mapLinkData.logical_map_style.height;
-        mapLinkData.width = mapLinkData.logical_map_style.width;
-        mapLinkData.text_color = mapLinkData.logical_map_style.text_color;
-        mapLinkData.text_size = mapLinkData.logical_map_style.text_size;
+        mapLinkData.collapsed = mapLinkData.logical_map.map_style.collapsed;
+        mapLinkData.height = mapLinkData.logical_map.map_style.height;
+        mapLinkData.width = mapLinkData.logical_map.map_style.width;
+        mapLinkData.text_color = mapLinkData.logical_map.map_style.text_color;
+        mapLinkData.text_size = mapLinkData.logical_map.map_style.text_size;
         mapLinkData.icon = environment.apiBaseUrl + '/static/img/icons/default_icon.png';
         const newNodeData = {
           'elem_category': 'map_link',
@@ -1779,25 +1787,27 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       name: this.helpersService.createUUID(),
       project_id: projectId,
       image_id: this.mapImage.id,
-      logical_map_position: newNodePosition,
-      logical_map_locked: false,
-      logical_map_style: {
-        height: height !== 0 ? height : 100,
-        width: width !== 0 ? width : 100,
-        text_size: '25',
-        text_color: '#000000',
-        text_halign: 'center',
-        text_valign: 'bottom',
-        text_bg_color: '#000000',
-        src: url,
-        zIndex: 998,
-        text_bg_opacity: 0,
-        label: "map_background",
-        elem_category: "bg_image",
-        'background-fit': 'contain',
-        "scale_image": 100,
-        original_width: width !== 0 ? width : 100,
-        original_height: height !== 0 ? height : 100,
+      logical_map: {
+        map_style: {
+          height: height !== 0 ? height : 100,
+          width: width !== 0 ? width : 100,
+          text_size: '25',
+          text_color: '#000000',
+          text_halign: 'center',
+          text_valign: 'bottom',
+          text_bg_color: '#000000',
+          src: url,
+          zIndex: 998,
+          text_bg_opacity: 0,
+          label: "map_background",
+          elem_category: "bg_image",
+          'background-fit': 'contain',
+          "scale_image": 100,
+          original_width: width !== 0 ? width : 100,
+          original_height: height !== 0 ? height : 100,
+        },
+        locked: false,
+        position: newNodePosition,
       }
     }
     this.mapImageService.add(jsonData).pipe(
@@ -1820,10 +1830,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         cyData.id = 'map_image-' + respData.id;
         cyData.map_image_id = respData.id;
         cyData.collapsed = true;
-        cyData.height = cyData.logical_map_style.height;
-        cyData.width = cyData.logical_map_style.width;
-        cyData.text_color = cyData.logical_map_style.text_color;
-        cyData.text_size = cyData.logical_map_style.text_size;
+        cyData.height = cyData.logical_map.map_style.height;
+        cyData.width = cyData.logical_map.map_style.width;
+        cyData.text_color = cyData.logical_map.map_style.text_color;
+        cyData.text_size = cyData.logical_map.map_style.text_size;
         const newNodeData = {
           "label": "map_background",
           "elem_category": "bg_image",

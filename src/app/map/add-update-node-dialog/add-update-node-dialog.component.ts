@@ -538,19 +538,21 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       hostname: this.hostnameCtr?.value,
       login_profile_id: this.loginProfileCtr?.value.id,
       project_id: this.data.projectId,
-      logical_map_position: this.data.newNodePosition,
-      logical_map_style: (this.data.mode == 'add') ? {
-        "height": this.data.selectedMapPref.node_size,
-        "width": this.data.selectedMapPref.node_size,
-        "text_size": this.data.selectedMapPref.text_size,
-        "text_color": this.data.selectedMapPref.text_color,
-        "text_halign": this.data.selectedMapPref.text_halign,
-        "text_valign": this.data.selectedMapPref.text_valign,
-        "text_bg_color": this.data.selectedMapPref.text_bg_color,
-        "text_bg_opacity": this.data.selectedMapPref.text_bg_opacity,
-        "background-color": "rgb(255,255,255)",
-        "background-image": "",
-        "background-fit": "contain"
+      logical_map: (this.data.mode == 'add') ? {
+        map_style: {
+          height: this.data.selectedMapPref.node_size,
+          width: this.data.selectedMapPref.node_size,
+          text_size: this.data.selectedMapPref.text_size,
+          text_color: this.data.selectedMapPref.text_color,
+          text_halign: this.data.selectedMapPref.text_halign,
+          text_valign: this.data.selectedMapPref.text_valign,
+          text_bg_color: this.data.selectedMapPref.text_bg_color,
+          text_bg_opacity: this.data.selectedMapPref.text_bg_opacity,
+          "background-color": "rgb(255,255,255)",
+          "background-image": "",
+          "background-fit": "contain"
+        },
+        position: this.data.newNodePosition
       } : undefined,
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
@@ -567,14 +569,14 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
         cyData.node_id = respData.id;
         cyData.domain = this.domainCtr?.value.name;
         cyData.device_category = this.data.genData.device_category;
-        cyData.height = cyData.logical_map_style.height;
-        cyData.width = cyData.logical_map_style.width;
-        cyData.text_color = cyData.logical_map_style.text_color;
-        cyData.text_size = cyData.logical_map_style.text_size;
-        cyData.text_bg_color = cyData.logical_map_style.text_bg_color;
-        cyData.text_bg_opacity = cyData.logical_map_style.text_bg_opacity;
-        cyData.text_valign = cyData.logical_map_style.text_valign;
-        cyData.text_halign = cyData.logical_map_style.text_halign;
+        cyData.height = cyData.logical_map.map_style.height;
+        cyData.width = cyData.logical_map.map_style.width;
+        cyData.text_color = cyData.logical_map.map_style.text_color;
+        cyData.text_size = cyData.logical_map.map_style.text_size;
+        cyData.text_bg_color = cyData.logical_map.map_style.text_bg_color;
+        cyData.text_bg_opacity = cyData.logical_map.map_style.text_bg_opacity;
+        cyData.text_valign = cyData.logical_map.map_style.text_valign;
+        cyData.text_halign = cyData.logical_map.map_style.text_halign;
         cyData.groups = respData.result.groups;
         cyData.icon = ICON_PATH + respData.result.icon.photo;
         this.helpers.addCYNode(this.data.cy, { newNodeData: { ...this.data.newNodeData, ...cyData }, newNodePosition: this.data.newNodePosition });
@@ -614,7 +616,9 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       hostname: this.hostnameCtr?.value,
       login_profile_id: this.loginProfileCtr?.value.id ? this.loginProfileCtr?.value.id : null,
       project_id: this.data.genData.project_id,
-      logical_map_position: ele.position(),
+      logical_map: {
+        position: ele.position(),
+      }
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.nodeService.put(this.data.genData.node_id, jsonData).pipe(

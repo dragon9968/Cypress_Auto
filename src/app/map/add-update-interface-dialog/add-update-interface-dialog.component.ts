@@ -220,16 +220,17 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       is_nat: this.isNatCtr?.value,
       node_id: this.data.genData.node_id,
       netmask_id: this.netMaskCtr?.value.id,
-      logical_map_position: this.data.newNodePosition,
-      logical_map_style: (this.data.mode == 'add') ? {
-        "width": this.data.selectedMapPref.edge_width,
-        "color": this.data.selectedMapPref.edge_color,
-        "text_size": this.data.selectedMapPref.text_size,
-        "text_color": this.data.selectedMapPref.text_color,
-        "text_halign": this.data.selectedMapPref.text_halign,
-        "text_valign": this.data.selectedMapPref.text_valign,
-        "text_bg_color": this.data.selectedMapPref.text_bg_color,
-        "text_bg_opacity": this.data.selectedMapPref.text_bg_opacity,
+      logical_map: (this.data.mode == 'add') ? {
+        "map_style": {
+          "width": this.data.selectedMapPref.edge_width,
+          "color": this.data.selectedMapPref.edge_color,
+          "text_size": this.data.selectedMapPref.text_size,
+          "text_color": this.data.selectedMapPref.text_color,
+          "text_halign": this.data.selectedMapPref.text_halign,
+          "text_valign": this.data.selectedMapPref.text_valign,
+          "text_bg_color": this.data.selectedMapPref.text_bg_color,
+          "text_bg_opacity": this.data.selectedMapPref.text_bg_opacity
+        }
       } : undefined,
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
@@ -265,10 +266,10 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         cyData.id = id;
         cyData.interface_pk = id;
         cyData.ip_last_octet = last_octet
-        cyData.width = cyData.logical_map_style.width;
-        cyData.text_color = cyData.logical_map_style.text_color;
-        cyData.text_size = cyData.logical_map_style.text_size;
-        cyData.color = cyData.logical_map_style.color;
+        cyData.width = cyData.logical_map.map_style.width;
+        cyData.text_color = cyData.logical_map.map_style.text_color;
+        cyData.text_size = cyData.logical_map.map_style.text_size;
+        cyData.color = cyData.logical_map.map_style.color;
         cyData.node = nodeName;
         cyData.netmask = mask;
         this.portGroupService.get(portGroupId).subscribe(response => {
@@ -380,8 +381,8 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         ...this.data.genData,
         ...jsonData,
       }
-      data.logical_map_position = this.data.newNodePosition;
-      data.logical_map_style = (this.data.mode == 'connect') ? {
+      data.logical_map.position = this.data.newNodePosition;
+      data.logical_map.map_style = (this.data.mode == 'connect') ? {
         "width": this.data.selectedMapPref.edge_width,
         "color": this.data.selectedMapPref.edge_color,
         "text_size": this.data.selectedMapPref.text_size,
@@ -390,6 +391,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         "text_valign": this.data.selectedMapPref.text_valign,
         "text_bg_color": this.data.selectedMapPref.text_bg_color,
         "text_bg_opacity": this.data.selectedMapPref.text_bg_opacity,
+        
       } : undefined;
       if (data.category == 'management') {
         const newInterfacesManagement = this.infoPanelService.getNewInterfacesManagement([data]);
@@ -405,10 +407,10 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         cyData.id = id;
         cyData.interface_pk = id;
         cyData.ip_last_octet = last_octet
-        cyData.width = cyData.logical_map_style.width;
-        cyData.text_color = cyData.logical_map_style.text_color;
-        cyData.text_size = cyData.logical_map_style.text_size;
-        cyData.color = cyData.logical_map_style.color;
+        cyData.width = cyData.logical_map.map_style.width;
+        cyData.text_color = cyData.logical_map.map_style.text_color;
+        cyData.text_size = cyData.logical_map.map_style.text_size;
+        cyData.color = cyData.logical_map.map_style.color;
         this.helpers.addCYEdge(this.data.cy, { ...newEdgeData, ...cyData });
         this._showOrHideArrowDirectionOnEdge(cyData.id)
         this.store.dispatch(retrievedMapSelection({ data: true }));
