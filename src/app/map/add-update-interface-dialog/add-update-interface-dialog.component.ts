@@ -333,11 +333,11 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         const node = this.data.cy.getElementById(`node-${data.node_id}`);
         const pg = this.data.cy.getElementById(`pg-${data.port_group_id}`);
         const netmaskName = this.helpers.getOptionById(this.netmasks, data.netmask_id).name
-        this._updateInterfaceOnEle(node, {
+        this.helpers.updateInterfaceOnEle(node, {
           id: this.data.genData.interface_pk,
           value: `${data.name} - ${data.ip + netmaskName}`
         });
-        this._updateInterfaceOnEle(pg, {
+        this.helpers.updateInterfaceOnEle(pg, {
           id: this.data.genData.interface_pk,
           value: `${data.node} - ${data.name} - ${data.ip + netmaskName}`
         });
@@ -348,14 +348,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     });
   }
 
-  private _updateInterfaceOnEle(ele: any, new_interface: any) {
-    ele.data('interfaces').forEach((item: any, index: number, array: any) => {
-      console.log(new_interface);
-      if (item.id == new_interface.id) {
-        array[index] = new_interface;
-      }
-    });
-  }
+  
 
   connectInterfaceToPG() {
     const jsonDataValue = {

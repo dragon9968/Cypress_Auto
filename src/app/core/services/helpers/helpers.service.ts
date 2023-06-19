@@ -28,6 +28,7 @@ import { CONFIG_TEMPLATE_ADDS_TYPE } from "../../../shared/contants/config-templ
 import { selectGroups } from 'src/app/store/group/group.selectors';
 import { retrievedGroups } from 'src/app/store/group/group.actions';
 import { isIPv4 } from 'is-ip';
+import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
 
 @Injectable({
   providedIn: 'root'
@@ -37,12 +38,14 @@ export class HelpersService implements OnDestroy {
   selectGroupBoxes$ = new Subscription();
   selectNodes$ = new Subscription();
   selectGroups$ = new Subscription();
+  selectNetmasks$ = new Subscription();
   nodes: any[] = [];
   groupCategoryId!: string;
   errorMessages = ErrorMessages;
   isGroupBoxesChecked!: boolean;
   isEdgeDirectionChecked!: boolean;
   groupBoxes!: any[];
+  netmasks!: any[];
   groups!: any[];
   lastWidth = 0;
   lastHeight = 0;
@@ -82,6 +85,9 @@ export class HelpersService implements OnDestroy {
       this.groups = groupData;
     })
     this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes);
+    this.selectNetmasks$ = this.store.select(selectNetmasks).subscribe((netmasks: any) => {
+      this.netmasks = netmasks;
+    });
   }
 
   ngOnDestroy(): void {
@@ -585,12 +591,27 @@ export class HelpersService implements OnDestroy {
     }
   }
 
+  updateInterfaceOnEle(ele: any, new_interface: any) {
+    ele.data('interfaces').forEach((item: any, index: number, array: any) => {
+      console.log(new_interface);
+      if (item.id == new_interface.id) {
+        array[index] = new_interface;
+      }
+    });
+  }
+
   updateNodePGInInterfaceOnMap(cy: any, type: string, elementId: number) {
     const idPrefix = type !== 'node' ? 'pg' : 'node'
     const element = cy.getElementById(`${idPrefix}-${elementId}`)
     const edgesConnectedElement = element.connectedEdges()
     edgesConnectedElement.map((edge: any) => {
-      edge.data(type, element.data('name'))
+      edge.data(type, element.data('name'));
+      const pg = cy.getElementById(`pg-${edge.data('port_group_id')}`);
+        const netmaskName = this.getOptionById(this.netmasks, edge.data('netmask_id')).name
+        this.updateInterfaceOnEle(pg, {
+          id: edge.data('id'),
+          value: `${element.data('name')} - ${edge.data('ip') + netmaskName}`
+        });
     })
   }
 
