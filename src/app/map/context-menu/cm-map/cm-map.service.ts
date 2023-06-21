@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
+import { ToastrService } from 'ngx-toastr';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { retrievedMapContextMenu } from 'src/app/store/map-context-menu/map-context-menu.actions';
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
@@ -12,6 +13,7 @@ export class CMMapService {
   constructor(
     private store: Store,
     private helpersService: HelpersService,
+    private toastr: ToastrService,
   ) { }
 
   getSaveChangesMenu(isCanWriteOnProject: boolean) {
@@ -85,6 +87,7 @@ export class CMMapService {
             this.helpersService.addBadge(cy, ele);
           }
         });
+        this.toastr.success("Locked all nodes");
       },
       hasTrailingDivider: false,
       disabled: false,
@@ -110,6 +113,7 @@ export class CMMapService {
             this.helpersService.removeBadge(ele);
           }
         });
+        this.toastr.success("Unlocked all nodes");
       },
       hasTrailingDivider: false,
       disabled: false,

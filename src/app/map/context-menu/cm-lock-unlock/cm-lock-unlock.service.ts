@@ -19,6 +19,7 @@ export class CMLockUnlockService {
       selector: "node",
       onClickFunction: (event: any) => {
         this.lockNodes(cy, activeNodes, activePGs, activeMBs, activeMapLinks);
+        this.toastr.success("Locked the nodes");
       },
       hasTrailingDivider: false,
       disabled: false,
@@ -32,6 +33,7 @@ export class CMLockUnlockService {
       selector: "node",
       onClickFunction: (event: any) => {
         this.unlockNodes(activeNodes, activePGs, activeMBs, activeMapLinks);
+        this.toastr.success("Unlocked the nodes");
       },
       hasTrailingDivider: true,
       disabled: false,
@@ -40,9 +42,6 @@ export class CMLockUnlockService {
 
   lockNodes(cy: any, activeNodes: any[], activePGs: any[], activeMBs: any[], activeMapLinks: any[]) {
     activeNodes.concat(activePGs, activeMBs, activeMapLinks).forEach((ele: any) => {
-      if (ele.locked()) {
-        this.toastr.warning('Already locked');
-      }
       ele.data('locked', true);
       ele.lock();
       const d = ele.data();
@@ -57,9 +56,6 @@ export class CMLockUnlockService {
 
   unlockNodes(activeNodes: any[], activePGs: any[], activeMBs: any[], activeMapLinks: any[]) {
     activeNodes.concat(activePGs, activeMBs, activeMapLinks).forEach((ele: any) => {
-      if (!(ele.locked())) {
-        this.toastr.warning('Already Unlocked');
-      }
       ele.data('locked', false);
       ele.unlock();
       const d = ele.data();
