@@ -592,12 +592,13 @@ export class HelpersService implements OnDestroy {
   }
 
   updateInterfaceOnEle(ele: any, new_interface: any) {
-    ele.data('interfaces').forEach((item: any, index: number, array: any) => {
-      console.log(new_interface);
+    let interfacesArr = [...ele.data('interfaces')]
+    interfacesArr.forEach((item: any, index: number, array: any) => {
       if (item.id == new_interface.id) {
         array[index] = new_interface;
       }
     });
+    ele.data('interfaces', interfacesArr);
   }
 
   updateNodePGInInterfaceOnMap(cy: any, type: string, elementId: number) {

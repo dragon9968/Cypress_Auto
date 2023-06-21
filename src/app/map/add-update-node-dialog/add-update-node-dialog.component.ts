@@ -616,9 +616,9 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       hostname: this.hostnameCtr?.value,
       login_profile_id: this.loginProfileCtr?.value.id ? this.loginProfileCtr?.value.id : null,
       project_id: this.data.genData.project_id,
-      logical_map: {
-        position: ele.position(),
-      }
+      // logical_map: {
+      //   position: ele.position(),
+      // }
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.nodeService.put(this.data.genData.node_id, jsonData).pipe(
