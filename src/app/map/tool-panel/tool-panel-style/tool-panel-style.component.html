@@ -113,7 +113,7 @@
     </div>
     <div class="tab-field direction">
         <label class="control-label">Type</label>
-        <mat-button-toggle-group class="button-group" (change)="setGBType($event)">
+        <mat-button-toggle-group class="button-group" (change)="setGBType($event)" [(ngModel)]="gbBorderTypeActivated">
             <mat-button-toggle value="solid"><mat-icon>horizontal_rule</mat-icon></mat-button-toggle>
             <mat-button-toggle value="dotted"><mat-icon>more_horiz</mat-icon></mat-button-toggle>
             <mat-button-toggle value="dashed"><mat-icon svgIcon="dashed"></mat-icon></mat-button-toggle>
