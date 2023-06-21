@@ -1168,7 +1168,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           "background-color": "rgb(255,255,255)",
           "background-image": "",
           "background-fit": "contain"
-        }, 
+        },
         "position": newNodePosition
       }
     };
@@ -1862,11 +1862,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         domain_id: data.domain_id,
       }).subscribe(resp => {
         this.portgroupService.get(data.pg_id).subscribe(resp => {
-          this.activePGs[0]?.data('groups', resp.result.groups);
+          const pgEle = this.cy.getElementById(`pg-${data.pg_id}`)
+          pgEle.data('groups', resp.result.groups);
           this.toastr.success('Groups updated!');
           this.groupService.getGroupByProjectId(this.projectId).subscribe(
             groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
           );
+          this.helpersService.reloadGroupBoxes(this.cy)
         });
       });
     } else if (data.elem_category === 'node') {
@@ -1874,11 +1876,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         domain_id: data.domain_id,
       }).subscribe(resp => {
         this.nodeService.get(data.node_id).subscribe(resp => {
-          this.activeNodes[0]?.data('groups', resp.result.groups);
+          const nodeEle = this.cy.getElementById(`node-${data.node_id}`)
+          nodeEle.data('groups', resp.result.groups);
           this.toastr.success('Groups updated!');
           this.groupService.getGroupByProjectId(this.projectId).subscribe(
             groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
           );
+          this.helpersService.reloadGroupBoxes(this.cy)
         });
       });
     }

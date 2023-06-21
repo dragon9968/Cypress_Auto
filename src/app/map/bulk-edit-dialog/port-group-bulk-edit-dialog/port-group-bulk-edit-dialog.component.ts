@@ -14,6 +14,9 @@ import { selectDomains } from "../../../store/domain/domain.selectors";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { retrievedPortGroupsManagement } from "../../../store/portgroup/portgroup.actions";
 import { PortGroupEditBulkModel } from "../../../core/models/port-group.model";
+import { retrievedGroups } from "../../../store/group/group.actions";
+import { GroupService } from "../../../core/services/group/group.service";
+import { ProjectService } from "../../../project/services/project.service";
 
 @Component({
   selector: 'app-port-group-bulk-edit-dialog',
@@ -36,7 +39,10 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
     public dialogRef: MatDialogRef<PortGroupBulkEditDialogComponent>,
     public helpers: HelpersService,
     private portGroupService: PortGroupService,
-    private infoPanelService: InfoPanelService
+    private infoPanelService: InfoPanelService,
+    private groupService: GroupService,
+    private projectService: ProjectService
+
   ) {
     this.portGroupBulkEdit = new FormGroup({
       domainCtr: new FormControl(''),
@@ -96,6 +102,11 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
       }
       const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.portGroupService.editBulk(jsonData).subscribe((response: any) => {
+        if (domainId) {
+          this.groupService.getGroupByProjectId(this.projectService.getProjectId()).subscribe(
+            groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
+          );
+        }
         return forkJoin(this.data.genData.activeEles.map((pg: any) => {
           return this.portGroupService.get(pg.pg_id).pipe(map(pgData => {
             const portGroup = pgData.result;

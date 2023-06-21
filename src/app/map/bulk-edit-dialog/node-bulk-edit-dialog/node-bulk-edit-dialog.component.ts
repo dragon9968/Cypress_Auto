@@ -20,6 +20,8 @@ import { selectLoginProfiles } from "../../../store/login-profile/login-profile.
 import { selectConfigTemplates } from "../../../store/config-template/config-template.selectors";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
+import { retrievedGroups } from "../../../store/group/group.actions";
+import { GroupService } from "../../../core/services/group/group.service";
 
 @Component({
   selector: 'app-node-bulk-edit-dialog',
@@ -62,7 +64,8 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
     public dialogRef: MatDialogRef<NodeBulkEditDialogComponent>,
     public helpers: HelpersService,
     private nodeService: NodeService,
-    private projectService: ProjectService
+    private projectService: ProjectService,
+    private groupService: GroupService
   ) {
     this.nodeBulkEditForm = new FormGroup({
       iconCtr: new FormControl(''),
@@ -180,6 +183,11 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
       }
       const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.nodeService.editBulk(jsonData).subscribe(response => {
+        if (domainId) {
+          this.groupService.getGroupByProjectId(this.projectId).subscribe(
+            groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
+          );
+        }
         return forkJoin(this.data.genData.activeEles.map((node: any) => {
           if (configId) {
             const configData = {
