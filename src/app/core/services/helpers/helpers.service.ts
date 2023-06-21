@@ -592,13 +592,28 @@ export class HelpersService implements OnDestroy {
   }
 
   updateInterfaceOnEle(ele: any, new_interface: any) {
-    let interfacesArr = [...ele.data('interfaces')]
-    interfacesArr.forEach((item: any, index: number, array: any) => {
-      if (item.id == new_interface.id) {
-        array[index] = new_interface;
-      }
-    });
-    ele.data('interfaces', interfacesArr);
+    const interfaces = ele.data('interfaces')
+    if (interfaces) {
+      let interfacesArr = [...interfaces]
+      interfacesArr.forEach((item: any, index: number, array: any) => {
+        if (item.id == new_interface.id) {
+          array[index] = new_interface;
+        }
+      });
+      ele.data('interfaces', interfacesArr);
+    } else {
+      ele.data('interfaces', [new_interface]);
+    }
+  }
+
+  removeInterfaceOnPG(cy: any, pgId: number, interfaceId: number) {
+    const pgEle = cy.getElementById(`pg-${pgId}`)
+    const interfaces = pgEle.data('interfaces')
+    const index = interfaces.findIndex((i: any) => i.id === interfaceId)
+    if (index !== -1 ) {
+      interfaces.splice(index, 1)
+    }
+    pgEle.data('interfaces', interfaces)
   }
 
   updateNodePGInInterfaceOnMap(cy: any, type: string, elementId: number) {

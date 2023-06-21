@@ -19,7 +19,7 @@
         </mat-option>
       </mat-autocomplete>
     </mat-form-field>
-    <mat-error *ngIf="interfaceCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    <mat-error *ngIf="interfaceCtr?.errors?.required && interfaceCtr?.touched">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     <mat-error *ngIf="interfaceCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
   </mat-dialog-content>
   <mat-dialog-actions [align]="'end'">

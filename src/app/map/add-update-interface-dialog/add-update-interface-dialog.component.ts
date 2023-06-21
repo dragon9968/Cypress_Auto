@@ -319,6 +319,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         return throwError(() => err);
       })
     ).subscribe((respData: any) => {
+      const pgIdOld = this.data.genData.port_group_id
       const data = {
         ...this.data.genData,
         ...jsonData,
@@ -341,6 +342,9 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
           id: this.data.genData.interface_pk,
           value: `${data.node} - ${data.name} - ${data.ip + netmaskName}`
         });
+        if (data.port_group_id !== pgIdOld) {
+          this.helpers.removeInterfaceOnPG(this.data.cy, pgIdOld, this.data.genData.interface_pk)
+        }
         this.store.dispatch(retrievedMapSelection({ data: true }));
       }
       this.dialogRef.close();
@@ -348,7 +352,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     });
   }
 
-  
+
 
   connectInterfaceToPG() {
     const jsonDataValue = {

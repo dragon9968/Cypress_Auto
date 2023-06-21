@@ -21,7 +21,7 @@ export class ConnectInterfaceToPgDialogComponent implements OnInit, OnDestroy {
   connectInterfaceToPGForm: FormGroup;
   errorMessages = ErrorMessages;
   interfacesNotConnectPG: any[] = [];
-  selectInterfacesNotConnectPG = new Subscription();
+  selectInterfacesNotConnectPG$ = new Subscription();
   filteredInterfaces!: Observable<any[]>;
   nodeId = 0;
   constructor(
@@ -37,9 +37,10 @@ export class ConnectInterfaceToPgDialogComponent implements OnInit, OnDestroy {
       interfaceCtr: new FormControl('')
     })
     this.nodeId = this.data.nodeId;
-    this.selectInterfacesNotConnectPG = this.store.select(selectInterfacesNotConnectPG).subscribe(interfaces => {
+    this.selectInterfacesNotConnectPG$ = this.store.select(selectInterfacesNotConnectPG).subscribe(interfaces => {
       if (interfaces) {
         this.interfacesNotConnectPG = interfaces;
+        this.filteredInterfaces = this.helpersService.filterOptions(this.interfaceCtr, this.interfacesNotConnectPG);
       }
     })
   }
@@ -47,12 +48,13 @@ export class ConnectInterfaceToPgDialogComponent implements OnInit, OnDestroy {
   get interfaceCtr() { return this.helpersService.getAutoCompleteCtr(this.connectInterfaceToPGForm.get('interfaceCtr'), this.interfacesNotConnectPG) }
 
   ngOnInit(): void {
-    this.interfaceCtr.setValidators([Validators.required, autoCompleteValidator(this.interfacesNotConnectPG)]);
-    this.filteredInterfaces = this.helpersService.filterOptions(this.interfaceCtr, this.interfacesNotConnectPG);
+    this.helpersService.setAutoCompleteValue(this.interfaceCtr, this.interfacesNotConnectPG, this.interfacesNotConnectPG[0]?.id);
+    this.interfaceCtr?.setValue(this.interfacesNotConnectPG[0])
+    this.interfaceCtr?.setValidators([Validators.required, autoCompleteValidator(this.interfacesNotConnectPG)]);
   }
 
   ngOnDestroy(): void {
-    this.selectInterfacesNotConnectPG.unsubscribe();
+    this.selectInterfacesNotConnectPG$.unsubscribe();
   }
 
   connectToPortGroup() {
