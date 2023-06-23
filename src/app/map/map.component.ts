@@ -1215,7 +1215,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       newNodeData,
       newNodePosition,
     }
-    const dialogRef = this.dialog.open(AddUpdatePGDialogComponent, { disableClose: true, width: '600px', data: dialogData });
+    const dialogRef = this.dialog.open(AddUpdatePGDialogComponent, {
+      disableClose: true,
+      width: '600px',
+      data: dialogData,
+      panelClass: 'custom-node-form-modal'
+    });
     dialogRef.afterClosed().subscribe((_data: any) => {
       if (this.isAddPublicPG) this.isAddPublicPG = false;
       if (this.isAddPrivatePG) this.isAddPrivatePG = false;

@@ -96,22 +96,6 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
         field: 'domain',
         minWidth: 100,
         flex: 1,
-      },
-      {
-        field: 'interfaces',
-        minWidth: 300,
-        flex: 1,
-        cellRenderer: (param: any) => {
-          let html_str = "<ul>";
-          param.value?.forEach((i: any) => {
-            const item_html = `<li>${i.value}</li>`
-            html_str += item_html
-          });
-          html_str += "</ul>"
-          return html_str != '<ul></ul>' ? html_str : '';
-        },
-        cellClass: 'row-interface',
-        autoHeight: true
       }
     ]
   };
@@ -122,7 +106,13 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
       genData: row.data,
       cy: this.cy
     }
-    this.dialog.open(AddUpdatePGDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
+    this.dialog.open(AddUpdatePGDialogComponent, {
+      disableClose: true,
+      width: '800px',
+      autoFocus: false,
+      data: dialogData,
+      panelClass: 'custom-node-form-modal'
+    });
   }
 
   constructor(

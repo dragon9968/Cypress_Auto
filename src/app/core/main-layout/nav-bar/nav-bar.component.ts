@@ -14,7 +14,7 @@ import { AuthService } from '../../services/auth/auth.service';
 import { selectIsOpen, selectProjectCategory, selectProjectName } from 'src/app/store/project/project.selectors';
 import {
   retrievedAllProjects,
-  retrievedIsOpen,
+  retrievedIsOpen, retrievedProjectCategory,
   retrievedProjectName,
   retrievedProjects,
   retrievedVMStatus
@@ -121,6 +121,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
             this.router.navigate([RouteSegments.PROJECTS]);
           } else {
             this.store.dispatch(retrievedProjectName({ projectName: projectData.result.name }));
+            this.store.dispatch(retrievedProjectCategory({ projectCategory: projectData.result.category }))
           }
         });
       }

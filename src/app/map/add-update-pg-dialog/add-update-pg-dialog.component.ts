@@ -3,7 +3,7 @@ import { ToastrService } from 'ngx-toastr';
 import { MatRadioChange } from '@angular/material/radio';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { catchError, Observable, Subscription, throwError } from 'rxjs';
+import { catchError, Observable, of, Subscription, throwError } from 'rxjs';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
@@ -16,6 +16,9 @@ import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection
 import { selectPortGroupsManagement } from "../../store/portgroup/portgroup.selectors";
 import { retrievedPortGroupsManagement } from "../../store/portgroup/portgroup.actions";
 import { PortGroupAddModel, PortGroupGetRandomModel, PortGroupPutModel } from "../../core/models/port-group.model";
+import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
+import { InterfaceService } from "../../core/services/interface/interface.service";
+import { selectNodesByProjectId } from "../../store/node/node.selectors";
 
 @Component({
   selector: 'app-add-update-pg-dialog',
@@ -23,17 +26,72 @@ import { PortGroupAddModel, PortGroupGetRandomModel, PortGroupPutModel } from ".
   styleUrls: ['./add-update-pg-dialog.component.scss']
 })
 export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
+  private gridApi!: GridApi;
   pgAddForm: FormGroup;
   errorMessages = ErrorMessages;
   selectDomains$ = new Subscription();
+  selectNodes$ = new Subscription()
   selectPortGroupsManagement$ = new Subscription();
   portGroupsManagement: any[] = [];
+  nodes: any[] = [];
   domains!: any[];
   isViewMode = false;
   tabName = '';
   errors: any[] = [];
   filteredDomains!: Observable<any[]>;
-
+  rowData$!: Observable<any[]>;
+  public gridOptions: GridOptions = {
+    headerHeight: 48,
+    defaultColDef: {
+      sortable: true,
+      resizable: true,
+      singleClickEdit: true,
+      filter: true
+    },
+    rowSelection: 'multiple',
+    suppressRowDeselection: true,
+    suppressCellFocus: true,
+    enableCellTextSelection: true,
+    pagination: true,
+    paginationPageSize: 25,
+    suppressRowClickSelection: true,
+    animateRows: true,
+    rowData: [],
+    columnDefs: [
+      {
+        field: 'id',
+        hide: true
+      },
+      {
+        field: 'name',
+        headerName: 'Name',
+        maxWidth: 100,
+        flex: 1,
+      },
+      {
+        field: 'ip',
+        headerName: 'IP Address',
+        minWidth: 120,
+        flex: 1,
+      },
+      {
+        field: 'port_group.subnet',
+        headerName: 'Subnet',
+        minWidth: 150,
+        flex: 1,
+      },
+      {
+        field: 'node_name',
+        headerName: 'Node',
+        minWidth: 150,
+        flex: 1,
+      },
+      {
+        field: 'description',
+        flex: 1,
+      }
+    ]
+  };
   constructor(
     private store: Store,
     private toastr: ToastrService,
@@ -42,6 +100,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
     public helpers: HelpersService,
     private portGroupService: PortGroupService,
     private infoPanelService: InfoPanelService,
+    private interfaceService: InterfaceService,
   ) {
     this.pgAddForm = new FormGroup({
       nameCtr: new FormControl('', Validators.required),
@@ -69,6 +128,25 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
     )
     this.isViewMode = this.data.mode == 'view';
     this.tabName = this.data.tabName;
+    this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes)
+    if (this.isViewMode) {
+      this.interfaceService.getByPortGroup(this.data.genData.pg_id).subscribe(response => {
+        const interfaceData = response.result;
+        const interfaceDataWithNode = interfaceData.map((edge: any) => {
+          edge['node_name'] = this.nodes.find((node: any) => node.id == edge.node_id)?.name
+          return edge
+        })
+        if (this.gridApi) {
+          this.gridApi.setRowData(interfaceDataWithNode);
+        } else {
+          this.rowData$ = of(interfaceDataWithNode);
+        }
+      })
+    }
+  }
+
+  onGridReady(params: GridReadyEvent) {
+    this.gridApi = params.api;
   }
 
   get nameCtr() { return this.pgAddForm.get('nameCtr'); }

@@ -47,7 +47,13 @@ export class CMViewDetailsService {
         genData: activePGs[0].data(),
         cy
       }
-      this.dialog.open(AddUpdatePGDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
+      this.dialog.open(AddUpdatePGDialogComponent, {
+        disableClose: true,
+        width: '800px',
+        autoFocus: false,
+        data: dialogData,
+        panelClass: 'custom-node-form-modal'
+      });
     } else if (activeNodesLength == 1 && activePGsLength == 0 && activeEdgesLength == 0) {
       const dialogData = {
         mode: 'view',

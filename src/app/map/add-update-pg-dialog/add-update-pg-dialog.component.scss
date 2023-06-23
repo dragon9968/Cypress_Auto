@@ -44,3 +44,39 @@ $margin: 8px;
 .mat-option {
     height: 35px;
 }
+
+.pg-title {
+  margin-bottom: 0;
+}
+
+.title {
+  font: 500 15px/0px Roboto, "Helvetica Neue", sans-serif;
+  letter-spacing: normal;
+}
+
+.pg-area {
+  max-height: 85vh;
+}
+
+.info-area {
+  border-radius: 4px;
+  margin-top: $margin;
+  padding: $margin;
+  background-color: #fff;
+}
+
+.interfaces-area {
+  background-color: #fff;
+}
+
+.interfaces {
+  width: 100%;
+  position: relative;
+  bottom: 0;
+  &__table ag-grid-angular {
+    text-align: center;
+    .ag-header-cell-label {
+      justify-content: center;
+    }
+  }
+}

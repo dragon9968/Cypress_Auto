@@ -130,7 +130,13 @@ export class InfoPanelTableComponent {
         { disableClose: true, width: '1000px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
       );
     } else if (tabName == 'portgroup' || this.tabName == 'portGroupManagement') {
-      this.dialog.open(AddUpdatePGDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
+      this.dialog.open(AddUpdatePGDialogComponent, {
+        disableClose: true,
+        width: '600px',
+        autoFocus: false,
+        data: dialogData,
+        panelClass: 'custom-node-form-modal'
+      });
     } else if (tabName == 'edge' || tabName == 'edgeManagement') {
       this.dialog.open(AddUpdateInterfaceDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
     }

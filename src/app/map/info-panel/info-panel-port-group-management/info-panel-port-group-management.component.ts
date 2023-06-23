@@ -120,7 +120,13 @@ export class InfoPanelPortGroupManagementComponent implements OnInit, OnDestroy 
       cy: this.cy,
       tabName: this.tabName
     }
-    this.dialog.open(AddUpdatePGDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
+    this.dialog.open(AddUpdatePGDialogComponent, {
+      disableClose: true,
+      width: '800px',
+      autoFocus: false,
+      data: dialogData,
+      panelClass: 'custom-node-form-modal'
+    });
   }
 
   constructor(
