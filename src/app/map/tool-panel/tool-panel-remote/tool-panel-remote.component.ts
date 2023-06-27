@@ -33,6 +33,7 @@ import { CreateNodeSnapshotDialogComponent } from "../../deployment-dialog/deplo
 import { DeleteNodeSnapshotDialogComponent } from "../../deployment-dialog/deployment-node-dialog/delete-node-snapshot-dialog/delete-node-snapshot-dialog.component";
 import { RevertNodeSnapshotDialogComponent } from "../../deployment-dialog/deployment-node-dialog/revert-node-snapshot-dialog/revert-node-snapshot-dialog.component";
 import { AddUpdateNodeDeployDialogComponent } from "../../deployment-dialog/deployment-node-dialog/add-update-node-deploy-dialog/add-update-node-deploy-dialog.component";
+import { TaskService } from "../../../core/services/task/task.service";
 
 
 @Component({
@@ -94,7 +95,8 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
     private cmRemoteService: CMRemoteService,
     private infoPanelService: InfoPanelService,
     private serverConnectionService: ServerConnectService,
-    private searchService: SearchService
+    private searchService: SearchService,
+    private taskService: TaskService
   ) {
     this.projectId = this.projectService.getProjectId();
     this.selectIsHypervisorConnect$ = this.store.select(selectIsHypervisorConnect).subscribe(isHypervisorConnect => {
@@ -208,7 +210,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
 
   goNodeTask(category: string) {
     const nodeTaskId = this.nodeTaskCtr?.value.id;
-    let dialogData, activeNodeIds, projectId, connection, pks, jsonData;
+    let dialogData, activeNodeIds, projectId, connection, pks, jsonData, taskData;
     switch (nodeTaskId) {
       case 'deploy_node':
         dialogData = {
@@ -216,6 +218,12 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
           activeNodes: this.activeNodes,
           category
         };
+        taskData = {
+          job_name: 'deploy_node',
+          category: 'node',
+          pks: this.activeNodes.map((ele: any) => ele.data('node_id')).join(","),
+        }
+        if (this.taskService.isTaskInQueue(taskData)) return;
         this.dialog.open(AddUpdateNodeDeployDialogComponent,{ disableClose: true, width: '600px', data: dialogData, autoFocus: false });
         break;
       case 'delete_node':
@@ -223,6 +231,12 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
           activeNodes: this.activeNodes,
           category
         };
+        taskData = {
+          job_name: 'delete_node',
+          category: 'node',
+          pks: this.activeNodes.map((ele: any) => ele.data('node_id')).join(","),
+        }
+        if (this.taskService.isTaskInQueue(taskData)) return;
         this.dialog.open(DeleteNodeDeployDialogComponent,{ disableClose: true, width: '600px', data: dialogData, autoFocus: false });
         break;
       case 'update_node':
@@ -231,6 +245,12 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
           activeNodes: this.activeNodes,
           category
         };
+        taskData = {
+          job_name: 'update_node',
+          category: 'node',
+          pks: this.activeNodes.map((ele: any) => ele.data('node_id')).join(","),
+        }
+        if (this.taskService.isTaskInQueue(taskData)) return;
         this.dialog.open(AddUpdateNodeDeployDialogComponent,{ disableClose: true, width: '600px', data: dialogData, autoFocus: false });
         break;
       case 'power_on_node':
@@ -335,7 +355,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
 
   goPGTask(category: string) {
     const portGroupTaskId = this.pgTaskCtr?.value.id;
-    let dialogData;
+    let dialogData, taskData;
     switch (portGroupTaskId) {
       case 'deploy_pg':
         dialogData = {
@@ -344,6 +364,12 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
           message: 'Deploy this port group?',
           category
         };
+        taskData = {
+          job_name: 'create_pg',
+          category: 'port_group',
+          pks: this.activePGs.map((ele: any) => ele.data('pg_id')).join(','),
+        }
+        if (this.taskService.isTaskInQueue(taskData)) return;
         this.dialog.open(AddDeletePGDeployDialogComponent, { disableClose: true, width: '450px', data: dialogData, autoFocus: false });
         break;
       case 'delete_pg':
@@ -353,6 +379,12 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
           message: 'Delete port group(s)?',
           category
         };
+        taskData = {
+          job_name: 'delete_pg',
+          category: 'port_group',
+          pks: this.activePGs.map((ele: any) => ele.data('pg_id')).join(','),
+        }
+        if (this.taskService.isTaskInQueue(taskData)) return;
         this.dialog.open(AddDeletePGDeployDialogComponent, { disableClose: true, width: '450px', data: dialogData, autoFocus: false });
         break;
       case 'update_pg':
@@ -362,6 +394,12 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
           message: 'Update port group(s)?',
           category
         };
+        taskData = {
+          job_name: 'update_pg',
+          category: 'port_group',
+          pks: this.activePGs.map((ele: any) => ele.data('pg_id')).join(','),
+        }
+        if (this.taskService.isTaskInQueue(taskData)) return;
         this.dialog.open(AddDeletePGDeployDialogComponent, { disableClose: true, width: '450px', data: dialogData, autoFocus: false });
         break;
       default:

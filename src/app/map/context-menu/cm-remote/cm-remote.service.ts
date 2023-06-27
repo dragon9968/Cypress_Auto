@@ -147,6 +147,12 @@ export class CMRemoteService implements OnDestroy{
               activeNodes,
               category: this.connectionCategory
             };
+            const taskData = {
+              job_name: 'deploy_node',
+              category: 'node',
+              pks: activeNodes.map((ele: any) => ele.data('node_id')).join(","),
+            }
+            if (this.taskService.isTaskInQueue(taskData)) return;
             this.dialog.open(AddUpdateNodeDeployDialogComponent, { disableClose: true, width: '600px', data: dialogData, autoFocus: false });
           },
           hasTrailingDivider: true,
@@ -161,6 +167,12 @@ export class CMRemoteService implements OnDestroy{
               activeNodes,
               category: this.connectionCategory
             };
+            const taskData = {
+              job_name: 'delete_node',
+              category: 'node',
+              pks: activeNodes.map((ele: any) => ele.data('node_id')).join(","),
+            }
+            if (this.taskService.isTaskInQueue(taskData)) return;
             this.dialog.open(DeleteNodeDeployDialogComponent, { disableClose: true, width: '600px', data: dialogData, autoFocus: false });
           },
           hasTrailingDivider: true,
@@ -176,6 +188,12 @@ export class CMRemoteService implements OnDestroy{
               activeNodes,
               category: this.connectionCategory
             };
+            const taskData = {
+              job_name: 'update_node',
+              category: 'node',
+              pks: activeNodes.map((ele: any) => ele.data('node_id')).join(","),
+            }
+            if (this.taskService.isTaskInQueue(taskData)) return;
             this.dialog.open(AddUpdateNodeDeployDialogComponent, { disableClose: true, width: '600px', data: dialogData, autoFocus: false });
           },
           hasTrailingDivider: true,
@@ -344,6 +362,12 @@ export class CMRemoteService implements OnDestroy{
               message: 'Deploy this port group?',
               category: this.connectionCategory
             };
+            const taskData = {
+              job_name: 'create_pg',
+              category: 'port_group',
+              pks: activePGs.map((ele: any) => ele.data('pg_id')).join(','),
+            }
+            if (this.taskService.isTaskInQueue(taskData)) return;
             this.dialog.open(AddDeletePGDeployDialogComponent, { disableClose: true, width: '450px', data: dialogData });
           },
           hasTrailingDivider: true,
@@ -360,6 +384,12 @@ export class CMRemoteService implements OnDestroy{
               message: 'Delete port group(s)?',
               category: this.connectionCategory
             };
+            const taskData = {
+              job_name: 'delete_pg',
+              category: 'port_group',
+              pks: activePGs.map((ele: any) => ele.data('pg_id')).join(','),
+            }
+            if (this.taskService.isTaskInQueue(taskData)) return;
             this.dialog.open(AddDeletePGDeployDialogComponent, { disableClose: true, width: '450px', data: dialogData });
           },
           hasTrailingDivider: true,
@@ -376,6 +406,12 @@ export class CMRemoteService implements OnDestroy{
               message: 'Update port group(s)?',
               category: this.connectionCategory
             };
+            const taskData = {
+              job_name: 'update_pg',
+              category: 'port_group',
+              pks: activePGs.map((ele: any) => ele.data('pg_id')).join(','),
+            }
+            if (this.taskService.isTaskInQueue(taskData)) return;
             this.dialog.open(AddDeletePGDeployDialogComponent, { disableClose: true, width: '450px', data: dialogData });
           },
           hasTrailingDivider: true,
@@ -414,6 +450,7 @@ export class CMRemoteService implements OnDestroy{
   add_task(category: string, jobName: string, pks: string, connectionCategory: string) {
     let connection = this.serverConnectionService.getConnection(connectionCategory);
     const jsonData = { job_name: jobName, category, pks, hypervisor_id: connection ? connection?.id : 0 };
+    if (this.taskService.isTaskInQueue(jsonData)) return;
     this.taskService.add(jsonData).pipe(
       catchError((e: any) => {
         this.toastr.error(e.error.message);
