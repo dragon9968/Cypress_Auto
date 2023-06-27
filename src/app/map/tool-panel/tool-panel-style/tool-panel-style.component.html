@@ -55,7 +55,7 @@
     </div>
     <div class="tab-field">
         <label class="control-label">Size</label>
-        <mat-slider class="slider" step="1" min="1" max="50" [(ngModel)]="edgeSize" data-cy="toolpanel-edge-size"
+        <mat-slider class="slider" step="1" min="1" max="100" [(ngModel)]="edgeSize" data-cy="toolpanel-edge-size"
             (change)="setEdgeSize($event)"></mat-slider>
         <label class="control-label">{{ edgeSize }}px</label>
     </div>
@@ -85,7 +85,7 @@
     </div>
     <div class="tab-field">
         <label class="control-label">Size</label>
-        <mat-slider class="slider" step="1" min="1" max="200" [(ngModel)]="pgSize" data-cy="toolpanel-port-group-size"
+        <mat-slider class="slider" step="1" min="1" max="100" [(ngModel)]="pgSize" data-cy="toolpanel-port-group-size"
             (change)="setPGSize($event)"></mat-slider>
         <label class="control-label">{{ pgSize }}px</label>
     </div>
@@ -137,7 +137,7 @@
     </div>
     <div class="tab-field">
         <label class="control-label">Size</label>
-        <mat-slider class="slider" step="1" min="0" max="200" [(ngModel)]="textSize" data-cy="toolpanel-text-size"
+        <mat-slider class="slider" step="1" min="0" max="100" [(ngModel)]="textSize" data-cy="toolpanel-text-size"
             (change)="setTextSize($event)"></mat-slider>
         <label class="control-label">{{ textSize }}px</label>
     </div>

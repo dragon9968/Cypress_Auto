@@ -20,7 +20,7 @@
     (change)="toggleSnapToGrid()">Snap To Grid</mat-slide-toggle>
   <div *ngIf="isMapGridChecked" class="tab-field">
     <label>Grid Spacing</label>
-    <mat-slider color="primary" step="1" min="4" max="200" [(ngModel)]="gridSpacingSize" (change)="changeGridSpacingSize()">
+    <mat-slider color="primary" step="1" min="50" max="250" [(ngModel)]="gridSpacingSize" (change)="changeGridSpacingSize()">
     </mat-slider>
     <label>{{ gridSpacingSize }}px</label>
   </div>
