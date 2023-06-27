@@ -180,6 +180,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     ele.data('direction', data.direction);
     ele.data('mac_address', data.mac_address);
     ele.data('port_group_id', data.port_group_id);
+    ele.data('port_group', data.port_group_id ? this.helpers.getOptionById(this.portGroups, data.port_group_id).name : '');
     ele.data('ip_allocation', data.ip_allocation);
     ele.data('ip', data.ip);
     ele.data('dns_server', data.dns_server);
@@ -331,16 +332,13 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       } else {
         this._updateInterfaceOnMap(data);
         this._showOrHideArrowDirectionOnEdge(this.data.genData.interface_pk);
+        const e = this.data.cy.getElementById(`${this.data.genData.interface_pk}`);
+        e.move({ target: `pg-${data.port_group_id}` });
         const node = this.data.cy.getElementById(`node-${data.node_id}`);
-        const pg = this.data.cy.getElementById(`pg-${data.port_group_id}`);
         const netmaskName = this.helpers.getOptionById(this.netmasks, data.netmask_id).name
         this.helpers.updateInterfaceOnEle(node, {
           id: this.data.genData.interface_pk,
           value: `${data.name} - ${data.ip + netmaskName}`
-        });
-        this.helpers.updateInterfaceOnEle(pg, {
-          id: this.data.genData.interface_pk,
-          value: `${data.node} - ${data.name} - ${data.ip + netmaskName}`
         });
         if (data.port_group_id !== pgIdOld) {
           this.helpers.removeInterfaceOnPG(this.data.cy, pgIdOld, this.data.genData.interface_pk)
