@@ -34,6 +34,7 @@ import { networksValidation } from 'src/app/shared/validations/networks.validati
 import { selectIsConfiguratorConnect, selectIsDatasourceConnect, selectIsHypervisorConnect } from 'src/app/store/server-connect/server-connect.selectors';
 import { RemoteCategories } from 'src/app/core/enums/remote-categories.enum';
 import { ServerConnectService } from 'src/app/core/services/server-connect/server-connect.service';
+import { AgGridAngular } from 'ag-grid-angular';
 
 class CrossFieldErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -52,6 +53,8 @@ class CrossFieldErrorMatcher implements ErrorStateMatcher {
 })
 export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild("editor") editor!: AceEditorComponent;
+  @ViewChild("agGridInterfaces") agGridInterfaces!: AgGridAngular;
+  @ViewChild("agGridDeployInterfaces") agGridDeployInterfaces!: AgGridAngular;
   private gridApi!: GridApi;
   nodeAddForm: FormGroup;
   errorMatcher = new CrossFieldErrorMatcher();
@@ -86,7 +89,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   filteredConfigTemplates!: Observable<any[]>;
   filteredLoginProfiles!: Observable<any[]>;
   filteredNodeIP!: Observable<any[]>;
-  rowData$!: Observable<any[]>;
+  rowDataInterfaces$!: Observable<any[]>;
+  rowDeployInterfacesData$!: Observable<any[]>;
   configTemplateAddsType: any[] = [];
   configTemplateForm!: FormGroup;
   actionsAddForm!: FormGroup;
@@ -119,7 +123,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   isConfiguratorConnect = false;
   connectionCategory = '';
 
-  public gridOptions: GridOptions = {
+  public gridOptionsInterfaces: GridOptions = {
     headerHeight: 48,
     defaultColDef: {
       sortable: true,
@@ -161,6 +165,44 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       },
       {
         field: 'description',
+        flex: 1,
+      }
+    ]
+  };
+
+  public gridOptionsDeployInterfaces: GridOptions = {
+    headerHeight: 48,
+    defaultColDef: {
+      sortable: true,
+      resizable: true,
+      singleClickEdit: true,
+      filter: true
+    },
+    rowSelection: 'multiple',
+    suppressRowDeselection: true,
+    suppressCellFocus: true,
+    enableCellTextSelection: true,
+    pagination: true,
+    paginationPageSize: 25,
+    suppressRowClickSelection: true,
+    animateRows: true,
+    rowData: [],
+    columnDefs: [
+      {
+        field: 'name',
+        minWidth: 160,
+        flex: 1,
+      },
+      {
+        field: 'ip',
+        headerName: 'IP Address',
+        minWidth: 145,
+        flex: 1,
+      },
+      {
+        field: 'macaddress',
+        headerName: 'Mac Address',
+        minWidth: 160,
         flex: 1,
       }
     ]
@@ -299,10 +341,10 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes);
     this.interfaceService.getByNode(this.data.genData.node_id).subscribe(response => {
       const interfaceData = response.result;
-      if (this.gridApi) {
-        this.gridApi.setRowData(interfaceData);
+      if (this.agGridInterfaces) {
+        this.agGridInterfaces.api.setRowData(interfaceData);
       } else {
-        this.rowData$ = of(interfaceData);
+        this.rowDeployInterfacesData$ = of(interfaceData);
       }
       this.listNodeIP = interfaceData.filter((ip: any) => ip.category !== 'management')
       this.ipCtr.setValidators([autoCompleteValidator(this.listNodeIP, 'ip')]);
@@ -334,6 +376,34 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
         this.connectionCategory = RemoteCategories.CONFIGURATOR
       }
     })
+
+    if (this.data.mode === 'view') {
+      const connection = this.serverConnectionService.getConnection(this.connectionCategory);
+      const connectionId = connection ? connection?.id : 0;
+      const nodeId = this.data.genData.node_id
+      this.nodeService.getDeployData(nodeId, connectionId).subscribe((respData: any) => {
+        const resp = respData.result;
+        if (this.agGridDeployInterfaces) {
+          this.agGridDeployInterfaces.api.setRowData(resp.interfaces);
+        } else {
+          this.rowDataInterfaces$ = of(resp.interfaces);
+        }
+        this.uuidCtr?.setValue(resp?.uuid)
+        if (resp?.info?.Hardware) {
+          let hardwareInfo = [];
+          for (const [key, value] of Object.entries(resp?.info?.Hardware)) {
+            hardwareInfo.push(`${key}: ${value}`)
+          }
+          this.hardwareInfoCtr?.setValue(hardwareInfo)
+        }
+        this.serviceCtr?.setValue(resp?.running_services)
+        if (resp?.installed_features) {
+          const features = resp?.installed_features.map((val: any) => val.name)
+          this.featuresCtr?.setValue(features)
+        }
+        this.runningConfigCtr?.setValue(resp?.deploy_config)
+      })
+    }
   }
 
   ngAfterViewInit(): void {
@@ -448,28 +518,6 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     this.addTypeCtr?.setValue(this.configTemplateAddsType[0]);
     this.addTypeCtr?.setValidators([Validators.required, autoCompleteValidator(this.configTemplateAddsType)])
     this.helpers.setAutoCompleteValue(this.addTypeCtr, this.configTemplateAddsType, this.configTemplateAddsType[0].id)
-    if (this.data.mode === 'view') {
-      const connection = this.serverConnectionService.getConnection(this.connectionCategory);
-      const connectionId = connection ? connection?.id : 0;
-      const nodeId = this.data.genData.node_id
-      this.nodeService.getDeployData(nodeId, connectionId).subscribe((respData: any) => {
-        const resp = respData.result;
-        this.uuidCtr?.setValue(resp?.uuid)
-        if (resp?.info?.Hardware) {
-          let hardwareInfo = [];
-          for (const [key, value] of Object.entries(resp?.info?.Hardware)) {
-            hardwareInfo.push(`${key}: ${value}`)
-          }
-          this.hardwareInfoCtr?.setValue(hardwareInfo)
-        }
-        this.serviceCtr?.setValue(resp?.running_services)
-        if (resp?.installed_features) {
-          const features = resp?.installed_features.map((val: any) => val.name)
-          this.featuresCtr?.setValue(features)
-        }
-        this.runningConfigCtr?.setValue(resp?.deploy_config)
-      })
-    }
   }
 
   ngOnDestroy(): void {
