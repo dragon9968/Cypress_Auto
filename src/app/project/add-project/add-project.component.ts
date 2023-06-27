@@ -23,8 +23,8 @@ import { MatRadioChange } from '@angular/material/radio';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { NgxPermissionsService } from "ngx-permissions";
 import { MapPrefService } from 'src/app/core/services/map-pref/map-pref.service';
-import { retrievedDefaultMapPref } from 'src/app/store/map-pref/map-pref.actions';
-import { selectDefaultMapPref } from 'src/app/store/map-pref/map-pref.selectors';
+import { retrievedMapPrefs } from 'src/app/store/map-pref/map-pref.actions';
+import { selectMapPrefs } from 'src/app/store/map-pref/map-pref.selectors';
 import { vlanValidator } from "../../shared/validations/vlan.validation";
 import { ErrorStateMatcher } from "@angular/material/core";
 import { RolesService } from 'src/app/core/services/roles/roles.service';
@@ -72,6 +72,7 @@ export class AddProjectComponent implements OnInit {
   isCreateNewFromSelected = false;
   filteredTemplate!: Observable<any[]>;
   selectedDefaultMapPref: any;
+  selectedMapPrefByAppPref: any;
 
   defaultColDef: ColDef = {
     sortable: true,
@@ -169,9 +170,6 @@ export class AddProjectComponent implements OnInit {
         this.filteredTemplate = this.helpers.filterOptions(this.template, this.projectTemplate);
       }
     })
-    this.selectDefaultMapPref$ = this.store.select(selectDefaultMapPref).subscribe((selectedMapPref: any) => {
-      this.selectedDefaultMapPref = selectedMapPref;
-    });
     this.selectAppPref$ = this.store.select(selectAppPref).subscribe((data: any)=> {
       if (data) {
         let pubNetwork = {
@@ -190,8 +188,15 @@ export class AddProjectComponent implements OnInit {
           "reserved_ip": data.management_reserved_ip
         }
         this.rowData = [pubNetwork, privNetwork, manNetwork]
+        this.selectedMapPrefByAppPref = data.default_map_pref
       }
     })
+    
+    this.selectDefaultMapPref$ = this.store.select(selectMapPrefs).subscribe((selectedMapPref: any) => {
+      if (selectedMapPref) {
+        this.selectedDefaultMapPref = selectedMapPref.find((mapPref: any) => mapPref.name === this.selectedMapPrefByAppPref);
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -217,7 +222,7 @@ export class AddProjectComponent implements OnInit {
       this.store.dispatch(retrievedProjects({data: data.result}));
     })
     this.appPrefService.get("2").subscribe((data: any) => this.store.dispatch(retrievedAppPref({ data: data.result })));
-    this.mapPrefService.get("1").subscribe((data: any) => this.store.dispatch(retrievedDefaultMapPref({ data: data.result })));
+    this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPrefs({ data: data.result })));
     this.projectService.getProjectByStatusAndCategory(this.status, 'template').subscribe((data: any) => this.store.dispatch(retrievedProjectsTemplate({ template: data.result })));
   }
 

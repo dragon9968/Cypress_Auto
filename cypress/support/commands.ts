@@ -1328,7 +1328,7 @@ declare namespace Cypress {
 function updateAppPreferences(appPreferences: any,  privateNetwork: any, privateNetworkIps: any): void {
   cy.log(`START: Update App Preferences`)
   cy.get('[data-cy=select-mappref]').click();
-  cy.getOptionByContent('Default').click();
+  cy.getOptionByContent(`${appPreferences.map_pref}`).click();
   cy.getByFormControlName('publicNetworkCtr').as('publicNetworkCtr').invoke('val').then(value => {
     if (value !== appPreferences.public_network && appPreferences.public_network) {
       cy.get('@publicNetworkCtr').clear().type(appPreferences.public_network)
