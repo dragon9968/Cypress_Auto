@@ -616,6 +616,12 @@ export class HelpersService implements OnDestroy {
     pgEle.data('interfaces', interfaces)
   }
 
+  addInterfaceIntoPG(cy: any, pgId: number, edge: any) {
+    const pgEle = cy.getElementById(`pg-${pgId}`)
+    const interfaces = [...pgEle.data('interfaces'), edge]
+    pgEle.data('interfaces', interfaces)
+  }
+
   updateNodePGInInterfaceOnMap(cy: any, type: string, elementId: number) {
     const idPrefix = type !== 'node' ? 'pg' : 'node'
     const element = cy.getElementById(`${idPrefix}-${elementId}`)
@@ -898,7 +904,7 @@ export class HelpersService implements OnDestroy {
   }
 
   restoreInterface(ele: any, interface_pk: number) {
-    const i = this.deletedInterfaces.filter((i: any) => i.interface_pk == interface_pk)[0];
+    const i = this.deletedInterfaces.find((i: any) => i.interface_pk == interface_pk);
     const interfaces = [...ele.data('interfaces'), {
       id: interface_pk,
       value: ele.data('elem_category') == 'node' ? i.node_interface_value : i.pg_interface_value

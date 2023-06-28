@@ -341,6 +341,11 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
           value: `${data.name} - ${data.ip + netmaskName}`
         });
         if (data.port_group_id !== pgIdOld) {
+          const newEdge = {
+            id: this.data.genData.interface_pk,
+            value: `${node.data('name')} - ${data.name} - ${data.ip + netmaskName}`
+          }
+          this.helpers.addInterfaceIntoPG(this.data.cy, data.port_group_id, newEdge)
           this.helpers.removeInterfaceOnPG(this.data.cy, pgIdOld, this.data.genData.interface_pk)
         }
         this.store.dispatch(retrievedMapSelection({ data: true }));
