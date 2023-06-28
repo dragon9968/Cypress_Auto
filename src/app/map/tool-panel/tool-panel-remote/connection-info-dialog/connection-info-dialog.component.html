@@ -1,0 +1,90 @@
+<form [formGroup]="connectionInfoForm" autocomplete="off">
+  <h1 mat-dialog-title class="connection-title">Connection Info</h1>
+  <mat-dialog-content class="server-connection-area">
+    <mat-tab-group>
+      <mat-tab label="Information">
+        <div class="info-area">
+          <section class="info-area__list">
+            <div class="info-area__list__item">
+              <mat-form-field class="field">
+                <mat-label>Name</mat-label>
+                <input autocomplete="off" id="connection-name" matInput formControlName="nameCtr" [readonly]="true">
+              </mat-form-field>
+              <mat-form-field class="field">
+                <mat-label>Category</mat-label>
+                <input autocomplete="off" id="connection-category" matInput formControlName="categoryCtr" [readonly]="true">
+              </mat-form-field>
+              <mat-form-field class="field">
+                <mat-label>Server</mat-label>
+                <input autocomplete="off" id="connection-server" matInput formControlName="serverCtr" [readonly]="true">
+              </mat-form-field>
+              <mat-form-field class="field">
+                <mat-label>Datacenter</mat-label>
+                <input autocomplete="off" id="connection-datacenter" matInput formControlName="datacenterCtr" [readonly]="true">
+              </mat-form-field>
+            </div>
+            <div class="info-area__list__item">
+              <mat-form-field class="field">
+                <mat-label>Cluster</mat-label>
+                <input autocomplete="off" id="connection-cluster" matInput formControlName="clusterCtr" [readonly]="true">
+              </mat-form-field>
+              <mat-form-field class="field">
+                <mat-label>Datastore</mat-label>
+                <input autocomplete="off" id="connection-datastore" matInput formControlName="datastoreCtr" [readonly]="true">
+              </mat-form-field>
+              <mat-form-field class="field">
+                <mat-label>Switch</mat-label>
+                <input autocomplete="off" id="connection-switch" matInput formControlName="switchCtr" [readonly]="true">
+              </mat-form-field>
+              <mat-form-field class="field">
+                <mat-label>User</mat-label>
+                <input autocomplete="off" id="connection-user" matInput formControlName="userCtr" [readonly]="true">
+              </mat-form-field>
+            </div>
+          </section>
+        </div>
+      </mat-tab>
+      <mat-tab label="Hosts">
+        <div class="info-area host-area">
+          <div class="hosts">
+            <div class="ag-theme-alpine hosts__table" [style.height]="'350px'">
+              <ag-grid-angular style="width: 100%; height: 100%;" [rowData]="rowDataHosts$ | async" [gridOptions]="gridHostOptions" (gridReady)="onGridReady($event)">
+              </ag-grid-angular>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+      <mat-tab label="Switches">
+        <div class="info-area switches-area">
+          <div class="switches-area__distributed">
+            <h3 class="title">Distributed Switches</h3>
+            <div class="ag-theme-alpine" [style.height]="'350px'">
+              <ag-grid-angular
+                style="width: 100%; height: 100%;"
+                [rowData]="rowDataDistributedSwitches$ | async"
+                [gridOptions]="gridDistributedOptions"
+                (gridReady)="onGridDistributedReady($event)"
+              >
+              </ag-grid-angular>
+            </div>
+          </div>
+          <div class="switches-area__standard">
+            <h3 class="title">Standard Switches</h3>
+            <div class="ag-theme-alpine" [style.height]="'350px'">
+              <ag-grid-angular
+                style="width: 100%; height: 100%;"
+                [rowData]="rowDataStandardSwitches$ | async"
+                [gridOptions]="gridStandardOptions"
+                (gridReady)="onGridStandardReady($event)"
+              >
+              </ag-grid-angular>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-raised-button type="button" mat-dialog-close>Close</button>
+  </mat-dialog-actions>
+</form>

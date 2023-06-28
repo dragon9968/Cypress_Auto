@@ -115,4 +115,8 @@ export class ServerConnectService implements OnDestroy {
     })
     this.store.dispatch(retrievedServerConnect({data: newState }))
   }
+
+  getConnectionInfo(data: { pk: number }) {
+    return this.http.post<any>(ApiPaths.GET_CONNECTION_INFO, data);
+  }
 }

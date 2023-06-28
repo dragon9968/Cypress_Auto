@@ -41,6 +41,7 @@ import { NodeToolsDialogComponent } from './deployment-dialog/deployment-node-di
 import { ConnectInterfaceToPgDialogComponent } from './context-menu/cm-dialog/connect-interface-to-pg-dialog/connect-interface-to-pg-dialog.component';
 import { ViewUpdateProjectNodeComponent } from './context-menu/cm-dialog/view-update-project-node/view-update-project-node.component';
 import { AddNodePgToGroupboxDialogComponent } from './add-node-pg-to-groupbox-dialog/add-node-pg-to-groupbox-dialog.component';
+import { ConnectionInfoDialogComponent } from './tool-panel/tool-panel-remote/connection-info-dialog/connection-info-dialog.component';
 
 
 @NgModule({
@@ -85,6 +86,7 @@ import { AddNodePgToGroupboxDialogComponent } from './add-node-pg-to-groupbox-di
     ConnectInterfaceToPgDialogComponent,
     ViewUpdateProjectNodeComponent,
     AddNodePgToGroupboxDialogComponent,
+    ConnectionInfoDialogComponent,
   ],
   imports: [
     MapRoutingModule,

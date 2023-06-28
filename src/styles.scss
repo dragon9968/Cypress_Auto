@@ -219,3 +219,11 @@ ag-grid-angular .ag-cell-focus,
     background-color: #eaeaea;
   }
 }
+
+/* Reducing padding left of cell in AG Grid and center left for the children */
+.cell-ul ul {
+  li {
+    text-align: left;
+  }
+  padding-left: 20px;
+}

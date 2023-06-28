@@ -33,6 +33,7 @@ import { CreateNodeSnapshotDialogComponent } from "../../deployment-dialog/deplo
 import { DeleteNodeSnapshotDialogComponent } from "../../deployment-dialog/deployment-node-dialog/delete-node-snapshot-dialog/delete-node-snapshot-dialog.component";
 import { RevertNodeSnapshotDialogComponent } from "../../deployment-dialog/deployment-node-dialog/revert-node-snapshot-dialog/revert-node-snapshot-dialog.component";
 import { AddUpdateNodeDeployDialogComponent } from "../../deployment-dialog/deployment-node-dialog/add-update-node-deploy-dialog/add-update-node-deploy-dialog.component";
+import { ConnectionInfoDialogComponent } from "./connection-info-dialog/connection-info-dialog.component";
 import { TaskService } from "../../../core/services/task/task.service";
 
 
@@ -424,4 +425,25 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
       })
   }
 
+  openConnectionView() {
+    const connection = this.serverConnectionService.getConnection(RemoteCategories.HYPERVISOR);
+    const dialogData = {
+      id: connection.id,
+      name: this.connectionName,
+      category: this.connectionCategory,
+      server: this.connectionServer,
+      datacenter: this.connectionDatacenter,
+      cluster: this.connectionCluster,
+      switch: this.connectionSwitch,
+      datastore: this.connectionDatastore,
+      username: this.userName
+    }
+    this.dialog.open(ConnectionInfoDialogComponent, {
+      width: '1000px',
+      data: dialogData,
+      autoFocus: false,
+      disableClose: true,
+      panelClass: 'custom-node-form-modal'
+    })
+  }
 }

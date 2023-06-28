@@ -43,14 +43,13 @@ $margin: 8px;
     align-items: center;
     border-bottom: 1px solid #ccc;
     padding-bottom: 10px;
-
+    font-size: 14px;
     &--label {
       display: flex;
       justify-content: space-between;
       margin-right: $margin;
       width: 35%;
       text-align: left;
-      font-size: 12px;
       font-weight: 600;
     }
 
@@ -58,7 +57,9 @@ $margin: 8px;
       max-width: 65%;
       word-wrap: break-word;
       width: 190px;
-      font-size: 12px;
+    }
+    &--view {
+      justify-content: center;
     }
   }
 
