@@ -9,6 +9,7 @@ import { HelpersService } from "../../../../core/services/helpers/helpers.servic
 import { validateNameExist } from "../../../../shared/validations/name-exist.validation";
 import { selectNodesByProjectId } from "../../../../store/node/node.selectors";
 import { MapLinkService } from "../../../../core/services/map-link/map-link.service";
+import { ProjectService } from "../../../../project/services/project.service";
 
 @Component({
   selector: 'app-view-update-project-node',
@@ -27,6 +28,7 @@ export class ViewUpdateProjectNodeComponent implements OnInit, OnDestroy {
     public helpers: HelpersService,
     private mapLinkService: MapLinkService,
     @Inject(MAT_DIALOG_DATA) public data: any,
+    private projectService: ProjectService,
     public dialogRef: MatDialogRef<ViewUpdateProjectNodeComponent>
   ) {
     this.projectNodeAddForm = new FormGroup({
@@ -38,6 +40,9 @@ export class ViewUpdateProjectNodeComponent implements OnInit, OnDestroy {
     })
     this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes);
     this.isViewMode = this.data.mode == 'view';
+    this.projectService.get(this.data.genData.linked_project_id).subscribe(response => {
+      this.notesCtr?.setValue(response.result.description)
+    })
   }
 
   get nameCtr() { return this.projectNodeAddForm.get('nameCtr'); }
@@ -45,7 +50,6 @@ export class ViewUpdateProjectNodeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.nameCtr?.setValue(this.data.genData.name);
-    this.notesCtr?.setValue(this.data.genData.notes);
   }
 
   ngOnDestroy(): void {
@@ -55,7 +59,8 @@ export class ViewUpdateProjectNodeComponent implements OnInit, OnDestroy {
   updateProjectNode() {
     const ele = this.data.cy.getElementById(this.data.genData.id);
     const jsonDataValue = {
-      name: this.nameCtr?.value
+      name: this.nameCtr?.value,
+      notes: this.notesCtr?.value
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.mapLinkService.put(this.data.genData.map_link_id, jsonData).pipe(
