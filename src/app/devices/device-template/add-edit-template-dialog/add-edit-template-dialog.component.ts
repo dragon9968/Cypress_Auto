@@ -8,7 +8,7 @@ import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { TemplateService } from 'src/app/core/services/template/template.service';
 import { selectIcons } from 'src/app/store/icon/icon.selectors';
 import { selectLoginProfiles } from 'src/app/store/login-profile/login-profile.selectors';
-import { retrievedTemplates } from "../../../store/template/template.actions";
+import { retrievedTemplatesByDevice } from "../../../store/template/template.actions";
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
@@ -101,15 +101,15 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.templateService.add(jsonData).subscribe({
-      next: (rest) => {
+      next: () => {
         this.templateService.getAll().subscribe((data: any) => {
           let templateData = data.result.filter((val: any) => val.device_id === this.data.genData.deviceId);
-          this.store.dispatch(retrievedTemplates({ data: templateData }));
+          this.store.dispatch(retrievedTemplatesByDevice({ templatesByDevice: templateData }));
         })
         this.toastr.success('Added template successfully', 'Success')
         this.dialogRef.close();
       },
-      error: (err) => {
+      error: () => {
         this.toastr.error('Add template failed', 'Error');
       }
     });
@@ -126,15 +126,15 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.templateService.put(this.data.genData.id, jsonData).subscribe({
-      next: (rest) => {
+      next: () => {
         this.templateService.getAll().subscribe((data: any) => {
           let templateData = data.result.filter((val: any) => val.device_id === this.data.deviceId);
-          this.store.dispatch(retrievedTemplates({ data: templateData }));
+          this.store.dispatch(retrievedTemplatesByDevice({ templatesByDevice: templateData }));
         })
         this.toastr.success(`Updated template successfully`, 'Success')
         this.dialogRef.close();
       },
-      error: (err) => {
+      error: () => {
         this.toastr.error(`Update template failed`, 'Error');
       }
     });

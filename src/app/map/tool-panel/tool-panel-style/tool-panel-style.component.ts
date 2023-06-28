@@ -280,7 +280,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   }
 
   setTextSize(size: any) {
-    this.textSize = size.value <= 200 ? size.value : 200;
+    this.textSize = size.value <= 100 ? size.value : 100;
     this.commonService.textSize(size, this.activeNodes, this.activeEdges, this.activePGs);
   }
 
@@ -302,7 +302,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
 
 
   setPGSize(size: any) {
-    this.pgSize = size.value <= 200 ? size.value : 200;
+    this.pgSize = size.value <= 100 ? size.value : 100;
     this.commonService.pgSize(size, this.activePGs);
   }
 
@@ -312,7 +312,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   }
 
   setEdgeSize(size: any) {
-    this.edgeSize = size.value <= 50 ? size.value : 50;
+    this.edgeSize = size.value <= 100 ? size.value : 100;
     this.commonService.edgeSize(size, this.activeEdges);
   }
 
