@@ -203,7 +203,6 @@ export class AddEditUserDialogComponent implements OnInit, OnDestroy {
       active: this.activeCtr?.value,
       email: this.emailCtr?.value,
       password: this.passwordCtr?.value,
-      update_password: ''
     }
     const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.userService.put(this.data.genData.id, jsonData).pipe(

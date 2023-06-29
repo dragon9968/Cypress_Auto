@@ -1,35 +1,32 @@
-<form [formGroup]="userProfileForm" class="form" >
+<form [formGroup]="userProfileForm" class="form" (ngSubmit)="updateUserProfile()">
   <h1>Your user information</h1>
   <div>
     <mat-form-field class="field">
       <mat-label>User Name</mat-label>
-      <input matInput formControlName="usernameCtr" [readonly]="isViewMode">
+      <input matInput formControlName="usernameCtr">
       <mat-error *ngIf="usernameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>First Name</mat-label>
-      <input matInput formControlName="firstNameCtr" [readonly]="isViewMode">
+      <input matInput formControlName="firstNameCtr">
       <mat-error *ngIf="firstNameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Last Name</mat-label>
-      <input matInput formControlName="lastNameCtr" [readonly]="isViewMode">
+      <input matInput formControlName="lastNameCtr" >
       <mat-error *ngIf="lastNameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Email</mat-label>
-      <input matInput formControlName="emailCtr" [readonly]="isViewMode">
+      <input matInput formControlName="emailCtr">
       <mat-error *ngIf="emailCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Role</mat-label>
-      <input matInput formControlName="roleCtr" [readonly]="isViewMode">
-      <mat-error *ngIf="roleCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <input matInput formControlName="roleCtr">
     </mat-form-field>
-    <mat-form-field class="field">
-      <mat-label>Active</mat-label>
-      <input matInput formControlName="activeCtr" [readonly]="isViewMode">
-      <mat-error *ngIf="activeCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-    </mat-form-field>
+  </div>
+  <div>
+    <button mat-raised-button type="submit" data-cy="cy-profile-btn" color="primary" [disabled]="!userProfileForm.dirty">Update</button>
   </div>
 </form>

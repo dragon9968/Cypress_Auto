@@ -1,10 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs';
+import { Subscription, catchError, throwError } from 'rxjs';
 import { ErrorMessages } from '../shared/enums/error-messages.enum';
 import { selectUserProfile } from '../store/user-profile/user-profile.selectors';
-import { selectUser } from '../store/user/user.selectors';
+import { RolesService } from '../core/services/roles/roles.service';
+import { ToastrService } from 'ngx-toastr';
+import { retrievedUserProfile } from '../store/user-profile/user-profile.actions';
+import { UserService } from '../core/services/user/user.service';
+import { AuthService } from '../core/services/auth/auth.service';
 
 @Component({
   selector: 'app-user-profile',
@@ -13,18 +17,23 @@ import { selectUser } from '../store/user/user.selectors';
 })
 export class UserProfileComponent implements OnInit {
   userProfileForm: FormGroup;
-  isViewMode = false;
   errorMessages = ErrorMessages;
   selectUser$ = new Subscription();
+  userId: any;
 
-  constructor(private store: Store) {
+  constructor(
+    private store: Store,
+    private rolesService: RolesService,
+    private toastr: ToastrService,
+    private userService: UserService,
+    private authService: AuthService,
+  ) {
     this.userProfileForm = new FormGroup({
       usernameCtr: new FormControl(''),
       firstNameCtr: new FormControl(''),
       lastNameCtr: new FormControl(''),
       emailCtr: new FormControl(''),
-      roleCtr: new FormControl(''),
-      activeCtr: new FormControl(''),
+      roleCtr: new FormControl({ value: '', disabled: true }),
     });
   }
 
@@ -33,16 +42,37 @@ export class UserProfileComponent implements OnInit {
   get lastNameCtr() { return this.userProfileForm.get('lastNameCtr'); }
   get emailCtr() { return this.userProfileForm.get('emailCtr'); }
   get roleCtr() { return this.userProfileForm.get('roleCtr'); }
-  get activeCtr() { return this.userProfileForm.get('activeCtr'); }
 
   ngOnInit(): void {
+    this.userId = this.authService.getUserId();
     this.selectUser$ = this.store.select(selectUserProfile).subscribe((user: any) => {
-      this.usernameCtr?.setValue(user.username);
-      this.firstNameCtr?.setValue(user.first_name);
-      this.lastNameCtr?.setValue(user.last_name);
-      this.emailCtr?.setValue(user.email);
-      this.roleCtr?.setValue(user.roles[0].name);
-      this.activeCtr?.setValue(user.active);
+      if (user) {
+        this.usernameCtr?.setValue(user.username);
+        this.firstNameCtr?.setValue(user.first_name);
+        this.lastNameCtr?.setValue(user.last_name);
+        this.emailCtr?.setValue(user.email);
+        const roles = this.rolesService.getUserRoles();
+        if (roles) {
+          this.roleCtr?.setValue(roles[0].name);
+        }
+      }
+    });
+  }
+
+  updateUserProfile() {
+    const data = {
+      username: this.usernameCtr?.value,
+      first_name: this.firstNameCtr?.value,
+      last_name: this.lastNameCtr?.value,
+      email: this.emailCtr?.value,
+    }
+    this.userService.put(this.userId, data).pipe(
+      catchError(err => {
+        this.toastr.error(err.error.message);
+        return throwError(() => err)
+      })
+    ).subscribe((respData: any) => {
+      this.toastr.success('User profile updated!');
     });
   }
 }
