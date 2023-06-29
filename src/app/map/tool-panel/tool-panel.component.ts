@@ -243,6 +243,10 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         if (nodeDeletedIds.length > 0) {
           this.helpersService.removeNodesInStorage(nodeDeletedIds);
         }
+        const deletedPGIds = this.deletedNodes.map(pg => pg.elem_category == 'port_group' && pg.id);
+        if (deletedPGIds.length > 0) {
+          this.helpersService.removePortGroupInStorage(deletedPGIds);
+        }
         const deletedNodesLinkProject = this.deletedNodes.filter(node => node.linked_project_id);
         if (deletedNodesLinkProject.length > 0) {
           this.toastr.success('Unlink Project Successfully', 'Success');

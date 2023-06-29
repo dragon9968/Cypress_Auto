@@ -158,7 +158,8 @@ export class ImportDialogComponent implements OnInit {
         this.dialogRef.close()
         break;
       case PageName.DEVICE_TEMPLATE:
-        const newTemplates = response.result
+        let newTemplates = response.result
+        newTemplates.forEach((el: any) => {el.icon = el.icon[0]})
         if (newTemplates.length > 0) {
           this.templateService.updateTemplateStore(newTemplates)
         }

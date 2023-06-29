@@ -105,11 +105,49 @@ describe('Coverage for PortGroup issue', () => {
       cy.getByDataCy('pgAddForm').submit()
       cy.wait(2000)
     })
-    cy.get('button[matTooltip="Save"]').click()
+
+    cy.get('#cy').then((el: any) => {
+      const cytoscape = el[0]._cyreg.cy
+      cytoscape.nodes().unselect()
+      cytoscape.edges().unselect()
+    })
+
+    cy.get('canvas.expand-collapse-canvas').rightclick(800, 400, {force: true}).then(() => {
+      cy.get('.cy-context-menus-cxt-menu').first().should('exist')
+      cy.get('#edit').should('exist').click({ force: true });
+      cy.getByFormControlName('nameCtr').clear().type('test_delete_port_group')
+      cy.get('mat-error').should('not.exist')
+      cy.getByDataCy('pgAddForm').submit()
+      cy.wait(2000)
+    })
+
     cy.get(`app-info-panel-group ag-grid-angular .ag-row`).contains(group.groupEditDefaultData.name)
     .parent('.ag-cell-wrapper').parent('.ag-cell').parent('.ag-row').should('contain', "cro_net")
 
     cy.wait(2000)
+
+    // [Edge Edit] The port group should be updated on Edge Edit screen when the port group is deleted
+    cy.get('canvas.expand-collapse-canvas').rightclick(pgX2, pgY2, {force: true}).then(() => {
+      cy.get('.cy-context-menus-cxt-menu').first().should('exist')
+      cy.get('#delete').should('exist').click({ force: true });
+      cy.wait(2000)
+    })
+    cy.get('button[matTooltip="Save"]').click()
+    cy.get('canvas.expand-collapse-canvas').rightclick(400, 300, {force: true}).then(() => {
+      cy.get('.cy-context-menus-cxt-menu').first().should('exist')
+      cy.get('#edit').should('exist').click({ force: true });
+      cy.getByFormControlName('portGroupCtr').click({force: true })
+      cy.get('.option-text-items').should('not.contain', 'test_delete_port_group')
+      cy.getButtonByTypeAndContent('button', 'Cancel').click({ force: true })
+      cy.wait(2000)
+    })
+
+    cy.get('#cy').then((el: any) => {
+      const cytoscape = el[0]._cyreg.cy
+      cytoscape.nodes().unselect()
+      cytoscape.edges().unselect()
+    })
+
     cy.get('canvas.expand-collapse-canvas').rightclick(700, 300, {force: true}).then(() => {
       cy.get('.cy-context-menus-cxt-menu').first().should('exist')
       cy.get('#view_details').should('exist').click({ force: true });
@@ -159,6 +197,7 @@ describe('Coverage for PortGroup issue', () => {
     cy.viewport(1920, 1080)
     cy.visit('/', { timeout: 15000 })
     cy.getByDataCy('btn-create-new').click({force: true})
+    blankProject.name = blankProject.name + '(1)'
     cy.addNewProject(blankProject, true)
 
     cy.openProjectByName(blankProject.name)

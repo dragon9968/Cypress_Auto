@@ -4,8 +4,8 @@ import { Observable, Subscription } from 'rxjs';
 import { ApiPaths } from 'src/app/core/enums/api-paths.enum';
 import { Store } from "@ngrx/store";
 import { HelpersService } from "../helpers/helpers.service";
-import { selectTemplates } from "../../../store/template/template.selectors";
-import { retrievedTemplates } from "../../../store/template/template.actions";
+import { selectTemplatesByDevice } from "../../../store/template/template.selectors";
+import { retrievedTemplatesByDevice } from "../../../store/template/template.actions";
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +19,7 @@ export class TemplateService implements OnDestroy {
     private http: HttpClient,
     private helpersService: HelpersService
   ) {
-    this.selectTemplates$ = this.store.select(selectTemplates).subscribe(templates => this.templates = templates)
+    this.selectTemplates$ = this.store.select(selectTemplatesByDevice).subscribe(templates => this.templates = templates)
   }
 
   ngOnDestroy(): void {
@@ -57,6 +57,6 @@ export class TemplateService implements OnDestroy {
   updateTemplateStore(newItem: any) {
     const currentState: any[] = JSON.parse(JSON.stringify(this.templates)) || []
     const newState = this.helpersService.sortListByKeyInObject(currentState.concat(newItem))
-    this.store.dispatch(retrievedTemplates({ data: newState }))
+    this.store.dispatch(retrievedTemplatesByDevice({ templatesByDevice: newState }))
   }
 }

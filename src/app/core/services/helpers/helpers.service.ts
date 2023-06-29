@@ -29,6 +29,8 @@ import { selectGroups } from 'src/app/store/group/group.selectors';
 import { retrievedGroups } from 'src/app/store/group/group.actions';
 import { isIPv4 } from 'is-ip';
 import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
+import { selectPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
+import { retrievedPortGroups } from 'src/app/store/portgroup/portgroup.actions';
 
 @Injectable({
   providedIn: 'root'
@@ -39,7 +41,9 @@ export class HelpersService implements OnDestroy {
   selectNodes$ = new Subscription();
   selectGroups$ = new Subscription();
   selectNetmasks$ = new Subscription();
+  selectPortGroups$ = new Subscription();
   nodes: any[] = [];
+  portGroups: any[] = [];
   groupCategoryId!: string;
   errorMessages = ErrorMessages;
   isGroupBoxesChecked!: boolean;
@@ -85,6 +89,9 @@ export class HelpersService implements OnDestroy {
       this.groups = groupData;
     })
     this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes);
+    this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe((portGroups: any) => {
+      this.portGroups = portGroups;
+    });
     this.selectNetmasks$ = this.store.select(selectNetmasks).subscribe((netmasks: any) => {
       this.netmasks = netmasks;
     });
@@ -1264,6 +1271,17 @@ export class HelpersService implements OnDestroy {
       }
     })
     this.store.dispatch(retrievedNodes({ data: newNodes }));
+  }
+
+  removePortGroupInStorage(pgIds: any[]) {
+    const newPortGroup = [...this.portGroups];
+    this.portGroups.map(pg => {
+      if (pgIds.includes(pg.id)) {
+        const index = newPortGroup.findIndex(ele => ele.id === pg.id);
+        newPortGroup.splice(index, 1);
+      }
+    })
+    this.store.dispatch(retrievedPortGroups({ data: newPortGroup }));
   }
 
   validateJSONFormat(json: any) {

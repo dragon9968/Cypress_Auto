@@ -467,7 +467,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
             ).subscribe(() => {
               this.templateService.getAll().subscribe((data: any)  => {
                 const template = data.result.filter((ele: any) => ele.device_id === this.rowSelectedDeviceId[0]);
-                this.store.dispatch(retrievedTemplates({ data: template }));
+                this.store.dispatch(retrievedTemplatesByDevice({ templatesByDevice: template }));
               })
               this.toastr.success(`Delete ${template.display_name} template successfully`, 'Success');
             })
