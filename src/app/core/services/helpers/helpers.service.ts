@@ -1444,6 +1444,15 @@ export class HelpersService implements OnDestroy {
     }
   }
 
+  showOrHideArrowDirectionOnEdge(cy: any, edgeId: number | string) {
+    const edge = cy.getElementById(edgeId);
+    if (!this.isEdgeDirectionChecked) {
+      const current_dir = edge.data('direction');
+      edge.data('prev_direction', current_dir);
+      edge.data('direction', 'none');
+    }
+  }
+
   changeEdgeDirectionOnMap(cy: any, isEdgeDirectionChecked: boolean) {
     if (!isEdgeDirectionChecked) {
       for (let i = 0; i < cy.edges().length; i++) {

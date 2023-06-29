@@ -276,7 +276,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         this.portGroupService.get(portGroupId).subscribe(response => {
           cyData.port_group = response.result.name;
           this.helpers.addCYEdge(this.data.cy, { ...newEdgeData, ...cyData });
-          this._showOrHideArrowDirectionOnEdge(cyData.id);
+          this.helpers.showOrHideArrowDirectionOnEdge(this.data.cy, cyData.id)
           this.helpers.updatePGOnMap(this.data.cy, portGroupId, response.result);
           this.store.dispatch(retrievedMapSelection({ data: true }));
         });
@@ -331,7 +331,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         this.store.dispatch(retrievedInterfacesManagement({ data: newInterfacesManagement }));
       } else {
         this._updateInterfaceOnMap(data);
-        this._showOrHideArrowDirectionOnEdge(this.data.genData.interface_pk);
+        this.helpers.showOrHideArrowDirectionOnEdge(this.data.cy, this.data.genData.interface_pk)
         const e = this.data.cy.getElementById(`${this.data.genData.interface_pk}`);
         e.move({ target: `pg-${data.port_group_id}` });
         const node = this.data.cy.getElementById(`node-${data.node_id}`);
@@ -414,7 +414,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         cyData.text_size = cyData.logical_map.map_style.text_size;
         cyData.color = cyData.logical_map.map_style.color;
         this.helpers.addCYEdge(this.data.cy, { ...newEdgeData, ...cyData });
-        this._showOrHideArrowDirectionOnEdge(cyData.id)
+        this.helpers.showOrHideArrowDirectionOnEdge(this.data.cy, cyData.id)
         this.store.dispatch(retrievedMapSelection({ data: true }));
       }
       this.dialogRef.close();
@@ -432,14 +432,5 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     this.data.mode = 'update';
     this.isViewMode = false;
     this.interfaceAddForm.markAllAsTouched();
-  }
-
-  private _showOrHideArrowDirectionOnEdge(edgeId: any) {
-    const edge = this.data.cy.getElementById(edgeId);
-    if (!this.isEdgeDirectionChecked) {
-      const current_dir = edge.data('direction');
-      edge.data('prev_direction', current_dir);
-      edge.data('direction', 'none');
-    }
   }
 }

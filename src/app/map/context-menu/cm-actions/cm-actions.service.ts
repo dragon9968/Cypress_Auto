@@ -231,6 +231,7 @@ export class CMActionsService {
                 cyData.node = nodeData.result.name;
                 cyData.port_group = cyData.port_group.name;
                 cyData.netmask = cyData.netmask.mask;
+                cyData.direction = cyData.logical_map?.map_style?.direction;
                 const newEdgeData = {
                   source: 'node-' + edgeData.node_id,
                   target: 'pg-' + edgeData.port_group_id,
@@ -243,7 +244,7 @@ export class CMActionsService {
                   width: logicalMapStyle.width,
                 }
                 this.helpers.addCYEdge(cy, { ...newEdgeData, ...cyData });
-                this.helpers.changeEdgeDirectionOnMap(cy, this.isEdgeDirectionChecked);
+                this.helpers.showOrHideArrowDirectionOnEdge(cy, cyData.interface_pk)
               }
             })
           });
