@@ -44,7 +44,7 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
     this.deviceForm = new FormGroup({
       name: new FormControl({value: '', disabled: false}, [Validators.required, validateNameExist(() => this.deviceName, data.mode, this.data.genData.id)]),
       category: new FormControl({value: '', disabled: false}),
-      icon: new FormControl(''),
+      icon: new FormControl('', [Validators.required]),
     });
     this.selectDeviceCategories$ = this.store.select(selectDeviceCategories).subscribe(data => {
       this.listDeviceCategory = data;
@@ -74,10 +74,6 @@ export class AddEditDeviceDialogComponent implements OnInit, OnDestroy {
         this.helpers.setAutoCompleteValue(this.icon, this.listIcon, '');
       }
       this.category?.setValue(this.data.genData.category.map((ele: any) => ele.name));
-      // this.data.genData.category.forEach((el: any) => {
-      //   this.listCategory.push(el);
-      //   this.listDeviceCategory = this.listDeviceCategory.filter(value => value.id != el.id)
-      // });
     }
   }
 
