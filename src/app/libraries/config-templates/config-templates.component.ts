@@ -32,7 +32,7 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
   quickFilterValue = '';
   rowsSelected: any[] = [];
   rowsSelectedId: any[] = [];
-  rowData$! : Observable<any[]>;
+  rowData$!: Observable<any[]>;
   private gridApi!: GridApi;
   selectConfigTemplates$ = new Subscription();
   defaultColDef: ColDef = {
@@ -51,112 +51,22 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
       hide: true,
       getQuickFilterText: () => ''
     },
-    { field: 'name',
-    },
-    { field: 'description'},
     {
-      headerName: 'Join Domain',
-      field: 'configuration.join_domain',
-      cellRenderer: (param: any) => param.value
+      field: 'name',
     },
+    { field: 'description' },
     {
-      headerName: 'Firewall',
-      field: 'configuration.firewall_rule',
+      headerName: 'configuration',
+      field: 'configuration',
       autoHeight: true,
-      cellRenderer: function(param: any) {
-        if (param.value){
-          let html_str = "<div>"
-          for(let i in param.value) {
-            let item_html = `<div style='text-align:left'>Category: <b>${param.value[i]['category']}</b></div>`;
-            html_str += item_html;
-          }
-          html_str += "</div>"
-
-          return html_str;
-        }else {
-          return
+      cellRenderer: function (param: any) {
+        let html_str = "<ul>";
+        for (let i in param.value) {
+          let item_html = `<li>${i}</li>`;
+          html_str += item_html;
         }
-      },
-    },
-    {
-      headerName: 'Roles & Services',
-      suppressSizeToFit: true,
-      autoHeight: true,
-      field: 'configuration.role_services',
-      cellRenderer: function(param: any) {
-        if (param.value){
-          let html_str = ""
-          for(let i in param.value) {
-            let item_html = `<div>${param.value[i]}</div>`;
-            html_str += item_html;
-          }
-          return html_str;
-        }else {
-          return
-        }
-      }
-    },
-    {
-      headerName: 'Static Routes',
-      field: 'configuration.static_routes',
-      suppressSizeToFit: true,
-      minWidth: 300,
-      autoHeight: true,
-      cellRenderer: function(param: any) {
-        if (param.value){
-          let html_str = "<div>"
-          for(let i in param.value) {
-            let item_html = `<div style='text-align:left'>interface: <b>${param.value[i]['interface']}</b>, route: <b>${param.value[i]['route']}</b>, next_hop: <b>${param.value[i]['next_hop']}</b></div>`;
-            html_str += item_html;
-          }
-          html_str += "</div>"
-
-          return html_str;
-        }else {
-          return
-        }
-      },
-    },
-    {
-      headerName: 'OSPF',
-      field: 'configuration.ospf',
-      suppressSizeToFit: true,
-      minWidth: 300,
-      autoHeight: true,
-      cellRenderer: function(param: any) {
-        if (param.value){
-          let html_str = "<div>"
-          for(let i in param.value) {
-            let item_html = `<div style='text-align:left'>Networks: <b>${param.value[i]['networks']}</b></div>`;
-            html_str += item_html;
-          }
-          html_str += "</div>"
-
-          return html_str;
-        }else {
-          return
-        }
-      },
-    },
-    {
-      headerName: 'BGP',
-      field: 'configuration.bgp',
-      suppressSizeToFit: true,
-      minWidth: 60,
-      autoHeight: true,
-      cellRenderer: function(param: any) {
-        if (param.value){
-          let html_str = "<div>"
-          for(let i in param.value) {
-            let item_html = `<div style='text-align:left'>IP: <b>${param.value[i]['ip_address']}</b></div>`;
-            html_str += item_html;
-          }
-          html_str += "</div>"
-
-          return html_str;
-        }else {
-          return
-        }
+        html_str += "</ul>"
+        return html_str != '<ul></ul>' ? html_str : '';
       },
     },
   ];
@@ -180,10 +90,10 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
       }
     });
     iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
-   }
+  }
 
   ngOnInit(): void {
-    this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
+    this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
   }
 
   ngOnDestroy(): void {
@@ -219,7 +129,7 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
     const dialogData = {
       mode: 'add',
       genData: {
-        name:  '',
+        name: '',
         description: '',
       }
     }
@@ -237,7 +147,7 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
     } else {
       let file = new Blob();
       this.configTemplateService.export(this.rowsSelectedId).subscribe(response => {
-        file = new Blob([JSON.stringify(response, null, 4)], {type: 'application/json'});
+        file = new Blob([JSON.stringify(response, null, 4)], { type: 'application/json' });
         this.helpers.downloadBlob('Config-Export.json', file);
         this.toastr.success(`Exported Config as ${'json'.toUpperCase()} file successfully`);
       })
@@ -302,9 +212,9 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
                 this.toastr.error('Delete configuration template failed!', 'Error');
                 return throwError(() => error);
               })
-            ).subscribe(() =>{
+            ).subscribe(() => {
               this.configTemplateService.getAll().subscribe(
-                (data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result}))
+                (data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result }))
               );
               this.clearRow();
               this.toastr.success(`Delete configuration template successfully`, 'Success');
