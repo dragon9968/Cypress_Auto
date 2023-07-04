@@ -617,7 +617,7 @@ export class HelpersService implements OnDestroy {
     const pgEle = cy.getElementById(`pg-${pgId}`)
     const interfaces = pgEle.data('interfaces')
     const index = interfaces.findIndex((i: any) => i.id === interfaceId)
-    if (index !== -1 ) {
+    if (index !== -1) {
       interfaces.splice(index, 1)
     }
     pgEle.data('interfaces', interfaces)
@@ -637,11 +637,11 @@ export class HelpersService implements OnDestroy {
     edgesConnectedElement.map((edge: any) => {
       edge.data(type, element.data('name'));
       const pg = cy.getElementById(`pg-${edge.data('port_group_id')}`);
-        const netmaskName = this.getOptionById(this.netmasks, edge.data('netmask_id')).name
-        this.updateInterfaceOnEle(pg, {
-          id: edge.data('id'),
-          value: `${element.data('name')} - ${edge.data('ip') + netmaskName}`
-        });
+      const netmaskName = this.getOptionById(this.netmasks, edge.data('netmask_id')).name
+      this.updateInterfaceOnEle(pg, {
+        id: edge.data('id'),
+        value: `${element.data('name')} - ${edge.data('ip') + netmaskName}`
+      });
     })
   }
 
@@ -884,38 +884,27 @@ export class HelpersService implements OnDestroy {
     }
   }
 
-  removeInterface(ele: any, interface_pk: number) {
-    const interfaces = ele.data('interfaces').filter((i: any) => i.id != interface_pk);
-    ele.data('interfaces', interfaces);
-  }
-
   removeEdge(data: any) {
     const edgeData = data.edge.data();
-    const pg = data.cy.getElementById(`pg-${edgeData.port_group_id}`);
-    const pg_interface = pg.data('interfaces').filter((i: any) => i.id == edgeData.interface_pk)[0];
-    this.removeInterface(pg, edgeData.interface_pk);
     const node = data.cy.getElementById(`node-${edgeData.node_id}`);
-    const node_interface = node.data('interfaces').filter((i: any) => i.id == edgeData.interface_pk)[0];
-    this.removeInterface(node, edgeData.interface_pk);
-
-    if (edgeData && !edgeData.new) {
-      this.deletedInterfaces.push({
-        'name': edgeData.id,
-        'interface_pk': edgeData.interface_pk,
-        'pg_interface_value': pg_interface.value,
-        'node_interface_value': node_interface.value
-      });
-      edgeData.deleted = true;
-    }
+    const nodeInterface = node.data('interfaces').filter((i: any) => i.id == edgeData.interface_pk)[0];
+    this.deletedInterfaces.push({
+      'name': edgeData.id,
+      'interface_pk': edgeData.interface_pk,
+      'node_interface_value': nodeInterface.value
+    });
+    edgeData.deleted = true;
+    const updatedInterfaces = node.data('interfaces').filter((i: any) => i.id != edgeData.interface_pk);
+    node.data('interfaces', updatedInterfaces);
     this.store.dispatch(retrievedMapSelection({ data: true }));
     return { cy: data.cy, edge: data.edge.remove() };
   }
 
   restoreInterface(ele: any, interface_pk: number) {
-    const i = this.deletedInterfaces.find((i: any) => i.interface_pk == interface_pk);
+    const deletedInterface = this.deletedInterfaces.find((i: any) => i.interface_pk == interface_pk);
     const interfaces = [...ele.data('interfaces'), {
       id: interface_pk,
-      value: ele.data('elem_category') == 'node' ? i.node_interface_value : i.pg_interface_value
+      value: deletedInterface.node_interface_value
     }];
     ele.data('interfaces', interfaces);
   }
@@ -1175,7 +1164,7 @@ export class HelpersService implements OnDestroy {
     })
     const indexGroup = this.groups.findIndex(group => group.id === groupIds[0]);
     const newGroups = [...this.groups];
-    let newGroup = {...newGroups[indexGroup]};
+    let newGroup = { ...newGroups[indexGroup] };
     if (type == 'node') {
       newGroup.nodes = newItemInGroup;
       newGroups.splice(indexGroup, 1, newGroup);
@@ -1402,7 +1391,7 @@ export class HelpersService implements OnDestroy {
     const arr: any[] = [];
     if (!data || data === "") {
       return []
-    }else {
+    } else {
       const value = data.split(',');
       for (let i = 0; i < value.length; i++) {
         arr.push(value[i].trim())
