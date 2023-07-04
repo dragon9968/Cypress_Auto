@@ -56,7 +56,6 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
     },
     { field: 'description' },
     {
-      headerName: 'configuration',
       field: 'configuration',
       autoHeight: true,
       cellRenderer: function (param: any) {
