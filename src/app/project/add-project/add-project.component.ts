@@ -191,7 +191,7 @@ export class AddProjectComponent implements OnInit {
         this.selectedMapPrefByAppPref = data.default_map_pref
       }
     })
-    
+
     this.selectDefaultMapPref$ = this.store.select(selectMapPrefs).subscribe((selectedMapPref: any) => {
       if (selectedMapPref) {
         this.selectedDefaultMapPref = selectedMapPref.find((mapPref: any) => mapPref.name === this.selectedMapPrefByAppPref);
@@ -299,16 +299,16 @@ export class AddProjectComponent implements OnInit {
         networks: items,
         logical_map: {
           map_style: {
-            node: { "width": this.selectedDefaultMapPref.node_size + "px", "height": this.selectedDefaultMapPref.node_size + "px"},
-            port_group: { "size": this.selectedDefaultMapPref.port_group_size + "px", "color": this.selectedDefaultMapPref.port_group_color },
-            edge: { "size": this.selectedDefaultMapPref.edge_width + "px", "color": this.selectedDefaultMapPref.edge_color },
-            text: { "size": this.selectedDefaultMapPref.text_size + "px", "color": this.selectedDefaultMapPref.text_color },
-            group_box: { "color": this.selectedDefaultMapPref.group_box_color, "group_opacity": "20%", "zIndex": 997, "gbs": [] },
+            node: { "width": this.selectedDefaultMapPref?.node_size + "px", "height": this.selectedDefaultMapPref?.node_size + "px"},
+            port_group: { "size": this.selectedDefaultMapPref?.port_group_size + "px", "color": this.selectedDefaultMapPref?.port_group_color },
+            edge: { "size": this.selectedDefaultMapPref?.edge_width + "px", "color": this.selectedDefaultMapPref?.edge_color },
+            text: { "size": this.selectedDefaultMapPref?.text_size + "px", "color": this.selectedDefaultMapPref?.text_color },
+            group_box: { "color": this.selectedDefaultMapPref?.group_box_color, "group_opacity": "20%", "zIndex": 997, "gbs": [] },
             map_background: { "zIndex": 998, "bgs": [] },
-            "grid_settings": { "enabled": false, "spacing": this.selectedDefaultMapPref.grid_spacing+ "px", "snap": false },
+            "grid_settings": { "enabled": false, "spacing": this.selectedDefaultMapPref?.grid_spacing+ "px", "snap": false },
             "accessed": false,
             "cleared": false,
-            "default_map_pref_id": this.selectedDefaultMapPref.id
+            "default_map_pref_id": this.selectedDefaultMapPref?.id
           }
         }
       }

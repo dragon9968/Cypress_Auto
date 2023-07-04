@@ -112,6 +112,10 @@ export class NavBarComponent implements OnInit, OnDestroy {
       if (isOpen) {
         this.projectId = this.projectService.getProjectId();
         this.projectService.get(this.projectId).subscribe(projectData => {
+          this.store.dispatch(retrievedProjectCategory({ projectCategory: projectData.result.category}))
+          if (this.isHypervisorConnect || this.isConfiguratorConnect) {
+            this.store.dispatch(retrievedVMStatus({ vmStatus: projectData.result.configuration.vm_status }));
+          }
           const sharedProjectId = projectData.result.share.map((val: any) => val.id)
           if (projectData.result.created_by_fk != this.userId && !sharedProjectId.includes(this.userId) && this.router.url === '/map') {
             this.toastr.warning(`The user is not the owner of project ${projectData.result.name}. Cannot open the project ${projectData.result.name}`);
@@ -123,6 +127,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
             this.store.dispatch(retrievedProjectName({ projectName: projectData.result.name }));
             this.store.dispatch(retrievedProjectCategory({ projectCategory: projectData.result.category }))
           }
+
         });
       }
     });
@@ -157,11 +162,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
     }
     this.serverConnectService.getAll().subscribe((data: any) => this.store.dispatch(retrievedServerConnect({ data: data.result })));
     this.breakpointObserver.observe(['(max-width: 1365px)']).subscribe((state: BreakpointState) =>{
-      if (state.matches) {
-        this.isSmallScreen = true;
-      } else {
-        this.isSmallScreen = false;
-      }
+      this.isSmallScreen = state.matches;
     })
   }
 

@@ -231,7 +231,8 @@ export class CMActionsService {
                 cyData.node = nodeData.result.name;
                 cyData.port_group = cyData.port_group.name;
                 cyData.netmask = cyData.netmask.mask;
-                cyData.direction = cyData.logical_map?.map_style?.direction;
+                const directionMapStyle = cyData.logical_map?.map_style?.direction
+                cyData.direction = directionMapStyle ? directionMapStyle : cyData.direction ? cyData.direction : 'both';
                 const newEdgeData = {
                   source: 'node-' + edgeData.node_id,
                   target: 'pg-' + edgeData.port_group_id,

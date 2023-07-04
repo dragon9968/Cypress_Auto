@@ -322,13 +322,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.mapEditService.removeAllProjectNodesOnMap(this.cy)
       }
     })
-    this.projectService.get(+this.projectId).subscribe((data: any) => {
-      this.store.dispatch(retrievedProjectCategory({ projectCategory: data.result.category}))
-      if (this.isHypervisorConnect || this.isConfiguratorConnect) {
-        this.vmStatus = data.result.configuration.vm_status;
-        this.store.dispatch(retrievedVMStatus({ vmStatus: data.result.configuration.vm_status }));
-      }
-    })
     this.netmaskService.getAll().subscribe((data: any) => this.store.dispatch(retrievedNetmasks({ data: data.result })));
     this.store.dispatch(retrievedIsMapOpen({ data: true }));
     this.selectinterfacePkConnectPG = this.store.select(selectInterfacePkConnectPG).subscribe(interfacePkConnectPG => {

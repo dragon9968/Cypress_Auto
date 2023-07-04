@@ -115,7 +115,6 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.projectId = this.projectService.getProjectId();
-    this.domainService.getDomainByProjectId(this.projectId).subscribe((data: any) => this.store.dispatch(retrievedDomains({ data: data.result })));
   }
 
   addDomain() {
