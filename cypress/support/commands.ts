@@ -124,11 +124,11 @@ Cypress.Commands.add('importProject', importProject);
 // Export project by name
 declare namespace Cypress {
   interface Chainable<Subject = any> {
-    exportProject(projectName: string, isProjectOpened: boolean): typeof exportProject;
+    exportProject(projectName: string, isProjectOpened: boolean, newFileName?: string): typeof exportProject;
   }
 }
 
-function exportProject(projectName: string, isProjectOpened: boolean): void {
+function exportProject(projectName: string, isProjectOpened: boolean, newFileName?: string): void {
   cy.log('Export project')
   if (!isProjectOpened) {
     cy.openProjectByName(projectName)
@@ -137,6 +137,9 @@ function exportProject(projectName: string, isProjectOpened: boolean): void {
   cy.getByDataCy('btn-nav-project').should('exist').click()
   cy.getByDataCy('btn-export-import-project').should('exist').click()
   cy.getByDataCy('btn-export-project').should('exist').click()
+  if (newFileName) {
+    cy.getByFormControlName('fileNameCtr').focus().clear().type(newFileName)
+  }
   cy.getByDataCy('exportForm').submit()
   cy.checkingToastSuccess()
   cy.log('Exported project')
@@ -1018,6 +1021,44 @@ function addNewInterface(edge: any, nodeX: any, nodeY: any, pgX: any, pgY: any, 
 }
 Cypress.Commands.add('addNewInterface', addNewInterface);
 
+// Delete interface on map
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    deleteInterfaceOnMap(x: number, y: number): typeof deleteInterfaceOnMap;
+  }
+}
+
+function deleteInterfaceOnMap(x: number, y: number): void {
+  cy.get('canvas.expand-collapse-canvas').rightclick(x, y, {force: true}).then(() => {
+    cy.get('.cy-context-menus-cxt-menu').first().should('exist')
+    cy.get('#delete').should('exist').click({ force: true });
+    cy.getByMatToolTip('Save').click()
+  })
+}
+Cypress.Commands.add('deleteInterfaceOnMap', deleteInterfaceOnMap);
+
+// Export project by name
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    addTemplateIntoProject(projectName: string, isProjectOpened: boolean, templateName: string): typeof addTemplateIntoProject;
+  }
+}
+
+function addTemplateIntoProject(projectName: string, isProjectOpened: boolean, templateName: string): void {
+  cy.log('Start add a template into current project')
+  if (!isProjectOpened) {
+    cy.openProjectByName(projectName)
+  }
+  cy.waitingLoadingFinish()
+  cy.get('#toolpanel-add-template').click();
+  cy.getOptionByContent(templateName).first().click();
+  cy.getByDataCy('addTemplateForm').submit();
+  cy.get('canvas.expand-collapse-canvas').click(220, 250, { force: true });
+  cy.checkingToastSuccess()
+  cy.log('Added a template into current project')
+}
+Cypress.Commands.add('addTemplateIntoProject', addTemplateIntoProject);
+
 
 // Select node, port group or interface
 declare namespace Cypress {
@@ -1465,6 +1506,23 @@ function addUpdateMapPreferences (mapPreferences: any) {
   cy.log(`END: Add/Update new ${mapPreferences.name}`)
 }
 Cypress.Commands.add('addUpdateMapPreferences', addUpdateMapPreferences);
+
+// Unselect all elements on map
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    unSelectAllElementOnMap(): typeof unSelectAllElementOnMap;
+  }
+}
+
+function unSelectAllElementOnMap() {
+  cy.get('#cy').then((el: any) => {
+    const cytoscape = el[0]._cyreg.cy
+    cytoscape.nodes().unselect()
+    cytoscape.edges().unselect()
+  })
+}
+Cypress.Commands.add('unSelectAllElementOnMap', unSelectAllElementOnMap);
+
 
 // Checking toast message success
 declare namespace Cypress {

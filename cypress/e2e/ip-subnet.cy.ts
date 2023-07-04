@@ -88,11 +88,7 @@ describe('Test IP/Subnet in a interface on map', () => {
     }
 
     // Update interface
-    cy.get('#cy').then((el: any) => {
-      const cytoscape = el[0]._cyreg.cy
-      cytoscape.nodes().unselect()
-      cytoscape.edges().unselect()
-    })
+    cy.unSelectAllElementOnMap()
     cy.wait(4000)
 
     // check update netmask
@@ -106,7 +102,7 @@ describe('Test IP/Subnet in a interface on map', () => {
       cy.wait(2000)
 
     })
-    
+
     cy.wait(2000)
     cy.get('canvas.expand-collapse-canvas').rightclick(400, 300, {force: true}).then(() => {
       cy.get('.cy-context-menus-cxt-menu').first().should('exist')

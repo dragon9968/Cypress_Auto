@@ -1,4 +1,4 @@
-describe('Clone map tests', () => {
+describe('Clone map tests', {testIsolation: true}, () => {
   let admin: any = {}
   let node: any = {}
   let node2: any = {}
@@ -16,10 +16,6 @@ describe('Clone map tests', () => {
   const random = (Math.random() + 1).toString(36).substring(5);
   beforeEach(() => {
     cy.viewport(window.screen.width, window.screen.height)
-    cy.visit('/login')
-    cy.fixture('login/admin.json').then(adminData => {
-      admin = adminData
-    })
     cy.fixture('map/node.json').then(nodeData => {
       node = nodeData
       nodeX = node.logical_map.position.x
@@ -92,7 +88,7 @@ describe('Clone map tests', () => {
     cy.getMatSliderToggleByClass('.groupboxes-toggle').check({ force: true })
     // Save map
     cy.getByMatToolTip('Save').click()
-    cy.get('.toast-success', {timeout: 10000}).should('exist')
+    cy.checkingToastSuccess()
 
     // Select node
     cy.selectElementOnMap('node', node.name)
@@ -104,14 +100,11 @@ describe('Clone map tests', () => {
     cy.getByFormControlName('domainCtr').click()
     cy.get('.mat-option-text').contains(domain.name).first().click()
     cy.getButtonByTypeAndContent('submit', 'Update').click()
-    cy.get('.toast-success', {timeout: 10000}).should('exist')
+    cy.checkingToastSuccess()
 
     // Save map
     cy.getByMatToolTip('Save').click()
-    cy.get('.toast-success', {timeout: 10000}).should('exist')
+    cy.checkingToastSuccess()
   });
 
-  afterEach(() => {
-    Cypress.session.clearAllSavedSessions();
-  })
 })

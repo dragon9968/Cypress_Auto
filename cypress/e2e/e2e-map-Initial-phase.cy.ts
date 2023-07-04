@@ -56,7 +56,7 @@ describe('E2E Map - Initial Phase', () => {
 
     // Click on the first project
     cy.addNewProject(newProjectTemplate, true)
-    
+
     // Open project just created
     cy.visit('/projects/templates', { timeout: 15000 })
     cy.waitingLoadingFinish()
@@ -83,7 +83,7 @@ describe('E2E Map - Initial Phase', () => {
     cy.getByDataCy('btn-create-new').click()
     // Click on the first project
     cy.addNewProject(blankProject, true)
-    
+
     // import link project
     cy.importProject('cypress/fixtures/project/project-export.json')
 
@@ -113,11 +113,7 @@ describe('E2E Map - Initial Phase', () => {
     cy.selectMatTabByLabel(new RegExp('^Interfaces$', 'gi')).click();
     cy.get('div[col-id=port_group] .ag-cell-wrapper .ag-cell-value').should('not.be.empty')
 
-    cy.get('#cy').then((el: any) => {
-      const cytoscape = el[0]._cyreg.cy
-      cytoscape.nodes().unselect()
-      cytoscape.edges().unselect()
-    })
+    cy.unSelectAllElementOnMap()
 
     // [Edge Edit] Unable to clear value the Netmask
     cy.get('canvas.expand-collapse-canvas').rightclick(500, 300, {force: true}).then(() => {
@@ -131,11 +127,7 @@ describe('E2E Map - Initial Phase', () => {
       cy.wait(2000)
     })
 
-    cy.get('#cy').then((el: any) => {
-      const cytoscape = el[0]._cyreg.cy
-      cytoscape.nodes().unselect()
-      cytoscape.edges().unselect()
-    })
+    cy.unSelectAllElementOnMap()
 
     // [Map Editor] User cannot edit any elements on the map after they expanded a Project Node
     cy.get('#toolpanel-linkproject').click();
@@ -145,7 +137,7 @@ describe('E2E Map - Initial Phase', () => {
     cy.wait(1000)
     // Change Device/Template when clicking (+) Add Node button
     cy.get('#toolpanel-linkproject').should('be.disabled');
-    // 
+    //
     cy.get('canvas.expand-collapse-canvas').click(450, 250, { force: true });
     cy.wait(4000)
 
@@ -154,12 +146,8 @@ describe('E2E Map - Initial Phase', () => {
       cy.get('#expand_node').should('exist').click({ force: true });
     })
 
-    cy.get('#cy').then((el: any) => {
-      const cytoscape = el[0]._cyreg.cy
-      cytoscape.nodes().unselect()
-      cytoscape.edges().unselect()
-    })
-  
+    cy.unSelectAllElementOnMap()
+
     // cy.wait(2000)
     // cy.get('canvas.expand-collapse-canvas').rightclick(200, 200, {force: true}).then(() => {
     //   cy.get('.cy-context-menus-cxt-menu').first().should('exist')

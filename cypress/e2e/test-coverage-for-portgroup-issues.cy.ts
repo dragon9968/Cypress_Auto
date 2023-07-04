@@ -84,10 +84,10 @@ describe('Coverage for PortGroup issue', () => {
       ip_allocation: 'static_manual',
       ip_address: '192.168.229.52'
     }
-    
+
     // Add new interface from node
     cy.addNewInterface(edgeData1, nodeX, nodeY, pgX, pgY, false)
-    
+
     cy.selectMatTabByLabel('Option').click();
     cy.getMatSliderToggleByClass('.groupboxes-toggle').check({ force: true })
     cy.get('button[matTooltip="Save"]').click()
@@ -106,11 +106,7 @@ describe('Coverage for PortGroup issue', () => {
       cy.wait(2000)
     })
 
-    cy.get('#cy').then((el: any) => {
-      const cytoscape = el[0]._cyreg.cy
-      cytoscape.nodes().unselect()
-      cytoscape.edges().unselect()
-    })
+    cy.unSelectAllElementOnMap()
 
     cy.get('canvas.expand-collapse-canvas').rightclick(800, 400, {force: true}).then(() => {
       cy.get('.cy-context-menus-cxt-menu').first().should('exist')
@@ -142,11 +138,7 @@ describe('Coverage for PortGroup issue', () => {
       cy.wait(2000)
     })
 
-    cy.get('#cy').then((el: any) => {
-      const cytoscape = el[0]._cyreg.cy
-      cytoscape.nodes().unselect()
-      cytoscape.edges().unselect()
-    })
+    cy.unSelectAllElementOnMap()
 
     cy.get('canvas.expand-collapse-canvas').rightclick(700, 300, {force: true}).then(() => {
       cy.get('.cy-context-menus-cxt-menu').first().should('exist')
@@ -183,7 +175,7 @@ describe('Coverage for PortGroup issue', () => {
       ip_allocation: 'static_manual',
       ip_address: '192.168.229.52'
     }
-    
+
     // Add new interface from node
     cy.addNewInterface(edgeData1, nodeX, nodeY, pgX, pgY, false)
     cy.waitingLoadingFinish()
@@ -200,14 +192,7 @@ describe('Coverage for PortGroup issue', () => {
     blankProject.name = blankProject.name + '(1)'
     cy.addNewProject(blankProject, true)
 
-    cy.openProjectByName(blankProject.name)
-
-    cy.waitingLoadingFinish()
-    cy.get('#toolpanel-add-template').click();
-    cy.getOptionByContent(blankTemplate.name).first().click();
-    cy.getByDataCy('addTemplateForm').submit();
-    cy.get('canvas.expand-collapse-canvas').click(220, 250, { force: true });
-    cy.waitingLoadingFinish()
+    cy.addTemplateIntoProject(blankProject.name, false, blankTemplate.name)
 
     cy.selectMatTabByLabel('Option').click();
     cy.getMatSliderToggleByClass('.groupboxes-toggle').check({ force: true })
