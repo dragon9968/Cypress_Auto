@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { Subscription, catchError, throwError } from 'rxjs';
 import { ErrorMessages } from '../shared/enums/error-messages.enum';
@@ -32,7 +32,7 @@ export class UserProfileComponent implements OnInit {
       usernameCtr: new FormControl(''),
       firstNameCtr: new FormControl(''),
       lastNameCtr: new FormControl(''),
-      emailCtr: new FormControl(''),
+      emailCtr: new FormControl('', [Validators.email]),
       roleCtr: new FormControl({ value: '', disabled: true }),
     });
   }
