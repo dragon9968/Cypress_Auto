@@ -47,6 +47,7 @@ import { LDAPConfigurationComponent } from 'src/app/administration/ldap-configur
 import { LdapConfigService } from '../../services/ldap-config/ldap-config.service';
 import { retrievedDomains } from "../../../store/domain/domain.actions";
 import { DomainService } from "../../services/domain/domain.service";
+import { selectUserProfile } from 'src/app/store/user-profile/user-profile.selectors';
 
 @Component({
   selector: 'app-nav-bar',
@@ -68,6 +69,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   selectIsDatasourceConnect$ = new Subscription();
   selectIsConfiguratorConnect$ = new Subscription();
   selectProjectCategory$ = new Subscription();
+  selectUser$ = new Subscription();
   isHypervisorConnect = false;
   isDatasourceConnect = false;
   isConfiguratorConnect = false;
@@ -142,11 +144,13 @@ export class NavBarComponent implements OnInit, OnDestroy {
     })
     this.selectIsConfiguratorConnect$ = this.store.select(selectIsConfiguratorConnect).subscribe(isConfiguratorConnect => {
       this.isConfiguratorConnect = isConfiguratorConnect
-    })
-    this.userService.get_profile().subscribe(respData => {
-      this.username = respData.result.username;
-      this.store.dispatch(retrievedUserProfile({ data: respData.result }));
     });
+    this.selectUser$ = this.store.select(selectUserProfile).subscribe((user: any) => {
+      if (user) {
+        this.username = user.username;
+      }
+    });
+    
     this.selectProjectCategory$ = this.store.select(selectProjectCategory).subscribe(projectCategory => {
       this.categoryProject = projectCategory
     })
@@ -162,8 +166,12 @@ export class NavBarComponent implements OnInit, OnDestroy {
     }
     this.serverConnectService.getAll().subscribe((data: any) => this.store.dispatch(retrievedServerConnect({ data: data.result })));
     this.breakpointObserver.observe(['(max-width: 1365px)']).subscribe((state: BreakpointState) =>{
-      this.isSmallScreen = state.matches;
-    })
+      if (state.matches) {
+        this.isSmallScreen = true;
+      } else {
+        this.isSmallScreen = false;
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -173,7 +181,8 @@ export class NavBarComponent implements OnInit, OnDestroy {
     this.selectIsDatasourceConnect$.unsubscribe();
     this.selectIsConfiguratorConnect$.unsubscribe();
     this.selectProjectName$.unsubscribe();
-    this.selectProjectCategory$.unsubscribe()
+    this.selectProjectCategory$.unsubscribe();
+    this.selectUser$.unsubscribe();
   }
 
   logout() {

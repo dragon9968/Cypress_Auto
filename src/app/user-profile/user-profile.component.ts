@@ -73,6 +73,7 @@ export class UserProfileComponent implements OnInit {
       })
     ).subscribe((respData: any) => {
       this.toastr.success('User profile updated!');
+      this.store.dispatch(retrievedUserProfile({ data: respData.result }));
     });
   }
 }
