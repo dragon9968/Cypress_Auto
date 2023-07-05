@@ -333,7 +333,11 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         this._updateInterfaceOnMap(data);
         this.helpers.showOrHideArrowDirectionOnEdge(this.data.cy, this.data.genData.interface_pk)
         const e = this.data.cy.getElementById(`${this.data.genData.interface_pk}`);
-        e.move({ target: `pg-${data.port_group_id}` });
+        if (data.source.includes('pg')) {
+          e.move({ source: `pg-${data.port_group_id}` });
+        } else {
+          e.move({ target: `pg-${data.port_group_id}` });
+        }
         const node = this.data.cy.getElementById(`node-${data.node_id}`);
         const netmaskName = this.helpers.getOptionById(this.netmasks, data.netmask_id).name
         this.helpers.updateInterfaceOnEle(node, {
