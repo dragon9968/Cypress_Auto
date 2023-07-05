@@ -16,3 +16,7 @@ $margin: 8px;
 ::ng-deep .ag-header-cell-label {
   justify-content: center;
 }
+
+::ng-deep .ag-theme-alpine .ag-cell {
+  line-height: 20px;
+}
