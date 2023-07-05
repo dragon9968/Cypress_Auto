@@ -21,6 +21,9 @@ import { NgxPermissionsService } from "ngx-permissions";
 import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { Router } from '@angular/router';
 import { RolesService } from 'src/app/core/services/roles/roles.service';
+import { selectAppPref } from 'src/app/store/app-pref/app-pref.selectors';
+import { retrievedAppPref } from 'src/app/store/app-pref/app-pref.actions';
+import { AppPrefService } from 'src/app/core/services/app-pref/app-pref.service';
 
 @Component({
   selector: 'app-map-preferences',
@@ -38,8 +41,10 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
   private gridApi!: GridApi;
   selectMapPrefs$ = new Subscription();
   selectIcons$ = new Subscription();
+  selectAppPref$ = new Subscription();
   listIcons!: any[];
   icon_default: any[] = [];
+  appPrefDefault: any;
 
   defaultColDef: ColDef = {
     sortable: true,
@@ -130,6 +135,7 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
     private imageService: ImageService,
     private router: Router,
     private rolesService: RolesService,
+    private appPrefService: AppPrefService,
   ) {
     this.selectMapPrefs$ = this.store.select(selectMapPrefs).subscribe((data: any) => {
       if (data) {
@@ -144,12 +150,19 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
     this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
       this.listIcons = icons;
     });
+
+    this.selectAppPref$ = this.store.select(selectAppPref).subscribe((appPref: any) => {
+      if (appPref) {
+        this.appPrefDefault = appPref;
+      }
+    });
     iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
   }
 
   ngOnDestroy(): void {
     this.selectMapPrefs$.unsubscribe();
     this.selectIcons$.unsubscribe();
+    this.selectAppPref$.unsubscribe();
   }
 
   ngOnInit(): void {
@@ -173,6 +186,7 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
     }
     this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPrefs({data: data.result})));
     this.imageService.getByCategory('icon').subscribe((data: any) => this.store.dispatch(retrievedIcons({data: data.result})));
+    this.appPrefService.get("2").subscribe((data: any) => this.store.dispatch(retrievedAppPref({ data: data.result })));
   }
 
   onGridReady(params: GridReadyEvent) {
@@ -284,8 +298,8 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
           this.rowsSelected.map(mapPref => {
-            if (mapPref.id === 1) {
-              this.toastr.warning('Cannot not delete default preference', 'Warning')
+            if (mapPref.id === 1 || this.appPrefDefault?.default_map_pref === mapPref.name) {
+              this.toastr.warning(`Cannot not delete ${mapPref.name} preference', 'Warning`)
             } else {
               this.mapPrefService.delete(mapPref.id).pipe(
                 catchError(error => {
