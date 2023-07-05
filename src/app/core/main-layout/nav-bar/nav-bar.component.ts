@@ -40,7 +40,6 @@ import { ServerConnectDialogComponent } from 'src/app/map/tool-panel/tool-panel-
 import { retrievedServerConnect} from 'src/app/store/server-connect/server-connect.actions';
 import { AboutComponent } from 'src/app/help/about/about.component';
 import { ValidateProjectDialogComponent } from 'src/app/project/validate-project-dialog/validate-project-dialog.component';
-import { retrievedUserProfile } from 'src/app/store/user-profile/user-profile.actions';
 import { CloneProjectDialogComponent } from 'src/app/project/clone-project-dialog/clone-project-dialog.component';
 import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
 import { LDAPConfigurationComponent } from 'src/app/administration/ldap-configuration/ldap-configuration.component';

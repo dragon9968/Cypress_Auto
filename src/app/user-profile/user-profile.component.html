@@ -27,6 +27,6 @@
     </mat-form-field>
   </div>
   <div>
-    <button mat-raised-button type="submit" data-cy="cy-profile-btn" color="primary" [disabled]="!userProfileForm.dirty">Update</button>
+    <button mat-raised-button type="submit" data-cy="cy-profile-btn" color="primary" [disabled]="!userProfileForm.dirty || !userProfileForm.valid">Update</button>
   </div>
 </form>

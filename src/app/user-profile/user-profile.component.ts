@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { Subscription, catchError, throwError } from 'rxjs';
@@ -15,7 +15,7 @@ import { AuthService } from '../core/services/auth/auth.service';
   templateUrl: './user-profile.component.html',
   styleUrls: ['./user-profile.component.scss']
 })
-export class UserProfileComponent implements OnInit {
+export class UserProfileComponent implements OnInit, OnDestroy {
   userProfileForm: FormGroup;
   errorMessages = ErrorMessages;
   selectUser$ = new Subscription();
@@ -35,16 +35,6 @@ export class UserProfileComponent implements OnInit {
       emailCtr: new FormControl('', [Validators.email]),
       roleCtr: new FormControl({ value: '', disabled: true }),
     });
-  }
-
-  get usernameCtr() { return this.userProfileForm.get('usernameCtr'); }
-  get firstNameCtr() { return this.userProfileForm.get('firstNameCtr'); }
-  get lastNameCtr() { return this.userProfileForm.get('lastNameCtr'); }
-  get emailCtr() { return this.userProfileForm.get('emailCtr'); }
-  get roleCtr() { return this.userProfileForm.get('roleCtr'); }
-
-  ngOnInit(): void {
-    this.userId = this.authService.getUserId();
     this.selectUser$ = this.store.select(selectUserProfile).subscribe((user: any) => {
       if (user) {
         this.usernameCtr?.setValue(user.username);
@@ -57,6 +47,23 @@ export class UserProfileComponent implements OnInit {
         }
       }
     });
+  }
+
+  get usernameCtr() { return this.userProfileForm.get('usernameCtr'); }
+  get firstNameCtr() { return this.userProfileForm.get('firstNameCtr'); }
+  get lastNameCtr() { return this.userProfileForm.get('lastNameCtr'); }
+  get emailCtr() { return this.userProfileForm.get('emailCtr'); }
+  get roleCtr() { return this.userProfileForm.get('roleCtr'); }
+
+  ngOnInit(): void {
+    this.userId = this.authService.getUserId();
+    this.userService.getProfile().subscribe(respData => {
+      this.store.dispatch(retrievedUserProfile({ data: respData.result }));
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.selectUser$.unsubscribe();
   }
 
   updateUserProfile() {
