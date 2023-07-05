@@ -912,14 +912,10 @@ export class HelpersService implements OnDestroy {
   restoreEdge(data: any) {
     const edge_restore = data.edge.restore();
     const edgeData = edge_restore.data();
-    const pg = data.cy.getElementById(`pg-${edgeData.port_group_id}`);
-    this.restoreInterface(pg, edgeData.interface_pk);
     const node = data.cy.getElementById(`node-${edgeData.node_id}`);
     this.restoreInterface(node, edgeData.interface_pk);
-    if (edgeData && !edgeData.new) {
-      edgeData.deleted = false;
-      this.deletedInterfaces.pop();
-    }
+    edgeData.deleted = false;
+    this.deletedInterfaces.pop();
     this.store.dispatch(retrievedMapSelection({ data: true }));
     return { cy: data.cy, edge: edge_restore };
   }

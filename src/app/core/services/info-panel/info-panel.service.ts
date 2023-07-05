@@ -31,6 +31,8 @@ import { retrievedIsHypervisorConnect } from "src/app/store/server-connect/serve
 import { retrievedVMStatus } from "src/app/store/project/project.actions";
 import { RemoteCategories } from "../../enums/remote-categories.enum";
 import { PortGroupRandomizeSubnetModel } from "../../models/port-group.model";
+import { NodeService } from "../node/node.service";
+
 @Injectable({
   providedIn: 'root'
 })
@@ -66,9 +68,10 @@ export class InfoPanelService implements OnDestroy {
     private mapService: MapService,
     private interfaceService: InterfaceService,
     private portGroupService: PortGroupService,
+    private nodeService: NodeService,
     private groupService: GroupService,
     private domainService: DomainService,
-    private helperServices: HelpersService,
+    private helpersService: HelpersService,
     private userTaskService: UserTaskService,
     private projectService: ProjectService,
     private domainUserService: DomainUserService,
@@ -720,7 +723,11 @@ export class InfoPanelService implements OnDestroy {
           const last_octet = ip.length == 4 ? "." + ip[3] : "";
           element.data('ip', ip_str);
           element.data('ip_last_octet', last_octet);
-        })
+          this.nodeService.get(ele.node_id).subscribe(nodeData => {
+            this.helpersService.updateNodesStorage(nodeData.result);
+            this.helpersService.updateNodeOnMap(this.cy, 'node-' + nodeData.result.id, nodeData.result);
+          });
+        });
         response.message.map((message: string) => {
           this.toastr.success(message);
         });
