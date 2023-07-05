@@ -890,7 +890,7 @@ declare namespace Cypress {
 
 function addNewNodeOnMap(node: any, positionX: any, positionY: any, custom: boolean): void {
   cy.log(`START: Add new node ${node.name}`)
-  cy.wait(2000)
+  cy.waitingLoadingFinish()
   cy.getByFormControlName('deviceCtr').first().click()
   cy.get('.option-text').contains(node.device_name).first().click()
   cy.getByFormControlName('templateCtr').click()

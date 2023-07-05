@@ -10,9 +10,9 @@
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Device</mat-label>
-      <input autocomplete="off" id="hardware-device" [readonly]="data.mode === 'view'" matInput type="text" placeholder="Select a device" [formControl]="device" [matAutocomplete]="autoDevice">
+      <input autocomplete="off" id="hardware-device" [readonly]="data.mode === 'view'" matInput type="text" placeholder="Select a device" [formControl]="deviceCtr" [matAutocomplete]="autoDevice">
       <mat-autocomplete #autoDevice="matAutocomplete" [displayWith]="helpers.optionDisplay"
-        (optionSelected)="selectDevice($event)">
+                        (optionSelected)="selectDevice($event)">
         <mat-option *ngFor="let option of filteredDevices | async" [value]="option">
           <div class="option-text">
             <img [src]="ICON_PATH + option.icon?.photo" height="24" width="24">
@@ -21,13 +21,13 @@
           </div>
         </mat-option>
       </mat-autocomplete>
-      <mat-error *ngIf="device?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-      <mat-error *ngIf="device?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+      <mat-error *ngIf="deviceCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="deviceCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Template</mat-label>
-      <input autocomplete="off" id="hardware-template" [readonly]="data.mode === 'view'" matInput type="text" placeholder="Select a template" [formControl]="template"
-        [matAutocomplete]="autoTemplate">
+      <input autocomplete="off" id="hardware-template" [readonly]="data.mode === 'view'" matInput type="text" placeholder="Select a template" [formControl]="templateCtr"
+             [matAutocomplete]="autoTemplate">
       <mat-autocomplete #autoTemplate="matAutocomplete" [displayWith]="helpers.templateDisplay">
         <mat-option *ngFor="let option of filteredTemplates | async" [value]="option">
           <div class="option-text">
@@ -37,24 +37,28 @@
           </div>
         </mat-option>
       </mat-autocomplete>
-      <mat-error *ngIf="template?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-      <mat-error *ngIf="template?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+      <mat-error *ngIf="templateCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="templateCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Serial Number</mat-label>
-      <input autocomplete="off" id="hardware-serialnumber" [readonly]="data.mode === 'view'" type="text" formControlName="serialNumber" matInput>
-      <mat-error *ngIf="serialNumber?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-      <mat-error *ngIf="serialNumber?.errors?.isExist">{{ errorMessages.SERIAL_NUMBER_EXIST }}</mat-error>
+      <input autocomplete="off" id="hardware-serialnumber" [readonly]="data.mode === 'view'" type="text" formControlName="serialNumberCtr" matInput>
+      <mat-error *ngIf="serialNumberCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="serialNumberCtr?.errors?.isExist">{{ errorMessages.SERIAL_NUMBER_EXIST }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Asset Tag</mat-label>
-      <input autocomplete="off" id="hardware-asset" [readonly]="data.mode === 'view'" type="text" formControlName="assetTag" matInput>
+      <input autocomplete="off" id="hardware-asset" [readonly]="data.mode === 'view'" type="text" formControlName="assetTagCtr" matInput>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Firmware</mat-label>
+      <input autocomplete="off" id="hardware-firmware" [readonly]="data.mode === 'view'" type="text" formControlName="firmwareCtr" matInput>
     </mat-form-field>
   </div>
   <div mat-dialog-actions [align]="'end'" class="create-btn">
     <button mat-raised-button type="button" (click)="onCancel()">{{data.mode === 'view' ? 'Close' : 'Cancel'}}</button>
     <button *ngIf="data.mode !== 'view'" type="submit" mat-raised-button color="primary" [disabled]="!hardwareForm.valid">
-     {{ data.mode === 'add' ? 'Create' : 'Update' }}
+      {{ data.mode === 'add' ? 'Create' : 'Update' }}
     </button>
   </div>
 </form>

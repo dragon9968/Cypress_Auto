@@ -63,7 +63,11 @@ export class HardwareComponent implements OnInit, OnDestroy {
       field: 'serial_number'},
     {
       headerName: 'Asset Tag',
-      field: 'asset_tag'}
+      field: 'asset_tag'
+    },
+    {
+      field: 'firmware'
+    },
   ];
   constructor(
     private store: Store,
@@ -87,7 +91,7 @@ export class HardwareComponent implements OnInit, OnDestroy {
       }
     });
     iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
-   }
+  }
 
   ngOnInit(): void {
     this.deviceService.getAll().subscribe(data => this.store.dispatch(retrievedDevices({data: data.result})))

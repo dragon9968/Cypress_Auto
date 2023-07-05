@@ -47,22 +47,23 @@ export class AddEditHardwareDialogComponent implements OnInit, OnDestroy {
   ) {
     this.isViewMode = this.data.mode == 'view';
     this.hardwareForm = new FormGroup({
-      device: new FormControl({value: '', disabled: this.isViewMode}),
-      template: new FormControl({value: '', disabled: this.isViewMode}),
-      serialNumber: new FormControl({value: '', disabled: this.isViewMode},
+      deviceCtr: new FormControl({value: '', disabled: this.isViewMode}),
+      templateCtr: new FormControl({value: '', disabled: this.isViewMode}),
+      serialNumberCtr: new FormControl({value: '', disabled: this.isViewMode},
         [Validators.required, validateNameExist(() => this.hardwares, this.data.mode, this.data.genData.id, 'serial_number')]),
-      assetTag: new FormControl({value: '', disabled: this.isViewMode})
+      assetTagCtr: new FormControl({value: '', disabled: this.isViewMode}),
+      firmwareCtr: new FormControl({value: '', disabled: this.isViewMode}),
     });
     this.selectDevices$ = this.store.select(selectDevices).subscribe((data: any) => {
       this.listDevices = data;
-      this.device.setValidators([Validators.required, autoCompleteValidator(this.listDevices)]);
-      this.filteredDevices = this.helpers.filterOptions(this.device, this.listDevices);
+      this.deviceCtr.setValidators([Validators.required, autoCompleteValidator(this.listDevices)]);
+      this.filteredDevices = this.helpers.filterOptions(this.deviceCtr, this.listDevices);
     });
     this.selectTemplates$ = this.store.select(selectTemplates).subscribe((listTemplate: any) => {
       this.listTemplate = listTemplate;
-      this.template.setValidators([Validators.required, autoCompleteValidator(this.listTemplate, 'display_name')]);
+      this.templateCtr.setValidators([Validators.required, autoCompleteValidator(this.listTemplate, 'display_name')]);
       this.filteredTemplates = listTemplate;
-      this.filteredTemplates = this.helpers.filterOptions(this.template, this.filteredTemplatesByDevice, 'display_name');
+      this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice, 'display_name');
     });
     this.selectHardwares$ = this.store.select(selectHardwares).subscribe(
       hardwares => this.hardwares = hardwares
@@ -71,11 +72,12 @@ export class AddEditHardwareDialogComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.filteredTemplatesByDevice = this.listTemplate.filter((template: any) => template.device_id == this.data.genData.device?.id);
-    this.filteredTemplates = this.helpers.filterOptions(this.template, this.filteredTemplatesByDevice, 'display_name');
-    this.helpers.setAutoCompleteValue(this.device, this.listDevices, this.data.genData.device?.id);
-    this.helpers.setAutoCompleteValue(this.template, this.filteredTemplatesByDevice, this.data.genData.template?.id);
-    this.serialNumber?.setValue(this.data.genData.serial_number);
-    this.assetTag?.setValue(this.data.genData.asset_tag);
+    this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice, 'display_name');
+    this.helpers.setAutoCompleteValue(this.deviceCtr, this.listDevices, this.data.genData.device?.id);
+    this.helpers.setAutoCompleteValue(this.templateCtr, this.filteredTemplatesByDevice, this.data.genData.template?.id);
+    this.serialNumberCtr?.setValue(this.data.genData.serial_number);
+    this.assetTagCtr?.setValue(this.data.genData.asset_tag);
+    this.firmwareCtr?.setValue(this.data.genData.firmware);
   }
 
   ngOnDestroy(): void {
@@ -84,10 +86,11 @@ export class AddEditHardwareDialogComponent implements OnInit, OnDestroy {
     this.selectHardwares$.unsubscribe();
   }
 
-  get device() { return this.helpers.getAutoCompleteCtr(this.hardwareForm.get('device'), this.listDevices); }
-  get template() { return this.helpers.getAutoCompleteCtr(this.hardwareForm.get('template'), this.listTemplate); }
-  get serialNumber() { return this.hardwareForm.get('serialNumber')};
-  get assetTag() { return this.hardwareForm.get('assetTag')};
+  get deviceCtr() { return this.helpers.getAutoCompleteCtr(this.hardwareForm.get('deviceCtr'), this.listDevices); }
+  get templateCtr() { return this.helpers.getAutoCompleteCtr(this.hardwareForm.get('templateCtr'), this.listTemplate); }
+  get serialNumberCtr() { return this.hardwareForm.get('serialNumberCtr')};
+  get assetTagCtr() { return this.hardwareForm.get('assetTagCtr')};
+  get firmwareCtr() { return this.hardwareForm.get('firmwareCtr')};
 
   onCancel() {
     this.dialogRef.close();
@@ -95,17 +98,18 @@ export class AddEditHardwareDialogComponent implements OnInit, OnDestroy {
 
   selectDevice($event: MatAutocompleteSelectedEvent) {
     this.filteredTemplatesByDevice = this.listTemplate.filter(template => template.device_id == $event.option.value.id);
-    this.filteredTemplates = this.helpers.filterOptions(this.template, this.filteredTemplatesByDevice, 'display_name');
-    this.template?.setValue('');
+    this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice, 'display_name');
+    this.templateCtr?.setValue('');
   }
 
   addHardware() {
     if (this.hardwareForm.valid) {
       const jsonDataValue = {
-        device_id: this.device?.value.id,
-        template_id: this.template?.value.id,
-        serial_number: this.serialNumber?.value,
-        asset_tag: this.assetTag?.value
+        device_id: this.deviceCtr?.value.id,
+        template_id: this.templateCtr?.value.id,
+        serial_number: this.serialNumberCtr?.value,
+        asset_tag: this.assetTagCtr?.value,
+        firmware: this.firmwareCtr?.value
       };
       const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.hardwareService.add(jsonData).subscribe({
@@ -124,10 +128,11 @@ export class AddEditHardwareDialogComponent implements OnInit, OnDestroy {
   updateHardware() {
     if (this.hardwareForm.valid) {
       const jsonDataValue = {
-        device_id: this.device?.value.id,
-        template_id: this.template?.value.id,
-        serial_number: this.serialNumber?.value,
-        asset_tag: this.assetTag?.value
+        device_id: this.deviceCtr?.value.id,
+        template_id: this.templateCtr?.value.id,
+        serial_number: this.serialNumberCtr?.value,
+        asset_tag: this.assetTagCtr?.value,
+        firmware: this.firmwareCtr?.value
       };
       const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.hardwareService.put(this.data.genData.id, jsonData).subscribe({
@@ -146,10 +151,11 @@ export class AddEditHardwareDialogComponent implements OnInit, OnDestroy {
   changeViewToEdit() {
     this.data.mode = 'edit';
     this.isViewMode = false;
-    this.device?.enable();
-    this.template?.enable();
-    this.serialNumber?.enable();
-    this.assetTag?.enable()
+    this.deviceCtr?.enable();
+    this.templateCtr?.enable();
+    this.serialNumberCtr?.enable();
+    this.assetTagCtr?.enable();
+    this.firmwareCtr?.enable();
   }
 }
 

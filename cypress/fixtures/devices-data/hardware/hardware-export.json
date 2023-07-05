@@ -10,6 +10,7 @@
             "template_id": 4,
             "serial_number": "QWET",
             "asset_tag": "ASD111",
+            "firmware": "Intel NIC firmware",
             "info": {
                 "mac_address": {}
             },
