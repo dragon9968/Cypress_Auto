@@ -322,6 +322,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.mapEditService.removeAllProjectNodesOnMap(this.cy)
       }
     })
+    this.projectService.get(+this.projectId).subscribe((data: any) => {
+      this.store.dispatch(retrievedProjectCategory({ projectCategory: data.result.category }))
+      if (this.isHypervisorConnect || this.isConfiguratorConnect) {
+        this.vmStatus = data.result.configuration.vm_status;
+        this.store.dispatch(retrievedVMStatus({ vmStatus: data.result.configuration.vm_status }));
+      }
+    })
     this.netmaskService.getAll().subscribe((data: any) => this.store.dispatch(retrievedNetmasks({ data: data.result })));
     this.store.dispatch(retrievedIsMapOpen({ data: true }));
     this.selectinterfacePkConnectPG = this.store.select(selectInterfacePkConnectPG).subscribe(interfacePkConnectPG => {
@@ -760,7 +767,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     if (this.isGroupBoxesChecked) {
       const target = $event.target;
       const data = target.data();
-      if (dropTarget.data('label') == 'group_box') {
+      if (dropTarget.data('label') && dropTarget.data('label') == 'group_box') {
         if (this.groupCategoryId == 'domain') {
           const g = data.groups.filter((gb: any) => gb.category == 'domain');
           if (g[0]?.id != dropTarget.data('group_id')) {
@@ -770,7 +777,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           }
         }
         target.move({ 'parent': 'group-' + dropTarget.data('group_id') });
-      } else if (dropTarget.data('label') != 'group_box') {
+      } else if (dropTarget.data('label') && dropTarget.data('label') != 'group_box') {
         data.domain = 'default.test';
         data.domain_id = this.domains.filter(d => d.name == 'default.test')[0].id;
         this.updateGroups(data);
@@ -1131,6 +1138,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     dialogRef.afterClosed().subscribe((_data: any) => {
       this.isAddNode = false;
       this._enableMapEditButtons();
+      this.groupService.getGroupByProjectId(this.projectId).subscribe(
+        groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
+      );
     });
   }
 
@@ -1189,7 +1199,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         cyData.text_size = cyData.logical_map.map_style.text_size;
         cyData.groups = respData.result.groups;
         cyData.icon = ICON_PATH + respData.result.icon.photo;
+        cyData.elem_category = 'node';
         this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
+        this.groupService.getGroupByProjectId(this.projectId).subscribe(
+          groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
+        );
         this.helpersService.reloadGroupBoxes(this.cy);
         this.isAddNode = false;
         this._enableMapEditButtons();
@@ -1219,6 +1233,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       if (this.isAddPrivatePG) this.isAddPrivatePG = false;
       this._enableMapEditButtons();
       this.portgroupService.getByProjectId(this.projectId).subscribe((data: any) => this.store.dispatch(retrievedPortGroups({ data: data.result })));
+      this.groupService.getGroupByProjectId(this.projectId).subscribe(
+        groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
+      );
     });
   }
 
@@ -1258,7 +1275,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         cyData.text_size = cyData.logical_map.map_style.text_size;
         cyData.color = cyData.logical_map.map_style.color;
         cyData.groups = respData.result.groups;
+        cyData.elem_category = 'port_group';
         this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
+        this.groupService.getGroupByProjectId(this.projectId).subscribe(
+          groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
+        );
         this.helpersService.reloadGroupBoxes(this.cy);
         if (this.isAddPublicPG) this.isAddPublicPG = false;
         if (this.isAddPrivatePG) this.isAddPrivatePG = false;
