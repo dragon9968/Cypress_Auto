@@ -19,11 +19,13 @@ describe('Device/Template e2e testing', {testIsolation: true}, () => {
     display_name: 'Test Template',
     name: 'test_template',
     category: 'other',
-    login_profile_name: 'Test Device Login'
+    login_profile_name: 'Test Device Login',
+    version: '1.0.0'
   }
   const templateUpdate = {
     name: 'Test VM Template',
-    category: 'vm'
+    category: 'vm',
+    version: '1.0.1'
   }
 
   let deviceImportName = ''
@@ -67,11 +69,12 @@ describe('Device/Template e2e testing', {testIsolation: true}, () => {
     cy.selectDeviceByName(newDevice.name)
 
     cy.showFormAddByMatTooltip('Add New Template')
-    cy.getByFormControlName('displayName').clear().type(newTemplate.display_name)
-    cy.getByFormControlName('name').clear().type(newTemplate.name)
+    cy.getByFormControlName('displayNameCtr').clear().type(newTemplate.display_name)
+    cy.getByFormControlName('nameCtr').clear().type(newTemplate.name)
     cy.get(`mat-radio-button[value=${newTemplate.category}]`).click()
     cy.get('#template-login-profile').clear().type(newTemplate.login_profile_name)
     cy.getOptionByContent(newTemplate.login_profile_name).first().click()
+    cy.getByFormControlName('versionCtr').clear().type(newTemplate.version)
     cy.checkingMatErrorIsExistOrNot(false)
     cy.getButtonByTypeAndContent('submit', 'Create').click()
     cy.checkingToastSuccess()
@@ -82,9 +85,11 @@ describe('Device/Template e2e testing', {testIsolation: true}, () => {
     cy.selectDeviceByName(newDevice.name)
 
     cy.get('.table__nav--search input#search-template').clear().type(newTemplate.name)
-    cy.get('.ag-row').contains(newTemplate.name, {timeout: 5000}).first().click({ force: true }).type(" ");
+    cy.waitingLoadingFinish()
+    cy.get('.ag-row').contains(newTemplate.name).first().click({ force: true }).type(" ");
     cy.getByMatToolTip('Edit Template').click()
-    cy.getByFormControlName('name').clear().type(templateUpdate.name)
+    cy.getByFormControlName('nameCtr').clear().type(templateUpdate.name)
+    cy.getByFormControlName('versionCtr').clear().type(templateUpdate.version)
     cy.get(`mat-radio-button[value=${templateUpdate.category}]`).click()
     cy.get('mat-error').should('not.exist')
     cy.getButtonByTypeAndContent('submit', 'Update').click()

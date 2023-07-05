@@ -153,6 +153,10 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
         }
       },
     },
+    {
+      field: 'version',
+      flex: 1
+    }
   ];
   constructor(
     private store: Store,
@@ -294,6 +298,7 @@ export class DeviceTemplateComponent implements OnInit, OnDestroy {
         icon:  '',
         loginProfile:  '',
         defaultConfigFile: '',
+        version: ''
       }
     }
     const dialogRef = this.dialog.open(AddEditTemplateDialogComponent, {
