@@ -20,6 +20,7 @@ import { InterfaceService } from 'src/app/core/services/interface/interface.serv
 import { DomainService } from 'src/app/core/services/domain/domain.service';
 import { retrievedDomains } from "../../../store/domain/domain.actions";
 import { ProjectService } from "../../../project/services/project.service";
+import { selectMapFilterOptionNodes } from 'src/app/store/map-filter-option/map-filter-option.selectors';
 
 @Component({
   selector: 'app-info-panel-table',
@@ -34,6 +35,8 @@ export class InfoPanelTableComponent {
   private gridApi!: GridApi;
   rowsSelected: any[] = [];
   rowsSelectedId: any[] = [];
+  selectMapFilterOption$: any;
+  filterOption: any;
 
   get gridHeight() {
     const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
@@ -50,7 +53,11 @@ export class InfoPanelTableComponent {
     private interfaceService: InterfaceService,
     private infoPanelService: InfoPanelService,
     private projectService: ProjectService
-  ) { }
+  ) {
+    this.selectMapFilterOption$ = this.store.select(selectMapFilterOptionNodes).subscribe(mapFilterOption => {
+      this.filterOption = mapFilterOption
+    })
+   }
 
   setRowData(rowData: any[]) {
     this.gridApi?.setRowData(rowData);
@@ -69,18 +76,45 @@ export class InfoPanelTableComponent {
   }
 
   selectedRows() {
+    let unSelectedElements = this.rowsSelected
     this.rowsSelected = this.gridApi.getSelectedRows();
     this.rowsSelectedId = this.rowsSelected.map(ele => {
       if (this.tabName == 'node') {
-        return ele.node_id;
+        const nodeId = ele.node_id;
+        const nodeCy = this.cy.getElementById(`node-${nodeId}`);
+        nodeCy.select();
+        return nodeId;
       } else if (this.tabName == 'portgroup' || this.tabName == 'portGroupManagement') {
+        const nodeCy = this.cy.getElementById(`pg-${ele.pg_id}`);
+        nodeCy.select();
         return ele.pg_id;
       } else if (this.tabName == 'edge' || this.tabName == 'edgeManagement') {
+        const edgeCy = this.cy.getElementById(ele.id);
+        edgeCy.select();
         return ele.interface_pk;
       } else {
         return ele.id;
       }
     });
+    if (this.filterOption === 'all' && this.tabName == 'node' && unSelectedElements.length > 0) {
+      const unSelectedNode = unSelectedElements.filter(val => !this.rowsSelectedId.includes(val.node_id))
+      unSelectedNode.forEach(el => {
+        const nodeCy = this.cy.getElementById(el.id);
+        nodeCy.unselect();
+      })
+    } else if (this.filterOption === 'all' && (this.tabName == 'portgroup' || this.tabName == 'portGroupManagement') && unSelectedElements.length > 0 ) {
+      const unSelectedPg = unSelectedElements.filter(val => !this.rowsSelectedId.includes(val.pg_id))
+      unSelectedPg.forEach(el => {
+        const nodeCy = this.cy.getElementById(el.id);
+        nodeCy.unselect();
+      })
+    } else if (this.filterOption === 'all' && this.tabName == 'edge' || this.tabName == 'edgeManagement' && unSelectedElements.length > 0) {
+      const unSelectedPg = unSelectedElements.filter(val => !this.rowsSelectedId.includes(val.interface_pk))
+      unSelectedPg.forEach(el => {
+        const edgeCy = this.cy.getElementById(el.id);
+        edgeCy.unselect();
+      })
+    }
   }
 
   clearTable() {

@@ -32,4 +32,5 @@ export enum ReducerKeys {
     LOOKUP_FEATURES = 'lookupFeatures',
     LOOKUP_NAMES = 'lookupNames',
     NETMASKS = 'netmasks',
+    FILTER_OPTION = 'filterOption'
 }

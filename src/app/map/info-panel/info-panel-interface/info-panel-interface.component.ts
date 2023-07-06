@@ -3,7 +3,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { ToastrService } from "ngx-toastr";
 import { MatIconRegistry } from "@angular/material/icon";
 import { Subscription } from "rxjs";
-import { Component, Input, OnDestroy, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { GridOptions, RowDoubleClickedEvent } from "ag-grid-community";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
@@ -12,13 +12,18 @@ import { retrievedMapSelection } from "src/app/store/map-selection/map-selection
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { AddUpdateInterfaceDialogComponent } from "../../add-update-interface-dialog/add-update-interface-dialog.component";
 import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
+import { FormControl, FormGroup } from "@angular/forms";
+import { MatMenuTrigger } from "@angular/material/menu";
+import { retrievedMapFilterOptionInterfaces } from "src/app/store/map-filter-option/map-filter-option.actions";
+import { selectInterfaces } from "src/app/store/map/map.selectors";
+import { selectMapFilterOptionInterfaces } from "src/app/store/map-filter-option/map-filter-option.selectors";
 
 @Component({
   selector: 'app-info-panel-interface',
   templateUrl: './info-panel-interface.component.html',
   styleUrls: ['./info-panel-interface.component.scss']
 })
-export class InfoPanelInterfaceComponent implements OnDestroy {
+export class InfoPanelInterfaceComponent implements OnDestroy, OnInit {
   @ViewChild(InfoPanelTableComponent) infoPanelTableComponent: InfoPanelTableComponent | undefined;
 
   @Input() cy: any;
@@ -29,9 +34,17 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterfaces: any[] = [];
   @Input() infoPanelheight = '300px';
+  filterOptionForm!: FormGroup;
+  interfaces: any[] = [];
+  rowDataInterfaces: any[] = [];
+  activeEleIds: any[] = [];
+  filterOption = 'all';
+  // mapSelection!: any;
 
   tabName = 'edge';
   selectMapSelection$ = new Subscription();
+  selectInterfaces$ = new Subscription();
+  selectMapFilterOptionInterfaces$ = new Subscription();
   gridOptions: GridOptions = {
     headerHeight: 48,
     defaultColDef: {
@@ -140,14 +153,43 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
     private infoPanelService: InfoPanelService
   ) {
     this.iconRegistry.addSvgIcon('randomize-subnet', this.helpers.setIconPath('/assets/icons/randomize-subnet.svg'));
-    this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
-      if (mapSelection) {
-        const rowData = this.activeEdges.map(ele => ele.data())
-        const activeEleIds = this.activeEdges.map(ele => ele.data('id'));
-        this.infoPanelTableComponent?.setSelectedEles(activeEleIds, rowData);
+    this.selectInterfaces$ = this.store.select(selectInterfaces).subscribe(interfaces => {
+      if (interfaces) {
+      this.interfaces = interfaces.map((el: any) => el.data);
+      this.infoPanelTableComponent?.setRowData(this.interfaces);
+      }
+    })
+    this.selectMapFilterOptionInterfaces$ = this.store.select(selectMapFilterOptionInterfaces).subscribe(mapFilterOption => {
+      this.filterOption = mapFilterOption;
+      if (mapFilterOption && mapFilterOption == 'all') {
+        const activeEleInterfaceIds = this.activeEdges.map(ele => ele.data('interface_pk'));
+        this.infoPanelTableComponent?.setRowData(this.interfaces);
+        this.infoPanelTableComponent?.deselectAll();
+        this.infoPanelTableComponent?.setRowActive(activeEleInterfaceIds)
+      } else if (mapFilterOption && mapFilterOption == 'selected') {
+        this.rowDataInterfaces = this.activeEdges.map(ele => ele.data());
+        this.activeEleIds = this.activeEdges.map(ele => ele.data('id'));
+        this.infoPanelTableComponent?.setSelectedEles(this.activeEleIds, this.rowDataInterfaces);
         this.store.dispatch(retrievedMapSelection({ data: false }));
       }
+    })
+    this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
+      if (mapSelection && this.filterOption !== 'all') {
+        this.rowDataInterfaces = this.activeEdges.map(ele => ele.data())
+        this.activeEleIds = this.activeEdges.map(ele => ele.data('id'));
+        this.infoPanelTableComponent?.setSelectedEles(this.activeEleIds, this.rowDataInterfaces);
+        this.store.dispatch(retrievedMapSelection({ data: false }));
+      } else if (mapSelection && this.filterOption === 'all') {
+        const activeEleInterfaceIds = this.activeEdges.map(ele => ele.data('interface_pk'));
+        this.infoPanelTableComponent?.deselectAll();
+        this.infoPanelTableComponent?.setRowActive(activeEleInterfaceIds)
+      }
     });
+
+    this.filterOptionForm = new FormGroup({
+      filterOptionCtr: new FormControl('')
+    });
+    this.filterOptionForm.get('filterOptionCtr')?.setValue('all');
   }
 
   get gridHeight() {
@@ -155,8 +197,14 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
     return infoPanelHeightNumber >= 300 ? (infoPanelHeightNumber - 100) + 'px' : '200px';
   }
 
+  ngOnInit(): void {
+    this.store.dispatch(retrievedMapFilterOptionInterfaces({ data: 'all' }));
+  }
+
   ngOnDestroy(): void {
     this.selectMapSelection$.unsubscribe();
+    this.selectMapFilterOptionInterfaces$.unsubscribe();
+    this.selectInterfaces$.unsubscribe();
   }
 
   deleteInterfaces() {
@@ -193,5 +241,21 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
 
   clearTable() {
     this.infoPanelTableComponent?.clearTable();
+  }
+
+
+  changeFilterOption(menuTrigger: MatMenuTrigger, $event: any) {
+    menuTrigger.closeMenu();
+    if ($event.value == 'all') {
+      this.infoPanelTableComponent?.setRowData(this.interfaces);
+    } else {
+      this.infoPanelTableComponent?.setSelectedEles(this.activeEleIds, this.rowDataInterfaces);
+    }
+    this.store.dispatch(retrievedMapFilterOptionInterfaces({ data: $event.value }));
+  }
+
+  selectOption($event: any) {
+    $event.stopPropagation();
+    $event.preventDefault();
   }
 }

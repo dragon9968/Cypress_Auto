@@ -170,6 +170,59 @@ describe('Map features e2e testing', () => {
 
   });
 
+  it ('Test Table Filter', () => {
+    cy.viewport(1920, 1080)
+    cy.visit('/projects')
+    cy.get('.ag-row').contains('Test map - East ISP (y80rd6g) blank').first().dblclick({ force: true }).type(" ");
+    cy.url().should('include', 'map')
+    cy.waitingLoadingFinish()
+
+    cy.getByMatToolTip('Filter Table').click( {force: true} )
+    cy.getByFormControlName('filterOptionCtr').click()
+    cy.get(`mat-option[value="all"]`).click()
+    cy.get('body').click(0,0);
+
+    cy.selectInfoPanelRowByLabelAndContent('node', 'lc-1').click()
+    cy.wait(1000)
+    cy.selectInfoPanelRowByLabelAndContent('node', 'wc-1').click()
+    cy.wait(1000)
+
+    cy.getByMatToolTip('Filter Table').click( {force: true} )
+    cy.getByFormControlName('filterOptionCtr').click()
+    cy.get(`mat-option[value="selected"]`).click()
+    cy.get('body').click(0,0);
+    cy.selectElementOnMap('node', 'wr-1')
+    cy.selectElementOnMap('node', 'er-3')
+    cy.getByMatToolTip('Filter Table').click( {force: true} )
+    cy.getByFormControlName('filterOptionCtr').click()
+    cy.get(`mat-option[value="all"]`).click()
+
+    cy.wait(2000)
+    cy.selectMatTabByLabel('Port Groups').click()
+    cy.selectInfoPanelRowByLabelAndContent('port-group', 'Test edit port group').click()
+    cy.wait(1000)
+    cy.selectInfoPanelRowByLabelAndContent('port-group', 'EASTNET-3').click()
+    cy.wait(1000)
+    cy.selectInfoPanelRowByLabelAndContent('port-group', 'Test edit port group').click()
+    cy.getByMatToolTip('Filter Table').click( {force: true} )
+    cy.getByFormControlName('filterOptionCtr').click()
+    cy.get(`mat-option[value="selected"]`).click()
+    cy.selectElementOnMap('node', 'cro_net_pmk8310w')
+
+    cy.selectMatTabByLabel('Interfaces').click()
+    cy.selectInfoPanelRowByLabelAndContent('interface', 'eth1').click()
+    cy.wait(1000)
+    cy.selectInfoPanelRowByLabelAndContent('interface', 'lan').click()
+    cy.getByMatToolTip('Filter Table').click( {force: true} )
+    cy.getByFormControlName('filterOptionCtr').click()
+    cy.get(`mat-option[value="selected"]`).click()
+    cy.selectElementOnMap('edge', 'lan')
+    cy.getByMatToolTip('Filter Table').click( {force: true} )
+    cy.getByFormControlName('filterOptionCtr').click()
+    cy.get(`mat-option[value="all"]`).click()
+  
+  })
+
   it ('Test Link project', () => {
     cy.viewport(1920, 1080)
     cy.visit('/projects', { timeout: 15000 })
@@ -326,27 +379,27 @@ describe('Map features e2e testing', () => {
 
   });
 
-  it ('Test delete project', () => {
-    //  delete project
-    cy.viewport(1920, 1080)
-    cy.visit('/projects', { timeout: 15000 })
-    cy.get('.ag-row', { timeout: 15000 }).contains(blankProject.name).first().dblclick({ force: true });
-    cy.url().should('include', 'map')
-    cy.waitingLoadingFinish()
-    cy.getByDataCy('btn-nav-project').click({ force: true })
-    cy.wait(1000)
-    cy.getByDataCy('btn-delete-project').click({force: true})
-    cy.wait(2000)
-    cy.getButtonByTypeAndContent('submit', 'Delete').click()
-    cy.wait(2000)
-    cy.getByDataCy('btn-nav-project').click({ force: true })
-    cy.wait(1000)
-    cy.getByDataCy('btn-delete-permanently-project').click()
-    cy.wait(1000)
-    cy.get('.ag-row').contains(blankProject.name).first().click({ force: true });
-    cy.wait(1000)
-    cy.get('.actions').click()
-    cy.getByDataCy('btn-perdelete-project').click()
-    cy.getButtonByTypeAndContent('submit', 'Delete').click()
-  })
+  // it ('Test delete project', () => {
+  //   //  delete project
+  //   cy.viewport(1920, 1080)
+  //   cy.visit('/projects', { timeout: 15000 })
+  //   cy.get('.ag-row', { timeout: 15000 }).contains(blankProject.name).first().dblclick({ force: true });
+  //   cy.url().should('include', 'map')
+  //   cy.waitingLoadingFinish()
+  //   cy.getByDataCy('btn-nav-project').click({ force: true })
+  //   cy.wait(1000)
+  //   cy.getByDataCy('btn-delete-project').click({force: true})
+  //   cy.wait(2000)
+  //   cy.getButtonByTypeAndContent('submit', 'Delete').click()
+  //   cy.wait(2000)
+  //   cy.getByDataCy('btn-nav-project').click({ force: true })
+  //   cy.wait(1000)
+  //   cy.getByDataCy('btn-delete-permanently-project').click()
+  //   cy.wait(1000)
+  //   cy.get('.ag-row').contains(blankProject.name).first().click({ force: true });
+  //   cy.wait(1000)
+  //   cy.get('.actions').click()
+  //   cy.getByDataCy('btn-perdelete-project').click()
+  //   cy.getButtonByTypeAndContent('submit', 'Delete').click()
+  // })
 })

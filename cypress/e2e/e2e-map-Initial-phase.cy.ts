@@ -35,14 +35,14 @@ describe('E2E Map - Initial Phase', () => {
     })
     cy.fixture('map/node.json').then(nodeData => {
       node = nodeData
-      nodeX = node.logical_map_position.x
-      nodeY = node.logical_map_position.y
+      nodeX = node.logical_map.position.x
+      nodeY = node.logical_map.position.y
       node2 = JSON.parse(JSON.stringify(node))
     })
     cy.fixture('map/port_group.json').then(portGroupData => {
       portGroup = portGroupData
-      pgX = portGroup.logical_map_position.x
-      pgY = portGroup.logical_map_position.y
+      pgX = portGroup.logical_map.position.x
+      pgY = portGroup.logical_map.position.y
     })
     cy.session('login', setup)
     // cy.waitingLoadingFinish()
@@ -92,13 +92,13 @@ describe('E2E Map - Initial Phase', () => {
     cy.waitingLoadingFinish()
 
     // Add new node
-    cy.addNewNodeOnMap(node, node.logical_map_position.x, node.logical_map_position.y, false)
+    cy.addNewNodeOnMap(node, node.logical_map.position.x, node.logical_map.position.y, false)
 
     // Add new node 2
     cy.addNewNodeOnMap(node2, 200, 200, false)
 
     // Add new port group
-    cy.addNewPortGroupOnMap(portGroup, portGroup.logical_map_position.x, portGroup.logical_map_position.y, true)
+    cy.addNewPortGroupOnMap(portGroup, portGroup.logical_map.position.x, portGroup.logical_map.position.y, true)
 
     const edgeData1 = {
       ip_allocation: 'static_manual',

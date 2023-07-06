@@ -2,7 +2,7 @@ import { Store } from "@ngrx/store";
 import { MatDialog } from "@angular/material/dialog";
 import { ToastrService } from "ngx-toastr";
 import { MatIconRegistry } from "@angular/material/icon";
-import { Component, Input, OnDestroy, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from "rxjs";
 import { GridOptions, RowDoubleClickedEvent } from "ag-grid-community";
 import { NodeService } from "../../../core/services/node/node.service";
@@ -14,6 +14,11 @@ import { ConfirmationDialogComponent } from "../../../shared/components/confirma
 import { AddUpdateNodeDialogComponent } from "../../add-update-node-dialog/add-update-node-dialog.component";
 import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
 import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
+import { MatMenuTrigger } from "@angular/material/menu";
+import { selectNodesByProjectId } from "src/app/store/node/node.selectors";
+import { selectMapFilterOptionNodes } from "src/app/store/map-filter-option/map-filter-option.selectors";
+import { retrievedMapFilterOptionNodes } from "src/app/store/map-filter-option/map-filter-option.actions";
+import { FormControl, FormGroup } from "@angular/forms";
 
 
 @Component({
@@ -21,7 +26,7 @@ import { selectMapSelection } from "src/app/store/map-selection/map-selection.se
   templateUrl: './info-panel-node.component.html',
   styleUrls: ['./info-panel-node.component.scss']
 })
-export class InfoPanelNodeComponent implements OnDestroy {
+export class InfoPanelNodeComponent implements OnDestroy, OnInit {
   @ViewChild(InfoPanelTableComponent) infoPanelTableComponent: InfoPanelTableComponent | undefined;
 
   @Input() cy: any;
@@ -32,8 +37,16 @@ export class InfoPanelNodeComponent implements OnDestroy {
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterfaces: any[] = [];
   @Input() infoPanelheight = '300px';
+  nodes: any[] = [];
+  rowDataNodes: any[] = [];
+  activeEleIds: any[] = [];
+  filterOption = 'all';
+  mapSelection!: any;
+  filterOptionForm!: FormGroup;
 
   selectMapSelection$ = new Subscription();
+  selectMapFilterOption$ = new Subscription();
+  selectNodes$ = new Subscription();
   tabName = 'node';
   gridOptions: GridOptions = {
     headerHeight: 48,
@@ -168,40 +181,76 @@ export class InfoPanelNodeComponent implements OnDestroy {
     private cmActionsService: CMActionsService,
   ) {
     iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
-    this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
-      if (mapSelection) {
-        const rowData = this.activeNodes.map((ele: any) => {
-          if (ele.data('device')?.name) {
-            ele.data('device', ele.data('device')?.name)
-          }
-          if (ele.data('template')?.name) {
-            ele.data('template', ele.data('template')?.name)
-          }
-          if (ele.data('domain')?.name) {
-            ele.data('domain', ele.data('domain')?.name)
-          }
-          if (ele.data('login_profile')?.name) {
-            ele.data('login_profile', ele.data('login_profile')?.name)
-          }
-          if (ele.data('category') == 'hw') {
-            if (ele.data('hardware')?.serial_number) {
-              ele.data('hardware', ele.data('hardware')?.serial_number)
-            }
-          } else {
-            ele.data('hardware', null)
-            ele.data('hardware_id', null)
-          }
-          return ele.data();
-        });
-        const activeEleIds = this.activeNodes.map(ele => ele.data('id'));
-        this.infoPanelTableComponent?.setSelectedEles(activeEleIds, rowData);
-        this.store.dispatch(retrievedMapSelection({ data: false }));
+    this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => {
+      if (nodes) {
+          this.nodes = nodes.map(node => ({...node, device: node.device?.name, template: node.template?.name, domain: node.domain?.name, login_profile: node.login_profile?.name, node_id: node.id, id: `node-${node.id}`}))
+          this.infoPanelTableComponent?.setRowData(this.nodes);
       }
     });
+    this.selectMapFilterOption$ = this.store.select(selectMapFilterOptionNodes).subscribe(mapFilterOption => {
+      if (mapFilterOption) {
+        this.filterOption = mapFilterOption;
+        const activeEleNodeIds = this.activeNodes.map(ele => ele.data('id'));
+        if (mapFilterOption && mapFilterOption == 'all') {
+          this.infoPanelTableComponent?.setRowData(this.nodes);
+          this.infoPanelTableComponent?.deselectAll();
+          this.infoPanelTableComponent?.setRowActive(activeEleNodeIds)
+        } else if (mapFilterOption && mapFilterOption == 'selected') {
+          this.rowDataNodes = this.activeNodes.map((ele: any) => {
+            if (ele.data('category') == 'hw') {
+              if (ele.data('hardware')?.serial_number) {
+                ele.data('hardware', ele.data('hardware')?.serial_number)
+              }
+            } else {
+              ele.data('hardware', null)
+              ele.data('hardware_id', null)
+            }
+            return ele.data();
+          });
+          const activeEleIds = this.activeNodes.map(ele => ele.data('id'));
+          this.infoPanelTableComponent?.setSelectedEles(activeEleIds, this.rowDataNodes);
+          this.store.dispatch(retrievedMapSelection({ data: false }));
+        }      
+      }
+    })
+    this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
+      if (mapSelection) {
+        this.mapSelection = mapSelection;
+        const activeEleIds = this.activeNodes.map(ele => ele.data('id'));
+        if (this.mapSelection && this.filterOption !== 'all') {
+          const rowData = this.activeNodes.map((ele: any) => {
+            if (ele.data('category') == 'hw') {
+              if (ele.data('hardware')?.serial_number) {
+                ele.data('hardware', ele.data('hardware')?.serial_number)
+              }
+            } else {
+              ele.data('hardware', null)
+              ele.data('hardware_id', null)
+            }
+            return ele.data();
+          });
+          this.infoPanelTableComponent?.setSelectedEles(activeEleIds, rowData);
+          this.store.dispatch(retrievedMapSelection({ data: false }));
+        } else if (this.mapSelection && this.filterOption === 'all') {
+          const activeEleNodeIds = this.activeNodes.map(ele => ele.data('id'));
+          this.infoPanelTableComponent?.deselectAll();
+          this.infoPanelTableComponent?.setRowActive(activeEleNodeIds)
+        }
+      }
+    });
+    this.filterOptionForm = new FormGroup({
+      filterOptionCtr: new FormControl('')
+    });
+    this.filterOptionForm.get('filterOptionCtr')?.setValue('all');
+  }
+
+  ngOnInit(): void {
+    this.store.dispatch(retrievedMapFilterOptionNodes({ data: 'all'}));
   }
 
   ngOnDestroy(): void {
     this.selectMapSelection$.unsubscribe();
+    this.selectNodes$.unsubscribe();
   }
 
   cloneNodes() {
@@ -257,5 +306,20 @@ export class InfoPanelNodeComponent implements OnDestroy {
 
   clearTable() {
     this.infoPanelTableComponent?.clearTable();
+  }
+
+  changeFilterOption(menuTrigger: MatMenuTrigger, $event: any) {
+    menuTrigger.closeMenu();
+    if ($event.value == 'all') {
+      this.infoPanelTableComponent?.setRowData(this.nodes);
+    } else {
+      this.infoPanelTableComponent?.setSelectedEles(this.activeEleIds, this.rowDataNodes);
+    }
+    this.store.dispatch(retrievedMapFilterOptionNodes({ data: $event.value }));
+  }
+
+  selectOption($event: any) {
+    $event.stopPropagation();
+    $event.preventDefault();
   }
 }

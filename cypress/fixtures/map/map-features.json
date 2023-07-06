@@ -1286,10 +1286,10 @@
                       "east.test"
                   ],
                   "configs": [],
-                  "template": "pfsense_2.6.0-template",
+                  "template": "pfsense_2.4.4-template",
                   "icon": "Firwall (Black)",
                   "device": "pfSense",
-                  "template_name": "pfSense 2.6.0",
+                  "template_name": "pfSense 2.4.4",
                   "device_name": "pfSense"
               }
           ],
@@ -1359,8 +1359,8 @@
           "template": [
               {
                   "id": 22,
-                  "name": "pfsense_2.6.0-template",
-                  "display_name": "pfSense 2.6.0",
+                  "name": "pfsense_2.4.4-template",
+                  "display_name": "pfSense 2.4.4",
                   "category": "vm",
                   "device_id": 9,
                   "icon_id": 4,

@@ -12,6 +12,12 @@ import { retrievedGroups } from "../../../store/group/group.actions";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { AddUpdateGroupDialogComponent } from "../../add-update-group-dialog/add-update-group-dialog.component";
 import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
+import { MatMenuTrigger } from "@angular/material/menu";
+import { retrievedMapFilterOptionGroup } from "src/app/store/map-filter-option/map-filter-option.actions";
+import { selectMapFilterOptionGroup } from "src/app/store/map-filter-option/map-filter-option.selectors";
+import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
+import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
+import { FormControl, FormGroup } from "@angular/forms";
 
 @Component({
   selector: 'app-info-panel-group',
@@ -25,11 +31,19 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
   @Input() activeNodes: any[] = [];
   @Input() activePGs: any[] = [];
   @Input() activeEdges: any[] = [];
+  @Input() activeGBs: any[] = [];
+  filterOptionForm!: FormGroup;
   mapCategory = '';
   projectId: string = '0';
   selectGroups$ = new Subscription();
+  selectMapFilterOptionGroup$ = new Subscription();
+  selectMapSelection$ = new Subscription();
   groups!: any[];
   tabName = 'group';
+  groupDataAg: any[] = [];
+  filterOption = 'all';
+  rowData: any[] = [];
+  activeEleIds: any[] = [];
 
   gridOptions: GridOptions = {
     headerHeight: 48,
@@ -112,7 +126,7 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
   ) {
     this.selectGroups$ = this.store.select(selectGroups).subscribe(groupData => {
       if (groupData) {
-        const groupDataAg = groupData.map(ele => {
+        this.groupDataAg = groupData.map(ele => {
           return {
             id: ele.id,
             name: ele.name,
@@ -126,10 +140,42 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
             map_images: '[' + ele.map_images?.map((mapImageData: any) => mapImageData.name).join(', ') + ']',
           }
         });
-        this.infoPanelTableComponent?.setRowData(groupDataAg);
+        this.infoPanelTableComponent?.setRowData(this.groupDataAg);
         this.infoPanelTableComponent?.setRowActive(this.infoPanelTableComponent?.rowsSelectedId);
       }
     })
+
+    this.selectMapFilterOptionGroup$ = this.store.select(selectMapFilterOptionGroup).subscribe(mapFilterOption => {
+      this.filterOption = mapFilterOption;
+      if (mapFilterOption && mapFilterOption == 'all') {
+        this.infoPanelTableComponent?.setRowData(this.groupDataAg);
+        const activeEleGroupIds = this.activeGBs.map(ele => ele.data('group_id'));
+        this.infoPanelTableComponent?.deselectAll();
+        this.infoPanelTableComponent?.setRowActive(activeEleGroupIds)
+      } else if (mapFilterOption && mapFilterOption == 'selected') {
+        this.activeEleIds = this.activeGBs.map(ele => ele.data('group_id'));
+        this.rowData = this.groupDataAg.filter(val => this.activeEleIds.includes(val.id))
+        this.infoPanelTableComponent?.setSelectedEles(this.activeEleIds, this.rowData);
+        this.infoPanelTableComponent?.setRowActive(this.activeEleIds)
+        this.store.dispatch(retrievedMapSelection({ data: false }));
+      }
+    })
+    this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
+      if (mapSelection && this.filterOption !== 'all') {
+        this.activeEleIds = this.activeGBs.map(ele => ele.data('group_id'));
+        this.rowData =  this.groupDataAg.filter(val => this.activeEleIds.includes(val.id))
+        this.infoPanelTableComponent?.setSelectedEles(this.activeEleIds, this.rowData);
+        this.store.dispatch(retrievedMapSelection({ data: false }));
+      } else if (mapSelection && this.filterOption === 'all') {
+        const activeEleGroupIds = this.activeGBs.map(ele => ele.data('group_id'));
+        this.infoPanelTableComponent?.deselectAll();
+        this.infoPanelTableComponent?.setRowActive(activeEleGroupIds)
+      }
+    });
+    this.filterOptionForm = new FormGroup({
+      filterOptionCtr: new FormControl('')
+    });
+    this.filterOptionForm.get('filterOptionCtr')?.setValue('all');
   }
 
   ngOnInit(): void {
@@ -142,6 +188,7 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.selectGroups$.unsubscribe();
+    this.selectMapSelection$.unsubscribe();
   }
 
   addGroup() {
@@ -205,4 +252,20 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
   clearRowSelected() {
     this.infoPanelTableComponent?.deselectAll();
   }
+
+  changeFilterOption(menuTrigger: MatMenuTrigger, $event: any) {
+    menuTrigger.closeMenu();
+    if ($event.value == 'all') {
+      this.infoPanelTableComponent?.setRowData(this.groupDataAg);
+    } else {
+      this.infoPanelTableComponent?.setSelectedEles(this.activeEleIds, this.rowData);
+    }
+    this.store.dispatch(retrievedMapFilterOptionGroup({ data: $event.value }));
+  }
+
+  selectOption($event: any) {
+    $event.stopPropagation();
+    $event.preventDefault();
+  }
+  
 }
