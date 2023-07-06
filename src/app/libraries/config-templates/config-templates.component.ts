@@ -39,22 +39,29 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
     sortable: true,
     resizable: true
   };
+  cellStyle = { display: 'flex', 'justify-content': 'center', 'align-items': 'center' };
   columnDefs: ColDef[] = [
     {
       headerCheckboxSelection: true,
       checkboxSelection: true,
       suppressSizeToFit: true,
-      width: 52
+      width: 52,
+      cellStyle: { display: 'flex' }
     },
     {
       field: 'id',
       hide: true,
-      getQuickFilterText: () => ''
+      getQuickFilterText: () => '',
+      cellStyle: this.cellStyle
     },
     {
       field: 'name',
+      cellStyle: this.cellStyle
     },
-    { field: 'description' },
+    {
+      field: 'description',
+      cellStyle: this.cellStyle
+    },
     {
       field: 'configuration',
       autoHeight: true,
@@ -67,8 +74,10 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
         html_str += "</ul>"
         return html_str != '<ul></ul>' ? html_str : '';
       },
+      cellStyle: this.cellStyle
     },
   ];
+
   constructor(
     private store: Store,
     private configTemplateService: ConfigTemplateService,
