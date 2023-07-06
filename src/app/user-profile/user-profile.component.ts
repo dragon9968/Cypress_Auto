@@ -57,9 +57,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.userId = this.authService.getUserId();
-    this.userService.getProfile().subscribe(respData => {
-      this.store.dispatch(retrievedUserProfile({ data: respData.result }));
-    });
   }
 
   ngOnDestroy(): void {

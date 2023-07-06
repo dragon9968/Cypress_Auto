@@ -7,6 +7,9 @@ import { RolesService } from "./core/services/roles/roles.service";
 import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
 import { AuthService } from './core/services/auth/auth.service';
+import { UserService } from './core/services/user/user.service';
+import { Store } from '@ngrx/store';
+import { retrievedUserProfile } from './store/user-profile/user-profile.actions';
 
 @Component({
   selector: 'app-root',
@@ -24,6 +27,8 @@ export class AppComponent implements OnInit {
     private ngxRolesService: NgxRolesService,
     private permissionsService: NgxPermissionsService,
     private authService: AuthService,
+    private userService: UserService,
+    private store: Store,
   ) {}
 
   ngOnInit() {
@@ -43,6 +48,9 @@ export class AppComponent implements OnInit {
       } else {
         this.toastr.error('get Permissions for the user failed!', 'Error');
       }
+      this.userService.getProfile().subscribe(respData => {
+        this.store.dispatch(retrievedUserProfile({ data: respData.result }));
+      });
     }
   }
 }
