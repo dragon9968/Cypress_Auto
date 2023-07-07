@@ -39,6 +39,7 @@
     <mat-form-field class="field">
       <mat-label>Email</mat-label>
       <input type="email" matInput formControlName="emailCtr" placeholder="Email" [readonly]="isViewMode">
+      <mat-error *ngIf="emailCtr?.errors?.pattern">{{ errorMessages.MAIL_INVALID }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Street Address</mat-label>

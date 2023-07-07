@@ -43,7 +43,7 @@
       <mat-hint *ngIf="data.mode !== 'view'">The user's email, this will also be used for OID auth</mat-hint>
       <mat-error *ngIf="emailCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
       <mat-error *ngIf="emailCtr?.errors?.isExist">{{ errorMessages.MAIL_EXISTS }}</mat-error>
-      <mat-error *ngIf="emailCtr?.errors?.email">{{ errorMessages.MAIL_INVALID }}</mat-error>
+      <mat-error *ngIf="emailCtr?.errors?.pattern">{{ errorMessages.MAIL_INVALID }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Role</mat-label>

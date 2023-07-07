@@ -68,7 +68,7 @@ export class AddEditUserDialogComponent implements OnInit, OnDestroy {
       [Validators.required, validateNameExist(() => this.listUser, this.data.mode, this.data.genData.id, "username")]),
       activeCtr: new FormControl({value: '', disabled: this.isViewMode}),
       emailCtr: new FormControl({value: '', disabled: this.isViewMode},
-      [Validators.email, Validators.required, validateNameExist(() => this.listUser, this.data.mode, this.data.genData.id, "email")]),
+      [Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$'), Validators.required, validateNameExist(() => this.listUser, this.data.mode, this.data.genData.id, "email")]),
       roleCtr: new FormControl({value: '', disabled: this.isViewMode}, [Validators.required]),
       passwordCtr: new FormControl({value: '', disabled: this.isViewMode}, [Validators.required]),
       confirmPasswordCtr: new FormControl({value: '', disabled: this.isViewMode}),
