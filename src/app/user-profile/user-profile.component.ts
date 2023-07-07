@@ -32,7 +32,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       usernameCtr: new FormControl(''),
       firstNameCtr: new FormControl(''),
       lastNameCtr: new FormControl(''),
-      emailCtr: new FormControl('', [Validators.email]),
+      emailCtr: new FormControl('', [Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')]),
       roleCtr: new FormControl({ value: '', disabled: true }),
     });
     this.selectUser$ = this.store.select(selectUserProfile).subscribe((user: any) => {
