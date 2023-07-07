@@ -13,12 +13,12 @@ import { selectDomains } from 'src/app/store/domain/domain.selectors';
 import { showErrorFromServer } from "../../shared/validations/error-server-response.validation";
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
-import { selectPortGroupsManagement } from "../../store/portgroup/portgroup.selectors";
-import { retrievedPortGroupsManagement } from "../../store/portgroup/portgroup.actions";
+import { retrievedPortGroups } from "../../store/portgroup/portgroup.actions";
 import { PortGroupAddModel, PortGroupGetRandomModel, PortGroupPutModel } from "../../core/models/port-group.model";
 import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
 import { InterfaceService } from "../../core/services/interface/interface.service";
 import { selectNodesByProjectId } from "../../store/node/node.selectors";
+import { retrievedMapFilterOptionPG } from "../../store/map-filter-option/map-filter-option.actions";
 
 @Component({
   selector: 'app-add-update-pg-dialog',
@@ -31,8 +31,6 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
   errorMessages = ErrorMessages;
   selectDomains$ = new Subscription();
   selectNodes$ = new Subscription()
-  selectPortGroupsManagement$ = new Subscription();
-  portGroupsManagement: any[] = [];
   nodes: any[] = [];
   domains!: any[];
   isViewMode = false;
@@ -123,9 +121,6 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
       this.domainCtr.setValidators([Validators.required, autoCompleteValidator(this.domains)]);
       this.filteredDomains = this.helpers.filterOptions(this.domainCtr, this.domains);
     });
-    this.selectPortGroupsManagement$ = this.store.select(selectPortGroupsManagement).subscribe(
-      portGroupsManagement => this.portGroupsManagement = portGroupsManagement
-    )
     this.isViewMode = this.data.mode == 'view';
     this.tabName = this.data.tabName;
     this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes)
@@ -168,7 +163,6 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.selectDomains$.unsubscribe();
-    this.selectPortGroupsManagement$.unsubscribe();
   }
 
   private _disableItems(subnetAllocation: string) {
@@ -253,10 +247,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
     ).subscribe((respData: any) => {
       this.portGroupService.get(respData.id).subscribe(respData => {
         const portGroup = respData.result;
-        if (portGroup.category === 'management') {
-          const newPGsManagement = this.infoPanelService.getNewPortGroupsManagement([portGroup]);
-          this.store.dispatch(retrievedPortGroupsManagement({ data: newPGsManagement }));
-        } else {
+        if (portGroup.category !== 'management') {
           const cyData = portGroup;
           cyData.id = 'pg-' + respData.id;
           cyData.pg_id = respData.id;
@@ -270,6 +261,10 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
           cyData.groups = portGroup.groups;
           this.helpers.reloadGroupBoxes(this.data.cy);
         }
+        this.portGroupService.getByProjectId(this.data.genData.project_id).subscribe(res => {
+          this.store.dispatch(retrievedPortGroups({ data: res.result }))
+          this.store.dispatch(retrievedMapSelection({ data: true }));
+        })
         this.toastr.success('Port Group details added!');
       })
       this.dialogRef.close();
@@ -314,16 +309,17 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
     ).subscribe((_respData: any) => {
       this.portGroupService.get(this.data.genData.pg_id).subscribe(pgData => {
         const portGroup = pgData.result;
-        if (portGroup.category === 'management') {
-          const newPGsManagement = this.infoPanelService.getNewPortGroupsManagement([portGroup]);
-          this.store.dispatch(retrievedPortGroupsManagement({ data: newPGsManagement }));
-        } else {
+        if (portGroup.category !== 'management') {
           this._updatePGOnMap(portGroup);
           this.helpers.updateNodesOnGroupStorage(portGroup, 'port_groups');
           this.helpers.reloadGroupBoxes(this.data.cy);
           this.store.dispatch(retrievedMapSelection({ data: true }));
           this.helpers.updateNodePGInInterfaceOnMap(this.data.cy, 'port_group', this.data.genData.pg_id)
         }
+        this.portGroupService.getByProjectId(this.data.genData.project_id).subscribe(res => {
+          this.store.dispatch(retrievedPortGroups({ data: res.result }))
+          this.store.dispatch(retrievedMapSelection({ data: true }));
+        })
         this.dialogRef.close();
         this.toastr.success('Port group details updated!');
       });

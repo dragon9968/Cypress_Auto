@@ -38,8 +38,9 @@
           formControlName="filterOptionCtr"
           (click)="selectOption($event)"
           (selectionChange)="changeFilterOption(menuContacts, $event)">
-        <mat-option value="all">All</mat-option>
-        <mat-option value="selected">Selected</mat-option>
+          <mat-option value="all">All</mat-option>
+          <mat-option value="selected">Selected</mat-option>
+          <mat-option value="management">Management</mat-option>
         </mat-select>
       </mat-form-field>
     </form>

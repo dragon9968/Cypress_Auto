@@ -12,11 +12,11 @@ import { showErrorFromServer } from "src/app/shared/validations/error-server-res
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
 import { selectDomains } from "../../../store/domain/domain.selectors";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
-import { retrievedPortGroupsManagement } from "../../../store/portgroup/portgroup.actions";
 import { PortGroupEditBulkModel } from "../../../core/models/port-group.model";
 import { retrievedGroups } from "../../../store/group/group.actions";
 import { GroupService } from "../../../core/services/group/group.service";
 import { ProjectService } from "../../../project/services/project.service";
+import { retrievedPortGroups } from "../../../store/portgroup/portgroup.actions";
 
 @Component({
   selector: 'app-port-group-bulk-edit-dialog',
@@ -52,7 +52,7 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
         Validators.pattern('^[0-9]*$'),
         showErrorFromServer(() => this.errors)
       ]),
-      categoryCtr: new FormControl({ value: '', disabled: this.tabName == 'portGroupManagement'}),
+      categoryCtr: new FormControl(''),
       subnetAllocationCtr: new FormControl(''),
     });
     this.selectDomains$ = this.store.select(selectDomains).subscribe(domains => {
@@ -107,14 +107,14 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
             groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
           );
         }
+        this.portGroupService.getByProjectId(this.projectService.getProjectId()).subscribe(res => {
+          this.store.dispatch(retrievedPortGroups({ data: res.result }))
+          this.store.dispatch(retrievedMapSelection({ data: true }));
+        })
         return forkJoin(this.data.genData.activeEles.map((pg: any) => {
           return this.portGroupService.get(pg.pg_id).pipe(map(pgData => {
             const portGroup = pgData.result;
-            if (portGroup.category == 'management') {
-              return portGroup;
-            } else {
-              this._updatePGOnMap(portGroup);
-            }
+            this._updatePGOnMap(portGroup);
           }));
         }))
           .subscribe(() => {
@@ -122,14 +122,9 @@ export class PortGroupBulkEditDialogComponent implements OnInit, OnDestroy {
               return this.portGroupService.get(pg.pg_id).pipe(map(pgData => {
                 this._updatePGOnMap(pgData.result);
               }))
-            })).subscribe((resData: any) => {
-              if (resData[0]) {
-                const newPGsManagement = this.infoPanelService.getNewPortGroupsManagement(resData);
-                this.store.dispatch(retrievedPortGroupsManagement({ data: newPGsManagement }));
-              } else {
-                this.helpers.reloadGroupBoxes(this.data.cy);
-                this.store.dispatch(retrievedMapSelection({ data: true }));
-              }
+            })).subscribe((_) => {
+              this.helpers.reloadGroupBoxes(this.data.cy);
+              this.store.dispatch(retrievedMapSelection({ data: true }));
               this.dialogRef.close();
               this.toastr.success(response.message, 'Success');
           });

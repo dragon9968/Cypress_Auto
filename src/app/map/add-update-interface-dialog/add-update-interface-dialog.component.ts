@@ -10,12 +10,10 @@ import { InterfaceService } from 'src/app/core/services/interface/interface.serv
 import { selectPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription, catchError, throwError } from 'rxjs';
-import { selectInterfaces } from "../../store/map/map.selectors";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
-import { retrievedInterfacesManagement } from "../../store/interface/interface.actions";
 import { selectMapOption } from "../../store/map-option/map-option.selectors";
 import { PortGroupService } from "../../core/services/portgroup/portgroup.service";
 import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
@@ -23,6 +21,9 @@ import { selectNodesByProjectId } from 'src/app/store/node/node.selectors';
 import { validateNameExist } from "../../shared/validations/name-exist.validation";
 import { networksValidation } from 'src/app/shared/validations/networks.validation';
 import { showErrorFromServer } from 'src/app/shared/validations/error-server-response.validation';
+import { retrievedInterfaceByProjectIdAndCategory } from "../../store/interface/interface.actions";
+import { ProjectService } from "../../project/services/project.service";
+import { selectInterfacesByProjectIdAndCategory } from "../../store/interface/interface.selectors";
 
 @Component({
   selector: 'app-add-update-interface-dialog',
@@ -58,9 +59,10 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<AddUpdateInterfaceDialogComponent>,
     public helpers: HelpersService,
+    private projectService: ProjectService,
     private interfaceService: InterfaceService,
     private infoPanelService: InfoPanelService,
-    private portGroupService: PortGroupService
+    private portGroupService: PortGroupService,
   ) {
     this.edgesConnected = this.data.cy.nodes(`[id="pg-${this.data.genData.port_group_id}"]`).connectedEdges()
       .map((ele: any) => ({ ...ele.data(), id: Number(ele.data('id')) }))
@@ -85,9 +87,9 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       this.portGroupCtr.setValidators([autoCompleteValidator(this.portGroups)]);
       this.filteredPortGroups = this.helpers.filterOptionsPortGroup(this.portGroupCtr, this.portGroups);
     });
-    this.selectInterfaces$ = this.store.select(selectInterfaces).subscribe(interfaces => {
+    this.selectInterfaces$ = this.store.select(selectInterfacesByProjectIdAndCategory).subscribe(interfaces => {
       if (interfaces) {
-        this.interfaces = interfaces;
+        this.interfaces = interfaces.map((ele: any) => ele.data);
       }
     });
     this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => {
@@ -278,9 +280,13 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
           this.helpers.addCYEdge(this.data.cy, { ...newEdgeData, ...cyData });
           this.helpers.showOrHideArrowDirectionOnEdge(this.data.cy, cyData.id)
           this.helpers.updatePGOnMap(this.data.cy, portGroupId, response.result);
-          this.store.dispatch(retrievedMapSelection({ data: true }));
         });
       }
+      this.interfaceService.getByProjectIdAndCategory(this.projectService.getProjectId(), 'logical', 'all')
+        .subscribe(res => {
+          this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({ data: res.result }))
+          this.store.dispatch(retrievedMapSelection({ data: true }));
+        })
       this.toastr.success('Edge details added!');
       this.dialogRef.close(respData.result);
     });
@@ -326,10 +332,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         ...jsonData,
       }
       data.ip = respData.result.ip;
-      if (data.category == 'management') {
-        const newInterfacesManagement = this.infoPanelService.getNewInterfacesManagement([data]);
-        this.store.dispatch(retrievedInterfacesManagement({ data: newInterfacesManagement }));
-      } else {
+      if (data.category !== 'management') {
         this._updateInterfaceOnMap(data);
         this.helpers.showOrHideArrowDirectionOnEdge(this.data.cy, this.data.genData.interface_pk)
         const e = this.data.cy.getElementById(`${this.data.genData.interface_pk}`);
@@ -352,8 +355,12 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
           this.helpers.addInterfaceIntoPG(this.data.cy, data.port_group_id, newEdge)
           this.helpers.removeInterfaceOnPG(this.data.cy, pgIdOld, this.data.genData.interface_pk)
         }
-        this.store.dispatch(retrievedMapSelection({ data: true }));
       }
+      this.interfaceService.getByProjectIdAndCategory(this.projectService.getProjectId(), 'logical', 'all')
+        .subscribe(res => {
+          this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({ data: res.result }))
+          this.store.dispatch(retrievedMapSelection({ data: true }));
+        })
       this.dialogRef.close();
       this.toastr.success('Edge details updated!');
     });
@@ -399,10 +406,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         "text_bg_color": this.data.selectedMapPref.text_bg_color,
         "text_bg_opacity": this.data.selectedMapPref.text_bg_opacity
       } : undefined;
-      if (data.category == 'management') {
-        const newInterfacesManagement = this.infoPanelService.getNewInterfacesManagement([data]);
-        this.store.dispatch(retrievedInterfacesManagement({ data: newInterfacesManagement }));
-      } else {
+      if (data.category !== 'management') {
         const newEdgeData = this.data.newEdgeData;
         newEdgeData.target = newEdgeData.target === `pg-${data.port_group_id}` ? newEdgeData.target : `pg-${data.port_group_id}`;
         const id = this.data.genData.interface_pk
@@ -427,7 +431,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   }
 
   selectPortGroup($event: MatAutocompleteSelectedEvent) {
-    const interfaceList = this.interfaces.filter(ele => ele.port_group_id === $event.option.value.id && ele.configuration.is_gateway);
+    const interfaceList = this.interfaces.filter(ele => ele.port_group_id === $event.option.value.id && ele.configuration?.is_gateway);
     this.gateways = interfaceList.map(ele => ele.ip);
     this.gatewayCtr?.setValue('');
   }

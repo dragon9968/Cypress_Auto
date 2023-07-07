@@ -15,8 +15,8 @@ import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-ta
 import { FormControl, FormGroup } from "@angular/forms";
 import { MatMenuTrigger } from "@angular/material/menu";
 import { retrievedMapFilterOptionInterfaces } from "src/app/store/map-filter-option/map-filter-option.actions";
-import { selectInterfaces } from "src/app/store/map/map.selectors";
 import { selectMapFilterOptionInterfaces } from "src/app/store/map-filter-option/map-filter-option.selectors";
+import { selectInterfacesByProjectIdAndCategory } from "../../../store/interface/interface.selectors";
 
 @Component({
   selector: 'app-info-panel-interface',
@@ -152,45 +152,66 @@ export class InfoPanelInterfaceComponent implements OnDestroy, OnInit {
     private helpers: HelpersService,
     private infoPanelService: InfoPanelService
   ) {
+    this.filterOptionForm = new FormGroup({
+      filterOptionCtr: new FormControl('all')
+    });
     this.iconRegistry.addSvgIcon('randomize-subnet', this.helpers.setIconPath('/assets/icons/randomize-subnet.svg'));
-    this.selectInterfaces$ = this.store.select(selectInterfaces).subscribe(interfaces => {
+    this.selectInterfaces$ = this.store.select(selectInterfacesByProjectIdAndCategory).subscribe(interfaces => {
       if (interfaces) {
-      this.interfaces = interfaces.map((el: any) => el.data);
-      this.infoPanelTableComponent?.setRowData(this.interfaces);
-      }
-    })
-    this.selectMapFilterOptionInterfaces$ = this.store.select(selectMapFilterOptionInterfaces).subscribe(mapFilterOption => {
-      this.filterOption = mapFilterOption;
-      if (mapFilterOption && mapFilterOption == 'all') {
-        const activeEleInterfaceIds = this.activeEdges.map(ele => ele.data('interface_pk'));
+        this.interfaces = interfaces?.map((ele: any) => ele.data);
         this.infoPanelTableComponent?.setRowData(this.interfaces);
-        this.infoPanelTableComponent?.deselectAll();
-        this.infoPanelTableComponent?.setRowActive(activeEleInterfaceIds)
-      } else if (mapFilterOption && mapFilterOption == 'selected') {
-        this.rowDataInterfaces = this.activeEdges.map(ele => ele.data());
-        this.activeEleIds = this.activeEdges.map(ele => ele.data('id'));
-        this.infoPanelTableComponent?.setSelectedEles(this.activeEleIds, this.rowDataInterfaces);
-        this.store.dispatch(retrievedMapSelection({ data: false }));
+
       }
     })
+
     this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
-      if (mapSelection && this.filterOption !== 'all') {
-        this.rowDataInterfaces = this.activeEdges.map(ele => ele.data())
-        this.activeEleIds = this.activeEdges.map(ele => ele.data('id'));
-        this.infoPanelTableComponent?.setSelectedEles(this.activeEleIds, this.rowDataInterfaces);
-        this.store.dispatch(retrievedMapSelection({ data: false }));
-      } else if (mapSelection && this.filterOption === 'all') {
-        const activeEleInterfaceIds = this.activeEdges.map(ele => ele.data('interface_pk'));
-        this.infoPanelTableComponent?.deselectAll();
-        this.infoPanelTableComponent?.setRowActive(activeEleInterfaceIds)
+      if (mapSelection) {
+        if (this.filterOptionCtr?.value == 'selected') {
+          this.rowDataInterfaces = this.activeEdges.map(ele => ele.data())
+          this.activeEleIds = this.activeEdges.map(ele => ele.data('id'));
+          this.infoPanelTableComponent?.setSelectedEles(this.activeEleIds, this.rowDataInterfaces);
+          this.store.dispatch(retrievedMapSelection({ data: false }));
+        } else if (this.filterOptionCtr?.value === 'management') {
+          if (this.interfaces) {
+            const interfacesManagement = this.interfaces.filter(edge => edge.category === 'management')
+            this.infoPanelTableComponent?.setRowData(interfacesManagement);
+          }
+          this.store.dispatch(retrievedMapSelection({ data: false }));
+        } else {
+          if (this.interfaces) {
+            const activeEleInterfaceIds = this.activeEdges.map(ele => ele.data('interface_pk'));
+            this.infoPanelTableComponent?.setRowData(this.interfaces);
+            this.infoPanelTableComponent?.deselectAll();
+            this.infoPanelTableComponent?.setRowActive(activeEleInterfaceIds)
+          }
+          this.store.dispatch(retrievedMapSelection({ data: false }));
+        }
       }
     });
 
-    this.filterOptionForm = new FormGroup({
-      filterOptionCtr: new FormControl('')
-    });
-    this.filterOptionForm.get('filterOptionCtr')?.setValue('all');
+    this.selectMapFilterOptionInterfaces$ = this.store.select(selectMapFilterOptionInterfaces).subscribe(mapFilterOption => {
+      if (mapFilterOption) {
+        this.filterOptionCtr?.setValue(mapFilterOption);
+        if (mapFilterOption == 'selected') {
+          this.rowDataInterfaces = this.activeEdges.map(ele => ele.data());
+          this.activeEleIds = this.activeEdges.map(ele => ele.data('id'));
+          this.infoPanelTableComponent?.setSelectedEles(this.activeEleIds, this.rowDataInterfaces);
+        } else if (this.filterOptionCtr?.value === 'management') {
+          if (this.interfaces) {
+            const interfacesManagement = this.interfaces.filter(edge => edge.category === 'management')
+            this.infoPanelTableComponent?.setRowData(interfacesManagement);
+          }
+        } else {
+          const activeEleInterfaceIds = this.activeEdges.map(ele => ele.data('interface_pk'));
+          this.infoPanelTableComponent?.setRowData(this.interfaces);
+          this.infoPanelTableComponent?.deselectAll();
+          this.infoPanelTableComponent?.setRowActive(activeEleInterfaceIds)
+        }
+      }
+    })
   }
+
+  get filterOptionCtr() { return this.filterOptionForm.get('filterOptionCtr') }
 
   get gridHeight() {
     const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
@@ -248,6 +269,9 @@ export class InfoPanelInterfaceComponent implements OnDestroy, OnInit {
     menuTrigger.closeMenu();
     if ($event.value == 'all') {
       this.infoPanelTableComponent?.setRowData(this.interfaces);
+    } else if ($event.value == 'management') {
+      const interfacesManagement = this.interfaces.filter(edge => edge.category === 'management')
+      this.infoPanelTableComponent?.setRowData(interfacesManagement);
     } else {
       this.infoPanelTableComponent?.setSelectedEles(this.activeEleIds, this.rowDataInterfaces);
     }

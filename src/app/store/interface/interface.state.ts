@@ -1,5 +1,5 @@
 export interface InterfaceState {
+  interfacesByProjectIdAndCategory: any[],
   interfacesNotConnectPG: any[],
-  interfacesManagement: any[],
   interfacePkConnectPG: any
 }

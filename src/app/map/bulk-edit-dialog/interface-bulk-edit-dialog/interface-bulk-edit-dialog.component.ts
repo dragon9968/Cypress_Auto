@@ -11,7 +11,6 @@ import { InterfaceService } from "../../../core/services/interface/interface.ser
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
-import { retrievedInterfacesManagement } from "../../../store/interface/interface.actions";
 import { Observable, Subscription } from "rxjs";
 import { selectMapOption } from "../../../store/map-option/map-option.selectors";
 
@@ -115,9 +114,7 @@ export class InterfaceBulkEditDialogComponent implements OnInit, OnDestroy {
             ...edge,
             ...jsonData,
           }
-          if (data.category == 'management') {
-            interfacesData.push(data);
-          } else {
+          if (data.category !== 'management') {
             this._updateInterfaceOnMap(data);
             const edgeEle = this.data.cy.getElementById(edge.id);
             if (!this.isEdgeDirectionChecked) {
@@ -127,12 +124,7 @@ export class InterfaceBulkEditDialogComponent implements OnInit, OnDestroy {
             }
           }
         });
-        if (interfacesData.length > 0) {
-          const newInterfacesManagement = this.infoPanelService.getNewInterfacesManagement(interfacesData)
-          this.store.dispatch(retrievedInterfacesManagement({ data: newInterfacesManagement }))
-        } else {
-          this.store.dispatch(retrievedMapSelection({ data: true }));
-        }
+        this.store.dispatch(retrievedMapSelection({ data: true }));
         this.dialogRef.close();
         this.toastr.success(response.message, 'Success');
       })

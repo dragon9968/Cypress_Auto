@@ -22,11 +22,8 @@ import { selectDomainUsers } from "../../../store/domain-user/domain-user.select
 import { retrievedUserTasks } from "../../../store/user-task/user-task.actions";
 import { retrievedMapSelection } from "../../../store/map-selection/map-selection.actions";
 import { selectNodesByProjectId } from "../../../store/node/node.selectors";
-import { selectInterfacesManagement } from "../../../store/interface/interface.selectors";
 import { retrievedIsChangeDomainUsers } from "../../../store/domain-user-change/domain-user-change.actions";
-import { retrievedPortGroupsManagement } from "../../../store/portgroup/portgroup.actions";
-import { retrievedInterfacesManagement } from "../../../store/interface/interface.actions";
-import { selectPortGroups, selectPortGroupsManagement } from "../../../store/portgroup/portgroup.selectors";
+import { selectPortGroups } from "../../../store/portgroup/portgroup.selectors";
 import { retrievedIsHypervisorConnect } from "src/app/store/server-connect/server-connect.actions";
 import { retrievedVMStatus } from "src/app/store/project/project.actions";
 import { RemoteCategories } from "../../enums/remote-categories.enum";
@@ -44,13 +41,9 @@ export class InfoPanelService implements OnDestroy {
   selectPortGroup$ = new Subscription();
   selectDomainUser$ = new Subscription();
   selectVMStatus$ = new Subscription();
-  selectPortGroupsManagement$ = new Subscription();
-  selectInterfacesManagement$ = new Subscription();
   nodes!: any[];
   portGroups!: any[];
   domainUsers!: any[];
-  portGroupsManagement: any[] = [];
-  interfacesManagement: any[] = [];
   vmStatus!: boolean;
   isGroupBoxesChecked!: boolean;
   statusColorLookup = {
@@ -86,12 +79,6 @@ export class InfoPanelService implements OnDestroy {
     this.selectPortGroup$ = this.store.select(selectPortGroups).subscribe(portGroups => this.portGroups = portGroups);
     this.selectDomainUser$ = this.store.select(selectDomainUsers).subscribe(domainUsers => this.domainUsers = domainUsers);
     this.selectVMStatus$ = this.store.select(selectVMStatus).subscribe(vmStatus => this.vmStatus = vmStatus);
-    this.selectPortGroupsManagement$ = this.store.select(selectPortGroupsManagement).subscribe(
-      portGroupsData => this.portGroupsManagement = portGroupsData
-    )
-    this.selectInterfacesManagement$ = this.store.select(selectInterfacesManagement).subscribe(
-      interfacesData => this.interfacesManagement = interfacesData
-    )
   }
 
   ngOnDestroy(): void {
@@ -100,7 +87,6 @@ export class InfoPanelService implements OnDestroy {
     this.selectPortGroup$.unsubscribe();
     this.selectDomainUser$.unsubscribe();
     this.selectVMStatus$.unsubscribe();
-    this.selectPortGroupsManagement$.unsubscribe();
   }
 
   deleteInfoPanelAssociateMap(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], tabName: string, id: any) {
@@ -590,66 +576,6 @@ export class InfoPanelService implements OnDestroy {
       return false;
     }
     return result;
-  }
-
-  initPortGroupManagementStorage(projectId: string, category = 'management') {
-    this.portGroupService.getByProjectIdAndCategory(projectId, category).subscribe(
-      data => {
-        const portGroupData = data.result;
-        const portGroups = portGroupData.map((portGroup: any) => {
-          portGroup.pg_id = portGroup.id;
-          portGroup.id = `pg-${portGroup.id}`;
-          portGroup.domain = portGroup.domain?.name;
-          return portGroup;
-        });
-        this.store.dispatch(retrievedPortGroupsManagement({ data: portGroups }))
-      }
-    )
-  }
-
-  getNewPortGroupsManagement(newPortGroups: any) {
-    let newPGsManagement = [...this.portGroupsManagement];
-    newPortGroups.map((newPortGroup: any) => {
-      const isExistInPGsManagement = this.portGroupsManagement.some(pg => pg.pg_id === newPortGroup.id);
-      newPortGroup.pg_id = newPortGroup.id;
-      newPortGroup.id = `pg-${newPortGroup.id}`;
-      newPortGroup.domain = newPortGroup.domain?.name;
-      if (isExistInPGsManagement) {
-        const index = newPGsManagement.findIndex(ele => ele.pg_id === newPortGroup.pg_id);
-        newPGsManagement.splice(index, 1, newPortGroup);
-      } else {
-        newPGsManagement = newPGsManagement.concat(newPortGroup);
-      }
-    })
-    return newPGsManagement;
-  }
-
-  initInterfaceManagementStorage(projectId: string, category = 'management') {
-    this.interfaceService.getByProjectIdAndCategory(projectId, category).subscribe(
-      data => {
-        const portGroupData = data.result;
-        const edges = portGroupData.map((edge: any) => {
-          edge.interface_pk = edge.id;
-          return edge;
-        });
-        this.store.dispatch(retrievedInterfacesManagement({ data: edges }))
-      }
-    )
-  }
-
-  getNewInterfacesManagement(newInterfaces: any) {
-    let newInterfacesManagement = [...this.interfacesManagement];
-    newInterfaces.map((newEdge: any) => {
-      const isExistInEdgesManagement = this.interfacesManagement.some(edge => edge.interface_pk === newEdge.id);
-      newEdge.interface_pk = newEdge.id;
-      if (isExistInEdgesManagement) {
-        const index = newInterfacesManagement.findIndex(ele => ele.interface_pk === newEdge.interface_pk);
-        newInterfacesManagement.splice(index, 1, newEdge);
-      } else {
-        newInterfacesManagement = newInterfacesManagement.concat(newEdge);
-      }
-    })
-    return newInterfacesManagement;
   }
 
   randomizeSubnetPortGroups(pks: number[], projectId: number) {

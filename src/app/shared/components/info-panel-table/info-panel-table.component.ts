@@ -84,11 +84,11 @@ export class InfoPanelTableComponent {
         const nodeCy = this.cy.getElementById(`node-${nodeId}`);
         nodeCy.select();
         return nodeId;
-      } else if (this.tabName == 'portgroup' || this.tabName == 'portGroupManagement') {
+      } else if (this.tabName == 'portgroup') {
         const nodeCy = this.cy.getElementById(`pg-${ele.pg_id}`);
         nodeCy.select();
         return ele.pg_id;
-      } else if (this.tabName == 'edge' || this.tabName == 'edgeManagement') {
+      } else if (this.tabName == 'edge') {
         const edgeCy = this.cy.getElementById(ele.id);
         edgeCy.select();
         return ele.interface_pk;
@@ -102,13 +102,13 @@ export class InfoPanelTableComponent {
         const nodeCy = this.cy.getElementById(el.id);
         nodeCy.unselect();
       })
-    } else if (this.filterOption === 'all' && (this.tabName == 'portgroup' || this.tabName == 'portGroupManagement') && unSelectedElements.length > 0 ) {
+    } else if (this.filterOption === 'all' && (this.tabName == 'portgroup') && unSelectedElements.length > 0 ) {
       const unSelectedPg = unSelectedElements.filter(val => !this.rowsSelectedId.includes(val.pg_id))
       unSelectedPg.forEach(el => {
         const nodeCy = this.cy.getElementById(el.id);
         nodeCy.unselect();
       })
-    } else if (this.filterOption === 'all' && this.tabName == 'edge' || this.tabName == 'edgeManagement' && unSelectedElements.length > 0) {
+    } else if (this.filterOption === 'all' && this.tabName == 'edge' && unSelectedElements.length > 0) {
       const unSelectedPg = unSelectedElements.filter(val => !this.rowsSelectedId.includes(val.interface_pk))
       unSelectedPg.forEach(el => {
         const edgeCy = this.cy.getElementById(el.id);
@@ -141,9 +141,9 @@ export class InfoPanelTableComponent {
   getServiceByTab(tabName: string) {
     if (tabName == 'node') {
       return this.nodeService;
-    } else if (tabName == 'portgroup' || tabName == 'portGroupManagement') {
+    } else if (tabName == 'portgroup') {
       return this.portGroupService;
-    } else if (tabName == 'edge' || tabName == 'edgeManagement') {
+    } else if (tabName == 'edge') {
       return this.interfaceService;
     } else if (tabName == 'domain') {
       return this.domainService;
@@ -163,7 +163,7 @@ export class InfoPanelTableComponent {
       this.dialog.open(AddUpdateNodeDialogComponent,
         { disableClose: true, width: '1000px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
       );
-    } else if (tabName == 'portgroup' || this.tabName == 'portGroupManagement') {
+    } else if (tabName == 'portgroup') {
       this.dialog.open(AddUpdatePGDialogComponent, {
         disableClose: true,
         width: '600px',
@@ -171,7 +171,7 @@ export class InfoPanelTableComponent {
         data: dialogData,
         panelClass: 'custom-node-form-modal'
       });
-    } else if (tabName == 'edge' || tabName == 'edgeManagement') {
+    } else if (tabName == 'edge') {
       this.dialog.open(AddUpdateInterfaceDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
     }
   }
@@ -187,9 +187,9 @@ export class InfoPanelTableComponent {
     }
     if (tabName == 'node') {
       this.dialog.open(NodeBulkEditDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
-    } else if (tabName == 'portgroup' || tabName == 'portGroupManagement') {
+    } else if (tabName == 'portgroup') {
       this.dialog.open(PortGroupBulkEditDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
-    } else if (tabName == 'edge' || tabName == 'edgeManagement') {
+    } else if (tabName == 'edge') {
       this.dialog.open(InterfaceBulkEditDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
     }
   }

@@ -6,16 +6,6 @@ describe('Map features e2e testing', () => {
   let blankProject:any = {}
   const random = (Math.random() + 1).toString(36).substring(5);
 
-  // const blankProject = {
-  //   name: "Test map - East ISP",
-  //   description: "East cluster representing part of the grayspace",
-  //   category: "project",
-  //   target: "VMWare vCenter",
-  //   option: "blank",
-  //   vlan_min: 2000,
-  //   vlan_max: 2100
-  // }
-
   const domainData = {
     name: 'Test new domain',
     admin_user: 'admin',
@@ -62,15 +52,12 @@ describe('Map features e2e testing', () => {
   })
 
   it ('Create new blank project and add node, port group', () => {
-    cy.viewport(1920, 1080)
-    cy.visit('/', { timeout: 15000 })
+    cy.visit('/')
+    cy.waitingLoadingFinish()
     cy.getByDataCy('btn-create-new').click({force: true})
     cy.addNewProject(blankProject, true)
-    cy.wait(2000)
-    // cy.getByDataCy('btn-open-project').click()
-    // cy.wait(2000)
-    cy.get('.ag-row', { timeout: 15000 }).contains(blankProject.name).first().dblclick({ force: true }).type(" ");
-    cy.url().should('include', 'map')
+    cy.waitingLoadingFinish()
+    cy.openProjectByName(blankProject.name)
     cy.waitingLoadingFinish()
     // Add new port group
     mapData.collection[0].port_group.forEach((element: any) => {
@@ -93,8 +80,8 @@ describe('Map features e2e testing', () => {
           pgX = 250
           pgY = 600
         }
-        cy.addNewInterface(interfaceData, 
-          element.map_data.logical.position.x, 
+        cy.addNewInterface(interfaceData,
+          element.map_data.logical.position.x,
           element.map_data.logical.position.y,
           pgX,
           pgY,
@@ -103,7 +90,7 @@ describe('Map features e2e testing', () => {
       })
     });
 
-    cy.wait(2000)
+    cy.waitingLoadingFinish()
     // Update node
     cy.selectElementOnMap('node', 'e-dns-1')
     cy.get('canvas.expand-collapse-canvas').rightclick(300, 500, {force: true}).then(() => {
@@ -123,7 +110,8 @@ describe('Map features e2e testing', () => {
       cy.getByFormControlName('hostnameCtr').clear().type(editData.nodeData.hostname)
       cy.get('mat-error').should('not.exist')
       cy.getByDataCy('nodeAddForm').submit()
-      cy.wait(2000)
+      cy.checkingToastSuccess()
+      cy.waitingLoadingFinish()
     })
 
     // Update port group
@@ -137,43 +125,26 @@ describe('Map features e2e testing', () => {
       cy.getByFormControlName('subnetAllocationCtr').children(`mat-radio-button[value="${editData.portGroupData.subnet_allocation}"]`).click()
       cy.get('mat-error').should('not.exist')
       cy.getByDataCy('pgAddForm').submit()
-      cy.wait(2000)
+      cy.checkingToastSuccess()
+      cy.waitingLoadingFinish()
     })
-
-    // // Update interface
-    // cy.get('#cy').then((el: any) => {
-    //   const cytoscape = el[0]._cyreg.cy
-    //   cytoscape.nodes().unselect()
-    //   cytoscape.edges().unselect()
-    // })
-    // cy.wait(2000)
-    // // cy.selectElementOnMap('edge', 'eth1')
-    // cy.get('canvas.expand-collapse-canvas').rightclick(900, 500, {force: true}).then(() => {
-    //   cy.get('.cy-context-menus-cxt-menu').first().should('exist')
-    //   cy.get('#edit').should('exist').click({ force: true });
-    //   cy.getByFormControlName('nameCtr').clear().type(editData.edgeData.name)
-    //   cy.get('mat-error').should('not.exist')
-    //   cy.getByDataCy('interfaceAddForm').submit()
-    //   cy.wait(2000)
-    // })
 
     //  Test clone node
     cy.selectElementOnMap('node', editData.nodeData.name)
     cy.getByMatToolTip('Clone').click();
-    cy.wait(2000)
+    cy.waitingLoadingFinish()
     cy.getButtonByTypeAndContent('submit', 'OK').click()
-    cy.wait(2000)
+    cy.checkingToastSuccess()
     cy.exportProject(blankProject.name, true)
-    cy.wait(3000)
+    cy.waitingLoadingFinish()
     cy.importProject('cypress/fixtures/project/West_ISP.json')
-    cy.wait(3000)
-
+    cy.waitingLoadingFinish()
   });
 
   it ('Test Table Filter', () => {
-    cy.viewport(1920, 1080)
     cy.visit('/projects')
-    cy.get('.ag-row').contains('Test map - East ISP (y80rd6g) blank').first().dblclick({ force: true }).type(" ");
+    cy.waitingLoadingFinish()
+    cy.openProjectByName(project.name)
     cy.url().should('include', 'map')
     cy.waitingLoadingFinish()
 
@@ -209,6 +180,20 @@ describe('Map features e2e testing', () => {
     cy.get(`mat-option[value="selected"]`).click()
     cy.selectElementOnMap('node', 'cro_net_pmk8310w')
 
+    cy.getByMatToolTip('Filter Table').click({force: true})
+    cy.getByFormControlName('filterOptionCtr').click()
+    cy.get(`mat-option[value="management"]`).click()
+    cy.get('body').click(0,0);
+    cy.wait(1000)
+    cy.get(`app-info-panel-port-group ag-grid-angular .ag-row`).contains('management')
+      .parent('.ag-cell-wrapper').parent('.ag-cell').parent('.ag-row').dblclick()
+    cy.getByMatToolTip('Edit Port Group').click()
+    cy.getByFormControlName('nameCtr').focus().clear().type('Port Group Management Test Edit')
+    cy.getByFormControlName('domainCtr').click()
+    cy.get('.mat-option-text').contains('management').click()
+    cy.getButtonByTypeAndContent('submit', 'Update').click()
+    cy.checkingToastSuccess()
+    cy.waitingLoadingFinish()
     cy.selectMatTabByLabel('Interfaces').click()
     cy.selectInfoPanelRowByLabelAndContent('interface', 'eth1').click()
     cy.wait(1000)
@@ -220,30 +205,51 @@ describe('Map features e2e testing', () => {
     cy.getByMatToolTip('Filter Table').click( {force: true} )
     cy.getByFormControlName('filterOptionCtr').click()
     cy.get(`mat-option[value="all"]`).click()
-  
+    cy.getByMatToolTip('Filter Table').click({force: true})
+    cy.getByFormControlName('filterOptionCtr').click()
+    cy.get(`mat-option[value="management"]`).click()
+    cy.get('body').click(0,0);
+    cy.wait(1000)
+    cy.get(`app-info-panel-interface ag-grid-angular .ag-row`).contains('management')
+      .parent('.ag-cell-wrapper').parent('.ag-cell').parent('.ag-row').first().dblclick()
+    cy.getByMatToolTip('Edit Edge').click()
+    cy.getByFormControlName('nameCtr').focus().clear().type('Edge Management Test Edit')
+    cy.getButtonByTypeAndContent('submit', 'Update').click()
+    cy.checkingToastSuccess()
+    cy.waitingLoadingFinish()
   })
 
   it ('Test Link project', () => {
-    cy.viewport(1920, 1080)
-    cy.visit('/projects', { timeout: 15000 })
-    cy.get('.ag-row', { timeout: 15000 }).contains(blankProject.name).first().dblclick({ force: true }).type(" ");
-    cy.url().should('include', 'map')
+    cy.visit('/projects')
+    cy.openProjectByName(project.name)
     cy.waitingLoadingFinish()
+    cy.selectMatTabByLabel('Option').click();
+    cy.getMatSliderToggleByClass('.direction-toggle').check({ force: true })
+    cy.wait(2000)
+    cy.getMatSliderToggleByClass('.groupboxes-toggle').check({ force: true })
+    cy.wait(2000)
+    cy.getMatSliderToggleByClass('.matgrid-toggle').check({ force: true })
+    cy.wait(2000)
+    cy.getMatSliderToggleByClass('.mapoverview-toggle').check({ force: true })
+    cy.getByMatToolTip('Save').click()
+    cy.checkingToastSuccess()
+  });
 
-    cy.get('#toolpanel-linkproject').click();
-    cy.getOptionByContent('West ISP').first().click();
-    cy.getByMatToolTip('Link Project').should('be.enabled')
-    cy.getByDataCy('linkProjectForm').submit();
+  it ('Test map - Test domain info panel', () => {
+    cy.visit('/projects')
+    cy.openProjectByName(blankProject.name)
+    cy.waitingLoadingFinish()
+    cy.selectMatTabByLabel('Option').click();
+    cy.getMatSliderToggleByClass('.direction-toggle').uncheck({ force: true })
     cy.wait(1000)
     cy.get('canvas.expand-collapse-canvas').click(100, 100, { force: true });
-    cy.wait(4000)
+    cy.wait(2000)
   });
 
   it ('Test map style', () => {
-    cy.viewport(1920, 1080)
-    cy.visit('/projects', { timeout: 15000 })
-    cy.get('.ag-row', { timeout: 15000 }).contains(blankProject.name).first().dblclick({ force: true }).type(" ");
-    cy.url().should('include', 'map')
+    cy.visit('/projects')
+    cy.waitingLoadingFinish()
+    cy.openProjectByName(project.name)
     cy.waitingLoadingFinish()
 
     cy.selectElementOnMap('node', editData.nodeData.name)
@@ -265,10 +271,8 @@ describe('Map features e2e testing', () => {
   });
 
   it ('Test map style - Change Map Preferences', () => {
-    cy.viewport(1920, 1080)
-    cy.visit('/projects', { timeout: 15000 })
-    cy.get('.ag-row', { timeout: 15000 }).contains(blankProject.name).first().dblclick({ force: true }).type(" ");
-    cy.url().should('include', 'map')
+    cy.visit('/projects')
+    cy.openProjectByName(project.name)
     cy.waitingLoadingFinish()
     cy.selectMatTabByLabel('Style').click();
     cy.selectElementOnMap('node', editData.nodeData.name)
@@ -287,9 +291,8 @@ describe('Map features e2e testing', () => {
   });
 
   it ('Test map - Test tool panel Option', () => {
-    cy.viewport(1920, 1080)
-    cy.visit('/projects', { timeout: 15000 })
-    cy.get('.ag-row', { timeout: 15000 }).contains(blankProject.name).first().dblclick({ force: true }).type(" ");
+    cy.visit('/projects')
+    cy.openProjectByName(project.name)
     cy.url().should('include', 'map')
     cy.waitingLoadingFinish()
     cy.selectMatTabByLabel('Option').click();
@@ -306,10 +309,8 @@ describe('Map features e2e testing', () => {
   });
 
   it ('Test map - Test domain info panel', () => {
-    cy.viewport(1920, 1080)
-    cy.visit('/projects', { timeout: 15000 })
-    cy.get('.ag-row', { timeout: 15000 }).contains(blankProject.name).first().dblclick({ force: true });
-    cy.url().should('include', 'map')
+    cy.visit('/projects')
+    cy.openProjectByName(project.name)
     cy.waitingLoadingFinish()
     cy.selectMatTabByLabel('Option').click();
     cy.getMatSliderToggleByClass('.direction-toggle').uncheck({ force: true })
@@ -352,9 +353,8 @@ describe('Map features e2e testing', () => {
   });
 
   it ('Test map - Test group info panel', () => {
-    cy.viewport(1920, 1080)
-    cy.visit('/projects', { timeout: 15000 })
-    cy.get('.ag-row', { timeout: 15000 }).contains(blankProject.name).first().dblclick({ force: true });
+    cy.visit('/projects')
+    cy.openProjectByName(project.name)
     cy.url().should('include', 'map')
     cy.waitingLoadingFinish()
 
@@ -379,27 +379,4 @@ describe('Map features e2e testing', () => {
 
   });
 
-  // it ('Test delete project', () => {
-  //   //  delete project
-  //   cy.viewport(1920, 1080)
-  //   cy.visit('/projects', { timeout: 15000 })
-  //   cy.get('.ag-row', { timeout: 15000 }).contains(blankProject.name).first().dblclick({ force: true });
-  //   cy.url().should('include', 'map')
-  //   cy.waitingLoadingFinish()
-  //   cy.getByDataCy('btn-nav-project').click({ force: true })
-  //   cy.wait(1000)
-  //   cy.getByDataCy('btn-delete-project').click({force: true})
-  //   cy.wait(2000)
-  //   cy.getButtonByTypeAndContent('submit', 'Delete').click()
-  //   cy.wait(2000)
-  //   cy.getByDataCy('btn-nav-project').click({ force: true })
-  //   cy.wait(1000)
-  //   cy.getByDataCy('btn-delete-permanently-project').click()
-  //   cy.wait(1000)
-  //   cy.get('.ag-row').contains(blankProject.name).first().click({ force: true });
-  //   cy.wait(1000)
-  //   cy.get('.actions').click()
-  //   cy.getByDataCy('btn-perdelete-project').click()
-  //   cy.getButtonByTypeAndContent('submit', 'Delete').click()
-  // })
 })

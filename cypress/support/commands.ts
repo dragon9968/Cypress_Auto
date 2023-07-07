@@ -1101,9 +1101,9 @@ function updateMapStyle(data: any, type: any): void {
 
   const dataCy = `toolpanel-${type}-size`
   const sizeElement = type == 'node' ? data.node_size : type == 'port-group' ? data.port_group_size : data.edge_width
-  const currentValue = type == 'node' ? 50 : type == 'port-group' ? 100 : 25
+  const currentValue = type == 'node' ? 50 : type == 'port-group' ? 50 : 25
   cy.getByDataCy(dataCy).as('size').then(value =>{
-    cy.get('@size').type(calcArrowsSlider(sizeElement, currentValue))
+    cy.get('@size').focus().type(calcArrowsSlider(sizeElement, currentValue), {force: true})
   })
   cy.wait(1000)
   cy.get('#textColor').click()

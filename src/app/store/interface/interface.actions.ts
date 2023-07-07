@@ -1,7 +1,7 @@
 import { createAction, props } from "@ngrx/store";
 
-export const retrievedInterfacesManagement = createAction(
-  'retrievedInterfacesManagement',
+export const retrievedInterfaceByProjectIdAndCategory = createAction(
+  'retrievedInterfaceByProjectIdAndCategory',
   props<{data: any}>()
 );
 

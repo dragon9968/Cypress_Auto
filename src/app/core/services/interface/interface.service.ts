@@ -90,7 +90,7 @@ export class InterfaceService {
     });
   }
 
-  getByProjectIdAndCategory(projectId: any, category: string): Observable<any> {
-    return this.http.get<any>(ApiPaths.INTERFACE_DATA_CATEGORY + projectId + '/' + category)
+  getByProjectIdAndCategory(projectId: any, mapCategory: string, edgeCategory: string): Observable<any> {
+    return this.http.get<any>(ApiPaths.INTERFACE_DATA_CATEGORY + projectId + '/' + mapCategory + '/' + edgeCategory)
   }
 }

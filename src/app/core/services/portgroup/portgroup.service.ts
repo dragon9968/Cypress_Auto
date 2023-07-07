@@ -28,7 +28,7 @@ export class PortGroupService {
   getByProjectId(projectId: string): Observable<any> {
     return this.http.get<any>(ApiPaths.PORTGROUP, {
       params: {
-        q: '(columns:!(id,name,subnet,vlan,project_id,domain_id,domain),' +
+        q: '(columns:!(id,name,subnet,vlan,project_id,domain_id,domain,category),' +
            'filters:!((col:project_id,opr:eq,value:' + projectId + ')),' +
            'keys:!(list_columns),page:0,page_size:1000)'
       }

@@ -1627,9 +1627,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       const templateItems = response.result.map_items;
       this.domainService.getDomainByProjectId(projectId).subscribe(domainRes => {
         this.store.dispatch(retrievedDomains({ data: domainRes.result }));
-        this.infoPanelService.initInterfaceManagementStorage(projectId);
-        this.infoPanelService.initPortGroupManagementStorage(projectId);
-
         this.nodeService.getNodesByProjectId(projectId).subscribe(nodeRes => {
           this.store.dispatch(retrievedNodes({ data: nodeRes.result }));
 

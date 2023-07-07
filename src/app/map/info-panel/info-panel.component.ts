@@ -4,11 +4,12 @@ import { Subscription } from "rxjs";
 import { Component, Input, OnInit } from '@angular/core';
 import { NodeService } from "../../core/services/node/node.service";
 import { ProjectService } from "../../project/services/project.service";
-import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
 import { DomainUserService } from "../../core/services/domain-user/domain-user.service";
 import { retrievedNodes } from "../../store/node/node.actions";
 import { retrievedDomainUsers } from "../../store/domain-user/domain-user.actions";
 import { retrievedIsChangeDomainUsers } from "../../store/domain-user-change/domain-user-change.actions";
+import { InterfaceService } from "../../core/services/interface/interface.service";
+import { retrievedInterfaceByProjectIdAndCategory } from "../../store/interface/interface.actions";
 
 @Component({
   selector: 'app-info-panel',
@@ -27,7 +28,6 @@ export class InfoPanelComponent implements OnInit{
   @Input() deletedInterfaces: any[] = [];
   selectDomainUser$ = new Subscription();
   projectId = '0';
-  managementCategory = 'management';
   style: any = {
     height: '300px'
   };
@@ -36,7 +36,7 @@ export class InfoPanelComponent implements OnInit{
     private store: Store,
     private nodeService: NodeService,
     private projectService: ProjectService,
-    private infoPanelService: InfoPanelService,
+    private interfaceService: InterfaceService,
     private domainUserService: DomainUserService,
   ) {}
 
@@ -69,8 +69,10 @@ export class InfoPanelComponent implements OnInit{
     this.selectDomainUser$ = this.domainUserService.getAll().subscribe(
       data => this.store.dispatch(retrievedDomainUsers({ data: data.result }))
     );
-    this.infoPanelService.initPortGroupManagementStorage(this.projectId, this.managementCategory);
-    this.infoPanelService.initInterfaceManagementStorage(this.projectId, this.managementCategory);
     this.store.dispatch(retrievedIsChangeDomainUsers({ isChangeDomainUsers: false }));
+    this.interfaceService.getByProjectIdAndCategory(this.projectId, 'logical', 'all')
+      .subscribe(res => {
+        this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({data: res.result}))
+    })
   }
 }

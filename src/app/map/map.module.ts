@@ -35,8 +35,6 @@ import { DomainUserDialogComponent } from './info-panel/info-panel-domain/domain
 import { UpdateDomainUserDialogComponent } from './info-panel/info-panel-domain/update-domain-user-dialog/update-domain-user-dialog.component';
 import { AddDeletePGDeployDialogComponent } from './deployment-dialog/deployment-pg-dialog/add-delete-pg-deploy-dialog/add-delete-pg-deploy-dialog.component';
 import { UpdateFactsNodeDialogComponent } from './deployment-dialog/deployment-node-dialog/update-facts-node-dialog/update-facts-node-dialog.component';
-import { InfoPanelPortGroupManagementComponent } from './info-panel/info-panel-port-group-management/info-panel-port-group-management.component';
-import { InfoPanelInterfaceManagementComponent } from './info-panel/info-panel-interface-management/info-panel-interface-management.component';
 import { NodeToolsDialogComponent } from './deployment-dialog/deployment-node-dialog/node-tools-dialog/node-tools-dialog.component';
 import { ConnectInterfaceToPgDialogComponent } from './context-menu/cm-dialog/connect-interface-to-pg-dialog/connect-interface-to-pg-dialog.component';
 import { ViewUpdateProjectNodeComponent } from './context-menu/cm-dialog/view-update-project-node/view-update-project-node.component';
@@ -80,8 +78,6 @@ import { ConnectionInfoDialogComponent } from './tool-panel/tool-panel-remote/co
     UpdateDomainUserDialogComponent,
     AddDeletePGDeployDialogComponent,
     UpdateFactsNodeDialogComponent,
-    InfoPanelPortGroupManagementComponent,
-    InfoPanelInterfaceManagementComponent,
     NodeToolsDialogComponent,
     ConnectInterfaceToPgDialogComponent,
     ViewUpdateProjectNodeComponent,
