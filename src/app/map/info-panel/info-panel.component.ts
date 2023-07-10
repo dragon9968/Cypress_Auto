@@ -10,6 +10,7 @@ import { retrievedDomainUsers } from "../../store/domain-user/domain-user.action
 import { retrievedIsChangeDomainUsers } from "../../store/domain-user-change/domain-user-change.actions";
 import { InterfaceService } from "../../core/services/interface/interface.service";
 import { retrievedInterfaceByProjectIdAndCategory } from "../../store/interface/interface.actions";
+import { LocalStorageKeys } from "../../core/storage/local-storage/local-storage-keys.enum";
 
 @Component({
   selector: 'app-info-panel',
@@ -27,6 +28,10 @@ export class InfoPanelComponent implements OnInit{
   @Input() deletedNodes: any[] = [];
   @Input() deletedInterfaces: any[] = [];
   selectDomainUser$ = new Subscription();
+  isShowMaximize = true
+  isShowMinimize = true
+  isShowRestoreHeight = false
+  infoPanelHeightRestore = '0px'
   projectId = '0';
   style: any = {
     height: '300px'
@@ -42,11 +47,13 @@ export class InfoPanelComponent implements OnInit{
 
   validate(event: ResizeEvent): boolean {
     const MIN_DIMENSIONS_PX: number = 50;
+    const MAX_DIMENSIONS_PX = window.screen.height - 230
     if (
       event.rectangle.width &&
       event.rectangle.height &&
       (event.rectangle.width < MIN_DIMENSIONS_PX ||
-        event.rectangle.height < MIN_DIMENSIONS_PX)
+      event.rectangle.height < MIN_DIMENSIONS_PX ||
+      event.rectangle.height > MAX_DIMENSIONS_PX)
     ) {
       return false;
     }
@@ -54,11 +61,16 @@ export class InfoPanelComponent implements OnInit{
   }
 
   onResizeEnd(event: ResizeEvent): void {
+    this.isShowMinimize = true;
+    this.isShowRestoreHeight = false;
+    this.isShowMaximize = true;
     this.style = {
       position: 'absolute',
       top: `${event.rectangle.top - 65}px`,
       height: `${event.rectangle.height}px`
     };
+    this.infoPanelHeightRestore = `${event.rectangle.height}px`
+    localStorage.setItem(LocalStorageKeys.INFO_PANEL_HEIGHT, this.infoPanelHeightRestore)
   }
 
   ngOnInit(): void {
@@ -74,5 +86,36 @@ export class InfoPanelComponent implements OnInit{
       .subscribe(res => {
         this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({data: res.result}))
     })
+    const infoPanelHeight = localStorage.getItem(LocalStorageKeys.INFO_PANEL_HEIGHT)
+    this.infoPanelHeightRestore = infoPanelHeight ? infoPanelHeight : '300px'
+    this.style.height = this.infoPanelHeightRestore
   }
+
+  minimizeInfoPanel() {
+    this.isShowMinimize = false;
+    this.isShowRestoreHeight = true;
+    this.isShowMaximize = true;
+    this.style = {
+      height: '50px'
+    };
+  }
+
+  maximizeInfoPanel() {
+    this.isShowMinimize = true;
+    this.isShowRestoreHeight = true;
+    this.isShowMaximize = false;
+    this.style = {
+      height: `${window.screen.height - 230}px`
+    };
+  }
+
+  restoreHeight() {
+    this.isShowMinimize = true;
+    this.isShowRestoreHeight = false;
+    this.isShowMaximize = true;
+    this.style = {
+      height: this.infoPanelHeightRestore
+    };
+  }
+
 }

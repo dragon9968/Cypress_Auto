@@ -5,5 +5,6 @@ export enum LocalStorageKeys {
   PROJECT_ID = 'PROJECT_ID',
   USER_ID = 'USER_ID',
   PERMISSIONS = 'PERMISSIONS',
-  ROLES = 'ROLES'
+  ROLES = 'ROLES',
+  INFO_PANEL_HEIGHT = 'INFO_PANEL_HEIGHT'
 }

@@ -27,3 +27,18 @@ mwlResizable {
   padding-right: 10px;
   width: 100%;
 }
+
+.resize-buttons-area {
+  position: absolute;
+  z-index: 1;
+  right: 20px;
+  top: 5px;
+  .resize-button {
+    border-radius: 50%;
+    min-width: 40px;
+    height: 40px;
+    mat-icon {
+      transform: scale(.8);
+    }
+  }
+}

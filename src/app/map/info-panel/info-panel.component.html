@@ -30,5 +30,10 @@
       </mat-tab>
     </ng-template>
   </mat-tab-group>
+  <div class="resize-buttons-area">
+    <button *ngIf="isShowMinimize" type="button" mat-button class="resize-button" (click)="minimizeInfoPanel()"><mat-icon>minimize</mat-icon></button>
+    <button *ngIf="isShowRestoreHeight" type="button" mat-button class="resize-button" (click)="restoreHeight()"><mat-icon>fullscreen_exit</mat-icon></button>
+    <button *ngIf="isShowMaximize" type="button" mat-button class="resize-button" (click)="maximizeInfoPanel()"><mat-icon>zoom_out_map</mat-icon></button>
+  </div>
   <div class="resize-handle-top" mwlResizeHandle [resizeEdges]="{ top: true }"></div>
 </div>

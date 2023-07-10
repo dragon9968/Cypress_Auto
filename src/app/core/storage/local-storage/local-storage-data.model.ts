@@ -8,4 +8,5 @@ export type LocalStorageData = {
   [LocalStorageKeys.USER_ID]: string;
   [LocalStorageKeys.PERMISSIONS]: any[];
   [LocalStorageKeys.ROLES]: any[];
+  [LocalStorageKeys.INFO_PANEL_HEIGHT]: string;
 };
