@@ -2,12 +2,11 @@ import { Store } from "@ngrx/store";
 import { MatDialog } from "@angular/material/dialog";
 import { ToastrService } from "ngx-toastr";
 import { MatIconRegistry } from "@angular/material/icon";
-import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, ViewChild } from '@angular/core';
 import { Subscription } from "rxjs";
 import { GridOptions, RowDoubleClickedEvent } from "ag-grid-community";
 import { NodeService } from "../../../core/services/node/node.service";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
-import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { CMActionsService } from "../../context-menu/cm-actions/cm-actions.service";
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
@@ -26,7 +25,7 @@ import { FormControl, FormGroup } from "@angular/forms";
   templateUrl: './info-panel-node.component.html',
   styleUrls: ['./info-panel-node.component.scss']
 })
-export class InfoPanelNodeComponent implements OnDestroy, OnInit {
+export class InfoPanelNodeComponent implements OnDestroy {
   @ViewChild(InfoPanelTableComponent) infoPanelTableComponent: InfoPanelTableComponent | undefined;
 
   @Input() cy: any;
@@ -183,19 +182,32 @@ export class InfoPanelNodeComponent implements OnDestroy, OnInit {
     iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
     this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => {
       if (nodes) {
-          this.nodes = nodes.map(node => ({...node, device: node.device?.name, template: node.template?.name, domain: node.domain?.name, login_profile: node.login_profile?.name, node_id: node.id, id: `node-${node.id}`}))
-          this.infoPanelTableComponent?.setRowData(this.nodes);
+        this.nodes = nodes.map(node => ({
+          ...node,
+          device: node.device?.name,
+          template: node.template?.name,
+          domain: node.domain?.name,
+          login_profile: node.login_profile?.name,
+          node_id: node.id,
+          id: `node-${node.id}`
+        }));
+        this.store.dispatch(retrievedMapSelection({ data: true }));
       }
     });
     this.selectMapFilterOption$ = this.store.select(selectMapFilterOptionNodes).subscribe(mapFilterOption => {
       if (mapFilterOption) {
         this.filterOption = mapFilterOption;
-        const activeEleNodeIds = this.activeNodes.map(ele => ele.data('id'));
-        if (mapFilterOption && mapFilterOption == 'all') {
+        this.store.dispatch(retrievedMapSelection({ data: true }));
+      }
+    })
+    this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
+      if (mapSelection) {
+        const activeEleIds = this.activeNodes.map(ele => ele.data('id'));
+        if (this.filterOption == 'all') {
           this.infoPanelTableComponent?.setRowData(this.nodes);
           this.infoPanelTableComponent?.deselectAll();
-          this.infoPanelTableComponent?.setRowActive(activeEleNodeIds)
-        } else if (mapFilterOption && mapFilterOption == 'selected') {
+          this.infoPanelTableComponent?.setRowActive(activeEleIds);
+        } else if (this.filterOption == 'selected') {
           this.rowDataNodes = this.activeNodes.map((ele: any) => {
             if (ele.data('category') == 'hw') {
               if (ele.data('hardware')?.serial_number) {
@@ -207,35 +219,9 @@ export class InfoPanelNodeComponent implements OnDestroy, OnInit {
             }
             return ele.data();
           });
-          const activeEleIds = this.activeNodes.map(ele => ele.data('id'));
           this.infoPanelTableComponent?.setSelectedEles(activeEleIds, this.rowDataNodes);
-          this.store.dispatch(retrievedMapSelection({ data: false }));
-        }      
-      }
-    })
-    this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
-      if (mapSelection) {
-        this.mapSelection = mapSelection;
-        const activeEleIds = this.activeNodes.map(ele => ele.data('id'));
-        if (this.mapSelection && this.filterOption !== 'all') {
-          const rowData = this.activeNodes.map((ele: any) => {
-            if (ele.data('category') == 'hw') {
-              if (ele.data('hardware')?.serial_number) {
-                ele.data('hardware', ele.data('hardware')?.serial_number)
-              }
-            } else {
-              ele.data('hardware', null)
-              ele.data('hardware_id', null)
-            }
-            return ele.data();
-          });
-          this.infoPanelTableComponent?.setSelectedEles(activeEleIds, rowData);
-          this.store.dispatch(retrievedMapSelection({ data: false }));
-        } else if (this.mapSelection && this.filterOption === 'all') {
-          const activeEleNodeIds = this.activeNodes.map(ele => ele.data('id'));
-          this.infoPanelTableComponent?.deselectAll();
-          this.infoPanelTableComponent?.setRowActive(activeEleNodeIds)
         }
+        this.store.dispatch(retrievedMapSelection({ data: false }));
       }
     });
     this.filterOptionForm = new FormGroup({
@@ -244,13 +230,10 @@ export class InfoPanelNodeComponent implements OnDestroy, OnInit {
     this.filterOptionForm.get('filterOptionCtr')?.setValue('all');
   }
 
-  ngOnInit(): void {
-    this.store.dispatch(retrievedMapFilterOptionNodes({ data: 'all'}));
-  }
-
   ngOnDestroy(): void {
     this.selectMapSelection$.unsubscribe();
     this.selectNodes$.unsubscribe();
+    this.selectMapFilterOption$.unsubscribe();
   }
 
   cloneNodes() {
@@ -310,12 +293,13 @@ export class InfoPanelNodeComponent implements OnDestroy, OnInit {
 
   changeFilterOption(menuTrigger: MatMenuTrigger, $event: any) {
     menuTrigger.closeMenu();
-    if ($event.value == 'all') {
+    this.filterOption = $event.value;
+    if (this.filterOption == 'all') {
       this.infoPanelTableComponent?.setRowData(this.nodes);
     } else {
       this.infoPanelTableComponent?.setSelectedEles(this.activeEleIds, this.rowDataNodes);
     }
-    this.store.dispatch(retrievedMapFilterOptionNodes({ data: $event.value }));
+    this.store.dispatch(retrievedMapFilterOptionNodes({ data: this.filterOption }));
   }
 
   selectOption($event: any) {

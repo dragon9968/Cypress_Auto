@@ -24,6 +24,8 @@ import { showErrorFromServer } from 'src/app/shared/validations/error-server-res
 import { retrievedInterfaceByProjectIdAndCategory } from "../../store/interface/interface.actions";
 import { ProjectService } from "../../project/services/project.service";
 import { selectInterfacesByProjectIdAndCategory } from "../../store/interface/interface.selectors";
+import { retrievedNodes } from 'src/app/store/node/node.actions';
+import { NodeService } from 'src/app/core/services/node/node.service';
 
 @Component({
   selector: 'app-add-update-interface-dialog',
@@ -61,7 +63,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     public helpers: HelpersService,
     private projectService: ProjectService,
     private interfaceService: InterfaceService,
-    private infoPanelService: InfoPanelService,
+    private nodeService: NodeService,
     private portGroupService: PortGroupService,
   ) {
     this.edgesConnected = this.data.cy.nodes(`[id="pg-${this.data.genData.port_group_id}"]`).connectedEdges()
@@ -341,13 +343,13 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         } else {
           e.move({ target: `pg-${data.port_group_id}` });
         }
-        const node = this.data.cy.getElementById(`node-${data.node_id}`);
         const netmaskName = this.helpers.getOptionById(this.netmasks, data.netmask_id).name
-        this.helpers.updateInterfaceOnEle(node, {
+        this.helpers.updateInterfaceOnEle(this.data.cy, `node-${data.node_id}`, {
           id: this.data.genData.interface_pk,
           value: `${data.name} - ${data.ip + netmaskName}`
         });
         if (data.port_group_id !== pgIdOld) {
+          const node = this.data.cy.getElementById(`node-${data.node_id}`);
           const newEdge = {
             id: this.data.genData.interface_pk,
             value: `${node.data('name')} - ${data.name} - ${data.ip + netmaskName}`
@@ -355,6 +357,10 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
           this.helpers.addInterfaceIntoPG(this.data.cy, data.port_group_id, newEdge)
           this.helpers.removeInterfaceOnPG(this.data.cy, pgIdOld, this.data.genData.interface_pk)
         }
+        this.nodeService.getNodesByProjectId(this.projectService.getProjectId()).subscribe(
+          (data: any) => this.store.dispatch(retrievedNodes({ data: data.result }))
+        );
+        this.store.dispatch(retrievedMapSelection({ data: true }));
       }
       this.interfaceService.getByProjectIdAndCategory(this.projectService.getProjectId(), 'logical', 'all')
         .subscribe(res => {

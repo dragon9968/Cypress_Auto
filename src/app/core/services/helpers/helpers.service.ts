@@ -598,7 +598,8 @@ export class HelpersService implements OnDestroy {
     }
   }
 
-  updateInterfaceOnEle(ele: any, new_interface: any) {
+  updateInterfaceOnEle(cy: any, id: string, new_interface: any) {
+    const ele = cy.getElementById(id);
     const interfaces = ele.data('interfaces')
     if (interfaces) {
       let interfacesArr = [...interfaces]
@@ -636,9 +637,8 @@ export class HelpersService implements OnDestroy {
     const edgesConnectedElement = element.connectedEdges()
     edgesConnectedElement.map((edge: any) => {
       edge.data(type, element.data('name'));
-      const pg = cy.getElementById(`pg-${edge.data('port_group_id')}`);
       const netmaskName = this.getOptionById(this.netmasks, edge.data('netmask_id')).name
-      this.updateInterfaceOnEle(pg, {
+      this.updateInterfaceOnEle(cy, `pg-${edge.data('port_group_id')}`, {
         id: edge.data('id'),
         value: `${element.data('name')} - ${edge.data('ip') + netmaskName}`
       });
