@@ -34,6 +34,7 @@ function addNewProject(project: any, isUsingDefaultNetwork = true): void {
   cy.getByFormControlName('name').focus().type(project.name).blur()
   cy.checkingMatErrorIsExistOrNot(false)
   cy.getByFormControlName('description').focus().type(project.description).blur()
+  cy.waitingLoadingFinish()
   cy.getByFormControlName('category').children(`mat-radio-button[value="${project.category}"]`).click()
   cy.getByFormControlName('target').click().then(() => {
     cy.get('mat-option').contains(`${project.target}`).click()
@@ -896,7 +897,7 @@ function addNewNodeOnMap(node: any, positionX: any, positionY: any, custom: bool
   cy.getByFormControlName('templateCtr').click()
   cy.get('.option-text').contains(node.template_name).first().click()
   cy.getByDataCy('btn-add-node').click({ force: true })
-  cy.wait(1000)
+  cy.waitingLoadingFinish()
   cy.get('canvas.expand-collapse-canvas').click(positionX, positionY, { force: true });
   cy.wait(1000)
   if (custom) {
@@ -1226,8 +1227,9 @@ function addEditGroup(group: any, mode: string) {
     group.port_groups.forEach((val: any) => {
       cy.getByFormControlName('portGroupsCtr').click();
       cy.wait(2000)
-      cy.get('ng-dropdown-panel .ng-dropdown-panel-items').contains(val).click();
+      cy.get('ng-dropdown-panel .ng-dropdown-panel-items').contains(new RegExp(`^${val}$`, 'gi')).click();
       cy.wait(2000)
+      cy.get('body').click(0,0);
     })
   }
   cy.getByFormControlName('descriptionCtr').as('descriptionCtr').invoke('val').then(value => {

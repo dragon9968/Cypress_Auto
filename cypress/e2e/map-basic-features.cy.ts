@@ -3,7 +3,6 @@ describe('Map features e2e testing', () => {
   let mapStyleData: any = {};
   let editData: any = {};
   let project: any = {};
-  let blankProject:any = {}
   const random = (Math.random() + 1).toString(36).substring(5);
 
   const domainData = {
@@ -43,10 +42,8 @@ describe('Map features e2e testing', () => {
       project = projectData
       project.name = "Test map - East ISP"
       project.description = "East cluster representing part of the grayspace"
+      project.option = 'blank'
       project.name += ` (${random})`
-      blankProject = JSON.parse(JSON.stringify(project))
-      blankProject.option = 'blank'
-      blankProject.name =  blankProject.name + ' blank'
     })
     cy.session('login', setup)
   })
@@ -55,9 +52,10 @@ describe('Map features e2e testing', () => {
     cy.visit('/')
     cy.waitingLoadingFinish()
     cy.getByDataCy('btn-create-new').click({force: true})
-    cy.addNewProject(blankProject, true)
     cy.waitingLoadingFinish()
-    cy.openProjectByName(blankProject.name)
+    cy.addNewProject(project, true)
+    cy.waitingLoadingFinish()
+    cy.openProjectByName(project.name)
     cy.waitingLoadingFinish()
     // Add new port group
     mapData.collection[0].port_group.forEach((element: any) => {
@@ -135,7 +133,7 @@ describe('Map features e2e testing', () => {
     cy.waitingLoadingFinish()
     cy.getButtonByTypeAndContent('submit', 'OK').click()
     cy.checkingToastSuccess()
-    cy.exportProject(blankProject.name, true)
+    cy.exportProject(project.name, true)
     cy.waitingLoadingFinish()
     cy.importProject('cypress/fixtures/project/West_ISP.json')
     cy.waitingLoadingFinish()
@@ -197,11 +195,11 @@ describe('Map features e2e testing', () => {
     cy.selectMatTabByLabel('Interfaces').click()
     cy.selectInfoPanelRowByLabelAndContent('interface', 'eth1').click()
     cy.wait(1000)
-    cy.selectInfoPanelRowByLabelAndContent('interface', 'lan').click()
     cy.getByMatToolTip('Filter Table').click( {force: true} )
     cy.getByFormControlName('filterOptionCtr').click()
     cy.get(`mat-option[value="selected"]`).click()
     cy.selectElementOnMap('edge', 'lan')
+    cy.selectInfoPanelRowByLabelAndContent('interface', 'lan').click()
     cy.getByMatToolTip('Filter Table').click( {force: true} )
     cy.getByFormControlName('filterOptionCtr').click()
     cy.get(`mat-option[value="all"]`).click()
@@ -237,7 +235,7 @@ describe('Map features e2e testing', () => {
 
   it ('Test map - Test domain info panel', () => {
     cy.visit('/projects')
-    cy.openProjectByName(blankProject.name)
+    cy.openProjectByName(project.name)
     cy.waitingLoadingFinish()
     cy.selectMatTabByLabel('Option').click();
     cy.getMatSliderToggleByClass('.direction-toggle').uncheck({ force: true })
@@ -353,7 +351,7 @@ describe('Map features e2e testing', () => {
   });
 
   it ('Test map - Test group info panel', () => {
-    cy.visit('/projects')
+    cy.visit('/')
     cy.openProjectByName(project.name)
     cy.url().should('include', 'map')
     cy.waitingLoadingFinish()
@@ -362,20 +360,24 @@ describe('Map features e2e testing', () => {
     cy.selectMatTabByLabel(new RegExp('^group$', 'gi')).click();
     cy.getByMatToolTip('Add new group').click();
     cy.addEditGroup(editData.groupData, 'add')
-    cy.wait(4000)
+    cy.checkingToastSuccess()
+    cy.waitingLoadingFinish()
 
     // Edit group
     cy.selectInfoPanelRowByLabelAndContent('group', editData.groupEditDefaultData.name).check({force: true})
     cy.getByMatToolTip('Edit').click();
     cy.addEditGroup(editData.groupEditDefaultData, 'edit')
-    cy.wait(4000)
+    cy.checkingToastSuccess()
+    cy.waitingLoadingFinish()
 
     // Edit group
     cy.selectInfoPanelRowByLabelAndContent('group', editData.groupEditDefaultData.name).uncheck({force: true})
+    cy.wait(1000)
     cy.selectInfoPanelRowByLabelAndContent('group', editData.groupData.name).check({force: true})
     cy.getByMatToolTip('Edit').click();
     cy.addEditGroup(editData.groupEditData, 'edit')
-    cy.wait(4000)
+    cy.checkingToastSuccess()
+    cy.waitingLoadingFinish()
 
   });
 
