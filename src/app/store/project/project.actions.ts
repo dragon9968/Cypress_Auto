@@ -5,6 +5,11 @@ export const retrievedProjects = createAction(
     props<{ data: any }>()
 );
 
+export const retrievedCurrentProject = createAction(
+    'retrievedCurrentProject',
+    props<{ data: any }>()
+);
+
 export const retrievedVMStatus = createAction(
   'retrievedVMStatus',
   props<{ vmStatus: any }>()

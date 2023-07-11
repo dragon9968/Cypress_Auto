@@ -3,6 +3,7 @@ import { ProjectState } from 'src/app/store/project/project.state';
 import {
   retrievedVMStatus,
   retrievedProjects,
+  retrievedCurrentProject,
   retrievedIsOpen,
   retrievedDashboard,
   retrievedProjectName,
@@ -19,6 +20,10 @@ export const projectReducer = createReducer(
   on(retrievedProjects, (state, { data }) => ({
     ...state,
     projects: data,
+  })),
+  on(retrievedCurrentProject, (state, { data }) => ({
+    ...state,
+    currentProject: data,
   })),
   on(retrievedVMStatus, (state, { vmStatus }) => ({
     ...state,

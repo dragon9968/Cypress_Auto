@@ -14,6 +14,7 @@ import { AuthService } from '../../services/auth/auth.service';
 import { selectIsOpen, selectProjectCategory, selectProjectName } from 'src/app/store/project/project.selectors';
 import {
   retrievedAllProjects,
+  retrievedCurrentProject,
   retrievedIsOpen, retrievedProjectCategory,
   retrievedProjectName,
   retrievedProjects,
@@ -113,6 +114,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
       if (isOpen) {
         this.projectId = this.projectService.getProjectId();
         this.projectService.get(this.projectId).subscribe(projectData => {
+          this.store.dispatch(retrievedCurrentProject({ data: projectData.result}))
           this.store.dispatch(retrievedProjectCategory({ projectCategory: projectData.result.category}))
           if (this.isHypervisorConnect || this.isConfiguratorConnect) {
             this.store.dispatch(retrievedVMStatus({ vmStatus: projectData.result.configuration.vm_status }));

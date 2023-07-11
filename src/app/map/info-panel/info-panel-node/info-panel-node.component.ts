@@ -194,12 +194,6 @@ export class InfoPanelNodeComponent implements OnDestroy {
         this.store.dispatch(retrievedMapSelection({ data: true }));
       }
     });
-    this.selectMapFilterOption$ = this.store.select(selectMapFilterOptionNodes).subscribe(mapFilterOption => {
-      if (mapFilterOption) {
-        this.filterOption = mapFilterOption;
-        this.store.dispatch(retrievedMapSelection({ data: true }));
-      }
-    })
     this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
       if (mapSelection) {
         const activeEleIds = this.activeNodes.map(ele => ele.data('id'));
@@ -224,10 +218,15 @@ export class InfoPanelNodeComponent implements OnDestroy {
         this.store.dispatch(retrievedMapSelection({ data: false }));
       }
     });
-    this.filterOptionForm = new FormGroup({
-      filterOptionCtr: new FormControl('')
+    this.selectMapFilterOption$ = this.store.select(selectMapFilterOptionNodes).subscribe(mapFilterOption => {
+      if (mapFilterOption) {
+        this.filterOption = mapFilterOption;
+        this.store.dispatch(retrievedMapSelection({ data: true }));
+      }
     });
-    this.filterOptionForm.get('filterOptionCtr')?.setValue('all');
+    this.filterOptionForm = new FormGroup({
+      filterOptionCtr: new FormControl('all')
+    });
   }
 
   ngOnDestroy(): void {
@@ -294,11 +293,6 @@ export class InfoPanelNodeComponent implements OnDestroy {
   changeFilterOption(menuTrigger: MatMenuTrigger, $event: any) {
     menuTrigger.closeMenu();
     this.filterOption = $event.value;
-    if (this.filterOption == 'all') {
-      this.infoPanelTableComponent?.setRowData(this.nodes);
-    } else {
-      this.infoPanelTableComponent?.setSelectedEles(this.activeEleIds, this.rowDataNodes);
-    }
     this.store.dispatch(retrievedMapFilterOptionNodes({ data: this.filterOption }));
   }
 

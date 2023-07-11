@@ -71,7 +71,7 @@ import { GroupService } from "../core/services/group/group.service";
 import { retrievedNodes } from "../store/node/node.actions";
 import { retrievedGroups } from "../store/group/group.actions";
 import { ValidateProjectDialogComponent } from "../project/validate-project-dialog/validate-project-dialog.component";
-import { selectProjectCategory, selectProjects } from "../store/project/project.selectors";
+import { selectProjectCategory, selectCurrentProject, selectProjects } from "../store/project/project.selectors";
 import { CMProjectNodeService } from "./context-menu/cm-project-node/cm-project-node.service";
 import { MapLinkService } from "../core/services/map-link/map-link.service";
 import { NetmaskService } from '../core/services/netmask/netmask.service';
@@ -183,6 +183,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   isHypervisorConnect = false;
   isConfiguratorConnect = false;
   selectProjects$ = new Subscription();
+  selectCurrentProject$ = new Subscription();
   selectinterfacePkConnectPG = new Subscription();
   selectMapOption$ = new Subscription();
   selectProjectCategory$ = new Subscription()
@@ -322,19 +323,25 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.mapEditService.removeAllProjectNodesOnMap(this.cy)
       }
     })
-    this.projectService.get(+this.projectId).subscribe((data: any) => {
-      this.store.dispatch(retrievedProjectCategory({ projectCategory: data.result.category }))
-      if (this.isHypervisorConnect || this.isConfiguratorConnect) {
-        this.vmStatus = data.result.configuration.vm_status;
-        this.store.dispatch(retrievedVMStatus({ vmStatus: data.result.configuration.vm_status }));
-      }
-    })
     this.netmaskService.getAll().subscribe((data: any) => this.store.dispatch(retrievedNetmasks({ data: data.result })));
     this.store.dispatch(retrievedIsMapOpen({ data: true }));
     this.selectinterfacePkConnectPG = this.store.select(selectInterfacePkConnectPG).subscribe(interfacePkConnectPG => {
       this.interfacePkConnectPG = interfacePkConnectPG;
     })
-    this.selectProjects$ = this.store.select(selectProjects).subscribe(projects => this.projects = projects ? projects : []);
+    this.selectProjects$ = this.store.select(selectProjects).subscribe(projects => {
+      if (projects) {
+        this.projects = projects;
+      }
+    })
+    this.selectCurrentProject$ = this.store.select(selectCurrentProject).subscribe(project => {
+      if (project) {
+        this.store.dispatch(retrievedProjectCategory({ projectCategory: project.category }))
+        if (this.isHypervisorConnect || this.isConfiguratorConnect) {
+          this.vmStatus = project.configuration.vm_status;
+          this.store.dispatch(retrievedVMStatus({ vmStatus: project.configuration.vm_status }));
+        }
+      }
+    });
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe(mapOption => {
       this.isEdgeDirectionChecked = mapOption?.isEdgeDirectionChecked != undefined ? mapOption.isEdgeDirectionChecked : false;
       this.isGroupBoxesChecked = mapOption?.isGroupBoxesChecked != undefined ? mapOption.isGroupBoxesChecked : false;
@@ -383,6 +390,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.selectIsHypervisorConnect$.unsubscribe();
     this.selectIsConfiguratorConnect$.unsubscribe();
     this.selectProjects$.unsubscribe();
+    this.selectCurrentProject$.unsubscribe();
     this.cy?.nodes().forEach((ele: any) => {
       this.helpersService.removeBadge(ele);
     });
