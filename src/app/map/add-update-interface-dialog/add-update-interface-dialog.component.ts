@@ -287,8 +287,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       this.interfaceService.getByProjectIdAndCategory(this.projectService.getProjectId(), 'logical', 'all')
         .subscribe(res => {
           this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({ data: res.result }))
-          this.store.dispatch(retrievedMapSelection({ data: true }));
-        })
+        });
       this.toastr.success('Edge details added!');
       this.dialogRef.close(respData.result);
     });
@@ -365,7 +364,6 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       this.interfaceService.getByProjectIdAndCategory(this.projectService.getProjectId(), 'logical', 'all')
         .subscribe(res => {
           this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({ data: res.result }))
-          this.store.dispatch(retrievedMapSelection({ data: true }));
         })
       this.dialogRef.close();
       this.toastr.success('Edge details updated!');

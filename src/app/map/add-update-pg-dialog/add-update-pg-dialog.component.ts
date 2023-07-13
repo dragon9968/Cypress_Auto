@@ -19,6 +19,7 @@ import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
 import { InterfaceService } from "../../core/services/interface/interface.service";
 import { selectNodesByProjectId } from "../../store/node/node.selectors";
 import { retrievedMapFilterOptionPG } from "../../store/map-filter-option/map-filter-option.actions";
+import { retrievedInterfaceByProjectIdAndCategory } from 'src/app/store/interface/interface.actions';
 
 @Component({
   selector: 'app-add-update-pg-dialog',
@@ -320,6 +321,10 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
           this.store.dispatch(retrievedPortGroups({ data: res.result }))
           this.store.dispatch(retrievedMapSelection({ data: true }));
         })
+        this.interfaceService.getByProjectIdAndCategory(this.data.genData.project_id, 'logical', 'all')
+        .subscribe(res => {
+          this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({ data: res.result }))
+        });
         this.dialogRef.close();
         this.toastr.success('Port group details updated!');
       });

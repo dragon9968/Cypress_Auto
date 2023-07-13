@@ -35,6 +35,8 @@ import { selectIsConfiguratorConnect, selectIsDatasourceConnect, selectIsHypervi
 import { RemoteCategories } from 'src/app/core/enums/remote-categories.enum';
 import { ServerConnectService } from 'src/app/core/services/server-connect/server-connect.service';
 import { AgGridAngular } from 'ag-grid-angular';
+import { ProjectService } from 'src/app/project/services/project.service';
+import { retrievedInterfaceByProjectIdAndCategory } from 'src/app/store/interface/interface.actions';
 
 class CrossFieldErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -219,6 +221,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     private interfaceService: InterfaceService,
     private configTemplateService: ConfigTemplateService,
     private serverConnectionService: ServerConnectService,
+    private projectService: ProjectService,
   ) {
     this.actionsAddForm = new FormGroup({
       addTypeCtr: new FormControl('')
@@ -713,7 +716,10 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       this.helpers.updateNodePGInInterfaceOnMap(this.data.cy, 'node', this.data.genData.node_id);
       this.helpers.reloadGroupBoxes(this.data.cy);
       this.dialogRef.close();
-      this.store.dispatch(retrievedMapSelection({ data: true }));
+      this.interfaceService.getByProjectIdAndCategory(this.projectService.getProjectId(), 'logical', 'all')
+        .subscribe(res => {
+          this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({ data: res.result }))
+        })
       this.toastr.success('Node details updated!');
     });
   }
