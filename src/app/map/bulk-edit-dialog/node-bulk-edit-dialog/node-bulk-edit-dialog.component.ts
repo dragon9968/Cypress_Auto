@@ -203,6 +203,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
             return forkJoin(this.data.genData.activeEles.map((node: any) => {
               return this.nodeService.get(node.node_id).pipe(map(nodeData => {
                 this._updateNodeOnMap(nodeData.result);
+                this.helpers.updateNodesStorage(nodeData.result)
               }));
             }))
               .subscribe(() => {

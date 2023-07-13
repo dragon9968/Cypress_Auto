@@ -13,6 +13,8 @@ import { autoCompleteValidator } from "../../../shared/validations/auto-complete
 import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { Observable, Subscription } from "rxjs";
 import { selectMapOption } from "../../../store/map-option/map-option.selectors";
+import { ProjectService } from "src/app/project/services/project.service";
+import { retrievedInterfaceByProjectIdAndCategory } from "src/app/store/interface/interface.actions";
 
 @Component({
   selector: 'app-interface-bulk-edit-dialog',
@@ -37,7 +39,8 @@ export class InterfaceBulkEditDialogComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: any,
     public helpers: HelpersService,
     private interfaceService: InterfaceService,
-    private infoPanelService: InfoPanelService
+    private infoPanelService: InfoPanelService,
+    private projectService: ProjectService
   ) {
     this.interfaceBulkEditForm = new FormGroup({
       statusCtr: new FormControl(''),
@@ -124,7 +127,11 @@ export class InterfaceBulkEditDialogComponent implements OnInit, OnDestroy {
             }
           }
         });
-        this.store.dispatch(retrievedMapSelection({ data: true }));
+        this.interfaceService.getByProjectIdAndCategory(this.projectService.getProjectId(), 'logical', 'all')
+        .subscribe(res => {
+          this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({ data: res.result }))
+          this.store.dispatch(retrievedMapSelection({ data: true }));
+        })
         this.dialogRef.close();
         this.toastr.success(response.message, 'Success');
       })

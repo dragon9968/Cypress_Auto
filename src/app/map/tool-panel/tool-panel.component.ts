@@ -22,6 +22,8 @@ import { selectPortGroups } from "../../store/portgroup/portgroup.selectors";
 import { ProjectService } from "../../project/services/project.service";
 import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
 import { retrievedMapOption } from "../../store/map-option/map-option.actions";
+import { InterfaceService } from 'src/app/core/services/interface/interface.service';
+import { retrievedInterfaceByProjectIdAndCategory } from 'src/app/store/interface/interface.actions';
 
 @Component({
   selector: 'app-tool-panel',
@@ -93,7 +95,8 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     private groupService: GroupService,
     private projectService: ProjectService,
     private helpersService: HelpersService,
-    private commonService: CommonService
+    private commonService: CommonService,
+    private interfaceService: InterfaceService,
   ) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
@@ -265,6 +268,11 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
           data.updated = false;
         }
       });
+      this.interfaceService.getByProjectIdAndCategory(this.projectService.getProjectId(), 'logical', 'all')
+      .subscribe(res => {
+        this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({ data: res.result }))
+        this.store.dispatch(retrievedMapSelection({ data: true }));
+      })
       if (this.updatedNodeAndPGInGroups.length > 0) {
         this.updateNodesAndPGInGroupStorageAndMap();
       }
