@@ -65,6 +65,7 @@ export class ConnectInterfaceToPgDialogComponent implements OnInit, OnDestroy {
   }
 
   disconnectPortGroup() {
+    const successMessage = 'Disconnected Interface from Port Group'
     const edgeData = this.interfaceCtr?.value;
     const jsonDataValue = {
       order: edgeData?.order,
@@ -82,13 +83,14 @@ export class ConnectInterfaceToPgDialogComponent implements OnInit, OnDestroy {
       is_nat: edgeData?.is_nat,
       node_id: edgeData?.node_id,
       netmask_id: null,
+      task: successMessage
     }
     const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.interfaceService.put(edgeData.id, jsonData).subscribe(() => {
       const edge = this.data.cy.getElementById(edgeData.id);
       this.data.cy.remove(edge);
       this.dialogRef.close();
-      this.toastr.success('Disconnected Interface from Port Group', 'Success');
+      this.toastr.success(successMessage, 'Success');
     })
   }
 }

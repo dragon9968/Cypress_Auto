@@ -31,5 +31,6 @@ export enum RouteSegments {
   MAP_PREFERENCES = 'settings/map-preferences',
   USER_GUIDE = 'help/user-guide',
   LIST_USERS = 'administration/users',
-  ROLES = 'administration/roles'
+  ROLES = 'administration/roles',
+  HISTORIES= 'administration/histories'
 }

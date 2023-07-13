@@ -40,7 +40,7 @@ export class AddNodePgToGroupboxDialogComponent implements OnInit {
     private store: Store,
     private toastr: ToastrService,
     private groupService: GroupService
-  ) { 
+  ) {
 
     this.addGroupForm = new FormGroup({
       selectGroupCtr: new FormControl()
@@ -97,7 +97,7 @@ export class AddNodePgToGroupboxDialogComponent implements OnInit {
 
   addGroup() {
     const activeNodeLength = this.data.genData.activeNodes.length;
-    const activePgLength = this.data.genData.activePGs.length; 
+    const activePgLength = this.data.genData.activePGs.length;
     let listNode = this.selectGroupCtr?.value.nodes.map((node: any) => node.id);
     let listPg = this.selectGroupCtr?.value.port_groups.map((pg: any) => pg.id);
     this.data.genData.nodeIds.forEach((el: any) => {
@@ -114,11 +114,11 @@ export class AddNodePgToGroupboxDialogComponent implements OnInit {
     const updateNodeOnMap = activeNodeLength > 0 ? forkJoin(this.data.genData.activeNodes.map((node: any) => {
       return this.nodeService.get(node.node_id).pipe(map(nodeData => { this._updateNodeOnMap(nodeData.result); }));
       })) : of(null)
-    
+
     const updatePgOnMap = activePgLength > 0 ? forkJoin(this.data.genData.activePGs.map((pg: any) => {
       return this.portGroupService.get(pg.pg_id).pipe(map(pgData => { this._updatePGOnMap(pgData.result); }));
       })) : of(null)
-
+    const successMessage = 'Add node/port group to group successfully'
     const jsonData = {
       name: this.selectGroupCtr?.value.name,
       category: this.selectGroupCtr?.value.category,
@@ -128,8 +128,9 @@ export class AddNodePgToGroupboxDialogComponent implements OnInit {
       map_images: this.selectGroupCtr?.value.map_images.length > 0 ? this.selectGroupCtr?.value.map_images : [],
       logical_map: {},
       physical_map: {},
+      task: successMessage
     }
-    
+
     this.groupService.put(this.selectGroupCtr?.value.id, jsonData).subscribe(response => {
       this.toastr.success(`Updated for the ${response.result} successfully`);
         return forkJoin({
@@ -142,7 +143,7 @@ export class AddNodePgToGroupboxDialogComponent implements OnInit {
           this.groupService.getGroupByProjectId(this.data.projectId).subscribe(
             groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
           )
-          this.toastr.success('Add node/port group to group successfully', 'Success');
+          this.toastr.success(successMessage, 'Success');
         })
     })
   }

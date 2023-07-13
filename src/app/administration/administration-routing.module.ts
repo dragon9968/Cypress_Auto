@@ -5,6 +5,7 @@ import { PageNotFoundComponent } from '../core/page-not-found/page-not-found.com
 import { RolesComponent } from './roles/roles.component';
 import { UsersComponent } from './users/users.component';
 import { AuthGuardAdmin } from "../core/guards/auth-admin.guard";
+import { HistoryComponent } from "./history/history.component";
 
 const routes: Routes = [
   {
@@ -25,6 +26,13 @@ const routes: Routes = [
       {
         path: 'roles',
         component: RolesComponent,
+        data: {
+          permissionLevel: PermissionLevels.ADMIN,
+        }
+      },
+      {
+        path: 'histories',
+        component: HistoryComponent,
         data: {
           permissionLevel: PermissionLevels.ADMIN,
         }

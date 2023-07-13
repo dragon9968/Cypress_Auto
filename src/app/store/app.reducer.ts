@@ -33,6 +33,7 @@ import { lookupFeaturesReducer } from "./lookup-features/lookup-features.reducer
 import { LookupNamesReducer } from "./lookup-names/lookup-names.reducer";
 import { netmaskReducer } from "./netmask/netmask.reducer";
 import { mapFilterOptionReducer } from "./map-filter-option/map-filter-option.reducer";
+import { historyReducer } from "./history/history.reducer";
 
 export const reducers = {
     [ReducerKeys.MAP]: mapReducer,
@@ -68,5 +69,6 @@ export const reducers = {
     [ReducerKeys.LOOKUP_FEATURES]: lookupFeaturesReducer,
     [ReducerKeys.LOOKUP_NAMES]: LookupNamesReducer,
     [ReducerKeys.NETMASKS]: netmaskReducer,
+    [ReducerKeys.HISTORIES]: historyReducer,
     [ReducerKeys.FILTER_OPTION]: mapFilterOptionReducer,
 }

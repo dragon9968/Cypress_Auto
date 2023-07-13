@@ -229,7 +229,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
       if (!Array.isArray(val.reserved_ip)) {
         val.reserved_ip = this.helpers.processIpForm(val.reserved_ip)
       }
-      this.isDisableButton = true ? ((val.network === '') || (val.category === '')) : false
+      this.isDisableButton = ((val.network === '') || (val.category === ''))
     })
     if (this.editProjectForm.valid && !this.isDisableButton) {
       const jsonDataValue = {
@@ -267,7 +267,9 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
           username: sharedUpdate
         }
         this.projectService.associate(configData).subscribe(respData => {
-          this.toastr.success(`Update ${jsonData.category} successfully`)
+          const message = `Update ${jsonData.category} ${jsonData.name} successfully`
+          this.toastr.success(message)
+          this.helpers.addNewHistoryIntoStorage(message, 'project', this.data.genData.id)
           if (jsonData.category === 'project') {
             if (this.isMapOpen) {
               this.projectService.getProjectsNotLinkedYet(this.projectService.getProjectId()).subscribe(res => {

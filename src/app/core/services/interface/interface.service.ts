@@ -38,10 +38,6 @@ export class InterfaceService {
     return this.http.put<any>(ApiPaths.INTERFACE + id, data);
   }
 
-  randomizeIP(id: string): Observable<any> {
-    return this.http.get<any>(ApiPaths.INTERFACE_RANDOMIZE_IP + id);
-  }
-
   validate(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.INTERFACE_VALIDATE, data);
   }

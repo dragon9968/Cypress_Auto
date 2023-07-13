@@ -13,7 +13,6 @@ import { Observable, Subscription, catchError, throwError } from 'rxjs';
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
-import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
 import { selectMapOption } from "../../store/map-option/map-option.selectors";
 import { PortGroupService } from "../../core/services/portgroup/portgroup.service";
 import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
@@ -294,6 +293,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   }
 
   updateInterface() {
+    const successMessage = `Edge ${this.nameCtr?.value} details updated!`
     const netmask_id = this.netMaskCtr?.value.id;
     const jsonDataValue = {
       order: this.orderCtr?.value,
@@ -311,6 +311,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       is_nat: this.isNatCtr?.value,
       node_id: this.data.genData.node_id,
       netmask_id: netmask_id ? netmask_id : null,
+      task: successMessage
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.interfaceService.put(this.data.genData.interface_pk, jsonData).pipe(
@@ -366,13 +367,14 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
           this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({ data: res.result }))
         })
       this.dialogRef.close();
-      this.toastr.success('Edge details updated!');
+      this.toastr.success(successMessage, 'Success');
     });
   }
 
 
 
   connectInterfaceToPG() {
+    const successMessage = 'Connected Interface to Port Group'
     const jsonDataValue = {
       order: this.orderCtr?.value,
       name: this.nameCtr?.value,
@@ -389,6 +391,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       is_nat: this.isNatCtr?.value,
       node_id: this.data.genData.node_id,
       netmask_id: this.netMaskCtr?.value.id,
+      task: successMessage
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.interfaceService.put(this.data.genData.interface_pk, jsonData).subscribe((respData: any) => {
@@ -430,7 +433,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         this.store.dispatch(retrievedMapSelection({ data: true }));
       }
       this.dialogRef.close();
-      this.toastr.success('Connected Interface to Port Group', 'Success');
+      this.toastr.success(successMessage, 'Success');
     });
   }
 

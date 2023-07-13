@@ -31,6 +31,10 @@ import { isIPv4 } from 'is-ip';
 import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
 import { selectPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { retrievedPortGroups } from 'src/app/store/portgroup/portgroup.actions';
+import { selectHistories } from "../../../store/history/history.selectors";
+import { LocalStorageService } from "../../storage/local-storage/local-storage.service";
+import { LocalStorageKeys } from "../../storage/local-storage/local-storage-keys.enum";
+import { retrievedHistories } from "../../../store/history/history.actions";
 
 @Injectable({
   providedIn: 'root'
@@ -42,6 +46,7 @@ export class HelpersService implements OnDestroy {
   selectGroups$ = new Subscription();
   selectNetmasks$ = new Subscription();
   selectPortGroups$ = new Subscription();
+  selectHistories$ = new Subscription();
   nodes: any[] = [];
   portGroups: any[] = [];
   groupCategoryId!: string;
@@ -51,6 +56,7 @@ export class HelpersService implements OnDestroy {
   groupBoxes!: any[];
   netmasks!: any[];
   groups!: any[];
+  histories: any[] = []
   lastWidth = 0;
   lastHeight = 0;
   zoomLimit = false;
@@ -67,12 +73,14 @@ export class HelpersService implements OnDestroy {
   isValidOSPFState: boolean = true;
   isValidOSPFNetworks: boolean = true;
 
-  constructor(private store: Store,
+  constructor(
+    private store: Store,
     private toastr: ToastrService,
     private domSanitizer: DomSanitizer,
     private serverConnectionService: ServerConnectService,
     private portGroupService: PortGroupService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private localStorageService: LocalStorageService
   ) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
@@ -95,12 +103,17 @@ export class HelpersService implements OnDestroy {
     this.selectNetmasks$ = this.store.select(selectNetmasks).subscribe((netmasks: any) => {
       this.netmasks = netmasks;
     });
+    this.selectHistories$ = this.store.select(selectHistories).subscribe(histories => this.histories = histories)
   }
 
   ngOnDestroy(): void {
     this.selectMapOption$.unsubscribe();
     this.selectGroupBoxes$.unsubscribe();
     this.selectNodes$.unsubscribe();
+    this.selectPortGroups$.unsubscribe();
+    this.selectHistories$.unsubscribe();
+    this.selectNetmasks$.unsubscribe();
+    this.selectGroups$.unsubscribe();
   }
 
   optionDisplay(option: any) {
@@ -1478,6 +1491,20 @@ export class HelpersService implements OnDestroy {
         }
       }
     }
+  }
+
+  addNewHistoryIntoStorage(task: string, category: string, itemId: number) {
+    const currentHistories = JSON.parse(JSON.stringify(this.histories))
+    const userId = this.localStorageService.getItem(LocalStorageKeys.USER_ID);
+    const newHistory = {
+      task,
+      category,
+      item_id: itemId,
+      date_time: new Date().toLocaleString(),
+      user_id: userId
+    }
+    currentHistories.unshift(newHistory)
+    this.store.dispatch(retrievedHistories({data: currentHistories}))
   }
 
   updateProjectLinksStorage(cy: any, newProjects: any[]) {

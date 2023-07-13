@@ -13,6 +13,7 @@ import { ImportRoleDialogComponent } from './roles/import-role-dialog/import-rol
 import { CloneRoleDialogComponent } from './roles/clone-role-dialog/clone-role-dialog.component';
 import { ActionRenderersComponent } from './action-renderers/action-renderers.component';
 import { LDAPConfigurationComponent } from './ldap-configuration/ldap-configuration.component';
+import { HistoryComponent } from './history/history.component';
 
 
 @NgModule({
@@ -27,6 +28,7 @@ import { LDAPConfigurationComponent } from './ldap-configuration/ldap-configurat
     CloneRoleDialogComponent,
     ActionRenderersComponent,
     LDAPConfigurationComponent,
+    HistoryComponent,
   ],
   imports: [
     CommonModule,

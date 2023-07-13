@@ -241,11 +241,7 @@ export class AddProjectComponent implements OnInit {
   get vlan_max() { return this.projectForm.get('vlan_max'); }
 
   selectLayout(event: any) {
-    if (event.checked) {
-      this.isHiddenNetwork = false
-    } else {
-      this.isHiddenNetwork = true
-    }
+    this.isHiddenNetwork = !event.checked;
   }
 
   onOptionChange(event: MatRadioChange) {
@@ -279,7 +275,7 @@ export class AddProjectComponent implements OnInit {
       if (!Array.isArray(val.reserved_ip)) {
         val.reserved_ip = this.helpers.processIpForm(val.reserved_ip)
       }
-      this.isDisableButton = true ? ((val.network === '') || (val.category === '')) : false
+      this.isDisableButton = ((val.network === '') || (val.category === ''))
     })
     if (this.projectForm.valid && !this.isDisableButton) {
       const jsonDataValue = {

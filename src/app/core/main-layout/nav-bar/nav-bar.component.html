@@ -258,6 +258,10 @@
                   <mat-icon>security</mat-icon>
                   <span>LDAP Authentication</span>
                 </button>
+                <button mat-menu-item [routerLink]="routeSegments.HISTORIES">
+                  <mat-icon>history</mat-icon>
+                  <span>History</span>
+                </button>
               </mat-menu>
             </ng-template>
           </ng-template>
@@ -523,6 +527,10 @@
           <button mat-menu-item (click)="openAdminConfig()">
             <mat-icon>security</mat-icon>
             <span>LDAP Authentication</span>
+          </button>
+          <button mat-menu-item [routerLink]="routeSegments.HISTORIES">
+            <mat-icon>history</mat-icon>
+            <span>History</span>
           </button>
       </mat-menu>
     </ng-template>
