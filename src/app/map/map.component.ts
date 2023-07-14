@@ -54,7 +54,7 @@ import { ProjectService } from "../project/services/project.service";
 import { retrievedProjectCategory, retrievedProjects, retrievedVMStatus } from "../store/project/project.actions";
 import { ICON_PATH } from '../shared/contants/icon-path.constant';
 import { InfoPanelService } from '../core/services/info-panel/info-panel.service';
-import { retrievedInterfacePkConnectPG } from "../store/interface/interface.actions";
+import { retrievedIsInterfaceConnectPG } from "../store/interface/interface.actions";
 import { retrievedMapSelection } from '../store/map-selection/map-selection.actions';
 import {
   selectIsConfiguratorConnect,
@@ -65,7 +65,7 @@ import { retrievedImages, retrievedMapImages } from '../store/map-image/map-imag
 import { RouteSegments } from "../core/enums/route-segments.enum";
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { retrievedMapEdit } from "../store/map-edit/map-edit.actions";
-import { selectInterfacePkConnectPG } from "../store/interface/interface.selectors";
+import { selectIsInterfaceConnectPG } from "../store/interface/interface.selectors";
 import { CMInterfaceService } from "./context-menu/cm-interface/cm-interface.service";
 import { GroupService } from "../core/services/group/group.service";
 import { retrievedNodes } from "../store/node/node.actions";
@@ -169,7 +169,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   isGroupBoxesChecked = false;
   vmStatus!: boolean;
   boxSelectedNodes = new Set();
-  interfacePkConnectPG!: any;
+  isInterfaceConnectPG = false;
   groupCategoryId!: string;
   selectMap$ = new Subscription();
   selectMapPref$ = new Subscription();
@@ -184,7 +184,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   isConfiguratorConnect = false;
   selectProjects$ = new Subscription();
   selectCurrentProject$ = new Subscription();
-  selectinterfacePkConnectPG = new Subscription();
+  selectInterfacePkConnectPG$ = new Subscription();
   selectMapOption$ = new Subscription();
   selectProjectCategory$ = new Subscription()
   selectMapFeatureSubject: Subject<MapState> = new ReplaySubject(1);
@@ -325,8 +325,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     })
     this.netmaskService.getAll().subscribe((data: any) => this.store.dispatch(retrievedNetmasks({ data: data.result })));
     this.store.dispatch(retrievedIsMapOpen({ data: true }));
-    this.selectinterfacePkConnectPG = this.store.select(selectInterfacePkConnectPG).subscribe(interfacePkConnectPG => {
-      this.interfacePkConnectPG = interfacePkConnectPG;
+    this.selectInterfacePkConnectPG$ = this.store.select(selectIsInterfaceConnectPG).subscribe(interfacePkConnectPG => {
+      this.isInterfaceConnectPG = interfacePkConnectPG;
     })
     this.selectProjects$ = this.store.select(selectProjects).subscribe(projects => {
       if (projects) {
@@ -373,7 +373,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this._initMouseEvents();
         this._initContextMenu();
         this._initUndoRedo();
-        this._initCollapseExpandMapLink();
         this.helpersService.initCollapseExpandMapLink(this.cy)
       }
     });
@@ -968,42 +967,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   }
 
-  private _initCollapseExpandMapLink() {
-    // Add parent for the elements related to the map link
-    const nodeRelatedMapLink = this.cy.elements().filter((ele: any) =>
-      (ele.group() == 'nodes' && ele.data('parent_id'))
-    )
-    nodeRelatedMapLink.forEach((node: any) => {
-      node.move({ parent: `project-link-${node.data('parent_id')}` });
-    })
-
-    // Set initial collapse and expand based on the project node data
-    const mapLinkNodes = this.cy.nodes().filter((node: any) => node.data('elem_category') == 'map_link' && !Boolean(node.data('parent_id')))
-    mapLinkNodes.map((mapLinkNode: any) => {
-      if (mapLinkNode.data('collapsed')) {
-        this.cy.expandCollapse('get').collapseRecursively(mapLinkNode, {});
-        mapLinkNode.data('width', '90px');
-        mapLinkNode.data('height', '90px');
-        mapLinkNode.style({
-          'background-opacity': '0',
-          'background-color': '#fff',
-          'background-image-opacity': 1,
-        });
-      } else {
-        mapLinkNode.style({
-          'background-opacity': '.20',
-          'background-color': '#00dcff',
-          'background-image-opacity': 0,
-        });
-      }
-    })
-
-    // Set events before and after the collapse and expand.
-    mapLinkNodes.map((mapLinkNode: any) => {
-      this.helpersService.collapseAndExpandMapLinkNodeEvent(mapLinkNode);
-    })
-  }
-
   private _initUndoRedo() {
     this.cy.panzoom({});
     this.cy.expandCollapse({
@@ -1418,15 +1381,16 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       genData,
       newEdgeData,
     }
-    const dialogRef = this.dialog.open(AddUpdateInterfaceDialogComponent, { disableClose: true, width: '600px', data: dialogData, autoFocus: false });
-    dialogRef.afterClosed().subscribe((_data: any) => {
+    const dialogRef = this.dialog.open(AddUpdateInterfaceDialogComponent,
+      { disableClose: true, width: '600px', data: dialogData, autoFocus: false, panelClass: 'custom-node-form-modal' });
+    dialogRef.afterClosed().subscribe(() => {
       this.cy.unbind('mousemove');
       this.inv.remove();
       this.e.remove();
       this.inv = null;
       this.edgeNode = null;
       this.isConnectToPG = false;
-      this.store.dispatch(retrievedInterfacePkConnectPG({ interfacePkConnectPG: undefined }));
+      this.store.dispatch(retrievedIsInterfaceConnectPG({ isInterfaceConnectPG: false }));
     });
   }
 
@@ -1474,11 +1438,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         let targ = portGroupData.id;
         this.e.move({ target: targ });
         this.newEdgeData.target = targ;
-        this.interfaceService.genDataConnectPG(this.interfacePkConnectPG, this.edgeNode.data().node_id, portGroupData.pg_id)
-          .subscribe(genData => {
-            genData.interface_pk = this.interfacePkConnectPG;
-            this._openConnectInterfaceToPGDialog(genData, this.newEdgeData);
-          });
+        const genData = {
+          node_id: this.edgeNode.data().node_id,
+          port_group_id: portGroupData.pg_id
+        }
+        this._openConnectInterfaceToPGDialog(genData, this.newEdgeData);
       } else {
         this._unqueueEdge();
         this.toastr.warning('Please select a port group to connect', 'Warning');
@@ -1522,7 +1486,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.e = this.helpersService.addCYEdge(this.cy, this.newEdgeData)[0];
     if (category == "tunnel") {
       this.isAddTunnel = true
-    } else if (this.interfacePkConnectPG) {
+    } else if (this.isInterfaceConnectPG) {
       this.isConnectToPG = true;
     } else {
       this.isAddEdge = true;
@@ -1541,7 +1505,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.isAddEdge = false;
     this.isAddTunnel = false;
     this.isConnectToPG = false;
-    this.store.dispatch(retrievedInterfacePkConnectPG({ interfacePkConnectPG: undefined }));
+    this.store.dispatch(retrievedIsInterfaceConnectPG({ isInterfaceConnectPG: false }));
   }
 
   searchMap(searchText: string) {
@@ -1705,7 +1669,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.toastr.success('Added items from link project into current project successfully', 'Success');
     })
   }
-
 
   addProjectNode(linkProjectId: number, projectId: any, newNodePosition: any) {
     this.projectService.get(linkProjectId).subscribe(linkProjectResponse => {

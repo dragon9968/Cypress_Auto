@@ -90,11 +90,14 @@ declare namespace Cypress {
 }
 
 function openProjectByName(projectName: string): void {
-  cy.visit('/projects')
+  cy.url().then(url => {
+    if (!url.includes('project')) {
+      cy.visit('/projects')
+    }
+  })
   cy.waitingLoadingFinish()
   cy.get('#search-project').type(projectName)
-  cy.wait(2000)
-  cy.get('ag-grid-angular').contains(projectName).first().dblclick()
+  cy.get('ag-grid-angular').contains(projectName, { timeout: 10000 }).first().dblclick()
   cy.waitingLoadingFinish()
   cy.get('#cy', { timeout: 10000 }).should('exist')
   cy.url().should('include', 'map')
@@ -925,8 +928,9 @@ function addNewNodeOnMap(node: any, positionX: any, positionY: any, custom: bool
   }
   cy.checkingMatErrorIsExistOrNot()
   cy.getByDataCy('nodeAddForm').submit()
+  cy.wait(1000)
   cy.checkingToastSuccess()
-  cy.wait(2000)
+  cy.waitingLoadingFinish()
   cy.log(`END: Added new node ${node.name} successfully`)
 }
 Cypress.Commands.add('addNewNodeOnMap', addNewNodeOnMap);
@@ -940,7 +944,7 @@ declare namespace Cypress {
 
 function addNewPortGroupOnMap(portGroup: any, positionX: any, positionY: any, custom: boolean): void {
   cy.log(`START: Add new portGroup ${portGroup.name}`)
-  cy.wait(2000)
+  cy.waitingLoadingFinish()
   const portGroupCategory = portGroup.category == 'public' ? '[matTooltip="Add Public"]' : '[matTooltip="Add Private"]'
   cy.get(portGroupCategory).click()
   cy.get('canvas.expand-collapse-canvas').click(positionX, positionY, { force: true });
@@ -968,8 +972,10 @@ function addNewPortGroupOnMap(portGroup: any, positionX: any, positionY: any, cu
   }
   cy.checkingMatErrorIsExistOrNot(false)
   cy.getByDataCy('pgAddForm').submit()
+  cy.wait(1000)
+  cy.checkingToastSuccess()
+  cy.waitingLoadingFinish()
   cy.log(`END: Add new port group ${portGroup.name} successfully`)
-  cy.wait(2000)
 }
 Cypress.Commands.add('addNewPortGroupOnMap', addNewPortGroupOnMap);
 
@@ -982,14 +988,15 @@ declare namespace Cypress {
 
 function addNewInterface(edge: any, nodeX: any, nodeY: any, pgX: any, pgY: any, isValidateIP = false): void {
   cy.log('START: Add new interface')
-  cy.wait(2000)
+  cy.waitingLoadingFinish()
   cy.get('canvas.expand-collapse-canvas').click(nodeX, nodeY, { force: true })
     .rightclick(nodeX, nodeY,{force: true}).then(() => {
     cy.get('.cy-context-menus-cxt-menu').first().should('exist')
     cy.get('#node_interface').should('exist').click({ force: true })
-    cy.get('#add_new_interface').should('exist').click({ force: true })
+    cy.get('#connect_interface_port_group').should('exist').click({ force: true })
+    cy.waitingLoadingFinish()
     cy.get('canvas.expand-collapse-canvas').click(pgX, pgY, { force: true });
-    cy.wait(1000)
+    cy.getButtonByTypeAndContent('button', 'Add New Interface').click()
     if (edge && edge.direction) {
       cy.getByFormControlName('directionCtr').click().then(() => {
         cy.get('mat-option').contains('Both').click()
@@ -1014,10 +1021,16 @@ function addNewInterface(edge: any, nodeX: any, nodeY: any, pgX: any, pgY: any, 
     }
     cy.checkingMatErrorIsExistOrNot(false)
     cy.getByDataCy('interfaceAddForm').submit()
-    cy.get('button[matTooltip="Save"]').click()
+    cy.checkingToastSuccess()
     cy.checkingToastSuccess()
   })
-  cy.wait(2000)
+  cy.waitingLoadingFinish()
+  cy.getButtonByTypeAndContent('submit', 'Connect').click()
+  cy.checkingToastSuccess()
+  cy.waitingLoadingFinish()
+  cy.get('button[matTooltip="Save"]').click()
+  cy.checkingToastSuccess()
+  cy.waitingLoadingFinish()
   cy.log('END: Add new interface successfully')
 }
 Cypress.Commands.add('addNewInterface', addNewInterface);
@@ -1034,6 +1047,7 @@ function deleteInterfaceOnMap(x: number, y: number): void {
     cy.get('.cy-context-menus-cxt-menu').first().should('exist')
     cy.get('#delete').should('exist').click({ force: true });
     cy.getByMatToolTip('Save').click()
+    cy.checkingToastSuccess()
   })
 }
 Cypress.Commands.add('deleteInterfaceOnMap', deleteInterfaceOnMap);

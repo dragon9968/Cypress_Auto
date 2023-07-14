@@ -67,22 +67,7 @@ describe('Testing for the login', () => {
 
     // Add new interface
     cy.wait(2000)
-    cy.get('canvas.expand-collapse-canvas').click(nodeX, nodeY, { force: true })
-      .rightclick(nodeX, nodeY,{force: true}).then(() => {
-        cy.get('.cy-context-menus-cxt-menu').first().should('exist')
-        cy.get('#node_interface').should('exist').click({ force: true })
-        cy.get('#add_new_interface').should('exist').click({ force: true })
-        cy.get('canvas.expand-collapse-canvas').click(pgX, pgY, { force: true });
-        cy.getByFormControlName('directionCtr').click().then(() => {
-          cy.get('mat-option').contains('Both').click()
-        })
-        cy.getByFormControlName('ipCtr').invoke('val').should('not.eq', '').then(ipEdge => {
-          interfaceIp = ipEdge ? ipEdge.toString() : ''
-        })
-        cy.get('mat-error').should('not.exist')
-        cy.getByDataCy('interfaceAddForm').should('be.visible').submit()
-        cy.get('button[matTooltip="Save"]').click()
-    })
+    cy.addNewInterface(undefined,nodeX, nodeY, pgX, pgY,false)
 
     // Refresh page
     cy.wait(2000)

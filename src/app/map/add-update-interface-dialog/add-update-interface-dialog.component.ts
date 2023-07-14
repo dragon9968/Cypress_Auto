@@ -9,7 +9,7 @@ import { DIRECTIONS } from 'src/app/shared/contants/directions.constant';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 import { selectPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { Store } from '@ngrx/store';
-import { Observable, Subscription, catchError, throwError } from 'rxjs';
+import { catchError, Observable, Subscription, throwError } from 'rxjs';
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
@@ -20,9 +20,15 @@ import { selectNodesByProjectId } from 'src/app/store/node/node.selectors';
 import { validateNameExist } from "../../shared/validations/name-exist.validation";
 import { networksValidation } from 'src/app/shared/validations/networks.validation';
 import { showErrorFromServer } from 'src/app/shared/validations/error-server-response.validation';
-import { retrievedInterfaceByProjectIdAndCategory } from "../../store/interface/interface.actions";
+import {
+  retrievedInterfaceByProjectIdAndCategory,
+  retrievedInterfacesNotConnectPG
+} from "../../store/interface/interface.actions";
 import { ProjectService } from "../../project/services/project.service";
-import { selectInterfacesByProjectIdAndCategory } from "../../store/interface/interface.selectors";
+import {
+  selectInterfacesByProjectIdAndCategory,
+  selectInterfacesNotConnectPG
+} from "../../store/interface/interface.selectors";
 import { retrievedNodes } from 'src/app/store/node/node.actions';
 import { NodeService } from 'src/app/core/services/node/node.service';
 
@@ -32,6 +38,11 @@ import { NodeService } from 'src/app/core/services/node/node.service';
   styleUrls: ['./add-update-interface-dialog.component.scss']
 })
 export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
+  connectInterfaceToPGForm: FormGroup;
+  interfacesNotConnectPG: any[] = [];
+  selectInterfacesNotConnectPG$ = new Subscription();
+  filteredInterfaces!: Observable<any[]>;
+  isShowAddInterfaceForm = false
   interfaceAddForm: FormGroup;
   DIRECTIONS = DIRECTIONS;
   netmasks!: any[];
@@ -83,9 +94,14 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       isNatCtr: new FormControl(''),
       netMaskCtr: new FormControl(''),
     });
+    this.connectInterfaceToPGForm = new FormGroup({
+      interfaceCtr: new FormControl(''),
+      targetPortGroupCtr: new FormControl(''),
+    })
     this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe((portGroups: any) => {
       this.portGroups = portGroups;
       this.portGroupCtr.setValidators([autoCompleteValidator(this.portGroups)]);
+      this.targetPortGroupCtr?.setValidators([Validators.required, autoCompleteValidator(this.portGroups)]);
       this.filteredPortGroups = this.helpers.filterOptionsPortGroup(this.portGroupCtr, this.portGroups);
     });
     this.selectInterfaces$ = this.store.select(selectInterfacesByProjectIdAndCategory).subscribe(interfaces => {
@@ -106,13 +122,22 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe(mapOption => {
       this.isEdgeDirectionChecked = mapOption.isEdgeDirectionChecked
     })
+    this.selectInterfacesNotConnectPG$ = this.store.select(selectInterfacesNotConnectPG).subscribe(interfaces => {
+      if (interfaces) {
+        this.interfacesNotConnectPG = interfaces;
+        this.interfaceCtr?.setValidators([Validators.required, autoCompleteValidator(this.interfacesNotConnectPG)]);
+        this.filteredInterfaces = this.helpers.filterOptions(this.interfaceCtr, this.interfacesNotConnectPG);
+      }
+    })
   }
 
   ngOnDestroy(): void {
+    this.selectNodes$.unsubscribe();
     this.selectPortGroups$.unsubscribe();
     this.selectMapOption$.unsubscribe();
     this.selectInterfaces$.unsubscribe();
     this.selectNetmasks$.unsubscribe();
+    this.selectInterfacesNotConnectPG$.unsubscribe();
   }
 
   get orderCtr() { return this.interfaceAddForm.get('orderCtr'); }
@@ -130,36 +155,46 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   get isNatCtr() { return this.interfaceAddForm.get('isNatCtr'); }
   get netMaskCtr() { return this.helpers.getAutoCompleteCtr(this.interfaceAddForm.get('netMaskCtr'), this.netmasks, 'mask'); }
 
+  get interfaceCtr() { return this.helpers.getAutoCompleteCtr(this.connectInterfaceToPGForm.get('interfaceCtr'), this.interfacesNotConnectPG) }
+  get targetPortGroupCtr() { return this.helpers.getAutoCompleteCtr(this.connectInterfaceToPGForm.get('targetPortGroupCtr'), this.portGroups); }
+
   ngOnInit(): void {
-    let directionValue = this.isEdgeDirectionChecked ? this.data.genData.direction : this.data.genData.prev_direction;
-    directionValue = this.data.mode == 'add' || this.data.mode == 'connect' || this.data.genData.category == 'management'
-      ? this.data.genData.direction : directionValue;
-    this.directionCtr.setValidators([Validators.required, autoCompleteValidator(this.DIRECTIONS)]);
-    this.filteredDirections = this.helpers.filterOptions(this.directionCtr, this.DIRECTIONS);
-    this.orderCtr?.setValue(this.data.genData.order);
-    this.nameCtr?.setValue(this.data.genData.name);
-    this.descriptionCtr?.setValue(this.data.genData.description);
-    this.categoryCtr?.setValue(this.data.genData.category);
-    this.helpers.setAutoCompleteValue(this.directionCtr, this.DIRECTIONS, directionValue);
-    this.macAddressCtr?.setValue(this.data.genData.mac_address);
-    this.helpers.setAutoCompleteValue(this.portGroupCtr, this.portGroups, this.data.genData.port_group_id);
-    this.ipAllocationCtr?.setValue(this.data.genData.ip_allocation);
-    this.ipCtr?.setValue(this.data.genData.ip);
-    this.dnsServerCtr?.setValue(this.data.genData.dns_server);
-    this.gatewayCtr?.setValue(this.data.genData.gateway?.gateway ? this.data.genData.gateway.gateway : this.data.genData.gateway);
-    this.isGatewayCtr?.setValue(this.data.genData.is_gateway);
-    this.isNatCtr?.setValue(this.data.genData.is_nat);
-    this.helpers.setAutoCompleteValue(this.netMaskCtr, this.netmasks, this.data.genData.netmask_id);
-    this._disableItems(this.ipAllocationCtr?.value);
-    this.ipCtr?.setValidators([
-      Validators.required,
-      networksValidation('single'),
-      validateNameExist(() => this.edgesConnected, this.data.mode, this.data.genData.interface_pk, 'ip'),
-      showErrorFromServer(() => this.errors)
-    ])
-    if (!this.isViewMode) {
-      this.interfaceAddForm?.markAllAsTouched();
+    this._setDataAddInterfaceForm(this.data.genData, this.data.mode)
+    if (this.data.mode == 'connect') {
+      this.helpers.setAutoCompleteValue(this.targetPortGroupCtr, this.portGroups, this.data.genData.port_group_id);
     }
+    this.interfaceAddForm?.markAllAsTouched();
+  }
+
+  connectToPortGroup() {
+    const successMessage = 'Connected Interface to Port Group'
+    const jsonData = {
+      port_group_id: this.targetPortGroupCtr?.value.id,
+      task: successMessage
+    }
+    this.interfaceService.put(this.interfaceCtr?.value.id, jsonData).subscribe(res => {
+      const cyData = res.result;
+      const ip_str = cyData.ip ? cyData.ip : ""
+      const ip = ip_str.split(".")
+      const mapStyle = cyData.logical_map.map_style
+      cyData.id = this.interfaceCtr?.value.id
+      cyData.interface_pk = cyData.id
+      cyData.ip_last_octet = ip.length == 4 ? "." + ip[3] : ""
+      cyData.source = `node-${this.data.genData.node_id}`
+      cyData.target = `pg-${this.targetPortGroupCtr?.value.id}`;
+      cyData.width = mapStyle.width ? mapStyle.width : this.data.selectedMapPref.edge_width;
+      cyData.text_color = mapStyle.text_color ? mapStyle.text_color : this.data.selectedMapPref.text_color;
+      cyData.text_size = mapStyle.text_size ? mapStyle.text_size : this.data.selectedMapPref.text_size;
+      cyData.color = mapStyle.color ? mapStyle.color : this.data.selectedMapPref.edge_color;
+      cyData.node = this.nodes.find(node => node.id === cyData.node_id)?.name
+      cyData.netmask = this.netmasks.find(netmask => netmask.id === cyData.netmask_id)?.mask
+      delete cyData.task;
+      this.helpers.addCYEdge(this.data.cy, cyData);
+      this.helpers.showOrHideArrowDirectionOnEdge(this.data.cy, cyData.id);
+      this.store.dispatch(retrievedMapSelection({ data: true }));
+      this.toastr.success(successMessage, 'Success');
+    })
+    this.dialogRef.close();
   }
 
   private _disableItems(subnetAllocation: string) {
@@ -263,10 +298,6 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         const ip = ip_str.split(".")
         const last_octet = ip.length == 4 ? "." + ip[3] : ""
         const cyData = respData.result;
-        const nodeFilterById = this.nodes.filter(node => node.id === respData.result.node_id)
-        const nodeName = nodeFilterById.map(el => el.name)
-        const netmaskFilterById = this.netmasks.filter(netmask => netmask.id === respData.result.netmask_id)
-        const mask = netmaskFilterById.map(el => el.mask)
         cyData.id = id;
         cyData.interface_pk = id;
         cyData.ip_last_octet = last_octet
@@ -274,8 +305,8 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         cyData.text_color = cyData.logical_map.map_style.text_color;
         cyData.text_size = cyData.logical_map.map_style.text_size;
         cyData.color = cyData.logical_map.map_style.color;
-        cyData.node = nodeName;
-        cyData.netmask = mask;
+        cyData.node = this.nodes.find(node => node.id === cyData.node_id)?.name;
+        cyData.netmask = this.netmasks.find(netmask => netmask.id === cyData.netmask_id)?.mask;
         this.portGroupService.get(portGroupId).subscribe(response => {
           cyData.port_group = response.result.name;
           this.helpers.addCYEdge(this.data.cy, { ...newEdgeData, ...cyData });
@@ -283,12 +314,26 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
           this.helpers.updatePGOnMap(this.data.cy, portGroupId, response.result);
         });
       }
+      const ipAndNetmask = respData.result.ip && respData.result.netmask ? `- ${respData.result.ip + respData.result.netmask}` : ''
+      const newInterface = {
+        id: respData.id,
+        value: `${respData.result.name} ${ipAndNetmask}`.trim()
+      }
+      this.helpers.addInterfaceIntoElement(this.data.cy, respData.result.node_id, newInterface, 'node')
       this.interfaceService.getByProjectIdAndCategory(this.projectService.getProjectId(), 'logical', 'all')
         .subscribe(res => {
           this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({ data: res.result }))
         });
+      if (this.data.mode === 'connect') {
+        this.interfaceService.getByNodeAndNotConnectToPG(this.data.genData.node_id).subscribe(response => {
+          this.store.dispatch(retrievedInterfacesNotConnectPG({ interfacesNotConnectPG: response.result }));
+          this.backToSelectInterfaces();
+          this.helpers.setAutoCompleteValue(this.interfaceCtr, this.interfacesNotConnectPG, respData.id)
+        })
+      } else {
+        this.dialogRef.close(respData.result);
+      }
       this.toastr.success('Edge details added!');
-      this.dialogRef.close(respData.result);
     });
   }
 
@@ -354,7 +399,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
             id: this.data.genData.interface_pk,
             value: `${node.data('name')} - ${data.name} - ${data.ip + netmaskName}`
           }
-          this.helpers.addInterfaceIntoPG(this.data.cy, data.port_group_id, newEdge)
+          this.helpers.addInterfaceIntoElement(this.data.cy, data.port_group_id, newEdge, 'pg')
           this.helpers.removeInterfaceOnPG(this.data.cy, pgIdOld, this.data.genData.interface_pk)
         }
         this.nodeService.getNodesByProjectId(this.projectService.getProjectId()).subscribe(
@@ -371,72 +416,6 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     });
   }
 
-
-
-  connectInterfaceToPG() {
-    const successMessage = 'Connected Interface to Port Group'
-    const jsonDataValue = {
-      order: this.orderCtr?.value,
-      name: this.nameCtr?.value,
-      description: this.descriptionCtr?.value,
-      category: this.categoryCtr?.value,
-      direction: this.directionCtr?.value.id,
-      mac_address: this.macAddressCtr?.value,
-      port_group_id: this.portGroupCtr?.value.id,
-      ip_allocation: this.ipAllocationCtr?.value,
-      ip: this.ipCtr?.value,
-      dns_server: this.dnsServerCtr?.value,
-      gateway: this.gatewayCtr?.value,
-      is_gateway: this.isGatewayCtr?.value,
-      is_nat: this.isNatCtr?.value,
-      node_id: this.data.genData.node_id,
-      netmask_id: this.netMaskCtr?.value.id,
-      task: successMessage
-    }
-    const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.interfaceService.put(this.data.genData.interface_pk, jsonData).subscribe((respData: any) => {
-      const data = {
-        ...this.data.genData,
-        ...jsonData,
-      }
-      if (!Boolean(data.logical_map)) {
-        data.logical_map = {}
-      }
-      data.logical_map.position = this.data.newNodePosition;
-      data.logical_map.map_style = (this.data.mode == 'connect') ? {
-        "width": this.data.selectedMapPref.edge_width,
-        "color": this.data.selectedMapPref.edge_color,
-        "text_size": this.data.selectedMapPref.text_size,
-        "text_color": this.data.selectedMapPref.text_color,
-        "text_halign": this.data.selectedMapPref.text_halign,
-        "text_valign": this.data.selectedMapPref.text_valign,
-        "text_bg_color": this.data.selectedMapPref.text_bg_color,
-        "text_bg_opacity": this.data.selectedMapPref.text_bg_opacity
-      } : undefined;
-      if (data.category !== 'management') {
-        const newEdgeData = this.data.newEdgeData;
-        newEdgeData.target = newEdgeData.target === `pg-${data.port_group_id}` ? newEdgeData.target : `pg-${data.port_group_id}`;
-        const id = this.data.genData.interface_pk
-        const ip_str = data.ip ? data.ip : ""
-        const ip = ip_str.split(".")
-        const last_octet = ip.length == 4 ? "." + ip[3] : ""
-        const cyData = respData.result;
-        cyData.id = id;
-        cyData.interface_pk = id;
-        cyData.ip_last_octet = last_octet
-        cyData.width = cyData.logical_map.map_style.width;
-        cyData.text_color = cyData.logical_map.map_style.text_color;
-        cyData.text_size = cyData.logical_map.map_style.text_size;
-        cyData.color = cyData.logical_map.map_style.color;
-        this.helpers.addCYEdge(this.data.cy, { ...newEdgeData, ...cyData });
-        this.helpers.showOrHideArrowDirectionOnEdge(this.data.cy, cyData.id)
-        this.store.dispatch(retrievedMapSelection({ data: true }));
-      }
-      this.dialogRef.close();
-      this.toastr.success(successMessage, 'Success');
-    });
-  }
-
   selectPortGroup($event: MatAutocompleteSelectedEvent) {
     const interfaceList = this.interfaces.filter(ele => ele.port_group_id === $event.option.value.id && ele.configuration?.is_gateway);
     this.gateways = interfaceList.map(ele => ele.ip);
@@ -447,5 +426,49 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     this.data.mode = 'update';
     this.isViewMode = false;
     this.interfaceAddForm.markAllAsTouched();
+  }
+
+  convertToAddInterfaceForm() {
+    this.isShowAddInterfaceForm = true;
+    this.dialogRef.updateSize('1200px');
+    this.interfaceService.genData(this.data.genData.node_id, undefined).subscribe(interfaceData => {
+      this._setDataAddInterfaceForm(interfaceData, this.data.mode)
+    });
+  }
+
+  backToSelectInterfaces() {
+    this.isShowAddInterfaceForm = false;
+    this.dialogRef.updateSize('600px');
+  }
+
+  private _setDataAddInterfaceForm(interfaceData: any, mode: string) {
+    let directionValue = this.isEdgeDirectionChecked ? interfaceData.direction : interfaceData.prev_direction;
+    directionValue = mode == 'add' || mode == 'connect' || interfaceData.category == 'management'
+      ? interfaceData.direction : directionValue;
+    this.directionCtr.setValidators([Validators.required, autoCompleteValidator(this.DIRECTIONS)]);
+    this.filteredDirections = this.helpers.filterOptions(this.directionCtr, this.DIRECTIONS);
+    this.orderCtr?.setValue(interfaceData.order);
+    this.nameCtr?.setValue(interfaceData.name);
+    this.descriptionCtr?.setValue(interfaceData.description);
+    this.categoryCtr?.setValue(interfaceData.category);
+    this.helpers.setAutoCompleteValue(this.directionCtr, this.DIRECTIONS, interfaceData.direction);
+    this.macAddressCtr?.setValue(interfaceData.mac_address);
+    if (mode != 'connect') {
+      this.helpers.setAutoCompleteValue(this.portGroupCtr, this.portGroups, interfaceData.port_group_id);
+    }
+    this.ipAllocationCtr?.setValue(interfaceData.ip_allocation);
+    this.ipCtr?.setValue(interfaceData.ip);
+    this.dnsServerCtr?.setValue(interfaceData.dns_server);
+    this.gatewayCtr?.setValue(interfaceData.gateway?.gateway ? interfaceData.gateway.gateway : interfaceData.gateway);
+    this.isGatewayCtr?.setValue(interfaceData.is_gateway);
+    this.isNatCtr?.setValue(interfaceData.is_nat);
+    this.helpers.setAutoCompleteValue(this.netMaskCtr, this.netmasks, interfaceData.netmask_id);
+    this._disableItems(this.ipAllocationCtr?.value);
+    this.ipCtr?.setValidators([
+      Validators.required,
+      networksValidation('single'),
+      validateNameExist(() => this.edgesConnected, mode, interfaceData.interface_pk, 'ip'),
+      showErrorFromServer(() => this.errors)
+    ])
   }
 }

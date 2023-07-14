@@ -51,12 +51,11 @@ describe('Map features e2e testing', () => {
   it ('Create new blank project and add node, port group', () => {
     cy.visit('/')
     cy.waitingLoadingFinish()
-    cy.getByDataCy('btn-create-new').click({force: true})
+    cy.getByDataCy('btn-create-new').click()
     cy.waitingLoadingFinish()
     cy.addNewProject(project, true)
     cy.waitingLoadingFinish()
     cy.openProjectByName(project.name)
-    cy.waitingLoadingFinish()
     // Add new port group
     mapData.collection[0].port_group.forEach((element: any) => {
       cy.addNewPortGroupOnMap(element, element.map_data.logical.position.x, element.map_data.logical.position.y, true)
@@ -68,7 +67,7 @@ describe('Map features e2e testing', () => {
       element.interface.forEach((interfaceData: any) => {
         let pgX: any;
         let pgY: any;
-        if (interfaceData.port_group === 'EASTNET-2') {
+        if (interfaceData.port_group === 'EASTNET-2' || interfaceData.port_group === 'Management') {
           pgX = 1000
           pgY = 500
         } else if (interfaceData.port_group === 'EASTNET-3') {

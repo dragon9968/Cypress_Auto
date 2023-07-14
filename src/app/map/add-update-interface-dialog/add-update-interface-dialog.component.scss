@@ -6,7 +6,7 @@ $margin: 8px;
 }
 
 .padding-field {
-    padding-top: 8px
+    padding-top: $margin;
 }
 
 .category {
@@ -50,7 +50,8 @@ $margin: 8px;
 }
 
 .mat-option {
-    height: 60px;
+  height: 65px;
+  border-bottom: 1px solid #ccc;
 }
 
 .interface-content {
@@ -63,4 +64,53 @@ $margin: 8px;
             padding: $margin;
         }
     }
+}
+
+.new-button {
+  display: flex;
+  padding: $margin 0;
+}
+
+.connect-interface-title {
+  display: flex;
+  font-family: 'Roboto', sans-serif;
+  &__left {
+    width: 50%;
+    margin-right: $margin;
+    padding: $margin 0;
+  }
+  &__right {
+    padding: $margin 0;
+  }
+}
+
+.connect-interface-area {
+  display: flex;
+  justify-content: space-between;
+  &__left, &__right {
+    width: 47%;
+    padding: $margin;
+    background-color: #fff;
+    border-radius: 4px;
+    margin-right: $margin;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}
+
+.edge-option {
+  height: auto;
+  padding: $margin calc($margin*2);
+  line-height: calc($margin*3);
+  &__item {
+    display: block;
+  }
+}
+
+.connection-interface-content {
+  max-height: 85vh;
+}
+
+.interface-actions-areas {
+  margin-bottom: 0;
 }

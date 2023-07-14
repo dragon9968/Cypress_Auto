@@ -637,11 +637,11 @@ export class HelpersService implements OnDestroy {
     pgEle.data('interfaces', interfaces)
   }
 
-  addInterfaceIntoPG(cy: any, pgId: number, edge: any) {
-    const pgEle = cy.getElementById(`pg-${pgId}`)
-    const currentInterfaces = pgEle.data('interfaces')
+  addInterfaceIntoElement(cy: any, pgId: number, edge: any, type: string = 'node') {
+    const element = cy.getElementById(`${type}-${pgId}`)
+    const currentInterfaces = element.data('interfaces')
     const newInterfaces = currentInterfaces ? [...currentInterfaces, edge] : [edge]
-    pgEle.data('interfaces', newInterfaces)
+    element.data('interfaces', newInterfaces)
   }
 
   updateNodePGInInterfaceOnMap(cy: any, type: string, elementId: number) {

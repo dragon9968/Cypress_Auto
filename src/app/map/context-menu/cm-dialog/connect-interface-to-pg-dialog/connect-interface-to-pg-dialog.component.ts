@@ -8,9 +8,7 @@ import { ErrorMessages } from "../../../../shared/enums/error-messages.enum";
 import { HelpersService } from "../../../../core/services/helpers/helpers.service";
 import { InterfaceService } from "../../../../core/services/interface/interface.service";
 import { autoCompleteValidator } from "../../../../shared/validations/auto-complete.validation";
-import { retrievedInterfacePkConnectPG } from "../../../../store/interface/interface.actions";
-import { selectInterfacesNotConnectPG } from "../../../../store/interface/interface.selectors";
-
+import { selectInterfacesConnectedPG } from "../../../../store/interface/interface.selectors";
 
 @Component({
   selector: 'app-connect-dialog',
@@ -20,8 +18,8 @@ import { selectInterfacesNotConnectPG } from "../../../../store/interface/interf
 export class ConnectInterfaceToPgDialogComponent implements OnInit, OnDestroy {
   connectInterfaceToPGForm: FormGroup;
   errorMessages = ErrorMessages;
-  interfacesNotConnectPG: any[] = [];
-  selectInterfacesNotConnectPG$ = new Subscription();
+  interfacesConnectedPG: any[] = [];
+  selectInterfacesConnectedPG$ = new Subscription();
   filteredInterfaces!: Observable<any[]>;
   nodeId = 0;
   constructor(
@@ -37,31 +35,24 @@ export class ConnectInterfaceToPgDialogComponent implements OnInit, OnDestroy {
       interfaceCtr: new FormControl('')
     })
     this.nodeId = this.data.nodeId;
-    this.selectInterfacesNotConnectPG$ = this.store.select(selectInterfacesNotConnectPG).subscribe(interfaces => {
+    this.selectInterfacesConnectedPG$ = this.store.select(selectInterfacesConnectedPG).subscribe(interfaces => {
       if (interfaces) {
-        this.interfacesNotConnectPG = interfaces;
-        this.filteredInterfaces = this.helpersService.filterOptions(this.interfaceCtr, this.interfacesNotConnectPG);
+        this.interfacesConnectedPG = interfaces;
+        this.filteredInterfaces = this.helpersService.filterOptions(this.interfaceCtr, this.interfacesConnectedPG);
       }
     })
   }
 
-  get interfaceCtr() { return this.helpersService.getAutoCompleteCtr(this.connectInterfaceToPGForm.get('interfaceCtr'), this.interfacesNotConnectPG) }
+  get interfaceCtr() { return this.helpersService.getAutoCompleteCtr(this.connectInterfaceToPGForm.get('interfaceCtr'), this.interfacesConnectedPG) }
 
   ngOnInit(): void {
-    this.helpersService.setAutoCompleteValue(this.interfaceCtr, this.interfacesNotConnectPG, this.interfacesNotConnectPG[0]?.id);
-    this.interfaceCtr?.setValue(this.interfacesNotConnectPG[0])
-    this.interfaceCtr?.setValidators([Validators.required, autoCompleteValidator(this.interfacesNotConnectPG)]);
+    this.helpersService.setAutoCompleteValue(this.interfaceCtr, this.interfacesConnectedPG, this.interfacesConnectedPG[0]?.id);
+    this.interfaceCtr?.setValue(this.interfacesConnectedPG[0])
+    this.interfaceCtr?.setValidators([Validators.required, autoCompleteValidator(this.interfacesConnectedPG)]);
   }
 
   ngOnDestroy(): void {
-    this.selectInterfacesNotConnectPG$.unsubscribe();
-  }
-
-  connectToPortGroup() {
-    const interfacePk = this.interfaceCtr?.value?.id;
-    this.store.dispatch(retrievedInterfacePkConnectPG({ interfacePkConnectPG: interfacePk }))
-    this.data.queueEdge(this.data.event.target, this.data.event.position, "wired");
-    this.dialogRef.close();
+    this.selectInterfacesConnectedPG$.unsubscribe();
   }
 
   disconnectPortGroup() {

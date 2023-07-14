@@ -2,7 +2,11 @@ import { Store } from "@ngrx/store";
 import { MatDialog } from "@angular/material/dialog";
 import { Injectable } from '@angular/core';
 import { InterfaceService } from "../../../core/services/interface/interface.service";
-import { retrievedInterfacesNotConnectPG } from "../../../store/interface/interface.actions";
+import {
+  retrievedInterfacesConnectedPG,
+  retrievedInterfacesNotConnectPG,
+  retrievedIsInterfaceConnectPG
+} from "../../../store/interface/interface.actions";
 import { ConnectInterfaceToPgDialogComponent } from "../cm-dialog/connect-interface-to-pg-dialog/connect-interface-to-pg-dialog.component";
 import { ToastrService } from "ngx-toastr";
 import { ProjectService } from "../../../project/services/project.service";
@@ -21,15 +25,15 @@ export class CMInterfaceService {
   ) { }
 
   getNodeInterfaceMenu(queueEdge: Function, cy: any, activeNodes: any[], isCanWriteOnProject: boolean) {
-    const addInterface = {
-      id: "add_new_interface",
-      content: "New",
-      onClickFunction: (event: any) => {
-        queueEdge(event.target, event.position, "wired");
-      },
-      hasTrailingDivider: true,
-      disabled: !isCanWriteOnProject,
-    }
+    // const addInterface = {
+    //   id: "add_new_interface",
+    //   content: "New",
+    //   onClickFunction: (event: any) => {
+    //     queueEdge(event.target, event.position, "wired");
+    //   },
+    //   hasTrailingDivider: true,
+    //   disabled: !isCanWriteOnProject,
+    // }
 
     const connectInterfaceToPortGroup = {
       id: "connect_interface_port_group",
@@ -38,16 +42,10 @@ export class CMInterfaceService {
       disabled: !isCanWriteOnProject,
       onClickFunction: (event: any) => {
         const nodeId = activeNodes[0].data('node_id');
-        const dialogData = {
-          mode: 'connect',
-          nodeId: nodeId,
-          queueEdge: queueEdge,
-          event: event,
-          cy
-        }
         this.interfaceService.getByNodeAndNotConnectToPG(nodeId).subscribe(response => {
           this.store.dispatch(retrievedInterfacesNotConnectPG({ interfacesNotConnectPG: response.result }));
-          this.dialog.open(ConnectInterfaceToPgDialogComponent, { disableClose: true, width: '450px', data: dialogData, autoFocus: false })
+          this.store.dispatch(retrievedIsInterfaceConnectPG({ isInterfaceConnectPG: true }))
+          queueEdge(event.target, event.position, "wired");
         })
       }
     }
@@ -67,7 +65,7 @@ export class CMInterfaceService {
           cy
         }
         this.interfaceService.getByNodeAndConnectedToPG(nodeId).subscribe(response => {
-          this.store.dispatch(retrievedInterfacesNotConnectPG({ interfacesNotConnectPG: response.result }));
+          this.store.dispatch(retrievedInterfacesConnectedPG({interfacesConnectedPG: response.result}))
           this.dialog.open(ConnectInterfaceToPgDialogComponent, { disableClose: true, width: '450px', data: dialogData, autoFocus: false })
         })
       }
@@ -80,7 +78,7 @@ export class CMInterfaceService {
       hasTrailingDivider: false,
       disabled: false,
       submenu: [
-        addInterface,
+        // addInterface,
         connectInterfaceToPortGroup,
         disconnectInterfacePortGroup
       ]

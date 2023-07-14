@@ -10,7 +10,12 @@ export const retrievedInterfacesNotConnectPG = createAction(
   props<{ interfacesNotConnectPG: any }>()
 );
 
-export const retrievedInterfacePkConnectPG = createAction(
-  'retrievedInterfacePkConnectPG',
-  props<{ interfacePkConnectPG: any }>()
+export const retrievedInterfacesConnectedPG = createAction(
+  'retrievedInterfacesConnectedPG',
+  props<{ interfacesConnectedPG: any }>()
+);
+
+export const retrievedIsInterfaceConnectPG = createAction(
+  'retrievedIsInterfaceConnectPG',
+  props<{ isInterfaceConnectPG: boolean }>()
 );
