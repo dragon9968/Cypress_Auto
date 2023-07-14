@@ -37,6 +37,7 @@ import { ServerConnectService } from 'src/app/core/services/server-connect/serve
 import { AgGridAngular } from 'ag-grid-angular';
 import { ProjectService } from 'src/app/project/services/project.service';
 import { retrievedInterfaceByProjectIdAndCategory } from 'src/app/store/interface/interface.actions';
+import { retrievedNodes } from 'src/app/store/node/node.actions';
 
 class CrossFieldErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -710,12 +711,14 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   private _updateNodeOnMapAndStorage() {
     this.store.dispatch(retrievedMapSelection({ data: true }));
     this.nodeService.get(this.data.genData.node_id).subscribe(nodeData => {
-      this.helpers.updateNodesStorage(nodeData.result);
       this.helpers.updateNodesOnGroupStorage(nodeData.result, 'node');
       this.helpers.updateNodeOnMap(this.data.cy, this.data.genData.id, nodeData.result);
       this.helpers.updateNodePGInInterfaceOnMap(this.data.cy, 'node', this.data.genData.node_id);
       this.helpers.reloadGroupBoxes(this.data.cy);
       this.dialogRef.close();
+      this.nodeService.getNodesByProjectId(this.projectService.getProjectId()).subscribe(
+        (data: any) => this.store.dispatch(retrievedNodes({ data: data.result }))
+      );
       this.interfaceService.getByProjectIdAndCategory(this.projectService.getProjectId(), 'logical', 'all')
         .subscribe(res => {
           this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({ data: res.result }))

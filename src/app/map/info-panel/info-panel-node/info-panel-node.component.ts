@@ -188,8 +188,8 @@ export class InfoPanelNodeComponent implements OnDestroy {
           template: node.template?.name,
           domain: node.domain?.name,
           login_profile: node.login_profile?.name,
-          node_id: node.id,
-          id: `node-${node.id}`
+          node_id: node.node_id ? node.node_id : node.id,
+          id: node.node_id ? `node-${node.node_id}` : `node-${node.id}`
         }));
         this.store.dispatch(retrievedMapSelection({ data: true }));
       }
