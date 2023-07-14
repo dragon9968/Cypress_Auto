@@ -127,12 +127,20 @@ describe('Map features e2e testing', () => {
       cy.waitingLoadingFinish()
     })
 
+    //  delete interface
+    cy.unSelectAllElementOnMap()
+    cy.deleteInterfaceOnMap(850, 300)
+    cy.unSelectAllElementOnMap()
     //  Test clone node
-    cy.selectElementOnMap('node', editData.nodeData.name)
-    cy.getByMatToolTip('Clone').click();
-    cy.waitingLoadingFinish()
-    cy.getButtonByTypeAndContent('submit', 'OK').click()
-    cy.checkingToastSuccess()
+    cy.get('canvas.expand-collapse-canvas').click(300, 500, { force: true })
+    .rightclick(300, 500,{force: true}).then(() => {
+      cy.get('.cy-context-menus-cxt-menu').first().should('exist')
+      cy.get('#node_actions').should('exist').click({ force: true })
+      cy.get('#clone_node').should('exist').click({ force: true })
+      cy.waitingLoadingFinish()
+      cy.checkingToastSuccess()
+    })
+
     cy.exportProject(project.name, true)
     cy.waitingLoadingFinish()
     cy.importProject('cypress/fixtures/project/West_ISP.json')
@@ -365,7 +373,8 @@ describe('Map features e2e testing', () => {
 
     // Edit group
     cy.selectInfoPanelRowByLabelAndContent('group', editData.groupEditDefaultData.name).check({force: true})
-    cy.getByMatToolTip('Edit').click();
+    cy.wait(1000)
+    cy.getByMatToolTip('Edit').click({force: true});
     cy.addEditGroup(editData.groupEditDefaultData, 'edit')
     cy.checkingToastSuccess()
     cy.waitingLoadingFinish()

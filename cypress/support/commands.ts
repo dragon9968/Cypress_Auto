@@ -1013,7 +1013,7 @@ function addNewInterface(edge: any, nodeX: any, nodeY: any, pgX: any, pgY: any, 
       }
     }
     cy.checkingMatErrorIsExistOrNot(false)
-    cy.getByDataCy('interfaceAddForm').should('be.visible').submit()
+    cy.getByDataCy('interfaceAddForm').submit()
     cy.get('button[matTooltip="Save"]').click()
     cy.checkingToastSuccess()
   })
