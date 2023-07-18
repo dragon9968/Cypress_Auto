@@ -3,6 +3,10 @@ import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 import { retrievedMapSelection } from "../../../store/map-selection/map-selection.actions";
+import { InterfaceService } from 'src/app/core/services/interface/interface.service';
+import { retrievedInterfacesConnectedNode } from 'src/app/store/interface/interface.actions';
+import { ProjectService } from 'src/app/project/services/project.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +18,9 @@ export class CommonService {
 
   constructor(
     private store: Store,
+    private interfaceService: InterfaceService,
+    private projectService: ProjectService,
+    private toastr: ToastrService,
   ) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
@@ -22,15 +29,33 @@ export class CommonService {
     });
   }
 
-  delete(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], activeMBs: any[], activeMapLinks: any[]) {
+  delete(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], activeMBs: any[], activeMapLinks: any[], mapCategory: any) {
     [...activeEdges].forEach((edge: any) => {
       const sourceData = cy.getElementById(edge.data('source')).data();
       const targetData = cy.getElementById(edge.data('target')).data();
       if ('temp' in sourceData || 'temp' in targetData) {
         return
       } else {
-        this.ur?.do('removeEdge', { cy, edge });
-        activeEdges.splice(0);
+        if (mapCategory == 'logical') {
+          this.ur?.do('removeEdge', { cy, edge });
+          activeEdges.splice(0);
+        } else {
+          const jsonDataValue = {
+            interface_id: null,
+            task: `Deleted connect ${edge.data('name')} interface`
+          }
+          const interfacePk = edge.data('interface_pk')
+          this.interfaceService.put(interfacePk, jsonDataValue).subscribe((resp) => {
+            const edgeItem = cy.getElementById(interfacePk);
+            cy.remove(edgeItem);
+            this.toastr.success('Deleted Connected Interface', 'Success');
+            activeEdges.splice(0);
+            cy.edges().unselect();
+            this.interfaceService.getByProjectIdAndCategory(this.projectService.getProjectId(), 'physical', 'all').subscribe(resp => {
+              this.store.dispatch(retrievedInterfacesConnectedNode({ interfacesConnectedNode: resp.result }));
+            })
+          })
+        }
       }
     });
     activeNodes.concat(activePGs, activeGBs, activeMapLinks).forEach((node: any) => {

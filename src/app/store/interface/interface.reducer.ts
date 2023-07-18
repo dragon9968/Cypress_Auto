@@ -3,7 +3,13 @@ import { createReducer, on } from "@ngrx/store";
 import {
   retrievedInterfacesNotConnectPG,
   retrievedIsInterfaceConnectPG,
-  retrievedInterfaceByProjectIdAndCategory, retrievedInterfacesConnectedPG
+  retrievedInterfaceByProjectIdAndCategory,
+  retrievedInterfacesConnectedPG,
+  retrievedInterfacesBySourceNode,
+  retrievedInterfacePkConnectNode,
+  retrievedInterfacesByHwNodes,
+  retrievedInterfacesByDestinationNode,
+  retrievedInterfacesConnectedNode
 } from "./interface.actions";
 
 const initialState = {} as InterfaceState;
@@ -25,5 +31,25 @@ export const interfaceReducerByIds = createReducer(
   on(retrievedIsInterfaceConnectPG, (state, { isInterfaceConnectPG }) => ({
     ...state,
     isInterfaceConnectPG: isInterfaceConnectPG
-  }))
+  })),
+  on(retrievedInterfacePkConnectNode, (state, { interfacePkConnectNode }) => ({
+    ...state,
+    interfacePkConnectNode: interfacePkConnectNode
+  })),
+  on(retrievedInterfacesBySourceNode, (state, { interfacesBySourceNode }) => ({
+    ...state,
+    interfacesBySourceNode: interfacesBySourceNode
+  })),
+  on(retrievedInterfacesByDestinationNode, (state, { interfacesByDestinationNode }) => ({
+    ...state,
+    interfacesByDestinationNode: interfacesByDestinationNode
+  })),
+  on(retrievedInterfacesByHwNodes, (state, { interfacesByHwNodes }) => ({
+    ...state,
+    interfacesByHwNodes: interfacesByHwNodes
+  })),
+  on(retrievedInterfacesConnectedNode, (state, { interfacesConnectedNode }) => ({
+    ...state,
+    interfacesConnectedNode: interfacesConnectedNode
+  })),
 );

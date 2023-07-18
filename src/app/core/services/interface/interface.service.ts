@@ -18,14 +18,6 @@ export class InterfaceService {
     });
   }
 
-  genDataConnectPG(interfacePk: any, nodeId: string, portgroupId: any): Observable<any> {
-    return this.http.post<any>(ApiPaths.GEN_INTERFACE_DATA_CONNECT_PG, {
-      interface_pk: interfacePk,
-      node_id: nodeId,
-      pg_id: portgroupId
-    });
-  }
-
   get(id: string): Observable<any> {
     return this.http.get<any>(ApiPaths.INTERFACE + id);
   }
@@ -62,6 +54,22 @@ export class InterfaceService {
     });
   }
 
+  getByNodeAndNotConnected(nodeId: any): Observable<any> {
+    return this.http.get<any>(ApiPaths.INTERFACE, {
+      params: {
+        q: `(filters:!((col:node_id,opr:eq,value:${nodeId}),(col:interface_id,opr:eq,value:null)),page:0,page_size:1000)`
+      }
+    });
+  }
+
+  getByNodeAndConnectedToInterface(nodeId: any): Observable<any> {
+    return this.http.get<any>(ApiPaths.INTERFACE, {
+      params: {
+        q: `(filters:!((col:node_id,opr:eq,value:${nodeId}),(col:interface_id,opr:neq,value:null)),page:0,page_size:1000)`
+      }
+    });
+  }
+
   getByNodeAndNotConnectToPG(nodeId: any): Observable<any> {
     return this.http.get<any>(ApiPaths.INTERFACE, {
       params: {
@@ -88,5 +96,9 @@ export class InterfaceService {
 
   getByProjectIdAndCategory(projectId: any, mapCategory: string, edgeCategory: string): Observable<any> {
     return this.http.get<any>(ApiPaths.INTERFACE_DATA_CATEGORY + projectId + '/' + mapCategory + '/' + edgeCategory)
+  }
+
+  getByProjectIdAndHwNode(projectId: any): Observable<any> {
+    return this.http.get<any>(ApiPaths.INTERFACE_DATA_BY_HW_NODE + projectId)
   }
 }

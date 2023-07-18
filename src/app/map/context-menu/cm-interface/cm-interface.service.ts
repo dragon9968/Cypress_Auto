@@ -3,13 +3,16 @@ import { MatDialog } from "@angular/material/dialog";
 import { Injectable } from '@angular/core';
 import { InterfaceService } from "../../../core/services/interface/interface.service";
 import {
-  retrievedInterfacesConnectedPG,
-  retrievedInterfacesNotConnectPG,
-  retrievedIsInterfaceConnectPG
+  retrievedIsInterfaceConnectPG,
+  retrievedInterfacePkConnectNode,
+  retrievedInterfacesBySourceNode,
+  retrievedInterfacesConnectedNode,
+  retrievedInterfacesNotConnectPG, retrievedInterfacesConnectedPG
 } from "../../../store/interface/interface.actions";
-import { ConnectInterfaceToPgDialogComponent } from "../cm-dialog/connect-interface-to-pg-dialog/connect-interface-to-pg-dialog.component";
 import { ToastrService } from "ngx-toastr";
 import { ProjectService } from "../../../project/services/project.service";
+import { retrievedNameNodeBySourceNode } from "src/app/store/node/node.actions";
+import { ConnectInterfaceToPgDialogComponent } from "../cm-dialog/connect-interface-to-pg-dialog/connect-interface-to-pg-dialog.component";
 
 @Injectable({
   providedIn: 'root'
@@ -22,9 +25,11 @@ export class CMInterfaceService {
     private toastr: ToastrService,
     private projectService: ProjectService,
     private interfaceService: InterfaceService
-  ) { }
+  ) {
 
-  getNodeInterfaceMenu(queueEdge: Function, cy: any, activeNodes: any[], isCanWriteOnProject: boolean) {
+  }
+
+  getNodeInterfaceMenu(queueEdge: Function, cy: any, activeNodes: any[], isCanWriteOnProject: boolean, mapCategory: any, isEdgeDirectionChecked: boolean, projectId: number) {
     // const addInterface = {
     //   id: "add_new_interface",
     //   content: "New",
@@ -42,11 +47,24 @@ export class CMInterfaceService {
       disabled: !isCanWriteOnProject,
       onClickFunction: (event: any) => {
         const nodeId = activeNodes[0].data('node_id');
-        this.interfaceService.getByNodeAndNotConnectToPG(nodeId).subscribe(response => {
-          this.store.dispatch(retrievedInterfacesNotConnectPG({ interfacesNotConnectPG: response.result }));
-          this.store.dispatch(retrievedIsInterfaceConnectPG({ isInterfaceConnectPG: true }))
-          queueEdge(event.target, event.position, "wired");
-        })
+        const nodeName = activeNodes[0].data('name');
+        if (mapCategory == 'logical') {
+          this.interfaceService.getByNodeAndNotConnectToPG(nodeId).subscribe(response => {
+            this.store.dispatch(retrievedInterfacesNotConnectPG({ interfacesNotConnectPG: response.result }));
+            this.store.dispatch(retrievedIsInterfaceConnectPG({ isInterfaceConnectPG: true }))
+            queueEdge(event.target, event.position, "wired");
+          })
+        } else {
+          this.interfaceService.getByNodeAndNotConnected(nodeId).subscribe(response => {
+            this.interfaceService.getByProjectIdAndCategory(this.projectService.getProjectId(), 'physical', 'all').subscribe(resp => {
+              this.store.dispatch(retrievedInterfacesConnectedNode({ interfacesConnectedNode: resp.result }));
+              this.store.dispatch(retrievedInterfacesBySourceNode({ interfacesBySourceNode: response.result }));
+              this.store.dispatch(retrievedInterfacePkConnectNode({ interfacePkConnectNode: true }))
+              this.store.dispatch(retrievedNameNodeBySourceNode({ nameNode: nodeName }));
+              queueEdge(event.target, event.position, "wired");
+            })
+          })
+        }
       }
     }
 
@@ -80,7 +98,7 @@ export class CMInterfaceService {
       submenu: [
         // addInterface,
         connectInterfaceToPortGroup,
-        disconnectInterfacePortGroup
+        disconnectInterfacePortGroup,
       ]
     }
   }

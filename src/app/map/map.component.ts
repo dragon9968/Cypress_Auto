@@ -54,7 +54,7 @@ import { ProjectService } from "../project/services/project.service";
 import { retrievedProjectCategory, retrievedProjects, retrievedVMStatus } from "../store/project/project.actions";
 import { ICON_PATH } from '../shared/contants/icon-path.constant';
 import { InfoPanelService } from '../core/services/info-panel/info-panel.service';
-import { retrievedIsInterfaceConnectPG } from "../store/interface/interface.actions";
+import { retrievedInterfacePkConnectNode, retrievedInterfacesByDestinationNode, retrievedIsInterfaceConnectPG } from "../store/interface/interface.actions";
 import { retrievedMapSelection } from '../store/map-selection/map-selection.actions';
 import {
   selectIsConfiguratorConnect,
@@ -65,7 +65,7 @@ import { retrievedImages, retrievedMapImages } from '../store/map-image/map-imag
 import { RouteSegments } from "../core/enums/route-segments.enum";
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { retrievedMapEdit } from "../store/map-edit/map-edit.actions";
-import { selectIsInterfaceConnectPG } from "../store/interface/interface.selectors";
+import { selectIsInterfaceConnectPG, selectInterfacePkConnectNode } from "../store/interface/interface.selectors";
 import { CMInterfaceService } from "./context-menu/cm-interface/cm-interface.service";
 import { GroupService } from "../core/services/group/group.service";
 import { retrievedNodes } from "../store/node/node.actions";
@@ -80,6 +80,10 @@ import { MapEditService } from "../core/services/map-edit/map-edit.service";
 import { RolesService } from '../core/services/roles/roles.service';
 import { CmGroupOptionService } from './context-menu/cm-group-option/cm-group-option.service';
 import { PortGroupAddModel } from "../core/models/port-group.model";
+import { selectMapCategory } from '../store/map-category/map-category.selectors';
+import { retrievedMapCategory } from '../store/map-category/map-category.actions';
+import { ConnectInterfaceDialogComponent } from './context-menu/cm-dialog/connect-interface-dialog/connect-interface-dialog.component';
+import { ConnectInterfaceToPgDialogComponent } from "./context-menu/cm-dialog/connect-interface-to-pg-dialog/connect-interface-to-pg-dialog.component";
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -154,6 +158,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   isAddEdge: any;
   isAddTunnel: any;
   isConnectToPG: any;
+  isConnectToNode: any;
   deletedNodes: any[] = [];
   deletedInterfaces: any[] = [];
   activeNodes: any[] = [];
@@ -170,10 +175,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   vmStatus!: boolean;
   boxSelectedNodes = new Set();
   isInterfaceConnectPG = false;
+  interfacePkConnectNode!: any;
   groupCategoryId!: string;
   selectMap$ = new Subscription();
   selectMapPref$ = new Subscription();
   selectMapEdit$ = new Subscription();
+  selectMapCategory$ = new Subscription();
   selectPortGroups$ = new Subscription();
   selectIcons$ = new Subscription();
   selectDomains$ = new Subscription();
@@ -185,12 +192,14 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   selectProjects$ = new Subscription();
   selectCurrentProject$ = new Subscription();
   selectInterfacePkConnectPG$ = new Subscription();
+  selectInterfacePkConnectNode$ = new Subscription();
   selectMapOption$ = new Subscription();
   selectProjectCategory$ = new Subscription()
   selectMapFeatureSubject: Subject<MapState> = new ReplaySubject(1);
   destroy$: Subject<boolean> = new Subject<boolean>();
   saveMapSubject: Subject<void> = new Subject<void>();
   activeNodeInBox: any[] = [];
+  mapCategoryLabel: any;
 
   constructor(
     private route: ActivatedRoute,
@@ -304,7 +313,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.isConfiguratorConnect = isConfiguratorConnect
       }
     })
-    this.mapCategory = 'logical';
+
+    this.selectMapCategory$ = this.store.select(selectMapCategory).subscribe((mapCategory: any) => {
+      this.mapCategory = mapCategory ? mapCategory : 'logical'
+    })
+    this.mapCategoryLabel = this.mapCategory == 'logical' ? 'Physical' : 'Logical'
     this.projectId = this.projectService.getProjectId();
     this.mapService.getMapData(this.mapCategory, this.projectId).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
     this.imageService.getByCategory('icon').subscribe((data: any) => this.store.dispatch(retrievedIcons({ data: data.result })));
@@ -342,6 +355,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         }
       }
     });
+    this.selectInterfacePkConnectNode$ = this.store.select(selectInterfacePkConnectNode).subscribe(interfacePkConnectNode => {
+      this.interfacePkConnectNode = interfacePkConnectNode;
+    })
+    this.selectProjects$ = this.store.select(selectProjects).subscribe(projects => this.projects = projects ? projects : []);
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe(mapOption => {
       this.isEdgeDirectionChecked = mapOption?.isEdgeDirectionChecked != undefined ? mapOption.isEdgeDirectionChecked : false;
       this.isGroupBoxesChecked = mapOption?.isGroupBoxesChecked != undefined ? mapOption.isGroupBoxesChecked : false;
@@ -523,6 +540,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this._addNewEdge($event);
     } else if (this.isConnectToPG) {
       this._connectEdgeToPG($event)
+    } else if (this.isConnectToNode) {
+      this._connectEdgeToNode($event)
     }
   }
 
@@ -575,7 +594,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         }
       }
       this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
-        this.activeMBs, this.activeMapLinks, this.isTemplateCategory, this.isGroupBoxesChecked);
+        this.activeMBs, this.activeMapLinks, this.isTemplateCategory, this.isGroupBoxesChecked, this.mapCategory);
       this.store.dispatch(retrievedMapSelection({ data: true }));
     }
   }
@@ -599,7 +618,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         }
       }
       this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
-        this.activeMBs, this.activeMapLinks, this.isTemplateCategory, this.isGroupBoxesChecked);
+        this.activeMBs, this.activeMapLinks, this.isTemplateCategory, this.isGroupBoxesChecked, this.mapCategory);
       this.store.dispatch(retrievedMapSelection({ data: true }));
     }
   }
@@ -1054,7 +1073,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       menuItems: [
         this.cmGroupBoxService.getMoveToFrontMenu(),
         this.cmGroupBoxService.getMoveToBackMenu(),
-        this.cmInterfaceService.getNodeInterfaceMenu(this.queueEdge.bind(this), this.cy, this.activeNodes, this.isCanWriteOnProject),
+        this.cmInterfaceService.getNodeInterfaceMenu(this.queueEdge.bind(this), this.cy, this.activeNodes, this.isCanWriteOnProject, this.mapCategory, this.isEdgeDirectionChecked,  Number(this.projectId)),
         this.cmProjectNodeService.getLinkProjectMenu(this.queueEdge.bind(this), this.cy, this.activeMapLinks),
         this.cmInterfaceService.getPortGroupInterfaceMenu(this.queueEdge.bind(this)),
         this.cmAddService.getEdgeAddMenu(),
@@ -1065,10 +1084,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         // this.cmGroupOptionService.getPortGroupGroupMenu(this.cy, this.activePGs),
         this.cmRemoteService.getNodeRemoteMenu(this.activeNodes),
         this.cmRemoteService.getPortGroupRemoteMenu(this.activePGs),
-        this.cmViewDetailsService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeMapLinks),
-        this.cmEditService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeMapLinks, this.isCanWriteOnProject),
+        this.cmViewDetailsService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeMapLinks, this.mapCategory, Number(this.projectId)),
+        this.cmEditService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeMapLinks, this.isCanWriteOnProject, this.mapCategory, Number(this.projectId)),
         this.cmDeleteService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
-          this.activeMBs, this.activeMapLinks, this.isCanWriteOnProject),
+          this.activeMBs, this.activeMapLinks, this.isCanWriteOnProject, this.mapCategory),
         this.cmLockUnlockService.getLockMenu(this.cy, this.activeNodes, this.activePGs, this.activeMBs, this.activeMapLinks),
         this.cmLockUnlockService.getUnlockMenu(this.activeNodes, this.activePGs, this.activeMBs, this.activeMapLinks),
         this.cmGroupBoxService.getCollapseMenu(this.cy, this.activeGBs),
@@ -1092,7 +1111,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     const t = $event.target;
     t.select();
     this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs,
-      this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks, this.isTemplateCategory, this.isGroupBoxesChecked);
+      this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks, this.isTemplateCategory, this.isGroupBoxesChecked, this.mapCategory);
   }
 
   private _openAddUpdateNodeDialog(genData: any, newNodeData: any, newNodePosition: any) {
@@ -1104,6 +1123,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       genData,
       newNodeData,
       newNodePosition,
+      mapCategory: this.mapCategory,
     }
     const dialogRef = this.dialog.open(AddUpdateNodeDialogComponent, { disableClose: true, width: '600px', data: dialogData });
     dialogRef.afterClosed().subscribe((_data: any) => {
@@ -1380,6 +1400,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       cy: this.cy,
       genData,
       newEdgeData,
+      mapCategory: this.mapCategory
     }
     const dialogRef = this.dialog.open(AddUpdateInterfaceDialogComponent,
       { disableClose: true, width: '600px', data: dialogData, autoFocus: false, panelClass: 'custom-node-form-modal' });
@@ -1391,7 +1412,36 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.edgeNode = null;
       this.isConnectToPG = false;
       this.store.dispatch(retrievedIsInterfaceConnectPG({ isInterfaceConnectPG: false }));
+      this.isConnectToNode = false;
+      this.store.dispatch(retrievedInterfacePkConnectNode({ interfacePkConnectNode: undefined }));
     });
+  }
+
+  private _openConnectInterfaceToNodeDialog(genData: any, newEdgeData: any) {
+    const dialogData = {
+      mode: 'connect_node',
+      projectId: this.projectId,
+      portGroups: this.portGroups,
+      gateways: this.gateways,
+      selectedMapPref: this.selectedMapPref,
+      cy: this.cy,
+      genData,
+      newEdgeData,
+      mapCategory: this.mapCategory
+    }
+    this.interfaceService.getByNode(genData.target_node_id).subscribe(response => {
+      this.store.dispatch(retrievedInterfacesByDestinationNode({ interfacesByDestinationNode: response.result }));
+      const dialogRef = this.dialog.open(ConnectInterfaceToPgDialogComponent, { disableClose: true, width: '450px', data: dialogData, autoFocus: false })
+      dialogRef.afterClosed().subscribe((_data: any) => {
+        this.cy.unbind('mousemove');
+        this.inv.remove();
+        this.e.remove();
+        this.inv = null;
+        this.edgeNode = null;
+        this.isConnectToNode = false;
+        this.store.dispatch(retrievedInterfacePkConnectNode({ interfacePkConnectNode: undefined }));
+      });
+    })
   }
 
   private _addNewEdge($event: any) {
@@ -1450,6 +1500,43 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  private _connectEdgeToNode($event: any) {
+    if (this.isConnectToNode) {
+      this.cy.unbind('mousemove');
+      const nodeData = $event.target.data();
+      if (nodeData.elem_category === 'node') {
+        let targ = nodeData.id;
+        this.e.move({ target: targ });
+        this.newEdgeData.target = targ;
+        const dialogData = {
+          mode: 'connect_node',
+          projectId: this.projectId,
+          selectedMapPref: this.selectedMapPref,
+          cy: this.cy,
+          newEdgeData: this.newEdgeData,
+          mapCategory: this.mapCategory,
+          nameTargetNode: nodeData.name
+        }
+        this.interfaceService.getByNode(nodeData.node_id).subscribe(response => {
+          this.store.dispatch(retrievedInterfacesByDestinationNode({ interfacesByDestinationNode: response.result }));
+          const dialogRef = this.dialog.open(ConnectInterfaceDialogComponent, { disableClose: true, width: '1000px', data: dialogData, autoFocus: false, panelClass: 'custom-connect-interfaces-form-modal' })
+          dialogRef.afterClosed().subscribe((_data: any) => {
+            this.cy.unbind('mousemove');
+            this.inv.remove();
+            this.e.remove();
+            this.inv = null;
+            this.edgeNode = null;
+            this.isConnectToNode = false;
+            this.store.dispatch(retrievedInterfacePkConnectNode({ interfacePkConnectNode: undefined }));
+          });
+        })
+      } else {
+        this._unqueueEdge();
+        this.toastr.warning('Please select a node to connect', 'Warning');
+      }
+    }
+  }
+
   queueEdge(target: any, position: any, category: string) {
     const data = target.data();
     if (data.elem_category === 'port_group') {
@@ -1488,6 +1575,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.isAddTunnel = true
     } else if (this.isInterfaceConnectPG) {
       this.isConnectToPG = true;
+    } else if (this.interfacePkConnectNode) {
+      this.isConnectToNode = true;
     } else {
       this.isAddEdge = true;
     }
@@ -1506,6 +1595,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.isAddTunnel = false;
     this.isConnectToPG = false;
     this.store.dispatch(retrievedIsInterfaceConnectPG({ isInterfaceConnectPG: false }));
+    this.isConnectToNode = false;
+    this.store.dispatch(retrievedInterfacePkConnectNode({ interfacePkConnectNode: undefined }));
   }
 
   searchMap(searchText: string) {
@@ -1575,6 +1666,19 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   openDashboard() {
     this.router.navigate([RouteSegments.DASHBOARD]);
+  }
+
+  switchMap() {
+    this.mapCategory = this.mapCategory === 'logical' ? 'physical' : 'logical'
+    this.mapCategoryLabel = this.mapCategory == 'logical' ? 'Physical' : 'Logical'
+    this.activeNodes.splice(0);
+    this.activeGBs.splice(0)
+    this.activePGs.splice(0);
+    this.activeEdges.splice(0);
+    this.activeMBs.splice(0);
+    this.activeMapLinks.splice(0);
+    this.store.dispatch(retrievedMapCategory({ mapCategory: this.mapCategory }));
+    this.mapService.getMapData(this.mapCategory, this.projectId).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
   }
 
   addTemplateIntoCurrentProject(projectTemplateId: Number, layoutOnly: Boolean, newPosition: any) {

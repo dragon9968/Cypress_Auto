@@ -13,6 +13,7 @@ import { catchError, Observable, Subscription, throwError } from 'rxjs';
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
+import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
 import { selectMapOption } from "../../store/map-option/map-option.selectors";
 import { PortGroupService } from "../../core/services/portgroup/portgroup.service";
 import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
@@ -20,15 +21,12 @@ import { selectNodesByProjectId } from 'src/app/store/node/node.selectors';
 import { validateNameExist } from "../../shared/validations/name-exist.validation";
 import { networksValidation } from 'src/app/shared/validations/networks.validation';
 import { showErrorFromServer } from 'src/app/shared/validations/error-server-response.validation';
-import {
-  retrievedInterfaceByProjectIdAndCategory,
-  retrievedInterfacesNotConnectPG
-} from "../../store/interface/interface.actions";
+import { selectMapCategory } from 'src/app/store/map-category/map-category.selectors';
+import { selectInterfacesByHwNodes } from 'src/app/store/interface/interface.selectors';
+import { vlanInterfaceValidator } from 'src/app/shared/validations/vlan-interface.validation';
+import { retrievedInterfaceByProjectIdAndCategory, retrievedInterfacesNotConnectPG } from "../../store/interface/interface.actions";
 import { ProjectService } from "../../project/services/project.service";
-import {
-  selectInterfacesByProjectIdAndCategory,
-  selectInterfacesNotConnectPG
-} from "../../store/interface/interface.selectors";
+import { selectInterfacesByProjectIdAndCategory, selectInterfacesNotConnectPG } from "../../store/interface/interface.selectors";
 import { retrievedNodes } from 'src/app/store/node/node.actions';
 import { NodeService } from 'src/app/core/services/node/node.service';
 
@@ -55,6 +53,8 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   selectMapOption$ = new Subscription();
   selectNetmasks$ = new Subscription();
   selectNodes$ = new Subscription();
+  selectMapCategory$ = new Subscription();
+  selectInterfacesByHwNodes$ = new Subscription();
   gateways: any[] = [];
   interfaces: any[] = [];
   nodes: any[] = [];
@@ -62,8 +62,11 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   filteredPortGroups!: Observable<any[]>;
   filteredDirections!: Observable<any[]>;
   filteredNetmasks!: Observable<any[]>;
+  filteredInterfacesByHwNodes!: Observable<any[]>;
   edgesConnected = [];
   errors: any[] = [];
+  mapCategory: any;
+  interfacesByHwNodes: any[] = [];
 
   constructor(
     private store: Store,
@@ -93,10 +96,25 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       isGatewayCtr: new FormControl(''),
       isNatCtr: new FormControl(''),
       netMaskCtr: new FormControl(''),
+      vlanIdCtr: new FormControl('', [vlanInterfaceValidator()]),
+      vlanModeCtr: new FormControl(''),
     });
     this.connectInterfaceToPGForm = new FormGroup({
       interfaceCtr: new FormControl(''),
       targetPortGroupCtr: new FormControl(''),
+    })
+
+    this.selectMapCategory$ = this.store.select(selectMapCategory).subscribe((mapCategory: any) => {
+      this.mapCategory = mapCategory ? mapCategory : 'logical'
+    })
+
+    this.selectInterfacesByHwNodes$ = this.store.select(selectInterfacesByHwNodes).subscribe(interfacesData => {
+      if (interfacesData) {
+        this.interfacesByHwNodes = interfacesData
+        this.interfacesByHwNodes = this.interfacesByHwNodes.filter(val => val.id !== this.data.genData.interface_pk)
+        this.interfaceCtr.setValidators([autoCompleteValidator(this.interfacesByHwNodes)]);
+        this.filteredInterfacesByHwNodes = this.helpers.filterOptions(this.interfaceCtr, this.interfacesByHwNodes);
+      }
     })
     this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe((portGroups: any) => {
       this.portGroups = portGroups;
@@ -138,6 +156,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     this.selectInterfaces$.unsubscribe();
     this.selectNetmasks$.unsubscribe();
     this.selectInterfacesNotConnectPG$.unsubscribe();
+    this.selectInterfacesByHwNodes$.unsubscribe();
   }
 
   get orderCtr() { return this.interfaceAddForm.get('orderCtr'); }
@@ -154,6 +173,8 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   get isGatewayCtr() { return this.interfaceAddForm.get('isGatewayCtr'); }
   get isNatCtr() { return this.interfaceAddForm.get('isNatCtr'); }
   get netMaskCtr() { return this.helpers.getAutoCompleteCtr(this.interfaceAddForm.get('netMaskCtr'), this.netmasks, 'mask'); }
+  get vlanIdCtr() { return this.interfaceAddForm.get('vlanIdCtr'); }
+  get vlanModeCtr() { return this.interfaceAddForm.get('vlanModeCtr'); }
 
   get interfaceCtr() { return this.helpers.getAutoCompleteCtr(this.connectInterfaceToPGForm.get('interfaceCtr'), this.interfacesNotConnectPG) }
   get targetPortGroupCtr() { return this.helpers.getAutoCompleteCtr(this.connectInterfaceToPGForm.get('targetPortGroupCtr'), this.portGroups); }
@@ -163,6 +184,9 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     if (this.data.mode == 'connect') {
       this.helpers.setAutoCompleteValue(this.targetPortGroupCtr, this.portGroups, this.data.genData.port_group_id);
     }
+    this.helpers.setAutoCompleteValue(this.interfaceCtr, this.interfacesByHwNodes, this.data.genData.interface_fk);
+    this.vlanIdCtr?.setValue(this.data.genData.vlan)
+    this.vlanModeCtr?.setValue(this.data.genData.vlan_mode)
     this.interfaceAddForm?.markAllAsTouched();
   }
 
@@ -231,7 +255,29 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     ele.data('ip_last_octet', last_octet);
     ele.data('target', `pg-${data.port_group_id}`);
     ele.data('netmask_id', data.netmask_id);
+    ele.data('vlan', data.vlan);
+    ele.data('vlan_mode', data.vlan_mode);
     ele.data('netmask', data.netmask_id ? this.helpers.getOptionById(this.netmasks, data.netmask_id).mask : '');
+  }
+
+  private _updateNewTargetInterface(respData: any, data: any) {
+    const ele = this.data.cy.getElementById(this.data.genData.id);
+    this.data.cy.remove(ele);
+    data.target = `node-${data.targetNodeId}`
+    const id = this.data.genData.interface_pk
+    const ip_str = data.ip ? data.ip : ""
+    const ip = ip_str.split(".")
+    const last_octet = ip.length == 4 ? "." + ip[3] : ""
+    const cyData = respData.result;
+    cyData.id = id;
+    cyData.interface_pk = id;
+    cyData.interface_fk = data.interface_id
+    cyData.ip_last_octet = last_octet
+    cyData.width = cyData.logical_map.map_style.width;
+    cyData.text_color = cyData.logical_map.map_style.text_color;
+    cyData.text_size = cyData.logical_map.map_style.text_size;
+    cyData.color = cyData.logical_map.map_style.color;
+    this.helpers.addCYEdge(this.data.cy, { ...data, ...cyData });
   }
 
   onIpAllocationChange($event: MatRadioChange) {
@@ -258,6 +304,8 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       is_gateway: this.isGatewayCtr?.value,
       is_nat: this.isNatCtr?.value,
       node_id: this.data.genData.node_id,
+      vlan: this.vlanIdCtr?.value,
+      vlan_mode: this.vlanModeCtr?.value,
       netmask_id: this.netMaskCtr?.value.id,
       logical_map: (this.data.mode == 'add') ? {
         "map_style": {
@@ -333,6 +381,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       } else {
         this.dialogRef.close(respData.result);
       }
+      this.store.dispatch(retrievedMapSelection({ data: true }));
       this.toastr.success('Edge details added!');
     });
   }
@@ -356,6 +405,9 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       is_nat: this.isNatCtr?.value,
       node_id: this.data.genData.node_id,
       netmask_id: netmask_id ? netmask_id : null,
+      vlan: this.vlanIdCtr?.value,
+      vlan_mode: this.vlanModeCtr?.value,
+      interface_id: this.interfaceCtr?.value.id ? parseInt(this.interfaceCtr?.value.id) : this.data.genData.interface_fk,
       task: successMessage
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);

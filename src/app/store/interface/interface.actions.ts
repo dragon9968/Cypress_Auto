@@ -19,3 +19,28 @@ export const retrievedIsInterfaceConnectPG = createAction(
   'retrievedIsInterfaceConnectPG',
   props<{ isInterfaceConnectPG: boolean }>()
 );
+
+export const retrievedInterfacePkConnectNode = createAction(
+  'retrievedInterfacePkConnectNode',
+  props<{ interfacePkConnectNode: any }>()
+);
+
+export const retrievedInterfacesBySourceNode = createAction(
+  'retrievedInterfacesBySourceNode',
+  props<{ interfacesBySourceNode: any }>()
+);
+
+export const retrievedInterfacesByDestinationNode = createAction(
+  'retrievedInterfacesByDestinationNode',
+  props<{ interfacesByDestinationNode: any }>()
+);
+
+export const retrievedInterfacesByHwNodes = createAction(
+  'retrievedInterfacesByHwNodes',
+  props<{ interfacesByHwNodes: any }>()
+);
+
+export const retrievedInterfacesConnectedNode = createAction(
+  'retrievedInterfacesConnectedNode',
+  props<{ interfacesConnectedNode: any }>()
+);

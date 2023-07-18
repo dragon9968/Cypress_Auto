@@ -125,6 +125,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   isDatasourceConnect = false;
   isConfiguratorConnect = false;
   connectionCategory = '';
+  infrastructureChecked = false;
 
   public gridOptionsInterfaces: GridOptions = {
     headerHeight: 48,
@@ -224,6 +225,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     private serverConnectionService: ServerConnectService,
     private projectService: ProjectService,
   ) {
+    this.infrastructureChecked = this.data.mapCategory == 'logical' ? false : true
     this.actionsAddForm = new FormGroup({
       addTypeCtr: new FormControl('')
     })
@@ -286,6 +288,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       notesCtr: new FormControl(''),
       iconCtr: new FormControl(''),
       categoryCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      infrastructureCtr: new FormControl({ value: '', disabled: this.isViewMode }),
       deviceCtr: new FormControl(''),
       templateCtr: new FormControl(''),
       hardwareCtr: new FormControl(''),
@@ -434,6 +437,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   get notesCtr() { return this.nodeAddForm.get('notesCtr'); }
   get iconCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('iconCtr'), this.icons); }
   get categoryCtr() { return this.nodeAddForm.get('categoryCtr'); }
+  get infrastructureCtr() { return this.nodeAddForm.get('infrastructureCtr'); }
   get deviceCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('deviceCtr'), this.devices); }
   get templateCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('templateCtr'), this.templates); }
   get hardwareCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('hardwareCtr'), this.hardwares); }
@@ -501,6 +505,9 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     this.notesCtr?.setValue(this.data.genData.notes);
     this.categoryCtr?.setValue(this.data.genData.category);
     this.disableItems(this.categoryCtr?.value);
+    if (this.data.mode !== 'add') {
+      this.infrastructureChecked = this.data.genData.infrastructure
+    }
     this.helpers.setAutoCompleteValue(this.deviceCtr, this.devices, this.data.genData.device_id);
     this.filteredTemplatesByDevice = this.templates.filter((template: any) => template.device_id == this.data.genData.device_id);
     this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice, 'display_name');
@@ -580,6 +587,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       notes: this.notesCtr?.value,
       icon_id: this.iconCtr?.value.id,
       category: this.categoryCtr?.value,
+      infrastructure: this.infrastructureCtr?.value ? this.infrastructureCtr?.value : false,
       device_id: this.deviceCtr?.value.id,
       template_id: this.templateCtr?.value.id,
       hardware_id: this.hardwareCtr?.value ? this.hardwareCtr?.value.id : undefined,
@@ -591,6 +599,22 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       login_profile_id: this.loginProfileCtr?.value.id,
       project_id: this.data.projectId,
       logical_map: (this.data.mode == 'add') ? {
+        map_style: {
+          height: this.data.selectedMapPref.node_size,
+          width: this.data.selectedMapPref.node_size,
+          text_size: this.data.selectedMapPref.text_size,
+          text_color: this.data.selectedMapPref.text_color,
+          text_halign: this.data.selectedMapPref.text_halign,
+          text_valign: this.data.selectedMapPref.text_valign,
+          text_bg_color: this.data.selectedMapPref.text_bg_color,
+          text_bg_opacity: this.data.selectedMapPref.text_bg_opacity,
+          "background-color": "rgb(255,255,255)",
+          "background-image": "",
+          "background-fit": "contain"
+        },
+        position: this.data.newNodePosition
+      } : undefined,
+      physical_map: (this.data.mode == 'add') ? {
         map_style: {
           height: this.data.selectedMapPref.node_size,
           width: this.data.selectedMapPref.node_size,
@@ -658,6 +682,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       notes: this.notesCtr?.value,
       icon_id: this.iconCtr?.value.id,
       category: this.categoryCtr?.value,
+      infrastructure: this.infrastructureCtr?.value ? this.infrastructureCtr?.value : false,
       device_id: this.deviceCtr?.value.id,
       template_id: this.templateCtr?.value.id,
       hardware_id: this.hardwareCtr?.value ? this.hardwareCtr?.value.id : undefined,
@@ -730,6 +755,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   changeViewToEdit() {
     this.configTemplateCtr?.enable();
     this.categoryCtr?.enable();
+    this.infrastructureCtr?.enable();
     this.data.mode = 'update';
     this.isViewMode = false;
     this.folderCtr?.setValidators([Validators.required])

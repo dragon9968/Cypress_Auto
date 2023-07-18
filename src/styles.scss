@@ -214,7 +214,7 @@ ag-grid-angular .ag-cell-focus,
 }
 
 /* Define class for the node form modal */
-.custom-node-form-modal {
+.custom-node-form-modal, .custom-connect-interfaces-form-modal {
   mat-dialog-container {
     background-color: #eaeaea;
   }

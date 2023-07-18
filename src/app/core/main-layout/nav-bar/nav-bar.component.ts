@@ -151,7 +151,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
         this.username = user.username;
       }
     });
-    
+
     this.selectProjectCategory$ = this.store.select(selectProjectCategory).subscribe(projectCategory => {
       this.categoryProject = projectCategory
     })

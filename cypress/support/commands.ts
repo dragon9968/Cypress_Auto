@@ -1035,6 +1035,104 @@ function addNewInterface(edge: any, nodeX: any, nodeY: any, pgX: any, pgY: any, 
 }
 Cypress.Commands.add('addNewInterface', addNewInterface);
 
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    connectInterface(nodeX: any, nodeY: any, nodeX2: any, nodeY2: any): typeof connectInterface;
+  }
+}
+
+function connectInterface(nodeX: any, nodeY: any, nodeX2: any, nodeY2: any): void {
+  cy.log('START: Connect interface')
+  cy.wait(2000)
+  cy.get('canvas.expand-collapse-canvas').click(nodeX, nodeY, { force: true })
+    .rightclick(nodeX, nodeY,{force: true}).then(() => {
+    cy.get('.cy-context-menus-cxt-menu').first().should('exist')
+    cy.get('#node_interface').should('exist').click({ force: true })
+    cy.get('#connect_interface').should('exist').click({ force: true })
+    cy.waitingLoadingFinish()
+    cy.get('canvas.expand-collapse-canvas').click(nodeX2, nodeY2, { force: true });
+  })
+  cy.wait(2000)
+  cy.log('END: Add new interface successfully')
+}
+Cypress.Commands.add('connectInterface', connectInterface);
+
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    addNewSourceInterfaces(edge: any): typeof addNewSourceInterfaces;
+  }
+}
+
+function addNewSourceInterfaces(edge: any): void {
+  cy.getByDataCy('addInterfaceSource').click({force: true})
+  // add new source edge
+  cy.getByFormControlName('vlanIdSourceCtr').type(edge.vlan_id);
+  cy.getByFormControlName('vlanModeSourceCtr').click({force: true});
+  cy.get(`mat-option[value="${edge.vlan_mode}"]`).click();
+  cy.get('mat-error').should('not.exist')
+  cy.getByDataCy('interfaceAddFormSource').submit()
+  cy.checkingToastSuccess()
+  cy.waitingLoadingFinish()
+}
+Cypress.Commands.add('addNewSourceInterfaces', addNewSourceInterfaces);
+
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    addNewTargetInterfaces(edge: any): typeof addNewTargetInterfaces;
+  }
+}
+
+function addNewTargetInterfaces(edge: any): void {
+  cy.getByDataCy('addInterfaceTarget').click({force: true})
+  // add new target edge
+  cy.getByFormControlName('vlanIdTargetCtr').type(edge.vlan_id);
+  cy.getByFormControlName('vlanModeTargetCtr').click({force: true});
+  cy.get(`mat-option[value="${edge.vlan_mode}"]`).click();
+  cy.get('mat-error').should('not.exist')
+  cy.getByDataCy('interfaceAddFormTarget').submit()
+  cy.checkingToastSuccess()
+  cy.waitingLoadingFinish()
+}
+Cypress.Commands.add('addNewTargetInterfaces', addNewTargetInterfaces);
+
+// Delete interface on map
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    deleteInterfaceOnMap(x: number, y: number): typeof deleteInterfaceOnMap;
+  }
+}
+
+function deleteInterfaceOnMap(x: number, y: number): void {
+  cy.get('canvas.expand-collapse-canvas').rightclick(x, y, {force: true}).then(() => {
+    cy.get('.cy-context-menus-cxt-menu').first().should('exist')
+    cy.get('#delete').should('exist').click({ force: true });
+    cy.getByMatToolTip('Save').click()
+  })
+}
+Cypress.Commands.add('deleteInterfaceOnMap', deleteInterfaceOnMap);
+
+// Export project by name
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    addTemplateIntoProject(projectName: string, isProjectOpened: boolean, templateName: string): typeof addTemplateIntoProject;
+  }
+}
+
+function addTemplateIntoProject(projectName: string, isProjectOpened: boolean, templateName: string): void {
+  cy.log('Start add a template into current project')
+  if (!isProjectOpened) {
+    cy.openProjectByName(projectName)
+  }
+  cy.waitingLoadingFinish()
+  cy.get('#toolpanel-add-template').click();
+  cy.getOptionByContent(templateName).first().click();
+  cy.getByDataCy('addTemplateForm').submit();
+  cy.get('canvas.expand-collapse-canvas').click(220, 250, { force: true });
+  cy.checkingToastSuccess()
+  cy.log('Added a template into current project')
+}
+Cypress.Commands.add('addTemplateIntoProject', addTemplateIntoProject);
+
 // Delete interface on map
 declare namespace Cypress {
   interface Chainable<Subject = any> {

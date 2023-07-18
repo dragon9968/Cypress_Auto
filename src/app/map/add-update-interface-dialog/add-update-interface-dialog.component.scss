@@ -43,9 +43,10 @@ $margin: 8px;
 
 .option-text-items {
     display: block;
+    padding-bottom: 5px;
 }
 
-.portgroup-option-text {
+.portgroup-option-text, .interfaces-option-text {
     line-height: normal;
 }
 
@@ -93,8 +94,8 @@ $margin: 8px;
     background-color: #fff;
     border-radius: 4px;
     margin-right: $margin;
-    overflow-y: auto;
-    overflow-x: hidden;
+    //overflow-y: auto;
+    //overflow-x: hidden;
   }
 }
 

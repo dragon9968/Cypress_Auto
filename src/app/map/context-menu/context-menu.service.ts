@@ -33,7 +33,7 @@ export class ContextMenuService implements OnDestroy {
   }
 
   showContextMenu(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], activeMBs: any[],
-    activeMapLinks: any[], isTemplateCategory: any, isGroupBoxesChecked: boolean) {
+    activeMapLinks: any[], isTemplateCategory: any, isGroupBoxesChecked: boolean, mapCategory: string) {
     const activeNodesLength = activeNodes.length;
     const activePGsLength = activePGs.length;
     const activeEdgesLength = activeEdges.length;
@@ -47,11 +47,11 @@ export class ContextMenuService implements OnDestroy {
     } else if (activeMBsLength > 0) {
       this.showMenuOptionsForselectedMBs(contextMenu, activeNodesLength, activePGsLength, activeEdgesLength);
     } else if (activeNodesLength > 0) {
-      this.showMenuOptionsForselectedNodes(contextMenu, activeNodesLength, activePGsLength, activeEdgesLength);
+      this.showMenuOptionsForselectedNodes(contextMenu, activeNodesLength, activePGsLength, activeEdgesLength, mapCategory);
     } else if (activePGsLength > 0) {
       this.showMenuOptionsForselectedPGs(contextMenu, activeNodesLength, activePGsLength, activeEdgesLength);
     } else if (activeEdgesLength > 0) {
-      this.showMenuOptionsForselectedEdges(contextMenu, activeNodesLength, activePGsLength, activeEdgesLength);
+      this.showMenuOptionsForselectedEdges(contextMenu, activeNodesLength, activePGsLength, activeEdgesLength, mapCategory);
     } else if (activeMapLinksLength > 0) {
       this.showMenuOptionsForselectedMapLinks(contextMenu, activeMapLinksLength);
     }
@@ -77,15 +77,22 @@ export class ContextMenuService implements OnDestroy {
       contextMenu.showMenuItem('expand_node');
     }
   }
-  showMenuOptionsForselectedEdges(contextMenu: any, activeNodesLength: number, activePGsLength: number, activeEdgesLength: number) {
+  showMenuOptionsForselectedEdges(contextMenu: any, activeNodesLength: number, activePGsLength: number, activeEdgesLength: number, mapCategory: string) {
     contextMenu.showMenuItem('delete');
     if (activeNodesLength == 0 && activePGsLength == 0) {
-      if (activeEdgesLength > 1) {
+      if (activeEdgesLength > 1 && mapCategory === 'logical') {
         contextMenu.showMenuItem('edge_actions');
         contextMenu.showMenuItem('edit');
-      } else if (activeEdgesLength == 1) {
+      } else if (activeEdgesLength > 1 && mapCategory === 'physical') {
+        contextMenu.hideMenuItem('edge_actions');
+        contextMenu.hideMenuItem('edit');
+      } else if (activeEdgesLength == 1 && mapCategory === 'logical') {
         contextMenu.showMenuItem('edge_actions');
         contextMenu.showMenuItem('view_details');
+        contextMenu.showMenuItem('edit');
+      } else if (activeEdgesLength == 1 && mapCategory === 'physical') {
+        contextMenu.hideMenuItem('edge_actions');
+        contextMenu.hideMenuItem('view_details');
         contextMenu.showMenuItem('edit');
       }
     }
@@ -113,7 +120,7 @@ export class ContextMenuService implements OnDestroy {
       contextMenu.hideMenuItem('group');
     }
   }
-  showMenuOptionsForselectedNodes(contextMenu: any, activeNodesLength: number, activePGsLength: number, activeEdgesLength: number) {
+  showMenuOptionsForselectedNodes(contextMenu: any, activeNodesLength: number, activePGsLength: number, activeEdgesLength: number, mapCategory: string) {
     contextMenu.showMenuItem('delete');
     contextMenu.showMenuItem('lock_node');
     contextMenu.showMenuItem('unlock_node');
@@ -124,7 +131,14 @@ export class ContextMenuService implements OnDestroy {
         contextMenu.showMenuItem('edit');
         contextMenu.showMenuItem('node_remote');
         contextMenu.hideMenuItem('web_console');
-      } else if (activeNodesLength == 1) {
+      } else if (activeNodesLength == 1 && mapCategory === 'logical') {
+        contextMenu.showMenuItem('node_interface');
+        contextMenu.showMenuItem('node_actions');
+        contextMenu.showMenuItem('view_details');
+        contextMenu.showMenuItem('edit');
+        contextMenu.showMenuItem('node_remote');
+        contextMenu.showMenuItem('web_console');
+      } else if (activeNodesLength == 1 && mapCategory === 'physical') {
         contextMenu.showMenuItem('node_interface');
         contextMenu.showMenuItem('node_actions');
         contextMenu.showMenuItem('view_details');

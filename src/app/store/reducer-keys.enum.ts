@@ -13,6 +13,7 @@ export enum ReducerKeys {
     MAP_EDIT = 'mapEdit',
     MAP_STYLE = 'mapStyle',
     MAP_OPTION = 'mapOption',
+    MAP_CATEGORY = 'mapCategory',
     PORTGROUP = 'portgroup',
     MAP_CM = 'mapContextMenu',
     NODE = 'node',

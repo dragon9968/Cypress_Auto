@@ -4,14 +4,19 @@ $margin: 8px;
     width: 100%;
 }
 
-.category {
+.category, .infrastructure {
     width: 100%;
     align-items: center;
     display: flex;
+    padding: 5px 0;
+}
+
+.infrastructure-label, .infrastructure-field {
+  flex: 1;
 }
 
 .category-temp {
-  height: 21px;
+  height: 30px;
 }
 
 .category-group {
@@ -27,6 +32,11 @@ $margin: 8px;
 
 .category-items {
     margin: 0 $margin;
+}
+
+.infrastructure {
+  display: flex;
+  width: 100%;
 }
 
 .mat-option {

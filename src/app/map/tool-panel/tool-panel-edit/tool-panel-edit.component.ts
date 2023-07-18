@@ -50,6 +50,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
   @Input() isAddMapImage = false;
   @Input() isAddProjectNode = false;
   @Input() isAddProjectTemplate = false;
+  @Input() mapCategory: any;
   status = 'active';
   category = 'template';
   nodeAddForm!: FormGroup;

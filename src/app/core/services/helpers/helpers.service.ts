@@ -113,8 +113,20 @@ export class HelpersService implements OnDestroy {
     this.selectGroups$.unsubscribe();
   }
 
+  interfaceDisplay(option: any) {
+    return option && option.ip ? option.ip : option && option.name ? option.name : '';
+  }
+
   optionDisplay(option: any) {
     return option && option.name ? option.name : '';
+  }
+
+  ipAndNameDisplay(option: any) {
+    if (option && option.ip) {
+      return option.name + '-' + option.ip;
+    } else {
+      return option.name
+    }
   }
 
   templateDisplay(option: any) {
@@ -146,10 +158,13 @@ export class HelpersService implements OnDestroy {
           "font-style": "normal",
           "text-valign": "bottom",
           "text-halign": "center",
+          "text-outline-color": "#ffffff",
+          "text-outline-width": 3,
           "background-fit": "contain",
           "background-image-opacity": 1,
           "z-index": (ele: any) => ele.data('zIndex'),
           "z-compound-depth": "bottom",
+          "min-zoomed-font-size": 10
         },
         locked: (ele: any) => ele.data('locked'),
       },
@@ -302,23 +317,23 @@ export class HelpersService implements OnDestroy {
       {
         selector: "edge",
         style: {
-          "text-opacity": 1,
+
           "curve-style": "bezier",
           "line-color": defaults.edge.color,
           "width": defaults.edge.size,
           "zIndex": 999,
           "z-compound-depth": "bottom",
-          "text-margin-x": 20,
-          "text-margin-y": -20,
+          "font-size": 18,
+          "text-background-padding": 3,
+          "text-background-opacity": 0,
+          "text-background-shape": "round-rectangle",
+          "text-outline-color": "#ffffff",
+          "text-outline-width": 3,
+          "text-opacity": 1,
           "text-rotation": "autorotate",
-          "arrow-scale": 3,
+          "arrow-scale": 2,
           "control-point-step-size": 100,
-        },
-      },
-      {
-        selector: "edge[ip]",
-        style: {
-          "content": (ele: any) => ele.data('ip'),
+          "min-zoomed-font-size": 9
         },
       },
       {
@@ -362,7 +377,23 @@ export class HelpersService implements OnDestroy {
       {
         selector: "[ip_last_octet]",
         style: {
-          "content": (ele: any) => ele.data('ip_last_octet'),
+          "content": (ele: any ) => ele.data('ip_last_octet'),
+        },
+      },
+      {
+        selector: "[source_label]",
+        style: {
+          "source-label": (ele: any ) => ele.data('source_label'),
+          "source-text-offset": (ele: any) => (ele.data('source_label').length/2 * 10) + 15,
+          "source-text-rotation": "autorotate",
+        }
+      },
+      {
+        selector: "[target_label]",
+        style: {
+          "target-label": (ele: any ) => ele.data('target_label'),
+          "target-text-offset": (ele: any) => (ele.data('target_label').length/2 * 10) + 15,
+          "target-text-rotation": "autorotate",
         },
       },
       {
@@ -417,16 +448,14 @@ export class HelpersService implements OnDestroy {
       {
         selector: "[?updated]",
         style: {
-          'text-border-opacity': 1,
-          'text-border-color': '#808080',
-          'text-border-style': 'dashed',
-          'text-border-width': 1,
+          "text-outline-color": "#fff000",
+          "text-outline-width": 3,
         }
       },
       {
         selector: "[!updated]",
         style: {
-          'text-border-opacity': 0,
+          "text-outline-color": "#ffffff",
         }
       }
     ]
@@ -1207,6 +1236,7 @@ export class HelpersService implements OnDestroy {
     ele.data('configuration_show', data.configuration_show);
     ele.data('groups', data.groups);
     ele.data('interfaces', data.interfaces);
+    ele.data('infrastructure', data.infrastructure);
   }
 
   updatePGOnMap(cy: any, portGroupId: any, data: any) {

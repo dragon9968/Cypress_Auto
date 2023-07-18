@@ -101,6 +101,13 @@
               <div class="interface-content__bottom">
                 <div class="interface-content__bottom__left">
                   <mat-form-field class="field">
+                    <mat-label>VLAN Mode</mat-label>
+                    <mat-select data-cy="select-vlanmode" formControlName="vlanModeCtr">
+                      <mat-option value="access">Access</mat-option>
+                      <mat-option value="trunk">Trunk</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field class="field">
                     <mat-label>IP Address</mat-label>
                     <input autocomplete="off" id="connect-interface-ip" matInput formControlName="ipCtr" [readonly]="isViewMode">
                     <mat-error *ngIf="ipCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
@@ -118,6 +125,12 @@
                   </div>
                 </div>
                 <div class="interface-content__bottom__right">
+                  <mat-form-field class="field">
+                    <mat-label>VLAN ID</mat-label>
+                    <input autocomplete="off" id="interface-vlanid" matInput formControlName="vlanIdCtr">
+                    <mat-error *ngIf="vlanIdCtr?.errors?.pattern">{{ errorMessages.FIELD_IS_NUMBER }}</mat-error>
+                    <mat-error *ngIf="vlanIdCtr?.errors?.isNotMatch">{{ vlanIdCtr?.errors?.value }}</mat-error>
+                  </mat-form-field>
                   <mat-form-field class="field">
                     <mat-label>Netmask</mat-label>
                     <input autocomplete="off" id="connect-interface-netmask" matInput placeholder="Select or enter a netmask" formControlName="netMaskCtr"
@@ -168,7 +181,7 @@
               </div>
             </mat-option>
           </mat-autocomplete>
-          <mat-error *ngIf="targetPortGroupCtr?.errors?.required && interfaceCtr?.touched">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+          <mat-error *ngIf="targetPortGroupCtr?.errors?.required && targetPortGroupCtr?.touched">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
           <mat-error *ngIf="targetPortGroupCtr?.errors?.isNotMatch">{{errorMessages.OPTION_NOT_MATCH }}</mat-error>
         </mat-form-field>
       </section>
@@ -187,17 +200,17 @@
   <div class="dialog-title">
     <h1 mat-dialog-title>
       {{
-          data.mode === 'add' ? 'Edge Add'
-        : data.mode === 'update' ? 'Edge Edit'
+          data.mode === 'add' ? 'Interface Add'
+        : data.mode === 'update' ? 'Interface Edit'
         : 'Edge Info'
       }}</h1>
       <ng-template [ngxPermissionsOnly]="['can_write on Project']" [ngxPermissionsElse]="elseBlock">
-        <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit Edge" type="button" (click)="changeViewToEdit()">
+        <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit Interface" type="button" (click)="changeViewToEdit()">
           <mat-icon>edit</mat-icon>
         </button>
       </ng-template>
       <ng-template #elseBlock>
-        <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit Edge" type="button" (click)="changeViewToEdit()" disabled="true">
+        <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit Interface" type="button" (click)="changeViewToEdit()" disabled="true">
           <mat-icon>edit</mat-icon>
         </button>
       </ng-template>
@@ -216,7 +229,7 @@
           <mat-error *ngIf="orderCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
           <mat-error *ngIf="orderCtr?.errors?.pattern">{{ errorMessages.FIELD_IS_NUMBER }}</mat-error>
         </mat-form-field>
-        <mat-form-field class="field">
+        <mat-form-field *ngIf="mapCategory === 'logical'" class="field">
           <mat-label>PortGroup</mat-label>
           <input autocomplete="off" id="interface-pg" matInput placeholder="Select a portgroup" formControlName="portGroupCtr"
             [matAutocomplete]="autoPortgroup" [readonly]="isViewMode">
@@ -280,6 +293,12 @@
     <div class="interface-content__bottom">
       <div class="interface-content__bottom__left">
         <mat-form-field class="field">
+          <mat-label>VLAN ID</mat-label>
+          <input autocomplete="off" id="interface-vlanid" matInput formControlName="vlanIdCtr">
+          <mat-error *ngIf="vlanIdCtr?.errors?.pattern">{{ errorMessages.FIELD_IS_NUMBER }}</mat-error>
+          <mat-error *ngIf="vlanIdCtr?.errors?.isNotMatch">{{ vlanIdCtr?.errors?.value }}</mat-error>
+        </mat-form-field>
+        <mat-form-field class="field">
           <mat-label>IP Address</mat-label>
           <input autocomplete="off" id="interface-ip" matInput formControlName="ipCtr" [readonly]="isViewMode">
           <mat-error *ngIf="ipCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
@@ -297,6 +316,13 @@
         </div>
       </div>
       <div class="interface-content__bottom__right">
+        <mat-form-field class="field">
+          <mat-label>VLAN Mode</mat-label>
+          <mat-select data-cy="select-vlanmode" formControlName="vlanModeCtr">
+            <mat-option value="access">Access</mat-option>
+            <mat-option value="trunk">Trunk</mat-option>
+          </mat-select>
+        </mat-form-field>
         <mat-form-field class="field">
           <mat-label>Netmask</mat-label>
           <input autocomplete="off" id="interface-netmask" matInput placeholder="Select or enter a netmask" formControlName="netMaskCtr"

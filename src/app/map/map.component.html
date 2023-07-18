@@ -26,6 +26,11 @@
           <mat-icon>dashboard</mat-icon>
         </button>
       </div>
+      <div class="switch-map">
+        <button mat-raised-button mat-button class="switch-map-btn" color="primary" [matTooltip]="mapCategoryLabel" (click)="switchMap()">
+          {{ mapCategoryLabel }}
+        </button>
+      </div>
       <div class="map-editor">
         <div id="cy" style="height: calc(100vh - 64px); width:100%; z-index: 1;"></div>
         <app-info-panel [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs" [activeEdges]="activeEdges"

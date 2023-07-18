@@ -174,12 +174,12 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   private _setPropertiesCommon(data: any) {
     this.textColor = data.text_color;
     this.textSize = this.removePx(data.text_size);
-    this.textBGColor = data.text_bg_color ? data.text_bg_color : data.logical_map.map_style?.text_bg_color;
-    this.textBGOpacity = data.text_bg_opacity != undefined ? data.text_bg_opacity : data.logical_map.map_style?.text_bg_opacity;
+    this.textBGColor = data.text_bg_color ? data.text_bg_color : data.logical_map?.map_style?.text_bg_color;
+    this.textBGOpacity = data.text_bg_opacity != undefined ? data.text_bg_opacity : data.logical_map?.map_style?.text_bg_opacity;
     this.textBGOpacityLabel = this.textBGOpacity ? Math.round(this.textBGOpacity * 100) : 0;
-    this.vAlignSelect = data.text_valign ? data.text_valign : data.logical_map.map_style?.text_valign;
+    this.vAlignSelect = data.text_valign ? data.text_valign : data.logical_map?.map_style?.text_valign;
     this.commonService.textVAlign(this.vAlignSelect, this.activeNodes, this.activePGs);
-    this.hAlignSelect = data.text_halign ? data.text_halign : data.logical_map.map_style?.text_halign;
+    this.hAlignSelect = data.text_halign ? data.text_halign : data.logical_map?.map_style?.text_halign;
     this.commonService.textHAlign(this.hAlignSelect, this.activeNodes, this.activePGs);
   }
 
@@ -198,7 +198,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
     this.selectDefaultPreferences$.unsubscribe();
     this.selectMapOption$.unsubscribe();
     this.selectMapPref$.unsubscribe();
-    this.selectMapSelection$.unsubscribe()
+    this.selectMapSelection$.unsubscribe();
   }
 
   applyMapPref() {
@@ -340,7 +340,6 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   setGBBorderSize(event: any) {
     this.gbBorderSize = event.value <= 20 ? event.value : 20;
     this.gbBorderSizeLabel = this.gbBorderSize ? this.gbBorderSize : 0;
-    console.log(this.gbBorderSizeLabel)
     this.commonService.gbBorderSize(event, this.activeGBs);
   }
 
