@@ -2,6 +2,9 @@
   <mat-card-title class="table__title">History</mat-card-title>
   <div class="table__nav">
     <div class="table__nav--actions">
+      <button mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteHistory()">
+        <mat-icon>delete</mat-icon>
+      </button>
     </div>
     <div class="table__nav--search">
       <input

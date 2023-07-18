@@ -77,6 +77,7 @@ describe('Map features e2e testing', () => {
           pgX = 250
           pgY = 600
         }
+        cy.wait(2000)
         cy.addNewInterface(interfaceData,
           element.map_data.logical.position.x,
           element.map_data.logical.position.y,

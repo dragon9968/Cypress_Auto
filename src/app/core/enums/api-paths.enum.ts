@@ -133,4 +133,5 @@ export enum ApiPaths {
   MAP_LINK = '/api/v1/map_link/',
   NETMASK = '/api/v1/netmask/',
   HISTORIES = '/api/v1/history/',
+  HISTORIES_DELETE = '/api/v1/history/delete',
 }

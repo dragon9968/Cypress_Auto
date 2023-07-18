@@ -29,6 +29,7 @@ import { selectUserProfile } from 'src/app/store/user-profile/user-profile.selec
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { RolesService } from 'src/app/core/services/roles/roles.service';
 import { selectIsMapOpen } from "../../store/map/map.selectors";
+import { HistoryService } from "../../core/services/history/history.service";
 
 @Component({
   selector: 'app-edit-project-dialog',
@@ -112,6 +113,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     public dialogRef: MatDialogRef<EditProjectDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
+    private historyService: HistoryService
   ) {
     this.rowData = this.data.genData.networks
     const userId = this.authService.getUserId();
@@ -267,9 +269,9 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
           username: sharedUpdate
         }
         this.projectService.associate(configData).subscribe(respData => {
-          const message = `Update ${jsonData.category} ${jsonData.name} successfully`
-          this.toastr.success(message)
-          this.helpers.addNewHistoryIntoStorage(message, 'project', this.data.genData.id)
+          const message = `Updated ${jsonData.category} ${jsonData.name} successfully`
+          this.toastr.success(message, 'Success')
+          this.historyService.addNewHistoryIntoStorage(message)
           if (jsonData.category === 'project') {
             if (this.isMapOpen) {
               this.projectService.getProjectsNotLinkedYet(this.projectService.getProjectId()).subscribe(res => {

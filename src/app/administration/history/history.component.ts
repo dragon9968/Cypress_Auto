@@ -2,11 +2,13 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { RouteSegments } from "../../core/enums/route-segments.enum";
 import { AgGridAngular } from "ag-grid-angular";
 import { ColDef, GridApi, GridReadyEvent } from "ag-grid-community";
-import { Observable, of, Subscription } from "rxjs";
+import { Observable, of, Subscription, throwError } from "rxjs";
 import { HistoryService } from "../../core/services/history/history.service";
 import { Store } from "@ngrx/store";
 import { selectHistories } from "../../store/history/history.selectors";
 import { retrievedHistories } from "../../store/history/history.actions";
+import { catchError } from "rxjs/operators";
+import { ToastrService } from "ngx-toastr";
 
 @Component({
   selector: 'app-history',
@@ -18,7 +20,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
   histories: any[] = []
   quickFilterValue = '';
   rowsSelected: any[] = [];
-  rowsSelectedId: any[] = [];
+  rowsSelectedId: number[] = [];
   routeSegments = RouteSegments;
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
   private gridApi!: GridApi;
@@ -54,6 +56,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
   ];
   constructor(
     private store: Store,
+    private toastr: ToastrService,
     private historyService: HistoryService
   ) {
     this.store.select(selectHistories).subscribe(histories => {
@@ -89,5 +92,20 @@ export class HistoryComponent implements OnInit, OnDestroy {
   selectedRows() {
     this.rowsSelected = this.gridApi.getSelectedRows();
     this.rowsSelectedId = this.rowsSelected.map(ele => ele.id);
+  }
+
+  deleteHistory() {
+    this.historyService.delete({pks: this.rowsSelectedId}).pipe(
+      catchError((error: any) => {
+        this.toastr.error('Delete history(ies) failed', 'Error')
+        return throwError(() => error)
+      })
+    ).subscribe(res => {
+      const result = res.result;
+      this.historyService.removeHistoryByIdsInStorage(this.rowsSelectedId);
+      result.map((task: string) => {
+        this.toastr.success(task, 'Success')
+      })
+    })
   }
 }
