@@ -53,7 +53,6 @@ export class HelpersService implements OnDestroy {
   errorMessages = ErrorMessages;
   isGroupBoxesChecked!: boolean;
   isEdgeDirectionChecked!: boolean;
-  groupBoxes: any[] = [];
   netmasks: any[] = [];
   groups: any[] = [];
   histories: any[] = []
@@ -89,14 +88,11 @@ export class HelpersService implements OnDestroy {
         this.groupCategoryId = mapOption.groupCategoryId;
       }
     });
-    this.selectGroupBoxes$ = this.store.select(selectGroupBoxes).subscribe((groupBoxes: any[]) => {
-      if (groupBoxes) {
-        this.groupBoxes = groupBoxes;
-      }
-    });
 
-    this.selectGroups$ = this.store.select(selectGroups).subscribe(groupData => {
-      this.groups = groupData;
+    this.selectGroups$ = this.store.select(selectGroups).subscribe(groups => {
+      if (groups) {
+        this.groups = groups;
+      }
     })
     this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes);
     this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe((portGroups: any) => {
@@ -109,7 +105,6 @@ export class HelpersService implements OnDestroy {
 
   ngOnDestroy(): void {
     this.selectMapOption$.unsubscribe();
-    this.selectGroupBoxes$.unsubscribe();
     this.selectNodes$.unsubscribe();
     this.selectPortGroups$.unsubscribe();
     this.selectNetmasks$.unsubscribe();
@@ -542,7 +537,7 @@ export class HelpersService implements OnDestroy {
   }
 
   addGroupBoxes(cy: any) {
-    const gbs = this.groupBoxes.filter((gb: any) => gb.data.group_category == this.groupCategoryId);
+    const gbs = this.groups.filter((gb: any) => gb.data.group_category == this.groupCategoryId);
     cy.add(gbs);
     cy.nodes().forEach((ele: any) => {
       if (!Boolean(ele.data('parent_id')) && ele.data('elem_category') != 'map_link') {

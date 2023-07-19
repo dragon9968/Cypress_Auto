@@ -262,10 +262,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
       this.icons = icons;
     });
-    this.selectMap$ = this.store.select(selectMapFeature).subscribe({
-      next: value => this.selectMapFeatureSubject.next(value),
-      error: err => this.selectMapFeatureSubject.error(err),
-      complete: () => this.selectMapFeatureSubject.complete()
+    this.selectMap$ = this.store.select(selectMapFeature).subscribe((map: MapState) => {
+      if (map.mapProperties && map.defaultPreferences) {
+        this.mapProperties = map.mapProperties;
+        this.defaultPreferences = map.defaultPreferences;
+      }
     });
     this.selectMapPref$ = this.store.select(selectMapPref).subscribe((selectedMapPref: any) => {
       this.selectedMapPref = selectedMapPref;
@@ -344,13 +345,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     })
     this.mapCategoryLabel = this.mapCategory == 'logical' ? 'Physical' : 'Logical'
     this.projectId = this.projectService.getProjectId();
+    this.mapService.getMapData(this.mapCategory, this.projectId).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
     this.store.dispatch(loadProject({ projectId: this.projectId }));
     this.store.dispatch(loadNodes({ projectId: this.projectId }));
     this.store.dispatch(loadPGs({ projectId: this.projectId }));
     this.store.dispatch(loadInterfaces({ projectId: this.projectId, mapCategory: this.mapCategory }));
     this.store.dispatch(loadGroups({ projectId: this.projectId }));
     this.store.dispatch(loadDomains({ projectId: this.projectId }));
-    this.mapService.getMapData(this.mapCategory, this.projectId).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
     this.imageService.getByCategory('icon').subscribe((data: any) => this.store.dispatch(retrievedIcons({ data: data.result })));
     this.deviceService.getAll().subscribe((data: any) => this.store.dispatch(retrievedDevices({ data: data.result })));
     this.templateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedTemplates({ data: data.result })));
@@ -408,12 +409,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         }
       }
     }
-    this.selectMapFeatureSubject.pipe(delay(1)).subscribe((map: MapState) => {
-      if (map.mapProperties && map.defaultPreferences) {
-        this.mapProperties = map.mapProperties;
-        this.defaultPreferences = map.defaultPreferences;
-      }
-    });
   }
 
   ngOnDestroy(): void {
