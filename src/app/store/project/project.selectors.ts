@@ -13,3 +13,4 @@ export const selectRecentProjects = createSelector(selectProjectFeature, (state:
 export const selectProjectTemplate = createSelector(selectProjectFeature, (state: ProjectState) => state.template);
 export const selectAllProjects = createSelector(selectProjectFeature, (state: ProjectState) => state.listAllProject);
 export const selectProjectCategory = createSelector(selectProjectFeature, (state: ProjectState) => state.projectCategory)
+export const selectProject = createSelector(selectProjectFeature, (state: ProjectState) => state.project)

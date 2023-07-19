@@ -14,6 +14,8 @@ import { CoreModule } from './core/core.module';
 import { AuthInterceptor } from './core/interceptors/auth/auth.interceptor';
 import { LoadingInterceptor } from './core/interceptors/loading/loading.interceptor';
 import { NgxPermissionsModule } from "ngx-permissions";
+import { EffectsModule } from '@ngrx/effects';
+import { effects } from './store/app.effects';
 
 
 @NgModule({
@@ -29,6 +31,7 @@ import { NgxPermissionsModule } from "ngx-permissions";
     CoreModule,
     SharedModule,
     StoreModule.forRoot(reducers),
+    EffectsModule.forRoot(effects),
     ToastrModule.forRoot(),
     NgxPermissionsModule.forRoot()
   ],

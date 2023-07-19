@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { catchError, delay, ReplaySubject, Subject, Subscription, throwError } from 'rxjs';
 import { retrievedIsMapOpen, retrievedMap } from '../store/map/map.actions';
@@ -11,7 +11,7 @@ import { retrievedIcons } from '../store/icon/icon.actions';
 import { retrievedDevices } from '../store/device/device.actions';
 import { retrievedTemplates } from '../store/template/template.actions';
 import { retrievedHardwares } from '../store/hardware/hardware.actions';
-import { retrievedDomains } from '../store/domain/domain.actions';
+import { loadDomains, retrievedDomains } from '../store/domain/domain.actions';
 import { retrievedConfigTemplates } from '../store/config-template/config-template.actions';
 import { retrievedLoginProfiles } from '../store/login-profile/login-profile.actions';
 import { DeviceService } from '../core/services/device/device.service';
@@ -23,8 +23,8 @@ import { selectMapPref } from '../store/map-style/map-style.selectors';
 import { ToastrService } from 'ngx-toastr';
 import { AddUpdatePGDialogComponent } from './add-update-pg-dialog/add-update-pg-dialog.component';
 import { AddUpdateInterfaceDialogComponent } from './add-update-interface-dialog/add-update-interface-dialog.component';
-import { retrievedPortGroups } from '../store/portgroup/portgroup.actions';
-import { selectPortGroups } from '../store/portgroup/portgroup.selectors';
+import { loadPGs, retrievedPortGroups } from '../store/portgroup/portgroup.actions';
+import { selectMapPortGroups } from '../store/portgroup/portgroup.selectors';
 import { MapState } from '../store/map/map.state';
 import { CMActionsService } from './context-menu/cm-actions/cm-actions.service';
 import { TemplateService } from '../core/services/template/template.service';
@@ -32,7 +32,6 @@ import { NodeService } from '../core/services/node/node.service';
 import { PortGroupService } from '../core/services/portgroup/portgroup.service';
 import { InterfaceService } from '../core/services/interface/interface.service';
 import { selectIcons } from '../store/icon/icon.selectors';
-import { selectDomains } from '../store/domain/domain.selectors';
 import { CMAddService } from './context-menu/cm-add/cm-add.service';
 import { CMViewDetailsService } from './context-menu/cm-view-details/cm-view-details.service';
 import { CMDeleteService } from './context-menu/cm-delete/cm-delete.service';
@@ -51,10 +50,10 @@ import { selectMapOption, selectSearchText } from '../store/map-option/map-optio
 import { CommonService } from 'src/app/map/context-menu/cm-common-service/common.service';
 import { ToolPanelStyleService } from 'src/app/core/services/tool-panel-style/tool-panel-style.service';
 import { ProjectService } from "../project/services/project.service";
-import { retrievedProjectCategory, retrievedProjects, retrievedVMStatus } from "../store/project/project.actions";
+import { loadProject, retrievedProjectCategory, retrievedProjects, retrievedVMStatus } from "../store/project/project.actions";
 import { ICON_PATH } from '../shared/contants/icon-path.constant';
 import { InfoPanelService } from '../core/services/info-panel/info-panel.service';
-import { retrievedInterfacePkConnectNode, retrievedInterfacesByDestinationNode, retrievedIsInterfaceConnectPG } from "../store/interface/interface.actions";
+import { retrievedInterfacePkConnectNode, retrievedInterfacesByDestinationNode, retrievedIsInterfaceConnectPG, loadInterfaces } from "../store/interface/interface.actions";
 import { retrievedMapSelection } from '../store/map-selection/map-selection.actions';
 import {
   selectIsConfiguratorConnect,
@@ -65,13 +64,13 @@ import { retrievedImages, retrievedMapImages } from '../store/map-image/map-imag
 import { RouteSegments } from "../core/enums/route-segments.enum";
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { retrievedMapEdit } from "../store/map-edit/map-edit.actions";
-import { selectIsInterfaceConnectPG, selectInterfacePkConnectNode } from "../store/interface/interface.selectors";
+import { selectIsInterfaceConnectPG, selectInterfacePkConnectNode, selectWiredInterfaces } from "../store/interface/interface.selectors";
 import { CMInterfaceService } from "./context-menu/cm-interface/cm-interface.service";
 import { GroupService } from "../core/services/group/group.service";
-import { retrievedNodes } from "../store/node/node.actions";
-import { retrievedGroups } from "../store/group/group.actions";
+import { loadNodes, retrievedNodes } from "../store/node/node.actions";
+import { loadGroups, retrievedGroups } from "../store/group/group.actions";
 import { ValidateProjectDialogComponent } from "../project/validate-project-dialog/validate-project-dialog.component";
-import { selectProjectCategory, selectCurrentProject, selectProjects } from "../store/project/project.selectors";
+import { selectProjectCategory, selectCurrentProject, selectProjects, selectProject } from "../store/project/project.selectors";
 import { CMProjectNodeService } from "./context-menu/cm-project-node/cm-project-node.service";
 import { MapLinkService } from "../core/services/map-link/map-link.service";
 import { NetmaskService } from '../core/services/netmask/netmask.service';
@@ -84,6 +83,8 @@ import { selectMapCategory } from '../store/map-category/map-category.selectors'
 import { retrievedMapCategory } from '../store/map-category/map-category.actions';
 import { ConnectInterfaceDialogComponent } from './context-menu/cm-dialog/connect-interface-dialog/connect-interface-dialog.component';
 import { ConnectInterfaceToPgDialogComponent } from "./context-menu/cm-dialog/connect-interface-to-pg-dialog/connect-interface-to-pg-dialog.component";
+import { selectNodes } from '../store/node/node.selectors';
+import { selectGroups } from '../store/group/group.selectors';
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -194,7 +195,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   selectInterfacePkConnectPG$ = new Subscription();
   selectInterfacePkConnectNode$ = new Subscription();
   selectMapOption$ = new Subscription();
-  selectProjectCategory$ = new Subscription()
+  selectProjectCategory$ = new Subscription();
+  selectNodes$ = new Subscription();
+  selectManagementPGs$ = new Subscription();
+  selectWiredInterfaces$ = new Subscription();
+  selectManagementInterfaces$ = new Subscription();
+  selectGroups$ = new Subscription();
+  selectProject$ = new Subscription();
   selectMapFeatureSubject: Subject<MapState> = new ReplaySubject(1);
   destroy$: Subject<boolean> = new Subject<boolean>();
   saveMapSubject: Subject<void> = new Subject<void>();
@@ -202,7 +209,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   mapCategoryLabel: any;
 
   constructor(
-    private route: ActivatedRoute,
     private router: Router,
     private store: Store,
     private helpersService: HelpersService,
@@ -256,9 +262,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
       this.icons = icons;
     });
-    this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
-      this.domains = domains;
-    });
     this.selectMap$ = this.store.select(selectMapFeature).subscribe({
       next: value => this.selectMapFeatureSubject.next(value),
       error: err => this.selectMapFeatureSubject.error(err),
@@ -293,8 +296,25 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         }
       }
     });
-    this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe((portGroups: any) => {
-      this.portGroups = portGroups;
+    this.selectNodes$ = this.store.select(selectNodes).subscribe((nodes: any) => {
+      if (nodes) {
+        this.nodes = nodes;
+      }
+    });
+    this.selectPortGroups$ = this.store.select(selectMapPortGroups).subscribe((portGroups: any) => {
+      if (portGroups) {
+        this.portGroups = portGroups;
+      }
+    });
+    this.selectWiredInterfaces$ = this.store.select(selectWiredInterfaces).subscribe(wiredInterfaces => {
+      if (wiredInterfaces) {
+        this.interfaces = wiredInterfaces;
+      }
+    });
+    this.selectGroups$ = this.store.select(selectGroups).subscribe(groups => {
+      if (groups) {
+        this.groupBoxes = groups;
+      }
     });
     this.selectSearchText$ = this.store.select(selectSearchText).subscribe((searchText: string) => {
       if (searchText?.length > 0) {
@@ -319,15 +339,19 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     })
     this.mapCategoryLabel = this.mapCategory == 'logical' ? 'Physical' : 'Logical'
     this.projectId = this.projectService.getProjectId();
+    this.store.dispatch(loadProject({ projectId: this.projectId }));
+    this.store.dispatch(loadNodes({ projectId: this.projectId }));
+    this.store.dispatch(loadPGs({ projectId: this.projectId }));
+    this.store.dispatch(loadInterfaces({ projectId: this.projectId, mapCategory: this.mapCategory }));
+    this.store.dispatch(loadGroups({ projectId: this.projectId }));
+    this.store.dispatch(loadDomains({ projectId: this.projectId }));
     this.mapService.getMapData(this.mapCategory, this.projectId).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
     this.imageService.getByCategory('icon').subscribe((data: any) => this.store.dispatch(retrievedIcons({ data: data.result })));
     this.deviceService.getAll().subscribe((data: any) => this.store.dispatch(retrievedDevices({ data: data.result })));
     this.templateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedTemplates({ data: data.result })));
     this.hardwareService.getAll().subscribe((data: any) => this.store.dispatch(retrievedHardwares({ data: data.result })));
-    this.domainService.getDomainByProjectId(this.projectId).subscribe((data: any) => this.store.dispatch(retrievedDomains({ data: data.result })));
     this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
     this.loginProfileService.getAll().subscribe((data: any) => this.store.dispatch(retrievedLoginProfiles({ data: data.result })));
-    this.portgroupService.getByProjectId(this.projectId).subscribe((data: any) => this.store.dispatch(retrievedPortGroups({ data: data.result })));
     this.imageService.getByCategory('image').subscribe((data: any) => this.store.dispatch(retrievedImages({ data: data.result })));
     this.mapImageService.getMapImageByProjectId(+this.projectId).subscribe((data: any) => this.store.dispatch(retrievedMapImages({ mapImage: data.result })));
     this.selectProjectCategory$ = this.store.select(selectProjectCategory).subscribe(projectCategory => {
@@ -366,7 +390,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     })
     this.projectService.getProjectsNotLinkedYet(Number(this.projectId)).subscribe(response => {
       this.store.dispatch(retrievedProjects({ data: response.result }))
-    })
+    });
   }
 
   ngAfterViewInit(): void {
@@ -381,9 +405,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     }
     this.selectMapFeatureSubject.pipe(delay(1)).subscribe((map: MapState) => {
       if (map.mapProperties && map.defaultPreferences) {
-        this.nodes = map.nodes;
-        this.interfaces = map.interfaces;
-        this.groupBoxes = map.groupBoxes;
         this.mapProperties = map.mapProperties;
         this.defaultPreferences = map.defaultPreferences;
         this._initCytoscape();
@@ -419,6 +440,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.projectTemplateId = 0;
     this.linkProjectId = 0;
     this.selectMapOption$.unsubscribe();
+    this.selectNodes$.unsubscribe();
+    this.selectPortGroups$.unsubscribe();
+    this.selectManagementPGs$.unsubscribe();
+    this.selectWiredInterfaces$.unsubscribe();
+    this.selectManagementInterfaces$.unsubscribe();
+    this.selectGroups$.unsubscribe();
+    this.selectProject$.unsubscribe();
   }
 
   private _disableMapEditButtons() {
@@ -946,10 +974,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     }
     this.styleExists = this.config.styleExists;
     this.cleared = this.config.cleared;
-    this.eles = JSON.parse(JSON.stringify(this.nodes.concat(this.interfaces)));
+    this.eles = JSON.parse(JSON.stringify(this.nodes.concat(this.portGroups).concat(this.interfaces)));
     this.eles.forEach(ele => {
-      ele.locked = ele.data.locked
-      if (ele.data.elem_category == 'node' || ele.data.elem_category == 'map_link') {
+      if (ele.data.elem_category == 'map_link') {
         if (!ele.data.icon.includes(environment.apiBaseUrl)) {
           ele.data.icon = environment.apiBaseUrl + ele.data.icon;
         }

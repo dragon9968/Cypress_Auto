@@ -8,7 +8,6 @@ import { GroupService } from "../../../core/services/group/group.service";
 import { ProjectService } from "../../../project/services/project.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { selectGroups } from "../../../store/group/group.selectors";
-import { retrievedGroups } from "../../../store/group/group.actions";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { AddUpdateGroupDialogComponent } from "../../add-update-group-dialog/add-update-group-dialog.component";
 import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
@@ -124,71 +123,54 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
     private projectService: ProjectService,
     private infoPanelService: InfoPanelService
   ) {
-    this.selectGroups$ = this.store.select(selectGroups).subscribe(groupData => {
-      if (groupData) {
-        this.groupDataAg = groupData.map(ele => {
+    this.selectGroups$ = this.store.select(selectGroups).subscribe(groups => {
+      if (groups) {
+        this.groups = groups.map(ele => {
           return {
-            id: ele.id,
-            name: ele.name,
-            project_id: ele.project_id,
-            description: ele.description,
-            domain_id: ele.domain_id,
-            domain: ele.domain?.name,
-            category: ele.category,
+            ...ele,
             nodes: '[' + ele.nodes?.map((nodeData: any) => nodeData.name).join(', ') + ']',
             port_groups: '[' + ele.port_groups?.map((pgData: any) => pgData.name).join(', ') + ']',
             map_images: '[' + ele.map_images?.map((mapImageData: any) => mapImageData.name).join(', ') + ']',
           }
         });
-        this.infoPanelTableComponent?.setRowData(this.groupDataAg);
-        this.infoPanelTableComponent?.setRowActive(this.infoPanelTableComponent?.rowsSelectedId);
+        this.store.dispatch(retrievedMapSelection({ data: true }));
       }
     })
 
     this.selectMapFilterOptionGroup$ = this.store.select(selectMapFilterOptionGroup).subscribe(mapFilterOption => {
-      this.filterOption = mapFilterOption;
-      if (mapFilterOption && mapFilterOption == 'all') {
-        this.infoPanelTableComponent?.setRowData(this.groupDataAg);
-        const activeEleGroupIds = this.activeGBs.map(ele => ele.data('group_id'));
-        this.infoPanelTableComponent?.deselectAll();
-        this.infoPanelTableComponent?.setRowActive(activeEleGroupIds)
-      } else if (mapFilterOption && mapFilterOption == 'selected') {
-        this.activeEleIds = this.activeGBs.map(ele => ele.data('group_id'));
-        this.rowData = this.groupDataAg.filter(val => this.activeEleIds.includes(val.id))
-        this.infoPanelTableComponent?.setSelectedEles(this.activeEleIds, this.rowData);
-        this.infoPanelTableComponent?.setRowActive(this.activeEleIds)
-        this.store.dispatch(retrievedMapSelection({ data: false }));
+      if (mapFilterOption) {
+        this.filterOption = mapFilterOption;
+        this.store.dispatch(retrievedMapSelection({ data: true }));
       }
     })
     this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
-      if (mapSelection && this.filterOption !== 'all') {
-        this.activeEleIds = this.activeGBs.map(ele => ele.data('group_id'));
-        this.rowData =  this.groupDataAg.filter(val => this.activeEleIds.includes(val.id))
-        this.infoPanelTableComponent?.setSelectedEles(this.activeEleIds, this.rowData);
+      if (mapSelection) {
+        const activeEleIds = this.activeGBs.map(ele => ele.data('group_id'));
+        if (this.filterOption == 'all') {
+          this.infoPanelTableComponent?.setRowData(this.groups);
+          this.infoPanelTableComponent?.deselectAll();
+          this.infoPanelTableComponent?.setRowActive(activeEleIds);
+        } else if (this.filterOption == 'selected') {
+          this.rowData = this.activeGBs.map(ele => ele.data());
+          this.infoPanelTableComponent?.setSelectedEles(activeEleIds, this.rowData);
+        }
         this.store.dispatch(retrievedMapSelection({ data: false }));
-      } else if (mapSelection && this.filterOption === 'all') {
-        const activeEleGroupIds = this.activeGBs.map(ele => ele.data('group_id'));
-        this.infoPanelTableComponent?.deselectAll();
-        this.infoPanelTableComponent?.setRowActive(activeEleGroupIds)
       }
     });
     this.filterOptionForm = new FormGroup({
-      filterOptionCtr: new FormControl('')
+      filterOptionCtr: new FormControl('all')
     });
-    this.filterOptionForm.get('filterOptionCtr')?.setValue('all');
   }
 
   ngOnInit(): void {
     this.mapCategory = 'logical';
     this.projectId = this.projectService.getProjectId();
-    this.groupService.getGroupByProjectId(this.projectId).subscribe(
-      groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
-    )
   }
 
   ngOnDestroy(): void {
     this.selectGroups$.unsubscribe();
     this.selectMapSelection$.unsubscribe();
+    this.selectMapFilterOptionGroup$.unsubscribe();
   }
 
   addGroup() {
@@ -223,7 +205,7 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
       })
     } else {
       this.toastr.info('Bulk edits do not apply to the Group.<br>Please select only one Group',
-                          'Info', {enableHtml: true});
+        'Info', { enableHtml: true });
     }
   }
 
@@ -237,7 +219,7 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
         message: `Are you sure you want to delete ${item}?`,
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {disableClose: true, width: '450px', data: dialogData});
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '450px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
           this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.infoPanelTableComponent?.rowsSelectedId);
@@ -267,5 +249,5 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
     $event.stopPropagation();
     $event.preventDefault();
   }
-  
+
 }

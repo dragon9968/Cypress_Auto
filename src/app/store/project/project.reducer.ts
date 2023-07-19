@@ -10,7 +10,8 @@ import {
   retrievedRecentProjects,
   retrievedProjectsTemplate,
   retrievedAllProjects,
-  retrievedProjectCategory
+  retrievedProjectCategory,
+  projectLoadedSuccess
 } from './project.actions';
 
 const initialState = {} as ProjectState;
@@ -56,5 +57,9 @@ export const projectReducer = createReducer(
   on(retrievedProjectCategory, (state, { projectCategory }) => ({
     ...state,
     projectCategory: projectCategory
+  })),
+  on(projectLoadedSuccess, (state, { project }) => ({
+    ...state,
+    project
   }))
 );

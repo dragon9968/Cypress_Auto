@@ -26,7 +26,7 @@ import { selectInterfacesByHwNodes } from 'src/app/store/interface/interface.sel
 import { vlanInterfaceValidator } from 'src/app/shared/validations/vlan-interface.validation';
 import { retrievedInterfaceByProjectIdAndCategory, retrievedInterfacesNotConnectPG } from "../../store/interface/interface.actions";
 import { ProjectService } from "../../project/services/project.service";
-import { selectInterfacesByProjectIdAndCategory, selectInterfacesNotConnectPG } from "../../store/interface/interface.selectors";
+import { selectWiredInterfaces, selectInterfacesNotConnectPG } from "../../store/interface/interface.selectors";
 import { retrievedNodes } from 'src/app/store/node/node.actions';
 import { NodeService } from 'src/app/core/services/node/node.service';
 
@@ -122,7 +122,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       this.targetPortGroupCtr?.setValidators([Validators.required, autoCompleteValidator(this.portGroups)]);
       this.filteredPortGroups = this.helpers.filterOptionsPortGroup(this.portGroupCtr, this.portGroups);
     });
-    this.selectInterfaces$ = this.store.select(selectInterfacesByProjectIdAndCategory).subscribe(interfaces => {
+    this.selectInterfaces$ = this.store.select(selectWiredInterfaces).subscribe(interfaces => {
       if (interfaces) {
         this.interfaces = interfaces.map((ele: any) => ele.data);
       }

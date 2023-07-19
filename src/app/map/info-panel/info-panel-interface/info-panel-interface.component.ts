@@ -16,7 +16,7 @@ import { FormControl, FormGroup } from "@angular/forms";
 import { MatMenuTrigger } from "@angular/material/menu";
 import { retrievedMapFilterOptionInterfaces } from "src/app/store/map-filter-option/map-filter-option.actions";
 import { selectMapFilterOptionInterfaces } from "src/app/store/map-filter-option/map-filter-option.selectors";
-import { selectInterfacesByProjectIdAndCategory } from "../../../store/interface/interface.selectors";
+import { selectInterfaces, selectInterfacesByProjectIdAndCategory, selectManagementInterfaces } from "../../../store/interface/interface.selectors";
 
 @Component({
   selector: 'app-info-panel-interface',
@@ -36,12 +36,14 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
   @Input() infoPanelheight = '300px';
   filterOptionForm!: FormGroup;
   interfaces: any[] = [];
+  managementInterfaces: any[] = [];
   rowDataInterfaces: any[] = [];
   activeEleIds: any[] = [];
   filterOption = 'all';
   tabName = 'edge';
   selectMapSelection$ = new Subscription();
   selectInterfaces$ = new Subscription();
+  selectManagementInterfaces$ = new Subscription();
   selectMapFilterOptionInterfaces$ = new Subscription();
   gridOptions: GridOptions = {
     headerHeight: 48,
@@ -151,15 +153,26 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
     private infoPanelService: InfoPanelService
   ) {
     this.iconRegistry.addSvgIcon('randomize-subnet', this.helpers.setIconPath('/assets/icons/randomize-subnet.svg'));
-    this.selectInterfaces$ = this.store.select(selectInterfacesByProjectIdAndCategory).subscribe(interfaces => {
+    this.selectInterfaces$ = this.store.select(selectInterfaces).subscribe(interfaces => {
       if (interfaces) {
         this.interfaces = interfaces.map((ele: any) => ele.data);
         this.store.dispatch(retrievedMapSelection({ data: true }));
       }
     });
+    this.selectManagementInterfaces$ = this.store.select(selectManagementInterfaces).subscribe(managementInterfaces => {
+      if (managementInterfaces) {
+        this.managementInterfaces = managementInterfaces.map((ele: any) => ele.data);
+      }
+    });
+    this.selectMapFilterOptionInterfaces$ = this.store.select(selectMapFilterOptionInterfaces).subscribe(mapFilterOption => {
+      if (mapFilterOption) {
+        this.filterOption = mapFilterOption;
+        this.store.dispatch(retrievedMapSelection({ data: true }));
+      }
+    });
     this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
       if (mapSelection) {
-        const activeEleIds = this.activeEdges.map(ele => ele.data('interface_pk'));
+        const activeEleIds = this.activeEdges.map(ele => ele.data('id'));
         if (this.filterOption == 'all') {
           this.infoPanelTableComponent?.setRowData(this.interfaces);
           this.infoPanelTableComponent?.deselectAll();
@@ -168,16 +181,9 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
           this.rowDataInterfaces = this.activeEdges.map(ele => ele.data());
           this.infoPanelTableComponent?.setSelectedEles(activeEleIds, this.rowDataInterfaces);
         } else if (this.filterOption === 'management') {
-          const interfacesManagement = this.interfaces.filter(edge => edge.category === 'management')
-          this.infoPanelTableComponent?.setRowData(interfacesManagement);
+          this.infoPanelTableComponent?.setRowData(this.managementInterfaces);
         }
         this.store.dispatch(retrievedMapSelection({ data: false }));
-      }
-    });
-    this.selectMapFilterOptionInterfaces$ = this.store.select(selectMapFilterOptionInterfaces).subscribe(mapFilterOption => {
-      if (mapFilterOption) {
-        this.filterOption = mapFilterOption;
-        this.store.dispatch(retrievedMapSelection({ data: true }));
       }
     });
     this.filterOptionForm = new FormGroup({
@@ -189,6 +195,7 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
     this.selectMapSelection$.unsubscribe();
     this.selectMapFilterOptionInterfaces$.unsubscribe();
     this.selectInterfaces$.unsubscribe();
+    this.selectManagementInterfaces$.unsubscribe();
   }
 
   deleteInterfaces() {

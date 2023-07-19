@@ -53,9 +53,10 @@ export class HelpersService implements OnDestroy {
   errorMessages = ErrorMessages;
   isGroupBoxesChecked!: boolean;
   isEdgeDirectionChecked!: boolean;
-  groupBoxes!: any[];
-  netmasks!: any[];
-  groups!: any[];
+  groupBoxes: any[] = [];
+  netmasks: any[] = [];
+  groups: any[] = [];
+  histories: any[] = []
   lastWidth = 0;
   lastHeight = 0;
   zoomLimit = false;
@@ -89,7 +90,9 @@ export class HelpersService implements OnDestroy {
       }
     });
     this.selectGroupBoxes$ = this.store.select(selectGroupBoxes).subscribe((groupBoxes: any[]) => {
-      this.groupBoxes = groupBoxes;
+      if (groupBoxes) {
+        this.groupBoxes = groupBoxes;
+      }
     });
 
     this.selectGroups$ = this.store.select(selectGroups).subscribe(groupData => {

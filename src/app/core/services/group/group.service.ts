@@ -20,7 +20,7 @@ export class GroupService {
   getGroupByProjectId(projectId: string): Observable<any> {
     return this.http.get<any>(ApiPaths.GROUP, {
       params: {
-        q: '(columns:!(id,name,project,project_id,description,domain,domain_id,category,nodes,map_images,port_groups),filters:!((col:project_id,opr:eq,value:' + projectId + ')),keys:!(list_columns),page:0,page_size:1000)'
+        q: '(filters:!((col:project_id,opr:eq,value:' + projectId + ')),keys:!(list_columns),page:0,page_size:1000)'
       }
     });
   }

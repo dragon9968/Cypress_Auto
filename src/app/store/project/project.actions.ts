@@ -48,5 +48,15 @@ export const retrievedAllProjects = createAction(
 export const retrievedProjectCategory = createAction(
   'retrievedProjectCategory',
   props<{ projectCategory: string }>()
-)
+);
+
+export const loadProject = createAction(
+  'loadProject',
+  props<{ projectId: string }>()
+);
+
+export const projectLoadedSuccess = createAction(
+  'projectLoadedSuccess',
+  props<{ project: any }>()
+);
 

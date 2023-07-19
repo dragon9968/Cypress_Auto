@@ -9,3 +9,13 @@ export const retrievedNameNodeBySourceNode = createAction(
   'retrievedNameNodeBySourceNode',
   props<{ nameNode: any }>()
 );
+
+export const loadNodes = createAction(
+  'loadNodes',
+  props<{ projectId: string }>()
+);
+
+export const nodesLoadedSuccess = createAction(
+  'nodesLoadedSuccess',
+  props<{ nodes: any }>()
+);

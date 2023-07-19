@@ -9,7 +9,8 @@ import {
   retrievedInterfacePkConnectNode,
   retrievedInterfacesByHwNodes,
   retrievedInterfacesByDestinationNode,
-  retrievedInterfacesConnectedNode
+  retrievedInterfacesConnectedNode,
+  interfacesLoadedSuccess
 } from "./interface.actions";
 
 const initialState = {} as InterfaceState;
@@ -52,4 +53,20 @@ export const interfaceReducerByIds = createReducer(
     ...state,
     interfacesConnectedNode: interfacesConnectedNode
   })),
+  on(interfacesLoadedSuccess, (state, { interfaces }) => {
+    const wiredInterfaces: any[] = [];
+    const managementInterfaces: any[] = [];
+    interfaces.map((i: any) => {
+      if (i.data.category == 'wired') {
+        wiredInterfaces.push({ data: i.data, locked: i.data.locked });
+      } else if (i.data.category == 'management') {
+        managementInterfaces.push({ data: i.data });
+      }
+    });
+    return {
+      ...state,
+      wiredInterfaces,
+      managementInterfaces,
+    }
+  })
 );

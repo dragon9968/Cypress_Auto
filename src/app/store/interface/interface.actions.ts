@@ -1,8 +1,21 @@
 import { createAction, props } from "@ngrx/store";
 
+export const loadInterfaces = createAction(
+  'loadInterfaces',
+  props<{
+    projectId: string,
+    mapCategory: string
+  }>()
+);
+
+export const interfacesLoadedSuccess = createAction(
+  'interfacesLoadedSuccess',
+  props<{ interfaces: any }>()
+);
+
 export const retrievedInterfaceByProjectIdAndCategory = createAction(
   'retrievedInterfaceByProjectIdAndCategory',
-  props<{data: any}>()
+  props<{ data: any }>()
 );
 
 export const retrievedInterfacesNotConnectPG = createAction(

@@ -14,7 +14,7 @@ import { AddUpdateNodeDialogComponent } from "../../add-update-node-dialog/add-u
 import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
 import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
 import { MatMenuTrigger } from "@angular/material/menu";
-import { selectNodesByProjectId } from "src/app/store/node/node.selectors";
+import { selectNodes } from "src/app/store/node/node.selectors";
 import { selectMapFilterOptionNodes } from "src/app/store/map-filter-option/map-filter-option.selectors";
 import { retrievedMapFilterOptionNodes } from "src/app/store/map-filter-option/map-filter-option.actions";
 import { FormControl, FormGroup } from "@angular/forms";
@@ -91,17 +91,20 @@ export class InfoPanelNodeComponent implements OnDestroy {
         flex: 1
       },
       {
-        field: 'device',
+        field: 'device.name',
+        headerName: 'Device',
         minWidth: 100,
         flex: 1
       },
       {
-        field: 'template',
+        field: 'template.name',
+        headerName: 'Template',
         minWidth: 120,
         flex: 1
       },
       {
-        field: 'hardware',
+        field: 'hardware.serial_number',
+        headerName: 'Hardware',
         minWidth: 120,
         flex: 1
       },
@@ -111,7 +114,8 @@ export class InfoPanelNodeComponent implements OnDestroy {
         flex: 1
       },
       {
-        field: 'domain',
+        field: 'domain.name',
+        headerName: 'Domain',
         minWidth: 100,
         flex: 1
       },
@@ -131,7 +135,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
         flex: 1
       },
       {
-        field: 'login_profile',
+        field: 'login_profile.name',
         headerName: 'Login Profile',
         minWidth: 120,
         flex: 1
@@ -180,17 +184,9 @@ export class InfoPanelNodeComponent implements OnDestroy {
     private cmActionsService: CMActionsService,
   ) {
     iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
-    this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => {
+    this.selectNodes$ = this.store.select(selectNodes).subscribe(nodes => {
       if (nodes) {
-        this.nodes = nodes.map(node => ({
-          ...node,
-          device: node.device?.name,
-          template: node.template?.name,
-          domain: node.domain?.name,
-          login_profile: node.login_profile?.name,
-          node_id: node.node_id ? node.node_id : node.id,
-          id: node.node_id ? `node-${node.node_id}` : `node-${node.id}`
-        }));
+        this.nodes = nodes
         this.store.dispatch(retrievedMapSelection({ data: true }));
       }
     });

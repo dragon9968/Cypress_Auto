@@ -20,7 +20,7 @@ import { PortGroupExportModel } from "../../../core/models/port-group.model";
 import { FormControl, FormGroup } from "@angular/forms";
 import { MatMenuTrigger } from "@angular/material/menu";
 import { retrievedMapFilterOptionPG } from "src/app/store/map-filter-option/map-filter-option.actions";
-import { selectPortGroups } from "src/app/store/portgroup/portgroup.selectors";
+import { selectManagementPGs, selectPortGroups } from "src/app/store/portgroup/portgroup.selectors";
 import { selectMapFilterOptionPG } from "src/app/store/map-filter-option/map-filter-option.selectors";
 
 @Component({
@@ -41,6 +41,7 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
   @Input() infoPanelheight = '300px';
   filterOptionForm!: FormGroup;
   portGroups: any[] = [];
+  managementPGs: any[] = [];
   activeEleIds: any[] = [];
   rowDataPG: any[] = [];
   filterOption = 'all';
@@ -48,6 +49,7 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
   projectId = '0';
   selectMapSelection$ = new Subscription();
   selectPortGroups$ = new Subscription();
+  selectManagementPGs$ = new Subscription();
   selectMapFilterOptionPG$ = new Subscription();
   gridOptions: GridOptions = {
     headerHeight: 48,
@@ -105,7 +107,7 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
         flex: 1,
       },
       {
-        field: 'domain',
+        field: 'domain.name',
         minWidth: 100,
         flex: 1,
       }
@@ -137,74 +139,46 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
     private portGroupService: PortGroupService,
     private infoPanelService: InfoPanelService
   ) {
-    this.filterOptionForm = new FormGroup({
-      filterOptionCtr: new FormControl('')
-    });
     this.iconRegistry.addSvgIcon('randomize-subnet', this.helpers.setIconPath('/assets/icons/randomize-subnet.svg'));
-    this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe(pgs => {
-      if (pgs) {
-        this.portGroups = pgs.map(pg => ({...pg, domain: pg.domain?.name, pg_id: pg.id, id: `pg-${pg.id}`}))
-        this.infoPanelTableComponent?.setRowData(this.portGroups)
+    this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe(portGroups => {
+      if (portGroups) {
+        this.portGroups = portGroups
+        this.store.dispatch(retrievedMapSelection({ data: true }));
+      }
+    });
+    this.selectManagementPGs$ = this.store.select(selectManagementPGs).subscribe(managementPGs => {
+      if (managementPGs) {
+        this.managementPGs = managementPGs;
       }
     });
 
     this.selectMapFilterOptionPG$ = this.store.select(selectMapFilterOptionPG).subscribe(mapFilterOption => {
       if (mapFilterOption) {
-        this.filterOptionCtr?.setValue(mapFilterOption);
-        if (mapFilterOption == 'all') {
-          if (this.portGroups) {
-            const activeElePgIds = this.activePGs.map(ele => ele.data('id'));
-            this.infoPanelTableComponent?.setRowData(this.portGroups);
-            this.infoPanelTableComponent?.deselectAll();
-            this.infoPanelTableComponent?.setRowActive(activeElePgIds)
-          }
-        } else if (mapFilterOption == 'selected') {
-          this.rowDataPG = this.activePGs.map(ele => {
-            if (ele.data('domain')?.name) {
-              ele.data('domain', ele.data('domain').name);
-            }
-            return ele.data();
-          });
-          this.activeEleIds = this.activePGs.map(ele => ele.data('id'));
-          this.infoPanelTableComponent?.setSelectedEles(this.activeEleIds, this.rowDataPG);
-        } else {
-          if (this.portGroups) {
-            const portGroupsManagement = this.portGroups.filter(pg => pg.category === 'management')
-            this.infoPanelTableComponent?.setRowData(portGroupsManagement);
-          }
-        }
+        this.filterOption = mapFilterOption;
+        this.store.dispatch(retrievedMapSelection({ data: true }));
       }
     })
 
     this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
       if (mapSelection) {
-        if (this.filterOptionCtr?.value === 'selected') {
-          const rowData = this.activePGs.map(ele => {
-            if (ele.data('domain')?.name) {
-              ele.data('domain', ele.data('domain').name);
-            }
-            return ele.data();
-          });
-          this.activeEleIds = this.activePGs.map(ele => ele.data('id'));
-          this.infoPanelTableComponent?.setSelectedEles(this.activeEleIds, rowData);
-          this.store.dispatch(retrievedMapSelection({ data: false }));
-        } else if (this.filterOptionCtr?.value === 'management') {
-          if (this.portGroups) {
-            const portGroupsManagement = this.portGroups.filter(pg => pg.category === 'management')
-            this.infoPanelTableComponent?.setRowData(portGroupsManagement);
-          }
-          this.store.dispatch(retrievedMapSelection({ data: false }));
-        } else {
-          const activeElePgIds = this.activePGs.map(ele => ele.data('id'));
+        const activeEleIds = this.activePGs.map(ele => ele.data('id'));
+        if (this.filterOption == 'all') {
+          this.infoPanelTableComponent?.setRowData(this.portGroups);
           this.infoPanelTableComponent?.deselectAll();
-          this.infoPanelTableComponent?.setRowActive(activeElePgIds)
-          this.store.dispatch(retrievedMapSelection({ data: false }));
+          this.infoPanelTableComponent?.setRowActive(activeEleIds);
+        } else if (this.filterOption == 'selected') {
+          this.rowDataPG = this.activePGs.map(ele => ele.data());
+          this.infoPanelTableComponent?.setSelectedEles(activeEleIds, this.rowDataPG);
+        } else if (this.filterOption === 'management') {
+          this.infoPanelTableComponent?.setRowData(this.managementPGs);
         }
+        this.store.dispatch(retrievedMapSelection({ data: false }));
       }
     });
+    this.filterOptionForm = new FormGroup({
+      filterOptionCtr: new FormControl('all')
+    });
   }
-
-  get filterOptionCtr() { return this.filterOptionForm.get('filterOptionCtr') }
 
   get gridHeight() {
     const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
@@ -213,13 +187,13 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.projectId = this.projectService.getProjectId();
-    this.store.dispatch(retrievedMapFilterOptionPG({ data: 'all' }));
-    this.filterOptionCtr?.setValue('all')
   }
 
   ngOnDestroy(): void {
     this.selectMapSelection$.unsubscribe();
     this.selectMapFilterOptionPG$.unsubscribe();
+    this.selectPortGroups$.unsubscribe();
+    this.selectManagementPGs$.unsubscribe();
   }
 
   deletePortGroup() {

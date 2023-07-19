@@ -26,6 +26,7 @@
     "@angular/platform-browser-dynamic": "^14.0.0",
     "@angular/router": "^14.0.0",
     "@ng-select/ng-select": "^9.0.2",
+    "@ngrx/effects": "^14.3.3",
     "@ngrx/store": "^14.0.0",
     "@ngrx/store-devtools": "^14.0.0",
     "ag-grid-angular": "^27.3.0",

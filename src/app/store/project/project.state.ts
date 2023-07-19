@@ -8,5 +8,6 @@ export interface ProjectState {
   recentProjects: any[],
   template: any[],
   listAllProject: any[],
-  projectCategory: string
+  projectCategory: string,
+  project: any
 }

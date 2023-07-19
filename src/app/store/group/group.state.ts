@@ -1,3 +1,4 @@
 export interface GroupState {
-  groups: any[]
+  groups: any[];
+  physicalGroups: any[];
 }

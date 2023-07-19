@@ -5,7 +5,6 @@ import { Component, Input, OnInit } from '@angular/core';
 import { NodeService } from "../../core/services/node/node.service";
 import { ProjectService } from "../../project/services/project.service";
 import { DomainUserService } from "../../core/services/domain-user/domain-user.service";
-import { retrievedNodes } from "../../store/node/node.actions";
 import { retrievedDomainUsers } from "../../store/domain-user/domain-user.actions";
 import { retrievedIsChangeDomainUsers } from "../../store/domain-user-change/domain-user-change.actions";
 import { InterfaceService } from "../../core/services/interface/interface.service";
@@ -75,9 +74,6 @@ export class InfoPanelComponent implements OnInit{
 
   ngOnInit(): void {
     this.projectId = this.projectService.getProjectId();
-    this.nodeService.getNodesByProjectId(this.projectId).subscribe(
-      (data: any) => this.store.dispatch(retrievedNodes({ data: data.result }))
-    );
     this.selectDomainUser$ = this.domainUserService.getAll().subscribe(
       data => this.store.dispatch(retrievedDomainUsers({ data: data.result }))
     );

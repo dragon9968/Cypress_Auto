@@ -20,7 +20,7 @@ import { selectConfigTemplates } from '../../store/config-template/config-templa
 import { selectLoginProfiles } from '../../store/login-profile/login-profile.selectors';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
-import { selectNodesByProjectId } from 'src/app/store/node/node.selectors';
+import { selectNodes, selectNodesByProjectId } from 'src/app/store/node/node.selectors';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 import { hostnameValidator } from 'src/app/shared/validations/hostname.validation';
 import { ErrorStateMatcher } from '@angular/material/core';
@@ -283,7 +283,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     this.nodeAddForm = new FormGroup({
       nameCtr: new FormControl('', [
         Validators.required, Validators.minLength(3), Validators.maxLength(50),
-        validateNameExist(() => this.nodes, this.data.mode, this.data.genData.node_id)
+        validateNameExist(() => this.nodes, this.data.mode, this.data.genData.id)
       ]),
       notesCtr: new FormControl(''),
       iconCtr: new FormControl(''),
@@ -345,7 +345,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       this.loginProfileCtr.setValidators([autoCompleteValidator(this.loginProfiles)]);
       this.filteredLoginProfiles = this.helpers.filterOptions(this.loginProfileCtr, this.loginProfiles);
     });
-    this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes);
+    this.selectNodes$ = this.store.select(selectNodes).subscribe(nodes => this.nodes = nodes);
     this.interfaceService.getByNode(this.data.genData.node_id).subscribe(response => {
       const interfaceData = response.result;
       if (this.agGridInterfaces) {
