@@ -562,7 +562,7 @@
     <span *ngIf="isOpen" class="project-name">
       <mat-icon>folder</mat-icon>{{ categoryProject === 'project' ? 'Project:' : 'Project Template:'}}<a [matTooltip]="projectName" mat-button (click)="openProject(projectId)" class="project-name-label">{{projectName}}</a>
     </span>
-    <a mat-button [matMenuTriggerFor]="account">
+    <a mat-button [matMenuTriggerFor]="account" data-cy="profile">
         <mat-icon>person</mat-icon>
         <span>{{username}}</span>
     </a>

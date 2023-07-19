@@ -708,11 +708,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   private _processNodeList(elms: any) {
-    const activeEles = this.activeNodes.concat(this.activePGs, this.activeEdges);
+    const activeEles = this.activeNodes.concat(this.activePGs, this.activeEdges, this.activeMapLinks, this.activeMBs);
     if (activeEles.length == 0) {
       this.activeNodes.splice(0);
       this.activePGs.splice(0);
       this.activeEdges.splice(0);
+      this.activeMapLinks.splice(0);
+      this.activeMBs.splice(0);
     }
     for (let elm of elms) {
       const d = elm.data();
@@ -720,6 +722,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.activeNodes.push(elm);
       } else if (d.elem_category == 'port_group' && !this.activePGs.includes(elm)) {
         this.activePGs.push(elm);
+      } else if (d.elem_category == 'map_link' && !this.activeMapLinks.includes(elm)) {
+        this.activeMapLinks.push(elm);
+      } else if (d.elem_category == 'bg_image' && !this.activeMBs.includes(elm)) {
+        this.activeMBs.push(elm);
       } else if (elm.isEdge() && !this.activeEdges.includes(elm)) {
         this.activeEdges.push(elm);
       }

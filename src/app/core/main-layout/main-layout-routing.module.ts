@@ -26,7 +26,7 @@ const routes: AppRoute[] = [
         component: HomeComponent,
       },
       {
-        path: 'user-profile',
+        path: RouteSegments.USER_PROFILE,
         data: {
           permissionLevel: PermissionLevels.ADMIN,
         },

@@ -89,4 +89,14 @@ describe('User/Role to Full Flow Test', {testIsolation: true}, () => {
     cy.deleteRecordByName(roleEdit.name, 'Delete', false)
   });
 
+  it('Display an error message when a user updates the user profile with an email invalid.', () => {
+    cy.visit('/')
+    cy.waitingLoadingFinish()
+    cy.getByDataCy('profile').click()
+    cy.get('span').contains('Profile').click()
+    cy.getByFormControlName('emailCtr').focus().clear().type('admin').blur()
+    cy.checkingMatErrorIsExistOrNot(true)
+  });
+
+
 })
