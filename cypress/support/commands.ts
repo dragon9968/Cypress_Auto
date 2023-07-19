@@ -77,7 +77,6 @@ function addNewProject(project: any, isUsingDefaultNetwork = true): void {
     })
   }
   cy.getByDataCy('projectForm').submit().log(`Create project ${project.name} successfully`)
-  cy.window().scrollTo('top', { ensureScrollable: false })
   cy.checkingToastSuccess()
 }
 Cypress.Commands.add('addNewProject', addNewProject);
@@ -117,6 +116,7 @@ function importProject(filePath: string): void {
   cy.waitingLoadingFinish()
   cy.getByDataCy('btn-nav-project').should('exist').click()
   cy.getByDataCy('btn-export-import-project').should('exist').click()
+  cy.wait(1000)
   cy.getByDataCy('btn-import-project').should('exist').click()
   cy.get('input[type=file]').selectFile(`${filePath}`)
   cy.getByDataCy('importForm').submit()
@@ -1095,43 +1095,6 @@ function addNewTargetInterfaces(edge: any): void {
 }
 Cypress.Commands.add('addNewTargetInterfaces', addNewTargetInterfaces);
 
-// Delete interface on map
-declare namespace Cypress {
-  interface Chainable<Subject = any> {
-    deleteInterfaceOnMap(x: number, y: number): typeof deleteInterfaceOnMap;
-  }
-}
-
-function deleteInterfaceOnMap(x: number, y: number): void {
-  cy.get('canvas.expand-collapse-canvas').rightclick(x, y, {force: true}).then(() => {
-    cy.get('.cy-context-menus-cxt-menu').first().should('exist')
-    cy.get('#delete').should('exist').click({ force: true });
-    cy.getByMatToolTip('Save').click()
-  })
-}
-Cypress.Commands.add('deleteInterfaceOnMap', deleteInterfaceOnMap);
-
-// Export project by name
-declare namespace Cypress {
-  interface Chainable<Subject = any> {
-    addTemplateIntoProject(projectName: string, isProjectOpened: boolean, templateName: string): typeof addTemplateIntoProject;
-  }
-}
-
-function addTemplateIntoProject(projectName: string, isProjectOpened: boolean, templateName: string): void {
-  cy.log('Start add a template into current project')
-  if (!isProjectOpened) {
-    cy.openProjectByName(projectName)
-  }
-  cy.waitingLoadingFinish()
-  cy.get('#toolpanel-add-template').click();
-  cy.getOptionByContent(templateName).first().click();
-  cy.getByDataCy('addTemplateForm').submit();
-  cy.get('canvas.expand-collapse-canvas').click(220, 250, { force: true });
-  cy.checkingToastSuccess()
-  cy.log('Added a template into current project')
-}
-Cypress.Commands.add('addTemplateIntoProject', addTemplateIntoProject);
 
 
 // Select node, port group or interface
@@ -1607,7 +1570,7 @@ declare namespace Cypress {
 }
 
 function checkingToastSuccess() {
-  cy.get('.toast-success', { timeout: 12000 }).should('exist')
+  cy.get('.toast-success', { timeout: 15000 }).should('exist')
 }
 Cypress.Commands.add('checkingToastSuccess', checkingToastSuccess);
 

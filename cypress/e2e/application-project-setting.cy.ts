@@ -77,4 +77,10 @@ describe('Project Settings', {testIsolation: true}, () => {
     cy.deletePermanentlyProject(project.name, false)
   })
 
+  it('9. Import old project data without any errors', function () {
+    cy.visit('/')
+    cy.importProject('cypress/fixtures/project/project-dev-old.json')
+    cy.checkingToastSuccess()
+  });
+
 })

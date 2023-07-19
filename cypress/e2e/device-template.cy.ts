@@ -144,4 +144,15 @@ describe('Device/Template e2e testing', {testIsolation: true}, () => {
     cy.deleteRecordByName(deviceImportName, 'Delete Device', true)
     cy.get('.table__nav--search input').first().clear()
   });
+
+  it('Export all device', () => {
+    cy.openPageInDevicesNav('Device/Template')
+    cy.selectAllRow()
+    cy.getByMatToolTip('Export Device as JSON').click()
+    cy.checkingToastSuccess()
+    cy.get('#ag-grid-template .ag-header-cell .ag-header-select-all input[type="checkbox"]').first().check({ force: true })
+    cy.getByMatToolTip('Export Template as JSON').click()
+    cy.checkingToastSuccess()
+  });
+
 })

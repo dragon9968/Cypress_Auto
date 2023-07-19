@@ -309,10 +309,10 @@ export class AddProjectComponent implements OnInit {
         },
         physical_map: {
           map_style: {
-            node: { "width": this.selectedDefaultMapPref.node_size + "px", "height": this.selectedDefaultMapPref.node_size + "px"},
-            edge: { "size": this.selectedDefaultMapPref.edge_width + "px", "color": this.selectedDefaultMapPref.edge_color },
-            text: { "size": this.selectedDefaultMapPref.text_size + "px", "color": this.selectedDefaultMapPref.text_color },
-            group_box: { "color": this.selectedDefaultMapPref.group_box_color, "group_opacity": "20%", "zIndex": 997, "gbs": [] },
+            node: { "width": this.selectedDefaultMapPref?.node_size + "px", "height": this.selectedDefaultMapPref?.node_size + "px"},
+            edge: { "size": this.selectedDefaultMapPref?.edge_width + "px", "color": this.selectedDefaultMapPref?.edge_color },
+            text: { "size": this.selectedDefaultMapPref?.text_size + "px", "color": this.selectedDefaultMapPref?.text_color },
+            group_box: { "color": this.selectedDefaultMapPref?.group_box_color, "group_opacity": "20%", "zIndex": 997, "gbs": [] },
             map_background: { "zIndex": 998, "bgs": [] },
             "grid_settings": { "enabled": false, "spacing": this.selectedDefaultMapPref?.grid_spacing+ "px", "snap": false },
             "accessed": false,
