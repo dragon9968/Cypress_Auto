@@ -503,7 +503,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     this.nameCtr?.setValue(interfaceData.name);
     this.descriptionCtr?.setValue(interfaceData.description);
     this.categoryCtr?.setValue(interfaceData.category);
-    this.helpers.setAutoCompleteValue(this.directionCtr, this.DIRECTIONS, interfaceData.direction);
+    this.helpers.setAutoCompleteValue(this.directionCtr, this.DIRECTIONS, directionValue);
     this.macAddressCtr?.setValue(interfaceData.mac_address);
     if (mode != 'connect') {
       this.helpers.setAutoCompleteValue(this.portGroupCtr, this.portGroups, interfaceData.port_group_id);
