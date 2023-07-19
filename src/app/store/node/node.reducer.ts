@@ -33,7 +33,7 @@ export const nodeReducer = createReducer(
         elem_category: "node",
         layout: { name: "preset" },
         zIndex: 999,
-        updated: node.logical_map.position ? true : false,
+        updated: node.logical_map.position ? false : true,
         locked: node.logical_map.locked,
         in_groupbox: false,
         url: "",

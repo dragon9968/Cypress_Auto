@@ -299,6 +299,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.selectNodes$ = this.store.select(selectNodes).subscribe((nodes: any) => {
       if (nodes) {
         this.nodes = nodes;
+        this._initCytoscape();
+        this._initMouseEvents();
+        this._initContextMenu();
+        this._initUndoRedo();
+        this.helpersService.initCollapseExpandMapLink(this.cy)
       }
     });
     this.selectPortGroups$ = this.store.select(selectMapPortGroups).subscribe((portGroups: any) => {
@@ -407,11 +412,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       if (map.mapProperties && map.defaultPreferences) {
         this.mapProperties = map.mapProperties;
         this.defaultPreferences = map.defaultPreferences;
-        this._initCytoscape();
-        this._initMouseEvents();
-        this._initContextMenu();
-        this._initUndoRedo();
-        this.helpersService.initCollapseExpandMapLink(this.cy)
       }
     });
   }

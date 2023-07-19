@@ -20,7 +20,7 @@ export const portGroupReducer = createReducer(
         id: `pg-${pg.id}`,
         layout: { name: "preset" },
         zIndex: 999,
-        updated: pg.logical_map.position ? true : false,
+        updated: pg.logical_map.position ? false : true,
         locked: pg.logical_map.locked
       }
       if (pg.category != 'management') {
