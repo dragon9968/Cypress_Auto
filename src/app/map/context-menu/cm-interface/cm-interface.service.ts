@@ -40,8 +40,8 @@ export class CMInterfaceService {
     //   disabled: !isCanWriteOnProject,
     // }
 
-    const connectInterfaceToPortGroup = {
-      id: "connect_interface_port_group",
+    const connectInterface = {
+      id: "connect_interface",
       content: "Connect",
       hasTrailingDivider: true,
       disabled: !isCanWriteOnProject,
@@ -97,7 +97,7 @@ export class CMInterfaceService {
       disabled: false,
       submenu: [
         // addInterface,
-        connectInterfaceToPortGroup,
+        connectInterface,
         disconnectInterfacePortGroup,
       ]
     }
