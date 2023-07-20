@@ -9,3 +9,8 @@ export const retrievedIsMapOpen = createAction(
   'retrievedIsMapOpen',
   props<{ data: any }>()
 );
+
+export const retrievedIsFinishLoadedElements = createAction(
+  'retrievedIsLoadedDataElements',
+  props<{ IsFinishLoadedElements: boolean }>()
+);

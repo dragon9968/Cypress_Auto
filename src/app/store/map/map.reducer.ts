@@ -1,6 +1,6 @@
 import { createReducer, on } from '@ngrx/store';
 import { MapState } from 'src/app/store/map/map.state';
-import { retrievedMap, retrievedIsMapOpen } from './map.actions';
+import { retrievedMap, retrievedIsMapOpen, retrievedIsFinishLoadedElements } from './map.actions';
 
 const initialState = {} as MapState;
 
@@ -18,5 +18,9 @@ export const mapReducer = createReducer(
   on(retrievedIsMapOpen, (state, { data }) => ({
     ...state,
     isMapOpen: data,
+  })),
+  on(retrievedIsFinishLoadedElements, (state, { IsFinishLoadedElements }) => ({
+    ...state,
+    IsFinishLoadedElements,
   })),
 );

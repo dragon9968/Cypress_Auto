@@ -1,12 +1,12 @@
-import { AfterViewInit, Component, OnDestroy } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { catchError, delay, ReplaySubject, Subject, Subscription, throwError } from 'rxjs';
-import { retrievedIsMapOpen, retrievedMap } from '../store/map/map.actions';
+import { retrievedIsFinishLoadedElements, retrievedIsMapOpen, retrievedMap } from '../store/map/map.actions';
 import { environment } from 'src/environments/environment';
 import * as cytoscape from 'cytoscape';
 import { HelpersService } from '../core/services/helpers/helpers.service';
-import { selectMapFeature } from '../store/map/map.selectors';
+import { selectIsFinishLoadedElements, selectMapFeature } from '../store/map/map.selectors';
 import { retrievedIcons } from '../store/icon/icon.actions';
 import { retrievedDevices } from '../store/device/device.actions';
 import { retrievedTemplates } from '../store/template/template.actions';
@@ -104,7 +104,7 @@ const popper = require('cytoscape-popper');
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss']
 })
-export class MapComponent implements AfterViewInit, OnDestroy {
+export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   cy: any;
   ur: any;
   isOpenToolPanel = true;
@@ -125,9 +125,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   isCanWriteOnProject = false;
   mapCategory = '';
   projectId = '0';
-  nodes: any;
-  interfaces: any;
-  groupBoxes: any;
+  nodes: any[] = [];
+  interfaces: any[] = [];
+  groupBoxes: any[] = [];
   icons!: any[];
   domains!: any[];
   mapProperties: any;
@@ -148,7 +148,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   imageHeight: any;
   imageUrl: any;
   selectedMapPref: any;
-  portGroups!: any[];
+  portGroups: any[] = [];
   gateways!: any[];
   newEdgeData: any;
   projects: any[] = [];
@@ -202,6 +202,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   selectManagementInterfaces$ = new Subscription();
   selectGroups$ = new Subscription();
   selectProject$ = new Subscription();
+  selectIsFinishLoadedElements$ = new Subscription();
   selectMapFeatureSubject: Subject<MapState> = new ReplaySubject(1);
   destroy$: Subject<boolean> = new Subject<boolean>();
   saveMapSubject: Subject<void> = new Subject<void>();
@@ -300,26 +301,25 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.selectNodes$ = this.store.select(selectNodes).subscribe((nodes: any) => {
       if (nodes) {
         this.nodes = nodes;
-        this._initCytoscape();
-        this._initMouseEvents();
-        this._initContextMenu();
-        this._initUndoRedo();
-        this.helpersService.initCollapseExpandMapLink(this.cy)
+        this.store.dispatch(retrievedIsFinishLoadedElements({IsFinishLoadedElements: true}))
       }
     });
     this.selectPortGroups$ = this.store.select(selectMapPortGroups).subscribe((portGroups: any) => {
       if (portGroups) {
         this.portGroups = portGroups;
+        this.store.dispatch(retrievedIsFinishLoadedElements({IsFinishLoadedElements: true}))
       }
     });
     this.selectWiredInterfaces$ = this.store.select(selectWiredInterfaces).subscribe(wiredInterfaces => {
       if (wiredInterfaces) {
         this.interfaces = wiredInterfaces;
+        this.store.dispatch(retrievedIsFinishLoadedElements({IsFinishLoadedElements: true}))
       }
     });
     this.selectGroups$ = this.store.select(selectGroups).subscribe(groups => {
       if (groups) {
         this.groupBoxes = groups;
+        this.store.dispatch(retrievedIsFinishLoadedElements({IsFinishLoadedElements: true}))
       }
     });
     this.selectSearchText$ = this.store.select(selectSearchText).subscribe((searchText: string) => {
@@ -399,6 +399,22 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  ngOnInit(): void {
+    this.selectIsFinishLoadedElements$ = this.store.select(selectIsFinishLoadedElements).subscribe(isFinishLoadedElements => {
+      if (
+        isFinishLoadedElements
+        && this.nodes.length > 0
+        && this.portGroups.length > 0
+        && this.groupBoxes.length > 0
+        && this.interfaces.length > 0
+      ) {
+        this._initializeMap()
+      } else {
+        this.store.dispatch(retrievedIsFinishLoadedElements({IsFinishLoadedElements: false}))
+      }
+    })
+  }
+
   ngAfterViewInit(): void {
     const permissions = this.rolesService.getUserPermissions();
     if (permissions) {
@@ -442,6 +458,15 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.selectManagementInterfaces$.unsubscribe();
     this.selectGroups$.unsubscribe();
     this.selectProject$.unsubscribe();
+    this.selectIsFinishLoadedElements$.unsubscribe();
+  }
+
+  private _initializeMap() {
+    this._initCytoscape();
+    this._initMouseEvents();
+    this._initContextMenu();
+    this._initUndoRedo();
+    this.helpersService.initCollapseExpandMapLink(this.cy)
   }
 
   private _disableMapEditButtons() {

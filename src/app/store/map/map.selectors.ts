@@ -10,3 +10,4 @@ export const selectNodes = createSelector(selectMapFeature, (state: MapState) =>
 export const selectInterfaces = createSelector(selectMapFeature, (state: MapState) => state.interfaces);
 export const selectGroupBoxes = createSelector(selectMapFeature, (state: MapState) => state.groupBoxes);
 export const selectIsMapOpen = createSelector(selectMapFeature, (state: MapState) => state.isMapOpen);
+export const selectIsFinishLoadedElements = createSelector(selectMapFeature, (state: MapState) => state.IsFinishLoadedElements);

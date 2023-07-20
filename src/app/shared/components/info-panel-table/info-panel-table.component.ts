@@ -126,7 +126,7 @@ export class InfoPanelTableComponent {
   deselectAll() {
     this.rowsSelected = [];
     this.rowsSelectedId = [];
-    this.gridApi.deselectAll();
+    this.gridApi?.deselectAll();
   }
 
   setSelectedEles(activeEleIds: any[], rowData: any[]) {

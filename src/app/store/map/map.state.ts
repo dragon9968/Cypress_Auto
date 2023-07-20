@@ -13,4 +13,5 @@ export interface MapState {
   configs: any;
   loginProfiles: any;
   isMapOpen: boolean;
+  IsFinishLoadedElements: boolean
 }
