@@ -19,3 +19,13 @@ export const nodesLoadedSuccess = createAction(
   'nodesLoadedSuccess',
   props<{ nodes: any }>()
 );
+
+export const selectNode = createAction(
+  'selectNode',
+  props<{ id: string }>()
+);
+
+export const unSelectNode = createAction(
+  'unSelectNode',
+  props<{ id: string }>()
+);

@@ -10,8 +10,6 @@ import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { ProjectService } from "../../../project/services/project.service";
 import { PortGroupService } from "../../../core/services/portgroup/portgroup.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
-import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
-import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { AddUpdatePGDialogComponent } from "../../add-update-pg-dialog/add-update-pg-dialog.component";
 import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
@@ -19,9 +17,7 @@ import { ExportType } from "../../../core/models/common.model";
 import { PortGroupExportModel } from "../../../core/models/port-group.model";
 import { FormControl, FormGroup } from "@angular/forms";
 import { MatMenuTrigger } from "@angular/material/menu";
-import { retrievedMapFilterOptionPG } from "src/app/store/map-filter-option/map-filter-option.actions";
 import { selectManagementPGs, selectPortGroups } from "src/app/store/portgroup/portgroup.selectors";
-import { selectMapFilterOptionPG } from "src/app/store/map-filter-option/map-filter-option.selectors";
 
 @Component({
   selector: 'app-info-panel-port-group',
@@ -47,10 +43,8 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
   filterOption = 'all';
   tabName = 'portgroup';
   projectId = '0';
-  selectMapSelection$ = new Subscription();
   selectPortGroups$ = new Subscription();
   selectManagementPGs$ = new Subscription();
-  selectMapFilterOptionPG$ = new Subscription();
   gridOptions: GridOptions = {
     headerHeight: 48,
     defaultColDef: {
@@ -143,36 +137,12 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
     this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe(portGroups => {
       if (portGroups) {
         this.portGroups = portGroups
-        this.store.dispatch(retrievedMapSelection({ data: true }));
+        this.loadPGsTable();
       }
     });
     this.selectManagementPGs$ = this.store.select(selectManagementPGs).subscribe(managementPGs => {
       if (managementPGs) {
         this.managementPGs = managementPGs;
-      }
-    });
-
-    this.selectMapFilterOptionPG$ = this.store.select(selectMapFilterOptionPG).subscribe(mapFilterOption => {
-      if (mapFilterOption) {
-        this.filterOption = mapFilterOption;
-        this.store.dispatch(retrievedMapSelection({ data: true }));
-      }
-    })
-
-    this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
-      if (mapSelection) {
-        const activeEleIds = this.activePGs.map(ele => ele.data('id'));
-        if (this.filterOption == 'all') {
-          this.infoPanelTableComponent?.setRowData(this.portGroups);
-          this.infoPanelTableComponent?.deselectAll();
-          this.infoPanelTableComponent?.setRowActive(activeEleIds);
-        } else if (this.filterOption == 'selected') {
-          this.rowDataPG = this.activePGs.map(ele => ele.data());
-          this.infoPanelTableComponent?.setSelectedEles(activeEleIds, this.rowDataPG);
-        } else if (this.filterOption === 'management') {
-          this.infoPanelTableComponent?.setRowData(this.managementPGs);
-        }
-        this.store.dispatch(retrievedMapSelection({ data: false }));
       }
     });
     this.filterOptionForm = new FormGroup({
@@ -190,10 +160,22 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.selectMapSelection$.unsubscribe();
-    this.selectMapFilterOptionPG$.unsubscribe();
     this.selectPortGroups$.unsubscribe();
     this.selectManagementPGs$.unsubscribe();
+  }
+
+  private loadPGsTable() {
+    const selectedEles = this.portGroups.filter(n => n.isSelected);
+    const selectedEleIds = selectedEles.map(n => n.id);
+    if (this.filterOption == 'all') {
+      this.infoPanelTableComponent?.setRowData(this.portGroups);
+      this.infoPanelTableComponent?.deselectAll();
+      this.infoPanelTableComponent?.setRowActive(selectedEleIds);
+    } else if (this.filterOption == 'selected') {
+      this.infoPanelTableComponent?.setSelectedEles(selectedEleIds, selectedEles);
+    } else if (this.filterOption === 'management') {
+      this.infoPanelTableComponent?.setRowData(this.managementPGs);
+    }
   }
 
   deletePortGroup() {
@@ -260,15 +242,8 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
 
   changeFilterOption(menuTrigger: MatMenuTrigger, $event: any) {
     menuTrigger.closeMenu();
-    if ($event.value == 'all') {
-      this.infoPanelTableComponent?.setRowData(this.portGroups);
-    } else if ($event.value === 'management') {
-      const portGroupsManagement = this.portGroups.filter(pg => pg.category === 'management')
-      this.infoPanelTableComponent?.setRowData(portGroupsManagement);
-    } else {
-      this.infoPanelTableComponent?.setSelectedEles(this.activeEleIds, this.rowDataPG);
-    }
-    this.store.dispatch(retrievedMapFilterOptionPG({ data: $event.value }));
+    this.filterOption = $event.value;
+    this.loadPGsTable();
   }
 
   selectOption($event: any) {

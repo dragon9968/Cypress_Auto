@@ -14,3 +14,12 @@ export const groupsLoadedSuccess = createAction(
   'groupsLoadedSuccess',
   props<{ groups: any }>()
 );
+export const selectGroup = createAction(
+  'selectGroup',
+  props<{ id: string }>()
+);
+
+export const unSelectGroup = createAction(
+  'unSelectGroup',
+  props<{ id: string }>()
+);

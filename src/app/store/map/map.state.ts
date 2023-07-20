@@ -1,10 +1,9 @@
 export interface MapState {
-  mapItems: any;
-  mapProperties: any;
   defaultPreferences: any;
   nodes: any;
+  portgroups: any;
   interfaces: any;
-  groupBoxes: any;
+  groups: any;
   icons: any;
   devices: any;
   templates: any;

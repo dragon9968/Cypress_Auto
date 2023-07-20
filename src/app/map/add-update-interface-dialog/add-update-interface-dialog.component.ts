@@ -368,7 +368,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         value: `${respData.result.name} ${ipAndNetmask}`.trim()
       }
       this.helpers.addInterfaceIntoElement(this.data.cy, respData.result.node_id, newInterface, 'node')
-      this.interfaceService.getByProjectIdAndCategory(this.projectService.getProjectId(), 'logical', 'all')
+      this.interfaceService.getByProjectId(this.projectService.getProjectId())
         .subscribe(res => {
           this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({ data: res.result }))
         });
@@ -459,7 +459,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         );
         this.store.dispatch(retrievedMapSelection({ data: true }));
       }
-      this.interfaceService.getByProjectIdAndCategory(this.projectService.getProjectId(), 'logical', 'all')
+      this.interfaceService.getByProjectId(this.projectService.getProjectId())
         .subscribe(res => {
           this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({ data: res.result }))
         })

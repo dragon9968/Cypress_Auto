@@ -12,7 +12,6 @@ import { NodeBulkEditDialogComponent } from 'src/app/map/bulk-edit-dialog/node-b
 import { PortGroupBulkEditDialogComponent } from 'src/app/map/bulk-edit-dialog/port-group-bulk-edit-dialog/port-group-bulk-edit-dialog.component';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { Store } from '@ngrx/store';
-import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 import { InfoPanelService } from 'src/app/core/services/info-panel/info-panel.service';
 import { AddUpdateInterfaceDialogComponent } from 'src/app/map/add-update-interface-dialog/add-update-interface-dialog.component';
 import { InterfaceBulkEditDialogComponent } from 'src/app/map/bulk-edit-dialog/interface-bulk-edit-dialog/interface-bulk-edit-dialog.component';
@@ -20,7 +19,6 @@ import { InterfaceService } from 'src/app/core/services/interface/interface.serv
 import { DomainService } from 'src/app/core/services/domain/domain.service';
 import { retrievedDomains } from "../../../store/domain/domain.actions";
 import { ProjectService } from "../../../project/services/project.service";
-import { selectMapFilterOptionNodes } from 'src/app/store/map-filter-option/map-filter-option.selectors';
 
 @Component({
   selector: 'app-info-panel-table',
@@ -35,8 +33,6 @@ export class InfoPanelTableComponent {
   private gridApi!: GridApi;
   rowsSelected: any[] = [];
   rowsSelectedId: any[] = [];
-  selectMapFilterOption$: any;
-  filterOption: any;
 
   get gridHeight() {
     const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
@@ -53,11 +49,7 @@ export class InfoPanelTableComponent {
     private interfaceService: InterfaceService,
     private infoPanelService: InfoPanelService,
     private projectService: ProjectService
-  ) {
-    this.selectMapFilterOption$ = this.store.select(selectMapFilterOptionNodes).subscribe(mapFilterOption => {
-      this.filterOption = mapFilterOption
-    })
-   }
+  ) { }
 
   setRowData(rowData: any[]) {
     this.gridApi?.setRowData(rowData);
@@ -96,19 +88,19 @@ export class InfoPanelTableComponent {
         return ele.id;
       }
     });
-    if (this.filterOption === 'all' && this.tabName == 'node' && unSelectedElements.length > 0) {
+    if (this.tabName == 'node' && unSelectedElements.length > 0) {
       const unSelectedNode = unSelectedElements.filter(val => !this.rowsSelectedId.includes(val.node_id))
       unSelectedNode.forEach(el => {
         const nodeCy = this.cy.getElementById(el.id);
         nodeCy.unselect();
       })
-    } else if (this.filterOption === 'all' && (this.tabName == 'portgroup') && unSelectedElements.length > 0 ) {
+    } else if ((this.tabName == 'portgroup') && unSelectedElements.length > 0 ) {
       const unSelectedPg = unSelectedElements.filter(val => !this.rowsSelectedId.includes(val.pg_id))
       unSelectedPg.forEach(el => {
         const nodeCy = this.cy.getElementById(el.id);
         nodeCy.unselect();
       })
-    } else if (this.filterOption === 'all' && this.tabName == 'edge' && unSelectedElements.length > 0) {
+    } else if (this.tabName == 'edge' && unSelectedElements.length > 0) {
       const unSelectedPg = unSelectedElements.filter(val => !this.rowsSelectedId.includes(val.interface_pk))
       unSelectedPg.forEach(el => {
         const edgeCy = this.cy.getElementById(el.id);
@@ -255,7 +247,6 @@ export class InfoPanelTableComponent {
             this.infoPanelService.deleteInfoPanelAssociateMap(this.cy, activeNodes, activePGs, activeEdges, activeGBs, this.tabName, id);
           });
           this.clearTable();
-          this.store.dispatch(retrievedMapSelection({ data: true }));
         }
       })
     }

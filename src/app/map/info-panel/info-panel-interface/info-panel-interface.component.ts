@@ -7,16 +7,12 @@ import { Component, Input, OnDestroy, ViewChild } from '@angular/core';
 import { GridOptions, RowDoubleClickedEvent } from "ag-grid-community";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
-import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
-import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { AddUpdateInterfaceDialogComponent } from "../../add-update-interface-dialog/add-update-interface-dialog.component";
 import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
 import { FormControl, FormGroup } from "@angular/forms";
 import { MatMenuTrigger } from "@angular/material/menu";
-import { retrievedMapFilterOptionInterfaces } from "src/app/store/map-filter-option/map-filter-option.actions";
-import { selectMapFilterOptionInterfaces } from "src/app/store/map-filter-option/map-filter-option.selectors";
-import { selectInterfaces, selectInterfacesByProjectIdAndCategory, selectManagementInterfaces } from "../../../store/interface/interface.selectors";
+import { selectInterfaces, selectManagementInterfaces } from "../../../store/interface/interface.selectors";
 
 @Component({
   selector: 'app-info-panel-interface',
@@ -37,14 +33,11 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
   filterOptionForm!: FormGroup;
   interfaces: any[] = [];
   managementInterfaces: any[] = [];
-  rowDataInterfaces: any[] = [];
   activeEleIds: any[] = [];
   filterOption = 'all';
   tabName = 'edge';
-  selectMapSelection$ = new Subscription();
   selectInterfaces$ = new Subscription();
   selectManagementInterfaces$ = new Subscription();
-  selectMapFilterOptionInterfaces$ = new Subscription();
   gridOptions: GridOptions = {
     headerHeight: 48,
     defaultColDef: {
@@ -155,35 +148,13 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
     this.iconRegistry.addSvgIcon('randomize-subnet', this.helpers.setIconPath('/assets/icons/randomize-subnet.svg'));
     this.selectInterfaces$ = this.store.select(selectInterfaces).subscribe(interfaces => {
       if (interfaces) {
-        this.interfaces = interfaces.map((ele: any) => ele.data);
-        this.store.dispatch(retrievedMapSelection({ data: true }));
+        this.interfaces = interfaces;
+        this.loadInterfacesTable();
       }
     });
     this.selectManagementInterfaces$ = this.store.select(selectManagementInterfaces).subscribe(managementInterfaces => {
       if (managementInterfaces) {
-        this.managementInterfaces = managementInterfaces.map((ele: any) => ele.data);
-      }
-    });
-    this.selectMapFilterOptionInterfaces$ = this.store.select(selectMapFilterOptionInterfaces).subscribe(mapFilterOption => {
-      if (mapFilterOption) {
-        this.filterOption = mapFilterOption;
-        this.store.dispatch(retrievedMapSelection({ data: true }));
-      }
-    });
-    this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
-      if (mapSelection) {
-        const activeEleIds = this.activeEdges.map(ele => ele.data('id'));
-        if (this.filterOption == 'all') {
-          this.infoPanelTableComponent?.setRowData(this.interfaces);
-          this.infoPanelTableComponent?.deselectAll();
-          this.infoPanelTableComponent?.setRowActive(activeEleIds);
-        } else if (this.filterOption == 'selected') {
-          this.rowDataInterfaces = this.activeEdges.map(ele => ele.data());
-          this.infoPanelTableComponent?.setSelectedEles(activeEleIds, this.rowDataInterfaces);
-        } else if (this.filterOption === 'management') {
-          this.infoPanelTableComponent?.setRowData(this.managementInterfaces);
-        }
-        this.store.dispatch(retrievedMapSelection({ data: false }));
+        this.managementInterfaces = managementInterfaces;
       }
     });
     this.filterOptionForm = new FormGroup({
@@ -192,10 +163,22 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.selectMapSelection$.unsubscribe();
-    this.selectMapFilterOptionInterfaces$.unsubscribe();
     this.selectInterfaces$.unsubscribe();
     this.selectManagementInterfaces$.unsubscribe();
+  }
+
+  private loadInterfacesTable() {
+    const selectedEles = this.interfaces.filter(n => n.isSelected);
+    const selectedEleIds = selectedEles.map(n => n.id);
+    if (this.filterOption == 'all') {
+      this.infoPanelTableComponent?.setRowData(this.interfaces);
+      this.infoPanelTableComponent?.deselectAll();
+      this.infoPanelTableComponent?.setRowActive(selectedEleIds);
+    } else if (this.filterOption == 'selected') {
+      this.infoPanelTableComponent?.setSelectedEles(selectedEleIds, selectedEles);
+    } else if (this.filterOption === 'management') {
+      this.infoPanelTableComponent?.setRowData(this.managementInterfaces);
+    }
   }
 
   deleteInterfaces() {
@@ -238,7 +221,7 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
   changeFilterOption(menuTrigger: MatMenuTrigger, $event: any) {
     menuTrigger.closeMenu();
     this.filterOption = $event.value;
-    this.store.dispatch(retrievedMapFilterOptionInterfaces({ data: this.filterOption }));
+    this.loadInterfacesTable();
   }
 
   selectOption($event: any) {

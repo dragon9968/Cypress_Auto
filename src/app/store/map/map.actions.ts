@@ -10,7 +10,14 @@ export const retrievedIsMapOpen = createAction(
   props<{ data: any }>()
 );
 
-export const retrievedIsFinishLoadedElements = createAction(
-  'retrievedIsLoadedDataElements',
-  props<{ IsFinishLoadedElements: boolean }>()
+export const loadMap = createAction(
+  'loadMap',
+  props<{
+    projectId: string,
+    mapCategory: string
+  }>()
+);
+export const mapLoadedSuccess = createAction(
+  'mapLoadedSuccess',
+  props<{ data: any }>()
 );

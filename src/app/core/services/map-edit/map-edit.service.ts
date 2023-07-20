@@ -4,7 +4,8 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { HelpersService } from "../helpers/helpers.service";
 import { retrievedMap } from "../../../store/map/map.actions";
 import { selectMapOption } from "../../../store/map-option/map-option.selectors";
-import { selectGroupBoxes, selectMapProperties } from "../../../store/map/map.selectors";
+import { selectDefaultPreferences } from "../../../store/map/map.selectors";
+import { selectGroups } from "src/app/store/group/group.selectors";
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,7 @@ import { selectGroupBoxes, selectMapProperties } from "../../../store/map/map.se
 export class MapEditService implements OnDestroy{
 
   selectMapProperties$ = new Subscription();
-  selectGroupBoxes$ = new Subscription();
+  selectGroups$ = new Subscription();
   selectMapOption$ = new Subscription();
   isEdgeDirectionChecked!: boolean;
   isGroupBoxesChecked!: boolean;
@@ -21,16 +22,17 @@ export class MapEditService implements OnDestroy{
   isMapOverviewChecked!: boolean;
   gridSpacingSize!: string;
   groupCategoryId!: string;
-  groupBoxes!: any[];
+  groups!: any[];
   interfaces!: any[];
   nodes!: any[];
-  mapProperties!: any;
+  defaultPreferences!: any;
+
   constructor(
     private store: Store,
     private helpersService: HelpersService
   ) {
-    this.selectGroupBoxes$ = this.store.select(selectGroupBoxes).subscribe(groupBoxes => this.groupBoxes = groupBoxes);
-    this.selectMapProperties$ = this.store.select(selectMapProperties).subscribe(mapProperties => this.mapProperties = mapProperties);
+    this.selectGroups$ = this.store.select(selectGroups).subscribe(groups => this.groups = groups);
+    this.selectMapProperties$ = this.store.select(selectDefaultPreferences).subscribe(defaultPreferences => this.defaultPreferences = defaultPreferences);
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
         this.isEdgeDirectionChecked = mapOption.isEdgeDirectionChecked;
@@ -46,7 +48,7 @@ export class MapEditService implements OnDestroy{
 
   ngOnDestroy(): void {
     this.selectMapOption$.unsubscribe();
-    this.selectGroupBoxes$.unsubscribe();
+    this.selectGroups$.unsubscribe();
     this.selectMapProperties$.unsubscribe();
   }
 
@@ -87,22 +89,17 @@ export class MapEditService implements OnDestroy{
       }
     })
 
-    const newMapProperties = JSON.parse(JSON.stringify(this.mapProperties))
-    newMapProperties.default_preferences.map_style.edge_direction_checkbox = this.isEdgeDirectionChecked
-    newMapProperties.default_preferences.map_style.groupbox_checkbox = this.isGroupBoxesChecked
-    newMapProperties.default_preferences.map_style.grid_settings = {
+    const defaultPreferences = JSON.parse(JSON.stringify(this.defaultPreferences))
+    defaultPreferences.edge_direction_checkbox = this.isEdgeDirectionChecked
+    defaultPreferences.groupbox_checkbox = this.isGroupBoxesChecked
+    defaultPreferences.grid_settings = {
       enabled: this.isMapGridChecked,
       spacing: this.gridSpacingSize,
       snap_to_grid: this.isSnapToGridChecked
     }
-    newMapProperties.default_preferences.map_style.group_category = this.groupCategoryId
+    defaultPreferences.group_category = this.groupCategoryId
     const newMapData = {
-      map_items: {
-        nodes: JSON.parse(JSON.stringify(nodesOnMap)),
-        interfaces: JSON.parse(JSON.stringify(edgesOnMap)),
-        group_boxes: JSON.parse(JSON.stringify(this.groupBoxes.concat(groupBoxes))),
-      },
-      map_properties: newMapProperties
+      defaultPreferences: defaultPreferences
     }
     this.store.dispatch(retrievedMap({data: newMapData}))
   }

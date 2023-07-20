@@ -56,7 +56,7 @@ export class CMInterfaceService {
           })
         } else {
           this.interfaceService.getByNodeAndNotConnected(nodeId).subscribe(response => {
-            this.interfaceService.getByProjectIdAndCategory(this.projectService.getProjectId(), 'physical', 'all').subscribe(resp => {
+            this.interfaceService.getByProjectId(this.projectService.getProjectId()).subscribe(resp => {
               this.store.dispatch(retrievedInterfacesConnectedNode({ interfacesConnectedNode: resp.result }));
               this.store.dispatch(retrievedInterfacesBySourceNode({ interfacesBySourceNode: response.result }));
               this.store.dispatch(retrievedInterfacePkConnectNode({ interfacePkConnectNode: true }))

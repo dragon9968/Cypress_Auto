@@ -14,3 +14,13 @@ export const PGsLoadedSuccess = createAction(
   'PGsLoadedSuccess',
   props<{ portgroups: any }>()
 );
+
+export const selectPG = createAction(
+  'selectPG',
+  props<{ id: string }>()
+);
+
+export const unSelectPG = createAction(
+  'unSelectPG',
+  props<{ id: string }>()
+);

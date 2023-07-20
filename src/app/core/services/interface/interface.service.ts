@@ -94,8 +94,8 @@ export class InterfaceService {
     });
   }
 
-  getByProjectIdAndCategory(projectId: any, mapCategory: string, edgeCategory: string): Observable<any> {
-    return this.http.get<any>(ApiPaths.INTERFACE_DATA_CATEGORY + projectId + '/' + mapCategory + '/' + edgeCategory)
+  getByProjectId(projectId: any): Observable<any> {
+    return this.http.get<any>(ApiPaths.INTERFACE_DATA_BY_PROJECT_ID + projectId)
   }
 
   getByProjectIdAndHwNode(projectId: any): Observable<any> {

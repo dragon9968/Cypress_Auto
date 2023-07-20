@@ -127,7 +127,7 @@ export class InterfaceBulkEditDialogComponent implements OnInit, OnDestroy {
             }
           }
         });
-        this.interfaceService.getByProjectIdAndCategory(this.projectService.getProjectId(), 'logical', 'all')
+        this.interfaceService.getByProjectId(this.projectService.getProjectId())
         .subscribe(res => {
           this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({ data: res.result }))
           this.store.dispatch(retrievedMapSelection({ data: true }));

@@ -10,7 +10,9 @@ import {
   retrievedInterfacesByHwNodes,
   retrievedInterfacesByDestinationNode,
   retrievedInterfacesConnectedNode,
-  interfacesLoadedSuccess
+  interfacesLoadedSuccess,
+  selectInterface,
+  unSelectInterface
 } from "./interface.actions";
 
 const initialState = {} as InterfaceState;
@@ -57,10 +59,26 @@ export const interfaceReducerByIds = createReducer(
     const wiredInterfaces: any[] = [];
     const managementInterfaces: any[] = [];
     interfaces.map((i: any) => {
-      if (i.data.category == 'wired') {
-        wiredInterfaces.push({ data: i.data, locked: i.data.locked });
-      } else if (i.data.category == 'management') {
-        managementInterfaces.push({ data: i.data });
+      if (i.category == 'wired') {
+        const ip_str = i.ip ? i.ip : '';
+        const ip = ip_str.split(".");
+        const lastOctet = ip.length == 4 ? `.${ip[3]}` : '';
+        const baseCyData = {
+          id: `inteface-${i.id}`,
+          inteface_pk: i.id,
+          inteface_fk: i.inteface_id,
+          elem_category: "interface",
+          zIndex: 999,
+          updated: false,
+          source: `node-${i.node_id}`,
+          target: `pg-${i.port_group_id}`,
+          ip_last_octet: i.ip_allocation != "dhcp" ? lastOctet : "DHCP",
+          source_label: i.name,
+          target_label: ''
+        }
+        wiredInterfaces.push({ ...i, data: { ...i, ...baseCyData }, locked: i.logical_map?.locked });
+      } else if (i.category == 'management') {
+        managementInterfaces.push(i);
       }
     });
     return {
@@ -68,5 +86,25 @@ export const interfaceReducerByIds = createReducer(
       wiredInterfaces,
       managementInterfaces,
     }
-  })
+  }),
+  on(selectInterface, (state, { id }) => {
+    const wiredInterfaces = state.wiredInterfaces.map(n => {
+      if (n.data.id == id) return { ...n, isSelected: true };
+      return n;
+    })
+    return {
+      ...state,
+      wiredInterfaces
+    }
+  }),
+  on(unSelectInterface, (state, { id }) => {
+    const wiredInterfaces = state.wiredInterfaces.map(n => {
+      if (n.data.id == id) return { ...n, isSelected: false };
+      return n;
+    })
+    return {
+      ...state,
+      wiredInterfaces
+    }
+  }),
 );

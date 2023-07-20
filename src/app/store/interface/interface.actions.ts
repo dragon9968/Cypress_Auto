@@ -57,3 +57,13 @@ export const retrievedInterfacesConnectedNode = createAction(
   'retrievedInterfacesConnectedNode',
   props<{ interfacesConnectedNode: any }>()
 );
+
+export const selectInterface = createAction(
+  'selectInterface',
+  props<{ id: string }>()
+);
+
+export const unSelectInterface = createAction(
+  'unSelectInterface',
+  props<{ id: string }>()
+);

@@ -1,6 +1,6 @@
 import { GroupState } from "./group.state";
 import { createReducer, on } from "@ngrx/store";
-import { groupsLoadedSuccess, retrievedGroups } from "./group.actions";
+import { groupsLoadedSuccess, retrievedGroups, selectGroup, unSelectGroup } from "./group.actions";
 
 const initialState = {} as GroupState;
 
@@ -11,28 +11,46 @@ export const groupReducer = createReducer(
     groups: data
   })),
   on(groupsLoadedSuccess, (state, { groups }) => {
-    const logicalGroups: any[] = [];
-    // const physicalGroups: any[] = [];
-    groups.map((g: any) => {
+    const g: any[] = [];
+    groups.map((group: any) => {
       const baseCyData = {
-        domain: g.domain.name,
-        domain_id: g.domain_id,
+        domain: group.domain?.name,
+        domain_id: group.domain_id,
         elem_category: "group",
-        group_category: g.category,
-        group_id: g.id,
+        group_category: group.category,
+        group_id: group.id,
         group_opacity: 0.2,
-        id: `group-${g.id}`,
-        name: g.name,
+        id: `group-${group.id}`,
+        name: group.name,
         label: "group_box",
-        zIndex: 997
+        zIndex: 997,
+        updated: false
       }
-      logicalGroups.push({ ...g, data: { ...baseCyData, ...g.logical_map.map_style } });
-      // physicalGroups.push({ ...g, data: { ...baseCyData, ...g.physical_map.map_style } });
+      g.push({ ...group, data: { ...baseCyData, ...group.logical_map?.map_style } });
     });
     return {
       ...state,
-      groups: logicalGroups,
-      // physicalGroups
+      groups: g,
     }
-  })
+  }),
+  on(selectGroup, (state, { id }) => {
+    const groups = state.groups.map(n => {
+      if (n.data.id == id) return { ...n, isSelected: true };
+      return n;
+    })
+    return {
+      ...state,
+      groups
+    }
+  }),
+  on(unSelectGroup, (state, { id }) => {
+    const groups = state.groups.map(n => {
+      if (n.data.id == id) return { ...n, isSelected: false };
+      return n;
+    })
+    return {
+      ...state,
+      groups
+    }
+  }),
 )

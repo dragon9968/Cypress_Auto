@@ -40,7 +40,7 @@ export enum ApiPaths {
   INTERFACE = '/api/v1/interface/',
   GEN_INTERFACE_DATA = '/api/v1/interface/gen_data',
   GEN_INTERFACE_DATA_CONNECT_PG_NODE = '/api/v1/interface/gen_data_connect_pg_node',
-  INTERFACE_DATA_CATEGORY = '/api/v1/interface/get_data/',
+  INTERFACE_DATA_BY_PROJECT_ID = '/api/v1/interface/get_data/',
   INTERFACE_DATA_BY_HW_NODE = '/api/v1/interface/get_data_by_hw_node/',
   INTERFACE_BY_PKS = '/api/v1/interface/data_by_pks',
   TASK = '/api/v1/task/add',

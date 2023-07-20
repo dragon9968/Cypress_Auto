@@ -1,6 +1,6 @@
 import { NodeState } from "./node.state";
 import { createReducer, on } from "@ngrx/store";
-import { retrievedNameNodeBySourceNode, retrievedNodes, nodesLoadedSuccess } from "./node.actions";
+import { retrievedNameNodeBySourceNode, retrievedNodes, nodesLoadedSuccess, selectNode, unSelectNode } from "./node.actions";
 import { environment } from "src/environments/environment";
 
 const initialState = {} as NodeState;
@@ -13,7 +13,7 @@ export const nodeReducer = createReducer(
   })),
   on(retrievedNameNodeBySourceNode, (state, { nameNode }) => ({
     ...state,
-    nameNode: nameNode
+    nameNode
   })),
   on(nodesLoadedSuccess, (state, { nodes }) => {
     const n = nodes.map((node: any) => {
@@ -33,8 +33,7 @@ export const nodeReducer = createReducer(
         elem_category: "node",
         layout: { name: "preset" },
         zIndex: 999,
-        updated: node.logical_map.position ? false : true,
-        locked: node.logical_map.locked,
+        updated: false,
         in_groupbox: false,
         url: "",
         login_profile: node.login_profile,
@@ -49,14 +48,34 @@ export const nodeReducer = createReducer(
         ...node,
         node_id: node.id,
         id: `node-${node.id}`,
-        data: { ...node, ...baseCyData, ...node.logical_map.map_style },
-        position: node.logical_map.position,
-        locked: node.logical_map.locked
+        data: { ...node, ...baseCyData, ...node.logical_map?.map_style },
+        position: node.logical_map?.position,
+        locked: node.logical_map?.locked
       };
     })
     return {
       ...state,
       nodes: n,
     };
-  })
+  }),
+  on(selectNode, (state, { id }) => {
+    const nodes = state.nodes.map(n => {
+      if (n.data.id == id) return { ...n, isSelected: true };
+      return n;
+    })
+    return {
+      ...state,
+      nodes
+    }
+  }),
+  on(unSelectNode, (state, { id }) => {
+    const nodes = state.nodes.map(n => {
+      if (n.data.id == id) return { ...n, isSelected: false };
+      return n;
+    })
+    return {
+      ...state,
+      nodes
+    }
+  }),
 )

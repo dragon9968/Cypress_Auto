@@ -231,7 +231,7 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
       this.helpersService.addCYEdge(this.data.cy, { ...newEdgeData, ...cyData });
       this.helpersService.changeEdgeDirectionOnMap(this.data.cy, this.data.isEdgeDirectionChecked)
       this.store.dispatch(retrievedMapSelection({ data: true }));
-      this.interfaceService.getByProjectIdAndCategory(this.projectService.getProjectId(), 'physical', 'all').subscribe(resp => {
+      this.interfaceService.getByProjectId(this.projectService.getProjectId()).subscribe(resp => {
         this.store.dispatch(retrievedInterfacesConnectedNode({ interfacesConnectedNode: resp.result }));
       })
       this.dialogRef.close();

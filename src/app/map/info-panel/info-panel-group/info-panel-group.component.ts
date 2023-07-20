@@ -12,10 +12,6 @@ import { ConfirmationDialogComponent } from "../../../shared/components/confirma
 import { AddUpdateGroupDialogComponent } from "../../add-update-group-dialog/add-update-group-dialog.component";
 import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
 import { MatMenuTrigger } from "@angular/material/menu";
-import { retrievedMapFilterOptionGroup } from "src/app/store/map-filter-option/map-filter-option.actions";
-import { selectMapFilterOptionGroup } from "src/app/store/map-filter-option/map-filter-option.selectors";
-import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
-import { selectMapSelection } from "src/app/store/map-selection/map-selection.selectors";
 import { FormControl, FormGroup } from "@angular/forms";
 
 @Component({
@@ -35,13 +31,10 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
   mapCategory = '';
   projectId: string = '0';
   selectGroups$ = new Subscription();
-  selectMapFilterOptionGroup$ = new Subscription();
-  selectMapSelection$ = new Subscription();
   groups!: any[];
   tabName = 'group';
   groupDataAg: any[] = [];
   filterOption = 'all';
-  rowData: any[] = [];
   activeEleIds: any[] = [];
 
   gridOptions: GridOptions = {
@@ -133,30 +126,9 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
             map_images: '[' + ele.map_images?.map((mapImageData: any) => mapImageData.name).join(', ') + ']',
           }
         });
-        this.store.dispatch(retrievedMapSelection({ data: true }));
+        this.loadGroupsTable();
       }
     })
-
-    this.selectMapFilterOptionGroup$ = this.store.select(selectMapFilterOptionGroup).subscribe(mapFilterOption => {
-      if (mapFilterOption) {
-        this.filterOption = mapFilterOption;
-        this.store.dispatch(retrievedMapSelection({ data: true }));
-      }
-    })
-    this.selectMapSelection$ = this.store.select(selectMapSelection).subscribe(mapSelection => {
-      if (mapSelection) {
-        const activeEleIds = this.activeGBs.map(ele => ele.data('group_id'));
-        if (this.filterOption == 'all') {
-          this.infoPanelTableComponent?.setRowData(this.groups);
-          this.infoPanelTableComponent?.deselectAll();
-          this.infoPanelTableComponent?.setRowActive(activeEleIds);
-        } else if (this.filterOption == 'selected') {
-          this.rowData = this.activeGBs.map(ele => ele.data());
-          this.infoPanelTableComponent?.setSelectedEles(activeEleIds, this.rowData);
-        }
-        this.store.dispatch(retrievedMapSelection({ data: false }));
-      }
-    });
     this.filterOptionForm = new FormGroup({
       filterOptionCtr: new FormControl('all')
     });
@@ -169,8 +141,18 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.selectGroups$.unsubscribe();
-    this.selectMapSelection$.unsubscribe();
-    this.selectMapFilterOptionGroup$.unsubscribe();
+  }
+
+  private loadGroupsTable() {
+    const selectedEles = this.groups.filter(n => n.isSelected);
+    const selectedEleIds = selectedEles.map(n => n.id);
+    if (this.filterOption == 'all') {
+      this.infoPanelTableComponent?.setRowData(this.groups);
+      this.infoPanelTableComponent?.deselectAll();
+      this.infoPanelTableComponent?.setRowActive(selectedEleIds);
+    } else if (this.filterOption == 'selected') {
+      this.infoPanelTableComponent?.setSelectedEles(selectedEleIds, selectedEles);
+    }
   }
 
   addGroup() {
@@ -237,12 +219,8 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
 
   changeFilterOption(menuTrigger: MatMenuTrigger, $event: any) {
     menuTrigger.closeMenu();
-    if ($event.value == 'all') {
-      this.infoPanelTableComponent?.setRowData(this.groupDataAg);
-    } else {
-      this.infoPanelTableComponent?.setSelectedEles(this.activeEleIds, this.rowData);
-    }
-    this.store.dispatch(retrievedMapFilterOptionGroup({ data: $event.value }));
+    this.filterOption = $event.value;
+    this.loadGroupsTable();
   }
 
   selectOption($event: any) {

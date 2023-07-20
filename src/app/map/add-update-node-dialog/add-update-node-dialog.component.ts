@@ -744,7 +744,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       this.nodeService.getNodesByProjectId(this.projectService.getProjectId()).subscribe(
         (data: any) => this.store.dispatch(retrievedNodes({ data: data.result }))
       );
-      this.interfaceService.getByProjectIdAndCategory(this.projectService.getProjectId(), 'logical', 'all')
+      this.interfaceService.getByProjectId(this.projectService.getProjectId())
         .subscribe(res => {
           this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({ data: res.result }))
         })

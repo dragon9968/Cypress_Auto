@@ -3,7 +3,6 @@ import { map, startWith, Subscription } from 'rxjs';
 import { Injectable, Input, OnDestroy } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
-import { selectGroupBoxes } from 'src/app/store/map/map.selectors';
 import { FormControl, FormGroup } from '@angular/forms';
 import { validatieIP } from 'src/app/shared/validations/ip-subnet.validation.ag-grid';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
@@ -19,7 +18,6 @@ import {
 } from "../../../store/server-connect/server-connect.actions";
 import { ServerConnectService } from "../server-connect/server-connect.service";
 import { retrievedProjects } from "../../../store/project/project.actions";
-import { PortGroupService } from "../portgroup/portgroup.service";
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { AddUpdateGroupDialogComponent } from "../../../map/add-update-group-dialog/add-update-group-dialog.component";
 import { MatDialog } from "@angular/material/dialog";
@@ -31,20 +29,14 @@ import { isIPv4 } from 'is-ip';
 import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
 import { selectPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { retrievedPortGroups } from 'src/app/store/portgroup/portgroup.actions';
-import { selectHistories } from "../../../store/history/history.selectors";
-import { LocalStorageService } from "../../storage/local-storage/local-storage.service";
-import { LocalStorageKeys } from "../../storage/local-storage/local-storage-keys.enum";
-import { retrievedHistories } from "../../../store/history/history.actions";
-import { DeleteHistoryModel } from "../../models/history.model";
 
 @Injectable({
   providedIn: 'root'
 })
 export class HelpersService implements OnDestroy {
   selectMapOption$ = new Subscription();
-  selectGroupBoxes$ = new Subscription();
-  selectNodes$ = new Subscription();
   selectGroups$ = new Subscription();
+  selectNodes$ = new Subscription();
   selectNetmasks$ = new Subscription();
   selectPortGroups$ = new Subscription();
   nodes: any[] = [];
@@ -77,9 +69,7 @@ export class HelpersService implements OnDestroy {
     private toastr: ToastrService,
     private domSanitizer: DomSanitizer,
     private serverConnectionService: ServerConnectService,
-    private portGroupService: PortGroupService,
     private dialog: MatDialog,
-    private localStorageService: LocalStorageService
   ) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {

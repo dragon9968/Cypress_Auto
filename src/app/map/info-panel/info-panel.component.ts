@@ -78,10 +78,10 @@ export class InfoPanelComponent implements OnInit{
       data => this.store.dispatch(retrievedDomainUsers({ data: data.result }))
     );
     this.store.dispatch(retrievedIsChangeDomainUsers({ isChangeDomainUsers: false }));
-    this.interfaceService.getByProjectIdAndCategory(this.projectId, 'logical', 'all')
-      .subscribe(res => {
-        this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({data: res.result}))
-    })
+    // this.interfaceService.getByProjectId(this.projectId)
+    //   .subscribe(res => {
+    //     this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({data: res.result}))
+    // })
     const infoPanelHeight = localStorage.getItem(LocalStorageKeys.INFO_PANEL_HEIGHT)
     this.infoPanelHeightRestore = infoPanelHeight ? infoPanelHeight : '300px'
     this.style.height = this.infoPanelHeightRestore

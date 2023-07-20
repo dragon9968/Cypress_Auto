@@ -51,7 +51,7 @@ export class CommonService {
             this.toastr.success('Deleted Connected Interface', 'Success');
             activeEdges.splice(0);
             cy.edges().unselect();
-            this.interfaceService.getByProjectIdAndCategory(this.projectService.getProjectId(), 'physical', 'all').subscribe(resp => {
+            this.interfaceService.getByProjectId(this.projectService.getProjectId()).subscribe(resp => {
               this.store.dispatch(retrievedInterfacesConnectedNode({ interfacesConnectedNode: resp.result }));
             })
           })

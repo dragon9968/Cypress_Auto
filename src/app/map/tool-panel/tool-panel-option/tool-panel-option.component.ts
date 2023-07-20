@@ -33,7 +33,7 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
   nav: any;
   selectMapOption$ = new Subscription();
   groupBoxes: any;
-  groupCategoryId!: string;
+  groupCategoryId = this.groupCategories[0].id;
   filteredGroupCategories!: Observable<any[]>;
 
   constructor(
@@ -42,9 +42,10 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
     public helpers: HelpersService
   ) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
-      if (mapOption) {
+      if (mapOption && mapOption.groupCategoryId) {
         this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
         this.groupCategoryId = mapOption.groupCategoryId;
+        this.groupCategoryCtr.setValue(this.groupCategories.filter(g => g.id == this.groupCategoryId)[0]);
       }
     });
     this.filteredGroupCategories = this.helpers.filterOptions(this.groupCategoryCtr, this.groupCategories);
@@ -122,7 +123,7 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
         isSnapToGridChecked: this.isSnapToGridChecked,
         isMapOverviewChecked: this.isMapOverviewChecked,
         gridSpacingSize: this.gridSpacingSize,
-        groupCategoryId: this.groupCategoryCtr?.value?.id
+        groupCategoryId: this.isGroupBoxesChecked ? this.groupCategoryCtr?.value?.id : this.groupCategoryId
       }
     }));
   }
@@ -141,7 +142,7 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
         isSnapToGridChecked: this.isSnapToGridChecked,
         isMapOverviewChecked: this.isMapOverviewChecked,
         gridSpacingSize: this.gridSpacingSize,
-        groupCategoryId: this.groupCategoryCtr?.value?.id
+        groupCategoryId: this.isGroupBoxesChecked ? this.groupCategoryCtr?.value?.id : this.groupCategoryId
       }
     }));
   }
@@ -155,7 +156,7 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
         isSnapToGridChecked: this.isSnapToGridChecked,
         isMapOverviewChecked: this.isMapOverviewChecked,
         gridSpacingSize: this.gridSpacingSize,
-        groupCategoryId: this.groupCategoryCtr?.value?.id
+        groupCategoryId: this.isGroupBoxesChecked ? this.groupCategoryCtr?.value?.id : this.groupCategoryId
       }
     }));
     this.helpers.reloadGroupBoxes(this.cy);
@@ -180,7 +181,7 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
         isSnapToGridChecked: this.isSnapToGridChecked,
         isMapOverviewChecked: this.isMapOverviewChecked,
         gridSpacingSize: this.gridSpacingSize,
-        groupCategoryId: this.groupCategoryCtr?.value?.id
+        groupCategoryId: this.isGroupBoxesChecked ? this.groupCategoryCtr?.value?.id : this.groupCategoryId
       }
     }));
   }
@@ -202,7 +203,7 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
         isSnapToGridChecked: this.isSnapToGridChecked,
         isMapOverviewChecked: this.isMapOverviewChecked,
         gridSpacingSize: this.gridSpacingSize,
-        groupCategoryId: this.groupCategoryCtr?.value?.id
+        groupCategoryId: this.isGroupBoxesChecked ? this.groupCategoryCtr?.value?.id : this.groupCategoryId
       }
     }));
   }
@@ -222,7 +223,7 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
         isSnapToGridChecked: this.isSnapToGridChecked,
         isMapOverviewChecked: this.isMapOverviewChecked,
         gridSpacingSize: this.gridSpacingSize,
-        groupCategoryId: this.groupCategoryCtr?.value?.id
+        groupCategoryId: this.isGroupBoxesChecked ? this.groupCategoryCtr?.value?.id : this.groupCategoryId
       }
     }));
   }
@@ -242,7 +243,7 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
         isSnapToGridChecked: this.isSnapToGridChecked,
         isMapOverviewChecked: this.isMapOverviewChecked,
         gridSpacingSize: this.gridSpacingSize,
-        groupCategoryId: this.groupCategoryCtr?.value?.id
+        groupCategoryId: this.isGroupBoxesChecked ? this.groupCategoryCtr?.value?.id : this.groupCategoryId
       }
     }));
   }
