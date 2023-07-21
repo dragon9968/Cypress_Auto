@@ -104,7 +104,7 @@ const popper = require('cytoscape-popper');
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss']
 })
-export class MapComponent implements AfterViewInit, OnDestroy {
+export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   cy: any;
   ur: any;
   isOpenToolPanel = true;
@@ -263,16 +263,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
       this.icons = icons;
     });
-    this.selectMap$ = this.store.select(selectMapFeature).subscribe((map: MapState) => {
-      if (map.defaultPreferences && this.nodes && this.portGroups && this.interfaces && this.groupBoxes) {
-        this.defaultPreferences = map.defaultPreferences;
-        this._initCytoscape();
-        this._initMouseEvents();
-        this._initContextMenu();
-        this._initUndoRedo();
-        this.helpersService.initCollapseExpandMapLink(this.cy)
-      }
-    });
     this.selectMapPref$ = this.store.select(selectMapPref).subscribe((selectedMapPref: any) => {
       this.selectedMapPref = selectedMapPref;
     });
@@ -392,6 +382,19 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     })
     this.projectService.getProjectsNotLinkedYet(Number(this.projectId)).subscribe(response => {
       this.store.dispatch(retrievedProjects({ data: response.result }))
+    });
+  }
+
+  ngOnInit(): void {
+    this.selectMap$ = this.store.select(selectMapFeature).subscribe((map: MapState) => {
+      if (map.defaultPreferences && this.nodes && this.portGroups && this.interfaces && this.groupBoxes) {
+        this.defaultPreferences = map.defaultPreferences;
+        this._initCytoscape();
+        this._initMouseEvents();
+        this._initContextMenu();
+        this._initUndoRedo();
+        this.helpersService.initCollapseExpandMapLink(this.cy)
+      }
     });
   }
 
@@ -969,7 +972,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     }
     this.styleExists = this.config.styleExists;
     this.cleared = this.config.cleared;
-    this.eles = JSON.parse(JSON.stringify(this.nodes.concat(this.portGroups).concat(this.interfaces)));
+    const interfacesValid = this.interfaces.filter(i => i.port_group_id)
+    this.eles = JSON.parse(JSON.stringify(this.nodes.concat(this.portGroups).concat(interfacesValid)));
     this.eles.forEach(ele => {
       if (ele.data.elem_category == 'map_link') {
         if (!ele.data.icon.includes(environment.apiBaseUrl)) {

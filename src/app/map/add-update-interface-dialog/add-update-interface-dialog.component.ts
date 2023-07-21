@@ -13,7 +13,6 @@ import { catchError, Observable, Subscription, throwError } from 'rxjs';
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
-import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
 import { selectMapOption } from "../../store/map-option/map-option.selectors";
 import { PortGroupService } from "../../core/services/portgroup/portgroup.service";
 import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
@@ -182,7 +181,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this._setDataAddInterfaceForm(this.data.genData, this.data.mode)
     if (this.data.mode == 'connect') {
-      this.helpers.setAutoCompleteValue(this.targetPortGroupCtr, this.portGroups, this.data.genData.port_group_id);
+      this.helpers.setAutoCompleteValue(this.targetPortGroupCtr, this.portGroups, `pg-${this.data.genData.port_group_id}`);
     }
     this.helpers.setAutoCompleteValue(this.interfaceCtr, this.interfacesByHwNodes, this.data.genData.interface_fk);
     this.vlanIdCtr?.setValue(this.data.genData.vlan)
@@ -193,7 +192,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   connectToPortGroup() {
     const successMessage = 'Connected Interface to Port Group'
     const jsonData = {
-      port_group_id: this.targetPortGroupCtr?.value.id,
+      port_group_id: this.targetPortGroupCtr?.value.pg_id,
       task: successMessage
     }
     this.interfaceService.put(this.interfaceCtr?.value.id, jsonData).subscribe(res => {
@@ -201,16 +200,16 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       const ip_str = cyData.ip ? cyData.ip : ""
       const ip = ip_str.split(".")
       const mapStyle = cyData.logical_map.map_style
-      cyData.id = this.interfaceCtr?.value.id
+      cyData.id = `interface-${this.interfaceCtr?.value.id}`
       cyData.interface_pk = cyData.id
       cyData.ip_last_octet = ip.length == 4 ? "." + ip[3] : ""
       cyData.source = `node-${this.data.genData.node_id}`
-      cyData.target = `pg-${this.targetPortGroupCtr?.value.id}`;
+      cyData.target = this.targetPortGroupCtr?.value.id;
       cyData.width = mapStyle.width ? mapStyle.width : this.data.selectedMapPref.edge_width;
       cyData.text_color = mapStyle.text_color ? mapStyle.text_color : this.data.selectedMapPref.text_color;
       cyData.text_size = mapStyle.text_size ? mapStyle.text_size : this.data.selectedMapPref.text_size;
       cyData.color = mapStyle.color ? mapStyle.color : this.data.selectedMapPref.edge_color;
-      cyData.node = this.nodes.find(node => node.id === cyData.node_id)?.name
+      cyData.node = this.nodes.find(node => node.node_id === cyData.node_id)?.name
       cyData.netmask = this.netmasks.find(netmask => netmask.id === cyData.netmask_id)?.mask
       delete cyData.task;
       this.helpers.addCYEdge(this.data.cy, cyData);

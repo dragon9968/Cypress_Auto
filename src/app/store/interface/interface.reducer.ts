@@ -64,14 +64,14 @@ export const interfaceReducerByIds = createReducer(
         const ip = ip_str.split(".");
         const lastOctet = ip.length == 4 ? `.${ip[3]}` : '';
         const baseCyData = {
-          id: `inteface-${i.id}`,
-          inteface_pk: i.id,
-          inteface_fk: i.inteface_id,
+          id: `interface-${i.id}`,
+          interface_pk: i.id,
+          interface_fk: i.inteface_id,
           elem_category: "interface",
           zIndex: 999,
           updated: false,
           source: `node-${i.node_id}`,
-          target: `pg-${i.port_group_id}`,
+          target: i.port_group_id ? `pg-${i.port_group_id}` : undefined,
           ip_last_octet: i.ip_allocation != "dhcp" ? lastOctet : "DHCP",
           source_label: i.name,
           target_label: ''

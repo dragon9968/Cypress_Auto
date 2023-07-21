@@ -59,26 +59,14 @@ export class ConnectInterfaceToPgDialogComponent implements OnInit, OnDestroy {
     const successMessage = 'Disconnected Interface from Port Group'
     const edgeData = this.interfaceCtr?.value;
     const jsonDataValue = {
-      order: edgeData?.order,
-      name: edgeData?.name,
-      description: edgeData?.description,
-      category: edgeData?.category,
-      direction: edgeData?.direction,
-      mac_address: edgeData?.mac_address,
       port_group_id: null,
-      ip_allocation: edgeData?.ip_allocation,
       ip: edgeData?.ip_allocation === 'static_auto' ?  null : edgeData?.ip,
-      dns_server: edgeData?.dns_server,
-      gateway: edgeData?.gateway,
-      is_gateway: edgeData?.is_gateway,
-      is_nat: edgeData?.is_nat,
-      node_id: edgeData?.node_id,
       netmask_id: null,
       task: successMessage
     }
     const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.interfaceService.put(edgeData.id, jsonData).subscribe(() => {
-      const edge = this.data.cy.getElementById(edgeData.id);
+      const edge = this.data.cy.getElementById(`interface-${edgeData.id}`);
       this.data.cy.remove(edge);
       this.dialogRef.close();
       this.toastr.success(successMessage, 'Success');
