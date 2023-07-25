@@ -29,7 +29,6 @@ import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
 import { selectPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { retrievedPortGroups } from 'src/app/store/portgroup/portgroup.actions';
 import { IpReservationModel, RangeModel } from "../../models/config-template.model";
-import { selectNotification } from 'src/app/store/app/app.selectors';
 import { clearNotification } from 'src/app/store/app/app.actions';
 
 @Injectable({
@@ -75,11 +74,6 @@ export class HelpersService implements OnDestroy {
     private serverConnectionService: ServerConnectService,
     private dialog: MatDialog,
   ) {
-    this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
-      if (notification) {
-        this.showNotification(notification);
-      }
-    });
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
         this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
@@ -110,9 +104,12 @@ export class HelpersService implements OnDestroy {
     this.selectGroups$.unsubscribe();
   }
 
-  private showNotification(notification: any) {
+  showNotification(notification: any, dialogRef: any) {
     if (notification.type == 'success') {
       this.toastr.success(notification.message);
+      if (dialogRef) {
+        dialogRef.close();
+      }
     } else if (notification.type == 'error') {
       this.toastr.error(notification.message);
     }

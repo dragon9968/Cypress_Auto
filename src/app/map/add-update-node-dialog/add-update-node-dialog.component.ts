@@ -36,6 +36,7 @@ import { ServerConnectService } from 'src/app/core/services/server-connect/serve
 import { AgGridAngular } from 'ag-grid-angular';
 import { ProjectService } from 'src/app/project/services/project.service';
 import { updateNode } from 'src/app/store/node/node.actions';
+import { selectNotification } from 'src/app/store/app/app.selectors';
 
 class CrossFieldErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -119,6 +120,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   selectIsHypervisorConnect$ = new Subscription();
   selectIsDatasourceConnect$ = new Subscription();
   selectIsConfiguratorConnect$ = new Subscription();
+  selectNotification$ = new Subscription();
   isHypervisorConnect = false;
   isDatasourceConnect = false;
   isConfiguratorConnect = false;
@@ -307,6 +309,11 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       changeCtr: new FormControl(''),
       tasksCtr: new FormControl(''),
     }, { validators: hostnameValidator });
+    this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
+      if (notification) {
+        this.helpers.showNotification(notification, this.dialogRef);
+      }
+    });
     this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
       this.icons = icons;
       this.iconCtr.setValidators([autoCompleteValidator(this.icons)]);
@@ -674,7 +681,6 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   }
 
   updateNode() {
-    const ele = this.data.cy.getElementById(this.data.genData.id);
     const jsonDataValue = {
       name: this.nameCtr?.value,
       notes: this.notesCtr?.value,
