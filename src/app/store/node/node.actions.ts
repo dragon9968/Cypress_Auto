@@ -29,3 +29,8 @@ export const unSelectNode = createAction(
   'unSelectNode',
   props<{ id: string }>()
 );
+
+export const removeNode = createAction(
+  'removeNode',
+  props<{ id: string }>()
+);

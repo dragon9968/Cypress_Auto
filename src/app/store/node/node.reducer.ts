@@ -1,6 +1,6 @@
 import { NodeState } from "./node.state";
 import { createReducer, on } from "@ngrx/store";
-import { retrievedNameNodeBySourceNode, retrievedNodes, nodesLoadedSuccess, selectNode, unSelectNode } from "./node.actions";
+import { retrievedNameNodeBySourceNode, retrievedNodes, nodesLoadedSuccess, selectNode, unSelectNode, removeNode } from "./node.actions";
 import { environment } from "src/environments/environment";
 
 const initialState = {} as NodeState;
@@ -73,6 +73,13 @@ export const nodeReducer = createReducer(
       if (n.data.id == id) return { ...n, isSelected: false };
       return n;
     })
+    return {
+      ...state,
+      nodes
+    }
+  }),
+  on(removeNode, (state, { id }) => {
+    const nodes = state.nodes.filter(ele => ele.node_id !== id);
     return {
       ...state,
       nodes

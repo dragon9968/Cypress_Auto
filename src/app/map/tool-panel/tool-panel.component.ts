@@ -23,7 +23,9 @@ import { ProjectService } from "../../project/services/project.service";
 import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
 import { retrievedMapOption } from "../../store/map-option/map-option.actions";
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
-import { retrievedInterfaceByProjectIdAndCategory } from 'src/app/store/interface/interface.actions';
+import { loadInterfaces, retrievedInterfaceByProjectIdAndCategory } from 'src/app/store/interface/interface.actions';
+import { loadPGs } from 'src/app/store/portgroup/portgroup.actions';
+import { loadNodes } from 'src/app/store/node/node.actions';
 
 @Component({
   selector: 'app-tool-panel',
@@ -244,11 +246,11 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       if (this.deletedNodes.length > 0) {
         const nodeDeletedIds = this.deletedNodes.map(node => node.elem_category == 'node' && node.id);
         if (nodeDeletedIds.length > 0) {
-          this.helpersService.removeNodesInStorage(nodeDeletedIds);
+          this.store.dispatch(loadNodes( {projectId: this.projectService.getProjectId()} ))
         }
         const deletedPGIds = this.deletedNodes.map(pg => pg.elem_category == 'port_group' && pg.id);
         if (deletedPGIds.length > 0) {
-          this.helpersService.removePortGroupInStorage(deletedPGIds);
+          this.store.dispatch(loadPGs( {projectId: this.projectService.getProjectId()} ))
         }
         const deletedNodesLinkProject = this.deletedNodes.filter(node => node.linked_project_id);
         if (deletedNodesLinkProject.length > 0) {
@@ -260,6 +262,12 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
           );
         }
       }
+      if (this.deletedInterfaces.length > 0) {
+        const deletedInterfaceIds = this.deletedInterfaces.map(edge => edge.interface_pk);
+        if (deletedInterfaceIds.length > 0) {
+          this.store.dispatch(loadInterfaces( {projectId: this.projectService.getProjectId(), mapCategory: this.mapCategory} ))
+        }
+      }
       this.deletedNodes.splice(0);
       this.deletedInterfaces.splice(0);
       this.cy.elements().forEach((ele: any) => {
@@ -268,11 +276,6 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
           data.updated = false;
         }
       });
-      this.interfaceService.getByProjectId(this.projectService.getProjectId())
-      .subscribe(res => {
-        this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({ data: res.result }))
-        this.store.dispatch(retrievedMapSelection({ data: true }));
-      })
       if (this.updatedNodeAndPGInGroups.length > 0) {
         this.updateNodesAndPGInGroupStorageAndMap();
       }

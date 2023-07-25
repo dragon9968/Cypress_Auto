@@ -24,3 +24,8 @@ export const unSelectPG = createAction(
   'unSelectPG',
   props<{ id: string }>()
 );
+
+export const removePG = createAction(
+  'removePG',
+  props<{ id: string }>()
+);

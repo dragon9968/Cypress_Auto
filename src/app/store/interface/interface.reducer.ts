@@ -12,7 +12,8 @@ import {
   retrievedInterfacesConnectedNode,
   interfacesLoadedSuccess,
   selectInterface,
-  unSelectInterface
+  unSelectInterface,
+  removeInterface
 } from "./interface.actions";
 
 const initialState = {} as InterfaceState;
@@ -102,6 +103,13 @@ export const interfaceReducerByIds = createReducer(
       if (n.data.id == id) return { ...n, isSelected: false };
       return n;
     })
+    return {
+      ...state,
+      wiredInterfaces
+    }
+  }),
+  on(removeInterface, (state, { id }) => {
+    const wiredInterfaces = state.wiredInterfaces.filter(ele => ele.id !== id)
     return {
       ...state,
       wiredInterfaces

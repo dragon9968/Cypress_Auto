@@ -19,6 +19,9 @@ import { InterfaceService } from 'src/app/core/services/interface/interface.serv
 import { DomainService } from 'src/app/core/services/domain/domain.service';
 import { retrievedDomains } from "../../../store/domain/domain.actions";
 import { ProjectService } from "../../../project/services/project.service";
+import { removePG } from 'src/app/store/portgroup/portgroup.actions';
+import { removeNode } from 'src/app/store/node/node.actions';
+import { removeInterface } from 'src/app/store/interface/interface.actions';
 
 @Component({
   selector: 'app-info-panel-table',
@@ -81,9 +84,9 @@ export class InfoPanelTableComponent {
         nodeCy.select();
         return ele.pg_id;
       } else if (this.tabName == 'edge') {
-        const edgeCy = this.cy.getElementById(ele.id);
+        const edgeCy = this.cy.getElementById(`interface-${ele.id}`);
         edgeCy.select();
-        return ele.interface_pk;
+        return ele.id;
       } else {
         return ele.id;
       }
@@ -103,7 +106,7 @@ export class InfoPanelTableComponent {
     } else if (this.tabName == 'edge' && unSelectedElements.length > 0) {
       const unSelectedPg = unSelectedElements.filter(val => !this.rowsSelectedId.includes(val.interface_pk))
       unSelectedPg.forEach(el => {
-        const edgeCy = this.cy.getElementById(el.id);
+        const edgeCy = this.cy.getElementById(`interface-${el.id}`);
         edgeCy.unselect();
       })
     }
@@ -112,7 +115,6 @@ export class InfoPanelTableComponent {
   clearTable() {
     this.rowsSelected = [];
     this.rowsSelectedId = [];
-    this.gridApi.setRowData([]);
   }
 
   deselectAll() {
@@ -124,6 +126,7 @@ export class InfoPanelTableComponent {
   setSelectedEles(activeEleIds: any[], rowData: any[]) {
     if (activeEleIds.length === 0) {
       this.clearTable();
+      this.gridApi.setRowData([]);
     } else {
       this.setRowData(rowData);
       this.setRowActive(activeEleIds);
@@ -245,6 +248,13 @@ export class InfoPanelTableComponent {
         if (confirm) {
           this.rowsSelectedId.map(id => {
             this.infoPanelService.deleteInfoPanelAssociateMap(this.cy, activeNodes, activePGs, activeEdges, activeGBs, this.tabName, id);
+            if (this.tabName == 'portgroup') {
+              this.store.dispatch(removePG({ id: id }));
+            } else if (this.tabName == 'node') {
+              this.store.dispatch(removeNode({ id: id }));
+            } else if (this.tabName == 'edge') {
+              this.store.dispatch(removeInterface({ id: id }));
+            }
           });
           this.clearTable();
         }
