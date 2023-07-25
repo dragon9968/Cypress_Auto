@@ -8,7 +8,7 @@ import { AppPrefService } from 'src/app/core/services/app-pref/app-pref.service'
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { ipInNetworkValidator } from 'src/app/shared/validations/ip-innetwork.validation';
 import { ipSubnetValidation } from 'src/app/shared/validations/ip-subnet.validation';
-import { retrievedAppPref } from 'src/app/store/app-pref/app-pref.actions';
+import { loadAppPref } from 'src/app/store/app-pref/app-pref.actions';
 import { selectAppPref } from 'src/app/store/app-pref/app-pref.selectors';
 import { selectMapPrefs } from 'src/app/store/map-pref/map-pref.selectors';
 import { HelpersService } from "../../core/services/helpers/helpers.service";
@@ -120,7 +120,7 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
       })
     ).subscribe(response => {
       this.toastr.success(`Changed App Preferences`, 'Success');
-      this.appPrefService.get("2").subscribe((data: any) => this.store.dispatch(retrievedAppPref({ data: data.result })));
+      this.store.dispatch(loadAppPref());
       this.dialogRef.close();
     });
   }

@@ -311,10 +311,10 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   openAppPref() {
-    this.appPrefService.get('2').subscribe(data => {
+    this.appPrefService.getByCategory('app').subscribe(data => {
       const dialogData = {
         mode: 'update',
-        genData: data.result
+        genData: data.result[0]
       }
       this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPrefs({ data: data.result })));
       const dialogRef = this.dialog.open(AppPreferencesComponent, {

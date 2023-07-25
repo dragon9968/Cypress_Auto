@@ -1,3 +1,4 @@
+import { AppPrefEffects } from "./app-pref/app-pref.effects";
 import { DomainsEffects } from "./domain/domain.effects";
 import { GroupsEffects } from "./group/group.effects";
 import { InterfacesEffects } from "./interface/interface.effects";
@@ -13,5 +14,6 @@ export const effects = [
   PortGroupsEffects,
   InterfacesEffects,
   DomainsEffects,
-  GroupsEffects
+  GroupsEffects,
+  AppPrefEffects
 ];

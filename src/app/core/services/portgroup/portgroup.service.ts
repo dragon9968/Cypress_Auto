@@ -78,4 +78,11 @@ export class PortGroupService {
   getRandomSubnet(data: PortGroupGetRandomModel): Observable<any> {
     return this.http.post<any>(ApiPaths.PORT_GROUP_GET_RANDOM_SUBNET, data)
   }
+
+  getDeployData(pgId: any, connectionId: any): Observable<any> {
+    const params = new HttpParams()
+    .set('pk', pgId)
+    .set('connection_id', connectionId);
+    return this.http.get<any>(ApiPaths.GET_PG_DEPLOY_DATA, { params });
+  }
 }

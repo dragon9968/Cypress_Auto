@@ -43,6 +43,14 @@ export class HistoryService implements OnDestroy{
     })
   }
 
+  getByItemId(itemId: Number): Observable<any> {
+    return this.http.get<any>(ApiPaths.HISTORIES, {
+      params: {
+        q: `(filters:!((col:item_id,opr:eq,value:'${itemId}')),keys:!(list_columns),page:0,page_size:1000)`
+      }
+    })
+  }
+
   addNewHistoryIntoStorage(task: string) {
     const currentHistories = JSON.parse(JSON.stringify(this.histories))
     this.getByTask(task).subscribe(res => {

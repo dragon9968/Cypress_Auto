@@ -18,7 +18,7 @@ import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmat
 import { MatDialog } from '@angular/material/dialog';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { selectAppPref } from 'src/app/store/app-pref/app-pref.selectors';
-import { retrievedAppPref } from 'src/app/store/app-pref/app-pref.actions';
+import { loadAppPref, retrievedAppPref } from 'src/app/store/app-pref/app-pref.actions';
 import { MatRadioChange } from '@angular/material/radio';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { MapPrefService } from 'src/app/core/services/map-pref/map-pref.service';
@@ -220,7 +220,7 @@ export class AddProjectComponent implements OnInit {
     this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe(data => {
       this.store.dispatch(retrievedProjects({data: data.result}));
     })
-    this.appPrefService.get("2").subscribe((data: any) => this.store.dispatch(retrievedAppPref({ data: data.result })));
+    this.store.dispatch(loadAppPref());
     this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPrefs({ data: data.result })));
     this.projectService.getProjectByStatusAndCategory(this.status, 'template').subscribe((data: any) => this.store.dispatch(retrievedProjectsTemplate({ template: data.result })));
   }

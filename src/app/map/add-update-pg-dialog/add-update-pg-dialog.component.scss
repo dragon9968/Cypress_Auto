@@ -80,3 +80,15 @@ $margin: 8px;
     }
   }
 }
+
+.history {
+  width: 100%;
+  position: relative;
+  bottom: 0;
+  &__table ag-grid-angular {
+    text-align: center;
+    .ag-header-cell-label {
+      justify-content: center;
+    }
+  }
+}

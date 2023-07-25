@@ -4,7 +4,7 @@ import { MatRadioChange } from '@angular/material/radio';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { catchError, Observable, of, Subscription, throwError } from 'rxjs';
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
@@ -18,6 +18,11 @@ import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
 import { InterfaceService } from "../../core/services/interface/interface.service";
 import { selectNodesByProjectId } from "../../store/node/node.selectors";
 import { retrievedInterfaceByProjectIdAndCategory } from 'src/app/store/interface/interface.actions';
+import { AgGridAngular } from 'ag-grid-angular';
+import { HistoryService } from 'src/app/core/services/history/history.service';
+import { RemoteCategories } from 'src/app/core/enums/remote-categories.enum';
+import { selectIsConfiguratorConnect, selectIsDatasourceConnect, selectIsHypervisorConnect } from 'src/app/store/server-connect/server-connect.selectors';
+import { ServerConnectService } from 'src/app/core/services/server-connect/server-connect.service';
 
 @Component({
   selector: 'app-add-update-pg-dialog',
@@ -25,19 +30,27 @@ import { retrievedInterfaceByProjectIdAndCategory } from 'src/app/store/interfac
   styleUrls: ['./add-update-pg-dialog.component.scss']
 })
 export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
-  private gridApi!: GridApi;
+  @ViewChild("agGridInterfaces") agGridInterfaces!: AgGridAngular;
+  @ViewChild("agGridHistory") agGridHistory!: AgGridAngular;
+  private gridApiInterface!: GridApi;
+  private gridApiHistory!: GridApi;
   pgAddForm: FormGroup;
   errorMessages = ErrorMessages;
   selectDomains$ = new Subscription();
-  selectNodes$ = new Subscription()
+  selectNodes$ = new Subscription();
+  selectIsHypervisorConnect$ = new Subscription();
+  selectIsDatasourceConnect$ = new Subscription();
+  selectIsConfiguratorConnect$ = new Subscription();
+  connectionCategory = '';
   nodes: any[] = [];
   domains!: any[];
   isViewMode = false;
   tabName = '';
   errors: any[] = [];
   filteredDomains!: Observable<any[]>;
-  rowData$!: Observable<any[]>;
-  public gridOptions: GridOptions = {
+  rowDataInterface$!: Observable<any[]>;
+  rowDataHistory$!: Observable<any[]>
+  public gridOptionsInterfaces: GridOptions = {
     headerHeight: 48,
     defaultColDef: {
       sortable: true,
@@ -89,6 +102,48 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
       }
     ]
   };
+  //  Grid option for history table
+  public gridOptionsHistory: GridOptions = {
+    headerHeight: 48,
+    defaultColDef: {
+      sortable: true,
+      resizable: true,
+      singleClickEdit: true,
+      filter: true
+    },
+    rowSelection: 'multiple',
+    suppressRowDeselection: true,
+    suppressCellFocus: true,
+    enableCellTextSelection: true,
+    pagination: true,
+    paginationPageSize: 25,
+    suppressRowClickSelection: true,
+    animateRows: true,
+    rowData: [],
+    columnDefs: [
+      {
+        field: 'id',
+        hide: true,
+        flex: 1,
+        getQuickFilterText: () => ''
+      },
+      { field: 'task',
+        flex: 1,
+      },
+      {
+        field: 'category',
+        flex: 1,
+      },
+      {
+        field: 'date_time',
+        headerName: 'Date Time',
+        flex: 1,
+        cellRenderer: (dateTime: any) => new Date(dateTime.value).toLocaleString(),
+      },
+      { field: 'item_id', headerName: 'Item Id', flex: 1,},
+      { field: 'user_id', headerName: 'User Id', flex: 1,},
+    ]
+  };
   constructor(
     private store: Store,
     private toastr: ToastrService,
@@ -98,6 +153,8 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
     private portGroupService: PortGroupService,
     private infoPanelService: InfoPanelService,
     private interfaceService: InterfaceService,
+    private historyService: HistoryService,
+    private serverConnectionService: ServerConnectService
   ) {
     this.pgAddForm = new FormGroup({
       nameCtr: new FormControl('', Validators.required),
@@ -113,7 +170,9 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
       subnetAllocationCtr: new FormControl(''),
       subnetCtr: new FormControl('', [
         Validators.required,
-        showErrorFromServer(() => this.errors)])
+        showErrorFromServer(() => this.errors)]),
+      uuidCtr: new FormControl(''),
+      switchCtr: new FormControl('')
     });
     this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
       this.domains = domains;
@@ -130,17 +189,58 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
           edge['node_name'] = this.nodes.find((node: any) => node.id == edge.node_id)?.name
           return edge
         })
-        if (this.gridApi) {
-          this.gridApi.setRowData(interfaceDataWithNode);
+        if (this.agGridInterfaces) {
+          this.agGridInterfaces.api.setRowData(interfaceDataWithNode);
         } else {
-          this.rowData$ = of(interfaceDataWithNode);
+          this.rowDataInterface$ = of(interfaceDataWithNode);
         }
       })
     }
+    const pgId = this.data.genData.pg_id
+    this.historyService.getByItemId(this.data.genData.pg_id).subscribe(resp => {
+      const historyData = resp.result;
+      if (this.agGridHistory) {
+        this.agGridHistory.api.setRowData(historyData);
+      } else {
+        this.rowDataHistory$ = of(historyData);
+      }
+    })
+
+    this.selectIsHypervisorConnect$ = this.store.select(selectIsHypervisorConnect).subscribe(isHypervisorConnect => {
+      if (isHypervisorConnect) {
+        this.connectionCategory = RemoteCategories.HYPERVISOR
+      }
+    })
+
+    this.selectIsDatasourceConnect$ = this.store.select(selectIsDatasourceConnect).subscribe(isDatasourceConnect => {
+      if (isDatasourceConnect) {
+        this.connectionCategory = RemoteCategories.DATASOURCE
+      }
+    })
+
+    this.selectIsConfiguratorConnect$ = this.store.select(selectIsConfiguratorConnect).subscribe(isConfiguratorConnect => {
+      if (isConfiguratorConnect) {
+        this.connectionCategory = RemoteCategories.CONFIGURATOR
+      }
+    })
+
+    if (this.data.mode === 'view') {
+      const connection = this.serverConnectionService.getConnection(this.connectionCategory);
+      const connectionId = connection ? connection?.id : 0;
+      this.portGroupService.getDeployData(pgId, connectionId).subscribe(resp => {
+        const deployData = resp.result;
+        this.switchCtr?.setValue(deployData?.dvswitch_name);
+      });
+    }
   }
 
-  onGridReady(params: GridReadyEvent) {
-    this.gridApi = params.api;
+  onGridReadyInterface(params: GridReadyEvent) {
+    this.gridApiInterface = params.api;
+  }
+
+  onGridReadyHistory(params: GridReadyEvent) {
+    this.gridApiHistory = params.api;
+    this.gridApiHistory.sizeColumnsToFit();
   }
 
   get nameCtr() { return this.pgAddForm.get('nameCtr'); }
@@ -149,6 +249,8 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
   get domainCtr() { return this.helpers.getAutoCompleteCtr(this.pgAddForm.get('domainCtr'), this.domains); }
   get subnetAllocationCtr() { return this.pgAddForm.get('subnetAllocationCtr'); }
   get subnetCtr() { return this.pgAddForm.get('subnetCtr'); }
+  get uuidCtr() { return this.pgAddForm.get('uuidCtr'); }
+  get switchCtr() { return this.pgAddForm.get('switchCtr'); }
 
   ngOnInit(): void {
     this.nameCtr?.setValue(this.data.genData.name);
@@ -162,6 +264,9 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.selectDomains$.unsubscribe();
+    this.selectIsHypervisorConnect$.unsubscribe();
+    this.selectIsDatasourceConnect$.unsubscribe();
+    this.selectIsConfiguratorConnect$.unsubscribe();
   }
 
   private _disableItems(subnetAllocation: string) {

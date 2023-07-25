@@ -22,7 +22,7 @@ import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { Router } from '@angular/router';
 import { RolesService } from 'src/app/core/services/roles/roles.service';
 import { selectAppPref } from 'src/app/store/app-pref/app-pref.selectors';
-import { retrievedAppPref } from 'src/app/store/app-pref/app-pref.actions';
+import { loadAppPref } from 'src/app/store/app-pref/app-pref.actions';
 import { AppPrefService } from 'src/app/core/services/app-pref/app-pref.service';
 
 @Component({
@@ -186,7 +186,7 @@ export class MapPreferencesComponent implements OnInit, OnDestroy {
     }
     this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPrefs({data: data.result})));
     this.imageService.getByCategory('icon').subscribe((data: any) => this.store.dispatch(retrievedIcons({data: data.result})));
-    this.appPrefService.get("2").subscribe((data: any) => this.store.dispatch(retrievedAppPref({ data: data.result })));
+    this.store.dispatch(loadAppPref());
   }
 
   onGridReady(params: GridReadyEvent) {

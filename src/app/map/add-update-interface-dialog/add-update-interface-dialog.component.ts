@@ -490,9 +490,9 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   }
 
   private _setDataAddInterfaceForm(interfaceData: any, mode: string) {
-    let directionValue = this.isEdgeDirectionChecked ? interfaceData.direction : interfaceData.prev_direction;
+    let directionValue = this.isEdgeDirectionChecked ? interfaceData?.direction : interfaceData?.prev_direction;
     directionValue = mode == 'add' || mode == 'connect' || interfaceData.category == 'management'
-      ? interfaceData.direction : directionValue;
+      ? interfaceData?.direction : directionValue;
     this.directionCtr.setValidators([Validators.required, autoCompleteValidator(this.DIRECTIONS)]);
     this.filteredDirections = this.helpers.filterOptions(this.directionCtr, this.DIRECTIONS);
     this.orderCtr?.setValue(interfaceData.order);
