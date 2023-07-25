@@ -12,7 +12,6 @@ import { InfoPanelService } from "../../core/services/info-panel/info-panel.serv
 import { selectDomains } from 'src/app/store/domain/domain.selectors';
 import { showErrorFromServer } from "../../shared/validations/error-server-response.validation";
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
-import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 import { retrievedPortGroups } from "../../store/portgroup/portgroup.actions";
 import { PortGroupAddModel, PortGroupGetRandomModel, PortGroupPutModel } from "../../core/models/port-group.model";
 import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
@@ -259,11 +258,10 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
           cyData.color = cyData.logical_map.map_style.color;
           this.helpers.addCYNode(this.data.cy, { newNodeData: { ...this.data.newNodeData, ...cyData }, newNodePosition: this.data.newNodePosition });
           cyData.groups = portGroup.groups;
-          this.helpers.reloadGroupBoxes(this.data.cy);
+          this.helpers.reloadGroupBoxes();
         }
         this.portGroupService.getByProjectId(this.data.genData.project_id).subscribe(res => {
           this.store.dispatch(retrievedPortGroups({ data: res.result }))
-          this.store.dispatch(retrievedMapSelection({ data: true }));
         })
         this.toastr.success('Port Group details added!');
       })
@@ -312,13 +310,10 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
         if (portGroup.category !== 'management') {
           this._updatePGOnMap(portGroup);
           this.helpers.updateNodesOnGroupStorage(portGroup, 'port_groups');
-          this.helpers.reloadGroupBoxes(this.data.cy);
-          this.store.dispatch(retrievedMapSelection({ data: true }));
-          this.helpers.updateNodePGInInterfaceOnMap(this.data.cy, 'port_group', this.data.genData.pg_id)
+          this.helpers.reloadGroupBoxes();
         }
         this.portGroupService.getByProjectId(this.data.genData.project_id).subscribe(res => {
           this.store.dispatch(retrievedPortGroups({ data: res.result }))
-          this.store.dispatch(retrievedMapSelection({ data: true }));
         })
         this.interfaceService.getByProjectId(this.data.genData.project_id)
         .subscribe(res => {

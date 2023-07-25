@@ -2,7 +2,6 @@ import { Injectable, Input } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
-import { retrievedMapSelection } from "../../../store/map-selection/map-selection.actions";
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 import { retrievedInterfacesConnectedNode } from 'src/app/store/interface/interface.actions';
 import { ProjectService } from 'src/app/project/services/project.service';
@@ -76,7 +75,6 @@ export class CommonService {
       this.ur?.do('removeNode', mbs);
       activeMBs.splice(0);
     })
-    this.store.dispatch(retrievedMapSelection({data: true}));
   }
 
   changeNodeSize(size: any, activeNodes: any[]) {

@@ -7,7 +7,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { validateIP } from 'src/app/shared/validations/ip-subnet.validation.ag-grid';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { ToastrService } from 'ngx-toastr';
-import { selectNodesByProjectId } from "../../../store/node/node.selectors";
+import { selectNodesByProjectId, } from "../../../store/node/node.selectors";
 import { retrievedNodes } from "../../../store/node/node.actions";
 import { environment } from "../../../../environments/environment";
 import { RemoteCategories } from "../../enums/remote-categories.enum";
@@ -21,7 +21,6 @@ import { retrievedProjects } from "../../../store/project/project.actions";
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { AddUpdateGroupDialogComponent } from "../../../map/add-update-group-dialog/add-update-group-dialog.component";
 import { MatDialog } from "@angular/material/dialog";
-import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 import { CONFIG_TEMPLATE_ADDS_TYPE } from "../../../shared/contants/config-template-add-actions.constant";
 import { selectGroups } from 'src/app/store/group/group.selectors';
 import { retrievedGroups } from 'src/app/store/group/group.actions';
@@ -30,16 +29,20 @@ import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
 import { selectPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { retrievedPortGroups } from 'src/app/store/portgroup/portgroup.actions';
 import { IpReservationModel, RangeModel } from "../../models/config-template.model";
+import { selectNotification } from 'src/app/store/app/app.selectors';
+import { clearNotification } from 'src/app/store/app/app.actions';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HelpersService implements OnDestroy {
+  @Input() cy: any;
   selectMapOption$ = new Subscription();
   selectGroups$ = new Subscription();
   selectNodes$ = new Subscription();
   selectNetmasks$ = new Subscription();
   selectPortGroups$ = new Subscription();
+  selectNotification$ = new Subscription();
   nodes: any[] = [];
   portGroups: any[] = [];
   groupCategoryId!: string;
@@ -72,6 +75,11 @@ export class HelpersService implements OnDestroy {
     private serverConnectionService: ServerConnectService,
     private dialog: MatDialog,
   ) {
+    this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
+      if (notification) {
+        this.showNotification(notification);
+      }
+    });
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
         this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
@@ -100,6 +108,15 @@ export class HelpersService implements OnDestroy {
     this.selectPortGroups$.unsubscribe();
     this.selectNetmasks$.unsubscribe();
     this.selectGroups$.unsubscribe();
+  }
+
+  private showNotification(notification: any) {
+    if (notification.type == 'success') {
+      this.toastr.success(notification.message);
+    } else if (notification.type == 'error') {
+      this.toastr.error(notification.message);
+    }
+    this.store.dispatch(clearNotification());
   }
 
   interfaceDisplay(option: any) {
@@ -488,38 +505,38 @@ export class HelpersService implements OnDestroy {
     })
   }
 
-  removeGroupBoxes(cy: any) {
-    const gbs = cy.nodes().filter('[label="group_box"]');
+  removeGroupBoxes() {
+    const gbs = this.cy.nodes().filter('[label="group_box"]');
     gbs.forEach((gb: any) => {
       const data = gb.data();
       if (data.collapsedChildren) {
-        cy.expandCollapse('get').expandRecursively(gb, {});
+        this.cy.expandCollapse('get').expandRecursively(gb, {});
       }
       const gbNodes = gb.children();
       gbNodes.forEach((node: any) => {
         node.move({ 'parent': null });
       });
-      cy.remove(gb);
+      this.cy.remove(gb);
     });
-    const gbsTemplate = cy.nodes().filter(this.isGroupBoxCreatedFromCdnd)
+    const gbsTemplate = this.cy.nodes().filter(this.isGroupBoxCreatedFromCdnd)
     gbsTemplate.forEach((gb: any) => {
       this.removeParent(gb)
     })
     return true;
   }
 
-  removeGroupBox(cy: any, groupBoxId: any) {
-    const groupBox = cy.getElementById(`group-${groupBoxId}`)
+  removeGroupBox(groupBoxId: any) {
+    const groupBox = this.cy.getElementById(`group-${groupBoxId}`)
     if (groupBox && groupBox.length > 0) {
       const data = groupBox.data();
       if (data.collapsedChildren) {
-        cy.expandCollapse('get').expandRecursively(groupBox, {});
+        this.cy.expandCollapse('get').expandRecursively(groupBox, {});
       }
       const gbNodes = groupBox.children();
       gbNodes.forEach((node: any) => {
         node.move({ 'parent': null });
       });
-      cy.remove(groupBox);
+      this.cy.remove(groupBox);
     }
   }
 
@@ -527,10 +544,10 @@ export class HelpersService implements OnDestroy {
     return Object.values(node.classes()).includes('cdnd-new-parent')
   }
 
-  addGroupBoxes(cy: any) {
+  addGroupBoxes() {
     const gbs = this.groups.filter((gb: any) => gb.data.group_category == this.groupCategoryId);
-    cy.add(gbs);
-    cy.nodes().forEach((ele: any) => {
+    this.cy.add(gbs);
+    this.cy.nodes().forEach((ele: any) => {
       if (!Boolean(ele.data('parent_id')) && ele.data('elem_category') != 'map_link') {
         const data = ele.data();
         if (data.elem_category != 'group') {
@@ -542,12 +559,12 @@ export class HelpersService implements OnDestroy {
     let done = false;
     for (let i = 0; i < gbs.length; i++) {
       let gb = gbs[i];
-      const gbn = cy.getElementById(gb.data.id);
+      const gbn = this.cy.getElementById(gb.data.id);
       if (gbn.children().length > 0) {
         if (gb.data.collapsed) {
-          gb = cy.getElementById(gb.data.id);
+          gb = this.cy.getElementById(gb.data.id);
           const pos = gbn.position();
-          cy.expandCollapse('get').collapseRecursively(gbn, {});
+          this.cy.expandCollapse('get').collapseRecursively(gbn, {});
           gbn.data('width', '90px');
           gbn.data('height', '90px');
           gbn.position(pos);
@@ -565,24 +582,24 @@ export class HelpersService implements OnDestroy {
           gbn.lock();
         }
       } else {
-        cy.remove(gbn);
+        this.cy.remove(gbn);
       }
     }
-    const z = cy.zoom();
-    const cyW = cy.container().clientWidth;
-    const cyH = cy.container().clientHeight;
+    const z = this.cy.zoom();
+    const cyW = this.cy.container().clientWidth;
+    const cyH = this.cy.container().clientHeight;
     const nW = this.lastWidth || 100;
     const nH = this.lastHeight || 100;
     const lim = (nW * nH * z) / (cyW * cyH);
     this.zoomLimit = lim < 0.0005;
-    cy.resize();
+    this.cy.resize();
     return true;
   }
 
-  reloadGroupBoxes(cy: any) {
+  reloadGroupBoxes() {
     if (this.isGroupBoxesChecked) {
-      this.removeGroupBoxes(cy);
-      this.addGroupBoxes(cy);
+      this.removeGroupBoxes();
+      this.addGroupBoxes();
     }
   }
 
@@ -613,14 +630,14 @@ export class HelpersService implements OnDestroy {
           dialog.afterClosed().subscribe((dialogResult: any) => {
             if (dialogResult && dialogResult.isCanceled) {
               if (nodes.length > 0 || portGroups.length > 0 || mapImages.length > 0) {
-                this.reloadGroupBoxes(cy)
+                this.reloadGroupBoxes();
               }
             }
           })
         }
         else {
           this.toastr.info('Two nodes belonged to a group box', 'Info')
-          this.reloadGroupBoxes(cy);
+          this.reloadGroupBoxes();
         }
       }
     }
@@ -659,17 +676,12 @@ export class HelpersService implements OnDestroy {
     element.data('interfaces', newInterfaces)
   }
 
-  updateNodePGInInterfaceOnMap(cy: any, type: string, elementId: number) {
+  updateNodePGInInterfaceOnMap(type: string, elementId: number) {
     const idPrefix = type !== 'node' ? 'pg' : 'node'
-    const element = cy.getElementById(`${idPrefix}-${elementId}`)
+    const element = this.cy.getElementById(`${idPrefix}-${elementId}`)
     const edgesConnectedElement = element.connectedEdges()
     edgesConnectedElement.map((edge: any) => {
       edge.data(type, element.data('name'));
-      const netmaskName = this.getOptionById(this.netmasks, edge.data('netmask_id')).name
-      this.updateInterfaceOnEle(cy, `pg-${edge.data('port_group_id')}`, {
-        id: edge.data('id'),
-        value: `${element.data('name')} - ${edge.data('ip') + netmaskName}`
-      });
     })
   }
 
@@ -924,7 +936,6 @@ export class HelpersService implements OnDestroy {
     edgeData.deleted = true;
     const updatedInterfaces = node.data('interfaces').filter((i: any) => i.id != edgeData.interface_pk);
     node.data('interfaces', updatedInterfaces);
-    this.store.dispatch(retrievedMapSelection({ data: true }));
     return { cy: data.cy, edge: data.edge.remove() };
   }
 
@@ -944,7 +955,6 @@ export class HelpersService implements OnDestroy {
     this.restoreInterface(node, edgeData.interface_pk);
     edgeData.deleted = false;
     this.deletedInterfaces.pop();
-    this.store.dispatch(retrievedMapSelection({ data: true }));
     return { cy: data.cy, edge: edge_restore };
   }
 
@@ -1199,8 +1209,8 @@ export class HelpersService implements OnDestroy {
     this.store.dispatch(retrievedGroups({ data: newGroups }));
   }
 
-  updateNodeOnMap(cy: any, id: string, data: any) {
-    const ele = cy.getElementById(id);
+  updateNodeOnMap(id: string, data: any) {
+    const ele = this.cy.getElementById(id);
     ele.data('name', data.name);
     ele.data('notes', data.notes);
     ele.data('icon', ICON_PATH + data.icon.photo);

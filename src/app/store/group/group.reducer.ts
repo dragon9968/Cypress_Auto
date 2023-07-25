@@ -26,7 +26,12 @@ export const groupReducer = createReducer(
         zIndex: 997,
         updated: false
       }
-      g.push({ ...group, data: { ...baseCyData, ...group.logical_map?.map_style } });
+      g.push({
+        ...group,
+        group_id: group.id,
+        id: baseCyData.id,
+        data: { ...baseCyData, ...group.logical_map?.map_style } 
+      });
     });
     return {
       ...state,

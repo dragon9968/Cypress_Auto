@@ -2,7 +2,7 @@ import { createAction, props } from "@ngrx/store";
 
 export const retrievedNodes = createAction(
   'retrievedNodes',
-  props<{data: any}>()
+  props<{ data: any }>()
 )
 
 export const retrievedNameNodeBySourceNode = createAction(
@@ -33,4 +33,19 @@ export const unSelectNode = createAction(
 export const removeNode = createAction(
   'removeNode',
   props<{ id: string }>()
+);
+
+export const updateNode = createAction(
+  'updateNode',
+  props<{
+    id: number,
+    data: any,
+    configTemplate: any,
+    configDefaultNode: any
+  }>()
+);
+
+export const nodeUpdatedSuccess = createAction(
+  'nodeUpdatedSuccess',
+  props<{ node: any }>()
 );

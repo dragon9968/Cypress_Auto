@@ -1,6 +1,6 @@
 import { NodeState } from "./node.state";
 import { createReducer, on } from "@ngrx/store";
-import { retrievedNameNodeBySourceNode, retrievedNodes, nodesLoadedSuccess, selectNode, unSelectNode, removeNode } from "./node.actions";
+import { retrievedNameNodeBySourceNode, retrievedNodes, nodesLoadedSuccess, selectNode, unSelectNode, nodeUpdatedSuccess, removeNode } from "./node.actions";
 import { environment } from "src/environments/environment";
 
 const initialState = {} as NodeState;
@@ -9,14 +9,13 @@ export const nodeReducer = createReducer(
   initialState,
   on(retrievedNodes, (state, { data }) => ({
     ...state,
-    nodes: data,
+    logicalNodes: data,
   })),
   on(retrievedNameNodeBySourceNode, (state, { nameNode }) => ({
     ...state,
     nameNode
   })),
   on(nodesLoadedSuccess, (state, { nodes }) => {
-    const listNodes: any = []; 
     const logicalNodes: any = []; 
     const physicalNodes: any = [];
     nodes.map((node: any) => {
@@ -48,15 +47,6 @@ export const nodeReducer = createReducer(
         icon: !icon.includes(environment.apiBaseUrl) ? environment.apiBaseUrl + icon : icon,
         infrastructure: node.infrastructure
       }
-      listNodes.push(
-        { ...node, 
-          node_id: node.id, 
-          id: `node-${node.id}`,
-          data: { ...node, ...baseCyData, ...node.logical_map?.map_style },
-          position: node.logical_map?.position,
-          locked: node.logical_map?.locked 
-        }
-      )
       if (!node.infrastructure) {
         logicalNodes.push(
           { ...node, 
@@ -92,36 +82,41 @@ export const nodeReducer = createReducer(
     })
     return {
       ...state,
-      nodes: listNodes,
       logicalNodes,
       physicalNodes
     };
   }),
   on(selectNode, (state, { id }) => {
-    const nodes = state.nodes.map(n => {
-      if (n.data.id == id) return { ...n, isSelected: true };
-      return n;
-    })
+    const logicalNodes = state.logicalNodes.map(n => (n.data.id == id) ? { ...n, isSelected: true } : n);
     return {
       ...state,
-      nodes
+      logicalNodes
     }
   }),
   on(unSelectNode, (state, { id }) => {
-    const nodes = state.nodes.map(n => {
-      if (n.data.id == id) return { ...n, isSelected: false };
-      return n;
-    })
+    const logicalNodes = state.logicalNodes.map(n => (n.data.id == id) ? { ...n, isSelected: false } : n);
     return {
       ...state,
-      nodes
+      logicalNodes
     }
   }),
   on(removeNode, (state, { id }) => {
-    const nodes = state.nodes.filter(ele => ele.node_id !== id);
+    const logicalNodes = state.logicalNodes.filter(ele => ele.node_id !== id);
     return {
       ...state,
-      nodes
+      logicalNodes
+    };
+  }),
+  on(nodeUpdatedSuccess, (state, { node }) => {
+    const cyNode = {
+      ...node,
+      node_id: node.id, 
+      id: `node-${node.id}`,
     }
+    const logicalNodes = state.logicalNodes.map((n: any) => (n.node_id == cyNode.node_id) ? { ...n, ...cyNode } : n);
+    return {
+      ...state,
+      logicalNodes,
+    };
   }),
 )

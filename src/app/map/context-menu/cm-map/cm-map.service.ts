@@ -3,7 +3,6 @@ import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { retrievedMapContextMenu } from 'src/app/store/map-context-menu/map-context-menu.actions';
-import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 
 @Injectable({
   providedIn: 'root'
@@ -156,7 +155,6 @@ export class CMMapService {
         })
         cy.nodes().select();
         cy.edges().select();
-        this.store.dispatch(retrievedMapSelection({ data: true }));
       },
       hasTrailingDivider: false,
       disabled: false,
@@ -179,7 +177,6 @@ export class CMMapService {
         activeMapLinks.splice(0);
         cy.nodes().unselect();
         cy.edges().unselect();
-      this.store.dispatch(retrievedMapSelection({ data: true }));
       },
       hasTrailingDivider: false,
       disabled: false,

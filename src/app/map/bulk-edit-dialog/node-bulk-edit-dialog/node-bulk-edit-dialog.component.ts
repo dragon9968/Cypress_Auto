@@ -18,7 +18,6 @@ import { selectDevices } from "../../../store/device/device.selectors";
 import { selectTemplates } from "../../../store/template/template.selectors";
 import { selectLoginProfiles } from "../../../store/login-profile/login-profile.selectors";
 import { selectConfigTemplates } from "../../../store/config-template/config-template.selectors";
-import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
 import { retrievedGroups } from "../../../store/group/group.actions";
 import { GroupService } from "../../../core/services/group/group.service";
@@ -207,9 +206,8 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
               }));
             }))
               .subscribe(() => {
-                this.helpers.reloadGroupBoxes(this.data.cy);
+                this.helpers.reloadGroupBoxes();
                 this.dialogRef.close();
-                this.store.dispatch(retrievedMapSelection({ data: true }));
                 this.toastr.success(response.message, 'Success');
               });
           });

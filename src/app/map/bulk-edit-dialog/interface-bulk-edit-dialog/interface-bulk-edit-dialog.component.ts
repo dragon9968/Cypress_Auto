@@ -10,7 +10,6 @@ import { HelpersService } from "../../../core/services/helpers/helpers.service";
 import { InterfaceService } from "../../../core/services/interface/interface.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
-import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
 import { Observable, Subscription } from "rxjs";
 import { selectMapOption } from "../../../store/map-option/map-option.selectors";
 import { ProjectService } from "src/app/project/services/project.service";
@@ -130,7 +129,6 @@ export class InterfaceBulkEditDialogComponent implements OnInit, OnDestroy {
         this.interfaceService.getByProjectId(this.projectService.getProjectId())
         .subscribe(res => {
           this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({ data: res.result }))
-          this.store.dispatch(retrievedMapSelection({ data: true }));
         })
         this.dialogRef.close();
         this.toastr.success(response.message, 'Success');

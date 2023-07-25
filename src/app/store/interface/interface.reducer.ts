@@ -13,7 +13,9 @@ import {
   interfacesLoadedSuccess,
   selectInterface,
   unSelectInterface,
-  removeInterface
+  removeInterface,
+  updateNodeInInterfaces,
+  updatePGInInterfaces
 } from "./interface.actions";
 
 const initialState = {} as InterfaceState;
@@ -85,7 +87,13 @@ export const interfaceReducerByIds = createReducer(
               source_label: i.name,
               target_label: ''
             }
-            logicalWiredInterfaces.push({ ...i, data: { ...i, ...baseCyData }, locked: i.physical_map?.locked });
+            logicalWiredInterfaces.push({
+              ...i,
+              interface_pk: i.id,
+              id: baseCyData.id,
+              data: { ...i, ...baseCyData },
+              locked: i.physical_map?.locked
+            });
           } else if (i.category == 'management') {
             logicalManagementInterfaces.push(i);
           }
@@ -112,7 +120,13 @@ export const interfaceReducerByIds = createReducer(
               source_label: i.name,
               target_label: (i.node_id === node.id) ? i.name : ""
             }
-            physicalWiredInterfaces.push({ ...i, data: { ...i, ...baseCyData }, locked: i.physical_map?.locked });
+            physicalWiredInterfaces.push({
+              ...i, 
+              interface_pk: i.id,
+              id: baseCyData.id,
+              data: { ...i, ...baseCyData },
+              locked: i.physical_map?.locked
+            });
           } else if (i.category == 'management') {
             physicalManagementInterfaces.push(i);
           }
@@ -121,7 +135,6 @@ export const interfaceReducerByIds = createReducer(
     });
     return {
       ...state,
-      wiredInterfaces: logicalWiredInterfaces,
       logicalWiredInterfaces,
       logicalManagementInterfaces,
       physicalWiredInterfaces,
@@ -129,30 +142,68 @@ export const interfaceReducerByIds = createReducer(
     }
   }),
   on(selectInterface, (state, { id }) => {
-    const wiredInterfaces = state.wiredInterfaces.map(n => {
+    const logicalWiredInterfaces = state.logicalWiredInterfaces.map(n => {
       if (n.data.id == id) return { ...n, isSelected: true };
       return n;
     })
     return {
       ...state,
-      wiredInterfaces
+      logicalWiredInterfaces
     }
   }),
   on(unSelectInterface, (state, { id }) => {
-    const wiredInterfaces = state.wiredInterfaces.map(n => {
+    const logicalWiredInterfaces = state.logicalWiredInterfaces.map(n => {
       if (n.data.id == id) return { ...n, isSelected: false };
       return n;
     })
     return {
       ...state,
-      wiredInterfaces
+      logicalWiredInterfaces
     }
   }),
   on(removeInterface, (state, { id }) => {
-    const wiredInterfaces = state.wiredInterfaces.filter(ele => ele.id !== id)
+    const logicalWiredInterfaces = state.logicalWiredInterfaces.filter(ele => ele.id !== id)
     return {
       ...state,
-      wiredInterfaces
+      logicalWiredInterfaces
     }
+  }),
+  on(updateNodeInInterfaces, (state, { node }) => {
+    const logicalWiredInterfaces = state.logicalWiredInterfaces.map((i: any) => {
+      if (i.node_id == node.id) {
+        return {
+          ...i,
+          node: {
+            ...i.node,
+            name: node.name
+          }
+        };
+      } else {
+        return i;
+      }
+    });
+    return {
+      ...state,
+      logicalWiredInterfaces,
+    };
+  }),
+  on(updatePGInInterfaces, (state, { pg }) => {
+    const logicalWiredInterfaces = state.logicalWiredInterfaces.map((i: any) => {
+      if (i.port_group_id == pg.id) {
+        return {
+          ...i,
+          port_group: {
+            ...i.port_group,
+            name: pg.name
+          }
+        };
+      } else {
+        return i;
+      }
+    });
+    return {
+      ...state,
+      logicalWiredInterfaces,
+    };
   }),
 );

@@ -130,9 +130,9 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
 
   toggleGroupBoxes() {
     if (this.isGroupBoxesChecked) {
-      this.helpers.addGroupBoxes(this.cy);
+      this.helpers.addGroupBoxes();
     } else {
-      this.helpers.removeGroupBoxes(this.cy);
+      this.helpers.removeGroupBoxes();
     }
     this.store.dispatch(retrievedMapOption({
       data: {
@@ -159,7 +159,7 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
         groupCategoryId: this.isGroupBoxesChecked ? this.groupCategoryCtr?.value?.id : this.groupCategoryId
       }
     }));
-    this.helpers.reloadGroupBoxes(this.cy);
+    this.helpers.reloadGroupBoxes();
   }
 
   toggleMapGrid() {
@@ -258,7 +258,7 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
       if (result) {
         // remove Group Boxes if present
         if (this.isGroupBoxesChecked) {
-          this.helpers.removeGroupBoxes(this.cy);
+          this.helpers.removeGroupBoxes();
           this.isGroupBoxesChecked = false;
         }
         this.cy.nodes().filter('[label="map_background"]').remove()

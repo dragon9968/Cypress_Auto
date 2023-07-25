@@ -12,7 +12,7 @@ import { ConfirmationDialogComponent } from "../../../shared/components/confirma
 import { AddUpdateNodeDialogComponent } from "../../add-update-node-dialog/add-update-node-dialog.component";
 import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
 import { MatMenuTrigger } from "@angular/material/menu";
-import { selectNodes } from "src/app/store/node/node.selectors";
+import { selectLogicalNodes } from "src/app/store/node/node.selectors";
 import { FormControl, FormGroup } from "@angular/forms";
 
 
@@ -176,7 +176,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
     private cmActionsService: CMActionsService,
   ) {
     iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
-    this.selectNodes$ = this.store.select(selectNodes).subscribe(nodes => {
+    this.selectNodes$ = this.store.select(selectLogicalNodes).subscribe(nodes => {
       if (nodes) {
         this.nodes = nodes;
         this.loadNodesTable();

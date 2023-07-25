@@ -26,7 +26,7 @@ export const portGroupReducer = createReducer(
         pgs.push({
           ...pg,
           pg_id: pg.id,
-          id: `pg-${pg.id}`,
+          id: baseCyData.id,
           data: { ...pg, ...baseCyData, ...pg.logical_map?.map_style },
           position: pg.logical_map?.position,
           groups: pg.groups,

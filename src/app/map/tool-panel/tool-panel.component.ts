@@ -13,7 +13,6 @@ import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
 import { CommonService } from 'src/app/map/context-menu/cm-common-service/common.service';
 import { retrievedMapContextMenu } from 'src/app/store/map-context-menu/map-context-menu.actions';
 import { retrievedMap } from 'src/app/store/map/map.actions';
-import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 import { GroupService } from "../../core/services/group/group.service";
 import { selectGroups } from "../../store/group/group.selectors";
 import { selectNodesByProjectId } from "../../store/node/node.selectors";
@@ -23,7 +22,7 @@ import { ProjectService } from "../../project/services/project.service";
 import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
 import { retrievedMapOption } from "../../store/map-option/map-option.actions";
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
-import { loadInterfaces, retrievedInterfaceByProjectIdAndCategory } from 'src/app/store/interface/interface.actions';
+import { loadInterfaces } from 'src/app/store/interface/interface.actions';
 import { loadPGs } from 'src/app/store/portgroup/portgroup.actions';
 import { loadNodes } from 'src/app/store/node/node.actions';
 
@@ -265,7 +264,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       if (this.deletedInterfaces.length > 0) {
         const deletedInterfaceIds = this.deletedInterfaces.map(edge => edge.interface_pk);
         if (deletedInterfaceIds.length > 0) {
-          this.store.dispatch(loadInterfaces( {projectId: this.projectService.getProjectId(), mapCategory: this.mapCategory} ))
+          this.store.dispatch(loadInterfaces( {projectId: this.projectService.getProjectId() } ))
         }
       }
       this.deletedNodes.splice(0);
@@ -317,7 +316,6 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
           this.activePGs.splice(0);
           this.activeEdges.splice(0);
           this.activeGBs.splice(0);
-          this.store.dispatch(retrievedMapSelection({ data: true }));
         }
       });
     }
@@ -643,7 +641,6 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     })
     this.updatedNodeAndPGInGroups.splice(0);
     this.store.dispatch(retrievedGroups({ data: newGroups }));
-    this.store.dispatch(retrievedMapSelection({ data: true }));
   }
 
   private _updateGroupsPropertyOfNodeOnMap(itemsIds: any[], group: any, typeOfElement: string) {

@@ -10,7 +10,7 @@ export class PortGroupsEffects {
 
   loadPGs$ = createEffect(() => this.actions$.pipe(
     ofType(loadPGs),
-    exhaustMap((data) => this.portGroupService.getByProjectId(data.projectId)
+    exhaustMap((payload) => this.portGroupService.getByProjectId(payload.projectId)
       .pipe(
         map(res => (PGsLoadedSuccess({ portgroups: res.result }))),
         catchError(() => EMPTY)

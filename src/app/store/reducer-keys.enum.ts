@@ -34,5 +34,6 @@ export enum ReducerKeys {
     LOOKUP_NAMES = 'lookupNames',
     NETMASKS = 'netmasks',
     HISTORIES = 'histories',
-    FILTER_OPTION = 'filterOption'
+    FILTER_OPTION = 'filterOption',
+    APP = 'app'
 }

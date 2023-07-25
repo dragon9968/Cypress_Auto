@@ -6,7 +6,7 @@ import { retrievedIsMapOpen, retrievedMap, loadMap } from '../store/map/map.acti
 import { environment } from 'src/environments/environment';
 import * as cytoscape from 'cytoscape';
 import { HelpersService } from '../core/services/helpers/helpers.service';
-import { selectIsFinishLoadedElements, selectMapFeature } from '../store/map/map.selectors';
+import { selectMapFeature } from '../store/map/map.selectors';
 import { retrievedIcons } from '../store/icon/icon.actions';
 import { retrievedDevices } from '../store/device/device.actions';
 import { retrievedTemplates } from '../store/template/template.actions';
@@ -206,8 +206,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   selectManagementInterfaces$ = new Subscription();
   selectGroups$ = new Subscription();
   selectProject$ = new Subscription();
-  selectIsFinishLoadedElements$ = new Subscription();
-  selectMapFeatureSubject: Subject<MapState> = new ReplaySubject(1);
   destroy$: Subject<boolean> = new Subject<boolean>();
   saveMapSubject: Subject<void> = new Subject<void>();
   activeNodeInBox: any[] = [];
@@ -455,7 +453,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.selectManagementInterfaces$.unsubscribe();
     this.selectGroups$.unsubscribe();
     this.selectProject$.unsubscribe();
-    this.selectIsFinishLoadedElements$.unsubscribe();
   }
 
   private _disableMapEditButtons() {
@@ -515,7 +512,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         });
       }
     }
-    this.store.dispatch(retrievedMapSelection({ data: true }));
   }
 
   private _zoom() { }
@@ -635,6 +631,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
       }
       this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
         this.activeMBs, this.activeMapLinks, this.isTemplateCategory, this.isGroupBoxesChecked, this.mapCategory);
+      this.store.dispatch(retrievedMapSelection({ data: true }));
     }
   }
 
@@ -659,6 +656,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
       }
       this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
         this.activeMBs, this.activeMapLinks, this.isTemplateCategory, this.isGroupBoxesChecked, this.mapCategory);
+      this.store.dispatch(retrievedMapSelection({ data: true }));
     }
   }
 
@@ -1069,6 +1067,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.commonService.ur = this.ur;
     this.infoPanelService.ur = this.ur;
     this.infoPanelService.cy = this.cy;
+    this.helpersService.cy = this.cy;
     this.helpersService.deletedInterfaces = this.deletedInterfaces;
     this.helpersService.deletedNodes = this.deletedNodes;
     const that = this.helpersService;
@@ -1246,7 +1245,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         this.groupService.getGroupByProjectId(this.projectId).subscribe(
           groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
         );
-        this.helpersService.reloadGroupBoxes(this.cy);
+        this.helpersService.reloadGroupBoxes();
         this.isAddNode = false;
         this._enableMapEditButtons();
         this.toastr.success('Quick add node successfully!');
@@ -1322,7 +1321,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         this.groupService.getGroupByProjectId(this.projectId).subscribe(
           groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
         );
-        this.helpersService.reloadGroupBoxes(this.cy);
+        this.helpersService.reloadGroupBoxes();
         if (this.isAddPublicPG) this.isAddPublicPG = false;
         if (this.isAddPrivatePG) this.isAddPrivatePG = false;
         this._enableMapEditButtons();
@@ -1355,8 +1354,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
       if (_data) {
         this.nodeService.get(_data.node_id).subscribe(nodeData => {
           this.helpersService.updateNodesStorage(nodeData.result);
-          this.helpersService.updateNodeOnMap(this.cy, 'node-' + nodeData.result.id, nodeData.result);
-          this.store.dispatch(retrievedMapSelection({ data: true }));
+          this.helpersService.updateNodeOnMap('node-' + nodeData.result.id, nodeData.result);
         });
       }
     });
@@ -2009,7 +2007,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
           this.groupService.getGroupByProjectId(this.projectId).subscribe(
             groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
           );
-          this.helpersService.reloadGroupBoxes(this.cy)
+          this.helpersService.reloadGroupBoxes();
         });
       });
     } else if (data.elem_category === 'node') {
@@ -2023,7 +2021,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
           this.groupService.getGroupByProjectId(this.projectId).subscribe(
             groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
           );
-          this.helpersService.reloadGroupBoxes(this.cy)
+          this.helpersService.reloadGroupBoxes();
         });
       });
     }

@@ -3,8 +3,7 @@ import { createAction, props } from "@ngrx/store";
 export const loadInterfaces = createAction(
   'loadInterfaces',
   props<{
-    projectId: string,
-    mapCategory: string
+    projectId: string
   }>()
 );
 
@@ -71,4 +70,14 @@ export const unSelectInterface = createAction(
 export const removeInterface = createAction(
   'removeInterface',
   props<{ id: string }>()
+);
+
+export const updateNodeInInterfaces = createAction(
+  'updateNodeInInterface',
+  props<{ node: any }>()
+);
+
+export const updatePGInInterfaces = createAction(
+  'updatePGInInterfaces',
+  props<{ pg: any }>()
 );

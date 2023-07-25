@@ -11,7 +11,6 @@ import { selectPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { Store } from '@ngrx/store';
 import { catchError, Observable, Subscription, throwError } from 'rxjs';
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
-import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { selectMapOption } from "../../store/map-option/map-option.selectors";
 import { PortGroupService } from "../../core/services/portgroup/portgroup.service";
@@ -25,7 +24,7 @@ import { selectInterfacesByHwNodes } from 'src/app/store/interface/interface.sel
 import { vlanInterfaceValidator } from 'src/app/shared/validations/vlan-interface.validation';
 import { loadInterfaces, retrievedInterfaceByProjectIdAndCategory, retrievedInterfacesNotConnectPG } from "../../store/interface/interface.actions";
 import { ProjectService } from "../../project/services/project.service";
-import { selectWiredInterfaces, selectInterfacesNotConnectPG } from "../../store/interface/interface.selectors";
+import { selectLogicalWiredInterfaces, selectInterfacesNotConnectPG } from "../../store/interface/interface.selectors";
 import { retrievedNodes } from 'src/app/store/node/node.actions';
 import { NodeService } from 'src/app/core/services/node/node.service';
 
@@ -121,7 +120,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       this.targetPortGroupCtr?.setValidators([Validators.required, autoCompleteValidator(this.portGroups)]);
       this.filteredPortGroups = this.helpers.filterOptionsPortGroup(this.portGroupCtr, this.portGroups);
     });
-    this.selectInterfaces$ = this.store.select(selectWiredInterfaces).subscribe(interfaces => {
+    this.selectInterfaces$ = this.store.select(selectLogicalWiredInterfaces).subscribe(interfaces => {
       if (interfaces) {
         this.interfaces = interfaces.map((ele: any) => ele.data);
       }
@@ -214,7 +213,6 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       delete cyData.task;
       this.helpers.addCYEdge(this.data.cy, cyData);
       this.helpers.showOrHideArrowDirectionOnEdge(this.data.cy, cyData.id);
-      this.store.dispatch(retrievedMapSelection({ data: true }));
       this.toastr.success(successMessage, 'Success');
     })
     this.dialogRef.close();
@@ -380,7 +378,6 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       } else {
         this.dialogRef.close(respData.result);
       }
-      this.store.dispatch(retrievedMapSelection({ data: true }));
       this.toastr.success('Edge details added!');
     });
   }
@@ -456,8 +453,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         this.nodeService.getNodesByProjectId(this.projectService.getProjectId()).subscribe(
           (data: any) => this.store.dispatch(retrievedNodes({ data: data.result }))
         );
-        this.store.dispatch(loadInterfaces({projectId: this.projectService.getProjectId(), mapCategory: this.mapCategory}));
-        this.store.dispatch(retrievedMapSelection({ data: true }));
+        this.store.dispatch(loadInterfaces({ projectId: this.projectService.getProjectId() }));
       }
       this.interfaceService.getByProjectId(this.projectService.getProjectId())
         .subscribe(res => {

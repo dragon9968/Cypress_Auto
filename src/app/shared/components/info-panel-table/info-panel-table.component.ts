@@ -71,45 +71,18 @@ export class InfoPanelTableComponent {
   }
 
   selectedRows() {
-    let unSelectedElements = this.rowsSelected
+    const unSelectedRows = this.rowsSelected
     this.rowsSelected = this.gridApi.getSelectedRows();
-    this.rowsSelectedId = this.rowsSelected.map(ele => {
-      if (this.tabName == 'node') {
-        const nodeId = ele.node_id;
-        const nodeCy = this.cy.getElementById(`node-${nodeId}`);
-        nodeCy.select();
-        return nodeId;
-      } else if (this.tabName == 'portgroup') {
-        const nodeCy = this.cy.getElementById(`pg-${ele.pg_id}`);
-        nodeCy.select();
-        return ele.pg_id;
-      } else if (this.tabName == 'edge') {
-        const edgeCy = this.cy.getElementById(`interface-${ele.id}`);
-        edgeCy.select();
-        return ele.id;
-      } else {
-        return ele.id;
-      }
+    this.rowsSelectedId = this.rowsSelected.map(r => {
+      const ele = this.cy.getElementById(r.id);
+      ele.select();
+      return r.id;
     });
-    if (this.tabName == 'node' && unSelectedElements.length > 0) {
-      const unSelectedNode = unSelectedElements.filter(val => !this.rowsSelectedId.includes(val.node_id))
-      unSelectedNode.forEach(el => {
-        const nodeCy = this.cy.getElementById(el.id);
-        nodeCy.unselect();
-      })
-    } else if ((this.tabName == 'portgroup') && unSelectedElements.length > 0 ) {
-      const unSelectedPg = unSelectedElements.filter(val => !this.rowsSelectedId.includes(val.pg_id))
-      unSelectedPg.forEach(el => {
-        const nodeCy = this.cy.getElementById(el.id);
-        nodeCy.unselect();
-      })
-    } else if (this.tabName == 'edge' && unSelectedElements.length > 0) {
-      const unSelectedPg = unSelectedElements.filter(val => !this.rowsSelectedId.includes(val.interface_pk))
-      unSelectedPg.forEach(el => {
-        const edgeCy = this.cy.getElementById(`interface-${el.id}`);
-        edgeCy.unselect();
-      })
-    }
+    const unSelectedRow = unSelectedRows.filter(val => !this.rowsSelectedId.includes(val.id))
+    unSelectedRow.forEach(r => {
+      const ele = this.cy.getElementById(r.id);
+      ele.unselect();
+    })
   }
 
   clearTable() {

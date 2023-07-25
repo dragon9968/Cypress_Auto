@@ -14,7 +14,6 @@ import { ToastrService } from 'ngx-toastr';
 import { CMGroupBoxService } from '../../context-menu/cm-groupbox/cm-groupbox.service';
 import { CMLockUnlockService } from '../../context-menu/cm-lock-unlock/cm-lock-unlock.service';
 import { selectMapSelection } from 'src/app/store/map-selection/map-selection.selectors';
-import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { ErrorMessages } from "../../../shared/enums/error-messages.enum";
 import { selectMapOption } from "../../../store/map-option/map-option.selectors";
@@ -154,7 +153,6 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
           this.mapImageSize = ele.data('scale_image')
           this._setPropertiesCommon(data);
         }
-        this.store.dispatch(retrievedMapSelection({ data: false }));
       }
     });
     this.positionForm = new FormGroup({
@@ -241,7 +239,6 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
     this.ur.do("changeGBBorderColor", { activeGBs: this.activeGBs, newGBBorderColor });
     this.ur.do("changeGBBorderSize", { activeGBs: this.activeGBs, newGBBorderSize });
     this.ur.do("changeMapImageSize", { activeMBs: this.activeMBs, newMapImageSize });
-    this.store.dispatch(retrievedMapSelection({ data: true }));
   }
 
   selectMapPref($event: MatAutocompleteSelectedEvent) {

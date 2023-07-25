@@ -19,8 +19,7 @@ import { selectDomains } from '../../store/domain/domain.selectors';
 import { selectConfigTemplates } from '../../store/config-template/config-template.selectors';
 import { selectLoginProfiles } from '../../store/login-profile/login-profile.selectors';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
-import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
-import { selectNodes, selectNodesByProjectId } from 'src/app/store/node/node.selectors';
+import { selectLogicalNodes } from 'src/app/store/node/node.selectors';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 import { hostnameValidator } from 'src/app/shared/validations/hostname.validation';
 import { ErrorStateMatcher } from '@angular/material/core';
@@ -36,8 +35,7 @@ import { RemoteCategories } from 'src/app/core/enums/remote-categories.enum';
 import { ServerConnectService } from 'src/app/core/services/server-connect/server-connect.service';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ProjectService } from 'src/app/project/services/project.service';
-import { retrievedInterfaceByProjectIdAndCategory } from 'src/app/store/interface/interface.actions';
-import { retrievedNodes } from 'src/app/store/node/node.actions';
+import { updateNode } from 'src/app/store/node/node.actions';
 
 class CrossFieldErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -345,7 +343,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       this.loginProfileCtr.setValidators([autoCompleteValidator(this.loginProfiles)]);
       this.filteredLoginProfiles = this.helpers.filterOptions(this.loginProfileCtr, this.loginProfiles);
     });
-    this.selectNodes$ = this.store.select(selectNodes).subscribe(nodes => this.nodes = nodes);
+    this.selectNodes$ = this.store.select(selectLogicalNodes).subscribe(nodes => this.nodes = nodes);
     this.interfaceService.getByNode(this.data.genData.node_id).subscribe(response => {
       const interfaceData = response.result;
       if (this.agGridInterfaces) {
@@ -664,11 +662,11 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
           this.nodeService.associate(configData).subscribe(respData => {
             this.nodeService.get(cyData.node_id).subscribe(nodeData => {
               this.data.genData.id = cyData.id;
-              this.helpers.updateNodeOnMap(this.data.cy, this.data.genData.id, nodeData.result);
+              this.helpers.updateNodeOnMap(this.data.genData.id, nodeData.result);
             })
           });
         }
-        this.helpers.reloadGroupBoxes(this.data.cy);
+        this.helpers.reloadGroupBoxes();
         this.toastr.success('Node details added!');
         this.dialogRef.close();
       });
@@ -693,63 +691,28 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       hostname: this.hostnameCtr?.value,
       login_profile_id: this.loginProfileCtr?.value.id ? this.loginProfileCtr?.value.id : null,
       project_id: this.data.genData.project_id,
-      // logical_map: {
-      //   position: ele.position(),
-      // }
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.nodeService.put(this.data.genData.node_id, jsonData).pipe(
-      catchError((e: any) => {
-        this.toastr.error('Update node failed!', 'Error');
-        return throwError(() => e);
-      })
-    ).subscribe((_respData: any) => {
-      if (this.configTemplateCtr?.value) {
-        const configData = {
-          pk: this.data.genData.node_id,
-          config_ids: this.configTemplateCtr?.value
+    const isUpdateConfigDefault = JSON.stringify(this.defaultConfig, null, 2) !== this.editor.value;
+    let configDefaultNode;
+    if (isUpdateConfigDefault) {
+      const isNodeConfigDataFormatted = this.helpers.validateJSONFormat(this.editor.value)
+      const isValidJsonForm = this.helpers.validateFieldFormat(this.editor.value)
+      const isValidJsonFormBGP = this.helpers.validationBGP(this.editor.value)
+      if (isNodeConfigDataFormatted && isValidJsonForm && isValidJsonFormBGP) {
+        configDefaultNode = {
+          node_id: this.data.genData.node_id,
+          config_id: this.data.genData.default_config_id,
+          ...JSON.parse(this.editor.value)
         }
-        this.nodeService.associate(configData).subscribe(respData => {
-          const isUpdateConfigDefault = JSON.stringify(this.defaultConfig, null, 2) !== this.editor.value;
-          if (isUpdateConfigDefault) {
-            const isNodeConfigDataFormatted = this.helpers.validateJSONFormat(this.editor.value)
-            const isValidJsonForm = this.helpers.validateFieldFormat(this.editor.value)
-            const isValidJsonFormBGP = this.helpers.validationBGP(this.editor.value)
-            if (isNodeConfigDataFormatted && isValidJsonForm && isValidJsonFormBGP) {
-              const configDefaultNode = {
-                node_id: this.data.genData.node_id,
-                config_id: this.data.genData.default_config_id,
-                ...JSON.parse(this.editor.value)
-              }
-              this.configTemplateService.putConfiguration(configDefaultNode).subscribe(res => {
-                this._updateNodeOnMapAndStorage();
-              })
-            }
-          } else {
-            this._updateNodeOnMapAndStorage();
-          }
-        });
       }
-    });
-  }
-
-  private _updateNodeOnMapAndStorage() {
-    this.store.dispatch(retrievedMapSelection({ data: true }));
-    this.nodeService.get(this.data.genData.node_id).subscribe(nodeData => {
-      this.helpers.updateNodesOnGroupStorage(nodeData.result, 'node');
-      this.helpers.updateNodeOnMap(this.data.cy, this.data.genData.id, nodeData.result);
-      this.helpers.updateNodePGInInterfaceOnMap(this.data.cy, 'node', this.data.genData.node_id);
-      this.helpers.reloadGroupBoxes(this.data.cy);
-      this.dialogRef.close();
-      this.nodeService.getNodesByProjectId(this.projectService.getProjectId()).subscribe(
-        (data: any) => this.store.dispatch(retrievedNodes({ data: data.result }))
-      );
-      this.interfaceService.getByProjectId(this.projectService.getProjectId())
-        .subscribe(res => {
-          this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({ data: res.result }))
-        })
-      this.toastr.success('Node details updated!');
-    });
+    }
+    this.store.dispatch(updateNode({
+      id: this.data.genData.node_id,
+      data: jsonData,
+      configTemplate: this.configTemplateCtr?.value,
+      configDefaultNode
+    }));
   }
 
   changeViewToEdit() {

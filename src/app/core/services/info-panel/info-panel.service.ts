@@ -20,7 +20,6 @@ import { retrievedGroups } from "../../../store/group/group.actions";
 import { retrievedDomains } from "../../../store/domain/domain.actions";
 import { selectDomainUsers } from "../../../store/domain-user/domain-user.selectors";
 import { retrievedUserTasks } from "../../../store/user-task/user-task.actions";
-import { retrievedMapSelection } from "../../../store/map-selection/map-selection.actions";
 import { selectNodesByProjectId } from "../../../store/node/node.selectors";
 import { retrievedIsChangeDomainUsers } from "../../../store/domain-user-change/domain-user-change.actions";
 import { selectPortGroups } from "../../../store/portgroup/portgroup.selectors";
@@ -595,7 +594,6 @@ export class InfoPanelService implements OnDestroy {
         element.data('name', ele.name);
       })
       this.updateInterfaceIPBasedOnPGId(pks);
-      this.store.dispatch(retrievedMapSelection({ data: true }));
       this.toastr.success(response.message);
     })
   }
@@ -623,7 +621,6 @@ export class InfoPanelService implements OnDestroy {
             data.message.map((message: string) => {
               this.toastr.success(message);
             });
-            this.store.dispatch(retrievedMapSelection({ data: true }));
           })
         }
       })
@@ -651,13 +648,12 @@ export class InfoPanelService implements OnDestroy {
           element.data('ip_last_octet', last_octet);
           this.nodeService.get(ele.node_id).subscribe(nodeData => {
             this.helpersService.updateNodesStorage(nodeData.result);
-            this.helpersService.updateNodeOnMap(this.cy, 'node-' + nodeData.result.id, nodeData.result);
+            this.helpersService.updateNodeOnMap('node-' + nodeData.result.id, nodeData.result);
           });
         });
         response.message.map((message: string) => {
           this.toastr.success(message);
         });
-        this.store.dispatch(retrievedMapSelection({ data: true }));
       });
     }
   }

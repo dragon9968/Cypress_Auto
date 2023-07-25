@@ -22,7 +22,7 @@ export class NodeService {
     return this.http.get<any>(ApiPaths.NODE);
   }
 
-  get(id: string): Observable<any> {
+  get(id: number): Observable<any> {
     return this.http.get<any>(ApiPaths.NODE + id);
   }
 
@@ -30,7 +30,7 @@ export class NodeService {
     return this.http.post<any>(ApiPaths.NODE, data);
   }
 
-  put(id: string, data: any): Observable<any> {
+  put(id: number, data: any): Observable<any> {
     return this.http.put<any>(ApiPaths.NODE + id, data);
   }
 

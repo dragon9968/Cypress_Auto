@@ -11,7 +11,7 @@ export class ProjectEffects {
 
   loadProject$ = createEffect(() => this.actions$.pipe(
     ofType(loadProject),
-    exhaustMap((data) => this.projectService.get(+data.projectId)
+    exhaustMap((payload) => this.projectService.get(+payload.projectId)
       .pipe(
         map(res => (projectLoadedSuccess({ project: res.result }))),
         catchError(() => EMPTY)

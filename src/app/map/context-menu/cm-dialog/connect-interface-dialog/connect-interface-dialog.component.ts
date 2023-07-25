@@ -18,7 +18,6 @@ import { networksValidation } from 'src/app/shared/validations/networks.validati
 import { vlanInterfaceValidator } from 'src/app/shared/validations/vlan-interface.validation';
 import { retrievedInterfacesByDestinationNode, retrievedInterfacesBySourceNode, retrievedInterfacesConnectedNode } from 'src/app/store/interface/interface.actions';
 import { selectInterfacesByDestinationNode, selectInterfacesBySourceNode, selectInterfacesConnectedNode } from 'src/app/store/interface/interface.selectors';
-import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
 import { selectNameBySourceNode } from 'src/app/store/node/node.selectors';
 
@@ -229,7 +228,6 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
       cyData.target_label = this.destinationInterfaceCtr?.value.name
       this.helpersService.addCYEdge(this.data.cy, { ...newEdgeData, ...cyData });
       this.helpersService.changeEdgeDirectionOnMap(this.data.cy, this.data.isEdgeDirectionChecked)
-      this.store.dispatch(retrievedMapSelection({ data: true }));
       this.interfaceService.getByProjectId(this.projectService.getProjectId()).subscribe(resp => {
         this.store.dispatch(retrievedInterfacesConnectedNode({ interfacesConnectedNode: resp.result }));
       })

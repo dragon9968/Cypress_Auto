@@ -15,7 +15,6 @@ import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.
 import { retrievedGroups } from 'src/app/store/group/group.actions';
 import { selectGroups } from 'src/app/store/group/group.selectors';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
-import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 
 @Component({
   selector: 'app-add-node-pg-to-groupbox-dialog',
@@ -137,9 +136,8 @@ export class AddNodePgToGroupboxDialogComponent implements OnInit {
           node: updateNodeOnMap,
           port_group: updatePgOnMap,
         }).subscribe(() => {
-          this.helpers.reloadGroupBoxes(this.data.cy);
+          this.helpers.reloadGroupBoxes();
           this.dialogRef.close();
-          this.store.dispatch(retrievedMapSelection({ data: true }));
           this.groupService.getGroupByProjectId(this.data.projectId).subscribe(
             groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
           )

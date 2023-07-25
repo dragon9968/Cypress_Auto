@@ -18,12 +18,12 @@ export class MapEffects {
 
   loadMap$ = createEffect(() => this.actions$.pipe(
     ofType(loadMap),
-    exhaustMap((data) => forkJoin([
-      this.mapService.getMapData(data.mapCategory, data.projectId),
-      this.nodeService.getNodesByProjectId(data.projectId),
-      this.portGroupService.getByProjectId(data.projectId),
-      this.interfaceService.getByProjectId(data.projectId),
-      this.groupService.getGroupByProjectId(data.projectId),
+    exhaustMap((payload) => forkJoin([
+      this.mapService.getMapData(payload.mapCategory, payload.projectId),
+      this.nodeService.getNodesByProjectId(payload.projectId),
+      this.portGroupService.getByProjectId(payload.projectId),
+      this.interfaceService.getByProjectId(payload.projectId),
+      this.groupService.getGroupByProjectId(payload.projectId),
     ]).pipe(
       switchMap(([map, nodesData, portgroupsData, interfacesData, groupsData]) => [
         nodesLoadedSuccess({ nodes: nodesData.result }),

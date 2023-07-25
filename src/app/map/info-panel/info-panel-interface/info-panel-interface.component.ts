@@ -12,7 +12,7 @@ import { AddUpdateInterfaceDialogComponent } from "../../add-update-interface-di
 import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
 import { FormControl, FormGroup } from "@angular/forms";
 import { MatMenuTrigger } from "@angular/material/menu";
-import { selectInterfaces, selectManagementInterfaces } from "../../../store/interface/interface.selectors";
+import { selectLogicalInterfaces, selectManagementInterfaces } from "../../../store/interface/interface.selectors";
 
 @Component({
   selector: 'app-info-panel-interface',
@@ -92,7 +92,8 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
         flex: 1,
       },
       {
-        field: 'node',
+        field: 'node.name',
+        headerName: 'Node',
         minWidth: 100,
         flex: 1,
       },
@@ -103,7 +104,7 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
         flex: 1,
       },
       {
-        field: 'port_group',
+        field: 'port_group.name',
         headerName: 'Port Group',
         minWidth: 100,
         flex: 1,
@@ -121,7 +122,8 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
         flex: 1,
       },
       {
-        field: 'netmask',
+        field: 'netmask.mask',
+        headerName: 'Netmask',
         minWidth: 100,
         flex: 1,
       }
@@ -146,7 +148,7 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
     private infoPanelService: InfoPanelService
   ) {
     this.iconRegistry.addSvgIcon('randomize-subnet', this.helpers.setIconPath('/assets/icons/randomize-subnet.svg'));
-    this.selectInterfaces$ = this.store.select(selectInterfaces).subscribe(interfaces => {
+    this.selectInterfaces$ = this.store.select(selectLogicalInterfaces).subscribe(interfaces => {
       if (interfaces) {
         this.interfaces = interfaces;
         this.loadInterfacesTable();
