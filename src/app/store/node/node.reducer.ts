@@ -16,7 +16,10 @@ export const nodeReducer = createReducer(
     nameNode
   })),
   on(nodesLoadedSuccess, (state, { nodes }) => {
-    const n = nodes.map((node: any) => {
+    const listNodes: any = []; 
+    const logicalNodes: any = []; 
+    const physicalNodes: any = [];
+    nodes.map((node: any) => {
       let icon;
       if (node.icon) {
         icon = `/static/img/uploads/${node.icon.photo}`
@@ -42,20 +45,56 @@ export const nodeReducer = createReducer(
         notes: node.notes,
         groups: node.groups,
         interfaces: node.interfaces,
-        icon: !icon.includes(environment.apiBaseUrl) ? environment.apiBaseUrl + icon : icon
+        icon: !icon.includes(environment.apiBaseUrl) ? environment.apiBaseUrl + icon : icon,
+        infrastructure: node.infrastructure
       }
-      return {
-        ...node,
-        node_id: node.id,
-        id: `node-${node.id}`,
-        data: { ...node, ...baseCyData, ...node.logical_map?.map_style },
-        position: node.logical_map?.position,
-        locked: node.logical_map?.locked
-      };
+      listNodes.push(
+        { ...node, 
+          node_id: node.id, 
+          id: `node-${node.id}`,
+          data: { ...node, ...baseCyData, ...node.logical_map?.map_style },
+          position: node.logical_map?.position,
+          locked: node.logical_map?.locked 
+        }
+      )
+      if (!node.infrastructure) {
+        logicalNodes.push(
+          { ...node, 
+            node_id: node.id, 
+            id: `node-${node.id}`,
+            data: { ...node, ...baseCyData, ...node.logical_map?.map_style },
+            position: node.logical_map?.position,
+            locked: node.logical_map?.locked 
+          }
+        );
+        if (node.category === 'hw') {
+          physicalNodes.push(
+            { ...node, 
+              node_id: node.id, 
+              id: `node-${node.id}`,
+              data: { ...node, ...baseCyData, ...node.physical?.map_style },
+              position: node.physical?.position,
+              locked: node.physical?.locked 
+            }
+          );
+        }
+      } else {
+        physicalNodes.push(
+          { ...node, 
+            node_id: node.id, 
+            id: `node-${node.id}`,
+            data: { ...node, ...baseCyData, ...node.physical?.map_style },
+            position: node.physical?.position,
+            locked: node.physical?.locked 
+          }
+        );
+      }
     })
     return {
       ...state,
-      nodes: n,
+      nodes: listNodes,
+      logicalNodes,
+      physicalNodes
     };
   }),
   on(selectNode, (state, { id }) => {

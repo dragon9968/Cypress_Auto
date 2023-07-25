@@ -12,7 +12,7 @@ export class InterfacesEffects {
     ofType(loadInterfaces),
     exhaustMap((data) => this.interfaceService.getByProjectId(data.projectId)
       .pipe(
-        map(res => (interfacesLoadedSuccess({ interfaces: res.result }))),
+        map(res => (interfacesLoadedSuccess({ interfaces: res.result, nodes: [] }))),
         catchError(() => EMPTY)
       ))
     )

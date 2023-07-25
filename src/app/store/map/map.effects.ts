@@ -28,7 +28,7 @@ export class MapEffects {
       switchMap(([map, nodesData, portgroupsData, interfacesData, groupsData]) => [
         nodesLoadedSuccess({ nodes: nodesData.result }),
         PGsLoadedSuccess({ portgroups: portgroupsData.result }),
-        interfacesLoadedSuccess({ interfaces: interfacesData.result }),
+        interfacesLoadedSuccess({ interfaces: interfacesData.result, nodes: nodesData.result }),
         groupsLoadedSuccess({ groups: groupsData.result }),
         mapLoadedSuccess({ data: map })
       ]),

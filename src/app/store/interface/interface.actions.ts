@@ -10,7 +10,7 @@ export const loadInterfaces = createAction(
 
 export const interfacesLoadedSuccess = createAction(
   'interfacesLoadedSuccess',
-  props<{ interfaces: any }>()
+  props<{ interfaces: any, nodes: any }>()
 );
 
 export const retrievedInterfaceByProjectIdAndCategory = createAction(

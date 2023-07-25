@@ -56,36 +56,76 @@ export const interfaceReducerByIds = createReducer(
     ...state,
     interfacesConnectedNode: interfacesConnectedNode
   })),
-  on(interfacesLoadedSuccess, (state, { interfaces }) => {
-    const wiredInterfaces: any[] = [];
-    const managementInterfaces: any[] = [];
-    interfaces.map((i: any) => {
-      if (i.category == 'wired') {
-        const ip_str = i.ip ? i.ip : '';
-        const ip = ip_str.split(".");
-        const lastOctet = ip.length == 4 ? `.${ip[3]}` : '';
-        const baseCyData = {
-          id: `interface-${i.id}`,
-          interface_pk: i.id,
-          interface_fk: i.inteface_id,
-          elem_category: "interface",
-          zIndex: 999,
-          updated: false,
-          source: `node-${i.node_id}`,
-          target: i.port_group_id ? `pg-${i.port_group_id}` : undefined,
-          ip_last_octet: i.ip_allocation != "dhcp" ? lastOctet : "DHCP",
-          source_label: i.name,
-          target_label: ''
+  on(interfacesLoadedSuccess, (state, { interfaces, nodes }) => {
+    const logicalWiredInterfaces: any[] = [];
+    const logicalManagementInterfaces: any[] = [];
+    const physicalWiredInterfaces: any[] = [];
+    const physicalManagementInterfaces: any[] = [];
+    const infrastructureNode = nodes.filter((el: any) => el.infrastructure)
+    const hwNodes = nodes.filter((el: any) => el.category === 'hw')
+    const physicalNodes = hwNodes.concat(infrastructureNode)
+    const logicalNodes = nodes.filter((el: any) => !el.infrastructure)
+    logicalNodes.map((logicalNode: any) => {
+      interfaces.map((i: any) => {
+        if (i.node_id === logicalNode.id) {
+          if (i.category == 'wired') {
+            const ip_str = i.ip ? i.ip : '';
+            const ip = ip_str.split(".");
+            const lastOctet = ip.length == 4 ? `.${ip[3]}` : '';
+            const baseCyData = {
+              id: `interface-${i.id}`,
+              interface_pk: i.id,
+              interface_fk: i.interface_id,
+              elem_category: "interface",
+              zIndex: 999,
+              updated: false,
+              source: `node-${i.node_id}`,
+              target: `pg-${i.port_group_id}`,
+              ip_last_octet: i.ip_allocation != "dhcp" ? lastOctet : "DHCP",
+              source_label: i.name,
+              target_label: ''
+            }
+            logicalWiredInterfaces.push({ ...i, data: { ...i, ...baseCyData }, locked: i.physical_map?.locked });
+          } else if (i.category == 'management') {
+            logicalManagementInterfaces.push(i);
+          }
         }
-        wiredInterfaces.push({ ...i, data: { ...i, ...baseCyData }, locked: i.logical_map?.locked });
-      } else if (i.category == 'management') {
-        managementInterfaces.push(i);
-      }
+      })
+    })
+    physicalNodes.map((node: any) => {
+      interfaces.map((i: any) => {
+        let targetNode: any;
+        if (i.interface_id) {
+          targetNode = interfaces.find((el: any) => el.id === i.interface_id)
+        }
+        if (i.node_id === node.id) {
+          if (i.category == 'wired') {
+            const baseCyData = {
+              id: `interface-${i.id}`,
+              interface_pk: i.id,
+              interface_fk: i.interface_id,
+              elem_category: "interface",
+              zIndex: 999,
+              updated: false,
+              source: `node-${i.node_id}`,
+              target: i.interface_id ? `node-${targetNode.node_id}` : '',
+              source_label: i.name,
+              target_label: (i.node_id === node.id) ? i.name : ""
+            }
+            physicalWiredInterfaces.push({ ...i, data: { ...i, ...baseCyData }, locked: i.physical_map?.locked });
+          } else if (i.category == 'management') {
+            physicalManagementInterfaces.push(i);
+          }
+        }
+      })
     });
     return {
       ...state,
-      wiredInterfaces,
-      managementInterfaces,
+      wiredInterfaces: logicalWiredInterfaces,
+      logicalWiredInterfaces,
+      logicalManagementInterfaces,
+      physicalWiredInterfaces,
+      physicalManagementInterfaces
     }
   }),
   on(selectInterface, (state, { id }) => {

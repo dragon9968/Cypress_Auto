@@ -6,3 +6,5 @@ export const selectNodesFeature = createFeatureSelector<NodeState>(ReducerKeys.N
 export const selectNodesByProjectId = createSelector(selectNodesFeature, (state: NodeState) => state.nodes);
 export const selectNameBySourceNode = createSelector(selectNodesFeature, (state: NodeState) => state.nameNode);
 export const selectNodes = createSelector(selectNodesFeature, (state: NodeState) => state.nodes);
+export const selectLogicalNodes = createSelector(selectNodesFeature, (state: NodeState) => state.logicalNodes);
+export const selectPhysicalNodes = createSelector(selectNodesFeature, (state: NodeState) => state.physicalNodes);

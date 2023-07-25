@@ -75,8 +75,7 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
     })
     this.selectInterfaceConnectedNode$ = this.store.select(selectInterfacesConnectedNode).subscribe(interfaces => {
       if (interfaces) {
-        const interfaceData = interfaces.map((ele: any) => ele.data);
-        const filteredInterfaceByCategory = interfaceData.filter((el: any) => el.category !== 'management' && el.interface_fk !== null)
+        const filteredInterfaceByCategory = interfaces.filter((el: any) => el.category !== 'management' && el.interface_fk !== null)
         this.listInterfaceConnectedTarget = filteredInterfaceByCategory.map((val: any) => val.interface_fk);
         this.listInterfaceConnectedSource = filteredInterfaceByCategory.map((val: any) => val.interface_pk);
       }
@@ -248,7 +247,7 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
     }
     const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.interfaceService.put(edgeData.id, jsonData).subscribe(() => {
-      const edge = this.data.cy.getElementById(edgeData.id);
+      const edge = this.data.cy.getElementById(`interface-${edgeData.id}`);
       edge.move({ source: `node-${edgeData.node_id}` });
       edge.move({ target: `node-${this.destinationInterfaceCtr?.value.node_id}` });
       edge.data('source_label', edgeData.name);

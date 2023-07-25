@@ -64,7 +64,7 @@ import { retrievedImages, retrievedMapImages } from '../store/map-image/map-imag
 import { RouteSegments } from "../core/enums/route-segments.enum";
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { retrievedMapEdit } from "../store/map-edit/map-edit.actions";
-import { selectIsInterfaceConnectPG, selectInterfacePkConnectNode, selectWiredInterfaces } from "../store/interface/interface.selectors";
+import { selectIsInterfaceConnectPG, selectInterfacePkConnectNode, selectLogicalWiredInterfaces, selectPhysicalWiredInterfaces } from "../store/interface/interface.selectors";
 import { CMInterfaceService } from "./context-menu/cm-interface/cm-interface.service";
 import { GroupService } from "../core/services/group/group.service";
 import { loadNodes, retrievedNodes, selectNode, unSelectNode } from "../store/node/node.actions";
@@ -83,7 +83,7 @@ import { selectMapCategory } from '../store/map-category/map-category.selectors'
 import { retrievedMapCategory } from '../store/map-category/map-category.actions';
 import { ConnectInterfaceDialogComponent } from './context-menu/cm-dialog/connect-interface-dialog/connect-interface-dialog.component';
 import { ConnectInterfaceToPgDialogComponent } from "./context-menu/cm-dialog/connect-interface-to-pg-dialog/connect-interface-to-pg-dialog.component";
-import { selectNodes } from '../store/node/node.selectors';
+import { selectLogicalNodes, selectPhysicalNodes } from '../store/node/node.selectors';
 import { selectGroups } from '../store/group/group.selectors';
 
 const navigator = require('cytoscape-navigator');
@@ -125,9 +125,11 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   isCanWriteOnProject = false;
   mapCategory = '';
   projectId = '0';
-  nodes!: any[];
+  logicalNodes!: any[];
+  physicalNodes!: any[];
   portGroups!: any[];
-  interfaces!: any[];
+  logicalInterfaces!: any[];
+  physicalInterfaces!: any[];
   groupBoxes!: any[];
   domains!: any[];
   icons!: any[];
@@ -196,9 +198,11 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   selectInterfacePkConnectNode$ = new Subscription();
   selectMapOption$ = new Subscription();
   selectProjectCategory$ = new Subscription();
-  selectNodes$ = new Subscription();
+  selectLogicalNodes$ = new Subscription();
+  selectPhysicalNodes$ = new Subscription();
   selectManagementPGs$ = new Subscription();
-  selectWiredInterfaces$ = new Subscription();
+  selectLogicalWiredInterfaces$ = new Subscription();
+  selectPhysicalWiredInterfaces$ = new Subscription();
   selectManagementInterfaces$ = new Subscription();
   selectGroups$ = new Subscription();
   selectProject$ = new Subscription();
@@ -292,9 +296,14 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         }
       }
     });
-    this.selectNodes$ = this.store.select(selectNodes).subscribe((nodes: any) => {
-      if (nodes) {
-        this.nodes = nodes;
+    this.selectLogicalNodes$ = this.store.select(selectLogicalNodes).subscribe((logicalNodes: any) => {
+      if (logicalNodes) {
+        this.logicalNodes = logicalNodes;
+      }
+    });
+    this.selectPhysicalNodes$ = this.store.select(selectPhysicalNodes).subscribe((physicalNodes: any) => {
+      if (physicalNodes) {
+        this.physicalNodes = physicalNodes;
       }
     });
     this.selectPortGroups$ = this.store.select(selectMapPortGroups).subscribe((portGroups: any) => {
@@ -302,9 +311,14 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         this.portGroups = portGroups;
       }
     });
-    this.selectWiredInterfaces$ = this.store.select(selectWiredInterfaces).subscribe(wiredInterfaces => {
-      if (wiredInterfaces) {
-        this.interfaces = wiredInterfaces;
+    this.selectLogicalWiredInterfaces$ = this.store.select(selectLogicalWiredInterfaces).subscribe(logicalWiredInterfaces => {
+      if (logicalWiredInterfaces) {
+        this.logicalInterfaces = logicalWiredInterfaces;
+      }
+    });
+    this.selectPhysicalWiredInterfaces$ = this.store.select(selectPhysicalWiredInterfaces).subscribe(physicalWiredInterfaces => {
+      if (physicalWiredInterfaces) {
+        this.physicalInterfaces = physicalWiredInterfaces;
       }
     });
     this.selectGroups$ = this.store.select(selectGroups).subscribe(groups => {
@@ -387,7 +401,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
 
   ngOnInit(): void {
     this.selectMap$ = this.store.select(selectMapFeature).subscribe((map: MapState) => {
-      if (map.defaultPreferences && this.nodes && this.portGroups && this.interfaces && this.groupBoxes) {
+      if (map.defaultPreferences && (this.logicalNodes || this.physicalNodes) && this.portGroups && (this.logicalInterfaces || this.physicalInterfaces) && this.groupBoxes) {
         this.defaultPreferences = map.defaultPreferences;
         this._initCytoscape();
         this._initMouseEvents();
@@ -434,10 +448,10 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.projectTemplateId = 0;
     this.linkProjectId = 0;
     this.selectMapOption$.unsubscribe();
-    this.selectNodes$.unsubscribe();
+    this.selectLogicalNodes$.unsubscribe();
     this.selectPortGroups$.unsubscribe();
     this.selectManagementPGs$.unsubscribe();
-    this.selectWiredInterfaces$.unsubscribe();
+    this.selectLogicalWiredInterfaces$.unsubscribe();
     this.selectManagementInterfaces$.unsubscribe();
     this.selectGroups$.unsubscribe();
     this.selectProject$.unsubscribe();
@@ -972,19 +986,24 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     }
     this.styleExists = this.config.styleExists;
     this.cleared = this.config.cleared;
-    const interfacesValid = this.interfaces.filter(i => i.port_group_id)
-    this.eles = JSON.parse(JSON.stringify(this.nodes.concat(this.portGroups).concat(interfacesValid)));
-    this.eles.forEach(ele => {
-      if (ele.data.elem_category == 'map_link') {
-        if (!ele.data.icon.includes(environment.apiBaseUrl)) {
-          ele.data.icon = environment.apiBaseUrl + ele.data.icon;
+    const nodeData = this.mapCategory === 'logical' ? this.logicalNodes : this.physicalNodes
+    const interfacesData = this.mapCategory === 'logical' ? this.logicalInterfaces : this.physicalInterfaces
+    const interfacesValid = this.mapCategory == 'logical' ? interfacesData.filter(i => i.port_group_id) : interfacesData.filter(i => i.data.target)
+    const portGroupsData = this.mapCategory === 'logical' ? this.portGroups : []
+    this.eles = JSON.parse(JSON.stringify(nodeData.concat(portGroupsData).concat(interfacesValid)));
+    if (this.mapCategory === 'logical') {
+      this.eles.forEach(ele => {
+        if (ele.data.elem_category == 'map_link') {
+          if (!ele.data.icon.includes(environment.apiBaseUrl)) {
+            ele.data.icon = environment.apiBaseUrl + ele.data.icon;
+          }
+        } else if (ele.data.elem_category == 'bg_image') {
+          if (!ele.data.src.includes(environment.apiBaseUrl)) {
+            ele.data.src = environment.apiBaseUrl + ele.data.image;
+          }
         }
-      } else if (ele.data.elem_category == 'bg_image') {
-        if (!ele.data.src.includes(environment.apiBaseUrl)) {
-          ele.data.src = environment.apiBaseUrl + ele.data.image;
-        }
-      }
-    });
+      });
+    }
     this.cy = cytoscape({
       container: document.getElementById("cy"),
       elements: this.eles,
@@ -1709,8 +1728,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.activeEdges.splice(0);
     this.activeMBs.splice(0);
     this.activeMapLinks.splice(0);
-    this.store.dispatch(retrievedMapCategory({ mapCategory: this.mapCategory }));
-    this.mapService.getMapData(this.mapCategory, this.projectId).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
+    this.store.dispatch(loadMap({ projectId: this.projectId, mapCategory: this.mapCategory }));
   }
 
   addTemplateIntoCurrentProject(projectTemplateId: Number, layoutOnly: Boolean, newPosition: any) {
