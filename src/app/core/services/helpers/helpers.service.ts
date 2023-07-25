@@ -1568,7 +1568,7 @@ export class HelpersService implements OnDestroy {
   }
 
   showOrHideArrowDirectionOnEdge(cy: any, edgeId: number | string) {
-    const edge = cy.getElementById(edgeId);
+    const edge = cy.getElementById(`interface-${edgeId}`);
     if (!this.isEdgeDirectionChecked) {
       const current_dir = edge.data('direction');
       edge.data('prev_direction', current_dir);

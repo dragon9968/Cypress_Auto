@@ -23,7 +23,7 @@ import { showErrorFromServer } from 'src/app/shared/validations/error-server-res
 import { selectMapCategory } from 'src/app/store/map-category/map-category.selectors';
 import { selectInterfacesByHwNodes } from 'src/app/store/interface/interface.selectors';
 import { vlanInterfaceValidator } from 'src/app/shared/validations/vlan-interface.validation';
-import { retrievedInterfaceByProjectIdAndCategory, retrievedInterfacesNotConnectPG } from "../../store/interface/interface.actions";
+import { loadInterfaces, retrievedInterfaceByProjectIdAndCategory, retrievedInterfacesNotConnectPG } from "../../store/interface/interface.actions";
 import { ProjectService } from "../../project/services/project.service";
 import { selectWiredInterfaces, selectInterfacesNotConnectPG } from "../../store/interface/interface.selectors";
 import { retrievedNodes } from 'src/app/store/node/node.actions';
@@ -456,6 +456,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         this.nodeService.getNodesByProjectId(this.projectService.getProjectId()).subscribe(
           (data: any) => this.store.dispatch(retrievedNodes({ data: data.result }))
         );
+        this.store.dispatch(loadInterfaces({projectId: this.projectService.getProjectId(), mapCategory: this.mapCategory}));
         this.store.dispatch(retrievedMapSelection({ data: true }));
       }
       this.interfaceService.getByProjectId(this.projectService.getProjectId())
@@ -502,7 +503,8 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     this.nameCtr?.setValue(interfaceData.name);
     this.descriptionCtr?.setValue(interfaceData.description);
     this.categoryCtr?.setValue(interfaceData.category);
-    this.helpers.setAutoCompleteValue(this.directionCtr, this.DIRECTIONS, directionValue);
+    const direction = directionValue ? directionValue : interfaceData.configuration.direction;
+    this.helpers.setAutoCompleteValue(this.directionCtr, this.DIRECTIONS, direction);
     this.macAddressCtr?.setValue(interfaceData.mac_address);
     if (mode != 'connect') {
       this.helpers.setAutoCompleteValue(this.portGroupCtr, this.portGroups, interfaceData.port_group_id);
