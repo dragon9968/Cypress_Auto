@@ -21,7 +21,6 @@ import { selectAppPref } from 'src/app/store/app-pref/app-pref.selectors';
 import { retrievedAppPref } from 'src/app/store/app-pref/app-pref.actions';
 import { MatRadioChange } from '@angular/material/radio';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
-import { NgxPermissionsService } from "ngx-permissions";
 import { MapPrefService } from 'src/app/core/services/map-pref/map-pref.service';
 import { retrievedMapPrefs } from 'src/app/store/map-pref/map-pref.actions';
 import { selectMapPrefs } from 'src/app/store/map-pref/map-pref.selectors';

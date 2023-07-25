@@ -15,7 +15,7 @@ const _onFail = (params: any) => (isExists: boolean) => {
 };
 
 
-export function validatieIP (params: any, newValue: any) {
+export function validateIP (params: any, newValue: any) {
   let typeOfValidation = ''
   const isSubnet = require("is-subnet");
     if (params.colDef.field === "reserved_ip") {

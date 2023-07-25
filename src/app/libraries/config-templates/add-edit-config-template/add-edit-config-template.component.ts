@@ -15,6 +15,11 @@ import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { PORT } from "../../../shared/contants/port.constant";
 import { AceEditorComponent } from "ng2-ace-editor";
 import { networksValidation } from 'src/app/shared/validations/networks.validation';
+import { ColDef, GridApi, GridReadyEvent, ValueSetterParams } from "ag-grid-community";
+import { ButtonRenderersComponent } from "../../../project/renderers/button-renderers-component";
+import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
+import { IpReservationModel, RangeModel } from "../../../core/models/config-template.model";
+import { ipSubnetValidation } from "../../../shared/validations/ip-subnet.validation";
 
 @Component({
   selector: 'app-add-edit-config-template',
@@ -23,6 +28,10 @@ import { networksValidation } from 'src/app/shared/validations/networks.validati
 })
 export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
   @ViewChild("editor") editor!: AceEditorComponent;
+  private rangeGridApi!: GridApi;
+  private reservationGridApi!: GridApi;
+  rangeRowData: any[] = [];
+  reservationRowData: any[] = [];
   PORT = PORT;
   configTemplateAddsType = CONFIG_TEMPLATE_ADDS_TYPE;
   configTemplateForm!: FormGroup;
@@ -31,6 +40,7 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
   firewallRuleForm!: FormGroup;
   domainMemberForm!: FormGroup;
   roleServicesForm!: FormGroup;
+  dhcpForm!: FormGroup;
   ospfForm!: FormGroup;
   bgpForm!: FormGroup;
   errorMessages = ErrorMessages;
@@ -46,16 +56,69 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
   isAddRolesAndService = false;
   isAddDomainMembership = false;
   isAddOSPF = false;
-  // isHiddenBgpMetricType = false;
-  // isHiddenConnectedMetricType = false;
-  // isHiddenStaticMetricType = false;
   bgpChecked = true;
   connectedChecked = true;
   staticChecked = true;
   isAddBGP = false;
+  isAddDHCP = false;
+  isDisableAddDHCP = false;
   bgpConnectedChecked = true;
   bgpOspfChecked = true;
   filteredAddActions!: Observable<any>[];
+
+  defaultColDef: ColDef = {
+    sortable: true,
+    resizable: true,
+    editable: true,
+  };
+
+  rangeColumnDefs: ColDef[] = [
+    {
+      headerName: '',
+      editable: false,
+      maxWidth: 90,
+      cellRenderer: ButtonRenderersComponent,
+      cellRendererParams: {
+        onClick: this.onDelete.bind(this),
+      }
+    },
+    {
+      field: 'name'
+    },
+    {
+      field: 'start',
+      valueSetter: this.setterValueNetwork.bind(this)
+    },
+    {
+      field: 'stop',
+      valueSetter: this.setterValueNetwork.bind(this),
+    }
+  ];
+
+  reservationColumnDefs: ColDef[] = [
+    {
+      headerName: '',
+      editable: false,
+      maxWidth: 90,
+      cellRenderer: ButtonRenderersComponent,
+      cellRendererParams: {
+        onClick: this.onDeleteReservation.bind(this),
+      }
+    },
+    {
+      field: 'name'
+    },
+    {
+      field: 'ip_address',
+      headerName: 'IP Address',
+      valueSetter: this.setterValueNetwork.bind(this)
+    },
+    {
+      field: 'mac_address',
+      headerName: 'MAC Address',
+      valueSetter: this.setterValueNetwork.bind(this),
+    }
+  ];
 
   constructor(
     private dialog: MatDialog,
@@ -98,7 +161,6 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
     this.roleServicesForm = new FormGroup({
       rolesCtr: new FormControl('')
     })
-
     this.ospfForm = new FormGroup({
       networksCtr: new FormControl('', [networksValidation('multi')]),
       bgpStateCtr: new FormControl(''),
@@ -108,7 +170,6 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
       staticStateCtr: new FormControl(''),
       staticMetricTypeCtr: new FormControl('')
     })
-
     this.bgpForm = new FormGroup({
       ipCtr: new FormControl('', [networksValidation('single')]),
       asnCtr: new FormControl(''),
@@ -118,6 +179,14 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
       bgpConnectedMetricCtr: new FormControl('', [Validators.pattern('^[0-9]*$')]),
       bgpOspfStateCtr: new FormControl(''),
       bgpOspfMetricCtr: new FormControl('', [Validators.pattern('^[0-9]*$')])
+    })
+    this.dhcpForm = new FormGroup({
+      nameCtr: new FormControl(''),
+      authoritativeCtr: new FormControl(true),
+      subnetCtr: new FormControl('', [ipSubnetValidation(true)]),
+      leaseCtr: new FormControl('', [Validators.pattern('^[0-9]*$')]),
+      dnsServerCtr: new FormControl('', [networksValidation('single')]),
+      ntpServerCtr: new FormControl('', [networksValidation('single')]),
     })
     this.isViewMode = this.data.mode == 'view';
     this.isAddMode = this.data.mode == 'add';
@@ -208,6 +277,13 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
   get bgpOspfStateCtr() { return this.bgpForm.get('bgpOspfStateCtr');}
   get bgpOspfMetricCtr() { return this.bgpForm.get('bgpOspfMetricCtr');}
 
+  get nameCtr() { return this.dhcpForm.get('nameCtr') }
+  get authoritativeCtr() { return this.dhcpForm.get('authoritativeCtr') }
+  get subnetCtr() { return this.dhcpForm.get('subnetCtr') }
+  get leaseCtr() { return this.dhcpForm.get('leaseCtr') }
+  get dnsServerCtr() { return this.dhcpForm.get('dnsServerCtr') }
+  get ntpServerCtr() { return this.dhcpForm.get('ntpServerCtr') }
+
   ngOnInit(): void {
     this.name?.setValue(this.data.genData.name);
     this.category?.setValue(this.data.genData.category);
@@ -215,6 +291,72 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
     this.addTypeCtr?.setValue(this.configTemplateAddsType[0]);
     this.addTypeCtr?.setValidators([Validators.required, autoCompleteValidator(this.configTemplateAddsType)])
     this.helpersService.setAutoCompleteValue(this.addTypeCtr, this.configTemplateAddsType, this.configTemplateAddsType[0].id)
+  }
+
+  onRangeGridReady(params: GridReadyEvent) {
+    this.rangeGridApi = params.api;
+    this.rangeGridApi.sizeColumnsToFit();
+  }
+
+  onReservationGridReady(params: GridReadyEvent) {
+    this.reservationGridApi = params.api;
+    this.reservationGridApi.sizeColumnsToFit();
+  }
+
+  onDelete(params: any) {
+    const dialogData = {
+      title: 'User confirmation needed',
+      message: 'You sure you want to delete this item?',
+      submitButtonName: 'OK'
+    }
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData, autoFocus: false });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.rangeRowData.splice(params.rowData.index, 1);
+        this.rangeGridApi.applyTransaction({ remove: [params.rowData] });
+        this.toastr.success('Deleted range successfully', 'Success')
+      }
+    });
+    return this.rangeRowData;
+  }
+
+  onDeleteReservation(params: any) {
+    const dialogData = {
+      title: 'User confirmation needed',
+      message: 'You sure you want to delete this item?',
+      submitButtonName: 'OK'
+    }
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData, autoFocus: false });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.reservationRowData.splice(params.rowData.index, 1);
+        this.reservationGridApi.applyTransaction({ remove: [params.rowData] });
+        this.toastr.success('Deleted range successfully', 'Success')
+      }
+    });
+    return this.reservationRowData;
+  }
+
+  addRange() {
+    const jsonData = {
+      name: '',
+      start: '',
+      stop: ''
+    }
+    this.rangeGridApi.applyTransaction({ add: [jsonData] });
+  }
+
+  addReservation() {
+    const jsonData = {
+      name: '',
+      ip_address: '',
+      mac_address: ''
+    }
+    this.reservationGridApi.applyTransaction({ add: [jsonData] });
+  }
+
+  setterValueNetwork(params: ValueSetterParams) {
+    return this.helpersService.setterValue(params)
   }
 
   onCancel() {
@@ -259,7 +401,8 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
           const isNodeConfigDataFormatted = this.helpersService.validateJSONFormat(this.editor.value)
           const isValidJsonForm = this.helpersService.validateFieldFormat(this.editor.value)
           const isValidJsonFormBGP = this.helpersService.validationBGP(this.editor.value)
-          if (isNodeConfigDataFormatted && isValidJsonForm && isValidJsonFormBGP) {
+          const isDCHPFormValid = this.helpersService.validateDHCPData(this.editor.value)
+          if (isNodeConfigDataFormatted && isValidJsonForm && isValidJsonFormBGP && isDCHPFormValid) {
             const configDefaultNode = {
               node_id: undefined,
               config_id: this.data.genData.id,
@@ -437,30 +580,6 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // selectBgpState(event: any) {
-  //   if (event.checked) {
-  //     this.isHiddenBgpMetricType = false;
-  //   } else {
-  //     this.isHiddenBgpMetricType = true;
-  //   }
-  // }
-
-  // selectConnectedState(event: any) {
-  //   if (event.checked) {
-  //     this.isHiddenConnectedMetricType = false;
-  //   } else {
-  //     this.isHiddenConnectedMetricType = true;
-  //   }
-  // }
-
-  // selectStaticState(event: any) {
-  //   if (event.checked) {
-  //     this.isHiddenStaticMetricType = false;
-  //   } else {
-  //     this.isHiddenStaticMetricType = true;
-  //   }
-  // }
-
   addOSPF() {
     const jsonDataValue = {
       config_type: "ospf",
@@ -485,6 +604,7 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
       this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
     });
   }
+
   addBGP() {
     const jsonDataValue = {
       config_type: "bgp",
@@ -511,6 +631,47 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
     });
   }
 
+  addDHCP() {
+    let ranges: RangeModel[] = [];
+    let ipReservations: IpReservationModel[] = [];
+    this.rangeGridApi.forEachNode(rangeNode => ranges.push(rangeNode.data));
+    this.reservationGridApi.forEachNode(ipReservationNode => ipReservations.push(ipReservationNode.data))
+    const isRangesExistEmptyValue = ranges.some(range => range.name === '' || range.start === '' || range.stop === '')
+    if (isRangesExistEmptyValue) {
+      this.toastr.warning('All fields in the Range table are required!', 'Warning')
+    } else {
+       const isIpReservationExistEmptyValue = ipReservations.some(ipReservation => ipReservation.name === '' &&
+                                                                                   ipReservation.ip_address === '')
+      if (isIpReservationExistEmptyValue) {
+        this.toastr.warning('All fields in the IP Reservation table are required!', 'Warning')
+      } else {
+        const jsonDataValue = {
+          config_type: 'dhcp_server',
+          config_id: this.data.genData.id,
+          name: this.nameCtr?.value,
+          authoritative: this.authoritativeCtr?.value,
+          subnet: this.subnetCtr?.value,
+          lease: parseInt(this.leaseCtr?.value),
+          dns_server: this.dnsServerCtr?.value,
+          ntp_server: this.ntpServerCtr?.value,
+          ranges: ranges,
+          ip_reservations: ipReservations
+        }
+        const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue)
+        this.configTemplateService.addConfiguration(jsonData).pipe(
+          catchError(error => {
+            this.toastr.error('Add a new DHCP failed', 'Error');
+            return throwError(() => error)
+          })
+        ).subscribe(response => {
+          this._setEditorData(response.result)
+          this.toastr.success('Add a new DHCP successfully', 'Success');
+          this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
+        })
+      }
+    }
+  }
+
   showFormAdd(addType: string) {
     switch (addType) {
       case 'add_route':
@@ -520,6 +681,8 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
         this.isAddRolesAndService = false;
         this.isAddOSPF = false;
         this.isAddBGP = false;
+        this.isAddDHCP = false;
+        this.dialogRef.updateSize('1000px')
         break;
       case 'add_firewall_rule':
         this.isAddRoute = false;
@@ -528,6 +691,8 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
         this.isAddRolesAndService = false;
         this.isAddOSPF = false;
         this.isAddBGP = false;
+        this.isAddDHCP = false;
+        this.dialogRef.updateSize('1000px')
         break;
       case 'add_domain_membership':
         this.isAddRoute = false;
@@ -536,6 +701,8 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
         this.isAddRolesAndService = false;
         this.isAddOSPF = false;
         this.isAddBGP = false;
+        this.isAddDHCP = false;
+        this.dialogRef.updateSize('1000px')
         break;
       case 'add_roles_service':
         this.isAddRoute = false;
@@ -544,6 +711,8 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
         this.isAddRolesAndService = true;
         this.isAddOSPF = false;
         this.isAddBGP = false;
+        this.isAddDHCP = false;
+        this.dialogRef.updateSize('1000px')
         break;
       case 'add_ospf':
         this.isAddRoute = false;
@@ -552,6 +721,8 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
         this.isAddRolesAndService = false;
         this.isAddOSPF = true;
         this.isAddBGP = false;
+        this.isAddDHCP = false;
+        this.dialogRef.updateSize('1000px')
         break;
       case 'add_bgp':
         this.isAddRoute = false;
@@ -560,6 +731,18 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
         this.isAddRolesAndService = false;
         this.isAddOSPF = false;
         this.isAddBGP = true;
+        this.isAddDHCP = false;
+        this.dialogRef.updateSize('1000px')
+        break;
+      case 'add_dhcp':
+        this.isAddDHCP = true;
+        this.isAddRoute = false;
+        this.isAddFirewallRule = false;
+        this.isAddDomainMembership = false;
+        this.isAddRolesAndService = false;
+        this.isAddOSPF = false;
+        this.isAddBGP = false;
+        this.dialogRef.updateSize('1200px')
         break;
       default:
         this.isAddRoute = false;
@@ -568,6 +751,7 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
         this.isAddRolesAndService = false;
         this.isAddOSPF = false;
         this.isAddBGP = false;
+        this.isAddDHCP = false;
     }
   }
 

@@ -13,10 +13,6 @@ import { retrievedConfigTemplates } from 'src/app/store/config-template/config-t
 import { selectConfigTemplates } from 'src/app/store/config-template/config-template.selectors';
 import { AddEditConfigTemplateComponent } from './add-edit-config-template/add-edit-config-template.component';
 import { ConfirmationDialogComponent } from "../../shared/components/confirmation-dialog/confirmation-dialog.component";
-import { AddRouteDialogComponent } from "./add-route-dialog/add-route-dialog.component";
-import { AddFirewallRuleDialogComponent } from "./add-firewall-rule-dialog/add-firewall-rule-dialog.component";
-import { AddDomainMembershipDialogComponent } from "./add-domain-membership-dialog/add-domain-membership-dialog.component";
-import { AddEditRolesServicesDialogComponent } from "./add-edit-roles-services-dialog/add-edit-roles-services-dialog.component";
 import { PageName } from "../../shared/enums/page-name.enum";
 import { ImportDialogComponent } from "../../shared/components/import-dialog/import-dialog.component";
 
@@ -84,8 +80,7 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private toastr: ToastrService,
     private helpers: HelpersService,
-    iconRegistry: MatIconRegistry,
-
+    iconRegistry: MatIconRegistry
   ) {
     this.selectConfigTemplates$ = this.store.select(selectConfigTemplates).subscribe((data: any) => {
       if (data) {
@@ -230,94 +225,6 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
           })
         }
       });
-    }
-  }
-
-  addRouter() {
-    if (this.rowsSelectedId.length === 0) {
-      this.toastr.info('No row selected');
-    } else if (this.rowsSelectedId.length === 1) {
-      this.configTemplateService.get(this.id).subscribe(configTemplateData => {
-        const dialogData = {
-          mode: 'update',
-          genData: configTemplateData.result
-        }
-        this.dialog.open(AddRouteDialogComponent, {
-          disableClose: true,
-          autoFocus: false,
-          width: '450px',
-          data: dialogData
-        });
-      })
-    } else {
-      this.toastr.info('Add router do not apply to multiple config template.<br>Please select only one config template.',
-        'Info', { enableHtml: true });
-    }
-  }
-
-  addFirewallRule() {
-    if (this.rowsSelectedId.length === 0) {
-      this.toastr.info('No row selected');
-    } else if (this.rowsSelectedId.length === 1) {
-      this.configTemplateService.get(this.id).subscribe(configTemplateData => {
-        const dialogData = {
-          mode: 'update',
-          genData: configTemplateData.result
-        }
-        this.dialog.open(AddFirewallRuleDialogComponent, {
-          disableClose: true,
-          autoFocus: false,
-          width: '450px',
-          data: dialogData
-        });
-      })
-    } else {
-      this.toastr.info('Add firewall rule do not apply to multiple config template.<br>Please select only one config template.',
-        'Info', { enableHtml: true });
-    }
-  }
-
-  openDomainMembership() {
-    if (this.rowsSelectedId.length === 0) {
-      this.toastr.info('No row selected');
-    } else if (this.rowsSelectedId.length === 1) {
-      this.configTemplateService.get(this.id).subscribe(configTemplateData => {
-        const dialogData = {
-          mode: 'update',
-          genData: configTemplateData.result
-        }
-        this.dialog.open(AddDomainMembershipDialogComponent, {
-          disableClose: true,
-          autoFocus: false,
-          width: '450px',
-          data: dialogData
-        });
-      })
-    } else {
-      this.toastr.info('Add domain membership do not apply to multiple config template.<br>Please select only one config template.',
-        'Info', { enableHtml: true });
-    }
-  }
-
-  openRoleService() {
-    if (this.rowsSelectedId.length === 0) {
-      this.toastr.info('No row selected');
-    } else if (this.rowsSelectedId.length === 1) {
-      this.configTemplateService.get(this.id).subscribe(configTemplateData => {
-        const dialogData = {
-          mode: 'update',
-          genData: configTemplateData.result
-        }
-        this.dialog.open(AddEditRolesServicesDialogComponent, {
-          disableClose: true,
-          autoFocus: false,
-          width: '450px',
-          data: dialogData
-        });
-      })
-    } else {
-      this.toastr.info('Add role and service do not apply to multiple config template.<br>Please select only one config template.',
-        'Info', { enableHtml: true });
     }
   }
 

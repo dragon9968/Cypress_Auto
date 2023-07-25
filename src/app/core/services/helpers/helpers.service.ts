@@ -4,7 +4,7 @@ import { Injectable, Input, OnDestroy } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 import { FormControl, FormGroup } from '@angular/forms';
-import { validatieIP } from 'src/app/shared/validations/ip-subnet.validation.ag-grid';
+import { validateIP } from 'src/app/shared/validations/ip-subnet.validation.ag-grid';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { ToastrService } from 'ngx-toastr';
 import { selectNodesByProjectId } from "../../../store/node/node.selectors";
@@ -29,6 +29,7 @@ import { isIPv4 } from 'is-ip';
 import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
 import { selectPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { retrievedPortGroups } from 'src/app/store/portgroup/portgroup.actions';
+import { IpReservationModel, RangeModel } from "../../models/config-template.model";
 
 @Injectable({
   providedIn: 'root'
@@ -1087,7 +1088,7 @@ export class HelpersService implements OnDestroy {
     const newValue = params.newValue;
     const data = params.data;
     const field = params.colDef.field
-    const typeOfValidation = validatieIP(params, newValue)
+    const typeOfValidation = validateIP(params, newValue)
     if (newValue === '' && field == 'network') {
       this.toastr.warning(ErrorMessages.FIELD_IS_REQUIRED)
       return false
@@ -1363,7 +1364,14 @@ export class HelpersService implements OnDestroy {
         })
       } else {
         isIpV4 = isIPv4(data)
-        isValidNetworks = isIpV4
+        isValidNetworks = (isIpV4)
+        if (data.includes('/')) {
+          isIpV4 = isIPv4(data.split('/')[0])
+          const isMatchSubnet = isSubnet(data)
+          isValidNetworks = (isIpV4 && isMatchSubnet)
+        } else {
+          isValidNetworks = isIpV4
+        }
       }
     }
     return isValidNetworks;
@@ -1376,7 +1384,7 @@ export class HelpersService implements OnDestroy {
     let isValidBGPOSPFState: boolean = true;
     let isValidBGPMetric: boolean = true;
     let isValidBGPState: boolean = true;
-    let isValidBGPIPAdress: boolean = true;
+    let isValidBGPIPAddress: boolean = true;
     let isValidBGPNeighborIP: boolean = true;
     let isValidBGPNetworks: boolean = true;
     const configData = JSON.parse(json)
@@ -1389,27 +1397,110 @@ export class HelpersService implements OnDestroy {
         isValidBGPOSPFMetric = Number.isInteger(ospfMetric)
         isValidBGPConnectedState = (typeof data.redistribute.connected.state === 'boolean')
         isValidBGPOSPFState = (typeof data.redistribute.ospf.state === 'boolean')
-        isValidBGPIPAdress = this.validationNetwork(data.ip_address)
+        isValidBGPIPAddress = this.validationNetwork(data.ip_address)
         isValidBGPNeighborIP = this.validationNetwork(data.neighbor_ip)
         isValidBGPMetric = isValidBGPConnectedMetric && isValidBGPOSPFMetric
         isValidBGPState = isValidBGPConnectedState && isValidBGPOSPFState
-        isValidBGPNetworks = isValidBGPIPAdress && isValidBGPNeighborIP
+        isValidBGPNetworks = isValidBGPIPAddress && isValidBGPNeighborIP
         return (isValidBGPMetric && isValidBGPState && isValidBGPNetworks)
       })
     }
     if (!isValidBGPMetric) {
-      this.toastr.warning(`The metric field is invalid. Metric should be an integer.`)
+      this.toastr.warning('The metric field is invalid. Metric should be an integer.')
       return false
     } else if (!isValidBGPState) {
-      this.toastr.warning(`The state field is invalid. State field should contain only true or false values`)
+      this.toastr.warning('The state field is invalid. State field should contain only true or false values')
       return false
     } else if (!isValidBGPNetworks) {
-      this.toastr.warning(`The ip address is invalid. Expected 4 octets and only decimal digits permitted.`)
+      this.toastr.warning('The ip address is invalid. Expected 4 octets and only decimal digits permitted.')
       return false
     } else {
       return true;
     }
   }
+
+  validateDHCPData(editorData: any) {
+    const configData = JSON.parse(editorData)
+    const dhcpData = configData['dhcp_server']
+    const isLeaseNumber = Number.isInteger(dhcpData.lease)
+    if (!isLeaseNumber) {
+      this.toastr.warning('Lease property in DHCP server is a number field', 'Warning');
+      return false;
+    }
+
+    const isAuthoritativeValid = (typeof dhcpData.authoritative === 'boolean')
+    if (!isAuthoritativeValid) {
+      this.toastr.warning('Authoritative property in DHCP server should have true or false values', 'Warning');
+      return false;
+    }
+
+    const isValidDNSServer = this.validationNetwork(dhcpData.dns_server)
+    if (!isValidDNSServer) {
+      this.toastr.warning(
+        'The DNS server property in DHCP server is invalid.<br>Expected 4 octets and only decimal digits permitted.',
+        'Warning',
+        { enableHtml: true }
+      );
+      return false;
+    }
+
+    const isValidNTPServer = this.validationNetwork(dhcpData.ntp_server)
+    if (!isValidNTPServer) {
+      this.toastr.warning(
+        'The NTP server property in DHCP server is invalid.<br>Expected 4 octets and only decimal digits permitted.',
+        'Warning',
+        { enableHtml: true }
+      );
+      return false;
+    }
+
+    const startRanges = dhcpData.ranges.map((range: RangeModel) => range.start)
+    const isStartRangesValid = this.validationNetwork(startRanges)
+    if (!isStartRangesValid) {
+      this.toastr.warning(
+        'The start property in Range is invalid.<br>Expected 4 octets and only decimal digits permitted.',
+        'Warning',
+        { enableHtml: true }
+      );
+      return false;
+    }
+
+    const stopRanges = dhcpData.ranges.map((range: RangeModel) => range.stop)
+    const isStopRangesValid = this.validationNetwork(stopRanges)
+    if (!isStopRangesValid) {
+      this.toastr.warning(
+        'The stop property in Range is invalid.<br>Expected 4 octets and only decimal digits permitted.',
+        'Warning',
+        { enableHtml: true }
+      );
+      return false;
+    }
+
+    const ipAddressReservation = dhcpData.ip_reservations.map((ipReservation: IpReservationModel) => ipReservation.ip_address)
+    const isIpAddressValid = this.validationNetwork(ipAddressReservation)
+    if (!isIpAddressValid) {
+      this.toastr.warning(
+        'The IP address property in Reservation is invalid.<br>Expected 4 octets and only decimal digits permitted.',
+        'Warning',
+        { enableHtml: true }
+      );
+      return false;
+    }
+
+    const macAddressReservation = dhcpData.ip_reservations.map((ipReservation: IpReservationModel) => ipReservation.mac_address)
+    const isMacAddressValid = this.validationNetwork(macAddressReservation)
+    if (!isMacAddressValid) {
+      this.toastr.warning(
+        'The MAC address property in Reservation is invalid.<br>Expected 4 octets and only decimal digits permitted.',
+        'Warning',
+        { enableHtml: true }
+      );
+      return false;
+    }
+
+    return true;
+  }
+
 
   processNetworksField(data: string) {
     const arr: any[] = [];
