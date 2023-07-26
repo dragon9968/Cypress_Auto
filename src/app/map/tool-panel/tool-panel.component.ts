@@ -17,7 +17,7 @@ import { GroupService } from "../../core/services/group/group.service";
 import { selectGroups } from "../../store/group/group.selectors";
 import { selectNodesByProjectId } from "../../store/node/node.selectors";
 import { retrievedGroups } from "../../store/group/group.actions";
-import { selectPortGroups } from "../../store/portgroup/portgroup.selectors";
+import { selectMapPortGroups } from "../../store/portgroup/portgroup.selectors";
 import { ProjectService } from "../../project/services/project.service";
 import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
 import { retrievedMapOption } from "../../store/map-option/map-option.actions";
@@ -77,7 +77,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   selectNodes$ = new Subscription();
   selectMapImages$ = new Subscription();
   saveMap$ = new Subscription();
-  selectPortGroup$ = new Subscription();
+  selectMapPortGroups$ = new Subscription();
   isEdgeDirectionChecked!: boolean;
   isGroupBoxesChecked!: boolean;
   isMapGridChecked!: boolean;
@@ -130,7 +130,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     });
     this.selectGroups$ = this.store.select(selectGroups).subscribe(groups => this.groups = groups);
     this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes);
-    this.selectPortGroup$ = this.store.select(selectPortGroups).subscribe(portGroups => this.portGroups = portGroups);
+    this.selectMapPortGroups$ = this.store.select(selectMapPortGroups).subscribe(portGroups => this.portGroups = portGroups);
     this.selectMapImages$ = this.store.select(selectMapImages).subscribe(mapImage => this.mapImages = mapImage);
   }
 
@@ -144,7 +144,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     this.selectGroups$.unsubscribe();
     this.selectMapPref$.unsubscribe();
     this.selectMapOption$.unsubscribe();
-    this.selectPortGroup$.unsubscribe();
+    this.selectMapPortGroups$.unsubscribe();
     this.selectMapContextMenu$.unsubscribe();
     this.selectDefaultPreferences$.unsubscribe();
     this.selectMapImages$.unsubscribe();

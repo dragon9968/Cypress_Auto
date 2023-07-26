@@ -29,3 +29,16 @@ export const removePG = createAction(
   'removePG',
   props<{ id: string }>()
 );
+
+export const updatePG = createAction(
+  'updatePG',
+  props<{
+    id: number,
+    data: any,
+  }>()
+);
+
+export const pgUpdatedSuccess = createAction(
+  'pgUpdatedSuccess',
+  props<{ portgroup: any }>()
+);

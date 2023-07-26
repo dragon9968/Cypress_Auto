@@ -184,7 +184,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   selectMapPref$ = new Subscription();
   selectMapEdit$ = new Subscription();
   selectMapCategory$ = new Subscription();
-  selectPortGroups$ = new Subscription();
+  selectMapPortGroups$ = new Subscription();
   selectIcons$ = new Subscription();
   selectDomains$ = new Subscription();
   selectSearchText$ = new Subscription();
@@ -304,7 +304,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         this.physicalNodes = physicalNodes;
       }
     });
-    this.selectPortGroups$ = this.store.select(selectMapPortGroups).subscribe((portGroups: any) => {
+    this.selectMapPortGroups$ = this.store.select(selectMapPortGroups).subscribe((portGroups: any) => {
       if (portGroups) {
         this.portGroups = portGroups;
       }
@@ -426,7 +426,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.selectMap$.unsubscribe();
     this.selectMapPref$.unsubscribe();
     this.selectMapEdit$.unsubscribe();
-    this.selectPortGroups$.unsubscribe();
+    this.selectMapPortGroups$.unsubscribe();
     this.selectIcons$.unsubscribe();
     this.selectDomains$.unsubscribe();
     this.selectSearchText$.unsubscribe();
@@ -447,7 +447,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.linkProjectId = 0;
     this.selectMapOption$.unsubscribe();
     this.selectLogicalNodes$.unsubscribe();
-    this.selectPortGroups$.unsubscribe();
+    this.selectMapPortGroups$.unsubscribe();
     this.selectManagementPGs$.unsubscribe();
     this.selectLogicalWiredInterfaces$.unsubscribe();
     this.selectManagementInterfaces$.unsubscribe();

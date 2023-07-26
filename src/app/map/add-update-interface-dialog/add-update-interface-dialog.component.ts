@@ -356,7 +356,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
           cyData.port_group = response.result.name;
           this.helpers.addCYEdge(this.data.cy, { ...newEdgeData, ...cyData });
           this.helpers.showOrHideArrowDirectionOnEdge(this.data.cy, cyData.id)
-          this.helpers.updatePGOnMap(this.data.cy, portGroupId, response.result);
+          this.helpers.updatePGOnMap(portGroupId, response.result);
         });
       }
       const ipAndNetmask = respData.result.ip && respData.result.netmask ? `- ${respData.result.ip + respData.result.netmask}` : ''

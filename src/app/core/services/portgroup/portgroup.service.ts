@@ -43,7 +43,7 @@ export class PortGroupService {
     })
   }
 
-  get(id: string): Observable<any> {
+  get(id: number): Observable<any> {
     return this.http.get<any>(ApiPaths.PORTGROUP + id);
   }
 
@@ -51,7 +51,7 @@ export class PortGroupService {
     return this.http.post<any>(ApiPaths.PORTGROUP, data);
   }
 
-  put(id: string, data: PortGroupPutModel): Observable<any> {
+  put(id: number, data: PortGroupPutModel): Observable<any> {
     return this.http.put<any>(ApiPaths.PORTGROUP + id, data);
   }
 

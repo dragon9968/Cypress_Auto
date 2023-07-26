@@ -8,21 +8,20 @@ import { Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
-import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
 import { selectDomains } from 'src/app/store/domain/domain.selectors';
 import { showErrorFromServer } from "../../shared/validations/error-server-response.validation";
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
-import { retrievedPortGroups } from "../../store/portgroup/portgroup.actions";
+import { retrievedPortGroups, updatePG } from "../../store/portgroup/portgroup.actions";
 import { PortGroupAddModel, PortGroupGetRandomModel, PortGroupPutModel } from "../../core/models/port-group.model";
 import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
 import { InterfaceService } from "../../core/services/interface/interface.service";
 import { selectNodesByProjectId } from "../../store/node/node.selectors";
-import { retrievedInterfaceByProjectIdAndCategory } from 'src/app/store/interface/interface.actions';
 import { AgGridAngular } from 'ag-grid-angular';
 import { HistoryService } from 'src/app/core/services/history/history.service';
 import { RemoteCategories } from 'src/app/core/enums/remote-categories.enum';
 import { selectIsConfiguratorConnect, selectIsDatasourceConnect, selectIsHypervisorConnect } from 'src/app/store/server-connect/server-connect.selectors';
 import { ServerConnectService } from 'src/app/core/services/server-connect/server-connect.service';
+import { selectNotification } from 'src/app/store/app/app.selectors';
 
 @Component({
   selector: 'app-add-update-pg-dialog',
@@ -41,6 +40,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
   selectIsHypervisorConnect$ = new Subscription();
   selectIsDatasourceConnect$ = new Subscription();
   selectIsConfiguratorConnect$ = new Subscription();
+  selectNotification$ = new Subscription();
   connectionCategory = '';
   nodes: any[] = [];
   domains!: any[];
@@ -151,7 +151,6 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
     public dialogRef: MatDialogRef<AddUpdatePGDialogComponent>,
     public helpers: HelpersService,
     private portGroupService: PortGroupService,
-    private infoPanelService: InfoPanelService,
     private interfaceService: InterfaceService,
     private historyService: HistoryService,
     private serverConnectionService: ServerConnectService
@@ -173,6 +172,11 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
         showErrorFromServer(() => this.errors)]),
       uuidCtr: new FormControl(''),
       switchCtr: new FormControl('')
+    });
+    this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
+      if (notification) {
+        this.helpers.showNotification(notification, this.dialogRef);
+      }
     });
     this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
       this.domains = domains;
@@ -267,6 +271,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
     this.selectIsHypervisorConnect$.unsubscribe();
     this.selectIsDatasourceConnect$.unsubscribe();
     this.selectIsConfiguratorConnect$.unsubscribe();
+    this.selectNotification$.unsubscribe();
   }
 
   private _disableItems(subnetAllocation: string) {
@@ -275,19 +280,6 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
     } else {
       this.subnetCtr?.enable();
     }
-  }
-
-  private _updatePGOnMap(data: any) {
-    const ele = this.data.cy.getElementById(this.data.genData.id);
-    ele.data('name', data.name);
-    ele.data('vlan', data.vlan);
-    ele.data('category', data.category);
-    ele.data('subnet_allocation', data.subnet_allocation);
-    ele.data('subnet', data.subnet);
-    ele.data('groups', data.groups);
-    ele.data('domain', data.domain);
-    ele.data('domain_id', data.domain_id);
-    ele.data('interfaces', data.interfaces);
   }
 
   onSubnetAllocationChange($event: MatRadioChange) {
@@ -390,44 +382,10 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
       }
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.portGroupService.put(this.data.genData.pg_id, jsonData).pipe(
-      catchError(err => {
-        const errorMessage = err.error.message;
-        if (err.status === 422) {
-          if (errorMessage.subnet) {
-            this.subnetCtr?.setErrors({
-              serverError: errorMessage.subnet
-            });
-            this.errors.push({ 'valueCtr': this.subnetCtr?.value, 'error': errorMessage.subnet });
-          }
-          if (errorMessage.vlan) {
-            this.vlanCtr?.setErrors({
-              serverError: errorMessage.vlan
-            });
-            this.errors.push({ 'valueCtr': this.vlanCtr?.value, 'error': errorMessage.vlan });
-          }
-        }
-        return throwError(() => err);
-      })
-    ).subscribe((_respData: any) => {
-      this.portGroupService.get(this.data.genData.pg_id).subscribe(pgData => {
-        const portGroup = pgData.result;
-        if (portGroup.category !== 'management') {
-          this._updatePGOnMap(portGroup);
-          this.helpers.updateNodesOnGroupStorage(portGroup, 'port_groups');
-          this.helpers.reloadGroupBoxes();
-        }
-        this.portGroupService.getByProjectId(this.data.genData.project_id).subscribe(res => {
-          this.store.dispatch(retrievedPortGroups({ data: res.result }))
-        })
-        this.interfaceService.getByProjectId(this.data.genData.project_id)
-        .subscribe(res => {
-          this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({ data: res.result }))
-        });
-        this.dialogRef.close();
-        this.toastr.success('Port group details updated!');
-      });
-    });
+    this.store.dispatch(updatePG({
+      id: this.data.genData.pg_id,
+      data: jsonData,
+    }));
   }
 
   changeViewToEdit() {

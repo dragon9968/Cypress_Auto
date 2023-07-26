@@ -1,6 +1,6 @@
 import { createReducer, on } from '@ngrx/store';
 import { PortGroupState } from 'src/app/store/portgroup/portgroup.state';
-import { PGsLoadedSuccess, removePG, retrievedPortGroups, selectPG, unSelectPG } from './portgroup.actions';
+import { PGsLoadedSuccess, pgUpdatedSuccess, removePG, retrievedPortGroups, selectPG, unSelectPG } from './portgroup.actions';
 
 const initialState = {} as PortGroupState;
 
@@ -14,15 +14,15 @@ export const portGroupReducer = createReducer(
     const pgs: any[] = [];
     const managementPGs: any[] = [];
     portgroups.map((pg: any) => {
+      const baseCyData = {
+        pg_id: pg.id,
+        elem_category: "port_group",
+        id: `pg-${pg.id}`,
+        layout: { name: "preset" },
+        zIndex: 999,
+        updated: false,
+      }
       if (pg.category != 'management') {
-        const baseCyData = {
-          pg_id: pg.id,
-          elem_category: "port_group",
-          id: `pg-${pg.id}`,
-          layout: { name: "preset" },
-          zIndex: 999,
-          updated: false,
-        }
         pgs.push({
           ...pg,
           pg_id: pg.id,
@@ -34,7 +34,11 @@ export const portGroupReducer = createReducer(
           locked: pg.logical_map?.locked
         });
       } else if (pg.category == 'management') {
-        managementPGs.push(pg);
+        managementPGs.push({
+          ...pg,
+          pg_id: pg.id,
+          id: baseCyData.id,
+        });
       }
     });
     return {
@@ -68,6 +72,26 @@ export const portGroupReducer = createReducer(
     return {
       ...state,
       portgroups
+    }
+  }),
+  on(pgUpdatedSuccess, (state, { portgroup }) => {
+    const cyPG = {
+      ...portgroup,
+      pg_id: portgroup.id,
+      id: `pg-${portgroup.id}`,
+    }
+    if (portgroup.category == 'management') {
+      const managementPGs = state.managementPGs.map((pg: any) => (pg.pg_id == cyPG.pg_id) ? { ...pg, ...cyPG } : pg);
+      return {
+        ...state,
+        managementPGs
+      };
+    } else {
+      const portgroups = state.portgroups.map((pg: any) => (pg.pg_id == cyPG.pg_id) ? { ...pg, ...cyPG } : pg);
+      return {
+        ...state,
+        portgroups
+      };
     }
   }),
 );

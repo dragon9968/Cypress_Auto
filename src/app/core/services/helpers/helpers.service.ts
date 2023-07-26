@@ -26,10 +26,10 @@ import { selectGroups } from 'src/app/store/group/group.selectors';
 import { retrievedGroups } from 'src/app/store/group/group.actions';
 import { isIPv4 } from 'is-ip';
 import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
-import { selectPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
+import { selectMapPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { retrievedPortGroups } from 'src/app/store/portgroup/portgroup.actions';
-import { IpReservationModel, RangeModel } from "../../models/config-template.model";
 import { clearNotification } from 'src/app/store/app/app.actions';
+import { IpReservationModel, RangeModel } from '../../models/config-template.model';
 
 @Injectable({
   providedIn: 'root'
@@ -40,7 +40,7 @@ export class HelpersService implements OnDestroy {
   selectGroups$ = new Subscription();
   selectNodes$ = new Subscription();
   selectNetmasks$ = new Subscription();
-  selectPortGroups$ = new Subscription();
+  selectMapPortGroups$ = new Subscription();
   selectNotification$ = new Subscription();
   nodes: any[] = [];
   portGroups: any[] = [];
@@ -88,7 +88,7 @@ export class HelpersService implements OnDestroy {
       }
     })
     this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes);
-    this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe((portGroups: any) => {
+    this.selectMapPortGroups$ = this.store.select(selectMapPortGroups).subscribe((portGroups: any) => {
       this.portGroups = portGroups;
     });
     this.selectNetmasks$ = this.store.select(selectNetmasks).subscribe((netmasks: any) => {
@@ -99,7 +99,7 @@ export class HelpersService implements OnDestroy {
   ngOnDestroy(): void {
     this.selectMapOption$.unsubscribe();
     this.selectNodes$.unsubscribe();
-    this.selectPortGroups$.unsubscribe();
+    this.selectMapPortGroups$.unsubscribe();
     this.selectNetmasks$.unsubscribe();
     this.selectGroups$.unsubscribe();
   }
@@ -1235,8 +1235,8 @@ export class HelpersService implements OnDestroy {
     ele.data('infrastructure', data.infrastructure);
   }
 
-  updatePGOnMap(cy: any, portGroupId: any, data: any) {
-    const ele = cy.getElementById(`pg-${portGroupId}`);
+  updatePGOnMap(id: any, data: any) {
+    const ele = this.cy.getElementById(id);
     ele.data('name', data.name);
     ele.data('vlan', data.vlan);
     ele.data('category', data.category);

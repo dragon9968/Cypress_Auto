@@ -79,5 +79,5 @@ export const updateNodeInInterfaces = createAction(
 
 export const updatePGInInterfaces = createAction(
   'updatePGInInterfaces',
-  props<{ pg: any }>()
+  props<{ portgroup: any }>()
 );

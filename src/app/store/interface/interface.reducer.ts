@@ -187,14 +187,14 @@ export const interfaceReducerByIds = createReducer(
       logicalWiredInterfaces,
     };
   }),
-  on(updatePGInInterfaces, (state, { pg }) => {
+  on(updatePGInInterfaces, (state, { portgroup }) => {
     const logicalWiredInterfaces = state.logicalWiredInterfaces.map((i: any) => {
-      if (i.port_group_id == pg.id) {
+      if (i.port_group_id == portgroup.id) {
         return {
           ...i,
           port_group: {
             ...i.port_group,
-            name: pg.name
+            name: portgroup.name
           }
         };
       } else {
