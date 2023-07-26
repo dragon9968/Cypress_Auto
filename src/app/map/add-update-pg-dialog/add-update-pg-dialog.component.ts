@@ -15,7 +15,7 @@ import { retrievedPortGroups, updatePG } from "../../store/portgroup/portgroup.a
 import { PortGroupAddModel, PortGroupGetRandomModel, PortGroupPutModel } from "../../core/models/port-group.model";
 import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
 import { InterfaceService } from "../../core/services/interface/interface.service";
-import { selectNodesByProjectId } from "../../store/node/node.selectors";
+import { selectLogicalNodes } from "../../store/node/node.selectors";
 import { AgGridAngular } from 'ag-grid-angular';
 import { HistoryService } from 'src/app/core/services/history/history.service';
 import { RemoteCategories } from 'src/app/core/enums/remote-categories.enum';
@@ -185,9 +185,9 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
     });
     this.isViewMode = this.data.mode == 'view';
     this.tabName = this.data.tabName;
-    this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes)
+    this.selectNodes$ = this.store.select(selectLogicalNodes).subscribe(nodes => this.nodes = nodes)
     if (this.isViewMode) {
-      this.interfaceService.getByPortGroup(this.data.genData.pg_id).subscribe(response => {
+      this.interfaceService.getByPortGroup(this.data.genData.id).subscribe(response => {
         const interfaceData = response.result;
         const interfaceDataWithNode = interfaceData.map((edge: any) => {
           edge['node_name'] = this.nodes.find((node: any) => node.id == edge.node_id)?.name
@@ -200,8 +200,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
         }
       })
     }
-    const pgId = this.data.genData.pg_id
-    this.historyService.getByItemId(this.data.genData.pg_id).subscribe(resp => {
+    this.historyService.getByItemId(this.data.genData.id).subscribe(resp => {
       const historyData = resp.result;
       if (this.agGridHistory) {
         this.agGridHistory.api.setRowData(historyData);
@@ -231,7 +230,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
     if (this.data.mode === 'view') {
       const connection = this.serverConnectionService.getConnection(this.connectionCategory);
       const connectionId = connection ? connection?.id : 0;
-      this.portGroupService.getDeployData(pgId, connectionId).subscribe(resp => {
+      this.portGroupService.getDeployData(this.data.genData.id, connectionId).subscribe(resp => {
         const deployData = resp.result;
         this.switchCtr?.setValue(deployData?.dvswitch_name);
       });
@@ -383,7 +382,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.store.dispatch(updatePG({
-      id: this.data.genData.pg_id,
+      id: this.data.genData.id,
       data: jsonData,
     }));
   }

@@ -20,7 +20,7 @@ export class NodesEffects {
         catchError((e) => of(pushNotification({
           notification: {
             type: 'error',
-            message: 'Load node failed!'
+            message: 'Load Nodes failed!'
           }
         })))
       ))

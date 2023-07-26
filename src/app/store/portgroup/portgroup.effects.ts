@@ -19,11 +19,11 @@ export class PortGroupsEffects {
         catchError((e) => of(pushNotification({
           notification: {
             type: 'error',
-            message: 'Load PG failed!'
+            message: 'Load Portgroups failed!'
           }
         })))
       ))
-    )
+  )
   );
 
   updatePG$ = createEffect(() => this.actions$.pipe(
@@ -32,8 +32,10 @@ export class PortGroupsEffects {
       .pipe(
         mergeMap(res => this.portGroupService.get(payload.id)),
         map((res: any) => {
-          this.helpersService.updatePGOnMap(`pg-${payload.id}`, res.result);
-          this.helpersService.reloadGroupBoxes();
+          if (res.result.category != 'management') {
+            this.helpersService.updatePGOnMap(`pg-${payload.id}`, res.result);
+            this.helpersService.reloadGroupBoxes();
+          }
           return res.result;
         }),
         switchMap((portgroup: any) => [
@@ -59,5 +61,5 @@ export class PortGroupsEffects {
     private actions$: Actions,
     private portGroupService: PortGroupService,
     private helpersService: HelpersService,
-  ) {}
+  ) { }
 }

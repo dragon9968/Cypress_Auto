@@ -1,6 +1,6 @@
 import { NodeState } from "./node.state";
 import { createReducer, on } from "@ngrx/store";
-import { retrievedNameNodeBySourceNode, retrievedNodes, nodesLoadedSuccess, selectNode, unSelectNode, nodeUpdatedSuccess, removeNode } from "./node.actions";
+import { retrievedNameNodeBySourceNode, retrievedNodes, nodesLoadedSuccess, selectNode, unSelectNode, nodeUpdatedSuccess, removeNode, updateInterfaceInNode } from "./node.actions";
 import { environment } from "src/environments/environment";
 
 const initialState = {} as NodeState;
@@ -49,9 +49,8 @@ export const nodeReducer = createReducer(
       }
       if (!node.infrastructure) {
         logicalNodes.push(
-          { ...node, 
-            node_id: node.id, 
-            id: `node-${node.id}`,
+          {
+            ...node, 
             data: { ...node, ...baseCyData, ...node.logical_map?.map_style },
             position: node.logical_map?.position,
             locked: node.logical_map?.locked 
@@ -59,9 +58,8 @@ export const nodeReducer = createReducer(
         );
         if (node.category === 'hw') {
           physicalNodes.push(
-            { ...node, 
-              node_id: node.id, 
-              id: `node-${node.id}`,
+            {
+              ...node, 
               data: { ...node, ...baseCyData, ...node.physical?.map_style },
               position: node.physical?.position,
               locked: node.physical?.locked 
@@ -70,9 +68,8 @@ export const nodeReducer = createReducer(
         }
       } else {
         physicalNodes.push(
-          { ...node, 
-            node_id: node.id, 
-            id: `node-${node.id}`,
+          {
+            ...node, 
             data: { ...node, ...baseCyData, ...node.physical?.map_style },
             position: node.physical?.position,
             locked: node.physical?.locked 
@@ -101,19 +98,37 @@ export const nodeReducer = createReducer(
     }
   }),
   on(removeNode, (state, { id }) => {
-    const logicalNodes = state.logicalNodes.filter(ele => ele.node_id !== id);
+    const logicalNodes = state.logicalNodes.filter(n => n.id !== id);
     return {
       ...state,
       logicalNodes
     };
   }),
   on(nodeUpdatedSuccess, (state, { node }) => {
-    const cyNode = {
-      ...node,
-      node_id: node.id, 
-      id: `node-${node.id}`,
-    }
-    const logicalNodes = state.logicalNodes.map((n: any) => (n.node_id == cyNode.node_id) ? { ...n, ...cyNode } : n);
+    const logicalNodes = state.logicalNodes.map((n: any) => (n.id == node.id) ? { ...n, ...node } : n);
+    return {
+      ...state,
+      logicalNodes,
+    };
+  }),
+  on(updateInterfaceInNode, (state, { interfaceData }) => {
+    const logicalNodes = state.logicalNodes.map((n: any) => {
+      if (interfaceData.node_id == n.id) {
+        const newEdge = {
+          id: interfaceData.id,
+          value: `${interfaceData.name} - ${interfaceData.ip + interfaceData.netmaskName}`
+        }
+        const interfaces = n.interfaces.map((i: any) => {
+          return (i.id == newEdge.id) ? newEdge : i;
+        })
+        return {
+          ...n,
+          interfaces
+        };
+      } else {
+        return n;
+      }
+    });
     return {
       ...state,
       logicalNodes,

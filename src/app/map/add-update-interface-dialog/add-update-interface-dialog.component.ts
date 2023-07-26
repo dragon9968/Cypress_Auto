@@ -20,13 +20,13 @@ import { validateNameExist } from "../../shared/validations/name-exist.validatio
 import { networksValidation } from 'src/app/shared/validations/networks.validation';
 import { showErrorFromServer } from 'src/app/shared/validations/error-server-response.validation';
 import { selectMapCategory } from 'src/app/store/map-category/map-category.selectors';
-import { selectInterfacesByHwNodes } from 'src/app/store/interface/interface.selectors';
+import { selectInterfacesByHwNodes, selectLogicalMapInterfaces } from 'src/app/store/interface/interface.selectors';
 import { vlanInterfaceValidator } from 'src/app/shared/validations/vlan-interface.validation';
-import { loadInterfaces, retrievedInterfaceByProjectIdAndCategory, retrievedInterfacesNotConnectPG } from "../../store/interface/interface.actions";
+import { retrievedInterfaceByProjectIdAndCategory, retrievedInterfacesNotConnectPG, updateLogicalInterface } from "../../store/interface/interface.actions";
 import { ProjectService } from "../../project/services/project.service";
-import { selectLogicalWiredInterfaces, selectInterfacesNotConnectPG } from "../../store/interface/interface.selectors";
-import { retrievedNodes } from 'src/app/store/node/node.actions';
+import { selectInterfacesNotConnectPG } from "../../store/interface/interface.selectors";
 import { NodeService } from 'src/app/core/services/node/node.service';
+import { selectNotification } from 'src/app/store/app/app.selectors';
 
 @Component({
   selector: 'app-add-update-interface-dialog',
@@ -47,12 +47,13 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   isViewMode = false;
   isEdgeDirectionChecked = false;
   selectPortGroups$ = new Subscription();
-  selectInterfaces$ = new Subscription();
+  selectLogicalMapInterfaces$ = new Subscription();
   selectMapOption$ = new Subscription();
   selectNetmasks$ = new Subscription();
   selectNodes$ = new Subscription();
   selectMapCategory$ = new Subscription();
   selectInterfacesByHwNodes$ = new Subscription();
+  selectNotification$ = new Subscription();
   gateways: any[] = [];
   interfaces: any[] = [];
   nodes: any[] = [];
@@ -101,7 +102,11 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       interfaceCtr: new FormControl(''),
       targetPortGroupCtr: new FormControl(''),
     })
-
+    this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
+      if (notification) {
+        this.helpers.showNotification(notification, this.dialogRef);
+      }
+    });
     this.selectMapCategory$ = this.store.select(selectMapCategory).subscribe((mapCategory: any) => {
       this.mapCategory = mapCategory ? mapCategory : 'logical'
     })
@@ -109,7 +114,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     this.selectInterfacesByHwNodes$ = this.store.select(selectInterfacesByHwNodes).subscribe(interfacesData => {
       if (interfacesData) {
         this.interfacesByHwNodes = interfacesData
-        this.interfacesByHwNodes = this.interfacesByHwNodes.filter(val => val.id !== this.data.genData.interface_pk)
+        this.interfacesByHwNodes = this.interfacesByHwNodes.filter(val => val.id !== this.data.genData.id)
         this.interfaceCtr.setValidators([autoCompleteValidator(this.interfacesByHwNodes)]);
         this.filteredInterfacesByHwNodes = this.helpers.filterOptions(this.interfaceCtr, this.interfacesByHwNodes);
       }
@@ -120,7 +125,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       this.targetPortGroupCtr?.setValidators([Validators.required, autoCompleteValidator(this.portGroups)]);
       this.filteredPortGroups = this.helpers.filterOptionsPortGroup(this.portGroupCtr, this.portGroups);
     });
-    this.selectInterfaces$ = this.store.select(selectLogicalWiredInterfaces).subscribe(interfaces => {
+    this.selectLogicalMapInterfaces$ = this.store.select(selectLogicalMapInterfaces).subscribe(interfaces => {
       if (interfaces) {
         this.interfaces = interfaces.map((ele: any) => ele.data);
       }
@@ -151,10 +156,11 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     this.selectNodes$.unsubscribe();
     this.selectPortGroups$.unsubscribe();
     this.selectMapOption$.unsubscribe();
-    this.selectInterfaces$.unsubscribe();
+    this.selectLogicalMapInterfaces$.unsubscribe();
     this.selectNetmasks$.unsubscribe();
     this.selectInterfacesNotConnectPG$.unsubscribe();
     this.selectInterfacesByHwNodes$.unsubscribe();
+    this.selectNotification$.unsubscribe();
   }
 
   get orderCtr() { return this.interfaceAddForm.get('orderCtr'); }
@@ -212,7 +218,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       cyData.netmask = this.netmasks.find(netmask => netmask.id === cyData.netmask_id)?.mask
       delete cyData.task;
       this.helpers.addCYEdge(this.data.cy, cyData);
-      this.helpers.showOrHideArrowDirectionOnEdge(this.data.cy, cyData.id);
+      this.helpers.showOrHideArrowDirectionOnEdge(cyData.id);
       this.toastr.success(successMessage, 'Success');
     })
     this.dialogRef.close();
@@ -228,53 +234,6 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       this.netMaskCtr.setValidators([]);
       this.netMaskCtr?.disable();
     }
-  }
-
-  private _updateInterfaceOnMap(data: any) {
-    const ele = this.data.cy.getElementById(this.data.genData.id);
-    ele.data('name', data.name);
-    ele.data('order', data.order);
-    ele.data('description', data.description);
-    ele.data('category', data.category);
-    ele.data('direction', data.direction);
-    ele.data('mac_address', data.mac_address);
-    ele.data('port_group_id', data.port_group_id);
-    ele.data('port_group', data.port_group_id ? this.helpers.getOptionById(this.portGroups, data.port_group_id).name : '');
-    ele.data('ip_allocation', data.ip_allocation);
-    ele.data('ip', data.ip);
-    ele.data('dns_server', data.dns_server);
-    ele.data('gateway', data.gateway);
-    ele.data('is_gateway', data.is_gateway);
-    ele.data('is_nat', data.is_nat);
-    const ip_str = data.ip ? data.ip : "";
-    const ip = ip_str.split(".");
-    const last_octet = ip.length == 4 ? "." + ip[3] : "";
-    ele.data('ip_last_octet', last_octet);
-    ele.data('target', `pg-${data.port_group_id}`);
-    ele.data('netmask_id', data.netmask_id);
-    ele.data('vlan', data.vlan);
-    ele.data('vlan_mode', data.vlan_mode);
-    ele.data('netmask', data.netmask_id ? this.helpers.getOptionById(this.netmasks, data.netmask_id).mask : '');
-  }
-
-  private _updateNewTargetInterface(respData: any, data: any) {
-    const ele = this.data.cy.getElementById(this.data.genData.id);
-    this.data.cy.remove(ele);
-    data.target = `node-${data.targetNodeId}`
-    const id = this.data.genData.interface_pk
-    const ip_str = data.ip ? data.ip : ""
-    const ip = ip_str.split(".")
-    const last_octet = ip.length == 4 ? "." + ip[3] : ""
-    const cyData = respData.result;
-    cyData.id = id;
-    cyData.interface_pk = id;
-    cyData.interface_fk = data.interface_id
-    cyData.ip_last_octet = last_octet
-    cyData.width = cyData.logical_map.map_style.width;
-    cyData.text_color = cyData.logical_map.map_style.text_color;
-    cyData.text_size = cyData.logical_map.map_style.text_size;
-    cyData.color = cyData.logical_map.map_style.color;
-    this.helpers.addCYEdge(this.data.cy, { ...data, ...cyData });
   }
 
   onIpAllocationChange($event: MatRadioChange) {
@@ -355,7 +314,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         this.portGroupService.get(portGroupId).subscribe(response => {
           cyData.port_group = response.result.name;
           this.helpers.addCYEdge(this.data.cy, { ...newEdgeData, ...cyData });
-          this.helpers.showOrHideArrowDirectionOnEdge(this.data.cy, cyData.id)
+          this.helpers.showOrHideArrowDirectionOnEdge(cyData.id)
           this.helpers.updatePGOnMap(portGroupId, response.result);
         });
       }
@@ -407,61 +366,11 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       task: successMessage
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.interfaceService.put(this.data.genData.interface_pk, jsonData).pipe(
-      catchError(err => {
-        const errorMessage = err.error.message;
-        if (err.status === 422) {
-          if (errorMessage.ip) {
-            this.ipCtr?.setErrors({
-              serverError: errorMessage.ip
-            });
-            this.errors.push({ 'valueCtr': this.ipCtr?.value, 'error': errorMessage.ip });
-          }
-        }
-        return throwError(() => err);
-      })
-    ).subscribe((respData: any) => {
-      const pgIdOld = this.data.genData.port_group_id
-      const data = {
-        ...this.data.genData,
-        ...jsonData,
-      }
-      data.ip = respData.result.ip;
-      if (data.category !== 'management') {
-        this._updateInterfaceOnMap(data);
-        this.helpers.showOrHideArrowDirectionOnEdge(this.data.cy, this.data.genData.interface_pk)
-        const e = this.data.cy.getElementById(`${this.data.genData.interface_pk}`);
-        if (data.source.includes('pg')) {
-          e.move({ source: `pg-${data.port_group_id}` });
-        } else {
-          e.move({ target: `pg-${data.port_group_id}` });
-        }
-        const netmaskName = this.helpers.getOptionById(this.netmasks, data.netmask_id).name
-        this.helpers.updateInterfaceOnEle(this.data.cy, `node-${data.node_id}`, {
-          id: this.data.genData.interface_pk,
-          value: `${data.name} - ${data.ip + netmaskName}`
-        });
-        if (data.port_group_id !== pgIdOld) {
-          const node = this.data.cy.getElementById(`node-${data.node_id}`);
-          const newEdge = {
-            id: this.data.genData.interface_pk,
-            value: `${node.data('name')} - ${data.name} - ${data.ip + netmaskName}`
-          }
-          this.helpers.addInterfaceIntoElement(this.data.cy, data.port_group_id, newEdge, 'pg')
-          this.helpers.removeInterfaceOnPG(this.data.cy, pgIdOld, this.data.genData.interface_pk)
-        }
-        this.nodeService.getNodesByProjectId(this.projectService.getProjectId()).subscribe(
-          (data: any) => this.store.dispatch(retrievedNodes({ data: data.result }))
-        );
-        // this.store.dispatch(loadInterfaces({projectId: this.projectService.getProjectId(), mapCategory: this.mapCategory}));
-      }
-      this.interfaceService.getByProjectId(this.projectService.getProjectId())
-        .subscribe(res => {
-          this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({ data: res.result }))
-        })
-      this.dialogRef.close();
-      this.toastr.success(successMessage, 'Success');
-    });
+    this.store.dispatch(updateLogicalInterface({
+      id: this.data.genData.id,
+      data: jsonData,
+      netmasks: this.netmasks
+    }));
   }
 
   selectPortGroup($event: MatAutocompleteSelectedEvent) {
@@ -499,7 +408,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     this.nameCtr?.setValue(interfaceData.name);
     this.descriptionCtr?.setValue(interfaceData.description);
     this.categoryCtr?.setValue(interfaceData.category);
-    const direction = directionValue ? directionValue : interfaceData.configuration.direction;
+    const direction = directionValue ? directionValue : interfaceData.direction;
     this.helpers.setAutoCompleteValue(this.directionCtr, this.DIRECTIONS, direction);
     this.macAddressCtr?.setValue(interfaceData.mac_address);
     if (mode != 'connect') {
@@ -516,7 +425,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     this.ipCtr?.setValidators([
       Validators.required,
       networksValidation('single'),
-      validateNameExist(() => this.edgesConnected, mode, interfaceData.interface_pk, 'ip'),
+      validateNameExist(() => this.edgesConnected, mode, interfaceData.id, 'ip'),
       showErrorFromServer(() => this.errors)
     ])
   }

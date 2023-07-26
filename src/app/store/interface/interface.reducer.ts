@@ -15,7 +15,8 @@ import {
   unSelectInterface,
   removeInterface,
   updateNodeInInterfaces,
-  updatePGInInterfaces
+  updatePGInInterfaces,
+  logicalInterfaceUpdatedSuccess
 } from "./interface.actions";
 
 const initialState = {} as InterfaceState;
@@ -59,9 +60,9 @@ export const interfaceReducerByIds = createReducer(
     interfacesConnectedNode: interfacesConnectedNode
   })),
   on(interfacesLoadedSuccess, (state, { interfaces, nodes }) => {
-    const logicalWiredInterfaces: any[] = [];
+    const logicalMapInterfaces: any[] = [];
     const logicalManagementInterfaces: any[] = [];
-    const physicalWiredInterfaces: any[] = [];
+    const physicalInterfaces: any[] = [];
     const physicalManagementInterfaces: any[] = [];
     const infrastructureNode = nodes.filter((el: any) => el.infrastructure)
     const hwNodes = nodes.filter((el: any) => el.category === 'hw')
@@ -70,7 +71,7 @@ export const interfaceReducerByIds = createReducer(
     logicalNodes.map((logicalNode: any) => {
       interfaces.map((i: any) => {
         if (i.node_id === logicalNode.id) {
-          if (i.category == 'wired') {
+          if (i.category != 'management') {
             const ip_str = i.ip ? i.ip : '';
             const ip = ip_str.split(".");
             const lastOctet = ip.length == 4 ? `.${ip[3]}` : '';
@@ -87,10 +88,8 @@ export const interfaceReducerByIds = createReducer(
               source_label: i.name,
               target_label: ''
             }
-            logicalWiredInterfaces.push({
+            logicalMapInterfaces.push({
               ...i,
-              interface_pk: i.id,
-              id: baseCyData.id,
               data: { ...i, ...baseCyData },
               locked: i.physical_map?.locked
             });
@@ -107,7 +106,7 @@ export const interfaceReducerByIds = createReducer(
           targetNode = interfaces.find((el: any) => el.id === i.interface_id)
         }
         if (i.node_id === node.id) {
-          if (i.category == 'wired') {
+          if (i.category != 'management') {
             const baseCyData = {
               id: `interface-${i.id}`,
               interface_pk: i.id,
@@ -120,10 +119,8 @@ export const interfaceReducerByIds = createReducer(
               source_label: i.name,
               target_label: (i.node_id === node.id) ? i.name : ""
             }
-            physicalWiredInterfaces.push({
+            physicalInterfaces.push({
               ...i, 
-              interface_pk: i.id,
-              id: baseCyData.id,
               data: { ...i, ...baseCyData },
               locked: i.physical_map?.locked
             });
@@ -135,41 +132,41 @@ export const interfaceReducerByIds = createReducer(
     });
     return {
       ...state,
-      logicalWiredInterfaces,
+      logicalMapInterfaces,
       logicalManagementInterfaces,
-      physicalWiredInterfaces,
+      physicalInterfaces,
       physicalManagementInterfaces
     }
   }),
   on(selectInterface, (state, { id }) => {
-    const logicalWiredInterfaces = state.logicalWiredInterfaces.map(n => {
+    const logicalMapInterfaces = state.logicalMapInterfaces.map(n => {
       if (n.data.id == id) return { ...n, isSelected: true };
       return n;
     })
     return {
       ...state,
-      logicalWiredInterfaces
+      logicalMapInterfaces
     }
   }),
   on(unSelectInterface, (state, { id }) => {
-    const logicalWiredInterfaces = state.logicalWiredInterfaces.map(n => {
+    const logicalMapInterfaces = state.logicalMapInterfaces.map(n => {
       if (n.data.id == id) return { ...n, isSelected: false };
       return n;
     })
     return {
       ...state,
-      logicalWiredInterfaces
+      logicalMapInterfaces
     }
   }),
   on(removeInterface, (state, { id }) => {
-    const logicalWiredInterfaces = state.logicalWiredInterfaces.filter(ele => ele.id !== id)
+    const logicalMapInterfaces = state.logicalMapInterfaces.filter(i => i.id !== id)
     return {
       ...state,
-      logicalWiredInterfaces
+      logicalMapInterfaces
     }
   }),
   on(updateNodeInInterfaces, (state, { node }) => {
-    const logicalWiredInterfaces = state.logicalWiredInterfaces.map((i: any) => {
+    const logicalMapInterfaces = state.logicalMapInterfaces.map((i: any) => {
       if (i.node_id == node.id) {
         return {
           ...i,
@@ -184,11 +181,11 @@ export const interfaceReducerByIds = createReducer(
     });
     return {
       ...state,
-      logicalWiredInterfaces,
+      logicalMapInterfaces,
     };
   }),
   on(updatePGInInterfaces, (state, { portgroup }) => {
-    const logicalWiredInterfaces = state.logicalWiredInterfaces.map((i: any) => {
+    const logicalMapInterfaces = state.logicalMapInterfaces.map((i: any) => {
       if (i.port_group_id == portgroup.id) {
         return {
           ...i,
@@ -203,7 +200,22 @@ export const interfaceReducerByIds = createReducer(
     });
     return {
       ...state,
-      logicalWiredInterfaces,
+      logicalMapInterfaces,
     };
+  }),
+  on(logicalInterfaceUpdatedSuccess, (state, { interfaceData }) => {
+    if (interfaceData.category == 'management') {
+      const logicalManagementInterfaces = state.logicalManagementInterfaces.map((i: any) => (i.id == interfaceData.id) ? { ...i, ...interfaceData } : i);
+      return {
+        ...state,
+        logicalManagementInterfaces
+      };
+    } else {
+      const logicalMapInterfaces = state.logicalMapInterfaces.map((i: any) => (i.id == interfaceData.id) ? { ...i, ...interfaceData } : i);
+      return {
+        ...state,
+        logicalMapInterfaces
+      };
+    }
   }),
 );

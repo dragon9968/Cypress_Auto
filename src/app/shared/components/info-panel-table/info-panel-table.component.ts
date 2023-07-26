@@ -85,17 +85,17 @@ export class InfoPanelTableComponent {
     this.rowsSelectedId = this.rowsSelected.map(r => {
       if (this.tabName == 'group') {
         if (this.isGroupBoxesChecked) {
-          const groupCy = this.cy.getElementById(r.id);
+          const groupCy = this.cy.getElementById(r.data.id);
           groupCy.select();
         } else {
           this.cy.nodes().forEach((node: any) => {
-            if (node.data().groups[0].id === r.group_id) {
+            if (node.data().groups[0].id === r.id) {
               node.select();
             }
           })
         }
       } else {
-        const ele = this.cy.getElementById(r.id);
+        const ele = this.cy.getElementById(r.data.id);
         ele.select();
         return r.id;
       }
@@ -104,17 +104,17 @@ export class InfoPanelTableComponent {
     unSelectedRow.forEach(r => {
       if (this.tabName === 'group') {
         if (this.isGroupBoxesChecked) {
-          const groupCy = this.cy.getElementById(r.id);
+          const groupCy = this.cy.getElementById(r.data.id);
           groupCy.unselect();
         } else {
           this.cy.nodes().forEach((node: any) => {
-            if (node.data().groups[0].id === r.group_id) {
+            if (node.data().groups[0].id === r.id) {
               node.unselect();
             }
           })
         }
       } else {
-        const ele = this.cy.getElementById(r.id);
+        const ele = this.cy.getElementById(r.data.id);
         ele.unselect();
       }
     })

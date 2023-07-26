@@ -12,11 +12,8 @@ export const selectInterfacesBySourceNode = createSelector(selectInterfaceFeatur
 export const selectInterfacesByDestinationNode = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.interfacesByDestinationNode);
 export const selectInterfacesByHwNodes = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.interfacesByHwNodes);
 export const selectInterfacesConnectedNode = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.interfacesConnectedNode);
-export const selectLogicalInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.logicalWiredInterfaces?.concat(state.logicalManagementInterfaces));
-export const selectLogicalWiredInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.logicalWiredInterfaces);
-export const selectManagementInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.logicalManagementInterfaces);
-export const selectPhysicalWiredInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.physicalWiredInterfaces);
+export const selectLogicalInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.logicalMapInterfaces?.concat(state.logicalManagementInterfaces));
+export const selectLogicalMapInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.logicalMapInterfaces);
+export const selectLogicalManagementInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.logicalManagementInterfaces);
+export const selectPhysicalInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.physicalInterfaces);
 export const selectPhysicalManagementInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.physicalManagementInterfaces);
-
-
-

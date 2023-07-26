@@ -12,7 +12,7 @@ import { AddUpdateInterfaceDialogComponent } from "../../add-update-interface-di
 import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
 import { FormControl, FormGroup } from "@angular/forms";
 import { MatMenuTrigger } from "@angular/material/menu";
-import { selectLogicalInterfaces, selectManagementInterfaces } from "../../../store/interface/interface.selectors";
+import { selectLogicalInterfaces, selectLogicalManagementInterfaces } from "../../../store/interface/interface.selectors";
 
 @Component({
   selector: 'app-info-panel-interface',
@@ -33,11 +33,10 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
   filterOptionForm!: FormGroup;
   interfaces: any[] = [];
   managementInterfaces: any[] = [];
-  activeEleIds: any[] = [];
   filterOption = 'all';
   tabName = 'edge';
-  selectInterfaces$ = new Subscription();
-  selectManagementInterfaces$ = new Subscription();
+  selectLogicalInterfaces$ = new Subscription();
+  selectLogicalManagementInterfaces$ = new Subscription();
   gridOptions: GridOptions = {
     headerHeight: 48,
     defaultColDef: {
@@ -148,13 +147,13 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
     private infoPanelService: InfoPanelService
   ) {
     this.iconRegistry.addSvgIcon('randomize-subnet', this.helpers.setIconPath('/assets/icons/randomize-subnet.svg'));
-    this.selectInterfaces$ = this.store.select(selectLogicalInterfaces).subscribe(interfaces => {
+    this.selectLogicalInterfaces$ = this.store.select(selectLogicalInterfaces).subscribe(interfaces => {
       if (interfaces) {
         this.interfaces = interfaces;
         this.loadInterfacesTable();
       }
     });
-    this.selectManagementInterfaces$ = this.store.select(selectManagementInterfaces).subscribe(managementInterfaces => {
+    this.selectLogicalManagementInterfaces$ = this.store.select(selectLogicalManagementInterfaces).subscribe(managementInterfaces => {
       if (managementInterfaces) {
         this.managementInterfaces = managementInterfaces;
       }
@@ -165,8 +164,8 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.selectInterfaces$.unsubscribe();
-    this.selectManagementInterfaces$.unsubscribe();
+    this.selectLogicalInterfaces$.unsubscribe();
+    this.selectLogicalManagementInterfaces$.unsubscribe();
   }
 
   private loadInterfacesTable() {

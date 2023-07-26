@@ -1,8 +1,8 @@
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { catchError, ReplaySubject, Subject, Subscription, throwError } from 'rxjs';
-import { retrievedIsMapOpen, retrievedMap, loadMap } from '../store/map/map.actions';
+import { catchError, Subject, Subscription, throwError } from 'rxjs';
+import { retrievedIsMapOpen, loadMap } from '../store/map/map.actions';
 import { environment } from 'src/environments/environment';
 import * as cytoscape from 'cytoscape';
 import { HelpersService } from '../core/services/helpers/helpers.service';
@@ -23,7 +23,7 @@ import { selectMapPref } from '../store/map-style/map-style.selectors';
 import { ToastrService } from 'ngx-toastr';
 import { AddUpdatePGDialogComponent } from './add-update-pg-dialog/add-update-pg-dialog.component';
 import { AddUpdateInterfaceDialogComponent } from './add-update-interface-dialog/add-update-interface-dialog.component';
-import { loadPGs, retrievedPortGroups, selectPG, unSelectPG } from '../store/portgroup/portgroup.actions';
+import { retrievedPortGroups, selectPG, unSelectPG } from '../store/portgroup/portgroup.actions';
 import { selectMapPortGroups } from '../store/portgroup/portgroup.selectors';
 import { MapState } from '../store/map/map.state';
 import { CMActionsService } from './context-menu/cm-actions/cm-actions.service';
@@ -53,7 +53,7 @@ import { ProjectService } from "../project/services/project.service";
 import { loadProject, retrievedProjectCategory, retrievedProjects, retrievedVMStatus } from "../store/project/project.actions";
 import { ICON_PATH } from '../shared/contants/icon-path.constant';
 import { InfoPanelService } from '../core/services/info-panel/info-panel.service';
-import { retrievedInterfacePkConnectNode, retrievedInterfacesByDestinationNode, retrievedIsInterfaceConnectPG, loadInterfaces, selectInterface, unSelectInterface } from "../store/interface/interface.actions";
+import { retrievedInterfacePkConnectNode, retrievedInterfacesByDestinationNode, retrievedIsInterfaceConnectPG, selectInterface, unSelectInterface } from "../store/interface/interface.actions";
 import { retrievedMapSelection } from '../store/map-selection/map-selection.actions';
 import {
   selectIsConfiguratorConnect,
@@ -64,13 +64,13 @@ import { retrievedImages, retrievedMapImages } from '../store/map-image/map-imag
 import { RouteSegments } from "../core/enums/route-segments.enum";
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { retrievedMapEdit } from "../store/map-edit/map-edit.actions";
-import { selectIsInterfaceConnectPG, selectInterfacePkConnectNode, selectLogicalWiredInterfaces, selectPhysicalWiredInterfaces } from "../store/interface/interface.selectors";
+import { selectIsInterfaceConnectPG, selectInterfacePkConnectNode, selectLogicalMapInterfaces, selectPhysicalInterfaces } from "../store/interface/interface.selectors";
 import { CMInterfaceService } from "./context-menu/cm-interface/cm-interface.service";
 import { GroupService } from "../core/services/group/group.service";
-import { loadNodes, retrievedNodes, selectNode, unSelectNode } from "../store/node/node.actions";
-import { loadGroups, retrievedGroups, selectGroup, unSelectGroup } from "../store/group/group.actions";
+import { retrievedNodes, selectNode, unSelectNode } from "../store/node/node.actions";
+import { retrievedGroups, selectGroup, unSelectGroup } from "../store/group/group.actions";
 import { ValidateProjectDialogComponent } from "../project/validate-project-dialog/validate-project-dialog.component";
-import { selectProjectCategory, selectCurrentProject, selectProjects, selectProject } from "../store/project/project.selectors";
+import { selectProjectCategory, selectCurrentProject, selectProjects } from "../store/project/project.selectors";
 import { CMProjectNodeService } from "./context-menu/cm-project-node/cm-project-node.service";
 import { MapLinkService } from "../core/services/map-link/map-link.service";
 import { NetmaskService } from '../core/services/netmask/netmask.service';
@@ -80,7 +80,6 @@ import { RolesService } from '../core/services/roles/roles.service';
 import { CmGroupOptionService } from './context-menu/cm-group-option/cm-group-option.service';
 import { PortGroupAddModel } from "../core/models/port-group.model";
 import { selectMapCategory } from '../store/map-category/map-category.selectors';
-import { retrievedMapCategory } from '../store/map-category/map-category.actions';
 import { ConnectInterfaceDialogComponent } from './context-menu/cm-dialog/connect-interface-dialog/connect-interface-dialog.component';
 import { ConnectInterfaceToPgDialogComponent } from "./context-menu/cm-dialog/connect-interface-to-pg-dialog/connect-interface-to-pg-dialog.component";
 import { selectLogicalNodes, selectPhysicalNodes } from '../store/node/node.selectors';
@@ -128,7 +127,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   logicalNodes!: any[];
   physicalNodes!: any[];
   portGroups!: any[];
-  logicalInterfaces!: any[];
+  logicalMapInterfaces!: any[];
   physicalInterfaces!: any[];
   groupBoxes!: any[];
   domains!: any[];
@@ -201,9 +200,9 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   selectLogicalNodes$ = new Subscription();
   selectPhysicalNodes$ = new Subscription();
   selectManagementPGs$ = new Subscription();
-  selectLogicalWiredInterfaces$ = new Subscription();
-  selectPhysicalWiredInterfaces$ = new Subscription();
-  selectManagementInterfaces$ = new Subscription();
+  selectLogicalMapInterfaces$ = new Subscription();
+  selectPhysicalInterfaces$ = new Subscription();
+  selectLogicalManagementInterfaces$ = new Subscription();
   selectGroups$ = new Subscription();
   selectProject$ = new Subscription();
   destroy$: Subject<boolean> = new Subject<boolean>();
@@ -309,12 +308,12 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         this.portGroups = portGroups;
       }
     });
-    this.selectLogicalWiredInterfaces$ = this.store.select(selectLogicalWiredInterfaces).subscribe(logicalWiredInterfaces => {
-      if (logicalWiredInterfaces) {
-        this.logicalInterfaces = logicalWiredInterfaces;
+    this.selectLogicalMapInterfaces$ = this.store.select(selectLogicalMapInterfaces).subscribe(logicalMapInterfaces => {
+      if (logicalMapInterfaces) {
+        this.logicalMapInterfaces = logicalMapInterfaces;
       }
     });
-    this.selectPhysicalWiredInterfaces$ = this.store.select(selectPhysicalWiredInterfaces).subscribe(physicalWiredInterfaces => {
+    this.selectPhysicalInterfaces$ = this.store.select(selectPhysicalInterfaces).subscribe(physicalWiredInterfaces => {
       if (physicalWiredInterfaces) {
         this.physicalInterfaces = physicalWiredInterfaces;
       }
@@ -399,7 +398,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
 
   ngOnInit(): void {
     this.selectMap$ = this.store.select(selectMapFeature).subscribe((map: MapState) => {
-      if (map.defaultPreferences && (this.logicalNodes || this.physicalNodes) && this.portGroups && (this.logicalInterfaces || this.physicalInterfaces) && this.groupBoxes) {
+      if (map.defaultPreferences && (this.logicalNodes || this.physicalNodes) && this.portGroups && (this.logicalMapInterfaces || this.physicalInterfaces) && this.groupBoxes) {
         this.defaultPreferences = map.defaultPreferences;
         this._initCytoscape();
         this._initMouseEvents();
@@ -449,8 +448,8 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.selectLogicalNodes$.unsubscribe();
     this.selectMapPortGroups$.unsubscribe();
     this.selectManagementPGs$.unsubscribe();
-    this.selectLogicalWiredInterfaces$.unsubscribe();
-    this.selectManagementInterfaces$.unsubscribe();
+    this.selectLogicalMapInterfaces$.unsubscribe();
+    this.selectLogicalManagementInterfaces$.unsubscribe();
     this.selectGroups$.unsubscribe();
     this.selectProject$.unsubscribe();
   }
@@ -985,7 +984,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.styleExists = this.config.styleExists;
     this.cleared = this.config.cleared;
     const nodeData = this.mapCategory === 'logical' ? this.logicalNodes : this.physicalNodes
-    const interfacesData = this.mapCategory === 'logical' ? this.logicalInterfaces : this.physicalInterfaces
+    const interfacesData = this.mapCategory === 'logical' ? this.logicalMapInterfaces : this.physicalInterfaces
     const interfacesValid = this.mapCategory == 'logical' ? interfacesData.filter(i => i.port_group_id) : interfacesData.filter(i => i.data.target)
     const portGroupsData = this.mapCategory === 'logical' ? this.portGroups : []
     this.eles = JSON.parse(JSON.stringify(nodeData.concat(portGroupsData).concat(interfacesValid)));
@@ -1135,7 +1134,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         this.cmRemoteService.getNodeRemoteMenu(this.activeNodes),
         this.cmRemoteService.getPortGroupRemoteMenu(this.activePGs),
         this.cmViewDetailsService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeMapLinks, this.mapCategory, Number(this.projectId)),
-        this.cmEditService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeMapLinks, this.isCanWriteOnProject, this.mapCategory, Number(this.projectId)),
+        this.cmEditService.getMenu(this.cy, this.activeMapLinks, this.isCanWriteOnProject, this.mapCategory, Number(this.projectId)),
         this.cmDeleteService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
           this.activeMBs, this.activeMapLinks, this.isCanWriteOnProject, this.mapCategory),
         this.cmLockUnlockService.getLockMenu(this.cy, this.activeNodes, this.activePGs, this.activeMBs, this.activeMapLinks),

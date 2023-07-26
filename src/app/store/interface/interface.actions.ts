@@ -81,3 +81,17 @@ export const updatePGInInterfaces = createAction(
   'updatePGInInterfaces',
   props<{ portgroup: any }>()
 );
+
+export const updateLogicalInterface = createAction(
+  'updateLogicalInterface',
+  props<{
+    id: number,
+    data: any,
+    netmasks: any[],
+  }>()
+);
+
+export const logicalInterfaceUpdatedSuccess = createAction(
+  'logicalInterfaceUpdatedSuccess',
+  props<{ interfaceData: any }>()
+);

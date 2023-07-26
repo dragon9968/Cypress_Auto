@@ -49,3 +49,8 @@ export const nodeUpdatedSuccess = createAction(
   'nodeUpdatedSuccess',
   props<{ node: any }>()
 );
+
+export const updateInterfaceInNode = createAction(
+  'updateInterfaceInNode',
+  props<{ interfaceData: any }>()
+);

@@ -9,10 +9,8 @@ export interface InterfaceState {
   interfacesByDestinationNode: any[],
   interfacesByHwNodes: any[],
   interfacesConnectedNode: any[],
-  wiredInterfaces: any[],
-  managementInterfaces: any[],
-  logicalWiredInterfaces: any[],
+  logicalMapInterfaces: any[],
   logicalManagementInterfaces: any[],
-  physicalWiredInterfaces: any[],
+  physicalInterfaces: any[],
   physicalManagementInterfaces: any[]
 }

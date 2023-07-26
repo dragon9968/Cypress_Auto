@@ -351,7 +351,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       this.filteredLoginProfiles = this.helpers.filterOptions(this.loginProfileCtr, this.loginProfiles);
     });
     this.selectNodes$ = this.store.select(selectLogicalNodes).subscribe(nodes => this.nodes = nodes);
-    this.interfaceService.getByNode(this.data.genData.node_id).subscribe(response => {
+    this.interfaceService.getByNode(this.data.genData.id).subscribe(response => {
       const interfaceData = response.result;
       if (this.agGridInterfaces) {
         this.agGridInterfaces.api.setRowData(interfaceData);
@@ -392,8 +392,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     if (this.data.mode === 'view') {
       const connection = this.serverConnectionService.getConnection(this.connectionCategory);
       const connectionId = connection ? connection?.id : 0;
-      const nodeId = this.data.genData.node_id
-      this.nodeService.getDeployData(nodeId, connectionId).subscribe((respData: any) => {
+      this.nodeService.getDeployData(this.data.genData.id, connectionId).subscribe((respData: any) => {
         const resp = respData.result;
         if (this.agGridDeployInterfaces) {
           this.agGridDeployInterfaces.api.setRowData(resp.interfaces);
@@ -429,7 +428,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       this.editor.setTheme('textmate');
       const data = {
         config_id: this.data.genData.default_config_id,
-        node_id: this.data.genData.node_id
+        node_id: this.data.genData.id
       }
       this.configTemplateService.getNodeDefaultConfiguration(data).subscribe(res => {
         this.defaultConfig = res.configuration;
@@ -545,6 +544,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     this.selectConfigTemplates$.unsubscribe();
     this.selectLoginProfiles$.unsubscribe();
     this.selectNodes$.unsubscribe();
+    this.selectNotification$.unsubscribe();
   }
 
   private disableItems(category: string) {
@@ -707,14 +707,14 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       const isValidJsonFormBGP = this.helpers.validationBGP(this.editor.value)
       if (isNodeConfigDataFormatted && isValidJsonForm && isValidJsonFormBGP) {
         configDefaultNode = {
-          node_id: this.data.genData.node_id,
+          node_id: this.data.genData.id,
           config_id: this.data.genData.default_config_id,
           ...JSON.parse(this.editor.value)
         }
       }
     }
     this.store.dispatch(updateNode({
-      id: this.data.genData.node_id,
+      id: this.data.genData.id,
       data: jsonData,
       configTemplate: this.configTemplateCtr?.value,
       configDefaultNode
@@ -797,7 +797,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       route: this.routeCtr?.value,
       next_hop: this.nextHopCtr?.value,
       interface: this.interfaceCtr?.value,
-      node_id: this.data.genData.node_id
+      node_id: this.data.genData.id
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.configTemplateService.addConfiguration(jsonData).pipe(
@@ -831,7 +831,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       target: this.targetCtr?.value,
       target_port: this.targetPortCtr?.value,
       target_port_custom: this.targetCustomPortCtr?.value,
-      node_id: this.data.genData.node_id
+      node_id: this.data.genData.id
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.configTemplateService.addConfiguration(jsonData).pipe(
@@ -852,7 +852,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       config_id: this.data.genData.default_config_id,
       join_domain: this.joinDomainCtr?.value,
       ou_path: this.ouPathCtr?.value,
-      node_id: this.data.genData.node_id
+      node_id: this.data.genData.id
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.configTemplateService.addConfiguration(jsonData).pipe(
@@ -872,7 +872,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       config_type: "role_services",
       config_id: this.data.genData.default_config_id,
       role_services: this.rolesCtr?.value,
-      node_id: this.data.genData.node_id
+      node_id: this.data.genData.id
     }
     this.configTemplateService.addConfiguration(jsonData).pipe(
       catchError(err => {
@@ -897,7 +897,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       connected_metric_type: parseInt(this.connectedMetricTypeCtr?.value),
       static_state: this.staticStateCtr?.value,
       static_metric_type: parseInt(this.staticMetricTypeCtr?.value),
-      node_id: this.data.genData.node_id
+      node_id: this.data.genData.id
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.configTemplateService.addConfiguration(jsonData).pipe(
@@ -924,7 +924,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       bgp_connected_metric: parseInt(this.bgpConnectedMetricCtr?.value),
       bgp_ospf_state: this.bgpOspfStateCtr?.value,
       bgp_ospf_metric: parseInt(this.bgpOspfMetricCtr?.value),
-      node_id: this.data.genData.node_id
+      node_id: this.data.genData.id
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.configTemplateService.addConfiguration(jsonData).pipe(

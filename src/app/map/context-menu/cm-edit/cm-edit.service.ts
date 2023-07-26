@@ -13,37 +13,62 @@ import { InterfaceService } from 'src/app/core/services/interface/interface.serv
 import { retrievedInterfacesByDestinationNode, retrievedInterfacesByHwNodes, retrievedInterfacesBySourceNode } from 'src/app/store/interface/interface.actions';
 import { ConnectInterfaceDialogComponent } from '../cm-dialog/connect-interface-dialog/connect-interface-dialog.component';
 import { retrievedNameNodeBySourceNode } from 'src/app/store/node/node.actions';
+import { selectLogicalMapInterfaces } from 'src/app/store/interface/interface.selectors';
+import { Subscription } from 'rxjs';
+import { selectLogicalNodes } from 'src/app/store/node/node.selectors';
+import { selectMapPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CMEditService {
 
+  nodes: any[] = [];
+  portgroups: any[] = [];
+  interfaces: any[] = [];
+  selectLogicalNodes$ = new Subscription();
+  selectMapPortGroups$ = new Subscription();
+  selectLogicalMapInterfaces$ = new Subscription();
   constructor(
     private dialog: MatDialog,
     private toastr: ToastrService,
     private store: Store,
     private interfaceService: InterfaceService
   ) {
+    this.selectLogicalNodes$ = this.store.select(selectLogicalNodes).subscribe(nodes => {
+      if (nodes) {
+        this.nodes = nodes.filter(i => i.isSelected);
+      }
+    });
+    this.selectMapPortGroups$ = this.store.select(selectMapPortGroups).subscribe(portgroups => {
+      if (portgroups) {
+        this.portgroups = portgroups.filter(i => i.isSelected);
+      }
+    });
+    this.selectLogicalMapInterfaces$ = this.store.select(selectLogicalMapInterfaces).subscribe(interfaces => {
+      if (interfaces) {
+        this.interfaces = interfaces.filter(i => i.isSelected);
+      }
+    });
   }
 
-  getMenu(cy: any, activeNodes: any, activePGs: any, activeEdges: any, activeMapLinks: any, isCanWriteOnProject: boolean, mapCategory: string, projectId: number) {
+  getMenu(cy: any, activeMapLinks: any, isCanWriteOnProject: boolean, mapCategory: string, projectId: number) {
     return {
       id: "edit",
       content: "Edit",
       selector: "node[label!='group_box'], node[label='map_background'], edge, node[elem_category='map_link']",
       onClickFunction: (event: any) => {
-        this.openEditForm(cy, activeNodes, activePGs, activeEdges, activeMapLinks, mapCategory, projectId);
+        this.openEditForm(cy, activeMapLinks, mapCategory, projectId);
       },
       hasTrailingDivider: false,
       disabled: !isCanWriteOnProject,
     }
   }
 
-  openEditForm(cy: any, activeNodes: any, activePGs: any, activeEdges: any, activeMapLinks: any, mapCategory: string, projectId: number) {
-    const activeNodesLength = activeNodes.length;
-    const activePGsLength = activePGs.length;
-    const activeEdgesLength = activeEdges.length;
+  openEditForm(cy: any, activeMapLinks: any, mapCategory: string, projectId: number) {
+    const activeNodesLength = this.nodes.length;
+    const activePGsLength = this.portgroups.length;
+    const activeEdgesLength = this.interfaces.length;
     const activeMapLinksLength = activeMapLinks.length;
 
     if (activeMapLinksLength == 1) {
@@ -55,11 +80,11 @@ export class CMEditService {
       this.dialog.open(ViewUpdateProjectNodeComponent, { disableClose: true, width: '450px', autoFocus: false, data: dialogData });
     } else if (activeNodesLength == 0 && activePGsLength == 0) {
       if (activeEdgesLength > 1) {
-        const edgeActiveIds = activeEdges.map((ele: any) => ele.data('interface_pk'));
+        const edgeActiveIds = this.interfaces.map((ele: any) => ele.id);
         const dialogData = {
           genData: {
             ids: edgeActiveIds,
-            activeEles: activeEdges.map((ele: any) => ele.data())
+            activeEles: this.interfaces
           },
           cy
         };
@@ -67,7 +92,7 @@ export class CMEditService {
       } else if (activeEdgesLength == 1) {
         const dialogData = {
           mode: 'update',
-          genData: activeEdges[0].data(),
+          genData: this.interfaces[0],
           cy,
           projectId: projectId
         }
@@ -77,8 +102,8 @@ export class CMEditService {
             this.dialog.open(AddUpdateInterfaceDialogComponent, { disableClose: true, width: '650px', autoFocus: false, data: dialogData });
           })
         } else {
-          const nodeId = activeEdges[0].data('node_id');
-          const nodeName = activeEdges[0].data('node');
+          const nodeId = this.interfaces[0].data.node_id;
+          const nodeName = this.interfaces[0].data.node;
           this.interfaceService.getByNodeAndConnectedToInterface(nodeId).subscribe(response => {
             this.store.dispatch(retrievedInterfacesBySourceNode({ interfacesBySourceNode: response.result }));
             this.interfaceService.getByProjectIdAndHwNode(projectId).subscribe(interfaceData => {
@@ -90,11 +115,10 @@ export class CMEditService {
                   nodeId: nodeId,
                   cy,
                   mapCategory: mapCategory,
-                  genData: activeEdges[0].data()
+                  genData: this.interfaces[0]
                 }
                 const dialogRef =  this.dialog.open(ConnectInterfaceDialogComponent, { disableClose: true, width: '850px', data: dialogData, autoFocus: false, panelClass: 'custom-connect-interfaces-form-modal'})
                 dialogRef.afterClosed().subscribe(result => {
-                  activeEdges.splice(0);
                   cy.edges().unselect();
               })
             })
@@ -103,11 +127,11 @@ export class CMEditService {
       }
     } else if (activeNodesLength == 0 && activeEdgesLength == 0) {
       if (activePGsLength > 1) {
-        const pgActiveIds = activePGs.map((ele: any) => ele.data('pg_id'));
+        const pgActiveIds = this.portgroups.map((ele: any) => ele.id);
         const dialogData = {
           genData: {
             ids: pgActiveIds,
-            activeEles: activePGs.map((ele: any) => ele.data())
+            activeEles: this.portgroups
           },
           cy
         }
@@ -115,7 +139,7 @@ export class CMEditService {
       } else if (activePGsLength == 1) {
         const dialogData = {
           mode: 'update',
-          genData: activePGs[0].data(),
+          genData: this.portgroups[0],
           cy
         }
         this.dialog.open(AddUpdatePGDialogComponent, {
@@ -128,11 +152,11 @@ export class CMEditService {
       }
     } else if (activePGsLength == 0 && activeEdgesLength == 0) {
       if (activeNodesLength > 1) {
-        const nodeActiveIds = activeNodes.map((ele: any) => ele.data('node_id'));
+        const nodeActiveIds = this.nodes.map((ele: any) => ele.id);
         const dialogData = {
           genData: {
             ids: nodeActiveIds,
-            activeEles: activeNodes.map((ele: any) => ele.data())
+            activeEles: this.nodes
           },
           cy
         }
@@ -140,7 +164,7 @@ export class CMEditService {
       } else if (activeNodesLength == 1) {
         const dialogData = {
           mode: 'update',
-          genData: activeNodes[0].data(),
+          genData: this.nodes[0],
           cy,
           mapCategory: mapCategory
         }

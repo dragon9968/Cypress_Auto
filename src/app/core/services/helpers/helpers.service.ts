@@ -380,22 +380,22 @@ export class HelpersService implements OnDestroy {
       {
         selector: "[ip_last_octet]",
         style: {
-          "content": (ele: any ) => ele.data('ip_last_octet'),
+          "content": (ele: any) => ele.data('ip_last_octet'),
         },
       },
       {
         selector: "[source_label]",
         style: {
-          "source-label": (ele: any ) => ele.data('source_label'),
-          "source-text-offset": (ele: any) => (ele.data('source_label').length/2 * 10) + 15,
+          "source-label": (ele: any) => ele.data('source_label'),
+          "source-text-offset": (ele: any) => (ele.data('source_label').length / 2 * 10) + 15,
           "source-text-rotation": "autorotate",
         }
       },
       {
         selector: "[target_label]",
         style: {
-          "target-label": (ele: any ) => ele.data('target_label'),
-          "target-text-offset": (ele: any) => (ele.data('target_label').length/2 * 10) + 15,
+          "target-label": (ele: any) => ele.data('target_label'),
+          "target-text-offset": (ele: any) => (ele.data('target_label').length / 2 * 10) + 15,
           "target-text-rotation": "autorotate",
         },
       },
@@ -656,6 +656,34 @@ export class HelpersService implements OnDestroy {
     }
   }
 
+  updateInterfaceOnMap(id: string, data: any) {
+    const ele = this.cy.getElementById(id);
+    ele.data('name', data.name);
+    ele.data('order', data.order);
+    ele.data('description', data.description);
+    ele.data('category', data.category);
+    ele.data('direction', data.direction);
+    ele.data('mac_address', data.mac_address);
+    ele.data('port_group_id', data.port_group_id);
+    ele.data('port_group', data.port_group_id ? this.getOptionById(this.portGroups, data.port_group_id).name : '');
+    ele.data('ip_allocation', data.ip_allocation);
+    ele.data('ip', data.ip);
+    ele.data('dns_server', data.dns_server);
+    ele.data('gateway', data.gateway);
+    ele.data('is_gateway', data.is_gateway);
+    ele.data('is_nat', data.is_nat);
+    const ip_str = data.ip ? data.ip : "";
+    const ip = ip_str.split(".");
+    const last_octet = ip.length == 4 ? "." + ip[3] : "";
+    ele.data('ip_last_octet', last_octet);
+    ele.data('target', `pg-${data.port_group_id}`);
+    ele.data('netmask_id', data.netmask_id);
+    ele.data('vlan', data.vlan);
+    ele.data('vlan_mode', data.vlan_mode);
+    ele.data('netmask', data.netmask_id ? this.getOptionById(this.netmasks, data.netmask_id).mask : '');
+    ele.data('source_label', data.name);
+  }
+
   removeInterfaceOnPG(cy: any, pgId: number, interfaceId: number) {
     const pgEle = cy.getElementById(`pg-${pgId}`)
     const interfaces = pgEle.data('interfaces')
@@ -671,15 +699,6 @@ export class HelpersService implements OnDestroy {
     const currentInterfaces = element.data('interfaces')
     const newInterfaces = currentInterfaces ? [...currentInterfaces, edge] : [edge]
     element.data('interfaces', newInterfaces)
-  }
-
-  updateNodePGInInterfaceOnMap(type: string, elementId: number) {
-    const idPrefix = type !== 'node' ? 'pg' : 'node'
-    const element = this.cy.getElementById(`${idPrefix}-${elementId}`)
-    const edgesConnectedElement = element.connectedEdges()
-    edgesConnectedElement.map((edge: any) => {
-      edge.data(type, element.data('name'));
-    })
   }
 
   createUUID() {
@@ -1574,8 +1593,8 @@ export class HelpersService implements OnDestroy {
     }
   }
 
-  showOrHideArrowDirectionOnEdge(cy: any, edgeId: number | string) {
-    const edge = cy.getElementById(`interface-${edgeId}`);
+  showOrHideArrowDirectionOnEdge(id: number) {
+    const edge = this.cy.getElementById(`interface-${id}`);
     if (!this.isEdgeDirectionChecked) {
       const current_dir = edge.data('direction');
       edge.data('prev_direction', current_dir);

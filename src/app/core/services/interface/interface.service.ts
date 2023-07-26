@@ -18,7 +18,7 @@ export class InterfaceService {
     });
   }
 
-  get(id: string): Observable<any> {
+  get(id: number): Observable<any> {
     return this.http.get<any>(ApiPaths.INTERFACE + id);
   }
 
@@ -26,7 +26,7 @@ export class InterfaceService {
     return this.http.post<any>(ApiPaths.INTERFACE, data);
   }
 
-  put(id: string, data: any): Observable<any> {
+  put(id: number, data: any): Observable<any> {
     return this.http.put<any>(ApiPaths.INTERFACE + id, data);
   }
 

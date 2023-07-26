@@ -246,7 +246,7 @@ export class CMActionsService {
                   width: logicalMapStyle.width,
                 }
                 this.helpers.addCYEdge(cy, { ...newEdgeData, ...cyData });
-                this.helpers.showOrHideArrowDirectionOnEdge(cy, cyData.interface_pk)
+                this.helpers.showOrHideArrowDirectionOnEdge(cyData.interface_pk)
               }
             })
           });

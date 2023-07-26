@@ -28,8 +28,6 @@ export const groupReducer = createReducer(
       }
       g.push({
         ...group,
-        group_id: group.id,
-        id: baseCyData.id,
         data: { ...baseCyData, ...group.logical_map?.map_style } 
       });
     });
