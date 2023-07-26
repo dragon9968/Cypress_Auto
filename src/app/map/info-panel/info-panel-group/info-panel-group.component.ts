@@ -22,6 +22,7 @@ import { FormControl, FormGroup } from "@angular/forms";
 export class InfoPanelGroupComponent implements OnInit, OnDestroy {
   @ViewChild(InfoPanelTableComponent) infoPanelTableComponent: InfoPanelTableComponent | undefined;
 
+  @Input() cy: any;
   @Input() infoPanelheight = '300px';
   @Input() activeNodes: any[] = [];
   @Input() activePGs: any[] = [];

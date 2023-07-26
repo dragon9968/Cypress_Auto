@@ -453,7 +453,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         this.nodeService.getNodesByProjectId(this.projectService.getProjectId()).subscribe(
           (data: any) => this.store.dispatch(retrievedNodes({ data: data.result }))
         );
-        this.store.dispatch(loadInterfaces({ projectId: this.projectService.getProjectId() }));
+        // this.store.dispatch(loadInterfaces({projectId: this.projectService.getProjectId(), mapCategory: this.mapCategory}));
       }
       this.interfaceService.getByProjectId(this.projectService.getProjectId())
         .subscribe(res => {

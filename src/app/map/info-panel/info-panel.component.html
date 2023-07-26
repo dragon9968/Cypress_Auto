@@ -22,7 +22,7 @@
       <app-info-panel-domain [infoPanelheight]="style.height"></app-info-panel-domain>
     </mat-tab>
     <mat-tab label="Group">
-      <app-info-panel-group [activeNodes]="activeNodes" [activePGs]="activePGs" [activeEdges]="activeEdges" [activeGBs]="activeGBs" [infoPanelheight]="style.height"></app-info-panel-group>
+      <app-info-panel-group [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs" [activeEdges]="activeEdges" [activeGBs]="activeGBs" [infoPanelheight]="style.height"></app-info-panel-group>
     </mat-tab>
     <ng-template [ngxPermissionsOnly]="['can_read on Tasks']">
       <mat-tab label="Task List">

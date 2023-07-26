@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { GridApi, GridReadyEvent } from "ag-grid-community";
 import { InfoPanelShowValidationResultsComponent } from '../info-panel-show-validation-results/info-panel-show-validation-results.component';
-import { catchError, throwError } from 'rxjs';
+import { Subscription, catchError, throwError } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 import { NodeService } from 'src/app/core/services/node/node.service';
@@ -22,6 +22,7 @@ import { ProjectService } from "../../../project/services/project.service";
 import { removePG } from 'src/app/store/portgroup/portgroup.actions';
 import { removeNode } from 'src/app/store/node/node.actions';
 import { removeInterface } from 'src/app/store/interface/interface.actions';
+import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 
 @Component({
   selector: 'app-info-panel-table',
@@ -36,6 +37,8 @@ export class InfoPanelTableComponent {
   private gridApi!: GridApi;
   rowsSelected: any[] = [];
   rowsSelectedId: any[] = [];
+  isGroupBoxesChecked!: boolean;
+  selectMapOption$ = new Subscription();
 
   get gridHeight() {
     const infoPanelHeightNumber = +(this.infoPanelheight.replace('px', ''));
@@ -52,7 +55,13 @@ export class InfoPanelTableComponent {
     private interfaceService: InterfaceService,
     private infoPanelService: InfoPanelService,
     private projectService: ProjectService
-  ) { }
+  ) {
+    this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
+      if (mapOption) {
+        this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
+      }
+    });
+   }
 
   setRowData(rowData: any[]) {
     this.gridApi?.setRowData(rowData);
@@ -74,14 +83,40 @@ export class InfoPanelTableComponent {
     const unSelectedRows = this.rowsSelected
     this.rowsSelected = this.gridApi.getSelectedRows();
     this.rowsSelectedId = this.rowsSelected.map(r => {
-      const ele = this.cy.getElementById(r.id);
-      ele.select();
-      return r.id;
+      if (this.tabName == 'group') {
+        if (this.isGroupBoxesChecked) {
+          const groupCy = this.cy.getElementById(r.id);
+          groupCy.select();
+        } else {
+          this.cy.nodes().forEach((node: any) => {
+            if (node.data().groups[0].id === r.group_id) {
+              node.select();
+            }
+          })
+        }
+      } else {
+        const ele = this.cy.getElementById(r.id);
+        ele.select();
+        return r.id;
+      }
     });
     const unSelectedRow = unSelectedRows.filter(val => !this.rowsSelectedId.includes(val.id))
     unSelectedRow.forEach(r => {
-      const ele = this.cy.getElementById(r.id);
-      ele.unselect();
+      if (this.tabName === 'group') {
+        if (this.isGroupBoxesChecked) {
+          const groupCy = this.cy.getElementById(r.id);
+          groupCy.unselect();
+        } else {
+          this.cy.nodes().forEach((node: any) => {
+            if (node.data().groups[0].id === r.group_id) {
+              node.unselect();
+            }
+          })
+        }
+      } else {
+        const ele = this.cy.getElementById(r.id);
+        ele.unselect();
+      }
     })
   }
 

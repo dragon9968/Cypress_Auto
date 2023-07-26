@@ -645,7 +645,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     ).subscribe((respData: any) => {
       this.nodeService.get(respData.id).subscribe(respData => {
         const cyData = respData.result;
-        this.helpers.updateNodesStorage({...cyData});
+        // this.helpers.updateNodesStorage({...cyData});
         cyData.id = 'node-' + respData.id;
         cyData.node_id = respData.id;
         cyData.domain = this.domainCtr?.value.name;

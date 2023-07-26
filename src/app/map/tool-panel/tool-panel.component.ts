@@ -261,12 +261,12 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
           );
         }
       }
-      if (this.deletedInterfaces.length > 0) {
-        const deletedInterfaceIds = this.deletedInterfaces.map(edge => edge.interface_pk);
-        if (deletedInterfaceIds.length > 0) {
-          this.store.dispatch(loadInterfaces( {projectId: this.projectService.getProjectId() } ))
-        }
-      }
+      // if (this.deletedInterfaces.length > 0) {
+      //   const deletedInterfaceIds = this.deletedInterfaces.map(edge => edge.interface_pk);
+      //   if (deletedInterfaceIds.length > 0) {
+      //     this.store.dispatch(loadInterfaces( {projectId: this.projectService.getProjectId(), mapCategory: this.mapCategory} ))
+      //   }
+      // }
       this.deletedNodes.splice(0);
       this.deletedInterfaces.splice(0);
       this.cy.elements().forEach((ele: any) => {
