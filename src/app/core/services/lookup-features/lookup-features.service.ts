@@ -21,7 +21,7 @@ export class LookupFeaturesService {
   add(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.LOOKUP_FEATURES, data);
   }
-  
+
   put(id: any, data: any): Observable<any> {
     return this.http.put<any>(ApiPaths.LOOKUP_FEATURES + id, data);
   }
@@ -38,7 +38,4 @@ export class LookupFeaturesService {
     return this.http.post<any>(ApiPaths.LOOKUP_FEATURES_IMPORT, data);
   }
 
-  updateFeature(data: any): Observable<any> {
-    return this.http.post<any>(ApiPaths.UPDATE_FEATURE, data);
-  }
 }

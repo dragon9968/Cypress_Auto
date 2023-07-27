@@ -6,6 +6,7 @@ import { MapEffects } from "./map/map.effects";
 import { NodesEffects } from "./node/node.effects";
 import { PortGroupsEffects } from "./portgroup/portgroup.effects";
 import { ProjectEffects } from "./project/project.effects";
+import { LookupOsFirmwaresEffects } from "./lookup-os-firmware/lookup-os-firmwares.effects";
 
 export const effects = [
   MapEffects,
@@ -15,5 +16,6 @@ export const effects = [
   InterfacesEffects,
   DomainsEffects,
   GroupsEffects,
-  AppPrefEffects
+  AppPrefEffects,
+  LookupOsFirmwaresEffects
 ];

@@ -35,6 +35,7 @@ import { netmaskReducer } from "./netmask/netmask.reducer";
 import { historyReducer } from "./history/history.reducer";
 import { mapCategoryReducer } from "./map-category/map-category.reducer";
 import { appReducer } from "./app/app.reducer";
+import { lookupOsFirmwaresReducer } from "./lookup-os-firmware/lookup-os-firmwares.reducer";
 
 export const reducers = {
     [ReducerKeys.MAP]: mapReducer,
@@ -70,6 +71,7 @@ export const reducers = {
     [ReducerKeys.USER_GUIDE]: userGuideReducer,
     [ReducerKeys.LOOKUP_FEATURES]: lookupFeaturesReducer,
     [ReducerKeys.LOOKUP_NAMES]: LookupNamesReducer,
+    [ReducerKeys.LOOKUP_OS_FIRMWARE]: lookupOsFirmwaresReducer,
     [ReducerKeys.NETMASKS]: netmaskReducer,
     [ReducerKeys.HISTORIES]: historyReducer,
     [ReducerKeys.APP]: appReducer,

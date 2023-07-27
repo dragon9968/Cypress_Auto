@@ -31,6 +31,7 @@ export enum ReducerKeys {
     USER_PROFILE = 'userProfile',
     USER_GUIDE = 'userGuide',
     LOOKUP_FEATURES = 'lookupFeatures',
+    LOOKUP_OS_FIRMWARE = 'lookupOSFirmware',
     LOOKUP_NAMES = 'lookupNames',
     NETMASKS = 'netmasks',
     HISTORIES = 'histories',

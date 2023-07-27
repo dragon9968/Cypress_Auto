@@ -12,7 +12,6 @@ import { retrievedLookupFeatures } from 'src/app/store/lookup-features/lookup-fe
 import { selectLookupFeatures } from 'src/app/store/lookup-features/lookup-features.selectors';
 import { AddEditLookupFeaturesDialogComponent } from './add-edit-lookup-features-dialog/add-edit-lookup-features-dialog.component';
 import { ImportLookupFeaturesDialogComponent } from './import-lookup-features-dialog/import-lookup-features-dialog.component';
-import { UpdateFeatureDialogComponent } from './update-feature-dialog/update-feature-dialog.component';
 
 @Component({
   selector: 'app-lookup-features',
@@ -208,7 +207,7 @@ export class LookupFeaturesComponent implements OnInit, OnDestroy {
   exportLookupFeatures() {
     if (this.rowsSelectedId.length == 0) {
       this.toastr.info('No row selected');
-    }else {
+    } else {
       let file = new Blob();
       const fileName = 'LookupFeatures-Export.json';
       this.lookupFeaturesService.export(this.rowsSelectedId).subscribe(response => {
@@ -226,22 +225,4 @@ export class LookupFeaturesComponent implements OnInit, OnDestroy {
       width: '450px',
     });
   }
-
-  // updateFeature() {
-  //   if (this.rowsSelectedId.length === 0) {
-  //     this.toastr.info('No row selected');
-  //   } else if (this.rowsSelectedId.length === 1) {
-  //     const dialogData = {
-  //       pk: this.rowsSelectedId[0]
-  //     }
-  //     this.dialog.open(UpdateFeatureDialogComponent, {
-  //       autoFocus: false,
-  //       width: '450px',
-  //       data: dialogData
-  //     });
-  //   } else {
-  //     this.toastr.info('Bulk edits do not apply to Lookup Features.<br> Please select only one piece of Lookup Features.',
-  //       'Info', { enableHtml: true });
-  //   }
-  // }
 }

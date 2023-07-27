@@ -152,6 +152,10 @@
                   <mat-icon>featured_play_list</mat-icon>
                   <span>Features</span>
                 </button>
+                <button mat-menu-item [routerLink]="routeSegments.LOOKUP_OS_FIRMWARES">
+                  <mat-icon>memory</mat-icon>
+                  <span>OS/Firmware</span>
+                </button>
               </mat-menu>
             </mat-menu>
           </ng-template>
@@ -381,12 +385,6 @@
             <mat-icon>groups</mat-icon>
             <span>Login Profiles</span>
           </button>
-          <!--
-          <button mat-menu-item [routerLink]="routeSegments.DEVICES + '/icon'">
-              <mat-icon svgIcon="plant-tree-icon"></mat-icon>
-              <span>Icon</span>
-          </button>
-          -->
       </mat-menu>
     </ng-template>
     <ng-template [ngxPermissionsOnly]="['can_read on Libraries']">
@@ -422,6 +420,10 @@
             <button mat-menu-item [routerLink]="routeSegments.LOOKUP_FEATURES">
               <mat-icon>featured_play_list</mat-icon>
               <span>Features</span>
+            </button>
+            <button mat-menu-item [routerLink]="routeSegments.LOOKUP_OS_FIRMWARES">
+              <mat-icon>memory</mat-icon>
+              <span>OS/Firmware</span>
             </button>
           </mat-menu>
       </mat-menu>

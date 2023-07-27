@@ -104,7 +104,7 @@ export class HelpersService implements OnDestroy {
     this.selectGroups$.unsubscribe();
   }
 
-  showNotification(notification: any, dialogRef: any) {
+  showNotification(notification: any, dialogRef?: any) {
     if (notification.type == 'success') {
       this.toastr.success(notification.message);
       if (dialogRef) {
@@ -1065,6 +1065,11 @@ export class HelpersService implements OnDestroy {
     anchor.click();
     document.body.removeChild(anchor);
     window.URL.revokeObjectURL(anchor.href);
+  }
+
+  downloadBlobWithData(data: any, fileName: string) {
+    let file = new Blob([JSON.stringify(data, null, 4)], {type: 'application/json'});
+    this.downloadBlob(fileName, file);
   }
 
   public setIconPath(url: string): SafeResourceUrl {

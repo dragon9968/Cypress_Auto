@@ -1,0 +1,47 @@
+<form [formGroup]="lookupOSFirmwareForm" (ngSubmit)="data.mode === 'add' ? addNewOSFirmware() : updateLookupOSFirmware()" autocomplete="off">
+  <div class="dialog-title">
+    <h1 mat-dialog-title>{{ data.mode === 'add' ? 'Add new OS/Firmware' : data.mode === 'update' ? 'Edit OS/Firmware' : 'OS/Firmware Info' }}</h1>
+    <button *ngIf="data.mode === 'view'" mat-icon-button color="primary" matTooltip="Edit" type="button" (click)="changeViewToEdit()">
+      <mat-icon>edit</mat-icon>
+    </button>
+  </div>
+  <mat-dialog-content>
+    <mat-form-field class="field">
+      <mat-label>Name</mat-label>
+      <input autocomplete="off" id="lookup-os-firmware-name" type="text" formControlName="nameCtr" matInput>
+      <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Category</mat-label>
+      <input
+        matInput
+        type="text"
+        autocomplete="off"
+        formControlName="categoryCtr"
+        id="lookup-os-firmware-category"
+        placeholder="Select a category"
+        [matAutocomplete]="autoCategory"
+        [readonly]="isViewMode"
+      >
+      <mat-autocomplete #autoCategory="matAutocomplete" [displayWith]="helpersService.optionDisplay">
+        <mat-option *ngFor="let option of filteredOSFirmwareCategories | async" [value]="option">
+          <div class="option-text">
+            {{ option.name }}
+          </div>
+        </mat-option>
+      </mat-autocomplete>
+      <mat-error *ngIf="categoryCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="field">
+      <mat-label>Version</mat-label>
+      <input autocomplete="off" id="lookup-os-firmware-version" type="text" formControlName="versionCtr" matInput>
+      <mat-error *ngIf="versionCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions [align]="'end'" class="create-btn">
+    <button mat-raised-button type="button" mat-dialog-close>{{ data.mode === 'view' ? 'Close' : 'Cancel' }}</button>
+    <button *ngIf="data.mode !== 'view'" mat-raised-button color="primary" [disabled]="!lookupOSFirmwareForm.valid">
+      {{ data.mode === 'add' ? 'Create' : 'Update' }}
+    </button>
+  </mat-dialog-actions>
+</form>

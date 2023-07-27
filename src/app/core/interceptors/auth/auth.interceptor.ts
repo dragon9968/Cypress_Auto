@@ -63,7 +63,7 @@ export class AuthInterceptor implements HttpInterceptor {
       req.url.includes(ApiPaths.SAVE_MAP_OVERVIEW) ||
       req.url.includes(ApiPaths.IMPORT_ROLES) ||
       req.url.includes(ApiPaths.LOOKUP_FEATURES_IMPORT) ||
-      req.url.includes(ApiPaths.UPDATE_FEATURE) ||
+      req.url.includes(ApiPaths.LOOKUP_OS_FIRMWARE_IMPORT) ||
       req.url.includes(ApiPaths.LOOKUP_NAMES_IMPORT)||
       req.url.includes(ApiPaths.CONNECTION_IMPORT) ||
       req.url.includes(ApiPaths.CONFIG_TEMPLATE_IMPORT) ||
