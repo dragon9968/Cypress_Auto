@@ -169,6 +169,18 @@
             (change)="setTextBGOpacity($event)"></mat-slider>
         <label>{{ textBGOpacityLabel }}%</label>
     </div>
+    <h4>Text Outline</h4>
+    <div class="tab-field text-outline-color">
+        <label class="control-label" for="textOutlineColor">Color</label>
+        <button mat-mini-fab id="textOutlineColor" class="color-picker" [(colorPicker)]="textOutlineColor"
+            [style.background]="textOutlineColor" cpPosition="bottom" (colorPickerChange)="setTextOutlineColor($event)"></button>
+    </div>
+    <div class="tab-field">
+        <label class="control-label">Width</label>
+        <mat-slider class="slider" step="1" min="0" max="10" [(ngModel)]="textOutlineWidth" data-cy="toolpanel-textoutline-width"
+            (change)="setTextOutlineWidth($event)"></mat-slider>
+        <label>{{ textOutlineWidthLabel }}px</label>
+    </div>
 </section>
 
 <section class="tab-section"

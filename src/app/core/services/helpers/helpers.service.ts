@@ -449,10 +449,22 @@ export class HelpersService implements OnDestroy {
         }
       },
       {
+        selector: "['text_outline_color']",
+        style: {
+          "text-outline-color": (ele: any) => ele.data('text_outline_color')
+        }
+      },
+      {
+        selector: "['text_outline_width']",
+        style: {
+          "text-outline-width": (ele: any) => ele.data('text_outline_width')
+        }
+      },
+      {
         selector: "[?updated]",
         style: {
-          "text-outline-color": "#fff000",
-          "text-outline-width": 3,
+          "text-outline-color": (ele: any) => ele.data('text_outline_color'),
+          "text-outline-width": (ele: any) => ele.data('text_outline_width'),
         }
       },
       {

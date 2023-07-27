@@ -112,6 +112,16 @@
       <button type="button" mat-mini-fab id="textColor" class="color-picker" [(colorPicker)]="textColor"
         [style.background]="textColor" cpPosition="bottom" (colorPickerChange)="setTextColor($event)"></button>
     </div>
+    <div class="tab-field text-color">
+      <label class="label" for="textOulineColor">Text Outline Color </label>
+      <button type="button" mat-mini-fab id="textOulineColor" class="color-picker" [(colorPicker)]="textOutlineColor"
+        [style.background]="textOutlineColor" cpPosition="bottom" (colorPickerChange)="setTextOutlineColor($event)"></button>
+    </div>
+    <div class="tab-field">
+      <label class="label">Text Outline Width</label>
+      <mat-slider class="slider" formControlName="textOutlineWidthCtr" step="1" min="0" max="10" (change)="setTextOutlineWidth($event)"></mat-slider>
+      <label>{{ textOutlieWidthLabel }}px</label>
+    </div>
     <mat-form-field class="field">
       <mat-label>Text Horizontal Alignment</mat-label>
       <mat-select formControlName="textHorizontalAlignmentCtr">

@@ -48,10 +48,13 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   gbOpacityLabel = 0;
   gbBorderSize = 0;
   gbBorderSizeLabel = 0;
+  textOutlineWidth = 3;
+  textOutlineWidthLabel = 3;
   gbBorderColor = '#CCCCCC';
   textSize = 25;
   textColor = '#000000';
   textBGColor = '#000000';
+  textOutlineColor = '#fff000';
   textBGOpacity = 0.0;
   textBGOpacityLabel = 0;
   selectDefaultPreferences$ = new Subscription();
@@ -179,6 +182,8 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
     this.commonService.textVAlign(this.vAlignSelect, this.activeNodes, this.activePGs);
     this.hAlignSelect = data.text_halign ? data.text_halign : data.logical_map?.map_style?.text_halign;
     this.commonService.textHAlign(this.hAlignSelect, this.activeNodes, this.activePGs);
+    this.textOutlineColor = data.text_outline_color;
+    this.textOutlineWidth = data.text_outline_width;
   }
 
   removePx(value: any) {
@@ -220,6 +225,8 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
     const newGBBorderColor = this.selectedMapPref.group_box_border_color;
     const newGBBorderSize = this.selectedMapPref.group_box_border_size;
     const newMapImageSize = this.selectedMapPref.scale_image;
+    const newTextOutlineColor = this.selectedMapPref.text_outline_color;
+    const newTextOutlineWidth = this.selectedMapPref.text_outline_width;
     this.ur.do("changTextColor", { activeEles, newTextColor });
     this.ur.do("changeTextSize", { activeEles, newTextSize });
     this.ur.do("changeTextBGColor", { activeEles, newTextBGColor });
@@ -239,6 +246,8 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
     this.ur.do("changeGBBorderColor", { activeGBs: this.activeGBs, newGBBorderColor });
     this.ur.do("changeGBBorderSize", { activeGBs: this.activeGBs, newGBBorderSize });
     this.ur.do("changeMapImageSize", { activeMBs: this.activeMBs, newMapImageSize });
+    this.ur.do("changeTextOutlineColor", { activeEles, newTextOutlineColor });
+    this.ur.do("changeTextOutlineWidth", { activeEles, newTextOutlineWidth });
   }
 
   selectMapPref($event: MatAutocompleteSelectedEvent) {
@@ -290,6 +299,17 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   setTextBGColor(color: any) {
     this.textBGColor = this.helpers.fullColorHex(color);
     this.commonService.textBGColor(color, this.activeNodes, this.activeEdges, this.activePGs, this.activeGBs);
+  }
+
+  setTextOutlineColor(color: any) {
+    this.textOutlineColor = this.helpers.fullColorHex(color);
+    this.commonService.textOutlineColor(color, this.activeNodes, this.activeEdges, this.activePGs, this.activeGBs);
+  }
+
+  setTextOutlineWidth(width: any) {
+    this.textOutlineWidth = width.value <= 10 ? width.value : 10;
+    this.textOutlineWidthLabel = this.textOutlineWidth ? this.textOutlineWidth : 0;
+    this.commonService.textOutlineWidth(width, this.activeNodes, this.activeEdges, this.activePGs, this.activeGBs);
   }
 
   setPGColor(color: string) {

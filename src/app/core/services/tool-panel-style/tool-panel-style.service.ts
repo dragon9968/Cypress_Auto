@@ -301,6 +301,46 @@ export class ToolPanelStyleService {
     return data;
   }
 
+  changeTextOutlineColor(data: any) {
+    data.activeEles.forEach((ele: any) => {
+      data.oldTextOutlineColor = ele.data("text_outline_color");
+      ele._private['data'] = {...ele._private['data']};
+      ele.data("text_outline_color", data.newTextOutlineColor);
+      const d = ele.data();
+      if (!d.new) {
+        d.updated = true;
+      }
+    });
+    return data;
+  }
+
+  restoreTextOutlineColor(data: any) {
+    data.activeEles.forEach((ele: any) => {
+      ele.data("text_outline_color", data.oldTextOutlineColor);
+    });
+
+    return data;
+  }
+
+  changeTextOutlineWidth(data: any) {
+    data.activeEles.forEach((ele: any) => {
+      data.oldTextOutlineWidth = ele.data("text_outline_width");
+      ele.data("text_outline_width", data.newTextOutlineWidth);
+      const d = ele.data();
+      if (!d.new) {
+        d.updated = true;
+      }
+    })
+    return data;
+  }
+
+  restoreTextOutlineWidth(data: any) {
+    data.activeEles.forEach((ele: any) => {
+      ele.data("text_outline_width", data.oldTextOutlineWidth);
+    })
+    return data;
+  }
+
   changeTextVAlign(data: any) {
     data.activeEles.forEach((ele: any) => {
       data.oldTextVAlign = ele.data("text_valign");

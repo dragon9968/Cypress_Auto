@@ -157,6 +157,26 @@ export class CommonService {
     this.ur?.do('changeTextBGOpacity', {activeEles, newTextBGOpacity});
   }
 
+  textOutlineColor(color: any, activeNodes: any[], activeEdges: any[], activePGs: any[], activeGBs: any[]) {
+    const hexPattern = '#d{0,}';
+    const hexColor = color;
+    const hexPatternFound = hexColor.match(hexPattern)
+    if (hexPatternFound) {
+      const r = parseInt(hexColor.slice(1, 3), 16).toString();
+      const g = parseInt(hexColor.slice(3, 5), 16).toString();
+      const b = parseInt(hexColor.slice(5, 7), 16).toString();
+      const newTextOutlineColor = "rgb(" + r + ',' + g + ',' + b + ")";
+      const activeEles = activeNodes.concat(activeEdges, activePGs, activeGBs);
+      this.ur?.do('changeTextOutlineColor', { activeEles, newTextOutlineColor });
+    }
+  }
+
+  textOutlineWidth(width: any, activeNodes: any[], activeEdges: any[], activePGs: any[], activeGBs: any[]) {
+    const newTextOutlineWidth = width.value;
+    const activeEles = activeNodes.concat(activeEdges, activePGs, activeGBs);
+    this.ur?.do('changeTextOutlineWidth', {activeEles, newTextOutlineWidth});
+  }
+
   textVAlign(value: string, activeNodes: any[], activePGs: any[]) {
     const newTextVAlign = value;
     const activeEles = activeNodes.concat(activePGs);
