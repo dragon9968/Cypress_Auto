@@ -25,7 +25,7 @@ export class GroupService {
     });
   }
 
-  get(groupId: string): Observable<any> {
+  get(groupId: number): Observable<any> {
     return this.http.get<any>(ApiPaths.GROUP + groupId);
   }
 
@@ -33,7 +33,7 @@ export class GroupService {
     return this.http.post<any>(ApiPaths.GROUP + 'add', data);
   }
 
-  put(groupId: string, data: any): Observable<any> {
+  put(groupId: number, data: any): Observable<any> {
     const params = new HttpParams().set('group_id', groupId);
     return this.http.put<any>(ApiPaths.UPDATE_GROUP, data, { params });
   }

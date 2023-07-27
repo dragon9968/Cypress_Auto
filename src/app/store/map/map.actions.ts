@@ -17,7 +17,12 @@ export const loadMap = createAction(
     mapCategory: string
   }>()
 );
+
 export const mapLoadedSuccess = createAction(
   'mapLoadedSuccess',
   props<{ data: any }>()
+);
+
+export const reloadGroupBoxes = createAction(
+  'reloadGroupBoxes',
 );

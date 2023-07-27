@@ -30,6 +30,7 @@ import { selectMapPortGroups } from 'src/app/store/portgroup/portgroup.selectors
 import { retrievedPortGroups } from 'src/app/store/portgroup/portgroup.actions';
 import { clearNotification } from 'src/app/store/app/app.actions';
 import { IpReservationModel, RangeModel } from '../../models/config-template.model';
+import { selectNotification } from 'src/app/store/app/app.selectors';
 
 @Injectable({
   providedIn: 'root'
@@ -74,6 +75,11 @@ export class HelpersService implements OnDestroy {
     private serverConnectionService: ServerConnectService,
     private dialog: MatDialog,
   ) {
+    this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
+      if (notification) {
+        this.showNotification(notification);
+      }
+    });
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
         this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
@@ -102,14 +108,12 @@ export class HelpersService implements OnDestroy {
     this.selectMapPortGroups$.unsubscribe();
     this.selectNetmasks$.unsubscribe();
     this.selectGroups$.unsubscribe();
+    this.selectNotification$.unsubscribe();
   }
 
-  showNotification(notification: any, dialogRef?: any) {
+  showNotification(notification: any) {
     if (notification.type == 'success') {
       this.toastr.success(notification.message);
-      if (dialogRef) {
-        dialogRef.close();
-      }
     } else if (notification.type == 'error') {
       this.toastr.error(notification.message);
     }
@@ -556,15 +560,19 @@ export class HelpersService implements OnDestroy {
   addGroupBoxes() {
     const gbs = this.groups.filter((gb: any) => gb.data.group_category == this.groupCategoryId);
     this.cy.add(gbs);
-    this.cy.nodes().forEach((ele: any) => {
-      if (!Boolean(ele.data('parent_id')) && ele.data('elem_category') != 'map_link') {
-        const data = ele.data();
-        if (data.elem_category != 'group') {
-          const g = data.groups.filter((gb: any) => gb.category == this.groupCategoryId);
-          if (g.length > 0) ele.move({ parent: 'group-' + g[0].id });
+    gbs.map(g => {
+      this.cy.nodes().forEach((ele: any) => {
+        if (!Boolean(ele.data('parent_id')) && ele.data('elem_category') != 'map_link') {
+          const data = ele.data();
+          if (data.elem_category != 'group') {
+            if (g.nodes.find((n: any) => n.id == data.node_id) || g.port_groups.find((pg: any) => pg.id == data.pg_id)) {
+              ele.move({ parent: g.data.id });
+            }
+          }
         }
-      }
+      });
     });
+
     let done = false;
     for (let i = 0; i < gbs.length; i++) {
       let gb = gbs[i];
@@ -1068,7 +1076,7 @@ export class HelpersService implements OnDestroy {
   }
 
   downloadBlobWithData(data: any, fileName: string) {
-    let file = new Blob([JSON.stringify(data, null, 4)], {type: 'application/json'});
+    let file = new Blob([JSON.stringify(data, null, 4)], { type: 'application/json' });
     this.downloadBlob(fileName, file);
   }
 

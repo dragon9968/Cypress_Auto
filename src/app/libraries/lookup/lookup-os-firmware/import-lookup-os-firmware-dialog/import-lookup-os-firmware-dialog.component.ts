@@ -25,7 +25,7 @@ export class ImportLookupOsFirmwareDialogComponent implements OnDestroy {
       fileCtr: new FormControl('', [Validators.required, validateInputFile('json')])
     })
     this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
-      if (notification && notification.type === 'success') {
+      if (notification?.type === 'success') {
         this.dialogRef.close()
       }
     });

@@ -174,9 +174,9 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
       switchCtr: new FormControl('')
     });
     this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
-      if (notification) {
-        this.helpers.showNotification(notification, this.dialogRef);
-      }
+      if (notification?.type == 'success') {
+        this.dialogRef.close();
+      } 
     });
     this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
       this.domains = domains;

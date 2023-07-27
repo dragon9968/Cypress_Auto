@@ -23,3 +23,16 @@ export const unSelectGroup = createAction(
   'unSelectGroup',
   props<{ id: string }>()
 );
+
+export const updateGroup = createAction(
+  'updateGroup',
+  props<{
+    id: number,
+    data: any,
+  }>()
+);
+
+export const groupUpdatedSuccess = createAction(
+  'groupUpdatedSuccess',
+  props<{ group: any }>()
+);

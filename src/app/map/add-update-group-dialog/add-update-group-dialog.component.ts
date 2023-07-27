@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ErrorMessages } from "../../shared/enums/error-messages.enum";
 import { Store } from "@ngrx/store";
@@ -7,26 +7,27 @@ import { Observable, Subscription } from "rxjs";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { selectGroups } from "../../store/group/group.selectors";
 import { HelpersService } from "../../core/services/helpers/helpers.service";
-import { selectNodesByProjectId } from "../../store/node/node.selectors";
+import { selectLogicalNodes, selectNodesByProjectId } from "../../store/node/node.selectors";
 import { selectDomains } from "../../store/domain/domain.selectors";
 import { selectDevices } from "../../store/device/device.selectors";
-import { selectPortGroups } from "../../store/portgroup/portgroup.selectors";
+import { selectMapPortGroups, selectPortGroups } from "../../store/portgroup/portgroup.selectors";
 import { GroupService } from "../../core/services/group/group.service";
 import { selectTemplates } from "../../store/template/template.selectors";
-import { retrievedGroups } from "../../store/group/group.actions";
+import { retrievedGroups, updateGroup } from "../../store/group/group.actions";
 import { validateNameExist } from "../../shared/validations/name-exist.validation";
 import { CATEGORIES } from 'src/app/shared/contants/categories.constant';
 import { ROLES } from 'src/app/shared/contants/roles.constant';
 import { retrievedMap } from 'src/app/store/map/map.actions';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
+import { selectNotification } from 'src/app/store/app/app.selectors';
 
 @Component({
   selector: 'app-add-update-group-dialog',
   templateUrl: './add-update-group-dialog.component.html',
   styleUrls: ['./add-update-group-dialog.component.scss']
 })
-export class AddUpdateGroupDialogComponent implements OnInit {
+export class AddUpdateGroupDialogComponent implements OnInit, OnDestroy {
   groupAddForm: FormGroup;
   errorMessages = ErrorMessages;
   selectGroup$ = new Subscription();
@@ -37,7 +38,8 @@ export class AddUpdateGroupDialogComponent implements OnInit {
   selectRoles$ = new Subscription();
   selectTemplates$ = new Subscription();
   selectMapImages$ = new Subscription();
-  template!: any[];
+  selectNotification$ = new Subscription();
+  templates!: any[];
   ROLES = ROLES;
   CATEGORIES = CATEGORIES;
   groups!: any[];
@@ -63,11 +65,16 @@ export class AddUpdateGroupDialogComponent implements OnInit {
     private groupService: GroupService,
     private mapService: MapService,
   ) {
-    this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodeData => this.nodes = nodeData);
-    this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe(pgData => this.portGroups = pgData);
-    this.selectTemplates$ = this.store.select(selectTemplates).subscribe(templateData => this.template = templateData);
-    this.selectDomains$ = this.store.select(selectDomains).subscribe(domainData => this.domains = domainData);
-    this.selectDevice$ = this.store.select(selectDevices).subscribe(deviceData => this.devices = deviceData);
+    this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
+      if (notification?.type == 'success') {
+        this.dialogRef.close();
+      } 
+    });
+    this.selectNodes$ = this.store.select(selectLogicalNodes).subscribe(nodes => this.nodes = nodes);
+    this.selectPortGroups$ = this.store.select(selectMapPortGroups).subscribe(portGroups => this.portGroups = portGroups);
+    this.selectTemplates$ = this.store.select(selectTemplates).subscribe(templates => this.templates = templates);
+    this.selectDomains$ = this.store.select(selectDomains).subscribe(domains => this.domains = domains);
+    this.selectDevice$ = this.store.select(selectDevices).subscribe(devices => this.devices = devices);
     this.selectGroup$ = this.store.select(selectGroups).subscribe(groups => this.groups = groups);
     this.selectMapImages$ = this.store.select(selectMapImages).subscribe(mapImage => this.mapImages = mapImage);
     this.isViewMode = this.data.mode == 'view';
@@ -142,8 +149,8 @@ export class AddUpdateGroupDialogComponent implements OnInit {
           this.categoryName = 'By Role';
           break;
         case 'template':
-          this.categoryChilds = this.template;
-          this.categoryIdCtr?.setValue(this.template[0]);
+          this.categoryChilds = this.templates;
+          this.categoryIdCtr?.setValue(this.templates[0]);
           this.categoryName = 'By Template/Model';
           break;
         default:
@@ -154,6 +161,17 @@ export class AddUpdateGroupDialogComponent implements OnInit {
     })
   }
 
+  ngOnDestroy(): void {
+    this.selectNotification$.unsubscribe();
+    this.selectNodes$.unsubscribe();
+    this.selectPortGroups$.unsubscribe();
+    this.selectTemplates$.unsubscribe();
+    this.selectDomains$.unsubscribe();
+    this.selectDevice$.unsubscribe();
+    this.selectGroup$.unsubscribe();
+    this.selectMapImages$.unsubscribe();
+  }
+
   addGroup() {
     const jsonDataValue = {
       name: this.nameCtr?.value,
@@ -161,8 +179,8 @@ export class AddUpdateGroupDialogComponent implements OnInit {
       description: this.descriptionCtr?.value,
       project_id: this.data.project_id,
       domain_id: this.categoryCtr?.value.id == 'domain' ? this.categoryIdCtr?.value.id : undefined,
-      nodes: this.getNodeIds(this.data.genData.nodes),
-      port_groups: this.getPGIds(this.data.genData.port_groups),
+      nodes: this.data.genData.nodes.map((node: any) => node.id),
+      port_groups: this.data.genData.port_groups.map((pg: any) => pg.id),
       map_images: this.getMapImageIds(this.data.genData.map_images),
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
@@ -177,12 +195,12 @@ export class AddUpdateGroupDialogComponent implements OnInit {
   }
 
   updateGroup() {
-    const nodesEle = this.nodes.filter(ele => this.nodesCtr?.value.includes(ele.id))
-    const pgsEle = this.portGroups.filter(ele => this.portGroupsCtr?.value.includes(ele.id))
+    const nodes = this.nodes.filter(ele => this.nodesCtr?.value.includes(ele.id))
+    const portGroups = this.portGroups.filter(ele => this.portGroupsCtr?.value.includes(ele.id))
     const mapImagesEle = this.mapImages.filter(ele => this.mapImagesCtr?.value.includes(ele.id))
-    const nodeIds = this.getNodeIds(nodesEle)
-    const pgIds = this.getPGIds(pgsEle)
-    const mapImageIds = this.getMapImageIds(mapImagesEle)
+    const nodeIds = nodes.map((node: any) => node.id);
+    const pgIds = portGroups.map((pg: any) => pg.id);
+    const mapImageIds = this.getMapImageIds(mapImagesEle);
     const jsonDataValue = {
       name: this.nameCtr?.value,
       category: this.categoryCtr?.value.id,
@@ -195,14 +213,10 @@ export class AddUpdateGroupDialogComponent implements OnInit {
       physical_map: {},
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.groupService.put(this.data.genData.id, jsonData).subscribe(response => {
-      this.toastr.success(`Updated for the ${response.result} successfully`);
-      this.groupService.getGroupByProjectId(this.data.project_id).subscribe(
-        groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
-      )
-      this.mapService.getMapData(this.data.map_category, this.data.project_id).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
-      this.dialogRef.close(true);
-    })
+    this.store.dispatch(updateGroup({
+      id: this.data.genData.id,
+      data: jsonData,
+    }));
   }
 
   onCancel() {
@@ -232,14 +246,6 @@ export class AddUpdateGroupDialogComponent implements OnInit {
     this.nodesCtr?.setValue(this.data.genData.nodes?.map((ele: any) => ele.id));
     this.portGroupsCtr?.setValue(this.data.genData.port_groups?.map((ele: any) => ele.id));
     this.mapImagesCtr?.setValue(this.data.genData.map_images?.map((ele: any) => ele.id));
-  }
-
-  getNodeIds(nodesEle: any) {
-    return nodesEle?.map((nodeEle: any) => nodeEle.data ? nodeEle.data('node_id') : nodeEle.id)
-  }
-
-  getPGIds(pgsEle: any) {
-    return pgsEle?.map((pgEle: any) => pgEle.data ? pgEle.data('pg_id') : pgEle.id)
   }
 
   getMapImageIds(mapImagesEle: any) {

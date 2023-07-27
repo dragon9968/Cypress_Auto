@@ -84,6 +84,7 @@ import { ConnectInterfaceDialogComponent } from './context-menu/cm-dialog/connec
 import { ConnectInterfaceToPgDialogComponent } from "./context-menu/cm-dialog/connect-interface-to-pg-dialog/connect-interface-to-pg-dialog.component";
 import { selectLogicalNodes, selectPhysicalNodes } from '../store/node/node.selectors';
 import { selectGroups } from '../store/group/group.selectors';
+import { selectNotification } from '../store/app/app.selectors';
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');

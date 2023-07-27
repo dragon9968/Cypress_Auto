@@ -37,18 +37,16 @@ export class AddEditLookupOsFirmwareDialogComponent implements OnInit, OnDestroy
   ) {
     this.isViewMode = this.data.mode === 'view'
     this.lookupOSFirmwareForm = new FormGroup({
-      nameCtr: new FormControl({value: '', disabled: this.isViewMode}, [Validators.required]),
-      categoryCtr: new FormControl({value: '', disabled: this.isViewMode}, [Validators.required]),
-      versionCtr: new FormControl({value: '', disabled: this.isViewMode}, [Validators.required])
+      nameCtr: new FormControl({ value: '', disabled: this.isViewMode }, [Validators.required]),
+      categoryCtr: new FormControl({ value: '', disabled: this.isViewMode }, [Validators.required]),
+      versionCtr: new FormControl({ value: '', disabled: this.isViewMode }, [Validators.required])
     })
     this.selectLookupOSFirmwares$ = this.store.select(selectLookupOSFirmwares).subscribe(osFirmwares => {
       this.osFirmwares = osFirmwares
     })
     this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
-      if (notification) {
-        if (notification.type == 'success') {
-          this.dialogRef.close()
-        }
+      if (notification?.type == 'success') {
+        this.dialogRef.close()
       }
     });
     this.filteredOSFirmwareCategories = this.helpersService.filterOptions(this.categoryCtr, this.OS_FIRMWARE_CATEGORIES);
@@ -86,7 +84,7 @@ export class AddEditLookupOsFirmwareDialogComponent implements OnInit, OnDestroy
       version: this.versionCtr?.value
     }
     const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue)
-    this.store.dispatch(addNewOSFirmware({newOSFirmware: jsonData}))
+    this.store.dispatch(addNewOSFirmware({ newOSFirmware: jsonData }))
   }
 
   updateLookupOSFirmware() {
@@ -97,7 +95,7 @@ export class AddEditLookupOsFirmwareDialogComponent implements OnInit, OnDestroy
       version: this.versionCtr?.value
     }
     const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue)
-    this.store.dispatch(updateOSFirmware({osFirmware: jsonData}))
+    this.store.dispatch(updateOSFirmware({ osFirmware: jsonData }))
   }
 
   changeViewToEdit() {

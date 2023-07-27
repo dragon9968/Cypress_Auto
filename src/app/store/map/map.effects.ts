@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { EMPTY, forkJoin } from 'rxjs';
-import { catchError, exhaustMap, map, switchMap } from 'rxjs/operators';
-import { loadMap, mapLoadedSuccess, retrievedMap } from './map.actions';
+import { forkJoin, of } from 'rxjs';
+import { catchError, exhaustMap, switchMap, tap } from 'rxjs/operators';
+import { loadMap, mapLoadedSuccess, reloadGroupBoxes } from './map.actions';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { nodesLoadedSuccess } from '../node/node.actions';
 import { PGsLoadedSuccess } from '../portgroup/portgroup.actions';
@@ -12,6 +12,8 @@ import { NodeService } from 'src/app/core/services/node/node.service';
 import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 import { GroupService } from 'src/app/core/services/group/group.service';
+import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
+import { pushNotification } from '../app/app.actions';
 
 @Injectable()
 export class MapEffects {
@@ -32,9 +34,19 @@ export class MapEffects {
         groupsLoadedSuccess({ groups: groupsData.result }),
         mapLoadedSuccess({ data: map })
       ]),
-      catchError(() => EMPTY)
+      catchError((e) => of(pushNotification({
+        notification: {
+          type: 'error',
+          message: 'Load Map failed!'
+        }
+      })))
     ))
   ));
+
+  reloadGroupBoxes$ = createEffect(() => this.actions$.pipe(
+    ofType(reloadGroupBoxes),
+    tap((payload) => this.helpersService.reloadGroupBoxes())
+  ), { dispatch: false });
 
   constructor(
     private actions$: Actions,
@@ -43,5 +55,6 @@ export class MapEffects {
     private portGroupService: PortGroupService,
     private interfaceService: InterfaceService,
     private groupService: GroupService,
+    private helpersService: HelpersService,
   ) { }
 }

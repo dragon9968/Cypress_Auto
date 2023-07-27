@@ -92,8 +92,9 @@ export class InfoPanelTableComponent {
             if (node.data().groups[0].id === r.id) {
               node.select();
             }
-          })
+          });
         }
+        return r.id;
       } else {
         const ele = this.cy.getElementById(r.data.id);
         ele.select();

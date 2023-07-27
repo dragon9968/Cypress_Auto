@@ -223,7 +223,6 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     private interfaceService: InterfaceService,
     private configTemplateService: ConfigTemplateService,
     private serverConnectionService: ServerConnectService,
-    private projectService: ProjectService,
   ) {
     this.infrastructureChecked = this.data.mapCategory == 'logical' ? false : true
     this.actionsAddForm = new FormGroup({
@@ -310,9 +309,9 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       tasksCtr: new FormControl(''),
     }, { validators: hostnameValidator });
     this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
-      if (notification) {
-        this.helpers.showNotification(notification, this.dialogRef);
-      }
+      if (notification?.type == 'success') {
+        this.dialogRef.close();
+      } 
     });
     this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
       this.icons = icons;

@@ -103,9 +103,9 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       targetPortGroupCtr: new FormControl(''),
     })
     this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
-      if (notification) {
-        this.helpers.showNotification(notification, this.dialogRef);
-      }
+      if (notification?.type == 'success') {
+        this.dialogRef.close();
+      } 
     });
     this.selectMapCategory$ = this.store.select(selectMapCategory).subscribe((mapCategory: any) => {
       this.mapCategory = mapCategory ? mapCategory : 'logical'

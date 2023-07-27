@@ -25,7 +25,6 @@ export class LookupOsFirmwareComponent implements OnInit, OnDestroy {
   rowsSelected: any[] = [];
   rowsSelectedId: number[] = [];
   selectLookupOSFirmware$ = new Subscription();
-  selectNotification$ = new Subscription();
   quickFilterValue = '';
   rowData$! : Observable<any[]>;
   private gridApi!: GridApi;
@@ -74,11 +73,6 @@ export class LookupOsFirmwareComponent implements OnInit, OnDestroy {
         this.updateRow();
       }
     })
-    this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
-      if (notification) {
-        this.helpersService.showNotification(notification);
-      }
-    });
   }
 
   ngOnInit(): void {
@@ -87,7 +81,6 @@ export class LookupOsFirmwareComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.selectLookupOSFirmware$.unsubscribe();
-    this.selectNotification$.unsubscribe();
   }
 
   onGridReady(params: GridReadyEvent) {
