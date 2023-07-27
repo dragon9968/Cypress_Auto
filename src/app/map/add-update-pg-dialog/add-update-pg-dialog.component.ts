@@ -352,7 +352,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
           cyData.text_color = cyData.logical_map.map_style.text_color;
           cyData.text_size = cyData.logical_map.map_style.text_size;
           cyData.color = cyData.logical_map.map_style.color;
-          this.helpers.addCYNode(this.data.cy, { newNodeData: { ...this.data.newNodeData, ...cyData }, newNodePosition: this.data.newNodePosition });
+          this.helpers.addCYNode({ newNodeData: { ...this.data.newNodeData, ...cyData }, newNodePosition: this.data.newNodePosition });
           cyData.groups = portGroup.groups;
           this.helpers.reloadGroupBoxes();
         }

@@ -480,11 +480,11 @@ export class HelpersService implements OnDestroy {
     ]
   }
 
-  addCYNode(cy: any, data: any) {
-    return cy.add({
+  addCYNode(data: any) {
+    return this.cy.add({
       group: "nodes",
-      data: data.newNodeData,
-      position: data.newNodePosition,
+      data: data.newNodeData ? data.newNodeData : data.data,
+      position: data.newNodePosition ? data.newNodePosition : data.position,
     });
   }
 
@@ -506,7 +506,7 @@ export class HelpersService implements OnDestroy {
       if (node.position) {
         position = { x: newPosition.x + node.position.x, y: newPosition.y + node.position.y }
       }
-      const nodeEle = this.addCYNode(cy, { newNodeData: node.data, newNodePosition: position });
+      const nodeEle = this.addCYNode({ newNodeData: node.data, newNodePosition: position });
       if (mapLinkId) {
         nodeEle.move({ parent: `project-link-${mapLinkId}` });
       }
@@ -1204,6 +1204,52 @@ export class HelpersService implements OnDestroy {
     } else {
       this.toastr.error(ErrorMessages.FIELD_IS_NUMBER, 'Error');
       return false;
+    }
+  }
+
+  convertNodeRawToNodeCyData(node: any, isLogicalNode: boolean) {
+    let icon;
+    if (node.icon) {
+      icon = `/static/img/uploads/${node.icon.photo}`
+    } else if (node.device && node.device.icon) {
+      icon = `/static/img/uploads/${node.device.icon.photo}`;
+    } else if (node.template && node.template.icon) {
+      icon = `/static/img/uploads/${node.template.icon.photo}`;
+    } else {
+      icon = "/static/img/icons/default_icon.png";
+    }
+    const baseCyData = {
+      id: `node-${node.id}`,
+      node_id: node.id,
+      elem_category: "node",
+      layout: { name: "preset" },
+      zIndex: 999,
+      updated: false,
+      in_groupbox: false,
+      url: "",
+      login_profile: node.login_profile,
+      login_profile_show: "",
+      configuration_show: "",
+      notes: node.notes,
+      groups: node.groups,
+      interfaces: node.interfaces,
+      icon: !icon.includes(environment.apiBaseUrl) ? environment.apiBaseUrl + icon : icon,
+      infrastructure: node.infrastructure
+    }
+    if (isLogicalNode) {
+      return {
+        ...node,
+        data: { ...node, ...baseCyData, ...node.logical_map?.map_style },
+        position: node.logical_map?.position,
+        locked: node.logical_map?.locked
+      }
+    } else {
+      return {
+        ...node,
+        data: { ...node, ...baseCyData, ...node.physical?.map_style },
+        position: node.physical?.position,
+        locked: node.physical?.locked
+      }
     }
   }
 

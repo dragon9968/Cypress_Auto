@@ -34,8 +34,7 @@ import { selectIsConfiguratorConnect, selectIsDatasourceConnect, selectIsHypervi
 import { RemoteCategories } from 'src/app/core/enums/remote-categories.enum';
 import { ServerConnectService } from 'src/app/core/services/server-connect/server-connect.service';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ProjectService } from 'src/app/project/services/project.service';
-import { updateNode } from 'src/app/store/node/node.actions';
+import { addNewNode, updateNode } from 'src/app/store/node/node.actions';
 import { selectNotification } from 'src/app/store/app/app.selectors';
 
 class CrossFieldErrorMatcher implements ErrorStateMatcher {
@@ -224,7 +223,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     private configTemplateService: ConfigTemplateService,
     private serverConnectionService: ServerConnectService,
   ) {
-    this.infrastructureChecked = this.data.mapCategory == 'logical' ? false : true
+    this.infrastructureChecked = this.data.mapCategory != 'logical'
     this.actionsAddForm = new FormGroup({
       addTypeCtr: new FormControl('')
     })
@@ -636,47 +635,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       } : undefined,
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.nodeService.add(jsonData).pipe(
-      catchError((e: any) => {
-        this.toastr.error('Add new node failed', 'Error');
-        return throwError(() => e);
-      })
-    ).subscribe((respData: any) => {
-      this.nodeService.get(respData.id).subscribe(respData => {
-        const cyData = respData.result;
-        // this.helpers.updateNodesStorage({...cyData});
-        cyData.id = 'node-' + respData.id;
-        cyData.node_id = respData.id;
-        cyData.domain = this.domainCtr?.value.name;
-        cyData.device_category = this.data.genData.device_category;
-        cyData.height = cyData.logical_map.map_style.height;
-        cyData.width = cyData.logical_map.map_style.width;
-        cyData.text_color = cyData.logical_map.map_style.text_color;
-        cyData.text_size = cyData.logical_map.map_style.text_size;
-        cyData.text_bg_color = cyData.logical_map.map_style.text_bg_color;
-        cyData.text_bg_opacity = cyData.logical_map.map_style.text_bg_opacity;
-        cyData.text_valign = cyData.logical_map.map_style.text_valign;
-        cyData.text_halign = cyData.logical_map.map_style.text_halign;
-        cyData.groups = respData.result.groups;
-        cyData.icon = ICON_PATH + respData.result.icon.photo;
-        this.helpers.addCYNode(this.data.cy, { newNodeData: { ...this.data.newNodeData, ...cyData }, newNodePosition: this.data.newNodePosition });
-        if (this.configTemplateCtr?.value) {
-          const configData = {
-            pk: respData.id,
-            config_ids: this.configTemplateCtr?.value
-          }
-          this.nodeService.associate(configData).subscribe(respData => {
-            this.nodeService.get(cyData.node_id).subscribe(nodeData => {
-              this.data.genData.id = cyData.id;
-              this.helpers.updateNodeOnMap(this.data.genData.id, nodeData.result);
-            })
-          });
-        }
-        this.helpers.reloadGroupBoxes();
-        this.toastr.success('Node details added!');
-        this.dialogRef.close();
-      });
-    });
+    this.store.dispatch(addNewNode({newNode: jsonData}))
   }
 
   updateNode() {

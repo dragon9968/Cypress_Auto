@@ -1,9 +1,65 @@
 import { NodeState } from "./node.state";
 import { createReducer, on } from "@ngrx/store";
-import { retrievedNameNodeBySourceNode, retrievedNodes, nodesLoadedSuccess, selectNode, unSelectNode, nodeUpdatedSuccess, removeNode, updateInterfaceInNode } from "./node.actions";
+import {
+  retrievedNameNodeBySourceNode,
+  retrievedNodes,
+  nodesLoadedSuccess,
+  selectNode,
+  unSelectNode,
+  nodeUpdatedSuccess,
+  removeNode,
+  updateInterfaceInNode,
+  nodeAddedSuccess
+} from "./node.actions";
 import { environment } from "src/environments/environment";
 
 const initialState = {} as NodeState;
+
+const addCYDataToNode = (node: any, isLogicalNode: boolean) => {
+  let icon;
+  if (node.icon) {
+    icon = `/static/img/uploads/${node.icon.photo}`
+  } else if (node.device && node.device.icon) {
+    icon = `/static/img/uploads/${node.device.icon.photo}`;
+  } else if (node.template && node.template.icon) {
+    icon = `/static/img/uploads/${node.template.icon.photo}`;
+  } else {
+    icon = "/static/img/icons/default_icon.png";
+  }
+  const baseCyData = {
+    id: `node-${node.id}`,
+    node_id: node.id,
+    elem_category: "node",
+    layout: { name: "preset" },
+    zIndex: 999,
+    updated: false,
+    in_groupbox: false,
+    url: "",
+    login_profile: node.login_profile,
+    login_profile_show: "",
+    configuration_show: "",
+    notes: node.notes,
+    groups: node.groups,
+    interfaces: node.interfaces,
+    icon: !icon.includes(environment.apiBaseUrl) ? environment.apiBaseUrl + icon : icon,
+    infrastructure: node.infrastructure
+  }
+  if (isLogicalNode) {
+    return {
+      ...node,
+      data: { ...node, ...baseCyData, ...node.logical_map?.map_style },
+      position: node.logical_map?.position,
+      locked: node.logical_map?.locked
+    };
+  } else {
+    return {
+      ...node,
+      data: { ...node, ...baseCyData, ...node.physical?.map_style },
+      position: node.physical?.position,
+      locked: node.physical?.locked
+    }
+  }
+}
 
 export const nodeReducer = createReducer(
   initialState,
@@ -16,65 +72,20 @@ export const nodeReducer = createReducer(
     nameNode
   })),
   on(nodesLoadedSuccess, (state, { nodes }) => {
-    const logicalNodes: any = []; 
+    const logicalNodes: any = [];
     const physicalNodes: any = [];
     nodes.map((node: any) => {
-      let icon;
-      if (node.icon) {
-        icon = `/static/img/uploads/${node.icon.photo}`
-      } else if (node.device && node.device.icon) {
-        icon = `/static/img/uploads/${node.device.icon.photo}`;
-      } else if (node.template && node.template.icon) {
-        icon = `/static/img/uploads/${node.template.icon.photo}`;
-      } else {
-        icon = "/static/img/icons/default_icon.png";
-      }
-      const baseCyData = {
-        id: `node-${node.id}`,
-        node_id: node.id,
-        elem_category: "node",
-        layout: { name: "preset" },
-        zIndex: 999,
-        updated: false,
-        in_groupbox: false,
-        url: "",
-        login_profile: node.login_profile,
-        login_profile_show: "",
-        configuration_show: "",
-        notes: node.notes,
-        groups: node.groups,
-        interfaces: node.interfaces,
-        icon: !icon.includes(environment.apiBaseUrl) ? environment.apiBaseUrl + icon : icon,
-        infrastructure: node.infrastructure
-      }
+      let cyNode;
       if (!node.infrastructure) {
-        logicalNodes.push(
-          {
-            ...node, 
-            data: { ...node, ...baseCyData, ...node.logical_map?.map_style },
-            position: node.logical_map?.position,
-            locked: node.logical_map?.locked 
-          }
-        );
+        cyNode = addCYDataToNode(node, true);
+        logicalNodes.push(cyNode);
         if (node.category === 'hw') {
-          physicalNodes.push(
-            {
-              ...node, 
-              data: { ...node, ...baseCyData, ...node.physical?.map_style },
-              position: node.physical?.position,
-              locked: node.physical?.locked 
-            }
-          );
+          cyNode = addCYDataToNode(node, false);
+          physicalNodes.push(cyNode);
         }
       } else {
-        physicalNodes.push(
-          {
-            ...node, 
-            data: { ...node, ...baseCyData, ...node.physical?.map_style },
-            position: node.physical?.position,
-            locked: node.physical?.locked 
-          }
-        );
+        cyNode = addCYDataToNode(node, false);
+        physicalNodes.push(cyNode);
       }
     })
     return {
@@ -102,6 +113,27 @@ export const nodeReducer = createReducer(
     return {
       ...state,
       logicalNodes
+    };
+  }),
+  on(nodeAddedSuccess, (state, { newNode }) => {
+    const logicalNodes = JSON.parse(JSON.stringify(state.logicalNodes))
+    const physicalNodes = JSON.parse(JSON.stringify(state.physicalNodes))
+    let cyNode;
+    if (!newNode.infrastructure) {
+      cyNode = addCYDataToNode(newNode, true);
+      logicalNodes.push(cyNode);
+      if (newNode.category === 'hw') {
+        cyNode = addCYDataToNode(newNode, false);
+        physicalNodes.push(cyNode);
+      }
+    } else {
+      cyNode = addCYDataToNode(newNode, false);
+      physicalNodes.push(cyNode);
+    }
+    return {
+      ...state,
+      logicalNodes: logicalNodes,
+      physicalNodes: physicalNodes
     };
   }),
   on(nodeUpdatedSuccess, (state, { node }) => {
@@ -135,3 +167,4 @@ export const nodeReducer = createReducer(
     };
   }),
 )
+

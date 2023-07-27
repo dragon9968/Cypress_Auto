@@ -3,7 +3,14 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { map, exhaustMap, catchError, switchMap, mergeMap } from 'rxjs/operators';
 import { NodeService } from 'src/app/core/services/node/node.service';
-import { loadNodes, nodeUpdatedSuccess, nodesLoadedSuccess, updateNode } from './node.actions';
+import {
+  loadNodes,
+  nodeUpdatedSuccess,
+  nodesLoadedSuccess,
+  updateNode,
+  addNewNode,
+  nodeAddedSuccess
+} from './node.actions';
 import { ConfigTemplateService } from 'src/app/core/services/config-template/config-template.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { pushNotification } from '../app/app.actions';
@@ -25,6 +32,43 @@ export class NodesEffects {
         })))
       ))
   ));
+
+  addNewNode$ = createEffect(() => this.actions$.pipe(
+    ofType(addNewNode),
+    exhaustMap(payload => this.nodeService.add(payload.newNode).pipe(
+        mergeMap(res => this.nodeService.get(res.id)),
+        map(res => {
+          const node = res.result;
+          let cyNodeData;
+          if (!node.infrastructure) {
+            cyNodeData = this.helpersService.convertNodeRawToNodeCyData(node, true)
+            if (node.category === 'hw') {
+              cyNodeData = this.helpersService.convertNodeRawToNodeCyData(node, false)
+            }
+          } else {
+            cyNodeData = this.helpersService.convertNodeRawToNodeCyData(node, false)
+          }
+          this.helpersService.addCYNode(JSON.parse(JSON.stringify(cyNodeData)))
+          this.helpersService.reloadGroupBoxes();
+          return res.result
+        }),
+        switchMap(res => [
+          nodeAddedSuccess({newNode: res}),
+          pushNotification({
+            notification: {
+              type: 'success',
+              message: 'Node details added!'
+            }
+          })
+        ]),
+        catchError(e => of(pushNotification({
+          notification: {
+            type: 'error',
+            message: 'Add new node failed'
+          }
+        })))
+    ))
+  ))
 
   updateNode$ = createEffect(() => this.actions$.pipe(
     ofType(updateNode),

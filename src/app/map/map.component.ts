@@ -1243,7 +1243,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         cyData.groups = respData.result.groups;
         cyData.icon = ICON_PATH + respData.result.icon.photo;
         cyData.elem_category = 'node';
-        this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
+        this.helpersService.addCYNode({ newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
         this.groupService.getGroupByProjectId(this.projectId).subscribe(
           groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
         );
@@ -1319,7 +1319,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         cyData.color = cyData.logical_map.map_style.color;
         cyData.groups = respData.result.groups;
         cyData.elem_category = 'port_group';
-        this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
+        this.helpersService.addCYNode({ newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
         this.groupService.getGroupByProjectId(this.projectId).subscribe(
           groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
         );
@@ -1882,7 +1882,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
           'shape': 'roundrectangle',
           'text-opacity': 1
         }
-        const nodeEle = this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...mapLinkData }, newNodePosition });
+        const nodeEle = this.helpersService.addCYNode({ newNodeData: { ...newNodeData, ...mapLinkData }, newNodePosition });
 
         // Add collapse and expand event for new map link project
         this.helpersService.collapseAndExpandMapLinkNodeEvent(nodeEle);
@@ -1990,7 +1990,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
           "original_width": width,
           "original_height": height,
         }
-        this.helpersService.addCYNode(this.cy, { newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
+        this.helpersService.addCYNode({ newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
         this.mapImageService.getMapImageByProjectId(+this.projectId).subscribe((data: any) => this.store.dispatch(retrievedMapImages({ mapImage: data.result })));
         this.toastr.success('Add map image successfully', 'Success');
       });

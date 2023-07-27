@@ -70,7 +70,8 @@ export class InfoPanelNodeComponent implements OnDestroy {
       {
         field: 'name',
         minWidth: 100,
-        flex: 1
+        flex: 1,
+        sort: 'asc',
       },
       {
         field: 'category',
@@ -136,7 +137,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
         field: 'configs',
         headerName: 'Configuration',
         cellRenderer: (params: any) => {
-          if (params.value.length > 0) {
+          if (params?.value?.length > 0) {
             let html_str = "<div style='text-align:left;'><ul>"
             for (let i in params.value) {
               let item_html = `<li style='text-align: left'>${params.value[i].name}</li>`;
