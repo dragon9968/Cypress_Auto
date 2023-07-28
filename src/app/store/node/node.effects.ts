@@ -17,6 +17,7 @@ import { ConfigTemplateService } from 'src/app/core/services/config-template/con
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { pushNotification } from '../app/app.actions';
 import { updateNodeInInterfaces } from '../interface/interface.actions';
+import { reloadGroupBoxes } from '../map/map.actions';
 
 @Injectable()
 export class NodesEffects {
@@ -138,12 +139,9 @@ export class NodesEffects {
             }));
           }))
         }),
-        map((res: any) => {
-          this.helpersService.reloadGroupBoxes();
-          return res;
-        }),
         switchMap((nodes: any) => [
           bulkUpdatedNodeSuccess({ nodes }),
+          reloadGroupBoxes(),
           pushNotification({
             notification: {
               type: 'success',

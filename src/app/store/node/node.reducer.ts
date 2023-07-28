@@ -146,13 +146,13 @@ export const nodeReducer = createReducer(
   }),
 
   on(bulkUpdatedNodeSuccess, (state, { nodes }) => {
-    let newNodes = [...state.logicalNodes];
-    nodes.map((node: any) => {
-      newNodes = newNodes.map((n: any) => (n.id == node.id) ? { ...n, ...node } : n);
-    })
+    const logicalNodes = state.logicalNodes.map((node: any) => {
+      const updatedNode = nodes.find((n: any) => n.id == node.id);
+      return updatedNode ? {...node, ...updatedNode} : node
+    });
     return {
       ...state,
-      logicalNodes: newNodes,
+      logicalNodes,
     };
   }),
 

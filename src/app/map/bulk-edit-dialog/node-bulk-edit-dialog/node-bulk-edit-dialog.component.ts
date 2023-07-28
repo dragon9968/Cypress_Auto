@@ -112,9 +112,9 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
       this.filteredLoginProfiles = this.helpers.filterOptions(this.loginProfileCtr, this.loginProfiles);
     });
     this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
-      if (notification) {
-        this.helpers.showNotification(notification, this.dialogRef);
-      }
+      if (notification?.type == 'success') {
+        this.dialogRef.close();
+      } 
     });
   }
 
