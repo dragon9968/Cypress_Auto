@@ -9,7 +9,8 @@ import {
   nodeUpdatedSuccess,
   removeNode,
   updateInterfaceInNode,
-  nodeAddedSuccess
+  nodeAddedSuccess,
+  bulkUpdatedNodeSuccess
 } from "./node.actions";
 import { environment } from "src/environments/environment";
 
@@ -143,6 +144,18 @@ export const nodeReducer = createReducer(
       logicalNodes,
     };
   }),
+
+  on(bulkUpdatedNodeSuccess, (state, { nodes }) => {
+    let newNodes = [...state.logicalNodes];
+    nodes.map((node: any) => {
+      newNodes = newNodes.map((n: any) => (n.id == node.id) ? { ...n, ...node } : n);
+    })
+    return {
+      ...state,
+      logicalNodes: newNodes,
+    };
+  }),
+
   on(updateInterfaceInNode, (state, { interfaceData }) => {
     const logicalNodes = state.logicalNodes.map((n: any) => {
       if (interfaceData.node_id == n.id) {

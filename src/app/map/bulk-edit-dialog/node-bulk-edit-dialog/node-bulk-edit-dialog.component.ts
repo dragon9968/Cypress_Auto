@@ -21,6 +21,8 @@ import { selectConfigTemplates } from "../../../store/config-template/config-tem
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
 import { retrievedGroups } from "../../../store/group/group.actions";
 import { GroupService } from "../../../core/services/group/group.service";
+import { bulkEditNode } from "src/app/store/node/node.actions";
+import { selectNotification } from "src/app/store/app/app.selectors";
 
 @Component({
   selector: 'app-node-bulk-edit-dialog',
@@ -46,6 +48,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
   selectDomains$ = new Subscription();
   selectConfigTemplates$ = new Subscription();
   selectLoginProfiles$ = new Subscription();
+  selectNotification$ = new Subscription();
   filteredIcons!: Observable<any[]>;
   filteredDevices!: Observable<any[]>;
   filteredTemplates!: Observable<any[]>;
@@ -108,6 +111,11 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
       this.loginProfileCtr.setValidators([autoCompleteValidator(this.loginProfiles)]);
       this.filteredLoginProfiles = this.helpers.filterOptions(this.loginProfileCtr, this.loginProfiles);
     });
+    this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
+      if (notification) {
+        this.helpers.showNotification(notification, this.dialogRef);
+      }
+    });
   }
 
   get iconCtr() { return this.helpers.getAutoCompleteCtr(this.nodeBulkEditForm.get('iconCtr'), this.icons); }
@@ -135,6 +143,7 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
     this.selectDomains$.unsubscribe();
     this.selectConfigTemplates$.unsubscribe();
     this.selectLoginProfiles$.unsubscribe();
+    this.selectNotification$.unsubscribe();
   }
 
   private _updateNodeOnMap(data: any) {
@@ -182,36 +191,11 @@ export class NodeBulkEditDialogComponent implements OnInit, OnDestroy {
         login_profile_id: loginProfileId
       }
       const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-      this.nodeService.editBulk(jsonData).subscribe(response => {
-        if (domainId) {
-          this.groupService.getGroupByProjectId(this.projectId).subscribe(
-            groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
-          );
-        }
-        return forkJoin(this.data.genData.activeEles.map((node: any) => {
-          if (configId) {
-            const configData = {
-              pk: node.node_id,
-              config_ids: configId
-            }
-            return this.nodeService.associate(configData).pipe(map(respData => {}));
-          }
-          return of([]);
-        }))
-          .subscribe(() => {
-            return forkJoin(this.data.genData.activeEles.map((node: any) => {
-              return this.nodeService.get(node.node_id).pipe(map(nodeData => {
-                this._updateNodeOnMap(nodeData.result);
-                this.helpers.updateNodesStorage(nodeData.result)
-              }));
-            }))
-              .subscribe(() => {
-                this.helpers.reloadGroupBoxes();
-                this.dialogRef.close();
-                this.toastr.success(response.message, 'Success');
-              });
-          });
-      });
+      this.store.dispatch(bulkEditNode({
+        ids: ids,
+        data: jsonData,
+        configTemplate: this.configTemplateCtr?.value
+      }));
     } else {
       this.dialogRef.close();
       this.toastr.info('You\'re not updating anything in the bulk edit nodes');

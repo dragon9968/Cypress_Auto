@@ -50,6 +50,11 @@ export const nodeUpdatedSuccess = createAction(
   props<{ node: any }>()
 );
 
+export const bulkUpdatedNodeSuccess = createAction(
+  'bulkUpdatedNodeSuccess',
+  props<{ nodes: any }>()
+);
+
 export const updateInterfaceInNode = createAction(
   'updateInterfaceInNode',
   props<{ interfaceData: any }>()
@@ -63,5 +68,14 @@ export const addNewNode = createAction(
 export const nodeAddedSuccess = createAction(
   'nodeAddedSuccess',
   props<{ newNode: any }>()
+);
+
+export const bulkEditNode = createAction(
+  'bulkEditNode',
+  props<{
+    ids: any,
+    data: any,
+    configTemplate: any
+  }>()
 );
 

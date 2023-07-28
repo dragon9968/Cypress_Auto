@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { of } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
 import { map, exhaustMap, catchError, switchMap, mergeMap } from 'rxjs/operators';
 import { NodeService } from 'src/app/core/services/node/node.service';
 import {
@@ -9,7 +9,9 @@ import {
   nodesLoadedSuccess,
   updateNode,
   addNewNode,
-  nodeAddedSuccess
+  nodeAddedSuccess,
+  bulkEditNode,
+  bulkUpdatedNodeSuccess
 } from './node.actions';
 import { ConfigTemplateService } from 'src/app/core/services/config-template/config-template.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
@@ -109,6 +111,50 @@ export class NodesEffects {
           notification: {
             type: 'error',
             message: 'Update node failed!'
+          }
+        })))
+      )),
+  ));
+
+  bulkEditNode$ = createEffect(() => this.actions$.pipe(
+    ofType(bulkEditNode),
+    exhaustMap((payload) => this.nodeService.editBulk(payload.data)
+      .pipe(
+        mergeMap(res => {
+          if (payload.configTemplate) {
+            return forkJoin(payload.ids.map((id: any) => {
+              const configData = { pk: id, config_ids: payload.configTemplate };
+              return this.nodeService.associate(configData);
+            }))
+          } else {
+            return of([]);
+          }
+        }),
+        mergeMap(res => {
+          return forkJoin(payload.ids.map((id: any) => {
+            return this.nodeService.get(id).pipe(map(nodeData => {
+              this.helpersService.updateNodeOnMap(`node-${id}`, nodeData.result);
+              return nodeData.result;
+            }));
+          }))
+        }),
+        map((res: any) => {
+          this.helpersService.reloadGroupBoxes();
+          return res;
+        }),
+        switchMap((nodes: any) => [
+          bulkUpdatedNodeSuccess({ nodes }),
+          pushNotification({
+            notification: {
+              type: 'success',
+              message: 'Bulk Edit nodes successfully!'
+            }
+          })
+        ]),
+        catchError((e) => of(pushNotification({
+          notification: {
+            type: 'error',
+            message: 'Bulk Edit nodes failed!'
           }
         })))
       )),
