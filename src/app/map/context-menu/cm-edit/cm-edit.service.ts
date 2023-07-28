@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { AddUpdateNodeDialogComponent } from 'src/app/map/add-update-node-dialog/add-update-node-dialog.component';
@@ -21,7 +21,7 @@ import { selectMapPortGroups } from 'src/app/store/portgroup/portgroup.selectors
 @Injectable({
   providedIn: 'root'
 })
-export class CMEditService {
+export class CMEditService implements OnDestroy {
 
   nodes: any[] = [];
   portgroups: any[] = [];
@@ -50,6 +50,12 @@ export class CMEditService {
         this.interfaces = interfaces.filter(i => i.isSelected);
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.selectLogicalNodes$.unsubscribe();
+    this.selectMapPortGroups$.unsubscribe();
+    this.selectLogicalMapInterfaces$.unsubscribe();
   }
 
   getMenu(cy: any, activeMapLinks: any, isCanWriteOnProject: boolean, mapCategory: string, projectId: number) {

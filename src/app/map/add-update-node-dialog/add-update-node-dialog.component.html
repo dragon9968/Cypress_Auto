@@ -463,6 +463,101 @@
                     <button mat-raised-button type="submit" color="primary" [disabled]="bgpForm.invalid">Add</button>
                   </mat-dialog-actions>
                 </form>
+                <form *ngIf="isAddDHCP" class="bgp-form" data-cy="dhcpForm" [formGroup]="dhcpForm" (ngSubmit)="addDHCP()" autocomplete="off">
+                  <mat-dialog-content class="bgp-form__content dhcp-form__content">
+                    <div class="bgp-form__content">
+                      <section class="bgp-form__content__item">
+                        <mat-form-field class="bgp-form__content__item--input-field">
+                          <mat-label>Name</mat-label>
+                          <input autocomplete="off" id="dhcp-name" type="text" matInput formControlName="nameDHCPCtr">
+                        </mat-form-field>
+                        <mat-form-field class="bgp-form__content__item--input-field">
+                          <mat-label>Subnet</mat-label>
+                          <input autocomplete="off" id="dhcp-subnet" type="text" matInput formControlName="subnetCtr">
+                          <mat-error *ngIf="subnetCtr?.errors?.isNotMatchIP">{{ subnetCtr?.errors?.value }}</mat-error>
+                        </mat-form-field>
+                        <mat-form-field class="bgp-form__content__item--input-field">
+                          <mat-label>Lease</mat-label>
+                          <input autocomplete="off" id="dhcp-lease" type="text" matInput formControlName="leaseCtr">
+                          <mat-error *ngIf="leaseCtr?.errors?.pattern">{{ errorMessages.FIELD_IS_NUMBER }}</mat-error>
+                        </mat-form-field>
+                      </section>
+                      <section class="bgp-form__content__item">
+                        <div class="bgp-form__content__item--checkboxfield dhcp-item-checkbox">
+                          <label>Authoritative</label>
+                          <mat-checkbox color="primary" formControlName="authoritativeCtr"></mat-checkbox>
+                        </div>
+                        <mat-form-field class="bgp-form__content__item--input-field">
+                          <mat-label>DNS</mat-label>
+                          <input autocomplete="off" id="dhcp-dns" type="text" matInput formControlName="dnsServerCtr">
+                          <mat-error *ngIf="dnsServerCtr?.errors?.isNotMatchIP">{{ dnsServerCtr?.errors?.value }}</mat-error>
+                        </mat-form-field>
+                        <mat-form-field class="bgp-form__content__item--input-field">
+                          <mat-label>NTP</mat-label>
+                          <input autocomplete="off" id="dhcp-ntp" type="text" matInput formControlName="ntpServerCtr">
+                          <mat-error *ngIf="ntpServerCtr?.errors?.isNotMatchIP">{{ ntpServerCtr?.errors?.value }}</mat-error>
+                        </mat-form-field>
+                      </section>
+                    </div>
+                    <div>
+                      <mat-card-title>Range</mat-card-title>
+                      <div class="add-range">
+                        <button
+                          mat-button
+                          mat-mini-fab
+                          type="button"
+                          color="primary"
+                          (click)="addRange()"
+                          data-cy="btn-add-range"
+                          matTooltip="Add New Range"
+                        >
+                          <mat-icon>add</mat-icon>
+                        </button>
+                      </div>
+                      <ag-grid-angular class="ag-theme-alpine range-table"
+                                       [pagination]="true" [paginationPageSize]="25"
+                                       [columnDefs]="rangeColumnDefs"
+                                       [defaultColDef]="defaultColDef"
+                                       [rowData]="rangeRowData"
+                                       [tooltipShowDelay]="0"
+                                       [tooltipHideDelay]="3000"
+                                       rowSelection="multiple"
+                                       (gridReady)="onRangeGridReady($event)"
+                      >
+                      </ag-grid-angular>
+                    </div>
+                    <div>
+                      <mat-card-title class="ip-reservation-title">IP Reservation</mat-card-title>
+                      <div class="add-reservation">
+                        <button
+                          mat-button
+                          mat-mini-fab
+                          type="button"
+                          color="primary"
+                          (click)="addReservation()"
+                          data-cy="btn-add-range"
+                          matTooltip="Add New Ip Reservation"
+                        >
+                          <mat-icon>add</mat-icon>
+                        </button>
+                      </div>
+                      <ag-grid-angular class="ag-theme-alpine range-table"
+                                       [pagination]="true" [paginationPageSize]="25"
+                                       [columnDefs]="reservationColumnDefs"
+                                       [defaultColDef]="defaultColDef"
+                                       [rowData]="reservationRowData"
+                                       [tooltipShowDelay]="0"
+                                       [tooltipHideDelay]="3000"
+                                       rowSelection="multiple"
+                                       (gridReady)="onReservationGridReady($event)"
+                      >
+                      </ag-grid-angular>
+                    </div>
+                  </mat-dialog-content>
+                  <mat-dialog-actions [align]="'end'">
+                    <button mat-raised-button type="submit" data-cy="btn-add-dhcp" color="primary" [disabled]="!dhcpForm.valid">Add</button>
+                  </mat-dialog-actions>
+                </form>
               </div>
             </div>
             <ng-select class="configuration-template__left__config-template" formControlName="configTemplateCtr" [items]="configTemplates"

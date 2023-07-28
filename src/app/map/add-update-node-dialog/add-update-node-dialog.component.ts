@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
 import { ROLES } from 'src/app/shared/contants/roles.constant';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
@@ -23,7 +23,7 @@ import { selectLogicalNodes } from 'src/app/store/node/node.selectors';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 import { hostnameValidator } from 'src/app/shared/validations/hostname.validation';
 import { ErrorStateMatcher } from '@angular/material/core';
-import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
+import { ColDef, GridApi, GridOptions, GridReadyEvent, ValueSetterParams } from "ag-grid-community";
 import { InterfaceService } from "../../core/services/interface/interface.service";
 import { ConfigTemplateService } from "../../core/services/config-template/config-template.service";
 import { retrievedConfigTemplates } from "../../store/config-template/config-template.actions";
@@ -36,6 +36,10 @@ import { ServerConnectService } from 'src/app/core/services/server-connect/serve
 import { AgGridAngular } from 'ag-grid-angular';
 import { addNewNode, updateNode } from 'src/app/store/node/node.actions';
 import { selectNotification } from 'src/app/store/app/app.selectors';
+import { ipSubnetValidation } from "../../shared/validations/ip-subnet.validation";
+import { IpReservationModel, RangeModel } from "../../core/models/config-template.model";
+import { ConfirmationDialogComponent } from "../../shared/components/confirmation-dialog/confirmation-dialog.component";
+import { ButtonRenderersComponent } from "../../project/renderers/button-renderers-component";
 
 class CrossFieldErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -56,6 +60,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   @ViewChild("editor") editor!: AceEditorComponent;
   @ViewChild("agGridInterfaces") agGridInterfaces!: AgGridAngular;
   @ViewChild("agGridDeployInterfaces") agGridDeployInterfaces!: AgGridAngular;
+  private rangeGridApi!: GridApi;
+  private reservationGridApi!: GridApi;
   private gridApi!: GridApi;
   nodeAddForm: FormGroup;
   errorMatcher = new CrossFieldErrorMatcher();
@@ -101,6 +107,9 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   roleServicesForm!: FormGroup;
   ospfForm!: FormGroup;
   bgpForm!: FormGroup;
+  rangeRowData: any[] = [];
+  reservationRowData: any[] = [];
+  dhcpForm!: FormGroup;
   isAddMode = false;
   isAddRoute = false;
   isAddFirewallRule = false;
@@ -111,6 +120,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   connectedChecked = true;
   staticChecked = true;
   isAddBGP = false;
+  isAddDHCP = false;
+  isDisableAddDHCP = false;
   bgpConnectedChecked = true;
   bgpOspfChecked = true;
   rolesAndService: any[] = [];
@@ -212,9 +223,63 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   };
   defaultConfig: any = {}
 
+  defaultColDef: ColDef = {
+    sortable: true,
+    resizable: true,
+    editable: true,
+  };
+
+  rangeColumnDefs: ColDef[] = [
+    {
+      headerName: '',
+      editable: false,
+      maxWidth: 90,
+      cellRenderer: ButtonRenderersComponent,
+      cellRendererParams: {
+        onClick: this.onDelete.bind(this),
+      }
+    },
+    {
+      field: 'name'
+    },
+    {
+      field: 'start',
+      valueSetter: this.setterValueNetwork.bind(this)
+    },
+    {
+      field: 'stop',
+      valueSetter: this.setterValueNetwork.bind(this),
+    }
+  ];
+
+  reservationColumnDefs: ColDef[] = [
+    {
+      headerName: '',
+      editable: false,
+      maxWidth: 90,
+      cellRenderer: ButtonRenderersComponent,
+      cellRendererParams: {
+        onClick: this.onDeleteReservation.bind(this),
+      }
+    },
+    {
+      field: 'name'
+    },
+    {
+      field: 'ip_address',
+      headerName: 'IP Address',
+      valueSetter: this.setterValueNetwork.bind(this)
+    },
+    {
+      field: 'mac_address',
+      headerName: 'MAC Address'
+    }
+  ];
+
   constructor(
     private nodeService: NodeService,
     private toastr: ToastrService,
+    private dialog: MatDialog,
     public dialogRef: MatDialogRef<AddUpdateNodeDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public helpers: HelpersService,
@@ -277,6 +342,16 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       bgpOspfStateCtr: new FormControl(''),
       bgpOspfMetricCtr: new FormControl('', [Validators.pattern('^[0-9]*$')])
     })
+
+    this.dhcpForm = new FormGroup({
+      nameDHCPCtr: new FormControl(''),
+      authoritativeCtr: new FormControl(true),
+      subnetCtr: new FormControl('', [ipSubnetValidation(true)]),
+      leaseCtr: new FormControl('', [Validators.pattern('^[0-9]*$')]),
+      dnsServerCtr: new FormControl('', [networksValidation('single')]),
+      ntpServerCtr: new FormControl('', [networksValidation('single')]),
+    })
+
     this.isViewMode = this.data.mode == 'view';
     this.nodeAddForm = new FormGroup({
       nameCtr: new FormControl('', [
@@ -390,28 +465,33 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     if (this.data.mode === 'view') {
       const connection = this.serverConnectionService.getConnection(this.connectionCategory);
       const connectionId = connection ? connection?.id : 0;
-      this.nodeService.getDeployData(this.data.genData.id, connectionId).subscribe((respData: any) => {
-        const resp = respData.result;
-        if (this.agGridDeployInterfaces) {
-          this.agGridDeployInterfaces.api.setRowData(resp.interfaces);
-        } else {
-          this.rowDataInterfaces$ = of(resp.interfaces);
-        }
-        this.uuidCtr?.setValue(resp?.uuid)
-        if (resp?.info?.Hardware) {
-          let hardwareInfo = [];
-          for (const [key, value] of Object.entries(resp?.info?.Hardware)) {
-            hardwareInfo.push(`${key}: ${value}`)
+      if (connectionId !== 0) {
+        this.nodeService.getDeployData(this.data.genData.id, connectionId).subscribe((respData: any) => {
+          const resp = respData.result;
+          if (this.agGridDeployInterfaces) {
+            this.agGridDeployInterfaces.api.setRowData(resp.interfaces);
+          } else {
+            this.rowDataInterfaces$ = of(resp.interfaces);
           }
-          this.hardwareInfoCtr?.setValue(hardwareInfo)
-        }
-        this.serviceCtr?.setValue(resp?.running_services)
-        if (resp?.installed_features) {
-          const features = resp?.installed_features.map((val: any) => val.name)
-          this.featuresCtr?.setValue(features)
-        }
-        this.runningConfigCtr?.setValue(resp?.deploy_config)
-      })
+          this.uuidCtr?.setValue(resp?.uuid)
+          if (resp?.info?.Hardware) {
+            let hardwareInfo = [];
+            for (const [key, value] of Object.entries(resp?.info?.Hardware)) {
+              hardwareInfo.push(`${key}: ${value}`)
+            }
+            this.hardwareInfoCtr?.setValue(hardwareInfo)
+          }
+          this.serviceCtr?.setValue(resp?.running_services)
+          if (resp?.installed_features) {
+            const features = resp?.installed_features.map((val: any) => val.name)
+            this.featuresCtr?.setValue(features)
+          }
+          this.runningConfigCtr?.setValue(resp?.deploy_config)
+        })
+      } else {
+        this.toastr.info('Could not get Instance information due to no connection.', 'Info')
+      }
+
     }
   }
 
@@ -498,6 +578,12 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   get bgpOspfStateCtr() { return this.bgpForm.get('bgpOspfStateCtr'); }
   get bgpOspfMetricCtr() { return this.bgpForm.get('bgpOspfMetricCtr'); }
 
+  get nameDHCPCtr() { return this.dhcpForm.get('nameDHCPCtr') }
+  get authoritativeCtr() { return this.dhcpForm.get('authoritativeCtr') }
+  get subnetCtr() { return this.dhcpForm.get('subnetCtr') }
+  get leaseCtr() { return this.dhcpForm.get('leaseCtr') }
+  get dnsServerCtr() { return this.dhcpForm.get('dnsServerCtr') }
+  get ntpServerCtr() { return this.dhcpForm.get('ntpServerCtr') }
 
   ngOnInit(): void {
     this.roleCtr.setValidators([Validators.required, autoCompleteValidator(this.ROLES)]);
@@ -543,6 +629,72 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     this.selectLoginProfiles$.unsubscribe();
     this.selectNodes$.unsubscribe();
     this.selectNotification$.unsubscribe();
+  }
+
+  onRangeGridReady(params: GridReadyEvent) {
+    this.rangeGridApi = params.api;
+    this.rangeGridApi.sizeColumnsToFit();
+  }
+
+  onReservationGridReady(params: GridReadyEvent) {
+    this.reservationGridApi = params.api;
+    this.reservationGridApi.sizeColumnsToFit();
+  }
+
+  onDelete(params: any) {
+    const dialogData = {
+      title: 'User confirmation needed',
+      message: 'You sure you want to delete this item?',
+      submitButtonName: 'OK'
+    }
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData, autoFocus: false });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.rangeRowData.splice(params.rowData.index, 1);
+        this.rangeGridApi.applyTransaction({ remove: [params.rowData] });
+        this.toastr.success('Deleted range successfully', 'Success')
+      }
+    });
+    return this.rangeRowData;
+  }
+
+  onDeleteReservation(params: any) {
+    const dialogData = {
+      title: 'User confirmation needed',
+      message: 'You sure you want to delete this item?',
+      submitButtonName: 'OK'
+    }
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData, autoFocus: false });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.reservationRowData.splice(params.rowData.index, 1);
+        this.reservationGridApi.applyTransaction({ remove: [params.rowData] });
+        this.toastr.success('Deleted range successfully', 'Success')
+      }
+    });
+    return this.reservationRowData;
+  }
+
+  addRange() {
+    const jsonData = {
+      name: '',
+      start: '',
+      stop: ''
+    }
+    this.rangeGridApi.applyTransaction({ add: [jsonData] });
+  }
+
+  addReservation() {
+    const jsonData = {
+      name: '',
+      ip_address: '',
+      mac_address: ''
+    }
+    this.reservationGridApi.applyTransaction({ add: [jsonData] });
+  }
+
+  setterValueNetwork(params: ValueSetterParams) {
+    return this.helpers.setterValue(params)
   }
 
   private disableItems(category: string) {
@@ -663,7 +815,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       const isNodeConfigDataFormatted = this.helpers.validateJSONFormat(this.editor.value)
       const isValidJsonForm = this.helpers.validateFieldFormat(this.editor.value)
       const isValidJsonFormBGP = this.helpers.validationBGP(this.editor.value)
-      if (isNodeConfigDataFormatted && isValidJsonForm && isValidJsonFormBGP) {
+      const isDCHPFormValid = this.helpers.validateDHCPData(this.editor.value)
+      if (isNodeConfigDataFormatted && isValidJsonForm && isValidJsonFormBGP && isDCHPFormValid) {
         configDefaultNode = {
           node_id: this.data.genData.id,
           config_id: this.data.genData.default_config_id,
@@ -897,6 +1050,48 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     });
   }
 
+  addDHCP() {
+    let ranges: RangeModel[] = [];
+    let ipReservations: IpReservationModel[] = [];
+    this.rangeGridApi.forEachNode(rangeNode => ranges.push(rangeNode.data));
+    this.reservationGridApi.forEachNode(ipReservationNode => ipReservations.push(ipReservationNode.data))
+    const isRangesExistEmptyValue = ranges.some(range => range.name === '' || range.start === '' || range.stop === '')
+    if (isRangesExistEmptyValue) {
+      this.toastr.warning('All fields in the Range table are required!', 'Warning')
+    } else {
+      const isIpReservationExistEmptyValue = ipReservations.some(ipReservation => ipReservation.name === '' &&
+        ipReservation.ip_address === '')
+      if (isIpReservationExistEmptyValue) {
+        this.toastr.warning('All fields in the IP Reservation table are required!', 'Warning')
+      } else {
+        const jsonDataValue = {
+          config_type: 'dhcp_server',
+          config_id: this.data.genData.default_config_id,
+          name: this.nameDHCPCtr?.value,
+          authoritative: this.authoritativeCtr?.value,
+          subnet: this.subnetCtr?.value,
+          lease: parseInt(this.leaseCtr?.value),
+          dns_server: this.dnsServerCtr?.value,
+          ntp_server: this.ntpServerCtr?.value,
+          ranges: ranges,
+          ip_reservations: ipReservations,
+          node_id: this.data.genData.id
+        }
+        const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue)
+        this.configTemplateService.addConfiguration(jsonData).pipe(
+          catchError(error => {
+            this.toastr.error('Add a new DHCP failed', 'Error');
+            return throwError(() => error)
+          })
+        ).subscribe(response => {
+          this._setEditorData(response.result)
+          this.toastr.success('Add a new DHCP successfully', 'Success');
+          this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
+        })
+      }
+    }
+  }
+
   showFormAdd(addType: string) {
     switch (addType) {
       case 'add_route':
@@ -906,6 +1101,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
         this.isAddRolesAndService = false;
         this.isAddOSPF = false;
         this.isAddBGP = false;
+        this.isAddDHCP = false;
+        this.dialogRef.updateSize('1000px')
         break;
       case 'add_firewall_rule':
         this.isAddRoute = false;
@@ -914,6 +1111,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
         this.isAddRolesAndService = false;
         this.isAddOSPF = false;
         this.isAddBGP = false;
+        this.isAddDHCP = false;
+        this.dialogRef.updateSize('1000px')
         break;
       case 'add_domain_membership':
         this.isAddRoute = false;
@@ -922,6 +1121,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
         this.isAddRolesAndService = false;
         this.isAddOSPF = false;
         this.isAddBGP = false;
+        this.isAddDHCP = false;
+        this.dialogRef.updateSize('1000px')
         break;
       case 'add_roles_service':
         this.isAddRoute = false;
@@ -930,6 +1131,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
         this.isAddRolesAndService = true;
         this.isAddOSPF = false;
         this.isAddBGP = false;
+        this.isAddDHCP = false;
+        this.dialogRef.updateSize('1000px')
         break;
       case 'add_ospf':
         this.isAddRoute = false;
@@ -938,6 +1141,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
         this.isAddRolesAndService = false;
         this.isAddOSPF = true;
         this.isAddBGP = false;
+        this.isAddDHCP = false;
+        this.dialogRef.updateSize('1000px')
         break;
       case 'add_bgp':
         this.isAddRoute = false;
@@ -946,6 +1151,18 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
         this.isAddRolesAndService = false;
         this.isAddOSPF = false;
         this.isAddBGP = true;
+        this.isAddDHCP = false;
+        this.dialogRef.updateSize('1000px')
+        break;
+      case 'add_dhcp':
+        this.isAddDHCP = true;
+        this.isAddRoute = false;
+        this.isAddFirewallRule = false;
+        this.isAddDomainMembership = false;
+        this.isAddRolesAndService = false;
+        this.isAddOSPF = false;
+        this.isAddBGP = false;
+        this.dialogRef.updateSize('1200px')
         break;
       default:
         this.isAddRoute = false;
@@ -954,6 +1171,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
         this.isAddRolesAndService = false;
         this.isAddOSPF = false;
         this.isAddBGP = false;
+        this.isAddDHCP = false;
     }
   }
 

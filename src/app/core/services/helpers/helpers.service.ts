@@ -1542,18 +1542,6 @@ export class HelpersService implements OnDestroy {
       );
       return false;
     }
-
-    const macAddressReservation = dhcpData.ip_reservations.map((ipReservation: IpReservationModel) => ipReservation.mac_address)
-    const isMacAddressValid = this.validationNetwork(macAddressReservation)
-    if (!isMacAddressValid) {
-      this.toastr.warning(
-        'The MAC address property in Reservation is invalid.<br>Expected 4 octets and only decimal digits permitted.',
-        'Warning',
-        { enableHtml: true }
-      );
-      return false;
-    }
-
     return true;
   }
 

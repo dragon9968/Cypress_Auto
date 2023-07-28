@@ -116,7 +116,6 @@ export class AddEditConfigTemplateComponent implements OnInit, AfterViewInit {
     {
       field: 'mac_address',
       headerName: 'MAC Address',
-      valueSetter: this.setterValueNetwork.bind(this),
     }
   ];
 
