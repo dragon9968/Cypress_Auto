@@ -15,7 +15,6 @@ import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.
 import { selectMapOption } from "../../store/map-option/map-option.selectors";
 import { PortGroupService } from "../../core/services/portgroup/portgroup.service";
 import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
-import { selectNodesByProjectId } from 'src/app/store/node/node.selectors';
 import { validateNameExist } from "../../shared/validations/name-exist.validation";
 import { networksValidation } from 'src/app/shared/validations/networks.validation';
 import { showErrorFromServer } from 'src/app/shared/validations/error-server-response.validation';
@@ -27,6 +26,7 @@ import { ProjectService } from "../../project/services/project.service";
 import { selectInterfacesNotConnectPG } from "../../store/interface/interface.selectors";
 import { NodeService } from 'src/app/core/services/node/node.service';
 import { selectNotification } from 'src/app/store/app/app.selectors';
+import { selectLogicalNodes } from 'src/app/store/node/node.selectors';
 
 @Component({
   selector: 'app-add-update-interface-dialog',
@@ -130,7 +130,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         this.interfaces = interfaces.map((ele: any) => ele.data);
       }
     });
-    this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => {
+    this.selectNodes$ = this.store.select(selectLogicalNodes).subscribe(nodes => {
       this.nodes = nodes;
     });
     this.selectNetmasks$ = this.store.select(selectNetmasks).subscribe((netmasks: any) => {

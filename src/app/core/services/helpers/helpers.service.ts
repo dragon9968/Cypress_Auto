@@ -7,7 +7,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { validateIP } from 'src/app/shared/validations/ip-subnet.validation.ag-grid';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { ToastrService } from 'ngx-toastr';
-import { selectNodesByProjectId, } from "../../../store/node/node.selectors";
+import { selectLogicalNodes, } from "../../../store/node/node.selectors";
 import { retrievedNodes } from "../../../store/node/node.actions";
 import { environment } from "../../../../environments/environment";
 import { RemoteCategories } from "../../enums/remote-categories.enum";
@@ -93,7 +93,7 @@ export class HelpersService implements OnDestroy {
         this.groups = groups;
       }
     })
-    this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes);
+    this.selectNodes$ = this.store.select(selectLogicalNodes).subscribe(nodes => this.nodes = nodes);
     this.selectMapPortGroups$ = this.store.select(selectMapPortGroups).subscribe((portGroups: any) => {
       this.portGroups = portGroups;
     });
@@ -1207,50 +1207,9 @@ export class HelpersService implements OnDestroy {
     }
   }
 
-  convertNodeRawToNodeCyData(node: any, isLogicalNode: boolean) {
-    let icon;
-    if (node.icon) {
-      icon = `/static/img/uploads/${node.icon.photo}`
-    } else if (node.device && node.device.icon) {
-      icon = `/static/img/uploads/${node.device.icon.photo}`;
-    } else if (node.template && node.template.icon) {
-      icon = `/static/img/uploads/${node.template.icon.photo}`;
-    } else {
-      icon = "/static/img/icons/default_icon.png";
-    }
-    const baseCyData = {
-      id: `node-${node.id}`,
-      node_id: node.id,
-      elem_category: "node",
-      layout: { name: "preset" },
-      zIndex: 999,
-      updated: false,
-      in_groupbox: false,
-      url: "",
-      login_profile: node.login_profile,
-      login_profile_show: "",
-      configuration_show: "",
-      notes: node.notes,
-      groups: node.groups,
-      interfaces: node.interfaces,
-      icon: !icon.includes(environment.apiBaseUrl) ? environment.apiBaseUrl + icon : icon,
-      infrastructure: node.infrastructure
-    }
-    if (isLogicalNode) {
-      return {
-        ...node,
-        data: { ...node, ...baseCyData, ...node.logical_map?.map_style },
-        position: node.logical_map?.position,
-        locked: node.logical_map?.locked
-      }
-    } else {
-      return {
-        ...node,
-        data: { ...node, ...baseCyData, ...node.physical?.map_style },
-        position: node.physical?.position,
-        locked: node.physical?.locked
-      }
-    }
+  addNewNodeToMap(id: number) {
+    const cyNodeData = this.nodes.find((n: any) => n.id == id);
+    this.addCYNode(JSON.parse(JSON.stringify(cyNodeData)));
   }
 
   updateNodesStorage(newNode: any) {

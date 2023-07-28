@@ -1,6 +1,6 @@
 import { GroupState } from "./group.state";
 import { createReducer, on } from "@ngrx/store";
-import { groupUpdatedSuccess, groupsLoadedSuccess, retrievedGroups, selectGroup, unSelectGroup } from "./group.actions";
+import { groupUpdatedSuccess, groupsLoadedSuccess, retrievedGroups, selectGroup, unSelectGroup, updateNodeInGroup } from "./group.actions";
 
 const initialState = {} as GroupState;
 
@@ -70,6 +70,23 @@ export const groupReducer = createReducer(
         port_groups: group.port_groups,
       }
     } : g);
+    return {
+      ...state,
+      groups,
+    };
+  }),
+  on(updateNodeInGroup, (state, { node }) => {
+    const groups = state.groups.map((g: any) => 
+    {
+      if (g.id == node.groups[0].id) {
+        return {
+          ...g,
+          nodes: [...g.nodes, node]
+        }
+      } else {
+        return g
+      }
+    });
     return {
       ...state,
       groups,

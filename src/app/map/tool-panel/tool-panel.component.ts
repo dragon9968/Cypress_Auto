@@ -15,16 +15,15 @@ import { retrievedMapContextMenu } from 'src/app/store/map-context-menu/map-cont
 import { retrievedMap } from 'src/app/store/map/map.actions';
 import { GroupService } from "../../core/services/group/group.service";
 import { selectGroups } from "../../store/group/group.selectors";
-import { selectNodesByProjectId } from "../../store/node/node.selectors";
 import { retrievedGroups } from "../../store/group/group.actions";
 import { selectMapPortGroups } from "../../store/portgroup/portgroup.selectors";
 import { ProjectService } from "../../project/services/project.service";
 import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
 import { retrievedMapOption } from "../../store/map-option/map-option.actions";
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
-import { loadInterfaces } from 'src/app/store/interface/interface.actions';
 import { loadPGs } from 'src/app/store/portgroup/portgroup.actions';
 import { loadNodes } from 'src/app/store/node/node.actions';
+import { selectLogicalNodes } from 'src/app/store/node/node.selectors';
 
 @Component({
   selector: 'app-tool-panel',
@@ -129,7 +128,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       }
     });
     this.selectGroups$ = this.store.select(selectGroups).subscribe(groups => this.groups = groups);
-    this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes);
+    this.selectNodes$ = this.store.select(selectLogicalNodes).subscribe(nodes => this.nodes = nodes);
     this.selectMapPortGroups$ = this.store.select(selectMapPortGroups).subscribe(portGroups => this.portGroups = portGroups);
     this.selectMapImages$ = this.store.select(selectMapImages).subscribe(mapImage => this.mapImages = mapImage);
   }

@@ -67,7 +67,7 @@ import { retrievedMapEdit } from "../store/map-edit/map-edit.actions";
 import { selectIsInterfaceConnectPG, selectInterfacePkConnectNode, selectLogicalMapInterfaces, selectPhysicalInterfaces } from "../store/interface/interface.selectors";
 import { CMInterfaceService } from "./context-menu/cm-interface/cm-interface.service";
 import { GroupService } from "../core/services/group/group.service";
-import { retrievedNodes, selectNode, unSelectNode } from "../store/node/node.actions";
+import { addNewNode, retrievedNodes, selectNode, unSelectNode } from "../store/node/node.actions";
 import { retrievedGroups, selectGroup, unSelectGroup } from "../store/group/group.actions";
 import { ValidateProjectDialogComponent } from "../project/validate-project-dialog/validate-project-dialog.component";
 import { selectProjectCategory, selectCurrentProject, selectProjects } from "../store/project/project.selectors";
@@ -1181,9 +1181,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     dialogRef.afterClosed().subscribe((_data: any) => {
       this.isAddNode = false;
       this._enableMapEditButtons();
-      this.groupService.getGroupByProjectId(this.projectId).subscribe(
-        groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
-      );
     });
   }
 
@@ -1218,41 +1215,9 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         "position": newNodePosition
       }
     };
-    this.nodeService.add(jsonData).pipe(
-      catchError((resp: any) => {
-        if (resp.status == 422) {
-          const errorMsg: any[] = resp.error.message;
-          const m = Object.keys(errorMsg).map((key: any) => key + ': ' + errorMsg[key])
-          this.toastr.error(m.join(','));
-        }
-        this.isAddNode = false;
-        this._enableMapEditButtons();
-        return throwError(() => resp.message);
-      })
-    ).subscribe((respData: any) => {
-      this.nodeService.get(respData.id).subscribe(respData => {
-        const cyData = respData.result;
-        cyData.id = 'node-' + respData.id;
-        cyData.node_id = respData.id;
-        cyData.domain = respData.result.domain.name;
-        cyData.device_category = genData.device_category;
-        cyData.height = cyData.logical_map.map_style.height;
-        cyData.width = cyData.logical_map.map_style.width;
-        cyData.text_color = cyData.logical_map.map_style.text_color;
-        cyData.text_size = cyData.logical_map.map_style.text_size;
-        cyData.groups = respData.result.groups;
-        cyData.icon = ICON_PATH + respData.result.icon.photo;
-        cyData.elem_category = 'node';
-        this.helpersService.addCYNode({ newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
-        this.groupService.getGroupByProjectId(this.projectId).subscribe(
-          groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
-        );
-        this.helpersService.reloadGroupBoxes();
-        this.isAddNode = false;
-        this._enableMapEditButtons();
-        this.toastr.success('Quick add node successfully!');
-      });
-    });
+    this.store.dispatch(addNewNode({ node: jsonData }));
+    this.isAddNode = false;
+    this._enableMapEditButtons();
   }
 
   private _openAddUpdatePGDialog(genData: any, newNodeData: any, newNodePosition: any) {

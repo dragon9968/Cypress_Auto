@@ -20,7 +20,7 @@ import { retrievedGroups } from "../../../store/group/group.actions";
 import { retrievedDomains } from "../../../store/domain/domain.actions";
 import { selectDomainUsers } from "../../../store/domain-user/domain-user.selectors";
 import { retrievedUserTasks } from "../../../store/user-task/user-task.actions";
-import { selectNodesByProjectId } from "../../../store/node/node.selectors";
+import { selectLogicalNodes } from "../../../store/node/node.selectors";
 import { retrievedIsChangeDomainUsers } from "../../../store/domain-user-change/domain-user-change.actions";
 import { selectPortGroups } from "../../../store/portgroup/portgroup.selectors";
 import { retrievedIsHypervisorConnect } from "src/app/store/server-connect/server-connect.actions";
@@ -74,7 +74,7 @@ export class InfoPanelService implements OnDestroy {
         this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
       }
     });
-    this.selectNode$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes);
+    this.selectNode$ = this.store.select(selectLogicalNodes).subscribe(nodes => this.nodes = nodes);
     this.selectPortGroup$ = this.store.select(selectPortGroups).subscribe(portGroups => this.portGroups = portGroups);
     this.selectDomainUser$ = this.store.select(selectDomainUsers).subscribe(domainUsers => this.domainUsers = domainUsers);
     this.selectVMStatus$ = this.store.select(selectVMStatus).subscribe(vmStatus => this.vmStatus = vmStatus);

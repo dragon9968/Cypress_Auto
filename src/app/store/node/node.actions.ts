@@ -62,12 +62,12 @@ export const updateInterfaceInNode = createAction(
 
 export const addNewNode = createAction(
   'addNewNode',
-  props<{ newNode: any }>()
+  props<{ node: any }>()
 );
 
 export const nodeAddedSuccess = createAction(
   'nodeAddedSuccess',
-  props<{ newNode: any }>()
+  props<{ node: any }>()
 );
 
 export const bulkEditNode = createAction(
@@ -77,5 +77,10 @@ export const bulkEditNode = createAction(
     data: any,
     configTemplate: any
   }>()
+);
+
+export const addNewNodeToMap = createAction(
+  'addNewNodeToMap',
+  props<{ id: number }>()
 );
 

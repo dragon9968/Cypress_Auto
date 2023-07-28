@@ -36,3 +36,8 @@ export const groupUpdatedSuccess = createAction(
   'groupUpdatedSuccess',
   props<{ group: any }>()
 );
+
+export const updateNodeInGroup = createAction(
+  'updateNodeInGroup',
+  props<{ node: any }>()
+);

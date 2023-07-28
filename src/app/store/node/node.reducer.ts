@@ -116,19 +116,19 @@ export const nodeReducer = createReducer(
       logicalNodes
     };
   }),
-  on(nodeAddedSuccess, (state, { newNode }) => {
+  on(nodeAddedSuccess, (state, { node }) => {
     const logicalNodes = JSON.parse(JSON.stringify(state.logicalNodes))
     const physicalNodes = JSON.parse(JSON.stringify(state.physicalNodes))
     let cyNode;
-    if (!newNode.infrastructure) {
-      cyNode = addCYDataToNode(newNode, true);
+    if (!node.infrastructure) {
+      cyNode = addCYDataToNode(node, true);
       logicalNodes.push(cyNode);
-      if (newNode.category === 'hw') {
-        cyNode = addCYDataToNode(newNode, false);
+      if (node.category === 'hw') {
+        cyNode = addCYDataToNode(node, false);
         physicalNodes.push(cyNode);
       }
     } else {
-      cyNode = addCYDataToNode(newNode, false);
+      cyNode = addCYDataToNode(node, false);
       physicalNodes.push(cyNode);
     }
     return {

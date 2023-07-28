@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { forkJoin, of } from 'rxjs';
-import { map, exhaustMap, catchError, switchMap, mergeMap } from 'rxjs/operators';
+import { map, exhaustMap, catchError, switchMap, mergeMap, tap } from 'rxjs/operators';
 import { NodeService } from 'src/app/core/services/node/node.service';
 import {
   loadNodes,
@@ -11,13 +11,15 @@ import {
   addNewNode,
   nodeAddedSuccess,
   bulkEditNode,
-  bulkUpdatedNodeSuccess
+  bulkUpdatedNodeSuccess,
+  addNewNodeToMap
 } from './node.actions';
 import { ConfigTemplateService } from 'src/app/core/services/config-template/config-template.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { pushNotification } from '../app/app.actions';
 import { updateNodeInInterfaces } from '../interface/interface.actions';
 import { reloadGroupBoxes } from '../map/map.actions';
+import { updateNodeInGroup } from '../group/group.actions';
 
 @Injectable()
 export class NodesEffects {
@@ -38,40 +40,33 @@ export class NodesEffects {
 
   addNewNode$ = createEffect(() => this.actions$.pipe(
     ofType(addNewNode),
-    exhaustMap(payload => this.nodeService.add(payload.newNode).pipe(
-        mergeMap(res => this.nodeService.get(res.id)),
-        map(res => {
-          const node = res.result;
-          let cyNodeData;
-          if (!node.infrastructure) {
-            cyNodeData = this.helpersService.convertNodeRawToNodeCyData(node, true)
-            if (node.category === 'hw') {
-              cyNodeData = this.helpersService.convertNodeRawToNodeCyData(node, false)
-            }
-          } else {
-            cyNodeData = this.helpersService.convertNodeRawToNodeCyData(node, false)
-          }
-          this.helpersService.addCYNode(JSON.parse(JSON.stringify(cyNodeData)))
-          this.helpersService.reloadGroupBoxes();
-          return res.result
-        }),
-        switchMap(res => [
-          nodeAddedSuccess({newNode: res}),
-          pushNotification({
-            notification: {
-              type: 'success',
-              message: 'Node details added!'
-            }
-          })
-        ]),
-        catchError(e => of(pushNotification({
+    exhaustMap(payload => this.nodeService.add(payload.node).pipe(
+      mergeMap(res => this.nodeService.get(res.id)),
+      switchMap(res => [
+        nodeAddedSuccess({ node: res.result }),
+        updateNodeInGroup({ node: res.result }),
+        addNewNodeToMap({ id: res.result.id }),
+        reloadGroupBoxes(),
+        pushNotification({
           notification: {
-            type: 'error',
-            message: 'Add new node failed'
+            type: 'success',
+            message: 'Node details added!'
           }
-        })))
+        })
+      ]),
+      catchError(e => of(pushNotification({
+        notification: {
+          type: 'error',
+          message: 'Add new node failed'
+        }
+      })))
     ))
-  ))
+  ));
+
+  addNewNodeToMap$ = createEffect(() => this.actions$.pipe(
+    ofType(addNewNodeToMap),
+    tap((payload) => this.helpersService.addNewNodeToMap(payload.id))
+  ), { dispatch: false });
 
   updateNode$ = createEffect(() => this.actions$.pipe(
     ofType(updateNode),
@@ -95,12 +90,12 @@ export class NodesEffects {
         mergeMap(res => this.nodeService.get(payload.id)),
         map((res: any) => {
           this.helpersService.updateNodeOnMap(`node-${payload.id}`, res.result);
-          this.helpersService.reloadGroupBoxes();
           return res.result;
         }),
         switchMap((node: any) => [
           nodeUpdatedSuccess({ node }),
           updateNodeInInterfaces({ node }),
+          reloadGroupBoxes(),
           pushNotification({
             notification: {
               type: 'success',

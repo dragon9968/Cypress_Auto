@@ -233,21 +233,21 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       interfaceCtr: new FormControl('')
     });
     this.firewallRuleForm = new FormGroup({
-      categoryFirewallRuleCtr: new FormControl({value: 'rule', disabled: false}),
-      nameFirewallRuleCtr: new FormControl({value: '', disabled: false}),
-      stateCtr: new FormControl({value: 'present', disabled: false}),
+      categoryFirewallRuleCtr: new FormControl({ value: 'rule', disabled: false }),
+      nameFirewallRuleCtr: new FormControl({ value: '', disabled: false }),
+      stateCtr: new FormControl({ value: 'present', disabled: false }),
       actionCtr: new FormControl('pass'),
-      interfaceFirewallCtr: new FormControl({value: '', disabled: false}),
-      protocolCtr: new FormControl({value: 'any', disabled: false}),
-      sourceCtr: new FormControl({value: 'any', disabled: false}),
-      sourcePortCtr: new FormControl({value: 'any', disabled: false}),
-      sourceCustomPortCtr: new FormControl({value: 'any', disabled: true}),
-      destinationCtr: new FormControl({value: 'any', disabled: false}),
-      destinationPortCtr: new FormControl({value: 'any', disabled: false}),
-      destCustomPortCtr: new FormControl({value: '', disabled: true}),
-      targetCtr: new FormControl({value: '', disabled: true}),
-      targetPortCtr: new FormControl({value: 'any', disabled: true}),
-      targetCustomPortCtr: new FormControl({value: '', disabled: true}),
+      interfaceFirewallCtr: new FormControl({ value: '', disabled: false }),
+      protocolCtr: new FormControl({ value: 'any', disabled: false }),
+      sourceCtr: new FormControl({ value: 'any', disabled: false }),
+      sourcePortCtr: new FormControl({ value: 'any', disabled: false }),
+      sourceCustomPortCtr: new FormControl({ value: 'any', disabled: true }),
+      destinationCtr: new FormControl({ value: 'any', disabled: false }),
+      destinationPortCtr: new FormControl({ value: 'any', disabled: false }),
+      destCustomPortCtr: new FormControl({ value: '', disabled: true }),
+      targetCtr: new FormControl({ value: '', disabled: true }),
+      targetPortCtr: new FormControl({ value: 'any', disabled: true }),
+      targetCustomPortCtr: new FormControl({ value: '', disabled: true }),
     });
     this.domainMemberForm = new FormGroup({
       joinDomainCtr: new FormControl(false),
@@ -310,7 +310,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
       if (notification?.type == 'success') {
         this.dialogRef.close();
-      } 
+      }
     });
     this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
       this.icons = icons;
@@ -479,24 +479,24 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   get targetPortCtr() { return this.firewallRuleForm.get('targetPortCtr'); }
   get targetCustomPortCtr() { return this.firewallRuleForm.get('targetCustomPortCtr'); }
   get joinDomainCtr() { return this.domainMemberForm.get('joinDomainCtr'); }
-  get ouPathCtr() { return this.domainMemberForm.get('ouPathCtr');}
-  get rolesCtr() { return this.helpers.getAutoCompleteCtr(this.roleServicesForm.get('rolesCtr'), this.rolesAndService);}
-  get networksCtr() { return this.ospfForm.get('networksCtr');}
-  get bgpStateCtr() { return this.ospfForm.get('bgpStateCtr');}
-  get bgpMetricTypeCtr() { return this.ospfForm.get('bgpMetricTypeCtr');}
-  get connectedStateCtr() { return this.ospfForm.get('connectedStateCtr');}
-  get connectedMetricTypeCtr() { return this.ospfForm.get('connectedMetricTypeCtr');}
-  get staticStateCtr() { return this.ospfForm.get('staticStateCtr');}
-  get staticMetricTypeCtr() { return this.ospfForm.get('staticMetricTypeCtr');}
+  get ouPathCtr() { return this.domainMemberForm.get('ouPathCtr'); }
+  get rolesCtr() { return this.helpers.getAutoCompleteCtr(this.roleServicesForm.get('rolesCtr'), this.rolesAndService); }
+  get networksCtr() { return this.ospfForm.get('networksCtr'); }
+  get bgpStateCtr() { return this.ospfForm.get('bgpStateCtr'); }
+  get bgpMetricTypeCtr() { return this.ospfForm.get('bgpMetricTypeCtr'); }
+  get connectedStateCtr() { return this.ospfForm.get('connectedStateCtr'); }
+  get connectedMetricTypeCtr() { return this.ospfForm.get('connectedMetricTypeCtr'); }
+  get staticStateCtr() { return this.ospfForm.get('staticStateCtr'); }
+  get staticMetricTypeCtr() { return this.ospfForm.get('staticMetricTypeCtr'); }
 
   get ipCtr() { return this.helpers.getAutoCompleteCtr(this.bgpForm.get('ipCtr'), this.listNodeIP); }
-  get asnCtr() { return this.bgpForm.get('asnCtr');}
-  get neighborIpCtr() { return this.bgpForm.get('neighborIpCtr');}
-  get neighborAsnCtr() { return this.bgpForm.get('neighborAsnCtr');}
-  get bgpConnectedStateCtr() { return this.bgpForm.get('bgpConnectedStateCtr');}
-  get bgpConnectedMetricCtr() { return this.bgpForm.get('bgpConnectedMetricCtr');}
-  get bgpOspfStateCtr() { return this.bgpForm.get('bgpOspfStateCtr');}
-  get bgpOspfMetricCtr() { return this.bgpForm.get('bgpOspfMetricCtr');}
+  get asnCtr() { return this.bgpForm.get('asnCtr'); }
+  get neighborIpCtr() { return this.bgpForm.get('neighborIpCtr'); }
+  get neighborAsnCtr() { return this.bgpForm.get('neighborAsnCtr'); }
+  get bgpConnectedStateCtr() { return this.bgpForm.get('bgpConnectedStateCtr'); }
+  get bgpConnectedMetricCtr() { return this.bgpForm.get('bgpConnectedMetricCtr'); }
+  get bgpOspfStateCtr() { return this.bgpForm.get('bgpOspfStateCtr'); }
+  get bgpOspfMetricCtr() { return this.bgpForm.get('bgpOspfMetricCtr'); }
 
 
   ngOnInit(): void {
@@ -635,7 +635,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       } : undefined,
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.store.dispatch(addNewNode({newNode: jsonData}))
+    this.store.dispatch(addNewNode({ node: jsonData }));
   }
 
   updateNode() {
@@ -741,7 +741,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   onChangeTargetPort($event: any) {
     if ($event.value === "other") {
       this.targetCustomPortCtr?.enable();
-    }else {
+    } else {
       this.targetCustomPortCtr?.disable();
     }
   }
@@ -800,7 +800,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     ).subscribe((response) => {
       this._setEditorData(response.result)
       this.toastr.success('Add Firewall Rule successfully', 'Success');
-      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
+      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
     });
   }
 
@@ -821,7 +821,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     ).subscribe((response) => {
       this._setEditorData(response.result)
       this.toastr.success('Add Domain Membership successfully', 'Success');
-      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
+      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
     });
   }
 
@@ -866,7 +866,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     ).subscribe((response) => {
       this._setEditorData(response.result);
       this.toastr.success('Add OPSF successfully', 'Success');
-      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
+      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
     });
   }
 
@@ -893,7 +893,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     ).subscribe((response) => {
       this._setEditorData(response.result)
       this.toastr.success('Add BGP successfully', 'Success');
-      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
+      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
     });
   }
 
