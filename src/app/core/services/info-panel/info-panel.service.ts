@@ -94,7 +94,7 @@ export class InfoPanelService implements OnDestroy {
       idName = 'node_id';
     } else if (tabName == 'portgroup') {
       idName = 'pg_id';
-    } else if (tabName == 'edge') {
+    } else if (tabName == 'interface') {
       idName = 'interface_pk';
     }
     activeEdges.filter(ele => ele.data(idName) === id).forEach((edge: any) => {

@@ -22,11 +22,11 @@ export class DomainService {
     })
   }
 
-  get(id: string): Observable<any> {
+  get(id: number): Observable<any> {
     return this.http.get<any>(ApiPaths.DOMAINS + id);
   }
 
-  put(id: string, data: any): Observable<any> {
+  put(id: number, data: any): Observable<any> {
     return this.http.put<any>(ApiPaths.DOMAINS + id, data);
   }
 

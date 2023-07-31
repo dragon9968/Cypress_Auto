@@ -95,7 +95,7 @@ export class InfoPanelTableComponent {
           });
         }
         return r.id;
-      } else {
+      } else if (['node', 'portgroup', 'interface'].includes(this.tabName)) {
         const ele = this.cy.getElementById(r.data.id);
         ele.select();
         return r.id;
@@ -114,7 +114,7 @@ export class InfoPanelTableComponent {
             }
           })
         }
-      } else {
+      } else if (['node', 'portgroup', 'interface'].includes(this.tabName)) {
         const ele = this.cy.getElementById(r.data.id);
         ele.unselect();
       }
@@ -147,7 +147,7 @@ export class InfoPanelTableComponent {
       return this.nodeService;
     } else if (tabName == 'portgroup') {
       return this.portGroupService;
-    } else if (tabName == 'edge') {
+    } else if (tabName == 'interface') {
       return this.interfaceService;
     } else if (tabName == 'domain') {
       return this.domainService;
@@ -175,7 +175,7 @@ export class InfoPanelTableComponent {
         data: dialogData,
         panelClass: 'custom-node-form-modal'
       });
-    } else if (tabName == 'edge') {
+    } else if (tabName == 'interface') {
       this.dialog.open(AddUpdateInterfaceDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
     }
   }
@@ -193,7 +193,7 @@ export class InfoPanelTableComponent {
       this.dialog.open(NodeBulkEditDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
     } else if (tabName == 'portgroup') {
       this.dialog.open(PortGroupBulkEditDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
-    } else if (tabName == 'edge') {
+    } else if (tabName == 'interface') {
       this.dialog.open(InterfaceBulkEditDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
     }
   }
@@ -244,8 +244,8 @@ export class InfoPanelTableComponent {
         message = 'Delete node(s) from this project?';
       } else if (this.tabName == 'portgroup') {
         message = 'Delete port_group(s) from this switch?';
-      } else if (this.tabName == 'edge') {
-        message = 'Delete edge(s) from this project?';
+      } else if (this.tabName == 'interface') {
+        message = 'Delete interface(s) from this project?';
       }
       const dialogData = {
         title: 'User confirmation needed',
@@ -261,7 +261,7 @@ export class InfoPanelTableComponent {
               this.store.dispatch(removePG({ id: id }));
             } else if (this.tabName == 'node') {
               this.store.dispatch(removeNode({ id: id }));
-            } else if (this.tabName == 'edge') {
+            } else if (this.tabName == 'interface') {
               this.store.dispatch(removeInterface({ id: id }));
             }
           });

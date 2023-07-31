@@ -60,6 +60,11 @@ export const updateInterfaceInNode = createAction(
   props<{ interfaceData: any }>()
 );
 
+export const updateDomainInNode = createAction(
+  'updateDomainInNode',
+  props<{ domain: any }>()
+);
+
 export const addNewNode = createAction(
   'addNewNode',
   props<{ node: any }>()

@@ -34,7 +34,7 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
   interfaces: any[] = [];
   managementInterfaces: any[] = [];
   filterOption = 'all';
-  tabName = 'edge';
+  tabName = 'interface';
   selectLogicalInterfaces$ = new Subscription();
   selectLogicalManagementInterfaces$ = new Subscription();
   gridOptions: GridOptions = {

@@ -42,3 +42,8 @@ export const pgUpdatedSuccess = createAction(
   'pgUpdatedSuccess',
   props<{ portgroup: any }>()
 );
+
+export const updateDomainInPG = createAction(
+  'updateDomainInPG',
+  props<{ domain: any }>()
+);

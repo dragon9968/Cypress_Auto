@@ -8,10 +8,11 @@ import { DomainService } from "../../core/services/domain/domain.service";
 import { HelpersService } from "../../core/services/helpers/helpers.service";
 import { ErrorMessages } from "../../shared/enums/error-messages.enum";
 import { selectDomains } from "../../store/domain/domain.selectors";
-import { retrievedDomains } from "../../store/domain/domain.actions";
+import { retrievedDomains, updateDomain } from "../../store/domain/domain.actions";
 import { validateNameExist } from "../../shared/validations/name-exist.validation";
 import { retrievedGroups } from "src/app/store/group/group.actions";
 import { GroupService } from "src/app/core/services/group/group.service";
+import { selectNotification } from "src/app/store/app/app.selectors";
 
 
 @Component({
@@ -23,6 +24,7 @@ export class AddUpdateDomainDialogComponent implements OnInit {
   domainAddForm: FormGroup;
   errorMessages = ErrorMessages;
   selectDomains$ = new Subscription();
+  selectNotification$ = new Subscription();
   domains!: any[];
   isViewMode = false;
 
@@ -35,6 +37,11 @@ export class AddUpdateDomainDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<AddUpdateDomainDialogComponent>,
   ) {
+    this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
+      if (notification?.type == 'success') {
+        this.dialogRef.close();
+      }
+    });
     this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any[]) => {
       this.domains = domains;
     })
@@ -83,15 +90,10 @@ export class AddUpdateDomainDialogComponent implements OnInit {
       admin_password: this.adminPasswordCtr?.value
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.domainService.put(this.data.genData.id, jsonData).subscribe(
-      (response: any) => {
-        this.domainService.getDomainByProjectId(this.data.genData.project_id).subscribe(
-          (data: any) => this.store.dispatch(retrievedDomains({ data: data.result }))
-        );
-        this.toastr.success(`Updated domain ${response.result.name}`);
-        this.dialogRef.close();
-      }
-    )
+    this.store.dispatch(updateDomain({
+      id: this.data.genData.id,
+      data: jsonData,
+    }));
   }
 
   onCancel() {

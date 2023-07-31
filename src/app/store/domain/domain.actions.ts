@@ -14,3 +14,16 @@ export const domainsLoadedSuccess = createAction(
   'domainsLoadedSuccess',
   props<{ domains: any }>()
 );
+
+export const updateDomain = createAction(
+  'updateDomain',
+  props<{
+    id: number,
+    data: any,
+  }>()
+);
+
+export const domainUpdatedSuccess = createAction(
+  'domainUpdatedSuccess',
+  props<{ domain: any }>()
+);

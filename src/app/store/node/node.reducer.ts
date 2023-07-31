@@ -10,7 +10,8 @@ import {
   removeNode,
   updateInterfaceInNode,
   nodeAddedSuccess,
-  bulkUpdatedNodeSuccess
+  bulkUpdatedNodeSuccess,
+  updateDomainInNode
 } from "./node.actions";
 import { environment } from "src/environments/environment";
 
@@ -169,6 +170,22 @@ export const nodeReducer = createReducer(
         return {
           ...n,
           interfaces
+        };
+      } else {
+        return n;
+      }
+    });
+    return {
+      ...state,
+      logicalNodes,
+    };
+  }),
+  on(updateDomainInNode, (state, { domain }) => {
+    const logicalNodes = state.logicalNodes.map((n: any) => {
+      if (domain.id == n.domain_id) {
+        return {
+          ...n,
+          domain
         };
       } else {
         return n;
