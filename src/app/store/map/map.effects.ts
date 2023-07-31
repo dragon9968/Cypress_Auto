@@ -14,6 +14,8 @@ import { InterfaceService } from 'src/app/core/services/interface/interface.serv
 import { GroupService } from 'src/app/core/services/group/group.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { pushNotification } from '../app/app.actions';
+import { MapImageService } from 'src/app/core/services/map-image/map-image.service';
+import { mapImagesLoadedSuccess } from '../map-image/map-image.actions';
 
 @Injectable()
 export class MapEffects {
@@ -26,12 +28,14 @@ export class MapEffects {
       this.portGroupService.getByProjectId(payload.projectId),
       this.interfaceService.getByProjectId(payload.projectId),
       this.groupService.getGroupByProjectId(payload.projectId),
+      this.mapImageService.getMapImageByProjectId(Number(payload.projectId)),
     ]).pipe(
-      switchMap(([map, nodesData, portgroupsData, interfacesData, groupsData]) => [
+      switchMap(([map, nodesData, portgroupsData, interfacesData, groupsData, mapImagesData]) => [
         nodesLoadedSuccess({ nodes: nodesData.result }),
         PGsLoadedSuccess({ portgroups: portgroupsData.result }),
         interfacesLoadedSuccess({ interfaces: interfacesData.result, nodes: nodesData.result }),
         groupsLoadedSuccess({ groups: groupsData.result }),
+        mapImagesLoadedSuccess({ mapImages: mapImagesData.result }),
         mapLoadedSuccess({ data: map })
       ]),
       catchError((e) => of(pushNotification({
@@ -56,5 +60,6 @@ export class MapEffects {
     private interfaceService: InterfaceService,
     private groupService: GroupService,
     private helpersService: HelpersService,
+    private mapImageService: MapImageService
   ) { }
 }

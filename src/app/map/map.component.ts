@@ -85,6 +85,7 @@ import { ConnectInterfaceToPgDialogComponent } from "./context-menu/cm-dialog/co
 import { selectLogicalNodes, selectPhysicalNodes } from '../store/node/node.selectors';
 import { selectGroups } from '../store/group/group.selectors';
 import { selectNotification } from '../store/app/app.selectors';
+import { selectMapImages } from '../store/map-image/map-image.selectors';
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -130,6 +131,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   portGroups!: any[];
   logicalMapInterfaces!: any[];
   physicalInterfaces!: any[];
+  mapImages!: any[];
   groupBoxes!: any[];
   domains!: any[];
   icons!: any[];
@@ -204,6 +206,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   selectLogicalMapInterfaces$ = new Subscription();
   selectPhysicalInterfaces$ = new Subscription();
   selectLogicalManagementInterfaces$ = new Subscription();
+  selectMapImages$ = new Subscription();
   selectGroups$ = new Subscription();
   selectProject$ = new Subscription();
   destroy$: Subject<boolean> = new Subject<boolean>();
@@ -324,6 +327,11 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         this.groupBoxes = groups;
       }
     });
+    this.selectMapImages$ = this.store.select(selectMapImages).subscribe(mapImage => {
+      if (mapImage) {
+        this.mapImages = mapImage
+      }
+    });
     this.selectSearchText$ = this.store.select(selectSearchText).subscribe((searchText: string) => {
       if (searchText?.length > 0) {
         this.searchMap(searchText);
@@ -357,7 +365,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
     this.loginProfileService.getAll().subscribe((data: any) => this.store.dispatch(retrievedLoginProfiles({ data: data.result })));
     this.imageService.getByCategory('image').subscribe((data: any) => this.store.dispatch(retrievedImages({ data: data.result })));
-    this.mapImageService.getMapImageByProjectId(+this.projectId).subscribe((data: any) => this.store.dispatch(retrievedMapImages({ mapImage: data.result })));
     this.selectProjectCategory$ = this.store.select(selectProjectCategory).subscribe(projectCategory => {
       this.isTemplateCategory = projectCategory === 'template'
       if (this.isTemplateCategory) {
@@ -453,6 +460,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.selectLogicalManagementInterfaces$.unsubscribe();
     this.selectGroups$.unsubscribe();
     this.selectProject$.unsubscribe();
+    this.selectMapImages$.unsubscribe();
   }
 
   private _disableMapEditButtons() {
@@ -988,20 +996,18 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     const interfacesData = this.mapCategory === 'logical' ? this.logicalMapInterfaces : this.physicalInterfaces
     const interfacesValid = this.mapCategory == 'logical' ? interfacesData.filter(i => i.port_group_id) : interfacesData.filter(i => i.data.target)
     const portGroupsData = this.mapCategory === 'logical' ? this.portGroups : []
-    this.eles = JSON.parse(JSON.stringify(nodeData.concat(portGroupsData).concat(interfacesValid)));
-    if (this.mapCategory === 'logical') {
-      this.eles.forEach(ele => {
-        if (ele.data.elem_category == 'map_link') {
-          if (!ele.data.icon.includes(environment.apiBaseUrl)) {
-            ele.data.icon = environment.apiBaseUrl + ele.data.icon;
-          }
-        } else if (ele.data.elem_category == 'bg_image') {
-          if (!ele.data.src.includes(environment.apiBaseUrl)) {
-            ele.data.src = environment.apiBaseUrl + ele.data.image;
-          }
+    this.eles = JSON.parse(JSON.stringify(nodeData.concat(portGroupsData).concat(interfacesValid).concat(this.mapImages)));
+    this.eles.forEach(ele => {
+      if (ele.data.elem_category == 'map_link' && this.mapCategory === 'logical') {
+        if (!ele.data.icon.includes(environment.apiBaseUrl)) {
+          ele.data.icon = environment.apiBaseUrl + ele.data.icon;
         }
-      });
-    }
+      } else if (ele.data.elem_category == 'bg_image') {
+        if (!ele.data.src.includes(environment.apiBaseUrl)) {
+          ele.data.src = environment.apiBaseUrl + ele.data.image;
+        }
+      }
+    });
     this.cy = cytoscape({
       container: document.getElementById("cy"),
       elements: this.eles,
@@ -1956,7 +1962,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
           "original_height": height,
         }
         this.helpersService.addCYNode({ newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
-        this.mapImageService.getMapImageByProjectId(+this.projectId).subscribe((data: any) => this.store.dispatch(retrievedMapImages({ mapImage: data.result })));
         this.toastr.success('Add map image successfully', 'Success');
       });
     });

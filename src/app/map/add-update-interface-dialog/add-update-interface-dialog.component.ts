@@ -79,7 +79,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     private portGroupService: PortGroupService,
   ) {
     this.edgesConnected = this.data.cy.nodes(`[id="pg-${this.data.genData.port_group_id}"]`).connectedEdges()
-      .map((ele: any) => ({ ...ele.data(), id: Number(ele.data('id')) }))
+      .map((ele: any) => ({ ...ele.data(), id: Number(ele.data('interface_pk')) }))
     this.interfaceAddForm = new FormGroup({
       orderCtr: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
       nameCtr: new FormControl('', Validators.required),

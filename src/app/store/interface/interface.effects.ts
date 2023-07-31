@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { EMPTY, of } from 'rxjs';
+import { EMPTY, forkJoin, of } from 'rxjs';
 import { map, exhaustMap, catchError, mergeMap, switchMap } from 'rxjs/operators';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
-import { logicalInterfaceUpdatedSuccess, interfacesLoadedSuccess, loadInterfaces, updateLogicalInterface } from './interface.actions';
+import { logicalInterfaceUpdatedSuccess, interfacesLoadedSuccess, loadInterfaces, updateLogicalInterface, bulkEditLogicalInterface, bulkEditlogicalInterfaceSuccess } from './interface.actions';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { pushNotification } from '../app/app.actions';
 import { updateInterfaceInNode } from '../node/node.actions';
@@ -49,14 +49,47 @@ export class InterfacesEffects {
           pushNotification({
             notification: {
               type: 'success',
-              message: 'Port group details updated!'
+              message: 'Edge details updated!'
             }
           })
         ]),
         catchError((e) => of(pushNotification({
           notification: {
             type: 'error',
-            message: 'Update Port group failed!'
+            message: 'Update Edge failed!'
+          }
+        })))
+      )),
+  ));
+
+  bulkEditLogicalInterface$ = createEffect(() => this.actions$.pipe(
+    ofType(bulkEditLogicalInterface),
+    exhaustMap((payload) => this.interfaceService.editBulk(payload.data)
+      .pipe(
+        mergeMap(res => {
+          return forkJoin(payload.ids.map((id: any) => {
+            return this.interfaceService.get(id).pipe(map(interfaceData => {
+              if (res.result.category != 'management') {
+                this.helpersService.updateInterfaceOnMap(`interface-${id}`, interfaceData.result);
+                this.helpersService.showOrHideArrowDirectionOnEdge(id);
+                return interfaceData.result;
+              }
+            }))
+          }))
+        }),
+        switchMap((interfacesData: any) => [
+          bulkEditlogicalInterfaceSuccess({ interfacesData }),
+          pushNotification({
+            notification: {
+              type: 'success',
+              message: 'Bulk edit edge successfully!'
+            }
+          })
+        ]),
+        catchError((e) => of(pushNotification({
+          notification: {
+            type: 'error',
+            message: 'Bulk edit edge failed!'
           }
         })))
       )),

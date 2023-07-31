@@ -16,7 +16,8 @@ import {
   removeInterface,
   updateNodeInInterfaces,
   updatePGInInterfaces,
-  logicalInterfaceUpdatedSuccess
+  logicalInterfaceUpdatedSuccess,
+  bulkEditlogicalInterfaceSuccess
 } from "./interface.actions";
 
 const initialState = {} as InterfaceState;
@@ -212,6 +213,28 @@ export const interfaceReducerByIds = createReducer(
       };
     } else {
       const logicalMapInterfaces = state.logicalMapInterfaces.map((i: any) => (i.id == interfaceData.id) ? { ...i, ...interfaceData } : i);
+      return {
+        ...state,
+        logicalMapInterfaces
+      };
+    }
+  }),
+
+  on(bulkEditlogicalInterfaceSuccess, (state, { interfacesData }) => {
+    if (interfacesData.category == 'management') {
+      const logicalManagementInterfaces = state.logicalManagementInterfaces.map((interfaceData: any) => {
+        const updatedLogicalManagementInterfaces = interfacesData.find((i: any) => i.id == interfaceData.id);
+        return updatedLogicalManagementInterfaces ? {...interfaceData, ...updatedLogicalManagementInterfaces} : interfaceData
+      })
+      return {
+        ...state,
+        logicalManagementInterfaces
+      };
+    } else {
+      const logicalMapInterfaces = state.logicalMapInterfaces.map((interfaceData: any) => {
+        const updatedLogicalMapInterfaces = interfacesData.find((i: any) => i.id == interfaceData.id);
+        return updatedLogicalMapInterfaces ? {...interfaceData, ...updatedLogicalMapInterfaces} : interfaceData
+      })
       return {
         ...state,
         logicalMapInterfaces

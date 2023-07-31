@@ -13,7 +13,8 @@ import { autoCompleteValidator } from "../../../shared/validations/auto-complete
 import { Observable, Subscription } from "rxjs";
 import { selectMapOption } from "../../../store/map-option/map-option.selectors";
 import { ProjectService } from "src/app/project/services/project.service";
-import { retrievedInterfaceByProjectIdAndCategory } from "src/app/store/interface/interface.actions";
+import { bulkEditLogicalInterface, retrievedInterfaceByProjectIdAndCategory } from "src/app/store/interface/interface.actions";
+import { selectNotification } from "src/app/store/app/app.selectors";
 
 @Component({
   selector: 'app-interface-bulk-edit-dialog',
@@ -30,6 +31,7 @@ export class InterfaceBulkEditDialogComponent implements OnInit, OnDestroy {
   filteredStatus!: Observable<any[]>;
   filteredDirections!: Observable<any[]>;
   selectMapOption$ = new Subscription();
+  selectNotification$ = new Subscription();
 
   constructor(
     private store: Store,
@@ -52,7 +54,12 @@ export class InterfaceBulkEditDialogComponent implements OnInit, OnDestroy {
     });
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe(mapOption => {
       this.isEdgeDirectionChecked = mapOption.isEdgeDirectionChecked
-    })
+    });
+    this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
+      if (notification?.type == 'success') {
+        this.dialogRef.close();
+      }
+    });
   }
 
   get statusCtr() { return this.interfaceBulkEditForm.get('statusCtr'); }
@@ -71,6 +78,7 @@ export class InterfaceBulkEditDialogComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.selectMapOption$.unsubscribe();
+    this.selectNotification$.unsubscribe();
   }
 
   private _updateInterfaceOnMap(data: any) {
@@ -109,30 +117,10 @@ export class InterfaceBulkEditDialogComponent implements OnInit, OnDestroy {
         is_nat: isNat
       }
       const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-      this.interfaceService.editBulk(jsonData).subscribe(response => {
-        let interfacesData: any[] = [];
-        this.data.genData.activeEles.map((edge: any) => {
-          const data = {
-            ...edge,
-            ...jsonData,
-          }
-          if (data.category !== 'management') {
-            this._updateInterfaceOnMap(data);
-            const edgeEle = this.data.cy.getElementById(edge.id);
-            if (!this.isEdgeDirectionChecked) {
-              const current_dir = edgeEle.data('direction');
-              edgeEle.data('prev_direction', current_dir);
-              edgeEle.data('direction', 'none');
-            }
-          }
-        });
-        this.interfaceService.getByProjectId(this.projectService.getProjectId())
-        .subscribe(res => {
-          this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({ data: res.result }))
-        })
-        this.dialogRef.close();
-        this.toastr.success(response.message, 'Success');
-      })
+      this.store.dispatch(bulkEditLogicalInterface({
+        ids: ids,
+        data: jsonData
+      }));
     } else {
       this.dialogRef.close();
       this.toastr.info('You\'re not updating anything in the bulk edit interfaces');

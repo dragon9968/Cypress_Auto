@@ -91,7 +91,20 @@ export const updateLogicalInterface = createAction(
   }>()
 );
 
+export const bulkEditLogicalInterface = createAction(
+  'bulkEditLogicalInterface',
+  props<{
+    ids: any,
+    data: any
+  }>()
+);
+
 export const logicalInterfaceUpdatedSuccess = createAction(
   'logicalInterfaceUpdatedSuccess',
   props<{ interfaceData: any }>()
+);
+
+export const bulkEditlogicalInterfaceSuccess = createAction(
+  'bulkEditlogicalInterfaceSuccess',
+  props<{ interfacesData: any }>()
 );
