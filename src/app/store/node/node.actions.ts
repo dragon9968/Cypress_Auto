@@ -30,6 +30,14 @@ export const unSelectNode = createAction(
   props<{ id: string }>()
 );
 
+export const selectAllNode = createAction(
+  'selectAllNode'
+);
+
+export const unSelectAllNode = createAction(
+  'unSelectAllNode'
+);
+
 export const removeNode = createAction(
   'removeNode',
   props<{ id: string }>()

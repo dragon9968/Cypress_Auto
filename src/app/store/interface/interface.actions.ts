@@ -67,6 +67,14 @@ export const unSelectInterface = createAction(
   props<{ id: string }>()
 );
 
+export const selectAllInterface = createAction(
+  'selectAllInterface'
+);
+
+export const unselectAllInterface = createAction(
+  'unselectAllInterface'
+);
+
 export const removeInterface = createAction(
   'removeInterface',
   props<{ id: string }>()

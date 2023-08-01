@@ -1,6 +1,6 @@
 import { createReducer, on } from '@ngrx/store';
 import { PortGroupState } from 'src/app/store/portgroup/portgroup.state';
-import { PGsLoadedSuccess, bulkUpdatedPGSuccess, pgUpdatedSuccess, removePG, retrievedPortGroups, selectPG, unSelectPG, updateDomainInPG } from './portgroup.actions';
+import { PGsLoadedSuccess, pgUpdatedSuccess, bulkUpdatedPGSuccess, removePG, retrievedPortGroups, selectAllPG, selectPG, unSelectPG, unselectAllPG, updateDomainInPG } from './portgroup.actions';
 
 const initialState = {} as PortGroupState;
 
@@ -108,5 +108,23 @@ export const portGroupReducer = createReducer(
       ...state,
       portgroups: portgroupsData,
     };
+  }),
+  on(selectAllPG, (state) => {
+    const portgroups = state.portgroups.map(n => {
+      return { ...n, isSelected: true };
+    })
+    return {
+      ...state,
+      portgroups
+    }
+  }),
+  on(unselectAllPG, (state) => {
+    const portgroups = state.portgroups.map(n => {
+      return { ...n, isSelected: false };
+    })
+    return {
+      ...state,
+      portgroups
+    }
   }),
 );

@@ -25,6 +25,14 @@ export const unSelectPG = createAction(
   props<{ id: string }>()
 );
 
+export const selectAllPG = createAction(
+  'selectAllPG'
+);
+
+export const unselectAllPG = createAction(
+  'unselectAllPG'
+);
+
 export const removePG = createAction(
   'removePG',
   props<{ id: string }>()

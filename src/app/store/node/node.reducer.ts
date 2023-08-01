@@ -11,7 +11,9 @@ import {
   updateInterfaceInNode,
   nodeAddedSuccess,
   bulkUpdatedNodeSuccess,
-  updateDomainInNode
+  updateDomainInNode,
+  selectAllNode,
+  unSelectAllNode
 } from "./node.actions";
 import { environment } from "src/environments/environment";
 
@@ -194,7 +196,25 @@ export const nodeReducer = createReducer(
     return {
       ...state,
       logicalNodes,
-    };
+    }; 
+  }),
+  on(selectAllNode, (state, {}) => {
+    const logicalNodes = state.logicalNodes.map(n => {
+      return { ...n, isSelected: true }
+    });
+    return {
+      ...state,
+      logicalNodes
+    }
+  }),
+  on(unSelectAllNode, (state, {}) => {
+    const logicalNodes = state.logicalNodes.map(n => {
+      return { ...n, isSelected: false }
+    });
+    return {
+      ...state,
+      logicalNodes
+    }
   }),
 )
 

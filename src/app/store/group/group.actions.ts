@@ -24,6 +24,14 @@ export const unSelectGroup = createAction(
   props<{ id: string }>()
 );
 
+export const selectAllGroup = createAction(
+  'selectAllGroup'
+);
+
+export const unSelectAllGroup = createAction(
+  'unSelectAllGroup'
+);
+
 export const updateGroup = createAction(
   'updateGroup',
   props<{

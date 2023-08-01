@@ -17,7 +17,9 @@ import {
   updateNodeInInterfaces,
   updatePGInInterfaces,
   logicalInterfaceUpdatedSuccess,
-  bulkEditlogicalInterfaceSuccess
+  bulkEditlogicalInterfaceSuccess,
+  selectAllInterface,
+  unselectAllInterface
 } from "./interface.actions";
 
 const initialState = {} as InterfaceState;
@@ -153,6 +155,24 @@ export const interfaceReducerByIds = createReducer(
     const logicalMapInterfaces = state.logicalMapInterfaces.map(n => {
       if (n.data.id == id) return { ...n, isSelected: false };
       return n;
+    })
+    return {
+      ...state,
+      logicalMapInterfaces
+    }
+  }),
+  on(selectAllInterface, (state) => {
+    const logicalMapInterfaces = state.logicalMapInterfaces.map(n => {
+      return { ...n, isSelected: true };
+    })
+    return {
+      ...state,
+      logicalMapInterfaces
+    }
+  }),
+  on(unselectAllInterface, (state) => {
+    const logicalMapInterfaces = state.logicalMapInterfaces.map(n => {
+      return { ...n, isSelected: false };
     })
     return {
       ...state,

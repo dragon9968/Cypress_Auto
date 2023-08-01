@@ -1,5 +1,5 @@
 import { createReducer, on } from '@ngrx/store';
-import { mapImagesLoadedSuccess, retrievedImages, retrievedMapImages } from './map-image.actions';
+import { mapImagesLoadedSuccess, retrievedImages, retrievedMapImages, selectAllMapImage, selectMapImage, unSelectAllMapImage, unSelectMapImage } from './map-image.actions';
 import { MapImageState } from './map-image.state';
 
 const initialState = {} as MapImageState;
@@ -40,6 +40,44 @@ export const mapImagesReducer = createReducer(
     return {
       ...state,
       mapImages: mi,
+    }
+  }),
+  on(selectMapImage, (state, { id }) => {
+    const mapImages = state.mapImages.map(n => {
+      if (n.data.id == id) return { ...n, isSelected: true };
+      return n;
+    })
+    return {
+      ...state,
+      mapImages
+    }
+  }),
+  on(unSelectMapImage, (state, { id }) => {
+    const mapImages = state.mapImages.map(n => {
+      if (n.data.id == id) return { ...n, isSelected: false };
+      return n;
+    })
+    return {
+      ...state,
+      mapImages
+    }
+  }),
+  on(selectAllMapImage, (state) => {
+    const mapImages = state.mapImages.map(n => {
+      return { ...n, isSelected: true };
+    })
+    return {
+      ...state,
+      mapImages
+    }
+  }),
+  on(unSelectAllMapImage, (state) => {
+    const mapImages = state.mapImages.map(n => {
+      return { ...n, isSelected: false };
+    })
+    return {
+      ...state,
+      mapImages
     }
   }),
 );

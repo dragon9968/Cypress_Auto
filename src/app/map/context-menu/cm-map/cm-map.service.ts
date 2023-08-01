@@ -2,7 +2,11 @@ import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
+import { selectAllGroup, unSelectAllGroup } from 'src/app/store/group/group.actions';
+import { selectAllInterface, unselectAllInterface } from 'src/app/store/interface/interface.actions';
 import { retrievedMapContextMenu } from 'src/app/store/map-context-menu/map-context-menu.actions';
+import { selectAllNode, unSelectAllNode } from 'src/app/store/node/node.actions';
+import { selectAllPG, unselectAllPG } from 'src/app/store/portgroup/portgroup.actions';
 
 @Injectable({
   providedIn: 'root'
@@ -125,34 +129,12 @@ export class CMMapService {
       content: "Select All",
       coreAsWell: true,
       onClickFunction: (event: any) => {
-        const allNodes = cy.nodes();
-        const allEdges = cy.edges();
         cy.nodes().selectify();
         cy.edges().selectify();
-        const activeEles = activeNodes.concat(activePGs, activeEdges);
-        if (activeEles.length == 0) {
-          activeNodes.splice(0);
-          activePGs.splice(0);
-          activeEdges.splice(0);
-          activeGBs.splice(0);
-        }
-        const allNodeAndEdges = allNodes.merge(allEdges)
-        allNodeAndEdges.forEach((node: any) => {
-          const d = node.data();
-          if (d.elem_category == 'node' && !activeNodes.includes(node)) {
-            activeNodes.push(node);
-          } else if (d.elem_category == 'port_group' && !activePGs.includes(node)) {
-            activePGs.push(node);
-          } else if (node.isEdge() && !activeEdges.includes(node)) {
-            activeEdges.push(node);
-          } else if (d.label == 'group_box' && !activeGBs.includes(node)) {
-            activeGBs.push(node)
-          } else if (d.label == 'map_background' && !activeMBs.includes(node)) {
-            activeMBs.push(node)
-          } else if (d.elem_category == 'map_link' && !activeMapLinks.includes(node)) {
-            activeMapLinks.push(node);
-          }
-        })
+        this.store.dispatch(selectAllNode());
+        this.store.dispatch(selectAllPG());
+        this.store.dispatch(selectAllInterface());
+        this.store.dispatch(selectAllGroup());
         cy.nodes().select();
         cy.edges().select();
       },
@@ -175,6 +157,10 @@ export class CMMapService {
         activeEdges.splice(0);
         activeMBs.splice(0);
         activeMapLinks.splice(0);
+        this.store.dispatch(unSelectAllNode());
+        this.store.dispatch(unselectAllPG());
+        this.store.dispatch(unselectAllInterface());
+        this.store.dispatch(unSelectAllGroup());
         cy.nodes().unselect();
         cy.edges().unselect();
       },

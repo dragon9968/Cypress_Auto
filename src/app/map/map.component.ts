@@ -60,7 +60,7 @@ import {
   selectIsHypervisorConnect
 } from "../store/server-connect/server-connect.selectors";
 import { MapImageService } from '../core/services/map-image/map-image.service';
-import { retrievedImages, retrievedMapImages } from '../store/map-image/map-image.actions';
+import { retrievedImages, retrievedMapImages, selectMapImage, unSelectMapImage } from '../store/map-image/map-image.actions';
 import { RouteSegments } from "../core/enums/route-segments.enum";
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { retrievedMapEdit } from "../store/map-edit/map-edit.actions";
@@ -588,8 +588,9 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
 
   private _selectNode($event: any) {
     const t = $event.target;
-    const activeEles = this.activeNodes.concat(this.activePGs, this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks)
-    if (this.cy.elements().length !== activeEles.length) {
+    const eles = this.logicalNodes.concat(this.portGroups).concat(this.logicalMapInterfaces).concat(this.mapImages)
+    const selectedEles = eles.filter((n: any) => n.isSelected)
+    if (this.cy.elements().length !== selectedEles.length) {
       const isChildrenOfProjectNode = t.parent()?.data('elem_category') == 'map_link';
       if (isChildrenOfProjectNode) {
         return;
@@ -606,6 +607,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
       }
       if (d.label == 'map_background') {
         this.activeMBs.push(t);
+        this.store.dispatch(selectMapImage({ id: d.id }));
       } else if (d.label == 'group_box') {
         this.isBoxSelecting = true;
         this.activeGBs.push(t);
@@ -645,8 +647,9 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
 
   private _selectEdge($event: any) {
     const t = $event.target;
-    const activeEles = this.activeNodes.concat(this.activePGs, this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks)
-    if (this.cy.elements().length !== activeEles.length) {
+    const eles = this.logicalNodes.concat(this.portGroups).concat(this.logicalMapInterfaces).concat(this.mapImages)
+    const selectedEles = eles.filter((n: any) => n.isSelected)
+    if (this.cy.elements().length !== selectedEles.length) {
       const isChildrenOfProjectNode = t.connectedNodes().some((ele: any) => ele.parent()?.data('elem_category') == 'map_link')
       if (isChildrenOfProjectNode) {
         return;
@@ -676,6 +679,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         if (this.activeMBs.includes(t)) {
           const index = this.activeMBs.indexOf(t);
           this.activeMBs.splice(index, 1);
+          this.store.dispatch(unSelectMapImage({ id: t.data('id') }));
         }
       } else if (t.data('label') == 'group_box') {
         if (this.activeGBs.includes(t)) {

@@ -19,3 +19,21 @@ export const mapImagesLoadedSuccess = createAction(
   'mapImagesLoadedSuccess',
   props<{ mapImages: any }>()
 );
+
+export const selectMapImage = createAction(
+  'selectMapImage',
+  props<{ id: string }>()
+);
+
+export const unSelectMapImage = createAction(
+  'unSelectMapImage',
+  props<{ id: string }>()
+);
+
+export const selectAllMapImage = createAction(
+  'selectAllMapImage'
+);
+
+export const unSelectAllMapImage = createAction(
+  'unSelectAllMapImage'
+);

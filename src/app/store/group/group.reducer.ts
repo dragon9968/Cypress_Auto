@@ -1,6 +1,6 @@
 import { GroupState } from "./group.state";
 import { createReducer, on } from "@ngrx/store";
-import { groupAddedSuccess, groupUpdatedSuccess, groupsLoadedSuccess, retrievedGroups, selectGroup, unSelectGroup, updateNodeInGroup } from "./group.actions";
+import { groupAddedSuccess, groupUpdatedSuccess, groupsLoadedSuccess, retrievedGroups, selectAllGroup, selectGroup, unSelectAllGroup, unSelectGroup, updateNodeInGroup } from "./group.actions";
 
 const initialState = {} as GroupState;
 
@@ -51,6 +51,24 @@ export const groupReducer = createReducer(
     const groups = state.groups.map(n => {
       if (n.data.id == id) return { ...n, isSelected: false };
       return n;
+    })
+    return {
+      ...state,
+      groups
+    }
+  }),
+  on(selectAllGroup, (state) => {
+    const groups = state.groups.map(n => {
+      return { ...n, isSelected: true };
+    })
+    return {
+      ...state,
+      groups
+    }
+  }),
+  on(unSelectAllGroup, (state) => {
+    const groups = state.groups.map(n => {
+      return { ...n, isSelected: false };
     })
     return {
       ...state,
