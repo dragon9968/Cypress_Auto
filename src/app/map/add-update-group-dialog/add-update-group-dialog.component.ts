@@ -13,7 +13,7 @@ import { selectDevices } from "../../store/device/device.selectors";
 import { selectMapPortGroups } from "../../store/portgroup/portgroup.selectors";
 import { GroupService } from "../../core/services/group/group.service";
 import { selectTemplates } from "../../store/template/template.selectors";
-import { retrievedGroups, updateGroup } from "../../store/group/group.actions";
+import { addGroup, retrievedGroups, updateGroup } from "../../store/group/group.actions";
 import { validateNameExist } from "../../shared/validations/name-exist.validation";
 import { CATEGORIES } from 'src/app/shared/contants/categories.constant';
 import { ROLES } from 'src/app/shared/contants/roles.constant';
@@ -179,19 +179,12 @@ export class AddUpdateGroupDialogComponent implements OnInit, OnDestroy {
       description: this.descriptionCtr?.value,
       project_id: this.data.project_id,
       domain_id: this.categoryCtr?.value.id == 'domain' ? this.categoryIdCtr?.value.id : undefined,
-      nodes: this.data.genData.nodes.map((node: any) => node.id),
-      port_groups: this.data.genData.port_groups.map((pg: any) => pg.id),
+      nodes: this.data.genData.nodes?.map((node: any) => node.id),
+      port_groups: this.data.genData.port_groups?.map((pg: any) => pg.id),
       map_images: this.getMapImageIds(this.data.genData.map_images),
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.groupService.add(jsonData).subscribe(response => {
-      this.toastr.success('Added Row');
-      this.groupService.getGroupByProjectId(this.data.project_id).subscribe(
-        groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
-      )
-      this.mapService.getMapData(this.data.map_category, this.data.project_id).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
-      this.dialogRef.close();
-    })
+    this.store.dispatch(addGroup({ data: jsonData }));
   }
 
   updateGroup() {

@@ -1,6 +1,6 @@
 import { GroupState } from "./group.state";
 import { createReducer, on } from "@ngrx/store";
-import { groupUpdatedSuccess, groupsLoadedSuccess, retrievedGroups, selectGroup, unSelectGroup, updateNodeInGroup } from "./group.actions";
+import { groupAddedSuccess, groupUpdatedSuccess, groupsLoadedSuccess, retrievedGroups, selectGroup, unSelectGroup, updateNodeInGroup } from "./group.actions";
 
 const initialState = {} as GroupState;
 
@@ -76,8 +76,7 @@ export const groupReducer = createReducer(
     };
   }),
   on(updateNodeInGroup, (state, { node }) => {
-    const groups = state.groups.map((g: any) => 
-    {
+    const groups = state.groups.map((g: any) => {
       if (g.id == node.groups[0].id) {
         return {
           ...g,
@@ -87,6 +86,13 @@ export const groupReducer = createReducer(
         return g
       }
     });
+    return {
+      ...state,
+      groups,
+    };
+  }),
+  on(groupAddedSuccess, (state, { group }) => {
+    const groups = [...state.groups, addCyDataToGroup(group)]
     return {
       ...state,
       groups,

@@ -41,3 +41,15 @@ export const updateNodeInGroup = createAction(
   'updateNodeInGroup',
   props<{ node: any }>()
 );
+
+export const addGroup = createAction(
+  'addGroup',
+  props<{
+    data: any,
+  }>()
+);
+
+export const groupAddedSuccess = createAction(
+  'groupAddedSuccess',
+  props<{ group: any }>()
+);
