@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { EMPTY, of } from 'rxjs';
+import { EMPTY, forkJoin, of } from 'rxjs';
 import { map, exhaustMap, catchError, mergeMap, switchMap } from 'rxjs/operators';
 import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
-import { PGsLoadedSuccess, loadPGs, pgUpdatedSuccess, updatePG } from './portgroup.actions';
+import { PGsLoadedSuccess, bulkEditPG, bulkUpdatedPGSuccess, loadPGs, pgUpdatedSuccess, updatePG } from './portgroup.actions';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { updatePGInInterfaces } from '../interface/interface.actions';
 import { pushNotification } from '../app/app.actions';
+import { reloadGroupBoxes } from '../map/map.actions';
 
 @Injectable()
 export class PortGroupsEffects {
@@ -52,6 +53,37 @@ export class PortGroupsEffects {
           notification: {
             type: 'error',
             message: 'Update Port group failed!'
+          }
+        })))
+      )),
+  ));
+
+  bulkEditPG$ = createEffect(() => this.actions$.pipe(
+    ofType(bulkEditPG),
+    exhaustMap((payload) => this.portGroupService.editBulk(payload.data)
+      .pipe(
+        mergeMap(res => {
+          return forkJoin(payload.ids.map((id: any) => {
+            return this.portGroupService.get(id).pipe(map(pgData => {
+              this.helpersService.updatePGOnMap(`pg-${id}`, pgData.result);
+              return pgData.result
+            }))
+          }))
+        }),
+        switchMap((portgroups: any) => [
+          bulkUpdatedPGSuccess({ portgroups }),
+          reloadGroupBoxes(),
+          pushNotification({
+            notification: {
+              type: 'success',
+              message: 'Bulk edit port group successfully!'
+            }
+          })
+        ]),
+        catchError((e) => of(pushNotification({
+          notification: {
+            type: 'error',
+            message: 'Bulk edit port group failed!'
           }
         })))
       )),

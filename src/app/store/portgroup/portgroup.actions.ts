@@ -47,3 +47,16 @@ export const updateDomainInPG = createAction(
   'updateDomainInPG',
   props<{ domain: any }>()
 );
+
+export const bulkEditPG = createAction(
+  'bulkEditPG',
+  props<{
+    ids: any,
+    data: any,
+  }>()
+);
+
+export const bulkUpdatedPGSuccess = createAction(
+  'bulkUpdatedPGSuccess',
+  props<{ portgroups: any }>()
+)
