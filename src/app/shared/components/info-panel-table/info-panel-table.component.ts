@@ -99,6 +99,8 @@ export class InfoPanelTableComponent {
         const ele = this.cy.getElementById(r.data.id);
         ele.select();
         return r.id;
+      } else {
+        return r.id;
       }
     });
     const unSelectedRow = unSelectedRows.filter(val => !this.rowsSelectedId.includes(val.id))

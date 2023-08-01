@@ -27,3 +27,15 @@ export const domainUpdatedSuccess = createAction(
   'domainUpdatedSuccess',
   props<{ domain: any }>()
 );
+
+export const addDomain = createAction(
+  'addDomain',
+  props<{
+    data: any,
+  }>()
+);
+
+export const domainAddedSuccess = createAction(
+  'domainAddedSuccess',
+  props<{ domain: any }>()
+);

@@ -2,11 +2,12 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { EMPTY, of } from 'rxjs';
 import { map, exhaustMap, catchError, mergeMap, switchMap } from 'rxjs/operators';
-import { domainUpdatedSuccess, domainsLoadedSuccess, loadDomains, updateDomain } from './domain.actions';
+import { addDomain, domainAddedSuccess, domainUpdatedSuccess, domainsLoadedSuccess, loadDomains, updateDomain } from './domain.actions';
 import { DomainService } from 'src/app/core/services/domain/domain.service';
 import { pushNotification } from '../app/app.actions';
 import { updateDomainInNode } from '../node/node.actions';
 import { updateDomainInPG } from '../portgroup/portgroup.actions';
+import { loadGroups } from '../group/group.actions';
 
 @Injectable()
 export class DomainsEffects {
@@ -25,6 +26,30 @@ export class DomainsEffects {
       ))
     )
   );
+
+  addDomain$ = createEffect(() => this.actions$.pipe(
+    ofType(addDomain),
+    exhaustMap((payload) => this.domainService.add(payload.data)
+      .pipe(
+        mergeMap(res => this.domainService.get(res.id)),
+        switchMap((res: any) => [
+          domainAddedSuccess({ domain: res.result }),
+          loadGroups({ projectId: res.result.project_id }),
+          pushNotification({
+            notification: {
+              type: 'success',
+              message: 'Domain details added!'
+            }
+          })
+        ]),
+        catchError((e) => of(pushNotification({
+          notification: {
+            type: 'error',
+            message: 'Add domain failed!'
+          }
+        })))
+      )),
+  ));
 
   updateDomain$ = createEffect(() => this.actions$.pipe(
     ofType(updateDomain),

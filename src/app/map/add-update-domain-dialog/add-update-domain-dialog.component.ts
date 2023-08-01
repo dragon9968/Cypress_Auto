@@ -8,7 +8,7 @@ import { DomainService } from "../../core/services/domain/domain.service";
 import { HelpersService } from "../../core/services/helpers/helpers.service";
 import { ErrorMessages } from "../../shared/enums/error-messages.enum";
 import { selectDomains } from "../../store/domain/domain.selectors";
-import { retrievedDomains, updateDomain } from "../../store/domain/domain.actions";
+import { addDomain, retrievedDomains, updateDomain } from "../../store/domain/domain.actions";
 import { validateNameExist } from "../../shared/validations/name-exist.validation";
 import { retrievedGroups } from "src/app/store/group/group.actions";
 import { GroupService } from "src/app/core/services/group/group.service";
@@ -75,12 +75,7 @@ export class AddUpdateDomainDialogComponent implements OnInit {
       admin_password: this.adminPasswordCtr?.value
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.domainService.add(jsonData).subscribe(response => {
-      this.domainService.getDomainByProjectId(response.result.project_id).subscribe((data: any) => this.store.dispatch(retrievedDomains({ data: data.result })));
-      this.groupService.getGroupByProjectId(this.data.genData.project_id).subscribe(groupData => this.store.dispatch(retrievedGroups({ data: groupData.result })))
-      this.toastr.success(`Added domain ${response.result.name}`);
-      this.dialogRef.close();
-    })
+    this.store.dispatch(addDomain({ data: jsonData }));
   }
 
   updateDomain() {
@@ -90,10 +85,7 @@ export class AddUpdateDomainDialogComponent implements OnInit {
       admin_password: this.adminPasswordCtr?.value
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.store.dispatch(updateDomain({
-      id: this.data.genData.id,
-      data: jsonData,
-    }));
+    this.store.dispatch(updateDomain({ id: this.data.genData.id, data: jsonData }));
   }
 
   onCancel() {
