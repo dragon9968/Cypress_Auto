@@ -3,10 +3,10 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { EMPTY, forkJoin, of } from 'rxjs';
 import { map, exhaustMap, catchError, mergeMap, switchMap } from 'rxjs/operators';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
-import { logicalInterfaceUpdatedSuccess, interfacesLoadedSuccess, loadInterfaces, updateLogicalInterface, bulkEditLogicalInterface, bulkEditlogicalInterfaceSuccess } from './interface.actions';
+import { logicalInterfaceUpdatedSuccess, interfacesLoadedSuccess, loadInterfaces, updateLogicalInterface, bulkEditLogicalInterface, bulkEditlogicalInterfaceSuccess, randomizeIpBulk, randomizeIpBulkSuccess } from './interface.actions';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { pushNotification } from '../app/app.actions';
-import { updateInterfaceInNode } from '../node/node.actions';
+import { bulkUpdateInterfaceInNode, updateInterfaceInNode } from '../node/node.actions';
 
 @Injectable()
 export class InterfacesEffects {
@@ -94,6 +94,42 @@ export class InterfacesEffects {
         })))
       )),
   ));
+
+  randomizeIpBulk$ = createEffect(() => this.actions$.pipe(
+    ofType(randomizeIpBulk),
+    exhaustMap((payload) => this.interfaceService.randomizeIpBulk(payload)
+      .pipe(
+        map(res => {
+          res.result.map((ele: any) => {
+            this.helpersService.updateInterfaceOnMap(`interface-${ele.id}`, ele);
+            this.helpersService.showOrHideArrowDirectionOnEdge(ele.id);
+          })
+          return res
+        }),
+        switchMap((res: any) => [
+          randomizeIpBulkSuccess({interfacesData: res.result}),
+          bulkUpdateInterfaceInNode({
+            interfacesData: { 
+              interfacesData: res.result,
+              netmasks: payload.netmasks
+            }
+          }),
+          pushNotification({
+            notification: {
+              type: 'success',
+              message: res.message
+            }
+          })
+        ]),
+        catchError((e) => of(pushNotification({
+          notification: {
+            type: 'error',
+            message: `${e.error.message}`
+          }
+        })))
+      )
+    )
+  ))
 
   constructor(
     private actions$: Actions,

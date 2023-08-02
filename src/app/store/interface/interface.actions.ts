@@ -116,3 +116,16 @@ export const bulkEditlogicalInterfaceSuccess = createAction(
   'bulkEditlogicalInterfaceSuccess',
   props<{ interfacesData: any }>()
 );
+
+export const randomizeIpBulk = createAction(
+  'randomizeIpBulk',
+  props<{
+    pks: any,
+    netmasks: any[],
+  }>()
+)
+
+export const randomizeIpBulkSuccess = createAction(
+  'randomizeIpBulkSuccess',
+  props<{ interfacesData: any }>()
+)

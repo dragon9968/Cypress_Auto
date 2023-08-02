@@ -68,6 +68,11 @@ export const updateInterfaceInNode = createAction(
   props<{ interfaceData: any }>()
 );
 
+export const bulkUpdateInterfaceInNode = createAction(
+  'bulkUpdateInterfaceInNode',
+  props<{ interfacesData: any }>()
+);
+
 export const updateDomainInNode = createAction(
   'updateDomainInNode',
   props<{ domain: any }>()

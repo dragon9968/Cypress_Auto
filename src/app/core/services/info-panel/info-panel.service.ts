@@ -28,6 +28,8 @@ import { retrievedVMStatus } from "src/app/store/project/project.actions";
 import { RemoteCategories } from "../../enums/remote-categories.enum";
 import { PortGroupRandomizeSubnetModel } from "../../models/port-group.model";
 import { NodeService } from "../node/node.service";
+import { randomizeIpBulk } from "src/app/store/interface/interface.actions";
+import { selectNetmasks } from "src/app/store/netmask/netmask.selectors";
 
 @Injectable({
   providedIn: 'root'
@@ -40,9 +42,11 @@ export class InfoPanelService implements OnDestroy {
   selectPortGroup$ = new Subscription();
   selectDomainUser$ = new Subscription();
   selectVMStatus$ = new Subscription();
+  selectNetmasks$ = new Subscription();
   nodes!: any[];
   portGroups!: any[];
   domainUsers!: any[];
+  netmasks!: any[];
   vmStatus!: boolean;
   isGroupBoxesChecked!: boolean;
   statusColorLookup = {
@@ -78,6 +82,7 @@ export class InfoPanelService implements OnDestroy {
     this.selectPortGroup$ = this.store.select(selectPortGroups).subscribe(portGroups => this.portGroups = portGroups);
     this.selectDomainUser$ = this.store.select(selectDomainUsers).subscribe(domainUsers => this.domainUsers = domainUsers);
     this.selectVMStatus$ = this.store.select(selectVMStatus).subscribe(vmStatus => this.vmStatus = vmStatus);
+    this.selectNetmasks$ = this.store.select(selectNetmasks).subscribe((netmasks: any) => this.netmasks = netmasks);
   }
 
   ngOnDestroy(): void {
@@ -86,6 +91,7 @@ export class InfoPanelService implements OnDestroy {
     this.selectPortGroup$.unsubscribe();
     this.selectDomainUser$.unsubscribe();
     this.selectVMStatus$.unsubscribe();
+    this.selectNetmasks$.unsubscribe();
   }
 
   deleteInfoPanelAssociateMap(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], tabName: string, id: any) {
@@ -632,29 +638,10 @@ export class InfoPanelService implements OnDestroy {
     let pks;
     if (this.interfacePks.length > 0) {
       pks = this.interfacePks
-      this.interfaceService.randomizeIpBulk({ pks }).pipe(
-        catchError((error: any) => {
-          this.toastr.error(error.error.message);
-          return throwError(() => error.error.message);
-        })
-      ).subscribe(response => {
-        const data = response.result;
-        data.map((ele: any) => {
-          const element = this.cy.getElementById(ele.id);
-          const ip_str = ele.ip ? ele.ip : "";
-          const ip = ip_str.split(".");
-          const last_octet = ip.length == 4 ? "." + ip[3] : "";
-          element.data('ip', ip_str);
-          element.data('ip_last_octet', last_octet);
-          this.nodeService.get(ele.node_id).subscribe(nodeData => {
-            this.helpersService.updateNodesStorage(nodeData.result);
-            this.helpersService.updateNodeOnMap('node-' + nodeData.result.id, nodeData.result);
-          });
-        });
-        response.message.map((message: string) => {
-          this.toastr.success(message);
-        });
-      });
+      this.store.dispatch(randomizeIpBulk({
+        pks: pks,
+        netmasks: this.netmasks
+       }))
     }
   }
 
@@ -664,7 +651,7 @@ export class InfoPanelService implements OnDestroy {
       if (val.ip_allocation === 'static_manual') {
         this.toastr.warning(`Interface ${val.name}'s IP address of “static_manual” interfaces cannot be randomized.`)
       } else {
-        const id = val.interface_pk ? val.interface_pk : val.id
+        const id = val.data.interface_pk ? val.data.interface_pk : val.id
         if (id) {
           this.interfacePks.push(id)
         }

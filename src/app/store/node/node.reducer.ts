@@ -13,7 +13,8 @@ import {
   bulkUpdatedNodeSuccess,
   updateDomainInNode,
   selectAllNode,
-  unSelectAllNode
+  unSelectAllNode,
+  bulkUpdateInterfaceInNode
 } from "./node.actions";
 import { environment } from "src/environments/environment";
 
@@ -151,7 +152,7 @@ export const nodeReducer = createReducer(
   on(bulkUpdatedNodeSuccess, (state, { nodes }) => {
     const logicalNodes = state.logicalNodes.map((node: any) => {
       const updatedNode = nodes.find((n: any) => n.id == node.id);
-      return updatedNode ? {...node, ...updatedNode} : node
+      return updatedNode ? { ...node, ...updatedNode } : node
     });
     return {
       ...state,
@@ -177,6 +178,28 @@ export const nodeReducer = createReducer(
         return n;
       }
     });
+    return {
+      ...state,
+      logicalNodes,
+    };
+  }),
+  on(bulkUpdateInterfaceInNode, (state, { interfacesData }) => {
+    const logicalNodes = state.logicalNodes.map((n: any) => {
+      const updatedLogicalInterfaceInNode = interfacesData.interfacesData.find((i: any) => i.node_id == n.id);
+      if (updatedLogicalInterfaceInNode) {
+        const netmaskName = interfacesData.netmasks.filter((option: any) => option.id == updatedLogicalInterfaceInNode.netmask_id)[0];
+        const newEdge = {
+          id: updatedLogicalInterfaceInNode.id,
+          value: `${updatedLogicalInterfaceInNode.name} - ${updatedLogicalInterfaceInNode.ip + netmaskName.name}`
+        }
+        const interfaces = n.interfaces.map((i: any) => {
+          return (i.id == newEdge.id) ? newEdge : i;
+        })
+        return {...n, interfaces}
+      } else {
+        return n
+      }
+    })
     return {
       ...state,
       logicalNodes,

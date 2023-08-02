@@ -12,13 +12,16 @@ import { InfoPanelShowValidationResultsComponent } from '../../../shared/compone
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { selectMapOption } from "src/app/store/map-option/map-option.selectors";
 import { PortGroupValidateModel } from "../../../core/models/port-group.model";
+import { selectLogicalMapInterfaces } from "src/app/store/interface/interface.selectors";
 
 @Injectable({
   providedIn: 'root'
 })
 export class CMActionsService {
   selectMapOption$ = new Subscription();
+  selectLogicalMapInterfaces$ = new Subscription();
   isEdgeDirectionChecked = false;
+  logicalMapInterfaces!: any[];
   constructor(
     private store: Store,
     private dialog: MatDialog,
@@ -31,7 +34,12 @@ export class CMActionsService {
   ) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe(mapOption => {
       this.isEdgeDirectionChecked = mapOption?.isEdgeDirectionChecked != undefined ? mapOption.isEdgeDirectionChecked : false;
-    })
+    });
+    this.selectLogicalMapInterfaces$ = this.store.select(selectLogicalMapInterfaces).subscribe(logicalMapInterfaces => {
+      if (logicalMapInterfaces) {
+        this.logicalMapInterfaces = logicalMapInterfaces;
+      }
+    });
    }
 
   getNodeActionsMenu(cy: any, activeNodes: any[], isCanWriteOnProject: boolean) {
@@ -124,7 +132,7 @@ export class CMActionsService {
     }
   }
 
-  getEdgeActionsMenu(cy: any, activeEdges: any[]) {
+  getEdgeActionsMenu(cy: any) {
     return {
       id: "edge_actions",
       content: "Actions",
@@ -144,7 +152,7 @@ export class CMActionsService {
           content: "Randomize IP",
           selector: "edge",
           onClickFunction: (event: any) => {
-            const listInterfaces = activeEdges.map(edge => edge.data());
+            const listInterfaces = this.logicalMapInterfaces.filter(i => i.isSelected);
             this.infoPanelService.randomizeIpInterfaces(listInterfaces);
           },
           hasTrailingDivider: true,
@@ -155,7 +163,7 @@ export class CMActionsService {
           content: "Validate",
           selector: "edge",
           onClickFunction: (event: any) => {
-            const pks = activeEdges.map((ele: any) => ele.data('interface_pk'));
+            const pks = this.logicalMapInterfaces.map((ele: any) => ele.id);
             this.interfaceService.validate({ pks }).pipe(
               catchError((e: any) => {
                 this.toastr.error(e.error.message);
