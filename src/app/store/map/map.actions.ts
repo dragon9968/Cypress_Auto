@@ -18,8 +18,8 @@ export const loadMap = createAction(
   }>()
 );
 
-export const mapLoadedSuccess = createAction(
-  'mapLoadedSuccess',
+export const mapLoadedDefaultPreferencesSuccess = createAction(
+  'mapLoadedDefaultPreferencesSuccess',
   props<{ data: any }>()
 );
 

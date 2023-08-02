@@ -124,7 +124,7 @@ export const interfaceReducerByIds = createReducer(
               target_label: (i.node_id === node.id) ? i.name : ""
             }
             physicalInterfaces.push({
-              ...i, 
+              ...i,
               data: { ...i, ...baseCyData },
               locked: i.physical_map?.locked
             });
@@ -242,24 +242,29 @@ export const interfaceReducerByIds = createReducer(
   }),
 
   on(bulkEditlogicalInterfaceSuccess, (state, { interfacesData }) => {
-    if (interfacesData.category == 'management') {
-      const logicalManagementInterfaces = state.logicalManagementInterfaces.map((interfaceData: any) => {
-        const updatedLogicalManagementInterfaces = interfacesData.find((i: any) => i.id == interfaceData.id);
-        return updatedLogicalManagementInterfaces ? {...interfaceData, ...updatedLogicalManagementInterfaces} : interfaceData
-      })
-      return {
-        ...state,
-        logicalManagementInterfaces
-      };
-    } else {
-      const logicalMapInterfaces = state.logicalMapInterfaces.map((interfaceData: any) => {
-        const updatedLogicalMapInterfaces = interfacesData.find((i: any) => i.id == interfaceData.id);
-        return updatedLogicalMapInterfaces ? {...interfaceData, ...updatedLogicalMapInterfaces} : interfaceData
-      })
-      return {
-        ...state,
-        logicalMapInterfaces
-      };
+    const logicalMapInterfaces: any = [];
+    const logicalManagementInterfaces: any = [];
+    const listAllInterfaces = state.logicalMapInterfaces.concat(state.logicalManagementInterfaces)
+    listAllInterfaces.map((interfaceData: any) => {
+      const updatedInterface = interfacesData.find((i: any) => i.id == interfaceData.id);
+      if (interfaceData.category === 'management') {
+        if (updatedInterface && updatedInterface.category === 'management') {
+          logicalManagementInterfaces.push({...interfaceData, ...updatedInterface})
+        } else {
+          logicalManagementInterfaces.push(interfaceData)
+        }
+      } else {
+        if (updatedInterface && updatedInterface.category !== 'management') {
+          logicalMapInterfaces.push({...interfaceData, ...updatedInterface})
+        } else {
+          logicalMapInterfaces.push(interfaceData)
+        }
+      }
+    })
+    return {
+      ...state,
+      logicalMapInterfaces,
+      logicalManagementInterfaces
     }
   }),
   on(randomizeIpBulkSuccess, (state, { interfacesData }) => {

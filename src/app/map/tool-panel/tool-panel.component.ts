@@ -12,7 +12,7 @@ import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
 import { CommonService } from 'src/app/map/context-menu/cm-common-service/common.service';
 import { retrievedMapContextMenu } from 'src/app/store/map-context-menu/map-context-menu.actions';
-import { retrievedMap } from 'src/app/store/map/map.actions';
+import { loadMap, retrievedMap } from 'src/app/store/map/map.actions';
 import { GroupService } from "../../core/services/group/group.service";
 import { selectGroups } from "../../store/group/group.selectors";
 import { retrievedGroups } from "../../store/group/group.actions";
@@ -310,7 +310,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData });
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
-          this.mapService.getMapData(this.mapCategory, this.projectId).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
+          this.store.dispatch(loadMap({ projectId: this.projectId, mapCategory: this.mapCategory }));
           this.activeNodes.splice(0);
           this.activePGs.splice(0);
           this.activeEdges.splice(0);

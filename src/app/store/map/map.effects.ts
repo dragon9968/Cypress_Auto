@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { forkJoin, of } from 'rxjs';
 import { catchError, exhaustMap, switchMap, tap } from 'rxjs/operators';
-import { loadMap, mapLoadedSuccess, reloadGroupBoxes } from './map.actions';
+import { loadMap, mapLoadedDefaultPreferencesSuccess, reloadGroupBoxes } from './map.actions';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { nodesLoadedSuccess } from '../node/node.actions';
 import { PGsLoadedSuccess } from '../portgroup/portgroup.actions';
@@ -16,6 +16,7 @@ import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { pushNotification } from '../app/app.actions';
 import { MapImageService } from 'src/app/core/services/map-image/map-image.service';
 import { mapImagesLoadedSuccess } from '../map-image/map-image.actions';
+import { ProjectService } from 'src/app/project/services/project.service';
 
 @Injectable()
 export class MapEffects {
@@ -23,20 +24,20 @@ export class MapEffects {
   loadMap$ = createEffect(() => this.actions$.pipe(
     ofType(loadMap),
     exhaustMap((payload) => forkJoin([
-      this.mapService.getMapData(payload.mapCategory, payload.projectId),
+      this.projectService.get(Number(payload.projectId)),
       this.nodeService.getNodesByProjectId(payload.projectId),
       this.portGroupService.getByProjectId(payload.projectId),
       this.interfaceService.getByProjectId(payload.projectId),
       this.groupService.getGroupByProjectId(payload.projectId),
       this.mapImageService.getMapImageByProjectId(Number(payload.projectId)),
     ]).pipe(
-      switchMap(([map, nodesData, portgroupsData, interfacesData, groupsData, mapImagesData]) => [
+      switchMap(([defaultPreferences, nodesData, portgroupsData, interfacesData, groupsData, mapImagesData]) => [
         nodesLoadedSuccess({ nodes: nodesData.result }),
         PGsLoadedSuccess({ portgroups: portgroupsData.result }),
         interfacesLoadedSuccess({ interfaces: interfacesData.result, nodes: nodesData.result }),
         groupsLoadedSuccess({ groups: groupsData.result }),
         mapImagesLoadedSuccess({ mapImages: mapImagesData.result }),
-        mapLoadedSuccess({ data: map })
+        mapLoadedDefaultPreferencesSuccess({ data: defaultPreferences.result })
       ]),
       catchError((e) => of(pushNotification({
         notification: {
@@ -60,6 +61,7 @@ export class MapEffects {
     private interfaceService: InterfaceService,
     private groupService: GroupService,
     private helpersService: HelpersService,
-    private mapImageService: MapImageService
+    private mapImageService: MapImageService,
+    private projectService: ProjectService
   ) { }
 }

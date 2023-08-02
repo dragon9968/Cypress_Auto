@@ -96,8 +96,10 @@ export class InfoPanelTableComponent {
         }
         return r.id;
       } else if (['node', 'portgroup', 'interface'].includes(this.tabName)) {
-        const ele = this.cy.getElementById(r.data.id);
-        ele.select();
+        const ele = this.cy.getElementById(r.data?.id);
+        if (ele) {
+          ele.select();
+        }
         return r.id;
       } else {
         return r.id;
@@ -117,7 +119,7 @@ export class InfoPanelTableComponent {
           })
         }
       } else if (['node', 'portgroup', 'interface'].includes(this.tabName)) {
-        const ele = this.cy.getElementById(r.data.id);
+        const ele = this.cy.getElementById(r.data?.id);
         ele.unselect();
       }
     })

@@ -1,6 +1,6 @@
 import { createReducer, on } from '@ngrx/store';
 import { MapState } from 'src/app/store/map/map.state';
-import { retrievedMap, retrievedIsMapOpen, mapLoadedSuccess } from './map.actions';
+import { retrievedMap, retrievedIsMapOpen, mapLoadedDefaultPreferencesSuccess } from './map.actions';
 
 const initialState = {} as MapState;
 
@@ -18,12 +18,8 @@ export const mapReducer = createReducer(
     ...state,
     isMapOpen: data,
   })),
-  on(mapLoadedSuccess, (state, { data }) => ({
+  on(mapLoadedDefaultPreferencesSuccess, (state, { data }) => ({
     ...state,
-    defaultPreferences: data.defaultPreferences.map_style,
-    nodes: data.nodes,
-    portgroups: data.portgroups,
-    interfaces: data.interfaces,
-    groups: data.groups
+    defaultPreferences: data.logical_map.map_style
   })),
 );
