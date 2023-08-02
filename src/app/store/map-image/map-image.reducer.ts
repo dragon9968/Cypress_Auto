@@ -1,5 +1,15 @@
 import { createReducer, on } from '@ngrx/store';
-import { mapImagesLoadedSuccess, retrievedImages, retrievedMapImages, selectAllMapImage, selectMapImage, unSelectAllMapImage, unSelectMapImage } from './map-image.actions';
+import {
+  mapImagesLoadedSuccess,
+  retrievedImages,
+  retrievedMapImages,
+  selectAllMapImage,
+  selectMapImage,
+  unSelectAllMapImage,
+  unSelectMapImage,
+  clearLinkedMapImages,
+  linkedMapImagesLoadedSuccess
+} from './map-image.actions';
 import { MapImageState } from './map-image.state';
 
 const initialState = {} as MapImageState;
@@ -80,4 +90,24 @@ export const mapImagesReducer = createReducer(
       mapImages
     }
   }),
+  on(linkedMapImagesLoadedSuccess, (state, { mapImages, mapLinkId, position }) => {
+    const linkedMapImages = JSON.parse(JSON.stringify(mapImages)).map((mapImage: any) => {
+      let mapImagesCY = addCyDataToMapImages(mapImage)
+      mapImagesCY.data.parent_id = mapLinkId
+      if (mapImagesCY.position) {
+        mapImagesCY.position.x = position.x;
+        mapImagesCY.position.y = position.y;
+      }
+      mapImagesCY.data.zIndex = 1000;
+      return mapImagesCY
+    });
+    return {
+      ...state,
+      linkedMapImages
+    }
+  }),
+  on(clearLinkedMapImages, (state) => {
+    return { ...state, linkedMapImages: undefined }
+  })
 );
+

@@ -14,6 +14,8 @@ import {
   updateDomainInNode,
   selectAllNode,
   unSelectAllNode,
+  linkedMapNodesLoadedSuccess,
+  clearLinkedMapNodes,
   bulkUpdateInterfaceInNode
 } from "./node.actions";
 import { environment } from "src/environments/environment";
@@ -99,6 +101,27 @@ export const nodeReducer = createReducer(
       physicalNodes
     };
   }),
+  on(linkedMapNodesLoadedSuccess, (state, { nodes, mapLinkId, position }) => {
+    const linkedMapNodes = JSON.parse(JSON.stringify(nodes)).map((node: any) => {
+      let nodeCY = addCYDataToNode(node, true)
+      nodeCY.data.parent_id = mapLinkId
+      if (nodeCY.position) {
+        nodeCY.position.x += position.x
+        nodeCY.position.y += position.y
+      }
+      return nodeCY;
+    })
+    return {
+      ...state,
+      linkedMapNodes
+    };
+  }),
+  on(clearLinkedMapNodes, (state) => {
+    return {
+      ...state,
+      linkedMapNodes: undefined
+    }
+  }),
   on(selectNode, (state, { id }) => {
     const logicalNodes = state.logicalNodes.map(n => (n.data.id == id) ? { ...n, isSelected: true } : n);
     return {
@@ -137,8 +160,8 @@ export const nodeReducer = createReducer(
     }
     return {
       ...state,
-      logicalNodes: logicalNodes,
-      physicalNodes: physicalNodes
+      logicalNodes,
+      physicalNodes
     };
   }),
   on(nodeUpdatedSuccess, (state, { node }) => {
@@ -148,7 +171,6 @@ export const nodeReducer = createReducer(
       logicalNodes,
     };
   }),
-
   on(bulkUpdatedNodeSuccess, (state, { nodes }) => {
     const logicalNodes = state.logicalNodes.map((node: any) => {
       const updatedNode = nodes.find((n: any) => n.id == node.id);
@@ -219,7 +241,7 @@ export const nodeReducer = createReducer(
     return {
       ...state,
       logicalNodes,
-    }; 
+    };
   }),
   on(selectAllNode, (state, {}) => {
     const logicalNodes = state.logicalNodes.map(n => {

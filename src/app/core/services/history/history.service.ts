@@ -52,12 +52,14 @@ export class HistoryService implements OnDestroy{
   }
 
   addNewHistoryIntoStorage(task: string) {
-    const currentHistories = JSON.parse(JSON.stringify(this.histories))
-    this.getByTask(task).subscribe(res => {
-      const newHistory = res.result[0];
-      currentHistories.unshift(newHistory)
-      this.store.dispatch(retrievedHistories({data: currentHistories}))
-    })
+    if (this.histories) {
+      const currentHistories = JSON.parse(JSON.stringify(this.histories))
+      this.getByTask(task).subscribe(res => {
+        const newHistory = res.result[0];
+        currentHistories.unshift(newHistory)
+        this.store.dispatch(retrievedHistories({data: currentHistories}))
+      })
+    }
   }
 
   removeHistoryByIdsInStorage(pks: number[]) {

@@ -176,7 +176,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
     this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
       if (notification?.type == 'success') {
         this.dialogRef.close();
-      } 
+      }
     });
     this.selectDomains$ = this.store.select(selectDomains).subscribe((domains: any) => {
       this.domains = domains;
@@ -366,7 +366,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
   }
 
   updatePG() {
-    const ele = this.data.cy.getElementById(this.data.genData.id);
+    const ele = this.data.cy.getElementById(this.data.genData.data.id);
     const jsonDataValue: PortGroupPutModel = {
       name: this.nameCtr?.value,
       vlan: this.vlanCtr?.value,

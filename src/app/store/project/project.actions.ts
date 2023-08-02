@@ -60,3 +60,17 @@ export const projectLoadedSuccess = createAction(
   props<{ project: any }>()
 );
 
+export const loadProjectsNotLinkYet = createAction(
+  'loadProjectsNotLinkYet',
+  props<{ projectId: string }>()
+)
+
+export const projectsNotLinkYetLoadedSuccess = createAction(
+  'projectsNotLinkYetLoadedSuccess',
+  props<{ projectsNotLinkYet: any[] }>()
+)
+
+export const removeProjectNotLink = createAction(
+  'removeProjectNotLink',
+  props<{ projectNotLinkId: number }>()
+)

@@ -12,6 +12,9 @@ import { Subscription } from "rxjs";
 import { selectLogicalNodes } from "../../../store/node/node.selectors";
 import { selectMapPortGroups } from "../../../store/portgroup/portgroup.selectors";
 import { selectLogicalMapInterfaces } from "../../../store/interface/interface.selectors";
+import { selectSelectedMapLinks } from "../../../store/map-link/map-link.selectors";
+import { ProjectService } from "../../../project/services/project.service";
+import { retrievedAllProjects } from "../../../store/project/project.actions";
 
 @Injectable({
   providedIn: 'root'
@@ -21,15 +24,18 @@ export class CMViewDetailsService implements OnDestroy {
   nodes: any[] = [];
   portgroups: any[] = [];
   interfaces: any[] = [];
+  mapLinks: any[] = [];
   selectLogicalNodes$ = new Subscription();
   selectMapPortGroups$ = new Subscription();
   selectLogicalMapInterfaces$ = new Subscription();
+  selectSelectedMapLinks$ = new Subscription();
 
   constructor(
+    private store: Store,
     private dialog: MatDialog,
     private toastr: ToastrService,
     private interfaceService: InterfaceService,
-    private store: Store
+    private projectService: ProjectService
   ) {
     this.selectLogicalNodes$ = this.store.select(selectLogicalNodes).subscribe(nodes => {
       if (nodes) {
@@ -46,6 +52,11 @@ export class CMViewDetailsService implements OnDestroy {
         this.interfaces = interfaces.filter(i => i.isSelected);
       }
     });
+    this.selectSelectedMapLinks$ = this.store.select(selectSelectedMapLinks).subscribe(mapLinks => {
+      if (mapLinks) {
+        this.mapLinks = mapLinks
+      }
+    })
   }
 
   ngOnDestroy(): void {
@@ -54,24 +65,24 @@ export class CMViewDetailsService implements OnDestroy {
      this.selectLogicalMapInterfaces$.unsubscribe();
   }
 
-  getMenu(cy: any, activeNodes: any, activePGs: any, activeEdges: any, activeMapLinks: any, mapCategory: string, projectId: number) {
+  getMenu(cy: any, activeNodes: any, activePGs: any, activeEdges: any, mapCategory: string, projectId: number) {
     return {
       id: "view_details",
       content: "View",
       selector: "node[label!='group_box'], edge, node[elem_category='map_link']",
       onClickFunction: (event: any) => {
-        this.openViewDetailForm(cy, activeNodes, activePGs, activeEdges, activeMapLinks, mapCategory, projectId);
+        this.openViewDetailForm(cy, activeNodes, activePGs, activeEdges, mapCategory, projectId);
       },
       hasTrailingDivider: false,
       disabled: false,
     }
   }
 
-  openViewDetailForm(cy: any, activeNodes: any, activePGs: any, activeEdges: any, activeMapLinks: any, mapCategory: string, projectId: number) {
+  openViewDetailForm(cy: any, activeNodes: any, activePGs: any, activeEdges: any, mapCategory: string, projectId: number) {
     const activeNodesLength = activeNodes.length;
     const activePGsLength = activePGs.length;
     const activeEdgesLength = activeEdges.length;
-    const activeMapLinksLength = activeMapLinks.length;
+    const activeMapLinksLength = this.mapLinks.length;
     if (activeEdgesLength == 1 && activeNodesLength == 0 && activePGsLength == 0) {
       const dialogData = {
         mode: 'view',
@@ -106,12 +117,18 @@ export class CMViewDetailsService implements OnDestroy {
         { disableClose: true, width: '1000px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal'}
       );
     } else if (activeMapLinksLength == 1 && activePGsLength == 0 && activeEdgesLength == 0 && activeNodesLength == 0) {
-      const dialogData = {
-        mode: 'view',
-        genData: activeMapLinks[0].data(),
-        cy
-      }
-      this.dialog.open(ViewUpdateProjectNodeComponent, { disableClose: true, width: '450px', autoFocus: false, data: dialogData });
+      this.projectService.getProjectByStatus('active').subscribe(resp => {
+        this.store.dispatch(retrievedAllProjects({ listAllProject: resp.result }));
+        const dialogData = {
+          mode: 'view',
+          genData: this.mapLinks[0],
+          cy
+        }
+        this.dialog.open(ViewUpdateProjectNodeComponent,
+          { disableClose: true, width: '450px', autoFocus: false, data: dialogData }
+        );
+      })
+
     }
   }
 }

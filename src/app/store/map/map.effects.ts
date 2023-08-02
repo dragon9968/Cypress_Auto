@@ -1,12 +1,16 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { forkJoin, of } from 'rxjs';
+import { forkJoin, mergeMap, of } from 'rxjs';
 import { catchError, exhaustMap, switchMap, tap } from 'rxjs/operators';
-import { loadMap, mapLoadedDefaultPreferencesSuccess, reloadGroupBoxes } from './map.actions';
+import { clearLinkedMap, loadLinkedMap, loadMap, mapLoadedDefaultPreferencesSuccess, mapLoadedSuccess, reloadGroupBoxes } from './map.actions';
 import { MapService } from 'src/app/core/services/map/map.service';
-import { nodesLoadedSuccess } from '../node/node.actions';
-import { PGsLoadedSuccess } from '../portgroup/portgroup.actions';
-import { interfacesLoadedSuccess } from '../interface/interface.actions';
+import { clearLinkedMapNodes, linkedMapNodesLoadedSuccess, nodesLoadedSuccess } from '../node/node.actions';
+import { clearLinkedMapPGs, linkedMapPGsLoadedSuccess, PGsLoadedSuccess } from '../portgroup/portgroup.actions';
+import {
+  clearLinkedMapInterfaces,
+  interfacesLoadedSuccess,
+  linkedMapInterfacesLoadedSuccess
+} from '../interface/interface.actions';
 import { groupsLoadedSuccess } from '../group/group.actions';
 import { NodeService } from 'src/app/core/services/node/node.service';
 import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
@@ -15,7 +19,13 @@ import { GroupService } from 'src/app/core/services/group/group.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { pushNotification } from '../app/app.actions';
 import { MapImageService } from 'src/app/core/services/map-image/map-image.service';
-import { mapImagesLoadedSuccess } from '../map-image/map-image.actions';
+import {
+  clearLinkedMapImages,
+  linkedMapImagesLoadedSuccess,
+  mapImagesLoadedSuccess
+} from '../map-image/map-image.actions';
+import { MapLinkService } from "../../core/services/map-link/map-link.service";
+import { addLinkedElementsToMap, mapLinksLoadedSuccess } from "../map-link/map-link.actions";
 import { ProjectService } from 'src/app/project/services/project.service';
 
 @Injectable()
@@ -30,8 +40,18 @@ export class MapEffects {
       this.interfaceService.getByProjectId(payload.projectId),
       this.groupService.getGroupByProjectId(payload.projectId),
       this.mapImageService.getMapImageByProjectId(Number(payload.projectId)),
+      this.mapLinkService.getMapLinksByProjectId(payload.projectId)
     ]).pipe(
-      switchMap(([defaultPreferences, nodesData, portgroupsData, interfacesData, groupsData, mapImagesData]) => [
+      switchMap(([
+        defaultPreferences,
+        nodesData,
+        portgroupsData,
+        interfacesData,
+        groupsData,
+        mapImagesData,
+        mapLinkData,
+      ]) => [
+        mapLinksLoadedSuccess({ mapLinks: mapLinkData.result }),
         nodesLoadedSuccess({ nodes: nodesData.result }),
         PGsLoadedSuccess({ portgroups: portgroupsData.result }),
         interfacesLoadedSuccess({ interfaces: interfacesData.result, nodes: nodesData.result }),
@@ -53,6 +73,55 @@ export class MapEffects {
     tap((payload) => this.helpersService.reloadGroupBoxes())
   ), { dispatch: false });
 
+  loadLinkedMap$ = createEffect(() => this.actions$.pipe(
+    ofType(loadLinkedMap),
+    mergeMap((payload) => forkJoin([
+      this.nodeService.getNodesByProjectId(payload.projectId),
+      this.portGroupService.getByProjectId(payload.projectId),
+      this.interfaceService.getByProjectId(payload.projectId),
+      this.mapImageService.getMapImageByProjectId(Number(payload.projectId)),
+    ]).pipe(
+      switchMap(([ nodesData, portgroupsData, interfacesData, mapImagesData ]) => [
+        linkedMapNodesLoadedSuccess({
+          nodes: nodesData.result,
+          mapLinkId: payload.mapLinkId,
+          position: payload.position
+        }),
+        linkedMapPGsLoadedSuccess({
+          portgroups: portgroupsData.result,
+          mapLinkId: payload.mapLinkId,
+          position: payload.position
+        }),
+        linkedMapInterfacesLoadedSuccess({
+          interfaces: interfacesData.result,
+          nodes: nodesData.result
+        }),
+        linkedMapImagesLoadedSuccess({
+          mapImages: mapImagesData.result,
+          mapLinkId: payload.mapLinkId,
+          position: payload.position
+        }),
+        addLinkedElementsToMap()
+      ]),
+      catchError((e) => of(pushNotification({
+        notification: {
+          type: 'error',
+          message: 'Load Map Link failed!'
+        }
+      })))
+    ))
+  ));
+
+  clearLinkedMaps = createEffect(() => this.actions$.pipe(
+    ofType(clearLinkedMap),
+    switchMap(() => [
+      clearLinkedMapNodes(),
+      clearLinkedMapPGs(),
+      clearLinkedMapImages(),
+      clearLinkedMapInterfaces()
+    ])
+  ))
+
   constructor(
     private actions$: Actions,
     private mapService: MapService,
@@ -62,6 +131,7 @@ export class MapEffects {
     private groupService: GroupService,
     private helpersService: HelpersService,
     private mapImageService: MapImageService,
+    private mapLinkService: MapLinkService,
     private projectService: ProjectService
   ) { }
 }

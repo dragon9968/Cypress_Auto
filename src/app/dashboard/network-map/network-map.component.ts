@@ -155,7 +155,7 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
           if (this.connection && this.connection.id !== 0 && this.vmStatusChecked) {
             this.infoPanelService.changeVMStatusOnMap(+this.projectId, this.connection.id);
           }
-          this.helpersService.initCollapseExpandMapLink(this.cy)
+          this.helpersService.initCollapseExpandMapLink()
           this.helpersService.changeEdgeDirectionOnMap(this.cy, this.isEdgeDirectionChecked)
         }
       });
@@ -224,6 +224,7 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
       wheelSensitivity: 0.2,
     });
     this.infoPanelService.cy = this.cy;
+    this.helpersService.cy = this.cy;
     this.helpersService.randomPositionForElementsNoPosition(this.cy)
     this.cy.expandCollapse({
       layoutBy: null,

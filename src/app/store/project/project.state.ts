@@ -9,5 +9,6 @@ export interface ProjectState {
   template: any[],
   listAllProject: any[],
   projectCategory: string,
-  project: any
+  project: any,
+  projectsNotLinkYet: any[]
 }

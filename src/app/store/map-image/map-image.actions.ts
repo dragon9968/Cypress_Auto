@@ -37,3 +37,12 @@ export const selectAllMapImage = createAction(
 export const unSelectAllMapImage = createAction(
   'unSelectAllMapImage'
 );
+
+export const linkedMapImagesLoadedSuccess = createAction(
+  'linkedMapImagesLoadedSuccess',
+  props<{ mapImages: any, mapLinkId: number, position: any }>()
+);
+
+export const clearLinkedMapImages = createAction(
+  'clearLinkedMapImages'
+)

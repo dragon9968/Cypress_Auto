@@ -17,6 +17,7 @@ export enum ReducerKeys {
     PORTGROUP = 'portgroup',
     MAP_CM = 'mapContextMenu',
     NODE = 'node',
+    MAP_LINK = 'MAP_LINK',
     DOMAIN_USER = 'domainUser',
     DOMAIN_USER_CHANGE = 'domainUserChange',
     GROUP = 'group',

@@ -17,6 +17,9 @@ import { selectLogicalMapInterfaces } from 'src/app/store/interface/interface.se
 import { Subscription } from 'rxjs';
 import { selectLogicalNodes } from 'src/app/store/node/node.selectors';
 import { selectMapPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
+import { selectSelectedMapLinks } from "../../../store/map-link/map-link.selectors";
+import { ProjectService } from "../../../project/services/project.service";
+import { retrievedAllProjects } from "../../../store/project/project.actions";
 
 @Injectable({
   providedIn: 'root'
@@ -26,14 +29,17 @@ export class CMEditService implements OnDestroy {
   nodes: any[] = [];
   portgroups: any[] = [];
   interfaces: any[] = [];
+  mapLinks: any[] = [];
   selectLogicalNodes$ = new Subscription();
   selectMapPortGroups$ = new Subscription();
   selectLogicalMapInterfaces$ = new Subscription();
+  selectSelectedMapLinks$ = new Subscription();
   constructor(
     private dialog: MatDialog,
     private toastr: ToastrService,
     private store: Store,
-    private interfaceService: InterfaceService
+    private interfaceService: InterfaceService,
+    private projectService: ProjectService
   ) {
     this.selectLogicalNodes$ = this.store.select(selectLogicalNodes).subscribe(nodes => {
       if (nodes) {
@@ -50,6 +56,11 @@ export class CMEditService implements OnDestroy {
         this.interfaces = interfaces.filter(i => i.isSelected);
       }
     });
+    this.selectSelectedMapLinks$ = this.store.select(selectSelectedMapLinks).subscribe(mapLinks => {
+      if (mapLinks) {
+        this.mapLinks = mapLinks
+      }
+    })
   }
 
   ngOnDestroy(): void {
@@ -58,32 +69,35 @@ export class CMEditService implements OnDestroy {
     this.selectLogicalMapInterfaces$.unsubscribe();
   }
 
-  getMenu(cy: any, activeMapLinks: any, isCanWriteOnProject: boolean, mapCategory: string, projectId: number) {
+  getMenu(cy: any, isCanWriteOnProject: boolean, mapCategory: string, projectId: number) {
     return {
       id: "edit",
       content: "Edit",
       selector: "node[label!='group_box'], node[label='map_background'], edge, node[elem_category='map_link']",
       onClickFunction: (event: any) => {
-        this.openEditForm(cy, activeMapLinks, mapCategory, projectId);
+        this.openEditForm(cy, mapCategory, projectId);
       },
       hasTrailingDivider: false,
       disabled: !isCanWriteOnProject,
     }
   }
 
-  openEditForm(cy: any, activeMapLinks: any, mapCategory: string, projectId: number) {
+  openEditForm(cy: any, mapCategory: string, projectId: number) {
     const activeNodesLength = this.nodes.length;
     const activePGsLength = this.portgroups.length;
     const activeEdgesLength = this.interfaces.length;
-    const activeMapLinksLength = activeMapLinks.length;
+    const activeMapLinksLength = this.mapLinks.length;
 
     if (activeMapLinksLength == 1) {
-      const dialogData = {
-        mode: 'update',
-        genData: activeMapLinks[0].data(),
-        cy
-      }
-      this.dialog.open(ViewUpdateProjectNodeComponent, { disableClose: true, width: '450px', autoFocus: false, data: dialogData });
+      this.projectService.getProjectByStatus('active').subscribe(resp => {
+        this.store.dispatch(retrievedAllProjects({ listAllProject: resp.result }));
+        const dialogData = {
+          mode: 'update',
+          genData: this.mapLinks[0],
+          cy
+        }
+        this.dialog.open(ViewUpdateProjectNodeComponent, { disableClose: true, width: '450px', autoFocus: false, data: dialogData });
+      })
     } else if (activeNodesLength == 0 && activePGsLength == 0) {
       if (activeEdgesLength > 1) {
         const edgeActiveIds = this.interfaces.map((ele: any) => ele.id);

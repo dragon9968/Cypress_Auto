@@ -11,7 +11,7 @@ import {
   retrievedProjectsTemplate,
   retrievedAllProjects,
   retrievedProjectCategory,
-  projectLoadedSuccess
+  projectLoadedSuccess, projectsNotLinkYetLoadedSuccess, removeProjectNotLink
 } from './project.actions';
 
 const initialState = {} as ProjectState;
@@ -61,5 +61,16 @@ export const projectReducer = createReducer(
   on(projectLoadedSuccess, (state, { project }) => ({
     ...state,
     project
-  }))
+  })),
+  on(projectsNotLinkYetLoadedSuccess, (state, { projectsNotLinkYet }) => ({
+    ...state,
+    projectsNotLinkYet
+  })),
+  on(removeProjectNotLink, (state, { projectNotLinkId }) => {
+    const projectsNotLinkYet = state.projectsNotLinkYet.filter(project => project.id !== projectNotLinkId)
+    return {
+      ...state,
+      projectsNotLinkYet
+    }
+  })
 );

@@ -36,6 +36,7 @@ import { historyReducer } from "./history/history.reducer";
 import { mapCategoryReducer } from "./map-category/map-category.reducer";
 import { appReducer } from "./app/app.reducer";
 import { lookupOsFirmwaresReducer } from "./lookup-os-firmware/lookup-os-firmwares.reducer";
+import { mapLinkReducer } from "./map-link/map-link.reducer";
 
 export const reducers = {
     [ReducerKeys.MAP]: mapReducer,
@@ -56,6 +57,7 @@ export const reducers = {
     [ReducerKeys.PORTGROUP]: portGroupReducer,
     [ReducerKeys.MAP_CM]: mapContextMenuReducer,
     [ReducerKeys.NODE]: nodeReducer,
+    [ReducerKeys.MAP_LINK]: mapLinkReducer,
     [ReducerKeys.DOMAIN_USER]: domainUserReducer,
     [ReducerKeys.GROUP]: groupReducer,
     [ReducerKeys.SERVER_CONNECT]: serverConnect,

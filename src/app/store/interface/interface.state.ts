@@ -12,5 +12,7 @@ export interface InterfaceState {
   logicalMapInterfaces: any[],
   logicalManagementInterfaces: any[],
   physicalInterfaces: any[],
-  physicalManagementInterfaces: any[]
+  physicalManagementInterfaces: any[],
+  linkedMapInterfaces: any[] | undefined,
+  interfacesCommonMapLinks: any[],
 }

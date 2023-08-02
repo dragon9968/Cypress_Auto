@@ -24,6 +24,7 @@ import { InterfaceService } from 'src/app/core/services/interface/interface.serv
 import { loadPGs } from 'src/app/store/portgroup/portgroup.actions';
 import { loadNodes } from 'src/app/store/node/node.actions';
 import { selectLogicalNodes } from 'src/app/store/node/node.selectors';
+import { loadProjectsNotLinkYet } from "../../store/project/project.actions";
 
 @Component({
   selector: 'app-tool-panel',
@@ -252,12 +253,8 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         }
         const deletedNodesLinkProject = this.deletedNodes.filter(node => node.linked_project_id);
         if (deletedNodesLinkProject.length > 0) {
+          this.store.dispatch(loadProjectsNotLinkYet({ projectId: this.projectId }))
           this.toastr.success('Unlink Project Successfully', 'Success');
-          this.projectService.getProjectByStatusAndCategory('active', 'project').subscribe(
-            (data: any) => {
-              this.helpersService.updateProjectLinksStorage(this.cy, data.result);
-            }
-          );
         }
       }
       // if (this.deletedInterfaces.length > 0) {

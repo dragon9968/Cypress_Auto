@@ -117,6 +117,30 @@ export const bulkEditlogicalInterfaceSuccess = createAction(
   props<{ interfacesData: any }>()
 );
 
+export const linkedMapInterfacesLoadedSuccess = createAction(
+  'linkedMapInterfacesLoadedSuccess',
+  props<{ interfaces: any, nodes: any }>()
+);
+
+export const clearLinkedMapInterfaces = createAction(
+  'clearLinkedMapInterfaces'
+)
+
+export const addInterfaceMapLinkToPG = createAction(
+  'addInterfaceMapLinkToPG',
+  props<{ edge: any }>()
+)
+
+export const interfaceAddedMapLinkToPGSuccess = createAction(
+  'interfaceAddedMapLinkToPGSuccess',
+  props<{ edge: any }>()
+)
+
+export const addInterfaceMapLinkToMap = createAction(
+  'addInterfaceMapLinkToMap',
+  props<{ id: any }>()
+)
+
 export const randomizeIpBulk = createAction(
   'randomizeIpBulk',
   props<{

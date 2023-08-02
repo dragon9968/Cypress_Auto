@@ -20,10 +20,33 @@ import {
   bulkEditlogicalInterfaceSuccess,
   selectAllInterface,
   unselectAllInterface,
+  linkedMapInterfacesLoadedSuccess,
+  clearLinkedMapInterfaces,
+  interfaceAddedMapLinkToPGSuccess,
   randomizeIpBulkSuccess
 } from "./interface.actions";
 
 const initialState = {} as InterfaceState;
+
+const addCYDataToMapLinkInterface = (edge: any) => {
+  const baseCyData = {
+    id: `interface-${edge.id}`,
+    interface_pk: edge.id,
+    interface_fk: edge.interface_id,
+    elem_category: "interface",
+    zIndex: 999,
+    new: false,
+    updated: false,
+    deleted: false,
+    source: `project-link-${edge.map_link_id}`,
+    target: `pg-${edge.port_group_id}`,
+    'line-style': 'dotted'
+  }
+  return {
+    ...edge,
+    data: { ...edge, ...baseCyData }
+  }
+}
 
 export const interfaceReducerByIds = createReducer(
   initialState,
@@ -68,10 +91,12 @@ export const interfaceReducerByIds = createReducer(
     const logicalManagementInterfaces: any[] = [];
     const physicalInterfaces: any[] = [];
     const physicalManagementInterfaces: any[] = [];
+    const interfacesCommonMapLinks: any[] = [];
     const infrastructureNode = nodes.filter((el: any) => el.infrastructure)
     const hwNodes = nodes.filter((el: any) => el.category === 'hw')
     const physicalNodes = hwNodes.concat(infrastructureNode)
     const logicalNodes = nodes.filter((el: any) => !el.infrastructure)
+    const interfaceCommonMapLinksRaw = interfaces.filter((i: any) => i.category == 'link')
     logicalNodes.map((logicalNode: any) => {
       interfaces.map((i: any) => {
         if (i.node_id === logicalNode.id) {
@@ -95,14 +120,14 @@ export const interfaceReducerByIds = createReducer(
             logicalMapInterfaces.push({
               ...i,
               data: { ...i, ...baseCyData },
-              locked: i.physical_map?.locked
+              locked: i.logical_map?.locked
             });
           } else if (i.category == 'management') {
             logicalManagementInterfaces.push(i);
           }
         }
       })
-    })
+    });
     physicalNodes.map((node: any) => {
       interfaces.map((i: any) => {
         let targetNode: any;
@@ -134,12 +159,66 @@ export const interfaceReducerByIds = createReducer(
         }
       })
     });
+    interfaceCommonMapLinksRaw.map((edge: any) => {
+      const interfaceCYData = addCYDataToMapLinkInterface(edge)
+      interfacesCommonMapLinks.push(interfaceCYData);
+    })
     return {
       ...state,
       logicalMapInterfaces,
       logicalManagementInterfaces,
       physicalInterfaces,
-      physicalManagementInterfaces
+      physicalManagementInterfaces,
+      interfacesCommonMapLinks
+    }
+  }),
+  on(linkedMapInterfacesLoadedSuccess, (state, { interfaces, nodes }) => {
+    const linkedMapInterfaces: any[] = [];
+    nodes.map((node: any) => {
+      interfaces.map((i: any) => {
+        if (i.node_id === node.id) {
+          if (i.category != 'management' && i.port_group_id) {
+            const ip_str = i.ip ? i.ip : '';
+            const ip = ip_str.split(".");
+            const lastOctet = ip.length == 4 ? `.${ip[3]}` : '';
+            const baseCyData = {
+              id: `interface-${i.id}`,
+              interface_pk: i.id,
+              interface_fk: i.interface_id,
+              elem_category: "interface",
+              zIndex: 999,
+              updated: false,
+              source: `node-${i.node_id}`,
+              target: `pg-${i.port_group_id}`,
+              ip_last_octet: i.ip_allocation != "dhcp" ? lastOctet : "DHCP",
+              source_label: i.name,
+              target_label: ''
+            }
+            linkedMapInterfaces.push({
+              ...i,
+              data: { ...i, ...baseCyData },
+              locked: i.logical_map?.locked
+            });
+          }
+        }
+      })
+    })
+    return {
+      ...state,
+      linkedMapInterfaces
+    }
+  }),
+  on(clearLinkedMapInterfaces, (state) => {
+    return {
+      ...state,
+      linkedMapInterfaces: undefined
+    }
+  }),
+  on(interfaceAddedMapLinkToPGSuccess, (state, { edge }) => {
+    const edgeCYData = addCYDataToMapLinkInterface(edge);
+    return {
+      ...state,
+      interfacesCommonMapLinks: state.interfacesCommonMapLinks.concat(edgeCYData)
     }
   }),
   on(selectInterface, (state, { id }) => {
@@ -240,7 +319,6 @@ export const interfaceReducerByIds = createReducer(
       };
     }
   }),
-
   on(bulkEditlogicalInterfaceSuccess, (state, { interfacesData }) => {
     const logicalMapInterfaces: any = [];
     const logicalManagementInterfaces: any = [];

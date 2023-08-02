@@ -1,9 +1,17 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { EMPTY, forkJoin, of } from 'rxjs';
+import { forkJoin, of, tap } from 'rxjs';
 import { map, exhaustMap, catchError, mergeMap, switchMap } from 'rxjs/operators';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
-import { logicalInterfaceUpdatedSuccess, interfacesLoadedSuccess, loadInterfaces, updateLogicalInterface, bulkEditLogicalInterface, bulkEditlogicalInterfaceSuccess, randomizeIpBulk, randomizeIpBulkSuccess } from './interface.actions';
+import {
+  logicalInterfaceUpdatedSuccess,
+  interfacesLoadedSuccess,
+  loadInterfaces,
+  updateLogicalInterface,
+  bulkEditLogicalInterface,
+  bulkEditlogicalInterfaceSuccess,
+  addInterfaceMapLinkToPG, interfaceAddedMapLinkToPGSuccess, addInterfaceMapLinkToMap, randomizeIpBulk, randomizeIpBulkSuccess
+} from './interface.actions';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { pushNotification } from '../app/app.actions';
 import { bulkUpdateInterfaceInNode, updateInterfaceInNode } from '../node/node.actions';
@@ -26,6 +34,33 @@ export class InterfacesEffects {
   )
   );
 
+  addInterfaceMapLinkToPG$ = createEffect(() => this.actions$.pipe(
+    ofType(addInterfaceMapLinkToPG),
+    exhaustMap(payload => this.interfaceService.add(payload.edge).pipe(
+      switchMap(res => [
+        interfaceAddedMapLinkToPGSuccess({ edge: { id: res.id , ...res.result} }),
+        addInterfaceMapLinkToMap({ id: res.id }),
+        pushNotification({
+          notification: {
+            type: 'success',
+            message: 'Linked Project Successfully!'
+          }
+        })
+      ]),
+      catchError(e => of(pushNotification({
+        notification: {
+          type: 'error',
+          message: 'Linked Project Failed!'
+        }
+      })))
+    ))
+  ))
+
+  addInterfaceMapLinkToMap$ = createEffect(() => this.actions$.pipe(
+    ofType(addInterfaceMapLinkToMap),
+    tap((payload) => this.helpersService.addInterfaceMapLinkToMap(payload.id))
+  ), { dispatch: false })
+
   updateLogicalInterface$ = createEffect(() => this.actions$.pipe(
     ofType(updateLogicalInterface),
     exhaustMap((payload) => this.interfaceService.put(payload.id, payload.data)
@@ -41,7 +76,7 @@ export class InterfacesEffects {
         switchMap((interfaceData: any) => [
           logicalInterfaceUpdatedSuccess({ interfaceData }),
           updateInterfaceInNode({
-            interfaceData: { 
+            interfaceData: {
               ...interfaceData,
               netmaskName: this.helpersService.getOptionById(payload.netmasks, interfaceData.netmask_id).name
             }

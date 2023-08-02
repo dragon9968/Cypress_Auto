@@ -226,7 +226,7 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
       cyData.color = cyData.logical_map.map_style.color;
       cyData.source_label = this.sourceInterfaceCtr?.value.name
       cyData.target_label = this.destinationInterfaceCtr?.value.name
-      this.helpersService.addCYEdge(this.data.cy, { ...newEdgeData, ...cyData });
+      this.helpersService.addCYEdge({ ...newEdgeData, ...cyData });
       this.helpersService.changeEdgeDirectionOnMap(this.data.cy, this.data.isEdgeDirectionChecked)
       this.interfaceService.getByProjectId(this.projectService.getProjectId()).subscribe(resp => {
         this.store.dispatch(retrievedInterfacesConnectedNode({ interfacesConnectedNode: resp.result }));

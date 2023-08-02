@@ -105,7 +105,7 @@
                 formControlName="linkProjectCtr" [matAutocomplete]="autoProject">
               <mat-autocomplete #autoProject="matAutocomplete" [displayWith]="helpers.optionDisplay"
                 (optionSelected)="selectProject()">
-                <mat-option *ngFor="let project of filteredProjects | async" [value]="project">
+                <mat-option *ngFor="let project of filteredProjectsNotLinkYet | async" [value]="project">
                   <div class="template-option">
                     <span class="template-option__text">{{ project.name }}</span>
                   </div>

@@ -14,3 +14,4 @@ export const selectProjectTemplate = createSelector(selectProjectFeature, (state
 export const selectAllProjects = createSelector(selectProjectFeature, (state: ProjectState) => state.listAllProject);
 export const selectProjectCategory = createSelector(selectProjectFeature, (state: ProjectState) => state.projectCategory)
 export const selectProject = createSelector(selectProjectFeature, (state: ProjectState) => state.project)
+export const selectProjectsNotLinkYet = createSelector(selectProjectFeature, (state: ProjectState) => state.projectsNotLinkYet)

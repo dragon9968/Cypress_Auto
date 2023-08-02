@@ -102,3 +102,11 @@ export const addNewNodeToMap = createAction(
   props<{ id: number }>()
 );
 
+export const linkedMapNodesLoadedSuccess = createAction(
+  'linkedMapNodesLoadedSuccess',
+  props<{ nodes: any, mapLinkId: number, position: any }>()
+);
+
+export const clearLinkedMapNodes = createAction(
+  'clearLinkedMapNodes'
+)

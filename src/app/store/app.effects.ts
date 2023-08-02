@@ -8,6 +8,7 @@ import { PortGroupsEffects } from "./portgroup/portgroup.effects";
 import { ProjectEffects } from "./project/project.effects";
 import { LookupOsFirmwaresEffects } from "./lookup-os-firmware/lookup-os-firmwares.effects";
 import { MapImagesEffects } from "./map-image/map-image.effects";
+import { MapLinkEffects } from "./map-link/map-link.effects";
 
 export const effects = [
   MapEffects,
@@ -19,5 +20,6 @@ export const effects = [
   GroupsEffects,
   AppPrefEffects,
   LookupOsFirmwaresEffects,
-  MapImagesEffects
+  MapImagesEffects,
+  MapLinkEffects
 ];

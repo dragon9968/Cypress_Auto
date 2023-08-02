@@ -19,7 +19,11 @@ import { ProjectService } from "../../../project/services/project.service";
 import { Router } from "@angular/router";
 import { ToastrService } from "ngx-toastr";
 import { RouteSegments } from "../../../core/enums/route-segments.enum";
-import { selectProjects, selectProjectTemplate } from "../../../store/project/project.selectors";
+import {
+  selectProjects,
+  selectProjectsNotLinkYet,
+  selectProjectTemplate
+} from "../../../store/project/project.selectors";
 import { AuthService } from "../../../core/services/auth/auth.service";
 
 @Component({
@@ -65,12 +69,12 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
   selectImages$ = new Subscription();
   selectMapOption$ = new Subscription();
   selectMapPref$ = new Subscription();
-  selectProjects$ = new Subscription();
+  selectProjectsNotLinkYet$ = new Subscription();
   selectProjectTemplate$ = new Subscription();
   devices!: any[];
   templates!: any[];
   mapImages!: any[];
-  projects: any[] = [];
+  projectsNotLinkYet: any[] = [];
   projectTemplates: any[] = [];
   filteredTemplatesByDevice!: any[];
   isGroupBoxesChecked!: boolean;
@@ -80,7 +84,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
   filteredTemplates!: Observable<any[]>;
   filteredMapImages!: Observable<any[]>;
   filteredProjectTemplates!: Observable<any[]>;
-  filteredProjects!: Observable<any[]>;
+  filteredProjectsNotLinkYet!: Observable<any[]>;
 
   constructor(
     private store: Store,
@@ -143,21 +147,20 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
         this.filteredProjectTemplates = this.helpers.filterOptions(this.projectTemplateCtr, this.projectTemplates)
       }
     });
-    this.selectProjects$ = this.store.select(selectProjects).subscribe(projectData => {
-      if (projectData) {
+    this.selectProjectsNotLinkYet$ = this.store.select(selectProjectsNotLinkYet).subscribe(projectsNotLinkYet => {
+      if (projectsNotLinkYet) {
+        let projectsNotIncludeCurrentProject: any[];
+        const projectId = this.projectService.getProjectId();
+        projectsNotIncludeCurrentProject = projectsNotLinkYet.filter(project => project.id !== Number(projectId));
         this.projectService.getShareProject(this.status, 'project').subscribe((resp: any) => {
           const shareProject = resp.result;
-          let newProjectData: any[];
-          const userId = this.authService.getUserId();
-          const projectId = this.projectService.getProjectId();
-          newProjectData = projectData.filter(project => project.created_by_fk === userId);
-          if (shareProject) {
-            newProjectData = [...newProjectData, ...shareProject];
+          if (shareProject.length > 0) {
+            this.projectsNotLinkYet = [...projectsNotIncludeCurrentProject, ...shareProject];
+          } else {
+            this.projectsNotLinkYet = projectsNotIncludeCurrentProject;
           }
-          newProjectData = newProjectData.filter(project => project.id !== projectId);
-          this.projects = newProjectData;
-          this.linkProjectCtr.setValidators([autoCompleteValidator(this.projects)]);
-          this.filteredProjects = this.helpers.filterOptions(this.linkProjectCtr, this.projects);
+          this.linkProjectCtr.setValidators([autoCompleteValidator(this.projectsNotLinkYet)]);
+          this.filteredProjectsNotLinkYet = this.helpers.filterOptions(this.linkProjectCtr, this.projectsNotLinkYet);
         })
       }
     })
@@ -198,7 +201,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
     return this.helpers.getAutoCompleteCtr(this.addTemplateForm.get('projectTemplateCtr'), this.projectTemplates);
   }
   get isLayoutOnlyCtr() { return this.addTemplateForm.get('isLayoutOnlyCtr'); }
-  get linkProjectCtr() { return this.helpers.getAutoCompleteCtr(this.linkProjectForm.get('linkProjectCtr'), this.projects) };
+  get linkProjectCtr() { return this.helpers.getAutoCompleteCtr(this.linkProjectForm.get('linkProjectCtr'), this.projectsNotLinkYet) };
 
   ngOnInit(): void {
     this.templateCtr?.disable();
@@ -209,7 +212,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnDestroy(): void {
     this.selectDevices$.unsubscribe();
-    this.selectProjects$.unsubscribe();
+    this.selectProjectsNotLinkYet$.unsubscribe();
     this.selectTemplates$.unsubscribe();
     this.selectMapOption$.unsubscribe();
     this.selectMapPref$.unsubscribe();

@@ -7,7 +7,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { validateIP } from 'src/app/shared/validations/ip-subnet.validation.ag-grid';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { ToastrService } from 'ngx-toastr';
-import { selectLogicalNodes, } from "../../../store/node/node.selectors";
+import { selectLinkedMapNodes, selectLogicalNodes, } from "../../../store/node/node.selectors";
 import { retrievedNodes } from "../../../store/node/node.actions";
 import { environment } from "../../../../environments/environment";
 import { RemoteCategories } from "../../enums/remote-categories.enum";
@@ -17,7 +17,6 @@ import {
   retrievedIsDatasourceConnect
 } from "../../../store/server-connect/server-connect.actions";
 import { ServerConnectService } from "../server-connect/server-connect.service";
-import { retrievedProjects } from "../../../store/project/project.actions";
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { AddUpdateGroupDialogComponent } from "../../../map/add-update-group-dialog/add-update-group-dialog.component";
 import { MatDialog } from "@angular/material/dialog";
@@ -26,11 +25,18 @@ import { selectGroups } from 'src/app/store/group/group.selectors';
 import { retrievedGroups } from 'src/app/store/group/group.actions';
 import { isIPv4 } from 'is-ip';
 import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
-import { selectMapPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
-import { retrievedPortGroups } from 'src/app/store/portgroup/portgroup.actions';
+import { selectLinkedMapPortGroups, selectMapPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { clearNotification } from 'src/app/store/app/app.actions';
 import { IpReservationModel, RangeModel } from '../../models/config-template.model';
 import { selectNotification } from 'src/app/store/app/app.selectors';
+import { selectMapLinks } from "../../../store/map-link/map-link.selectors";
+import {
+  selectInterfacesCommonMapLinks,
+  selectLinkedMapInterfaces
+} from "../../../store/interface/interface.selectors";
+import { selectLinkedMapImages } from "../../../store/map-image/map-image.selectors";
+import { clearLinkedMap } from "../../../store/map/map.actions";
+import { removeMapLink } from "../../../store/map-link/map-link.actions";
 
 @Injectable({
   providedIn: 'root'
@@ -43,15 +49,27 @@ export class HelpersService implements OnDestroy {
   selectNetmasks$ = new Subscription();
   selectMapPortGroups$ = new Subscription();
   selectNotification$ = new Subscription();
+  selectMapLinks$ = new Subscription();
+  selectLinkedMapNodes$ = new Subscription();
+  selectLinkedMapPGs$ = new Subscription();
+  selectLinkedMapInterfaces$ = new Subscription();
+  selectLinkedMapImages$ = new Subscription();
+  selectInterfacesCommonMapLinks$ = new Subscription();
   nodes: any[] = [];
   portGroups: any[] = [];
+  linkedMapNodes: any;
+  linkedMapPGs: any;
+  linkedMapInterfaces: any;
+  linkedMapImages: any;
+  interfacesCommonMapLinks!: any[];
   groupCategoryId!: string;
   errorMessages = ErrorMessages;
   isGroupBoxesChecked!: boolean;
   isEdgeDirectionChecked!: boolean;
   netmasks: any[] = [];
   groups: any[] = [];
-  histories: any[] = []
+  histories: any[] = [];
+  mapLinks: any[] = [];
   lastWidth = 0;
   lastHeight = 0;
   zoomLimit = false;
@@ -100,6 +118,32 @@ export class HelpersService implements OnDestroy {
     this.selectNetmasks$ = this.store.select(selectNetmasks).subscribe((netmasks: any) => {
       this.netmasks = netmasks;
     });
+    this.selectMapLinks$ = this.store.select(selectMapLinks).subscribe(mapLinks => this.mapLinks = mapLinks)
+    this.selectLinkedMapNodes$ = this.store.select(selectLinkedMapNodes).subscribe(linkedMapNodes => {
+      if (linkedMapNodes) {
+        this.linkedMapNodes = linkedMapNodes
+      }
+    })
+    this.selectLinkedMapPGs$ = this.store.select(selectLinkedMapPortGroups).subscribe(linkedMapPGs => {
+      if (linkedMapPGs) {
+        this.linkedMapPGs = linkedMapPGs
+      }
+    })
+    this.selectLinkedMapInterfaces$ = this.store.select(selectLinkedMapInterfaces).subscribe(linkedMapInterfaces => {
+      if (linkedMapInterfaces) {
+        this.linkedMapInterfaces = linkedMapInterfaces
+      }
+    })
+    this.selectLinkedMapImages$ = this.store.select(selectLinkedMapImages).subscribe(linkedMapImages => {
+      if (linkedMapImages) {
+        this.linkedMapImages = linkedMapImages
+      }
+    })
+    this.selectInterfacesCommonMapLinks$ = this.store.select(selectInterfacesCommonMapLinks).subscribe(interfacesCommonMapLinks => {
+      if (interfacesCommonMapLinks) {
+        this.interfacesCommonMapLinks = interfacesCommonMapLinks
+      }
+    })
   }
 
   ngOnDestroy(): void {
@@ -109,6 +153,12 @@ export class HelpersService implements OnDestroy {
     this.selectNetmasks$.unsubscribe();
     this.selectGroups$.unsubscribe();
     this.selectNotification$.unsubscribe();
+    this.selectMapLinks$.unsubscribe();
+    this.selectLinkedMapNodes$.unsubscribe();
+    this.selectLinkedMapPGs$.unsubscribe();
+    this.selectLinkedMapInterfaces$.unsubscribe();
+    this.selectLinkedMapImages$.unsubscribe();
+    this.selectInterfacesCommonMapLinks$.unsubscribe();
   }
 
   showNotification(notification: any) {
@@ -324,7 +374,6 @@ export class HelpersService implements OnDestroy {
       {
         selector: "edge",
         style: {
-
           "curve-style": "bezier",
           "line-color": defaults.edge.color,
           "width": defaults.edge.size,
@@ -453,19 +502,19 @@ export class HelpersService implements OnDestroy {
         }
       },
       {
-        selector: "['text_outline_color']",
+        selector: "node[text_outline_color]",
         style: {
           "text-outline-color": (ele: any) => ele.data('text_outline_color')
         }
       },
       {
-        selector: "['text_outline_width']",
+        selector: "node[text_outline_width]",
         style: {
           "text-outline-width": (ele: any) => ele.data('text_outline_width')
         }
       },
       {
-        selector: "[?updated]",
+        selector: "node[?updated][text_outline_width][text_outline_color]",
         style: {
           "text-outline-color": (ele: any) => ele.data('text_outline_color'),
           "text-outline-width": (ele: any) => ele.data('text_outline_width'),
@@ -488,8 +537,8 @@ export class HelpersService implements OnDestroy {
     });
   }
 
-  addCYEdge(cy: any, data: any) {
-    return cy.add({
+  addCYEdge(data: any) {
+    return this.cy.add({
       group: "edges",
       data,
     });
@@ -514,7 +563,7 @@ export class HelpersService implements OnDestroy {
 
     // Draw new interfaces from the other project into the current project.
     edges.map((edge: any) => {
-      this.addCYEdge(cy, edge.data);
+      this.addCYEdge(edge.data);
     })
   }
 
@@ -766,10 +815,14 @@ export class HelpersService implements OnDestroy {
   randomPositionForElementsNoPosition(cy: any) {
     // Random position for the nodes if the map has layout preset however the nodes don't have the position
     const elementsNoPosition = cy.elements().filter((ele: any) =>
-      (ele.group() == 'nodes' && ele.position('x') === 0 && ele.position('y') === 0)
-    );
+      ((
+        ele.group() == 'nodes' &&
+        ((ele.position('x') === 0 && ele.position('y') === 0) || ele.position() == undefined))
+      ));
     if (elementsNoPosition.length > 0) {
-      cy.elements().filter((ele: any) => (ele.position('x') !== 0 && ele.position('y') !== 0)).lock();
+      cy.elements().filter((ele: any) => (
+        (ele.position('x') !== 0 && ele.position('y') !== 0) && ele.position() !== undefined)
+      ).lock();
       cy.layout({
         name: "cose",
         avoidOverlap: true,
@@ -876,6 +929,7 @@ export class HelpersService implements OnDestroy {
           'elem_category': data.elem_category,
           'id': data.map_link_id
         });
+        this.store.dispatch(removeMapLink({ id: data.map_link_id }))
       }
 
       node.edges().forEach((ele: any) => {
@@ -963,7 +1017,7 @@ export class HelpersService implements OnDestroy {
   removeEdge(data: any) {
     const edgeData = data.edge.data();
     const node = data.cy.getElementById(`node-${edgeData.node_id}`);
-    const nodeInterface = node.data('interfaces').filter((i: any) => i.id == edgeData.interface_pk)[0];
+    const nodeInterface = node?.data('interfaces').filter((i: any) => i.id == edgeData.interface_pk)[0];
     this.deletedInterfaces.push({
       'name': edgeData.id,
       'interface_pk': edgeData.interface_pk,
@@ -1297,9 +1351,9 @@ export class HelpersService implements OnDestroy {
     ele.data('interfaces', data.interfaces);
   }
 
-  initCollapseExpandMapLink(cy: any) {
+  initCollapseExpandMapLink() {
     // Add parent for the elements related to the map link
-    const nodeRelatedMapLink = cy.elements().filter((ele: any) =>
+    const nodeRelatedMapLink = this.cy.elements().filter((ele: any) =>
       (ele.group() == 'nodes' && ele.data('parent_id'))
     )
     nodeRelatedMapLink.forEach((node: any) => {
@@ -1307,10 +1361,10 @@ export class HelpersService implements OnDestroy {
     })
 
     // Set initial collapse and expand based on the project node data
-    const mapLinkNodes = cy.nodes().filter((node: any) => node.data('elem_category') == 'map_link' && !Boolean(node.data('parent_id')))
+    const mapLinkNodes = this.cy.nodes().filter((node: any) => node.data('elem_category') == 'map_link' && !Boolean(node.data('parent_id')))
     mapLinkNodes.map((mapLinkNode: any) => {
       if (mapLinkNode.data('collapsed')) {
-        cy.expandCollapse('get').collapseRecursively(mapLinkNode, {});
+        this.cy.expandCollapse('get').collapseRecursively(mapLinkNode, {});
         mapLinkNode.data('width', '90px');
         mapLinkNode.data('height', '90px');
         mapLinkNode.style({
@@ -1331,28 +1385,8 @@ export class HelpersService implements OnDestroy {
     mapLinkNodes.map((mapLinkNode: any) => {
       this.collapseAndExpandMapLinkNodeEvent(mapLinkNode);
     })
-  }
-
-  removeNodesInStorage(nodeIds: any[]) {
-    const newNodes = [...this.nodes];
-    this.nodes.map(node => {
-      if (nodeIds.includes(node.id)) {
-        const index = newNodes.findIndex(ele => ele.id === node.id);
-        newNodes.splice(index, 1);
-      }
-    })
-    this.store.dispatch(retrievedNodes({ data: newNodes }));
-  }
-
-  removePortGroupInStorage(pgIds: any[]) {
-    const newPortGroup = [...this.portGroups];
-    this.portGroups.map(pg => {
-      if (pgIds.includes(pg.id)) {
-        const index = newPortGroup.findIndex(ele => ele.id === pg.id);
-        newPortGroup.splice(index, 1);
-      }
-    })
-    this.store.dispatch(retrievedPortGroups({ data: newPortGroup }));
+    this.randomPositionForElementsNoPosition(this.cy)
+    this.changeEdgeDirectionOnMap(this.cy, this.isEdgeDirectionChecked)
   }
 
   validateJSONFormat(json: any) {
@@ -1643,13 +1677,31 @@ export class HelpersService implements OnDestroy {
     }
   }
 
-  updateProjectLinksStorage(cy: any, newProjects: any[]) {
-    const projectNodeIdsAdded = cy?.nodes().filter('[elem_category="map_link"]').map((ele: any) => ele.data('linked_project_id'));
-    projectNodeIdsAdded?.map((projectId: any) => {
-      const index = newProjects.findIndex(ele => ele.id === projectId);
-      newProjects.splice(index, 1);
-    })
-    this.store.dispatch(retrievedProjects({ data: newProjects }));
+  addNewMapLinkToMap(id: number) {
+    const mapLink = this.mapLinks.find(m => m.id === id)
+    this.addCYNode(JSON.parse(JSON.stringify(mapLink)))
   }
 
+  addLinkedElementsToMap() {
+    JSON.parse(JSON.stringify(this.linkedMapNodes)).map((node: any) => {
+      this.addCYNode(node)
+    })
+    JSON.parse(JSON.stringify(this.linkedMapPGs)).map((portGroup: any) => {
+      this.addCYNode(portGroup)
+    })
+    JSON.parse(JSON.stringify(this.linkedMapImages)).map((mi: any) => {
+      this.addCYNode(mi)
+    })
+    JSON.parse(JSON.stringify(this.linkedMapInterfaces)).map((edge: any) => {
+      this.addCYEdge(edge.data)
+    })
+    this.initCollapseExpandMapLink()
+    this.store.dispatch(clearLinkedMap())
+  }
+
+  addInterfaceMapLinkToMap(id: number) {
+    const edge = this.interfacesCommonMapLinks.find(e => e.id === id)
+    this.addCYEdge(JSON.parse(JSON.stringify(edge.data)))
+    this.showOrHideArrowDirectionOnEdge(edge.id)
+  }
 }

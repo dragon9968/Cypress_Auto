@@ -1,14 +1,8 @@
-import { Injectable, Input } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Subscription, forkJoin } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 import { CommonService } from 'src/app/map/context-menu/cm-common-service/common.service';
-import { InterfaceService } from 'src/app/core/services/interface/interface.service';
-import { retrievedInterfacesConnectedNode } from 'src/app/store/interface/interface.actions';
-import { MatDialog } from '@angular/material/dialog';
-import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
-import { ToastrService } from 'ngx-toastr';
-import { ProjectService } from 'src/app/project/services/project.service';
 
 @Injectable({
   providedIn: 'root'
@@ -21,10 +15,6 @@ export class CMDeleteService {
   constructor(
     private store: Store,
     private commonService: CommonService,
-    private interfaceService: InterfaceService,
-    private dialog: MatDialog,
-    private toastr: ToastrService,
-    private projectService: ProjectService
   ) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {

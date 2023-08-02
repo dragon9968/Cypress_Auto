@@ -37,7 +37,4 @@ export class MapService {
     return this.http.post<any>(ApiPaths.PROJECT_TEMPLATE_ADD, data);
   }
 
-  getLinkProjectData(data: any): Observable<any> {
-    return this.http.post<any>(ApiPaths.GET_LINK_PROJECT_DATA, data);
-  }
 }

@@ -68,3 +68,12 @@ export const bulkUpdatedPGSuccess = createAction(
   'bulkUpdatedPGSuccess',
   props<{ portgroups: any }>()
 )
+
+export const linkedMapPGsLoadedSuccess = createAction(
+  'linkedMapPGsLoadedSuccess',
+  props<{ portgroups: any, mapLinkId: number, position: any }>()
+);
+
+export const clearLinkedMapPGs = createAction(
+  'clearLinkedMapPGs'
+)

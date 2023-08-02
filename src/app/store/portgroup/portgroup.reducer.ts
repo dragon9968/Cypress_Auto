@@ -1,6 +1,19 @@
 import { createReducer, on } from '@ngrx/store';
 import { PortGroupState } from 'src/app/store/portgroup/portgroup.state';
-import { PGsLoadedSuccess, pgUpdatedSuccess, bulkUpdatedPGSuccess, removePG, retrievedPortGroups, selectAllPG, selectPG, unSelectPG, unselectAllPG, updateDomainInPG } from './portgroup.actions';
+import {
+  PGsLoadedSuccess,
+  pgUpdatedSuccess,
+  bulkUpdatedPGSuccess,
+  removePG,
+  retrievedPortGroups,
+  selectAllPG,
+  selectPG,
+  unSelectPG,
+  unselectAllPG,
+  updateDomainInPG,
+  clearLinkedMapPGs,
+  linkedMapPGsLoadedSuccess
+} from './portgroup.actions';
 
 const initialState = {} as PortGroupState;
 
@@ -39,6 +52,44 @@ export const portGroupReducer = createReducer(
       ...state,
       portgroups: pgs,
       managementPGs,
+    }
+  }),
+  on(linkedMapPGsLoadedSuccess, (state, { portgroups, mapLinkId, position }) => {
+    const linkedMapPortGroups: any[] = [];
+    JSON.parse(JSON.stringify(portgroups)).map((pg: any) => {
+      const baseCyData = {
+        pg_id: pg.id,
+        elem_category: "port_group",
+        id: `pg-${pg.id}`,
+        layout: { name: "preset" },
+        zIndex: 999,
+        updated: false,
+        parent_id: mapLinkId,
+      }
+      if (pg.category != 'management') {
+        if (pg.logical_map?.position) {
+          pg.logical_map.position.x += position.x
+          pg.logical_map.position.y += position.y
+        }
+        linkedMapPortGroups.push({
+          ...pg,
+          data: { ...pg, ...baseCyData, ...pg.logical_map?.map_style },
+          position: pg.logical_map?.position,
+          groups: pg.groups,
+          interfaces: pg.interfaces,
+          locked: pg.logical_map?.locked
+        });
+      }
+    });
+    return {
+      ...state,
+      linkedMapPortGroups
+    }
+  }),
+  on(clearLinkedMapPGs, (state) => {
+    return {
+      ...state,
+      linkedMapPortGroups: undefined
     }
   }),
   on(selectPG, (state, { id }) => {

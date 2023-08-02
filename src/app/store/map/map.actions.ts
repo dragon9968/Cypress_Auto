@@ -18,6 +18,25 @@ export const loadMap = createAction(
   }>()
 );
 
+export const loadLinkedMap = createAction(
+  'loadLinkedMap',
+  props<{
+    projectId: string,
+    mapCategory: string,
+    mapLinkId: number,
+    position: any
+  }>()
+);
+
+export const clearLinkedMap = createAction(
+  'clearLinkedMap'
+)
+
+export const mapLoadedSuccess = createAction(
+  'mapLoadedSuccess',
+  props<{ data: any }>()
+);
+
 export const mapLoadedDefaultPreferencesSuccess = createAction(
   'mapLoadedDefaultPreferencesSuccess',
   props<{ data: any }>()

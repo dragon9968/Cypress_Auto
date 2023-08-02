@@ -105,7 +105,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
       if (notification?.type == 'success') {
         this.dialogRef.close();
-      } 
+      }
     });
     this.selectMapCategory$ = this.store.select(selectMapCategory).subscribe((mapCategory: any) => {
       this.mapCategory = mapCategory ? mapCategory : 'logical'
@@ -217,7 +217,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       cyData.node = this.nodes.find(node => node.node_id === cyData.node_id)?.name
       cyData.netmask = this.netmasks.find(netmask => netmask.id === cyData.netmask_id)?.mask
       delete cyData.task;
-      this.helpers.addCYEdge(this.data.cy, cyData);
+      this.helpers.addCYEdge(cyData);
       this.helpers.showOrHideArrowDirectionOnEdge(cyData.id);
       this.toastr.success(successMessage, 'Success');
     })
@@ -313,7 +313,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         cyData.netmask = this.netmasks.find(netmask => netmask.id === cyData.netmask_id)?.mask;
         this.portGroupService.get(portGroupId).subscribe(response => {
           cyData.port_group = response.result.name;
-          this.helpers.addCYEdge(this.data.cy, { ...newEdgeData, ...cyData });
+          this.helpers.addCYEdge({ ...newEdgeData, ...cyData });
           this.helpers.showOrHideArrowDirectionOnEdge(cyData.id)
           this.helpers.updatePGOnMap(portGroupId, response.result);
         });
