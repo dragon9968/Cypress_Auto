@@ -34,6 +34,10 @@ export class NodeService {
     return this.http.put<any>(ApiPaths.NODE + id, data);
   }
 
+  delete(id: number): Observable<any> {
+    return this.http.delete<any>(ApiPaths.NODE + id);
+  }
+
   validate(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.VALIDATE_NODE, data);
   }

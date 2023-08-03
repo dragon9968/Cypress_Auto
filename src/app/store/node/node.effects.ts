@@ -12,14 +12,18 @@ import {
   nodeAddedSuccess,
   bulkEditNode,
   bulkUpdatedNodeSuccess,
-  addNewNodeToMap
+  addNewNodeToMap,
+  removeNodes,
+  removeNodesSuccess,
+  restoreNodes,
+  restoreNodesSuccess,
 } from './node.actions';
 import { ConfigTemplateService } from 'src/app/core/services/config-template/config-template.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { pushNotification } from '../app/app.actions';
 import { updateNodeInInterfaces } from '../interface/interface.actions';
+import { removeNodesInGroup, restoreNodesInGroup, updateNodeInGroup } from '../group/group.actions';
 import { reloadGroupBoxes } from '../map/map.actions';
-import { updateNodeInGroup } from '../group/group.actions';
 
 @Injectable()
 export class NodesEffects {
@@ -151,6 +155,54 @@ export class NodesEffects {
           }
         })))
       )),
+  ));
+
+  removeNodes$ = createEffect(() => this.actions$.pipe(
+    ofType(removeNodes),
+    exhaustMap(payload => of([])
+      .pipe(
+        switchMap(res => [
+          removeNodesSuccess({ ids: payload.ids }),
+          removeNodesInGroup({ ids: payload.ids }),
+          reloadGroupBoxes(),
+          pushNotification({
+            notification: {
+              type: 'success',
+              message: 'Nodes removed!'
+            }
+          })
+        ]),
+        catchError(e => of(pushNotification({
+          notification: {
+            type: 'error',
+            message: 'Remove nodes failed'
+          }
+        })))
+      ))
+  ));
+
+  restoreNodes$ = createEffect(() => this.actions$.pipe(
+    ofType(restoreNodes),
+    exhaustMap(payload => of([])
+      .pipe(
+        switchMap(res => [
+          restoreNodesSuccess({ ids: payload.ids }),
+          restoreNodesInGroup({ ids: payload.ids }),
+          reloadGroupBoxes(),
+          pushNotification({
+            notification: {
+              type: 'success',
+              message: 'Nodes restored!'
+            }
+          })
+        ]),
+        catchError(e => of(pushNotification({
+          notification: {
+            type: 'error',
+            message: 'Restore nodes failed'
+          }
+        })))
+      ))
   ));
 
   constructor(

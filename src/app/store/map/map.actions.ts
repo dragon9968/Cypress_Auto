@@ -45,3 +45,8 @@ export const mapLoadedDefaultPreferencesSuccess = createAction(
 export const reloadGroupBoxes = createAction(
   'reloadGroupBoxes',
 );
+
+export const removeNodesOnMap = createAction(
+  'removeNodesOnMap',
+  props<{ ids: number[] }>()
+);

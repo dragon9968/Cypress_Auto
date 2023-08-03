@@ -19,10 +19,8 @@ import { InterfaceService } from 'src/app/core/services/interface/interface.serv
 import { DomainService } from 'src/app/core/services/domain/domain.service';
 import { retrievedDomains } from "../../../store/domain/domain.actions";
 import { ProjectService } from "../../../project/services/project.service";
-import { removePG } from 'src/app/store/portgroup/portgroup.actions';
-import { removeNode } from 'src/app/store/node/node.actions';
-import { removeInterface } from 'src/app/store/interface/interface.actions';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
+import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 
 @Component({
   selector: 'app-info-panel-table',
@@ -36,7 +34,7 @@ export class InfoPanelTableComponent {
   @Input() tabName: string = '';
   private gridApi!: GridApi;
   rowsSelected: any[] = [];
-  rowsSelectedId: any[] = [];
+  rowsSelectedIds: any[] = [];
   isGroupBoxesChecked!: boolean;
   selectMapOption$ = new Subscription();
 
@@ -54,14 +52,15 @@ export class InfoPanelTableComponent {
     private portGroupService: PortGroupService,
     private interfaceService: InterfaceService,
     private infoPanelService: InfoPanelService,
-    private projectService: ProjectService
+    private projectService: ProjectService,
+    private helpersService: HelpersService
   ) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
         this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
       }
     });
-   }
+  }
 
   setRowData(rowData: any[]) {
     this.gridApi?.setRowData(rowData);
@@ -82,7 +81,7 @@ export class InfoPanelTableComponent {
   selectedRows() {
     const unSelectedRows = this.rowsSelected
     this.rowsSelected = this.gridApi.getSelectedRows();
-    this.rowsSelectedId = this.rowsSelected.map(r => {
+    this.rowsSelectedIds = this.rowsSelected.map(r => {
       if (this.tabName == 'group') {
         if (this.isGroupBoxesChecked) {
           const groupCy = this.cy.getElementById(r.data.id);
@@ -105,7 +104,7 @@ export class InfoPanelTableComponent {
         return r.id;
       }
     });
-    const unSelectedRow = unSelectedRows.filter(val => !this.rowsSelectedId.includes(val.id))
+    const unSelectedRow = unSelectedRows.filter(val => !this.rowsSelectedIds.includes(val.id))
     unSelectedRow.forEach(r => {
       if (this.tabName === 'group') {
         if (this.isGroupBoxesChecked) {
@@ -127,12 +126,12 @@ export class InfoPanelTableComponent {
 
   clearTable() {
     this.rowsSelected = [];
-    this.rowsSelectedId = [];
+    this.rowsSelectedIds = [];
   }
 
   deselectAll() {
     this.rowsSelected = [];
-    this.rowsSelectedId = [];
+    this.rowsSelectedIds = [];
     this.gridApi?.deselectAll();
   }
 
@@ -187,7 +186,7 @@ export class InfoPanelTableComponent {
   showBulkEditDialogByTab(tabName: string) {
     const dialogData = {
       genData: {
-        ids: this.rowsSelectedId,
+        ids: this.rowsSelectedIds,
         activeEles: this.rowsSelected
       },
       cy: this.cy,
@@ -206,7 +205,7 @@ export class InfoPanelTableComponent {
     if (this.rowsSelected.length == 0) {
       this.toastr.info('No row selected');
     } else {
-      this.getServiceByTab(this.tabName)?.validate({ pks: this.rowsSelectedId }).pipe(
+      this.getServiceByTab(this.tabName)?.validate({ pks: this.rowsSelectedIds }).pipe(
         catchError((e: any) => {
           this.toastr.error(e.error.message);
           this.dialog.open(InfoPanelShowValidationResultsComponent, {
@@ -239,7 +238,7 @@ export class InfoPanelTableComponent {
     }
   }
 
-  delete(activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[]) {
+  delete(activeGBs: any[]) {
     if (this.rowsSelected.length === 0) {
       this.toastr.info('No row selected');
     } else {
@@ -259,15 +258,15 @@ export class InfoPanelTableComponent {
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '500px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
-          this.rowsSelectedId.map(id => {
-            this.infoPanelService.deleteInfoPanelAssociateMap(this.cy, activeNodes, activePGs, activeEdges, activeGBs, this.tabName, id);
-            if (this.tabName == 'portgroup') {
-              this.store.dispatch(removePG({ id: id }));
-            } else if (this.tabName == 'node') {
-              this.store.dispatch(removeNode({ id: id }));
-            } else if (this.tabName == 'interface') {
-              this.store.dispatch(removeInterface({ id: id }));
-            }
+          if (this.tabName == 'node') {
+            this.helpersService.removeNodesOnMap(this.rowsSelectedIds);
+          } else if (this.tabName == 'portgroup') {
+            this.helpersService.removePGsOnMap(this.rowsSelectedIds);
+          } else if (this.tabName == 'interface') {
+            this.helpersService.removeInterfacesOnMap(this.rowsSelectedIds);
+          }
+          this.rowsSelectedIds.map(id => {
+            this.infoPanelService.deleteInfoPanelAssociateMap(this.cy, activeGBs, this.tabName, id);
           });
           this.clearTable();
         }

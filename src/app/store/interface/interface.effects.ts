@@ -10,7 +10,15 @@ import {
   updateLogicalInterface,
   bulkEditLogicalInterface,
   bulkEditlogicalInterfaceSuccess,
-  addInterfaceMapLinkToPG, interfaceAddedMapLinkToPGSuccess, addInterfaceMapLinkToMap, randomizeIpBulk, randomizeIpBulkSuccess
+  addInterfaceMapLinkToPG,
+  interfaceAddedMapLinkToPGSuccess,
+  addInterfaceMapLinkToMap,
+  randomizeIpBulk,
+  randomizeIpBulkSuccess,
+  removeInterfaces,
+  removeInterfacesSuccess,
+  restoreInterfaces,
+  restoreInterfacesSuccess
 } from './interface.actions';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { pushNotification } from '../app/app.actions';
@@ -165,6 +173,49 @@ export class InterfacesEffects {
       )
     )
   ))
+  removeInterfaces$ = createEffect(() => this.actions$.pipe(
+    ofType(removeInterfaces),
+    exhaustMap(payload => of([])
+      .pipe(
+        switchMap(res => [
+          removeInterfacesSuccess({ ids: payload.ids }),
+          pushNotification({
+            notification: {
+              type: 'success',
+              message: 'Edge removed!'
+            }
+          })
+        ]),
+        catchError(e => of(pushNotification({
+          notification: {
+            type: 'error',
+            message: 'Remove edge failed'
+          }
+        })))
+      ))
+  ));
+
+  restoreInterfaces$ = createEffect(() => this.actions$.pipe(
+    ofType(restoreInterfaces),
+    exhaustMap(payload => of([])
+      .pipe(
+        switchMap(res => [
+          restoreInterfacesSuccess({ ids: payload.ids }),
+          pushNotification({
+            notification: {
+              type: 'success',
+              message: 'Edge restored!'
+            }
+          })
+        ]),
+        catchError(e => of(pushNotification({
+          notification: {
+            type: 'error',
+            message: 'Restore edge failed'
+          }
+        })))
+      ))
+  ));
 
   constructor(
     private actions$: Actions,

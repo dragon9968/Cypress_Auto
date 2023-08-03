@@ -2,12 +2,10 @@ import { NodeState } from "./node.state";
 import { createReducer, on } from "@ngrx/store";
 import {
   retrievedNameNodeBySourceNode,
-  retrievedNodes,
   nodesLoadedSuccess,
   selectNode,
   unSelectNode,
   nodeUpdatedSuccess,
-  removeNode,
   updateInterfaceInNode,
   nodeAddedSuccess,
   bulkUpdatedNodeSuccess,
@@ -16,7 +14,9 @@ import {
   unSelectAllNode,
   linkedMapNodesLoadedSuccess,
   clearLinkedMapNodes,
-  bulkUpdateInterfaceInNode
+  bulkUpdateInterfaceInNode,
+  removeNodesSuccess,
+  restoreNodesSuccess
 } from "./node.actions";
 import { environment } from "src/environments/environment";
 
@@ -70,10 +70,6 @@ const addCYDataToNode = (node: any, isLogicalNode: boolean) => {
 
 export const nodeReducer = createReducer(
   initialState,
-  on(retrievedNodes, (state, { data }) => ({
-    ...state,
-    logicalNodes: data,
-  })),
   on(retrievedNameNodeBySourceNode, (state, { nameNode }) => ({
     ...state,
     nameNode
@@ -97,6 +93,7 @@ export const nodeReducer = createReducer(
     })
     return {
       ...state,
+      isSelectedFlag: false,
       logicalNodes,
       physicalNodes
     };
@@ -126,21 +123,32 @@ export const nodeReducer = createReducer(
     const logicalNodes = state.logicalNodes.map(n => (n.data.id == id) ? { ...n, isSelected: true } : n);
     return {
       ...state,
-      logicalNodes
+      isSelectedFlag: true,
+      logicalNodes,
     }
   }),
   on(unSelectNode, (state, { id }) => {
     const logicalNodes = state.logicalNodes.map(n => (n.data.id == id) ? { ...n, isSelected: false } : n);
     return {
       ...state,
-      logicalNodes
+      isSelectedFlag: true,
+      logicalNodes,
     }
   }),
-  on(removeNode, (state, { id }) => {
-    const logicalNodes = state.logicalNodes.filter(n => n.id !== id);
+  on(removeNodesSuccess, (state, { ids }) => {
+    const logicalNodes = state.logicalNodes.map(n => ids.includes(n.id) ? { ...n, isDeleted: true } : n);
     return {
       ...state,
-      logicalNodes
+      isSelectedFlag: false,
+      logicalNodes,
+    };
+  }),
+  on(restoreNodesSuccess, (state, { ids }) => {
+    const logicalNodes = state.logicalNodes.map(n => ids.includes(n.id) ? { ...n, isDeleted: false } : n);
+    return {
+      ...state,
+      isSelectedFlag: false,
+      logicalNodes,
     };
   }),
   on(nodeAddedSuccess, (state, { node }) => {
@@ -160,6 +168,7 @@ export const nodeReducer = createReducer(
     }
     return {
       ...state,
+      isSelectedFlag: false,
       logicalNodes,
       physicalNodes
     };
@@ -168,6 +177,7 @@ export const nodeReducer = createReducer(
     const logicalNodes = state.logicalNodes.map((n: any) => (n.id == node.id) ? { ...n, ...node } : n);
     return {
       ...state,
+      isSelectedFlag: false,
       logicalNodes,
     };
   }),
@@ -178,6 +188,7 @@ export const nodeReducer = createReducer(
     });
     return {
       ...state,
+      isSelectedFlag: false,
       logicalNodes,
     };
   }),
@@ -202,6 +213,7 @@ export const nodeReducer = createReducer(
     });
     return {
       ...state,
+      isSelectedFlag: false,
       logicalNodes,
     };
   }),
@@ -240,24 +252,23 @@ export const nodeReducer = createReducer(
     });
     return {
       ...state,
+      isSelectedFlag: false,
       logicalNodes,
     };
   }),
-  on(selectAllNode, (state, {}) => {
-    const logicalNodes = state.logicalNodes.map(n => {
-      return { ...n, isSelected: true }
-    });
+  on(selectAllNode, (state, { }) => {
+    const logicalNodes = state.logicalNodes.map(n => ({ ...n, isSelected: true }));
     return {
       ...state,
+      isSelectedFlag: true,
       logicalNodes
     }
   }),
-  on(unSelectAllNode, (state, {}) => {
-    const logicalNodes = state.logicalNodes.map(n => {
-      return { ...n, isSelected: false }
-    });
+  on(unSelectAllNode, (state, { }) => {
+    const logicalNodes = state.logicalNodes.map(n => ({ ...n, isSelected: false }));
     return {
       ...state,
+      isSelectedFlag: true,
       logicalNodes
     }
   }),

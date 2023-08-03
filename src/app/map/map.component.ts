@@ -86,7 +86,7 @@ import {
 } from "../store/interface/interface.selectors";
 import { CMInterfaceService } from "./context-menu/cm-interface/cm-interface.service";
 import { GroupService } from "../core/services/group/group.service";
-import { addNewNode, retrievedNodes, selectNode, unSelectNode } from "../store/node/node.actions";
+import { addNewNode, loadNodes, selectNode, unSelectNode } from "../store/node/node.actions";
 import { retrievedGroups, selectGroup, unSelectGroup } from "../store/group/group.actions";
 import { ValidateProjectDialogComponent } from "../project/validate-project-dialog/validate-project-dialog.component";
 import {
@@ -1156,11 +1156,10 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.infoPanelService.ur = this.ur;
     this.infoPanelService.cy = this.cy;
     this.helpersService.cy = this.cy;
-    this.helpersService.deletedInterfaces = this.deletedInterfaces;
-    this.helpersService.deletedNodes = this.deletedNodes;
-    const that = this.helpersService;
-    this.ur.action("removeNode", this.helpersService.removeNode.bind(this), this.helpersService.restoreNode.bind(this));
-    this.ur.action("removeEdge", this.helpersService.removeEdge.bind(that), this.helpersService.restoreEdge.bind(that));
+    this.helpersService.ur = this.ur;
+    this.ur.action("removeNodes", this.helpersService.removeNodes.bind(this), this.helpersService.restoreNodes.bind(this));
+    this.ur.action("removePGs", this.helpersService.removePGs.bind(this), this.helpersService.restorePGs.bind(this));
+    this.ur.action("removeInterfaces", this.helpersService.removeInterfaces.bind(this), this.helpersService.restoreInterfaces.bind(this));
     this.ur.action("changeNodeSize", this.toolPanelStyleService.changeNodeSize.bind(this.commonService), this.toolPanelStyleService.restoreNodeSize.bind(this.commonService));
     this.ur.action("changeMapImageSize", this.toolPanelStyleService.changeMapImageSize.bind(this.commonService), this.toolPanelStyleService.restoreMapImageSize.bind(this.commonService));
     this.ur.action("changTextColor", this.toolPanelStyleService.changTextColor.bind(this.commonService).bind(this.commonService), this.toolPanelStyleService.restoreTextColor.bind(this.commonService).bind(this.commonService));
@@ -1221,13 +1220,11 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         this.cmActionsService.getPortGroupActionsMenu(this.cy, Number(this.projectId), this.activePGs),
         this.cmActionsService.getEdgeActionsMenu(this.cy),
         this.cmGroupOptionService.getNodePgGroupMenu(this.cy, this.activeNodes, this.activePGs, this.projectId, this.isCanWriteOnProject),
-        // this.cmGroupOptionService.getPortGroupGroupMenu(this.cy, this.activePGs),
         this.cmRemoteService.getNodeRemoteMenu(this.activeNodes),
         this.cmRemoteService.getPortGroupRemoteMenu(this.activePGs),
         this.cmViewDetailsService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.mapCategory, Number(this.projectId)),
         this.cmEditService.getMenu(this.cy, this.isCanWriteOnProject, this.mapCategory, Number(this.projectId)),
-        this.cmDeleteService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
-          this.activeMBs, this.activeMapLinks, this.isCanWriteOnProject, this.mapCategory),
+        this.cmDeleteService.getMenu(this.cy, this.activeGBs, this.activeMBs, this.activeMapLinks, this.isCanWriteOnProject),
         this.cmLockUnlockService.getLockMenu(this.cy, this.activeNodes, this.activePGs, this.activeMBs, this.activeMapLinks),
         this.cmLockUnlockService.getUnlockMenu(this.activeNodes, this.activePGs, this.activeMBs, this.activeMapLinks),
         this.cmGroupBoxService.getCollapseMenu(this.cy, this.activeGBs),
@@ -1406,12 +1403,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
       this.edgeNode = null;
       this.isAddEdge = false;
       this._enableMapEditButtons();
-      if (_data) {
-        this.nodeService.get(_data.node_id).subscribe(nodeData => {
-          this.helpersService.updateNodesStorage(nodeData.result);
-          this.helpersService.updateNodeOnMap('node-' + nodeData.result.id, nodeData.result);
-        });
-      }
     });
   }
 
@@ -1774,40 +1765,36 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
       this.projectTemplateId = 0;
       this._enableMapEditButtons();
       const templateItems = response.result.map_items;
-      this.domainService.getDomainByProjectId(projectId).subscribe(domainRes => {
-        this.store.dispatch(retrievedDomains({ data: domainRes.result }));
-        this.nodeService.getNodesByProjectId(projectId).subscribe(nodeRes => {
-          this.store.dispatch(retrievedNodes({ data: nodeRes.result }));
+      this.store.dispatch(loadDomains({ projectId }));
+      this.store.dispatch(loadNodes({ projectId }));
 
-          this.portgroupService.getByProjectId(projectId).subscribe(pgRes => {
-            this.store.dispatch(retrievedPortGroups({ data: pgRes.result }));
-            const nodesNotManagement = templateItems.nodes.filter((node: any) => node.data.category !== 'management');
-            const isNodesHasPosition = nodesNotManagement.every((node: any) =>
-              (node.position && node.data.category != 'management') && node.position?.x !== 0 && node.position?.y !== 0
-            )
-            if (isNodesHasPosition) {
-              this.helpersService.addCYNodeAndEdge(this.cy, templateItems.nodes, templateItems.interfaces, newPosition);
-              this.saveMapSubject.next();
-            } else {
-              this.cy.elements().lock();
-              this.helpersService.addCYNodeAndEdge(this.cy, templateItems.nodes, templateItems.interfaces);
-              this.cy.layout({
-                name: "cose",
-                avoidOverlap: true,
-                nodeDimensionsIncludeLabels: true,
-                spacingFactor: 5,
-                fit: true,
-                animate: false,
-                padding: 150
-              }).run();
-              this.cy.elements().unlock();
-            }
-            this.toastr.success('Added items from template into project successfully', 'Success');
-            this.mapEditService.updateGroupBoxesInMapStorage(this.cy, templateItems.group_boxes)
-            this.helpersService.changeEdgeDirectionOnMap(this.cy, this.isEdgeDirectionChecked);
-            this.validateProject(projectId);
-          })
-        })
+      this.portgroupService.getByProjectId(projectId).subscribe(pgRes => {
+        this.store.dispatch(retrievedPortGroups({ data: pgRes.result }));
+        const nodesNotManagement = templateItems.nodes.filter((node: any) => node.data.category !== 'management');
+        const isNodesHasPosition = nodesNotManagement.every((node: any) =>
+          (node.position && node.data.category != 'management') && node.position?.x !== 0 && node.position?.y !== 0
+        )
+        if (isNodesHasPosition) {
+          this.helpersService.addCYNodeAndEdge(this.cy, templateItems.nodes, templateItems.interfaces, newPosition);
+          this.saveMapSubject.next();
+        } else {
+          this.cy.elements().lock();
+          this.helpersService.addCYNodeAndEdge(this.cy, templateItems.nodes, templateItems.interfaces);
+          this.cy.layout({
+            name: "cose",
+            avoidOverlap: true,
+            nodeDimensionsIncludeLabels: true,
+            spacingFactor: 5,
+            fit: true,
+            animate: false,
+            padding: 150
+          }).run();
+          this.cy.elements().unlock();
+        }
+        this.toastr.success('Added items from template into project successfully', 'Success');
+        this.mapEditService.updateGroupBoxesInMapStorage(this.cy, templateItems.group_boxes)
+        this.helpersService.changeEdgeDirectionOnMap(this.cy, this.isEdgeDirectionChecked);
+        this.validateProject(projectId);
       })
     })
   }

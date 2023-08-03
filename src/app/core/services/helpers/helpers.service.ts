@@ -8,7 +8,7 @@ import { validateIP } from 'src/app/shared/validations/ip-subnet.validation.ag-g
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { ToastrService } from 'ngx-toastr';
 import { selectLinkedMapNodes, selectLogicalNodes, } from "../../../store/node/node.selectors";
-import { retrievedNodes } from "../../../store/node/node.actions";
+import { removeNodes, restoreNodes } from "../../../store/node/node.actions";
 import { environment } from "../../../../environments/environment";
 import { RemoteCategories } from "../../enums/remote-categories.enum";
 import {
@@ -22,7 +22,6 @@ import { AddUpdateGroupDialogComponent } from "../../../map/add-update-group-dia
 import { MatDialog } from "@angular/material/dialog";
 import { CONFIG_TEMPLATE_ADDS_TYPE } from "../../../shared/contants/config-template-add-actions.constant";
 import { selectGroups } from 'src/app/store/group/group.selectors';
-import { retrievedGroups } from 'src/app/store/group/group.actions';
 import { isIPv4 } from 'is-ip';
 import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
 import { selectLinkedMapPortGroups, selectMapPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
@@ -36,13 +35,15 @@ import {
 } from "../../../store/interface/interface.selectors";
 import { selectLinkedMapImages } from "../../../store/map-image/map-image.selectors";
 import { clearLinkedMap } from "../../../store/map/map.actions";
-import { removeMapLink } from "../../../store/map-link/map-link.actions";
+import { removePGs, restorePGs } from 'src/app/store/portgroup/portgroup.actions';
+import { removeInterfaces, restoreInterfaces } from 'src/app/store/interface/interface.actions';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HelpersService implements OnDestroy {
   @Input() cy: any;
+  @Input() ur: any;
   selectMapOption$ = new Subscription();
   selectGroups$ = new Subscription();
   selectNodes$ = new Subscription();
@@ -613,8 +614,13 @@ export class HelpersService implements OnDestroy {
       this.cy.nodes().forEach((ele: any) => {
         if (!Boolean(ele.data('parent_id')) && ele.data('elem_category') != 'map_link') {
           const data = ele.data();
-          if (data.elem_category != 'group') {
-            if (g.nodes.find((n: any) => n.id == data.node_id) || g.port_groups.find((pg: any) => pg.id == data.pg_id)) {
+          if (data.elem_category == 'node' || data.elem_category == 'port_group') {
+            const node = g.nodes.find((n: any) => !n.isDeleted && n.id == data.node_id);
+            const pg = g.port_groups.find((pg: any) => !pg.isDeleted && pg.id == data.pg_id);
+            if (node?.name == 'linux-client-15') {
+              console.log(node);
+            }
+            if (node || pg) {
               ele.move({ parent: g.data.id });
             }
           }
@@ -894,56 +900,89 @@ export class HelpersService implements OnDestroy {
     );
   }
 
-  removeNode(node: any) {
-    node._private['data'] = { ...node._private['data'] };
-    const data = node.data();
-    if (!data.new) {
-      data.deleted = true;
-      if (data.elem_category == "port_group") {
-        this.deletedNodes.push({
-          'elem_category': data.elem_category,
-          'label': data.label,
-          'id': data.pg_id
-        });
-      } else if (data.elem_category == "node") {
-        this.deletedNodes.push({
-          'elem_category': data.elem_category,
-          'label': data.label,
-          'id': data.node_id
-        });
-      } else if (data.elem_category == "group") {
-        this.deletedNodes.push({
-          'elem_category': data.elem_category,
-          'label': data.label,
-          'id': data.group_id
-        });
-      } else if (data.elem_category == 'bg_image') {
-        this.deletedNodes.push({
-          'elem_category': data.elem_category,
-          'label': data.label,
-          'id': data.map_image_id
-        })
-      } else if (data.elem_category == 'map_link') {
-        this.deletedNodes.push({
-          'linked_project_id': data.linked_project_id,
-          'elem_category': data.elem_category,
-          'id': data.map_link_id
-        });
-        this.store.dispatch(removeMapLink({ id: data.map_link_id }))
-      }
+  removeNodesOnMap(ids: number[]) {
+    if (ids.length > 0) this.ur?.do("removeNodes", { ids });
+  }
 
-      node.edges().forEach((ele: any) => {
-        const data = ele.data();
-        if (data && !data.new) {
-          data.deleted = true;
-          this.deletedInterfaces.push({
-            'name': data.id,
-            'interface_pk': data.interface_pk
-          });
-        }
-      });
-    }
-    return node.remove();
+  removePGsOnMap(ids: number[]) {
+    if (ids.length > 0) this.ur?.do("removePGs", { ids });
+  }
+
+  removeInterfacesOnMap(ids: number[]) {
+    if (ids.length > 0) this.ur?.do("removeInterfaces", { ids });
+  }
+
+  removeNodes(data: any) {
+    const eles = data.ids.map((id: number) => {
+      const node = this.cy.getElementById(`node-${id}`);
+      const removedEles = node.remove();
+      const removedInterfaces = removedEles.filter((ele: any) => ele.data('elem_category') == 'interface');
+      if (removedInterfaces.length > 0) {
+        const removedInterfaceIds = removedInterfaces.map((i: any) => i.data('interface_pk'));
+        this.store.dispatch(removeInterfaces({ ids: removedInterfaceIds }));
+      }
+      return removedEles;
+    })
+    this.store.dispatch(removeNodes({ ids: data.ids }));
+    return { ids: data.ids, eles };
+  }
+
+  restoreNodes(data: any) {
+    const eles = data.eles.map((e: any) => {
+      const restoredEles = e.restore();
+      const restoredInterfaces = restoredEles.filter((ele: any) => ele.data('elem_category') == 'interface');
+      if (restoredInterfaces.length > 0) {
+        const restoredInterfaceIds = restoredInterfaces.map((i: any) => i.data('interface_pk'));
+        this.store.dispatch(restoreInterfaces({ ids: restoredInterfaceIds }));
+      }
+      return restoredEles;
+    });
+    this.store.dispatch(restoreNodes({ ids: data.ids }));
+    return { ids: data.ids, eles };
+  }
+
+  removePGs(data: any) {
+    const eles = data.ids.map((id: number) => {
+      const node = this.cy.getElementById(`pg-${id}`);
+      const removedEles = node.remove();
+      const removedInterfaces = removedEles.filter((ele: any) => ele.data('elem_category') == 'interface');
+      if (removedInterfaces.length > 0) {
+        const removedInterfaceIds = removedInterfaces.map((i: any) => i.data('interface_pk'));
+        this.store.dispatch(removeInterfaces({ ids: removedInterfaceIds }));
+      }
+      return removedEles;
+    })
+    this.store.dispatch(removePGs({ ids: data.ids }));
+    return { ids: data.ids, eles };
+  }
+
+  restorePGs(data: any) {
+    const eles = data.eles.map((e: any) => {
+      const restoredEles = e.restore();
+      const restoredInterfaces = restoredEles.filter((ele: any) => ele.data('elem_category') == 'interface');
+      if (restoredInterfaces.length > 0) {
+        const restoredInterfaceIds = restoredInterfaces.map((i: any) => i.data('interface_pk'));
+        this.store.dispatch(restoreInterfaces({ ids: restoredInterfaceIds }));
+      }
+      return restoredEles;
+    });
+    this.store.dispatch(restorePGs({ ids: data.ids }));
+    return { ids: data.ids, eles };
+  }
+
+  removeInterfaces(data: any) {
+    const eles = data.ids.map((id: number) => {
+      const i = this.cy.getElementById(`interface-${id}`);
+      return i.remove();
+    })
+    this.store.dispatch(removeInterfaces({ ids: data.ids }));
+    return { ids: data.ids, eles };
+  }
+
+  restoreInterfaces(data: any) {
+    const eles = data.eles.map((e: any) => e.restore());
+    this.store.dispatch(restoreInterfaces({ ids: data.ids }));
+    return { ids: data.ids, eles };
   }
 
   isParentOfOneChild(node: any) {
@@ -958,28 +997,6 @@ export class HelpersService implements OnDestroy {
 
   removeParentsOfOneChild(cy: any) {
     cy.nodes().filter(this.isParentOfOneChild).forEach(this.removeParent)
-  }
-
-  restoreNode(node: any) {
-    node._private['data'] = { ...node._private['data'] };
-    var restored = node.restore();
-    var node = null;
-    restored.forEach((ele: any) => {
-      var d = ele.data()
-      if (ele.group() == 'nodes') {
-        if (!d.new) {
-          d.deleted = false;
-          this.deletedNodes.pop();
-          node = ele;
-        }
-      } else {
-        if (!d.new) {
-          d.deleted = false;
-          this.deletedInterfaces.pop();
-        }
-      }
-    });
-    return node;
   }
 
   addBadge(cy: any, ele: any) {
@@ -1012,40 +1029,6 @@ export class HelpersService implements OnDestroy {
     if (existingTarget) {
       existingTarget.remove();
     }
-  }
-
-  removeEdge(data: any) {
-    const edgeData = data.edge.data();
-    const node = data.cy.getElementById(`node-${edgeData.node_id}`);
-    const nodeInterface = node?.data('interfaces').filter((i: any) => i.id == edgeData.interface_pk)[0];
-    this.deletedInterfaces.push({
-      'name': edgeData.id,
-      'interface_pk': edgeData.interface_pk,
-      'node_interface_value': nodeInterface.value
-    });
-    edgeData.deleted = true;
-    const updatedInterfaces = node.data('interfaces').filter((i: any) => i.id != edgeData.interface_pk);
-    node.data('interfaces', updatedInterfaces);
-    return { cy: data.cy, edge: data.edge.remove() };
-  }
-
-  restoreInterface(ele: any, interface_pk: number) {
-    const deletedInterface = this.deletedInterfaces.find((i: any) => i.interface_pk == interface_pk);
-    const interfaces = [...ele.data('interfaces'), {
-      id: interface_pk,
-      value: deletedInterface.node_interface_value
-    }];
-    ele.data('interfaces', interfaces);
-  }
-
-  restoreEdge(data: any) {
-    const edge_restore = data.edge.restore();
-    const edgeData = edge_restore.data();
-    const node = data.cy.getElementById(`node-${edgeData.node_id}`);
-    this.restoreInterface(node, edgeData.interface_pk);
-    edgeData.deleted = false;
-    this.deletedInterfaces.pop();
-    return { cy: data.cy, edge: edge_restore };
   }
 
   hexToRGB(hexColor: string) {
@@ -1264,49 +1247,6 @@ export class HelpersService implements OnDestroy {
   addNewNodeToMap(id: number) {
     const cyNodeData = this.nodes.find((n: any) => n.id == id);
     this.addCYNode(JSON.parse(JSON.stringify(cyNodeData)));
-  }
-
-  updateNodesStorage(newNode: any) {
-    const nodeIds = this.nodes.map(node => node.id);
-    const newNodes = [...this.nodes];
-    if (nodeIds.includes(newNode.id)) {
-      const index = this.nodes.findIndex(node => node.id === newNode.id);
-      newNodes.splice(index, 1, newNode);
-      this.store.dispatch(retrievedNodes({ data: newNodes }));
-    } else {
-      this.store.dispatch(retrievedNodes({ data: newNodes.concat(newNode) }));
-    }
-  }
-
-  updateNodesOnGroupStorage(newValue: any, type: any) {
-    let newItemInGroup: any;
-    const groupOfNode = newValue.groups;
-    const groupIds = groupOfNode.map((gr: any) => gr.id);
-    groupOfNode.forEach((group: any) => {
-      const groups = this.groups.filter(gr => gr.id === group.id);
-      if (type === 'node') {
-        const nodeInGroup = groups[0].nodes;
-        newItemInGroup = [...nodeInGroup];
-        const index = nodeInGroup.findIndex((node: any) => node.id === newValue.id);
-        newItemInGroup.splice(index, 1, newValue);
-      } else {
-        const pgInGroup = groups[0].port_groups;
-        newItemInGroup = [...pgInGroup];
-        const index = pgInGroup.findIndex((pg: any) => pg.id === newValue.id);
-        newItemInGroup.splice(index, 1, newValue);
-      }
-    })
-    const indexGroup = this.groups.findIndex(group => group.id === groupIds[0]);
-    const newGroups = [...this.groups];
-    let newGroup = { ...newGroups[indexGroup] };
-    if (type == 'node') {
-      newGroup.nodes = newItemInGroup;
-      newGroups.splice(indexGroup, 1, newGroup);
-    } else {
-      newGroup.port_groups = newItemInGroup;
-      newGroups.splice(indexGroup, 1, newGroup);
-    }
-    this.store.dispatch(retrievedGroups({ data: newGroups }));
   }
 
   updateNodeOnMap(id: string, data: any) {

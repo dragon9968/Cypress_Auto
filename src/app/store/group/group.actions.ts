@@ -61,3 +61,23 @@ export const groupAddedSuccess = createAction(
   'groupAddedSuccess',
   props<{ group: any }>()
 );
+
+export const removeNodesInGroup = createAction(
+  'removeNodesInGroup',
+  props<{ ids: number[] }>()
+);
+
+export const restoreNodesInGroup = createAction(
+  'restoreNodesInGroup',
+  props<{ ids: number[] }>()
+);
+
+export const removePGsInGroup = createAction(
+  'removePGsInGroup',
+  props<{ ids: number[] }>()
+);
+
+export const restorePGsInGroup = createAction(
+  'restorePGsInGroup',
+  props<{ ids: number[] }>()
+);

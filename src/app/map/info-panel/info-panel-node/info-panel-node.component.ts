@@ -12,7 +12,7 @@ import { ConfirmationDialogComponent } from "../../../shared/components/confirma
 import { AddUpdateNodeDialogComponent } from "../../add-update-node-dialog/add-update-node-dialog.component";
 import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
 import { MatMenuTrigger } from "@angular/material/menu";
-import { selectLogicalNodes } from "src/app/store/node/node.selectors";
+import { selectIsSelectedFlag, selectLogicalNodes, selectSelectedLogicalNodes } from "src/app/store/node/node.selectors";
 import { FormControl, FormGroup } from "@angular/forms";
 
 
@@ -33,11 +33,14 @@ export class InfoPanelNodeComponent implements OnDestroy {
   @Input() deletedInterfaces: any[] = [];
   @Input() infoPanelheight = '300px';
   nodes!: any[];
-  activeEleIds: any[] = [];
+  selectedNodes: any[] = [];
+  selectedIds: any[] = [];
+  isSelectedFlag = false;
   filterOption = 'all';
-  mapSelection!: any;
   filterOptionForm!: FormGroup;
-  selectNodes$ = new Subscription();
+  selectLogicalNodes$ = new Subscription();
+  selectSelectedLogicalNodes$ = new Subscription();
+  selectIsSelectedFlag$ = new Subscription();
   tabName = 'node';
   gridOptions: GridOptions = {
     headerHeight: 48,
@@ -177,10 +180,21 @@ export class InfoPanelNodeComponent implements OnDestroy {
     private cmActionsService: CMActionsService,
   ) {
     iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
-    this.selectNodes$ = this.store.select(selectLogicalNodes).subscribe(nodes => {
-      if (nodes) {
+    this.selectIsSelectedFlag$ = this.store.select(selectIsSelectedFlag).subscribe(isSelectedFlag => {
+      this.isSelectedFlag = isSelectedFlag
+    });
+    this.selectLogicalNodes$ = this.store.select(selectLogicalNodes).subscribe(nodes => {
+      if (nodes && !this.isSelectedFlag) {
         this.nodes = nodes;
         this.loadNodesTable();
+      }
+    });
+    this.selectSelectedLogicalNodes$ = this.store.select(selectSelectedLogicalNodes).subscribe(selectedNodes => {
+      if (selectedNodes) {
+        this.selectedNodes = selectedNodes;
+        this.selectedIds = selectedNodes.map(n => n.id);
+        this.infoPanelTableComponent?.deselectAll();
+        this.infoPanelTableComponent?.setRowActive(this.selectedIds);
       }
     });
     this.filterOptionForm = new FormGroup({
@@ -189,19 +203,19 @@ export class InfoPanelNodeComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.selectNodes$.unsubscribe();
+    this.selectLogicalNodes$.unsubscribe();
+    this.selectSelectedLogicalNodes$.unsubscribe();
+    this.selectIsSelectedFlag$.unsubscribe();
   }
 
   private loadNodesTable() {
-    const selectedEles = this.nodes.filter(n => n.isSelected);
-    const selectedEleIds = selectedEles.map(n => n.id);
     if (this.filterOption == 'all') {
       this.infoPanelTableComponent?.setRowData(this.nodes);
-      this.infoPanelTableComponent?.deselectAll();
-      this.infoPanelTableComponent?.setRowActive(selectedEleIds);
     } else if (this.filterOption == 'selected') {
-      this.infoPanelTableComponent?.setSelectedEles(selectedEleIds, selectedEles);
+      this.infoPanelTableComponent?.setRowData(this.selectedNodes);
     }
+    this.infoPanelTableComponent?.deselectAll();
+    this.infoPanelTableComponent?.setRowActive(this.selectedIds);
   }
 
   cloneNodes() {
@@ -217,7 +231,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm && this.infoPanelTableComponent) {
-          const ids = this.infoPanelTableComponent.rowsSelectedId;
+          const ids = this.infoPanelTableComponent.rowsSelectedIds;
           this.cmActionsService.cloneNodes(this.cy, ids);
         }
       })
@@ -225,7 +239,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
   }
 
   deleteNodes() {
-    this.infoPanelTableComponent?.delete(this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs);
+    this.infoPanelTableComponent?.delete(this.activeGBs);
   }
 
   editNodes() {
@@ -237,7 +251,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
       this.toastr.info('No row selected');
     } else {
       const jsonData = {
-        pks: this.infoPanelTableComponent?.rowsSelectedId
+        pks: this.infoPanelTableComponent?.rowsSelectedIds
       }
       const fileName = format === 'json' ? 'Node-Export.json' : 'node_export.csv';
       let file = new Blob();

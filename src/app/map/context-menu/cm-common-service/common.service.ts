@@ -28,37 +28,8 @@ export class CommonService {
     });
   }
 
-  delete(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], activeMBs: any[], activeMapLinks: any[], mapCategory: any) {
-    [...activeEdges].forEach((edge: any) => {
-      const sourceData = cy.getElementById(edge.data('source')).data();
-      const targetData = cy.getElementById(edge.data('target')).data();
-      if ('temp' in sourceData || 'temp' in targetData) {
-        return
-      } else {
-        if (mapCategory == 'logical') {
-          this.ur?.do('removeEdge', { cy, edge });
-          activeEdges.splice(0);
-        } else {
-          const jsonDataValue = {
-            interface_id: null,
-            task: `Deleted connect ${edge.data('name')} interface`
-          }
-          const interfacePk = edge.data('interface_pk')
-          this.interfaceService.put(interfacePk, jsonDataValue).subscribe((resp) => {
-            const edgeItem = cy.getElementById(interfacePk);
-            cy.remove(edgeItem);
-            this.toastr.success('Deleted Connected Interface', 'Success');
-            activeEdges.splice(0);
-            cy.edges().unselect();
-            this.interfaceService.getByProjectId(this.projectService.getProjectId()).subscribe(resp => {
-              this.store.dispatch(retrievedInterfacesConnectedNode({ interfacesConnectedNode: resp.result }));
-            })
-          })
-        }
-      }
-    });
-    activeNodes.concat(activePGs, activeGBs, activeMapLinks).forEach((node: any) => {
-      this.ur?.do('removeNode', node);
+  delete(cy: any, activeGBs: any[], activeMBs: any[], activeMapLinks: any[]) {
+    activeGBs.concat(activeMapLinks).forEach((node: any) => {
       if (this.isGroupBoxesChecked) {
         cy.nodes().filter('[label="group_box"]').forEach((gb: any) => {
           if (gb.children().length == 0) {
@@ -66,8 +37,6 @@ export class CommonService {
           }
         });
       }
-      activeNodes.splice(0);
-      activePGs.splice(0);
       activeGBs.splice(0);
       activeMapLinks.splice(0);
     });

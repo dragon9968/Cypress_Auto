@@ -4,7 +4,8 @@ import {
   PGsLoadedSuccess,
   pgUpdatedSuccess,
   bulkUpdatedPGSuccess,
-  removePG,
+  removePGsSuccess,
+  restorePGsSuccess,
   retrievedPortGroups,
   selectAllPG,
   selectPG,
@@ -50,6 +51,7 @@ export const portGroupReducer = createReducer(
     });
     return {
       ...state,
+      isSelectedFlag: false,
       portgroups: pgs,
       managementPGs,
     }
@@ -99,6 +101,7 @@ export const portGroupReducer = createReducer(
     })
     return {
       ...state,
+      isSelectedFlag: true,
       portgroups
     }
   }),
@@ -109,27 +112,39 @@ export const portGroupReducer = createReducer(
     })
     return {
       ...state,
+      isSelectedFlag: true,
       portgroups
     }
   }),
-  on(removePG, (state, { id }) => {
-    const portgroups = state.portgroups.filter(pg => pg.id !== id);
+  on(removePGsSuccess, (state, { ids }) => {
+    const portgroups = state.portgroups.map(pg => ids.includes(pg.id) ? { ...pg, isDeleted: true } : pg);
     return {
       ...state,
-      portgroups
-    }
+      isSelectedFlag: false,
+      portgroups,
+    };
+  }),
+  on(restorePGsSuccess, (state, { ids }) => {
+    const portgroups = state.portgroups.map(pg => ids.includes(pg.id) ? { ...pg, isDeleted: false } : pg);
+    return {
+      ...state,
+      isSelectedFlag: false,
+      portgroups,
+    };
   }),
   on(pgUpdatedSuccess, (state, { portgroup }) => {
     if (portgroup.category == 'management') {
       const managementPGs = state.managementPGs.map((pg: any) => (pg.id == portgroup.id) ? { ...pg, ...portgroup } : pg);
       return {
         ...state,
+        isSelectedFlag: false,
         managementPGs
       };
     } else {
       const portgroups = state.portgroups.map((pg: any) => (pg.id == portgroup.id) ? { ...pg, ...portgroup } : pg);
       return {
         ...state,
+        isSelectedFlag: false,
         portgroups
       };
     }
@@ -147,34 +162,34 @@ export const portGroupReducer = createReducer(
     });
     return {
       ...state,
+      isSelectedFlag: false,
       portgroups,
     };
   }),
   on(bulkUpdatedPGSuccess, (state, { portgroups }) => {
     const portgroupsData = state.portgroups.map((pg: any) => {
       const updatedPG = portgroups.find((n: any) => n.id == pg.id);
-      return updatedPG ? {...pg, ...updatedPG} : pg
+      return updatedPG ? { ...pg, ...updatedPG } : pg
     });
     return {
       ...state,
+      isSelectedFlag: false,
       portgroups: portgroupsData,
     };
   }),
   on(selectAllPG, (state) => {
-    const portgroups = state.portgroups.map(n => {
-      return { ...n, isSelected: true };
-    })
+    const portgroups = state.portgroups.map(n => ({ ...n, isSelected: true }))
     return {
       ...state,
+      isSelectedFlag: true,
       portgroups
     }
   }),
   on(unselectAllPG, (state) => {
-    const portgroups = state.portgroups.map(n => {
-      return { ...n, isSelected: false };
-    })
+    const portgroups = state.portgroups.map(n => ({ ...n, isSelected: false }))
     return {
       ...state,
+      isSelectedFlag: true,
       portgroups
     }
   }),

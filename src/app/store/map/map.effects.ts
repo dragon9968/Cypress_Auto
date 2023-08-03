@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { forkJoin, mergeMap, of } from 'rxjs';
 import { catchError, exhaustMap, switchMap, tap } from 'rxjs/operators';
-import { clearLinkedMap, loadLinkedMap, loadMap, mapLoadedDefaultPreferencesSuccess, mapLoadedSuccess, reloadGroupBoxes } from './map.actions';
+import { clearLinkedMap, loadLinkedMap, loadMap, mapLoadedDefaultPreferencesSuccess, reloadGroupBoxes, removeNodesOnMap } from './map.actions';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { clearLinkedMapNodes, linkedMapNodesLoadedSuccess, nodesLoadedSuccess } from '../node/node.actions';
 import { clearLinkedMapPGs, linkedMapPGsLoadedSuccess, PGsLoadedSuccess } from '../portgroup/portgroup.actions';
@@ -121,6 +121,10 @@ export class MapEffects {
       clearLinkedMapInterfaces()
     ])
   ))
+  removeNodesOnMap$ = createEffect(() => this.actions$.pipe(
+    ofType(removeNodesOnMap),
+    tap((payload) => this.helpersService.removeNodesOnMap(payload.ids))
+  ), { dispatch: false });
 
   constructor(
     private actions$: Actions,

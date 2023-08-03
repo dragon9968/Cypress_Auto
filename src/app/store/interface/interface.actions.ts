@@ -75,9 +75,24 @@ export const unselectAllInterface = createAction(
   'unselectAllInterface'
 );
 
-export const removeInterface = createAction(
-  'removeInterface',
-  props<{ id: string }>()
+export const removeInterfaces = createAction(
+  'removeInterfaces',
+  props<{ ids: number[] }>()
+);
+
+export const removeInterfacesSuccess = createAction(
+  'removeInterfaceSuccess',
+  props<{ ids: number[] }>()
+);
+
+export const restoreInterfaces = createAction(
+  'restoreInterfaces',
+  props<{ ids: number[] }>()
+);
+
+export const restoreInterfacesSuccess = createAction(
+  'restoreInterfacesSuccess',
+  props<{ ids: number[] }>()
 );
 
 export const updateNodeInInterfaces = createAction(

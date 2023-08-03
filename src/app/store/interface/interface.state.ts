@@ -15,4 +15,5 @@ export interface InterfaceState {
   physicalManagementInterfaces: any[],
   linkedMapInterfaces: any[] | undefined,
   interfacesCommonMapLinks: any[],
+  isSelectedFlag: boolean
 }

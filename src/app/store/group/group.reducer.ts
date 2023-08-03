@@ -1,6 +1,20 @@
 import { GroupState } from "./group.state";
 import { createReducer, on } from "@ngrx/store";
-import { groupAddedSuccess, groupUpdatedSuccess, groupsLoadedSuccess, retrievedGroups, selectAllGroup, selectGroup, unSelectAllGroup, unSelectGroup, updateNodeInGroup } from "./group.actions";
+import { 
+  removeNodesInGroup,
+  groupAddedSuccess,
+  groupUpdatedSuccess,
+  groupsLoadedSuccess,
+  retrievedGroups,
+  selectGroup,
+  unSelectGroup,
+  updateNodeInGroup,
+  restoreNodesInGroup,
+  removePGsInGroup,
+  restorePGsInGroup,
+  selectAllGroup,
+  unSelectAllGroup
+} from "./group.actions";
 
 const initialState = {} as GroupState;
 
@@ -111,6 +125,54 @@ export const groupReducer = createReducer(
   }),
   on(groupAddedSuccess, (state, { group }) => {
     const groups = [...state.groups, addCyDataToGroup(group)]
+    return {
+      ...state,
+      groups,
+    };
+  }),
+  on(removeNodesInGroup, (state, { ids }) => {
+    const groups = state.groups.map((g: any) => {
+      return {
+        ...g,
+        nodes: g.nodes.map((n: any) => ids.includes(n.id) ? { ...n, isDeleted: true } : n)
+      }
+    });
+    return {
+      ...state,
+      groups,
+    };
+  }),
+  on(restoreNodesInGroup, (state, { ids }) => {
+    const groups = state.groups.map((g: any) => {
+      return {
+        ...g,
+        nodes: g.nodes.map((n: any) => ids.includes(n.id) ? { ...n, isDeleted: false } : n)
+      }
+    });
+    return {
+      ...state,
+      groups,
+    };
+  }),
+  on(removePGsInGroup, (state, { ids }) => {
+    const groups = state.groups.map((g: any) => {
+      return {
+        ...g,
+        port_groups: g.port_groups.map((pg: any) => ids.includes(pg.id) ? { ...pg, isDeleted: true } : pg)
+      }
+    });
+    return {
+      ...state,
+      groups,
+    };
+  }),
+  on(restorePGsInGroup, (state, { ids }) => {
+    const groups = state.groups.map((g: any) => {
+      return {
+        ...g,
+        port_groups: g.port_groups.map((pg: any) => ids.includes(pg.id) ? { ...pg, isDeleted: false } : pg)
+      }
+    });
     return {
       ...state,
       groups,

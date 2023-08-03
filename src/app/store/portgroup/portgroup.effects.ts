@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { EMPTY, forkJoin, of } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
 import { map, exhaustMap, catchError, mergeMap, switchMap } from 'rxjs/operators';
 import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
-import { PGsLoadedSuccess, bulkEditPG, bulkUpdatedPGSuccess, loadPGs, pgUpdatedSuccess, updatePG } from './portgroup.actions';
+import { PGsLoadedSuccess, bulkEditPG, bulkUpdatedPGSuccess, loadPGs, pgUpdatedSuccess, removePGs, removePGsSuccess, restorePGs, restorePGsSuccess, updatePG } from './portgroup.actions';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { updatePGInInterfaces } from '../interface/interface.actions';
 import { pushNotification } from '../app/app.actions';
 import { reloadGroupBoxes } from '../map/map.actions';
+import { removePGsInGroup, restorePGsInGroup } from '../group/group.actions';
 
 @Injectable()
 export class PortGroupsEffects {
@@ -87,6 +88,54 @@ export class PortGroupsEffects {
           }
         })))
       )),
+  ));
+
+  removePGs$ = createEffect(() => this.actions$.pipe(
+    ofType(removePGs),
+    exhaustMap(payload => of([])
+      .pipe(
+        switchMap(res => [
+          removePGsSuccess({ ids: payload.ids }),
+          removePGsInGroup({ ids: payload.ids }),
+          reloadGroupBoxes(),
+          pushNotification({
+            notification: {
+              type: 'success',
+              message: 'Portgroup removed!'
+            }
+          })
+        ]),
+        catchError(e => of(pushNotification({
+          notification: {
+            type: 'error',
+            message: 'Remove portgroup failed'
+          }
+        })))
+      ))
+  ));
+
+  restorePGs$ = createEffect(() => this.actions$.pipe(
+    ofType(restorePGs),
+    exhaustMap(payload => of([])
+      .pipe(
+        switchMap(res => [
+          restorePGsSuccess({ ids: payload.ids }),
+          restorePGsInGroup({ ids: payload.ids }),
+          reloadGroupBoxes(),
+          pushNotification({
+            notification: {
+              type: 'success',
+              message: 'Portgroup restored!'
+            }
+          })
+        ]),
+        catchError(e => of(pushNotification({
+          notification: {
+            type: 'error',
+            message: 'Restore portgroup failed'
+          }
+        })))
+      ))
   ));
 
   constructor(

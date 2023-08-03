@@ -17,7 +17,7 @@ import { ExportType } from "../../../core/models/common.model";
 import { PortGroupExportModel } from "../../../core/models/port-group.model";
 import { FormControl, FormGroup } from "@angular/forms";
 import { MatMenuTrigger } from "@angular/material/menu";
-import { selectManagementPGs, selectPortGroups } from "src/app/store/portgroup/portgroup.selectors";
+import { selectIsSelectedFlag, selectManagementPGs, selectPortGroups, selectSelectedPortGroups } from "src/app/store/portgroup/portgroup.selectors";
 
 @Component({
   selector: 'app-info-panel-port-group',
@@ -38,13 +38,17 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
   filterOptionForm!: FormGroup;
   portGroups: any[] = [];
   managementPGs: any[] = [];
-  activeEleIds: any[] = [];
+  selectedPGs: any[] = [];
+  selectedIds: any[] = [];
+  isSelectedFlag = false;
   rowDataPG: any[] = [];
   filterOption = 'all';
   tabName = 'portgroup';
   projectId = '0';
   selectPortGroups$ = new Subscription();
   selectManagementPGs$ = new Subscription();
+  selectSelectedPortGroups$ = new Subscription();
+  selectIsSelectedFlag$ = new Subscription();
   gridOptions: GridOptions = {
     headerHeight: 48,
     defaultColDef: {
@@ -134,15 +138,26 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
     private infoPanelService: InfoPanelService
   ) {
     this.iconRegistry.addSvgIcon('randomize-subnet', this.helpers.setIconPath('/assets/icons/randomize-subnet.svg'));
+    this.selectIsSelectedFlag$ = this.store.select(selectIsSelectedFlag).subscribe(isSelectedFlag => {
+      this.isSelectedFlag = isSelectedFlag
+    });
     this.selectPortGroups$ = this.store.select(selectPortGroups).subscribe(portGroups => {
-      if (portGroups) {
-        this.portGroups = portGroups
+      if (portGroups && !this.isSelectedFlag) {
+        this.portGroups = portGroups;
         this.loadPGsTable();
       }
     });
     this.selectManagementPGs$ = this.store.select(selectManagementPGs).subscribe(managementPGs => {
       if (managementPGs) {
         this.managementPGs = managementPGs;
+      }
+    });
+    this.selectSelectedPortGroups$ = this.store.select(selectSelectedPortGroups).subscribe(selectedPGs => {
+      if (selectedPGs) {
+        this.selectedPGs = selectedPGs;
+        this.selectedIds = selectedPGs.map(pg => pg.id);
+        this.infoPanelTableComponent?.deselectAll();
+        this.infoPanelTableComponent?.setRowActive(this.selectedIds);
       }
     });
     this.filterOptionForm = new FormGroup({
@@ -165,21 +180,19 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
   }
 
   private loadPGsTable() {
-    const selectedEles = this.portGroups.filter(n => n.isSelected);
-    const selectedEleIds = selectedEles.map(n => n.id);
     if (this.filterOption == 'all') {
       this.infoPanelTableComponent?.setRowData(this.portGroups);
-      this.infoPanelTableComponent?.deselectAll();
-      this.infoPanelTableComponent?.setRowActive(selectedEleIds);
     } else if (this.filterOption == 'selected') {
-      this.infoPanelTableComponent?.setSelectedEles(selectedEleIds, selectedEles);
+      this.infoPanelTableComponent?.setRowData(this.selectedPGs);
     } else if (this.filterOption === 'management') {
       this.infoPanelTableComponent?.setRowData(this.managementPGs);
     }
+    this.infoPanelTableComponent?.deselectAll();
+    this.infoPanelTableComponent?.setRowActive(this.selectedIds);
   }
 
   deletePortGroup() {
-    this.infoPanelTableComponent?.delete(this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs);
+    this.infoPanelTableComponent?.delete(this.activeGBs);
   }
 
   editPortGroup() {
@@ -191,7 +204,7 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
       this.toastr.info('No row selected');
     } else {
       const jsonData: PortGroupExportModel = {
-        pks: this.infoPanelTableComponent?.rowsSelectedId as number[],
+        pks: this.infoPanelTableComponent?.rowsSelectedIds as number[],
         format: format
       }
       let file = new Blob();
@@ -215,8 +228,8 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
     if (this.infoPanelTableComponent?.rowsSelected.length == 0) {
       this.toastr.info('No row selected');
     } else {
-      const item = this.infoPanelTableComponent?.rowsSelectedId.length === 1 ? 'this' : 'these';
-      const sSuffix = this.infoPanelTableComponent?.rowsSelectedId.length === 1 ? '' : 's';
+      const item = this.infoPanelTableComponent?.rowsSelectedIds.length === 1 ? 'this' : 'these';
+      const sSuffix = this.infoPanelTableComponent?.rowsSelectedIds.length === 1 ? '' : 's';
       const dialogData = {
         title: 'User confirmation needed',
         message: `Generate a new randomize subnet for ${item} port_group${sSuffix}?`,
@@ -225,7 +238,7 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '500px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
-          this.infoPanelService.randomizeSubnetPortGroups(this.infoPanelTableComponent?.rowsSelectedId as number[], Number(this.projectId));
+          this.infoPanelService.randomizeSubnetPortGroups(this.infoPanelTableComponent?.rowsSelectedIds as number[], Number(this.projectId));
         }
       })
     }

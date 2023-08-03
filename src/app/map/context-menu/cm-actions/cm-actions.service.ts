@@ -218,7 +218,6 @@ export class CMActionsService {
           cyData.shape = "roundrectangle";
           cyData['text-opacity'] = 1;
           this.helpers.addCYNode({ newNodeData: cyData, newNodePosition: cyData.logical_map.position });
-          this.helpers.updateNodesStorage({...cyData});
           this.helpers.reloadGroupBoxes();
           // Draw interface related to Nodes
           this.interfaceService.getByNode(id).subscribe((respData: any) => {

@@ -13,7 +13,6 @@ import {
   interfacesLoadedSuccess,
   selectInterface,
   unSelectInterface,
-  removeInterface,
   updateNodeInInterfaces,
   updatePGInInterfaces,
   logicalInterfaceUpdatedSuccess,
@@ -23,7 +22,9 @@ import {
   linkedMapInterfacesLoadedSuccess,
   clearLinkedMapInterfaces,
   interfaceAddedMapLinkToPGSuccess,
-  randomizeIpBulkSuccess
+  randomizeIpBulkSuccess,
+  removeInterfacesSuccess,
+  restoreInterfacesSuccess
 } from "./interface.actions";
 
 const initialState = {} as InterfaceState;
@@ -165,6 +166,7 @@ export const interfaceReducerByIds = createReducer(
     })
     return {
       ...state,
+      isSelectedFlag: false,
       logicalMapInterfaces,
       logicalManagementInterfaces,
       physicalInterfaces,
@@ -228,6 +230,7 @@ export const interfaceReducerByIds = createReducer(
     })
     return {
       ...state,
+      isSelectedFlag: true,
       logicalMapInterfaces
     }
   }),
@@ -238,6 +241,7 @@ export const interfaceReducerByIds = createReducer(
     })
     return {
       ...state,
+      isSelectedFlag: true,
       logicalMapInterfaces
     }
   }),
@@ -247,6 +251,7 @@ export const interfaceReducerByIds = createReducer(
     })
     return {
       ...state,
+      isSelectedFlag: true,
       logicalMapInterfaces
     }
   }),
@@ -256,15 +261,25 @@ export const interfaceReducerByIds = createReducer(
     })
     return {
       ...state,
+      isSelectedFlag: true,
       logicalMapInterfaces
     }
   }),
-  on(removeInterface, (state, { id }) => {
-    const logicalMapInterfaces = state.logicalMapInterfaces.filter(i => i.id !== id)
+  on(removeInterfacesSuccess, (state, { ids }) => {
+    const logicalMapInterfaces = state.logicalMapInterfaces.map(i => ids.includes(i.id) ? { ...i, isDeleted: true } : i);
     return {
       ...state,
-      logicalMapInterfaces
-    }
+      isSelectedFlag: false,
+      logicalMapInterfaces,
+    };
+  }),
+  on(restoreInterfacesSuccess, (state, { ids }) => {
+    const logicalMapInterfaces = state.logicalMapInterfaces.map(i => ids.includes(i.id) ? { ...i, isDeleted: false } : i);
+    return {
+      ...state,
+      isSelectedFlag: false,
+      logicalMapInterfaces,
+    };
   }),
   on(updateNodeInInterfaces, (state, { node }) => {
     const logicalMapInterfaces = state.logicalMapInterfaces.map((i: any) => {
@@ -282,6 +297,7 @@ export const interfaceReducerByIds = createReducer(
     });
     return {
       ...state,
+      isSelectedFlag: false,
       logicalMapInterfaces,
     };
   }),
@@ -301,6 +317,7 @@ export const interfaceReducerByIds = createReducer(
     });
     return {
       ...state,
+      isSelectedFlag: false,
       logicalMapInterfaces,
     };
   }),
@@ -309,40 +326,39 @@ export const interfaceReducerByIds = createReducer(
       const logicalManagementInterfaces = state.logicalManagementInterfaces.map((i: any) => (i.id == interfaceData.id) ? { ...i, ...interfaceData } : i);
       return {
         ...state,
+        isSelectedFlag: false,
         logicalManagementInterfaces
       };
     } else {
       const logicalMapInterfaces = state.logicalMapInterfaces.map((i: any) => (i.id == interfaceData.id) ? { ...i, ...interfaceData } : i);
       return {
         ...state,
+        isSelectedFlag: false,
         logicalMapInterfaces
       };
     }
   }),
   on(bulkEditlogicalInterfaceSuccess, (state, { interfacesData }) => {
-    const logicalMapInterfaces: any = [];
-    const logicalManagementInterfaces: any = [];
-    const listAllInterfaces = state.logicalMapInterfaces.concat(state.logicalManagementInterfaces)
-    listAllInterfaces.map((interfaceData: any) => {
-      const updatedInterface = interfacesData.find((i: any) => i.id == interfaceData.id);
-      if (interfaceData.category === 'management') {
-        if (updatedInterface && updatedInterface.category === 'management') {
-          logicalManagementInterfaces.push({...interfaceData, ...updatedInterface})
-        } else {
-          logicalManagementInterfaces.push(interfaceData)
-        }
-      } else {
-        if (updatedInterface && updatedInterface.category !== 'management') {
-          logicalMapInterfaces.push({...interfaceData, ...updatedInterface})
-        } else {
-          logicalMapInterfaces.push(interfaceData)
-        }
-      }
-    })
-    return {
-      ...state,
-      logicalMapInterfaces,
-      logicalManagementInterfaces
+    if (interfacesData.category == 'management') {
+      const logicalManagementInterfaces = state.logicalManagementInterfaces.map((interfaceData: any) => {
+        const updatedLogicalManagementInterfaces = interfacesData.find((i: any) => i.id == interfaceData.id);
+        return updatedLogicalManagementInterfaces ? {...interfaceData, ...updatedLogicalManagementInterfaces} : interfaceData
+      })
+      return {
+        ...state,
+        isSelectedFlag: false,
+        logicalManagementInterfaces
+      };
+    } else {
+      const logicalMapInterfaces = state.logicalMapInterfaces.map((interfaceData: any) => {
+        const updatedLogicalMapInterfaces = interfacesData.find((i: any) => i.id == interfaceData.id);
+        return updatedLogicalMapInterfaces ? {...interfaceData, ...updatedLogicalMapInterfaces} : interfaceData
+      })
+      return {
+        ...state,
+        isSelectedFlag: false,
+        logicalMapInterfaces
+      };
     }
   }),
   on(randomizeIpBulkSuccess, (state, { interfacesData }) => {
@@ -352,6 +368,7 @@ export const interfaceReducerByIds = createReducer(
     })
     return {
       ...state,
+      isSelectedFlag: false,
       logicalMapInterfaces
     };
   }),

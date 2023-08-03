@@ -12,10 +12,19 @@ export const selectInterfacesBySourceNode = createSelector(selectInterfaceFeatur
 export const selectInterfacesByDestinationNode = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.interfacesByDestinationNode);
 export const selectInterfacesByHwNodes = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.interfacesByHwNodes);
 export const selectInterfacesConnectedNode = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.interfacesConnectedNode);
-export const selectLogicalInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.logicalMapInterfaces?.concat(state.logicalManagementInterfaces));
-export const selectLogicalMapInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.logicalMapInterfaces);
-export const selectLogicalManagementInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.logicalManagementInterfaces);
+export const selectLogicalMapInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.logicalMapInterfaces?.filter(i => !i.isDeleted));
+export const selectLogicalManagementInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.logicalManagementInterfaces?.filter(i => !i.isDeleted));
+export const selectLogicalInterfaces = createSelector(
+  selectLogicalMapInterfaces,
+  selectLogicalManagementInterfaces,
+  (
+    selectLogicalMapInterfaces,
+    selectLogicalManagementInterfaces
+  ) => (selectLogicalMapInterfaces?.concat(selectLogicalManagementInterfaces))
+);
 export const selectPhysicalInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.physicalInterfaces);
 export const selectPhysicalManagementInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.physicalManagementInterfaces);
 export const selectLinkedMapInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.linkedMapInterfaces);
 export const selectInterfacesCommonMapLinks = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.interfacesCommonMapLinks);
+export const selectSelectedLogicalInterfaces = createSelector(selectLogicalInterfaces, (selectLogicalInterfaces) => selectLogicalInterfaces?.filter(i => i.isSelected));
+export const selectIsSelectedFlag = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.isSelectedFlag);

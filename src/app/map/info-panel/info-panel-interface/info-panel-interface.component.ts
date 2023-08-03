@@ -12,7 +12,7 @@ import { AddUpdateInterfaceDialogComponent } from "../../add-update-interface-di
 import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
 import { FormControl, FormGroup } from "@angular/forms";
 import { MatMenuTrigger } from "@angular/material/menu";
-import { selectLogicalInterfaces, selectLogicalManagementInterfaces } from "../../../store/interface/interface.selectors";
+import { selectIsSelectedFlag, selectLogicalInterfaces, selectLogicalManagementInterfaces, selectSelectedLogicalInterfaces } from "../../../store/interface/interface.selectors";
 
 @Component({
   selector: 'app-info-panel-interface',
@@ -33,10 +33,15 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
   filterOptionForm!: FormGroup;
   interfaces: any[] = [];
   managementInterfaces: any[] = [];
+  selectedInterfaces: any[] = [];
+  selectedIds: any[] = [];
+  isSelectedFlag = false;
   filterOption = 'all';
   tabName = 'interface';
   selectLogicalInterfaces$ = new Subscription();
   selectLogicalManagementInterfaces$ = new Subscription();
+  selectSelectedLogicalInterfaces$ = new Subscription();
+  selectIsSelectedFlag$ = new Subscription();
   gridOptions: GridOptions = {
     headerHeight: 48,
     defaultColDef: {
@@ -147,8 +152,11 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
     private infoPanelService: InfoPanelService
   ) {
     this.iconRegistry.addSvgIcon('randomize-subnet', this.helpers.setIconPath('/assets/icons/randomize-subnet.svg'));
+    this.selectIsSelectedFlag$ = this.store.select(selectIsSelectedFlag).subscribe(isSelectedFlag => {
+      this.isSelectedFlag = isSelectedFlag
+    });
     this.selectLogicalInterfaces$ = this.store.select(selectLogicalInterfaces).subscribe(interfaces => {
-      if (interfaces) {
+      if (interfaces && !this.isSelectedFlag) {
         this.interfaces = interfaces;
         this.loadInterfacesTable();
       }
@@ -156,6 +164,14 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
     this.selectLogicalManagementInterfaces$ = this.store.select(selectLogicalManagementInterfaces).subscribe(managementInterfaces => {
       if (managementInterfaces) {
         this.managementInterfaces = managementInterfaces;
+      }
+    });
+    this.selectSelectedLogicalInterfaces$ = this.store.select(selectSelectedLogicalInterfaces).subscribe(selectedInterfaces => {
+      if (selectedInterfaces) {
+        this.selectedInterfaces = selectedInterfaces;
+        this.selectedIds = selectedInterfaces.map(i => i.id);
+        this.infoPanelTableComponent?.deselectAll();
+        this.infoPanelTableComponent?.setRowActive(this.selectedIds);
       }
     });
     this.filterOptionForm = new FormGroup({
@@ -169,21 +185,20 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
   }
 
   private loadInterfacesTable() {
-    const selectedEles = this.interfaces.filter(n => n.isSelected);
-    const selectedEleIds = selectedEles.map(n => n.id);
     if (this.filterOption == 'all') {
       this.infoPanelTableComponent?.setRowData(this.interfaces);
-      this.infoPanelTableComponent?.deselectAll();
-      this.infoPanelTableComponent?.setRowActive(selectedEleIds);
     } else if (this.filterOption == 'selected') {
-      this.infoPanelTableComponent?.setSelectedEles(selectedEleIds, selectedEles);
+      this.infoPanelTableComponent?.setRowData(this.selectedInterfaces);
     } else if (this.filterOption === 'management') {
       this.infoPanelTableComponent?.setRowData(this.managementInterfaces);
     }
+
+    this.infoPanelTableComponent?.deselectAll();
+    this.infoPanelTableComponent?.setRowActive(this.selectedIds);
   }
 
   deleteInterfaces() {
-    this.infoPanelTableComponent?.delete(this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs);
+    this.infoPanelTableComponent?.delete(this.activeGBs);
   }
 
   editInterfaces() {
@@ -191,7 +206,7 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
   }
 
   randomizeIp() {
-    const selectedRows = this.infoPanelTableComponent?.rowsSelectedId
+    const selectedRows = this.infoPanelTableComponent?.rowsSelectedIds
     if (selectedRows?.length == 0) {
       this.toastr.info('No row selected');
     } else {

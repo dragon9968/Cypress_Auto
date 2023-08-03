@@ -167,10 +167,10 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
   }
 
   editGroup() {
-    if (this.infoPanelTableComponent?.rowsSelectedId.length === 0) {
+    if (this.infoPanelTableComponent?.rowsSelectedIds.length === 0) {
       this.toastr.info('No row selected');
-    } else if (this.infoPanelTableComponent?.rowsSelectedId.length === 1) {
-      this.groupService.get(this.infoPanelTableComponent?.rowsSelectedId[0]).subscribe(groupData => {
+    } else if (this.infoPanelTableComponent?.rowsSelectedIds.length === 1) {
+      this.groupService.get(this.infoPanelTableComponent?.rowsSelectedIds[0]).subscribe(groupData => {
         const dialogData = {
           mode: 'update',
           genData: groupData.result,
@@ -193,10 +193,10 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
   }
 
   deleteGroup() {
-    if (this.infoPanelTableComponent?.rowsSelectedId.length === 0) {
+    if (this.infoPanelTableComponent?.rowsSelectedIds.length === 0) {
       this.toastr.info('No row selected');
     } else {
-      const item = this.infoPanelTableComponent?.rowsSelectedId.length === 1 ? 'this' : 'these';
+      const item = this.infoPanelTableComponent?.rowsSelectedIds.length === 1 ? 'this' : 'these';
       const dialogData = {
         title: 'User confirmation needed',
         message: `Are you sure you want to delete ${item}?`,
@@ -205,7 +205,7 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '450px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
-          this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.infoPanelTableComponent?.rowsSelectedId);
+          this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.infoPanelTableComponent?.rowsSelectedIds);
           this.clearRowSelected();
         }
       })

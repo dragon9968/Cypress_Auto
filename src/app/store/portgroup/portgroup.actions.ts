@@ -33,9 +33,24 @@ export const unselectAllPG = createAction(
   'unselectAllPG'
 );
 
-export const removePG = createAction(
-  'removePG',
-  props<{ id: string }>()
+export const removePGs = createAction(
+  'removePGs',
+  props<{ ids: number[] }>()
+);
+
+export const removePGsSuccess = createAction(
+  'removePGsSuccess',
+  props<{ ids: number[] }>()
+);
+
+export const restorePGs = createAction(
+  'restorePGs',
+  props<{ ids: number[] }>()
+);
+
+export const restorePGsSuccess = createAction(
+  'restorePGsSuccess',
+  props<{ ids: number[] }>()
 );
 
 export const updatePG = createAction(

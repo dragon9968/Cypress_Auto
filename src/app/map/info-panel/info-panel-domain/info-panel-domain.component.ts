@@ -104,7 +104,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
       if (domains) {
         this.domains = domains;
         this.infoPanelTableComponent?.setRowData(domains);
-        this.infoPanelTableComponent?.setRowActive(this.infoPanelTableComponent?.rowsSelectedId);
+        this.infoPanelTableComponent?.setRowActive(this.infoPanelTableComponent?.rowsSelectedIds);
       }
     });
   }
@@ -131,11 +131,11 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
   }
 
   addDomainUser() {
-    if (this.infoPanelTableComponent?.rowsSelectedId.length === 0) {
+    if (this.infoPanelTableComponent?.rowsSelectedIds.length === 0) {
       this.toastr.info('Please select the domain for creating users');
     } else {
       const dialogData = {
-        genData: { domainId: this.infoPanelTableComponent?.rowsSelectedId }
+        genData: { domainId: this.infoPanelTableComponent?.rowsSelectedIds }
       }
       this.dialog.open(AddDomainUserDialogComponent, { disableClose: true, width: '600px', data: dialogData });
     }
@@ -156,7 +156,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
     } else {
       const dialogData = {
         genData: {
-          pks: this.infoPanelTableComponent?.rowsSelectedId,
+          pks: this.infoPanelTableComponent?.rowsSelectedIds,
           projectId: this.projectId
         }
       }
@@ -165,10 +165,10 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
   }
 
   deleteDomain() {
-    if (this.infoPanelTableComponent?.rowsSelectedId.length === 0) {
+    if (this.infoPanelTableComponent?.rowsSelectedIds.length === 0) {
       this.toastr.info('No row selected');
     } else {
-      const item = this.infoPanelTableComponent?.rowsSelectedId.length === 1 ? 'this' : 'these';
+      const item = this.infoPanelTableComponent?.rowsSelectedIds.length === 1 ? 'this' : 'these';
       const dialogData = {
         title: 'User confirmation needed',
         message: `Are you sure you want to delete ${item}?`,
@@ -177,7 +177,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '450px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
-          this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.infoPanelTableComponent?.rowsSelectedId);
+          this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.infoPanelTableComponent?.rowsSelectedIds);
           this.clearRowSelected();
         }
       })
@@ -186,11 +186,11 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
   }
 
   exportDomain(format: string) {
-    if (this.infoPanelTableComponent?.rowsSelectedId.length === 0) {
+    if (this.infoPanelTableComponent?.rowsSelectedIds.length === 0) {
       this.toastr.info('No row selected');
     } else {
       const jsonData = {
-        domain_id: this.infoPanelTableComponent?.rowsSelectedId,
+        domain_id: this.infoPanelTableComponent?.rowsSelectedIds,
         format: format
       }
       let file = new Blob();
@@ -210,8 +210,8 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
   }
 
   openDomainUsers() {
-    if (this.infoPanelTableComponent?.rowsSelectedId.length === 1) {
-      this.domainUserService.getDomainUserByDomainId(this.infoPanelTableComponent?.rowsSelectedId[0]).subscribe(data => {
+    if (this.infoPanelTableComponent?.rowsSelectedIds.length === 1) {
+      this.domainUserService.getDomainUserByDomainId(this.infoPanelTableComponent?.rowsSelectedIds[0]).subscribe(data => {
         const dialogData = {
           genData: data.result,
           domain: this.infoPanelTableComponent?.rowsSelected[0]

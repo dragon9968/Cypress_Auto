@@ -1,10 +1,5 @@
 import { createAction, props } from "@ngrx/store";
 
-export const retrievedNodes = createAction(
-  'retrievedNodes',
-  props<{ data: any }>()
-)
-
 export const retrievedNameNodeBySourceNode = createAction(
   'retrievedNameNodeBySourceNode',
   props<{ nameNode: any }>()
@@ -38,9 +33,24 @@ export const unSelectAllNode = createAction(
   'unSelectAllNode'
 );
 
-export const removeNode = createAction(
-  'removeNode',
-  props<{ id: string }>()
+export const removeNodes = createAction(
+  'removeNodes',
+  props<{ ids: number[] }>()
+);
+
+export const removeNodesSuccess = createAction(
+  'removeNodesSuccess',
+  props<{ ids: number[] }>()
+);
+
+export const restoreNodes = createAction(
+  'restoreNodes',
+  props<{ ids: number[] }>()
+);
+
+export const restoreNodesSuccess = createAction(
+  'restoreNodesSuccess',
+  props<{ ids: number[] }>()
 );
 
 export const updateNode = createAction(
