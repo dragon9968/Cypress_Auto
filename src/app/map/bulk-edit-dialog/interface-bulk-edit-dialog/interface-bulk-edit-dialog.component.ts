@@ -13,7 +13,7 @@ import { autoCompleteValidator } from "../../../shared/validations/auto-complete
 import { Observable, Subscription } from "rxjs";
 import { selectMapOption } from "../../../store/map-option/map-option.selectors";
 import { ProjectService } from "src/app/project/services/project.service";
-import { bulkEditLogicalInterface, retrievedInterfaceByProjectIdAndCategory } from "src/app/store/interface/interface.actions";
+import { bulkEditLogicalInterface } from "src/app/store/interface/interface.actions";
 import { selectNotification } from "src/app/store/app/app.selectors";
 
 @Component({

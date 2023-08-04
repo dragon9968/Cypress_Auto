@@ -1,18 +1,18 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from "@angular/forms";
 import {isIPv4} from 'is-ip';
+import { ErrorMessages } from "../enums/error-messages.enum";
 
 export function networksValidation(type: any): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const ips = control.value;
     if (ips) {
       let message = "";
-      let invalidIpMessage = "Expected 4 octets and only decimal digits permitted. Invalid IP Address";
       const isSubnet = require("is-subnet");
       const isIpV4 = isIPv4(ips)
       let isMatchIP = !isIpV4
       let matchSubnet = false;
       let isMatch = false;
-      if (ips == undefined || ips == '') return null;
+      if (ips == '') return null;
       if (type === 'multi') {
         let ipArr = ips.split(',');
         if (ipArr) {
@@ -22,7 +22,7 @@ export function networksValidation(type: any): ValidatorFn {
             if (ipArr[ip].includes('/')) {
               const ipNetworks = ipArr[ip].split('/')[0]
               if (!isIPv4(ipNetworks)) {
-                message = invalidIpMessage;
+                message = ErrorMessages.FIELD_IS_IP;
               } else {
                 const subnet = ipArr[ip].split('/')[1]
                 message = `'${subnet}' is invalid subnet mask`
@@ -31,10 +31,10 @@ export function networksValidation(type: any): ValidatorFn {
           }
         }
         isMatch = (isMatchIP && !matchSubnet)
-        message = invalidIpMessage;
+        message = ErrorMessages.FIELD_IS_IP;
       } else {
         isMatch = isMatchIP;
-        message = invalidIpMessage;
+        message = ErrorMessages.FIELD_IS_IP;
       }
       return isMatch ? {isNotMatchIP: true, value: message} : null;
     }

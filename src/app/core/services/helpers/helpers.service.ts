@@ -31,7 +31,7 @@ import { selectNotification } from 'src/app/store/app/app.selectors';
 import { selectMapLinks } from "../../../store/map-link/map-link.selectors";
 import {
   selectInterfacesCommonMapLinks,
-  selectLinkedMapInterfaces
+  selectLinkedMapInterfaces, selectLogicalMapInterfaces
 } from "../../../store/interface/interface.selectors";
 import { selectLinkedMapImages } from "../../../store/map-image/map-image.selectors";
 import { clearLinkedMap } from "../../../store/map/map.actions";
@@ -56,8 +56,10 @@ export class HelpersService implements OnDestroy {
   selectLinkedMapInterfaces$ = new Subscription();
   selectLinkedMapImages$ = new Subscription();
   selectInterfacesCommonMapLinks$ = new Subscription();
+  selectLogicalMapInterfaces$ = new Subscription();
   nodes: any[] = [];
   portGroups: any[] = [];
+  interfacesLogical: any[] = [];
   linkedMapNodes: any;
   linkedMapPGs: any;
   linkedMapInterfaces: any;
@@ -145,6 +147,11 @@ export class HelpersService implements OnDestroy {
         this.interfacesCommonMapLinks = interfacesCommonMapLinks
       }
     })
+    this.selectLogicalMapInterfaces$ = this.store.select(selectLogicalMapInterfaces).subscribe(interfacesLogical => {
+      if (interfacesLogical) {
+        this.interfacesLogical = interfacesLogical
+      }
+    })
   }
 
   ngOnDestroy(): void {
@@ -160,6 +167,7 @@ export class HelpersService implements OnDestroy {
     this.selectLinkedMapInterfaces$.unsubscribe();
     this.selectLinkedMapImages$.unsubscribe();
     this.selectInterfacesCommonMapLinks$.unsubscribe();
+    this.selectLogicalMapInterfaces$.unsubscribe();
   }
 
   showNotification(notification: any) {
@@ -1643,5 +1651,16 @@ export class HelpersService implements OnDestroy {
     const edge = this.interfacesCommonMapLinks.find(e => e.id === id)
     this.addCYEdge(JSON.parse(JSON.stringify(edge.data)))
     this.showOrHideArrowDirectionOnEdge(edge.id)
+  }
+
+  addInterfaceLogicalToMap(id: number) {
+    const edge = this.interfacesLogical.find(e => e.id === id)
+    this.addCYEdge(JSON.parse(JSON.stringify(edge.data)))
+    this.showOrHideArrowDirectionOnEdge(edge.id)
+  }
+
+  addPGToMap(id: number) {
+    const portGroup = this.portGroups.find(pg => pg.id === id)
+    this.addCYNode(JSON.parse(JSON.stringify(portGroup)))
   }
 }

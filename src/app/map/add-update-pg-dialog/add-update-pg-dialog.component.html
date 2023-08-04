@@ -70,6 +70,7 @@
             <input autocomplete="off" id="pg-subnet" matInput formControlName="subnetCtr" [readonly]="isViewMode">
             <mat-error *ngIf="subnetCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
             <mat-error *ngIf="subnetCtr?.errors?.serverError">{{ subnetCtr?.errors?.serverError }}</mat-error>
+            <mat-error *ngIf="subnetCtr?.errors?.isNotMatchIP">{{ subnetCtr?.errors?.value }}</mat-error>
             <mat-error *ngIf="subnetCtr?.errors?.errorServerExist">{{ subnetCtr?.errors?.errorServerExist }}</mat-error>
           </mat-form-field>
         </div>

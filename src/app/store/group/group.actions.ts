@@ -50,6 +50,11 @@ export const updateNodeInGroup = createAction(
   props<{ node: any }>()
 );
 
+export const updatePGInGroup = createAction(
+  'updatePGInGroup',
+  props<{ portGroup: any }>()
+);
+
 export const addGroup = createAction(
   'addGroup',
   props<{
@@ -81,6 +86,7 @@ export const restorePGsInGroup = createAction(
   'restorePGsInGroup',
   props<{ ids: number[] }>()
 );
+
 
 export const groupDeletedSuccess = createAction(
   'groupDeletedSuccess',

@@ -11,7 +11,7 @@ import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.serv
 import { selectDomains } from 'src/app/store/domain/domain.selectors';
 import { showErrorFromServer } from "../../shared/validations/error-server-response.validation";
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
-import { retrievedPortGroups, updatePG } from "../../store/portgroup/portgroup.actions";
+import { addNewPG, updatePG } from "../../store/portgroup/portgroup.actions";
 import { PortGroupAddModel, PortGroupGetRandomModel, PortGroupPutModel } from "../../core/models/port-group.model";
 import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
 import { InterfaceService } from "../../core/services/interface/interface.service";
@@ -22,6 +22,7 @@ import { RemoteCategories } from 'src/app/core/enums/remote-categories.enum';
 import { selectIsConfiguratorConnect, selectIsDatasourceConnect, selectIsHypervisorConnect } from 'src/app/store/server-connect/server-connect.selectors';
 import { ServerConnectService } from 'src/app/core/services/server-connect/server-connect.service';
 import { selectNotification } from 'src/app/store/app/app.selectors';
+import { ipSubnetValidation } from "../../shared/validations/ip-subnet.validation";
 
 @Component({
   selector: 'app-add-update-pg-dialog',
@@ -169,6 +170,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
       subnetAllocationCtr: new FormControl(''),
       subnetCtr: new FormControl('', [
         Validators.required,
+        ipSubnetValidation(true),
         showErrorFromServer(() => this.errors)]),
       uuidCtr: new FormControl(''),
       switchCtr: new FormControl('')
@@ -199,15 +201,15 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
           this.rowDataInterface$ = of(interfaceDataWithNode);
         }
       })
+      this.historyService.getByItemId(this.data.genData.id).subscribe(resp => {
+        const historyData = resp.result;
+        if (this.agGridHistory) {
+          this.agGridHistory.api.setRowData(historyData);
+        } else {
+          this.rowDataHistory$ = of(historyData);
+        }
+      })
     }
-    this.historyService.getByItemId(this.data.genData.id).subscribe(resp => {
-      const historyData = resp.result;
-      if (this.agGridHistory) {
-        this.agGridHistory.api.setRowData(historyData);
-      } else {
-        this.rowDataHistory$ = of(historyData);
-      }
-    })
 
     this.selectIsHypervisorConnect$ = this.store.select(selectIsHypervisorConnect).subscribe(isHypervisorConnect => {
       if (isHypervisorConnect) {
@@ -271,6 +273,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
     this.selectIsDatasourceConnect$.unsubscribe();
     this.selectIsConfiguratorConnect$.unsubscribe();
     this.selectNotification$.unsubscribe();
+    this.selectNodes$.unsubscribe();
   }
 
   private _disableItems(subnetAllocation: string) {
@@ -320,49 +323,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
       } : undefined,
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.portGroupService.add(jsonData).pipe(
-      catchError(err => {
-        const errorMessage = err.error.message;
-        if (err.status === 422) {
-          if (errorMessage.subnet) {
-            this.subnetCtr?.setErrors({
-              serverError: errorMessage.subnet
-            });
-            this.errors.push({ 'valueCtr': this.subnetCtr?.value, 'error': errorMessage.subnet });
-          }
-          if (errorMessage.vlan) {
-            this.vlanCtr?.setErrors({
-              serverError: errorMessage.vlan
-            });
-            this.errors.push({ 'valueCtr': this.vlanCtr?.value, 'error': errorMessage.vlan });
-          }
-        }
-        return throwError(() => err);
-      })
-    ).subscribe((respData: any) => {
-      this.portGroupService.get(respData.id).subscribe(respData => {
-        const portGroup = respData.result;
-        if (portGroup.category !== 'management') {
-          const cyData = portGroup;
-          cyData.id = 'pg-' + respData.id;
-          cyData.pg_id = respData.id;
-          cyData.domain = this.domainCtr?.value.name;
-          cyData.height = cyData.logical_map.map_style.height;
-          cyData.width = cyData.logical_map.map_style.width;
-          cyData.text_color = cyData.logical_map.map_style.text_color;
-          cyData.text_size = cyData.logical_map.map_style.text_size;
-          cyData.color = cyData.logical_map.map_style.color;
-          this.helpers.addCYNode({ newNodeData: { ...this.data.newNodeData, ...cyData }, newNodePosition: this.data.newNodePosition });
-          cyData.groups = portGroup.groups;
-          this.helpers.reloadGroupBoxes();
-        }
-        this.portGroupService.getByProjectId(this.data.genData.project_id).subscribe(res => {
-          this.store.dispatch(retrievedPortGroups({ data: res.result }))
-        })
-        this.toastr.success('Port Group details added!');
-      })
-      this.dialogRef.close();
-    });
+    this.store.dispatch(addNewPG({ portGroup: jsonData }))
   }
 
   updatePG() {

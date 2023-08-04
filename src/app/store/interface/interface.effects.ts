@@ -18,11 +18,17 @@ import {
   removeInterfaces,
   removeInterfacesSuccess,
   restoreInterfaces,
-  restoreInterfacesSuccess
+  restoreInterfacesSuccess,
+  addLogicalInterface,
+  interfaceLogicalMapAddedSuccess,
+  addInterfaceLogicalToMap,
+  addInterfacesNotConnectPG, connectInterfaceToPG
 } from './interface.actions';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { pushNotification } from '../app/app.actions';
-import { bulkUpdateInterfaceInNode, updateInterfaceInNode } from '../node/node.actions';
+import { addInterfaceInNode, bulkUpdateInterfaceInNode, updateInterfaceInNode } from '../node/node.actions';
+import { SuccessMessages } from "../../shared/enums/success-messages.enum";
+import { ErrorMessages } from "../../shared/enums/error-messages.enum";
 
 @Injectable()
 export class InterfacesEffects {
@@ -41,6 +47,65 @@ export class InterfacesEffects {
       ))
   )
   );
+
+  addLogicalInterface$ = createEffect(() => this.actions$.pipe(
+    ofType(addLogicalInterface),
+    exhaustMap(payload => this.interfaceService.add(payload.edge).pipe(
+      mergeMap(res => this.interfaceService.get(res.id)),
+      switchMap(res => [
+        interfaceLogicalMapAddedSuccess({ edge: res.result }),
+        addInterfacesNotConnectPG({ edge: res.result }),
+        addInterfaceInNode({
+          interfaceData: {
+            id: res.id,
+            ...res.result,
+            netmaskName: this.helpersService.getOptionById(payload.netmasks, res.result.netmask_id).name
+          }
+        }),
+        pushNotification({
+          notification: {
+            type: 'success',
+            message: SuccessMessages.ADDED_NEW_EDGE_SUCCESS
+          }
+        })
+      ]),
+      catchError(e => of(pushNotification({
+        notification: {
+          type: 'error',
+          message: ErrorMessages.ADD_NEW_EDGE_FAILED
+        }
+      })))
+    ))
+  ))
+
+  connectInterfaceToPG$ = createEffect(() => this.actions$.pipe(
+    ofType(connectInterfaceToPG),
+    exhaustMap((payload) => this.interfaceService.put(payload.id, payload.data)
+      .pipe(
+        mergeMap(res => this.interfaceService.get(payload.id)),
+        switchMap((res: any) => [
+          logicalInterfaceUpdatedSuccess({ interfaceData: res.result }),
+          addInterfaceLogicalToMap({ id: payload.id }),
+          pushNotification({
+            notification: {
+              type: 'success',
+              message: SuccessMessages.CONNECTED_EDGE_TO_PG_SUCCESS
+            }
+          })
+        ]),
+        catchError((e) => of(pushNotification({
+          notification: {
+            type: 'error',
+            message: ErrorMessages.CONNECT_EDGE_TO_PG_FAILED
+          }
+        })))
+      )),
+  ));
+
+  addInterfaceLogicalToMap$ = createEffect(() => this.actions$.pipe(
+    ofType(addInterfaceLogicalToMap),
+    tap((payload) => this.helpersService.addInterfaceLogicalToMap(payload.id))
+  ), { dispatch: false })
 
   addInterfaceMapLinkToPG$ = createEffect(() => this.actions$.pipe(
     ofType(addInterfaceMapLinkToPG),
@@ -152,7 +217,7 @@ export class InterfacesEffects {
         switchMap((res: any) => [
           randomizeIpBulkSuccess({interfacesData: res.result}),
           bulkUpdateInterfaceInNode({
-            interfacesData: { 
+            interfacesData: {
               interfacesData: res.result,
               netmasks: payload.netmasks
             }

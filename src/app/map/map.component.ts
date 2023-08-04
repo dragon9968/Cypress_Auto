@@ -23,7 +23,7 @@ import { selectMapPref } from '../store/map-style/map-style.selectors';
 import { ToastrService } from 'ngx-toastr';
 import { AddUpdatePGDialogComponent } from './add-update-pg-dialog/add-update-pg-dialog.component';
 import { AddUpdateInterfaceDialogComponent } from './add-update-interface-dialog/add-update-interface-dialog.component';
-import { retrievedPortGroups, selectPG, unSelectPG } from '../store/portgroup/portgroup.actions';
+import { addNewPG, retrievedPortGroups, selectPG, unSelectPG } from '../store/portgroup/portgroup.actions';
 import { selectMapPortGroups } from '../store/portgroup/portgroup.selectors';
 import { MapState } from '../store/map/map.state';
 import { CMActionsService } from './context-menu/cm-actions/cm-actions.service';
@@ -1325,10 +1325,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
       if (this.isAddPublicPG) this.isAddPublicPG = false;
       if (this.isAddPrivatePG) this.isAddPrivatePG = false;
       this._enableMapEditButtons();
-      this.portgroupService.getByProjectId(this.projectId).subscribe((data: any) => this.store.dispatch(retrievedPortGroups({ data: data.result })));
-      this.groupService.getGroupByProjectId(this.projectId).subscribe(
-        groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
-      );
     });
   }
 
@@ -1356,30 +1352,10 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         "position": newNodePosition
       }
     };
-    this.portgroupService.add(jsonData).subscribe((respData: any) => {
-      this.portgroupService.get(respData.id).subscribe(respData => {
-        const cyData = respData.result;
-        cyData.id = 'pg-' + respData.id;
-        cyData.pg_id = respData.id;
-        cyData.domain = respData.result.domain.name;
-        cyData.height = cyData.logical_map.map_style.height;
-        cyData.width = cyData.logical_map.map_style.width;
-        cyData.text_color = cyData.logical_map.map_style.text_color;
-        cyData.text_size = cyData.logical_map.map_style.text_size;
-        cyData.color = cyData.logical_map.map_style.color;
-        cyData.groups = respData.result.groups;
-        cyData.elem_category = 'port_group';
-        this.helpersService.addCYNode({ newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
-        this.groupService.getGroupByProjectId(this.projectId).subscribe(
-          groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
-        );
-        this.helpersService.reloadGroupBoxes();
-        if (this.isAddPublicPG) this.isAddPublicPG = false;
-        if (this.isAddPrivatePG) this.isAddPrivatePG = false;
-        this._enableMapEditButtons();
-        this.toastr.success('Quick add port group successfully!');
-      });
-    });
+    this.store.dispatch(addNewPG({ portGroup: jsonData, message: 'Quick add port group successfully!' }));
+    if (this.isAddPublicPG) this.isAddPublicPG = false;
+    if (this.isAddPrivatePG) this.isAddPrivatePG = false;
+    this._enableMapEditButtons();
   }
 
   private _openAddUpdateInterfaceDialog(genData: any, newEdgeData: any) {

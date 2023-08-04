@@ -6,7 +6,6 @@ export const selectInterfaceFeature = createFeatureSelector<InterfaceState>(Redu
 export const selectInterfacesNotConnectPG = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.interfacesNotConnectPG);
 export const selectInterfacesConnectedPG = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.interfacesConnectedPG);
 export const selectIsInterfaceConnectPG = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.isInterfaceConnectPG);
-export const selectInterfacesByProjectIdAndCategory = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.interfacesByProjectIdAndCategory);
 export const selectInterfacePkConnectNode = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.interfacePkConnectNode);
 export const selectInterfacesBySourceNode = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.interfacesBySourceNode);
 export const selectInterfacesByDestinationNode = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.interfacesByDestinationNode);

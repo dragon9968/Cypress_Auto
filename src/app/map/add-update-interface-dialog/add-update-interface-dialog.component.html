@@ -121,13 +121,13 @@
                     <input autocomplete="off" id="connect-interface-gateway" matInput formControlName="gatewayCtr" [readonly]="isViewMode">
                   </mat-form-field>
                   <div class="field checkbox-field">
-                    <mat-checkbox [disabled]="isViewMode" formControlName="isGatewayCtr" labelPosition="before">Is Gateway</mat-checkbox>
+                    <mat-checkbox formControlName="isGatewayCtr" labelPosition="before">Is Gateway</mat-checkbox>
                   </div>
                 </div>
                 <div class="interface-content__bottom__right">
                   <mat-form-field class="field">
                     <mat-label>VLAN ID</mat-label>
-                    <input autocomplete="off" id="interface-vlanid" matInput formControlName="vlanIdCtr">
+                    <input autocomplete="off" id="interface-vlan-id" matInput formControlName="vlanIdCtr">
                     <mat-error *ngIf="vlanIdCtr?.errors?.pattern">{{ errorMessages.FIELD_IS_NUMBER }}</mat-error>
                     <mat-error *ngIf="vlanIdCtr?.errors?.isNotMatch">{{ vlanIdCtr?.errors?.value }}</mat-error>
                   </mat-form-field>
@@ -150,7 +150,7 @@
                     <input autocomplete="off" id="connect-interface-server" matInput formControlName="dnsServerCtr" [readonly]="isViewMode">
                   </mat-form-field>
                   <div class="field checkbox-field">
-                    <mat-checkbox [disabled]="isViewMode" formControlName="isNatCtr" labelPosition="before">Is Nat</mat-checkbox>
+                    <mat-checkbox formControlName="isNatCtr" labelPosition="before">Is Nat</mat-checkbox>
                   </div>
                 </div>
               </div>
@@ -312,7 +312,7 @@
           <input autocomplete="off" id="interface-gateway" matInput formControlName="gatewayCtr" [readonly]="isViewMode">
         </mat-form-field>
         <div class="field checkbox-field">
-          <mat-checkbox [disabled]="isViewMode" formControlName="isGatewayCtr" labelPosition="before">Is Gateway</mat-checkbox>
+          <mat-checkbox formControlName="isGatewayCtr" labelPosition="before">Is Gateway</mat-checkbox>
         </div>
       </div>
       <div class="interface-content__bottom__right">
@@ -342,7 +342,7 @@
           <input autocomplete="off" id="interface-server" matInput formControlName="dnsServerCtr" [readonly]="isViewMode">
         </mat-form-field>
         <div class="field checkbox-field">
-          <mat-checkbox [disabled]="isViewMode" formControlName="isNatCtr" labelPosition="before">Is Nat</mat-checkbox>
+          <mat-checkbox formControlName="isNatCtr" labelPosition="before">Is Nat</mat-checkbox>
         </div>
       </div>
     </div>

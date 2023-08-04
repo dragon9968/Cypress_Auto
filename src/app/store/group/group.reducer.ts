@@ -1,6 +1,6 @@
 import { GroupState } from "./group.state";
 import { createReducer, on } from "@ngrx/store";
-import { 
+import {
   removeNodesInGroup,
   groupAddedSuccess,
   groupUpdatedSuccess,
@@ -15,7 +15,8 @@ import {
   selectAllGroup,
   unSelectAllGroup,
   groupDeletedSuccess,
-  groupsDeletedSuccess
+  groupsDeletedSuccess,
+  updatePGInGroup
 } from "./group.actions";
 
 const initialState = {} as GroupState;
@@ -124,6 +125,22 @@ export const groupReducer = createReducer(
       ...state,
       groups,
     };
+  }),
+  on(updatePGInGroup, (state, { portGroup }) => {
+    const groups = state.groups.map((g: any) => {
+      if (g.id == portGroup.groups[0].id) {
+        return {
+          ...g,
+          port_groups: [...g.port_groups, portGroup]
+        }
+      } else {
+        return g
+      }
+    })
+    return {
+      ...state,
+      groups
+    }
   }),
   on(groupAddedSuccess, (state, { group }) => {
     const groups = [...state.groups, addCyDataToGroup(group)];

@@ -3,7 +3,6 @@ import { createReducer, on } from "@ngrx/store";
 import {
   retrievedInterfacesNotConnectPG,
   retrievedIsInterfaceConnectPG,
-  retrievedInterfaceByProjectIdAndCategory,
   retrievedInterfacesConnectedPG,
   retrievedInterfacesBySourceNode,
   retrievedInterfacePkConnectNode,
@@ -24,10 +23,36 @@ import {
   interfaceAddedMapLinkToPGSuccess,
   randomizeIpBulkSuccess,
   removeInterfacesSuccess,
-  restoreInterfacesSuccess
+  restoreInterfacesSuccess,
+  interfaceLogicalMapAddedSuccess,
+  addInterfacesNotConnectPG
 } from "./interface.actions";
 
 const initialState = {} as InterfaceState;
+
+const addCYDataToLogicalInterface = (edge: any) => {
+  const ip_str = edge.ip ? edge.ip : '';
+  const ip = ip_str.split(".");
+  const lastOctet = ip.length == 4 ? `.${ip[3]}` : '';
+  const baseCyData = {
+    id: `interface-${edge.id}`,
+    interface_pk: edge.id,
+    interface_fk: edge.interface_id,
+    elem_category: "interface",
+    zIndex: 999,
+    updated: false,
+    source: `node-${edge.node_id}`,
+    target: `pg-${edge.port_group_id}`,
+    ip_last_octet: edge.ip_allocation != "dhcp" ? lastOctet : "DHCP",
+    source_label: edge.name,
+    target_label: ''
+  }
+  return {
+    ...edge,
+    data: { ...edge, ...baseCyData },
+    locked: edge.logical_map?.locked
+  }
+}
 
 const addCYDataToMapLinkInterface = (edge: any) => {
   const baseCyData = {
@@ -51,10 +76,6 @@ const addCYDataToMapLinkInterface = (edge: any) => {
 
 export const interfaceReducerByIds = createReducer(
   initialState,
-  on(retrievedInterfaceByProjectIdAndCategory, (state, { data }) => ({
-    ...state,
-    interfacesByProjectIdAndCategory: data
-  })),
   on(retrievedInterfacesNotConnectPG, (state, { interfacesNotConnectPG }) => ({
     ...state,
     interfacesNotConnectPG: interfacesNotConnectPG
@@ -87,6 +108,13 @@ export const interfaceReducerByIds = createReducer(
     ...state,
     interfacesConnectedNode: interfacesConnectedNode
   })),
+  on(addInterfacesNotConnectPG, (state, { edge }) => {
+    const interfacesNotConnectPG = state.interfacesNotConnectPG.concat(edge)
+    return {
+      ...state,
+      interfacesNotConnectPG
+    }
+  }),
   on(interfacesLoadedSuccess, (state, { interfaces, nodes }) => {
     const logicalMapInterfaces: any[] = [];
     const logicalManagementInterfaces: any[] = [];
@@ -102,27 +130,8 @@ export const interfaceReducerByIds = createReducer(
       interfaces.map((i: any) => {
         if (i.node_id === logicalNode.id) {
           if (i.category != 'management') {
-            const ip_str = i.ip ? i.ip : '';
-            const ip = ip_str.split(".");
-            const lastOctet = ip.length == 4 ? `.${ip[3]}` : '';
-            const baseCyData = {
-              id: `interface-${i.id}`,
-              interface_pk: i.id,
-              interface_fk: i.interface_id,
-              elem_category: "interface",
-              zIndex: 999,
-              updated: false,
-              source: `node-${i.node_id}`,
-              target: `pg-${i.port_group_id}`,
-              ip_last_octet: i.ip_allocation != "dhcp" ? lastOctet : "DHCP",
-              source_label: i.name,
-              target_label: ''
-            }
-            logicalMapInterfaces.push({
-              ...i,
-              data: { ...i, ...baseCyData },
-              locked: i.logical_map?.locked
-            });
+            const edgeCY = addCYDataToLogicalInterface(i)
+            logicalMapInterfaces.push(edgeCY);
           } else if (i.category == 'management') {
             logicalManagementInterfaces.push(i);
           }
@@ -180,27 +189,8 @@ export const interfaceReducerByIds = createReducer(
       interfaces.map((i: any) => {
         if (i.node_id === node.id) {
           if (i.category != 'management' && i.port_group_id) {
-            const ip_str = i.ip ? i.ip : '';
-            const ip = ip_str.split(".");
-            const lastOctet = ip.length == 4 ? `.${ip[3]}` : '';
-            const baseCyData = {
-              id: `interface-${i.id}`,
-              interface_pk: i.id,
-              interface_fk: i.interface_id,
-              elem_category: "interface",
-              zIndex: 999,
-              updated: false,
-              source: `node-${i.node_id}`,
-              target: `pg-${i.port_group_id}`,
-              ip_last_octet: i.ip_allocation != "dhcp" ? lastOctet : "DHCP",
-              source_label: i.name,
-              target_label: ''
-            }
-            linkedMapInterfaces.push({
-              ...i,
-              data: { ...i, ...baseCyData },
-              locked: i.logical_map?.locked
-            });
+            const edgeCY = addCYDataToLogicalInterface(i)
+            linkedMapInterfaces.push(edgeCY);
           }
         }
       })
@@ -221,6 +211,14 @@ export const interfaceReducerByIds = createReducer(
     return {
       ...state,
       interfacesCommonMapLinks: state.interfacesCommonMapLinks.concat(edgeCYData)
+    }
+  }),
+  on(interfaceLogicalMapAddedSuccess, (state , { edge }) => {
+    const edgeCY = addCYDataToLogicalInterface(edge)
+    const logicalMapInterfaces = state.logicalMapInterfaces.concat(edgeCY)
+    return {
+      ...state,
+      logicalMapInterfaces
     }
   }),
   on(selectInterface, (state, { id }) => {
@@ -330,7 +328,8 @@ export const interfaceReducerByIds = createReducer(
         logicalManagementInterfaces
       };
     } else {
-      const logicalMapInterfaces = state.logicalMapInterfaces.map((i: any) => (i.id == interfaceData.id) ? { ...i, ...interfaceData } : i);
+      const interfaceCY = addCYDataToLogicalInterface(interfaceData)
+      const logicalMapInterfaces = state.logicalMapInterfaces.map((i: any) => (i.id == interfaceData.id) ? { ...i, ...interfaceCY } : i);
       return {
         ...state,
         isSelectedFlag: false,

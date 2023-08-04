@@ -31,5 +31,7 @@ export enum ErrorMessages {
   IMAGE_FORMAT_FILE = 'The imported file is invalid, please import a file from a PNG, JPG/JPEG format',
   IMAGE_SIZE = 'The uploaded file likely exceeded the maximum file size (5 MB)',
   DHCP_INVALID = 'DHCP Server is invalid. Should be a system path and no special characters or IP address',
-  IP_IS_EXISTING = 'The IP has existing in this port group'
+  IP_IS_EXISTING = 'The IP has existing in this port group',
+  ADD_NEW_EDGE_FAILED = 'Add new edge failed!',
+  CONNECT_EDGE_TO_PG_FAILED = 'Connect Edge to Port Group failed!'
 }

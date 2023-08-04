@@ -13,10 +13,30 @@ import {
   unselectAllPG,
   updateDomainInPG,
   clearLinkedMapPGs,
-  linkedMapPGsLoadedSuccess
+  linkedMapPGsLoadedSuccess,
+  portGroupAddedSuccess
 } from './portgroup.actions';
 
 const initialState = {} as PortGroupState;
+
+const addCYDataToPG = (portGroup: any) => {
+  const baseCyData = {
+    pg_id: portGroup.id,
+    elem_category: "port_group",
+    id: `pg-${portGroup.id}`,
+    layout: { name: "preset" },
+    zIndex: 999,
+    updated: false,
+  }
+  return {
+    ...portGroup,
+    data: { ...portGroup, ...baseCyData, ...portGroup.logical_map?.map_style },
+    position: portGroup.logical_map?.position,
+    groups: portGroup.groups,
+    interfaces: portGroup.interfaces,
+    locked: portGroup.logical_map?.locked
+  }
+}
 
 export const portGroupReducer = createReducer(
   initialState,
@@ -28,23 +48,9 @@ export const portGroupReducer = createReducer(
     const pgs: any[] = [];
     const managementPGs: any[] = [];
     portgroups.map((pg: any) => {
-      const baseCyData = {
-        pg_id: pg.id,
-        elem_category: "port_group",
-        id: `pg-${pg.id}`,
-        layout: { name: "preset" },
-        zIndex: 999,
-        updated: false,
-      }
       if (pg.category != 'management') {
-        pgs.push({
-          ...pg,
-          data: { ...pg, ...baseCyData, ...pg.logical_map?.map_style },
-          position: pg.logical_map?.position,
-          groups: pg.groups,
-          interfaces: pg.interfaces,
-          locked: pg.logical_map?.locked
-        });
+        const pgCY = addCYDataToPG(pg)
+        pgs.push(pgCY);
       } else if (pg.category == 'management') {
         managementPGs.push(pg);
       }
@@ -182,6 +188,14 @@ export const portGroupReducer = createReducer(
     return {
       ...state,
       isSelectedFlag: true,
+      portgroups
+    }
+  }),
+  on(portGroupAddedSuccess, (state, { portGroup }) => {
+    const portGroupCY = addCYDataToPG(portGroup);
+    const portgroups = state.portgroups.concat(portGroupCY)
+    return {
+      ...state,
       portgroups
     }
   }),

@@ -1,14 +1,29 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { forkJoin, of } from 'rxjs';
-import { map, exhaustMap, catchError, mergeMap, switchMap } from 'rxjs/operators';
+import { map, exhaustMap, catchError, mergeMap, switchMap, tap } from 'rxjs/operators';
 import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
-import { PGsLoadedSuccess, bulkEditPG, bulkUpdatedPGSuccess, loadPGs, pgUpdatedSuccess, removePGs, removePGsSuccess, restorePGs, restorePGsSuccess, updatePG } from './portgroup.actions';
+import {
+  PGsLoadedSuccess,
+  bulkEditPG,
+  bulkUpdatedPGSuccess,
+  loadPGs,
+  pgUpdatedSuccess,
+  removePGs,
+  removePGsSuccess,
+  restorePGs,
+  restorePGsSuccess,
+  updatePG,
+  addNewPG,
+  portGroupAddedSuccess,
+  addNewPGToMap
+} from './portgroup.actions';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { updatePGInInterfaces } from '../interface/interface.actions';
 import { pushNotification } from '../app/app.actions';
 import { reloadGroupBoxes } from '../map/map.actions';
 import { removePGsInGroup, restorePGsInGroup } from '../group/group.actions';
+import { updatePGInGroup } from "../group/group.actions";
 
 @Injectable()
 export class PortGroupsEffects {
@@ -27,6 +42,37 @@ export class PortGroupsEffects {
       ))
   )
   );
+
+  addNewPG$ = createEffect(() => this.actions$.pipe(
+    ofType(addNewPG),
+    exhaustMap(payload => this.portGroupService.add(payload.portGroup)
+      .pipe(
+        mergeMap(res => this.portGroupService.get(res.id)),
+        switchMap(res => [
+          portGroupAddedSuccess({ portGroup: res.result }),
+          updatePGInGroup({ portGroup: res.result }),
+          addNewPGToMap({ id: res.id }),
+          reloadGroupBoxes(),
+          pushNotification({
+            notification: {
+              type: 'success',
+              message: payload.message ? payload.message : 'Port Group details added!'
+            }
+          })
+        ]),
+        catchError(e => of(pushNotification({
+          notification: {
+            type: 'error',
+            message: 'Add New Port Group failed!'
+          }
+        })))
+      ))
+  ))
+
+  addNewNodeToMap$ = createEffect(() => this.actions$.pipe(
+    ofType(addNewPGToMap),
+    tap(payload => this.helpersService.addPGToMap(payload.id))
+  ), { dispatch: false })
 
   updatePG$ = createEffect(() => this.actions$.pipe(
     ofType(updatePG),

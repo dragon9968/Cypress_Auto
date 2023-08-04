@@ -12,14 +12,14 @@ export const interfacesLoadedSuccess = createAction(
   props<{ interfaces: any, nodes: any }>()
 );
 
-export const retrievedInterfaceByProjectIdAndCategory = createAction(
-  'retrievedInterfaceByProjectIdAndCategory',
-  props<{ data: any }>()
-);
-
 export const retrievedInterfacesNotConnectPG = createAction(
   'retrievedInterfacesNotConnectPG',
   props<{ interfacesNotConnectPG: any }>()
+);
+
+export const addInterfacesNotConnectPG = createAction(
+  'addInterfacesNotConnectPG',
+  props<{ edge: any }>()
 );
 
 export const retrievedInterfacesConnectedPG = createAction(
@@ -93,6 +93,30 @@ export const restoreInterfaces = createAction(
 export const restoreInterfacesSuccess = createAction(
   'restoreInterfacesSuccess',
   props<{ ids: number[] }>()
+);
+
+export const addLogicalInterface = createAction(
+  'addLogicalInterface',
+  props<{ edge: any, netmasks: any[] }>()
+)
+
+export const interfaceLogicalMapAddedSuccess = createAction(
+  'interfaceLogicalMapAddedMapSuccess',
+  props<{ edge: any }>()
+)
+
+export const addInterfaceLogicalToMap = createAction(
+  'addInterfaceLogicalToMap',
+  props<{ id: any }>()
+)
+
+export const connectInterfaceToPG = createAction(
+  'connectInterfaceToPG',
+  props<{
+    id: number,
+    data: any,
+    netmasks: any[],
+  }>()
 );
 
 export const updateNodeInInterfaces = createAction(

@@ -10,6 +10,21 @@ export const loadPGs = createAction(
   props<{ projectId: string }>()
 );
 
+export const addNewPG = createAction(
+  'addNewPG',
+  props<{ portGroup: any, message?: string }>()
+)
+
+export const portGroupAddedSuccess = createAction(
+  'portGroupAddedSuccess',
+  props<{ portGroup: any }>()
+)
+
+export const addNewPGToMap = createAction(
+  'addPGToMap',
+  props<{ id: number }>()
+)
+
 export const PGsLoadedSuccess = createAction(
   'PGsLoadedSuccess',
   props<{ portgroups: any }>()

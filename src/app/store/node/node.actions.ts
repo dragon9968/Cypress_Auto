@@ -73,6 +73,11 @@ export const bulkUpdatedNodeSuccess = createAction(
   props<{ nodes: any }>()
 );
 
+export const addInterfaceInNode = createAction(
+  'addInterfaceInNode',
+  props<{ interfaceData: any }>()
+);
+
 export const updateInterfaceInNode = createAction(
   'updateInterfaceInNode',
   props<{ interfaceData: any }>()

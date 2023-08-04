@@ -16,7 +16,8 @@ import {
   clearLinkedMapNodes,
   bulkUpdateInterfaceInNode,
   removeNodesSuccess,
-  restoreNodesSuccess
+  restoreNodesSuccess,
+  addInterfaceInNode
 } from "./node.actions";
 import { environment } from "src/environments/environment";
 
@@ -216,6 +217,30 @@ export const nodeReducer = createReducer(
       isSelectedFlag: false,
       logicalNodes,
     };
+  }),
+  on(addInterfaceInNode, (state, { interfaceData }) => {
+    const logicalNodes = state.logicalNodes.map((n: any) => {
+      if (interfaceData.node_id == n.id) {
+        const newEdge = {
+          id: interfaceData.id,
+          value: interfaceData.netmaskName
+            ? `${interfaceData.name} - ${interfaceData.ip + interfaceData.netmaskName}`
+            : interfaceData.name
+        }
+        const interfaces = [...n.interfaces, newEdge]
+        return {
+          ...n,
+          interfaces
+        };
+      } else {
+        return n;
+      }
+    });
+    return {
+      ...state,
+      isSelectedFlag: false,
+      logicalNodes,
+    }
   }),
   on(bulkUpdateInterfaceInNode, (state, { interfacesData }) => {
     const logicalNodes = state.logicalNodes.map((n: any) => {
