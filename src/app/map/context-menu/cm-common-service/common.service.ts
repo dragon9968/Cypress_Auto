@@ -15,35 +15,12 @@ export class CommonService {
   isGroupBoxesChecked!: boolean;
   selectMapOption$ = new Subscription();
 
-  constructor(
-    private store: Store,
-    private interfaceService: InterfaceService,
-    private projectService: ProjectService,
-    private toastr: ToastrService,
-  ) {
+  constructor(private store: Store) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
         this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
       }
     });
-  }
-
-  delete(cy: any, activeGBs: any[], activeMBs: any[], activeMapLinks: any[]) {
-    activeGBs.concat(activeMapLinks).forEach((node: any) => {
-      if (this.isGroupBoxesChecked) {
-        cy.nodes().filter('[label="group_box"]').forEach((gb: any) => {
-          if (gb.children().length == 0) {
-            this.ur?.do('removeNode', gb)
-          }
-        });
-      }
-      activeGBs.splice(0);
-      activeMapLinks.splice(0);
-    });
-    [...activeMBs].forEach((mbs: any) => {
-      this.ur?.do('removeNode', mbs);
-      activeMBs.splice(0);
-    })
   }
 
   changeNodeSize(size: any, activeNodes: any[]) {

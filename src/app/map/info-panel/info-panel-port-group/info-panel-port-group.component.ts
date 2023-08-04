@@ -192,7 +192,7 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
   }
 
   deletePortGroup() {
-    this.infoPanelTableComponent?.delete(this.activeGBs);
+    this.infoPanelTableComponent?.delete();
   }
 
   editPortGroup() {

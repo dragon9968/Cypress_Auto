@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { EMPTY, of } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
 import { map, exhaustMap, catchError, mergeMap, switchMap } from 'rxjs/operators';
-import { addDomain, domainAddedSuccess, domainUpdatedSuccess, domainsLoadedSuccess, loadDomains, updateDomain } from './domain.actions';
+import { addDomain, deleteDomains, domainAddedSuccess, domainUpdatedSuccess, domainsDeletedSuccess, domainsLoadedSuccess, loadDomains, updateDomain } from './domain.actions';
 import { DomainService } from 'src/app/core/services/domain/domain.service';
 import { pushNotification } from '../app/app.actions';
 import { updateDomainInNode } from '../node/node.actions';
@@ -71,6 +71,29 @@ export class DomainsEffects {
           notification: {
             type: 'error',
             message: 'Update domain failed!'
+          }
+        })))
+      )),
+  ));
+
+  deleteDomains$ = createEffect(() => this.actions$.pipe(
+    ofType(deleteDomains),
+    exhaustMap((payload) => forkJoin(payload.ids.map(id => this.domainService.delete(id)))
+      .pipe(
+        switchMap((res: any) => [
+          domainsDeletedSuccess({ ids: payload.ids }),
+          loadGroups({ projectId: payload.projectId }),
+          pushNotification({
+            notification: {
+              type: 'success',
+              message: 'Domains deleted!'
+            }
+          })
+        ]),
+        catchError((e) => of(pushNotification({
+          notification: {
+            type: 'error',
+            message: 'Delete domains failed!'
           }
         })))
       )),

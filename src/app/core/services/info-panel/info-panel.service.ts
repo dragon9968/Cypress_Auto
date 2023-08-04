@@ -1,35 +1,31 @@
 import { Store } from "@ngrx/store";
 import { catchError } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
-import { forkJoin, of, Subscription, throwError } from "rxjs";
+import { Subscription, throwError } from "rxjs";
 import { Injectable, Input, OnDestroy } from '@angular/core';
 import { MapService } from "../map/map.service";
-import { GroupService } from "../group/group.service";
-import { DomainService } from "../domain/domain.service";
 import { ProjectService } from "../../../project/services/project.service";
 import { UserTaskService } from "../user-task/user-task.service";
 import { PortGroupService } from "../portgroup/portgroup.service";
-import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { InterfaceService } from "../interface/interface.service";
 import { DomainUserService } from "../domain-user/domain-user.service";
-import { retrievedMap } from "../../../store/map/map.actions";
 import { ServerConnectService } from "../server-connect/server-connect.service";
 import { selectVMStatus } from "../../../store/project/project.selectors";
 import { selectMapOption } from "../../../store/map-option/map-option.selectors";
-import { retrievedGroups } from "../../../store/group/group.actions";
-import { retrievedDomains } from "../../../store/domain/domain.actions";
+import { deleteGroups } from "../../../store/group/group.actions";
+import { deleteDomains } from "../../../store/domain/domain.actions";
 import { selectDomainUsers } from "../../../store/domain-user/domain-user.selectors";
 import { retrievedUserTasks } from "../../../store/user-task/user-task.actions";
 import { selectLogicalNodes, selectSelectedLogicalNodes } from "../../../store/node/node.selectors";
 import { retrievedIsChangeDomainUsers } from "../../../store/domain-user-change/domain-user-change.actions";
-import { selectPortGroups } from "../../../store/portgroup/portgroup.selectors";
+import { selectMapPortGroups } from "../../../store/portgroup/portgroup.selectors";
 import { retrievedIsHypervisorConnect } from "src/app/store/server-connect/server-connect.actions";
 import { retrievedVMStatus } from "src/app/store/project/project.actions";
 import { RemoteCategories } from "../../enums/remote-categories.enum";
 import { PortGroupRandomizeSubnetModel } from "../../models/port-group.model";
-import { NodeService } from "../node/node.service";
 import { randomizeIpBulk } from "src/app/store/interface/interface.actions";
 import { selectNetmasks } from "src/app/store/netmask/netmask.selectors";
+import { selectDomains } from "src/app/store/domain/domain.selectors";
 
 @Injectable({
   providedIn: 'root'
@@ -39,7 +35,8 @@ export class InfoPanelService implements OnDestroy {
   @Input() cy: any;
   selectNode$ = new Subscription();
   selectMapOption$ = new Subscription();
-  selectPortGroup$ = new Subscription();
+  selectMapPortGroups$ = new Subscription();
+  selectDomains$ = new Subscription();
   selectDomainUser$ = new Subscription();
   selectVMStatus$ = new Subscription();
   selectNetmasks$ = new Subscription();
@@ -48,6 +45,7 @@ export class InfoPanelService implements OnDestroy {
   selectedNodes!: any[];
   selectedNodeIds!: any[];
   portGroups!: any[];
+  domains!: any[];
   domainUsers!: any[];
   netmasks!: any[];
   vmStatus!: boolean;
@@ -67,10 +65,6 @@ export class InfoPanelService implements OnDestroy {
     private mapService: MapService,
     private interfaceService: InterfaceService,
     private portGroupService: PortGroupService,
-    private nodeService: NodeService,
-    private groupService: GroupService,
-    private domainService: DomainService,
-    private helpersService: HelpersService,
     private userTaskService: UserTaskService,
     private projectService: ProjectService,
     private domainUserService: DomainUserService,
@@ -81,15 +75,33 @@ export class InfoPanelService implements OnDestroy {
         this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
       }
     });
-    this.selectNode$ = this.store.select(selectLogicalNodes).subscribe(nodes => this.nodes = nodes);
     this.selectSelectedLogicalNodes$ = this.store.select(selectSelectedLogicalNodes).subscribe(selectedNodes => {
       if (selectedNodes) {
         this.selectedNodes = selectedNodes;
         this.selectedNodeIds = selectedNodes.map(n => n.id);
       }
     });
-    this.selectPortGroup$ = this.store.select(selectPortGroups).subscribe(portGroups => this.portGroups = portGroups);
     this.selectDomainUser$ = this.store.select(selectDomainUsers).subscribe(domainUsers => this.domainUsers = domainUsers);
+    this.selectNode$ = this.store.select(selectLogicalNodes).subscribe(nodes => {
+      if (nodes) {
+        this.nodes = nodes;
+      }
+    });
+    this.selectMapPortGroups$ = this.store.select(selectMapPortGroups).subscribe(portGroups => {
+      if (portGroups) {
+        this.portGroups = portGroups;
+      }
+    });
+    this.selectDomains$ = this.store.select(selectDomains).subscribe(domains => {
+      if (domains) {
+        this.domains = domains;
+      }
+    });
+    this.selectDomainUser$ = this.store.select(selectDomainUsers).subscribe(domainUsers => {
+      if (domainUsers) {
+        this.domainUsers = domainUsers;
+      }
+    });
     this.selectVMStatus$ = this.store.select(selectVMStatus).subscribe(vmStatus => this.vmStatus = vmStatus);
     this.selectNetmasks$ = this.store.select(selectNetmasks).subscribe((netmasks: any) => this.netmasks = netmasks);
   }
@@ -97,33 +109,10 @@ export class InfoPanelService implements OnDestroy {
   ngOnDestroy(): void {
     this.selectNode$.unsubscribe();
     this.selectMapOption$.unsubscribe();
-    this.selectPortGroup$.unsubscribe();
+    this.selectMapPortGroups$.unsubscribe();
     this.selectDomainUser$.unsubscribe();
     this.selectVMStatus$.unsubscribe();
     this.selectNetmasks$.unsubscribe();
-  }
-
-  deleteInfoPanelAssociateMap(cy: any, activeGBs: any[], tabName: string, id: any) {
-    let idName = '';
-    if (tabName == 'node') {
-      idName = 'node_id';
-    } else if (tabName == 'portgroup') {
-      idName = 'pg_id';
-    } else if (tabName == 'interface') {
-      idName = 'interface_pk';
-    }
-    activeGBs
-      .filter(ele => ele.data(idName) === id)
-      .forEach((node: any) => {
-        if (this.isGroupBoxesChecked) {
-          cy.nodes().filter('[label="group_box"]').forEach((gb: any) => {
-            if (gb.children().length == 0) {
-              this.ur?.do("removeNode", gb)
-            }
-          });
-        }
-        activeGBs.splice(0);
-      });
   }
 
   getEdgesConnectingToNode(node: any) {
@@ -141,103 +130,27 @@ export class InfoPanelService implements OnDestroy {
     return interfacesDeleted.map(ele => ele.interface_pk);
   }
 
-  deleteInfoPanelNotAssociateMap(tabName: string, ids: any[] = []) {
-    if (ids.length > 0) {
-      switch (tabName) {
-        case 'domain':
-          ids.map(id => this.deleteDomain(id));
-          break;
-        case 'group':
-          forkJoin(ids.map(id => {
-            return this.groupService.delete(id).pipe(
-              catchError(err => {
-                this.toastr.error('Delete group failed', 'Error');
-                return throwError(() => err)
-              })
-            )
-          })).subscribe((_) => {
-            const projectId = this.projectService.getProjectId();
-            this.groupService.getGroupByProjectId(projectId).subscribe(data => {
-              this.store.dispatch(retrievedGroups({ data: data.result }));
-            })
-            this.mapService.getMapData('logical', projectId).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
-          })
-          break;
-        case 'domainUser':
-          ids.map(id => this.deleteDomainUser(id));
-          break;
-        case 'userTask':
-          ids.map(id => this.deleteUserTask(id));
-          break;
-        default:
-          this.toastr.warning('Please open the table info before deleting', 'Warning');
-      }
-    } else {
-      this.toastr.warning('Please select the item before deleting', 'Warning');
-    }
-  }
-
-  deleteDomain(id: any) {
-    this.domainService.get(id).subscribe(domainData => {
-      const domain = domainData.result;
-      const isDomainInNode = this.nodes.some(ele => ele.domain_id === domain.id);
-      const isDomainInPG = this.portGroups.some(ele => ele.domain_id === domain.id);
+  deleteDomains(ids: any[]= [], projectId: string) {
+    let isError = false;
+    ids.map(id => {
+      const domain = this.domains.find(d => d.id == id);
       const domainName = domain.name;
+      const isDomainInNode = this.nodes.some(ele => ele.domain_id == id);
+      const isDomainInPG = this.portGroups.some(ele => ele.domain_id == id);
       if (isDomainInNode && isDomainInPG) {
         this.toastr.error(`Port groups and nodes are still associated with domain ${domainName}`);
+        isError = true;
       } else if (isDomainInNode) {
         this.toastr.error(`Nodes are still associated with this domain ${domainName}`);
+        isError = true;
       } else if (isDomainInPG) {
-        this.toastr.error(`Port groups are still associated with domain ${domainName}`)
-      } else {
-        this.domainUsers
-          .filter(ele => ele.domain_id === domain.id)
-          .map(ele => {
-            return this.domainUserService.delete(ele.id).pipe(
-              catchError(err => {
-                this.toastr.error('Delete domain user failed', 'Error');
-                return throwError(() => err.message);
-              })
-            ).subscribe((_) => {
-              this.toastr.success(`Deleted domain user ${ele.username}`, 'Success');
-            })
-          });
-        this.domainService.delete(domain.id).pipe(
-          catchError(err => {
-            this.toastr.error(`Delete domain ${domainName} failed`, 'Error');
-            return throwError(() => err.message);
-          })
-        ).subscribe(() => {
-          const projectId = this.projectService.getProjectId();
-          this.domainService.getDomainByProjectId(projectId).subscribe(
-            (data: any) => {
-              this.toastr.success(`Deleted domain ${domainName}`);
-              this.store.dispatch(retrievedDomains({ data: data.result }))
-            }
-          );
-          this.groupService.getGroupByProjectId(projectId).subscribe(data => {
-            this.toastr.success(`Deleted group related to domain ${domainName}`);
-            this.store.dispatch(retrievedGroups({ data: data.result }));
-          })
-        })
+        this.toastr.error(`Port groups are still associated with domain ${domainName}`);
+        isError = true;
       }
     });
-  }
-
-  deleteGroup(id: any) {
-    this.groupService.delete(id).subscribe({
-      next: () => {
-        const projectId = this.projectService.getProjectId();
-        this.groupService.getGroupByProjectId(projectId).subscribe(data => {
-          this.store.dispatch(retrievedGroups({ data: data.result }));
-        })
-        this.toastr.success('Deleted Row', 'Success');
-      },
-      error: err => {
-        this.toastr.error('Delete group failed', 'Error');
-        throwError(() => err.message);
-      }
-    });
+    if (!isError) {
+      this.store.dispatch(deleteDomains({ ids, projectId }));
+    }
   }
 
   deleteDomainUser(id: any) {

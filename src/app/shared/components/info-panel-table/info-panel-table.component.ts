@@ -238,7 +238,7 @@ export class InfoPanelTableComponent {
     }
   }
 
-  delete(activeGBs: any[]) {
+  delete() {
     if (this.rowsSelected.length === 0) {
       this.toastr.info('No row selected');
     } else {
@@ -265,9 +265,6 @@ export class InfoPanelTableComponent {
           } else if (this.tabName == 'interface') {
             this.helpersService.removeInterfacesOnMap(this.rowsSelectedIds);
           }
-          this.rowsSelectedIds.map(id => {
-            this.infoPanelService.deleteInfoPanelAssociateMap(this.cy, activeGBs, this.tabName, id);
-          });
           this.clearTable();
         }
       })

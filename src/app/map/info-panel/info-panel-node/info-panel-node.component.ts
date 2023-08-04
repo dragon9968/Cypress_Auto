@@ -239,7 +239,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
   }
 
   deleteNodes() {
-    this.infoPanelTableComponent?.delete(this.activeGBs);
+    this.infoPanelTableComponent?.delete();
   }
 
   editNodes() {

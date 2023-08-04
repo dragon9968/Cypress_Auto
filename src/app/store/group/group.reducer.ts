@@ -13,7 +13,9 @@ import {
   removePGsInGroup,
   restorePGsInGroup,
   selectAllGroup,
-  unSelectAllGroup
+  unSelectAllGroup,
+  groupDeletedSuccess,
+  groupsDeletedSuccess
 } from "./group.actions";
 
 const initialState = {} as GroupState;
@@ -124,7 +126,21 @@ export const groupReducer = createReducer(
     };
   }),
   on(groupAddedSuccess, (state, { group }) => {
-    const groups = [...state.groups, addCyDataToGroup(group)]
+    const groups = [...state.groups, addCyDataToGroup(group)];
+    return {
+      ...state,
+      groups,
+    };
+  }),
+  on(groupDeletedSuccess, (state, { id }) => {
+    const groups = state.groups.filter(g => g.id !== id);
+    return {
+      ...state,
+      groups,
+    };
+  }),
+  on(groupsDeletedSuccess, (state, { ids }) => {
+    const groups = state.groups.filter(g => !ids.includes(g.id));
     return {
       ...state,
       groups,

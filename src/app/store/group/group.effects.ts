@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { of } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
 import { map, exhaustMap, catchError, mergeMap, switchMap } from 'rxjs/operators';
-import { addGroup, groupAddedSuccess, groupUpdatedSuccess, groupsLoadedSuccess, loadGroups, updateGroup } from './group.actions';
+import { addGroup, deleteGroups, groupAddedSuccess, groupDeletedSuccess, groupUpdatedSuccess, groupsDeletedSuccess, groupsLoadedSuccess, loadGroups, updateGroup } from './group.actions';
 import { GroupService } from 'src/app/core/services/group/group.service';
 import { pushNotification } from '../app/app.actions';
 import { reloadGroupBoxes } from '../map/map.actions';
@@ -67,6 +67,29 @@ export class GroupsEffects {
           notification: {
             type: 'error',
             message: 'Update group failed!'
+          }
+        })))
+      )),
+  ));
+
+  deleteGroups$ = createEffect(() => this.actions$.pipe(
+    ofType(deleteGroups),
+    exhaustMap((payload) => forkJoin(payload.ids.map(id => this.groupService.delete(id)))
+      .pipe(
+        switchMap((res: any) => [
+          groupsDeletedSuccess({ ids: payload.ids }),
+          reloadGroupBoxes(),
+          pushNotification({
+            notification: {
+              type: 'success',
+              message: 'Groups deleted!'
+            }
+          })
+        ]),
+        catchError((e) => of(pushNotification({
+          notification: {
+            type: 'error',
+            message: 'Delete groups failed!'
           }
         })))
       )),

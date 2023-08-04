@@ -34,7 +34,7 @@ export class DomainService {
     return this.http.post<any>(ApiPaths.DOMAINS, data);
   }
 
-  delete(id: string): Observable<any> {
+  delete(id: number): Observable<any> {
     return this.http.delete<any>(ApiPaths.DOMAINS + id);
   }
 

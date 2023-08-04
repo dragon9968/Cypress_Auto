@@ -24,7 +24,7 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
   rowData$!: Observable<any[]>;
   isChangeDomainUsers$ = new Subscription();
   rowSelected: any[] = [];
-  rowsSelectedId: any[] = [];
+  rowsSelectedIds: any[] = [];
   domain: any;
   tabName = 'domainUser';
 
@@ -260,15 +260,15 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
 
   selectRow() {
     this.rowSelected = this.gridApi.getSelectedRows();
-    this.rowsSelectedId = this.rowSelected.map(ele => ele.id);
+    this.rowsSelectedIds = this.rowSelected.map(ele => ele.id);
   }
 
   editDomainUser() {
-    if (this.rowsSelectedId.length === 0) {
+    if (this.rowsSelectedIds.length === 0) {
       this.toastr.info('No row selected');
     } else {
       this.gridApi.forEachNode(rowNode => {
-        if (this.rowsSelectedId.includes(rowNode.data.id)) {
+        if (this.rowsSelectedIds.includes(rowNode.data.id)) {
           const domainUser = rowNode.data;
           const jsonDataValue = {
             firstname: domainUser.firstname,
@@ -302,10 +302,10 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
   }
 
   deleteDomainUser() {
-    if (this.rowsSelectedId.length === 0) {
+    if (this.rowsSelectedIds.length === 0) {
       this.toastr.info('No row selected');
     } else {
-      const item = this.rowsSelectedId.length === 1 ? 'this' : 'these';
+      const item = this.rowsSelectedIds.length === 1 ? 'this' : 'these';
       const dialogData = {
         title: 'User confirmation needed',
         message: `Are you sure you want to delete ${item}?`,
@@ -314,7 +314,7 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {disableClose: true, width: '450px', data: dialogData});
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
-          this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.rowsSelectedId);
+          this.rowsSelectedIds.map(id => this.infoPanelService.deleteDomainUser(id));
           this.clearRowSelected();
         }
       })
@@ -322,9 +322,9 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
   }
 
   setRowActive() {
-    if (this.rowsSelectedId.length > 0 && this.gridApi) {
+    if (this.rowsSelectedIds.length > 0 && this.gridApi) {
       this.gridApi.forEachNode(rowNode => {
-        if (this.rowsSelectedId.includes(rowNode.data.id)) {
+        if (this.rowsSelectedIds.includes(rowNode.data.id)) {
           rowNode.setSelected(true);
         }
       })
@@ -332,7 +332,7 @@ export class DomainUserDialogComponent implements OnInit, OnDestroy {
   }
 
   clearRowSelected() {
-    this.rowsSelectedId = [];
+    this.rowsSelectedIds = [];
     this.rowSelected = [];
     this.gridApi.deselectAll();
   }

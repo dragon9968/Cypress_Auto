@@ -20,7 +20,7 @@ import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-ta
 })
 export class InfoPanelTaskComponent implements OnInit, OnDestroy {
   @ViewChild(InfoPanelTableComponent) infoPanelTableComponent: InfoPanelTableComponent | undefined;
-  
+
   @Input() infoPanelheight = '300px';
   selectUserTasks$ = new Subscription();
   userTasks!: any[];
@@ -80,7 +80,7 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
         flex: 1
       },
       {
-        headerName:'Start Time',
+        headerName: 'Start Time',
         field: 'start_time',
         cellRenderer: (startTime: any) => startTime.value ? startTime.value.replace('T', ' ') : null,
         minWidth: 200,
@@ -122,7 +122,7 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.userTaskService.getAll().pipe(takeUntil(this.destroy$)).subscribe(data => {
-      this.store.dispatch(retrievedUserTasks({data: data.result}));
+      this.store.dispatch(retrievedUserTasks({ data: data.result }));
     })
     this.refreshTaskListByInterval()
   }
@@ -143,10 +143,10 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
         message: `Are you sure you want to delete ${item}?`,
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {disableClose: true, width: '450px', data: dialogData});
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '450px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm && this.infoPanelTableComponent) {
-          this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.infoPanelTableComponent.rowsSelectedIds);
+          this.infoPanelTableComponent.rowsSelectedIds.map(id => this.infoPanelService.deleteUserTask(id));
           this.clearRowSelected();
         }
       })
@@ -163,7 +163,7 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
         message: message,
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {disableClose: true, width: '450px', data: dialogData});
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '450px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm && this.infoPanelTableComponent) {
           this.infoPanelService.rerunTask(this.infoPanelTableComponent.rowsSelectedIds);
@@ -181,7 +181,7 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
         message: 'Revoke pending task?',
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {disableClose: true, width: '450px', data: dialogData});
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '450px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm) {
           let taskPendingId: any[] = []
@@ -190,7 +190,7 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
               taskPendingId.push(task.id);
             } else {
               this.toastr.warning(`Task ${task.display_name} has state ${task.task_state} and can not be revoked!
-                                    <br /> Revoke only apply to the pending task`, 'Warning', { enableHtml: true});
+                                    <br /> Revoke only apply to the pending task`, 'Warning', { enableHtml: true });
             }
           })
           if (taskPendingId.length !== 0) {
@@ -211,7 +211,7 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
     ).subscribe(() => {
       this.nodesIdRendered = this.getTaskRendered();
       if (this.nodesIdRendered.length > 0) {
-        this.userTaskService.getTaskAutoRefresh({pks: this.nodesIdRendered}).subscribe(response => {
+        this.userTaskService.getTaskAutoRefresh({ pks: this.nodesIdRendered }).subscribe(response => {
           const tasks = response.result;
           this.setNodeDataRefresh(tasks);
         })

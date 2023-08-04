@@ -81,3 +81,24 @@ export const restorePGsInGroup = createAction(
   'restorePGsInGroup',
   props<{ ids: number[] }>()
 );
+
+export const groupDeletedSuccess = createAction(
+  'groupDeletedSuccess',
+  props<{
+    id: number,
+  }>()
+);
+
+export const deleteGroups = createAction(
+  'deleteGroups',
+  props<{
+    ids: number[],
+  }>()
+);
+
+export const groupsDeletedSuccess = createAction(
+  'groupsDeletedSuccess',
+  props<{
+    ids: number[],
+  }>()
+);

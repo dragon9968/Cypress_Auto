@@ -59,7 +59,6 @@ export class CMDeleteService {
         this.helpersService.removeNodesOnMap(this.selectedNodeIds);
         this.helpersService.removePGsOnMap(this.selectedPGIds);
         this.helpersService.removeInterfacesOnMap(this.selectedInterfaceIds);
-        this.commonService.delete(cy, activeGBs, activeMBs, activeMapLinks);
       },
       hasTrailingDivider: true,
       disabled: !isCanWriteOnProject,

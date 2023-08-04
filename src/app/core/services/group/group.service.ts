@@ -38,7 +38,7 @@ export class GroupService {
     return this.http.put<any>(ApiPaths.UPDATE_GROUP, data, { params });
   }
 
-  delete(groupId: string): Observable<any> {
+  delete(groupId: number): Observable<any> {
     return this.http.delete<any>(ApiPaths.GROUP + groupId);
   }
 }

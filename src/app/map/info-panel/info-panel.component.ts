@@ -8,7 +8,6 @@ import { DomainUserService } from "../../core/services/domain-user/domain-user.s
 import { retrievedDomainUsers } from "../../store/domain-user/domain-user.actions";
 import { retrievedIsChangeDomainUsers } from "../../store/domain-user-change/domain-user-change.actions";
 import { InterfaceService } from "../../core/services/interface/interface.service";
-import { retrievedInterfaceByProjectIdAndCategory } from "../../store/interface/interface.actions";
 import { LocalStorageKeys } from "../../core/storage/local-storage/local-storage-keys.enum";
 
 @Component({
@@ -78,10 +77,6 @@ export class InfoPanelComponent implements OnInit{
       data => this.store.dispatch(retrievedDomainUsers({ data: data.result }))
     );
     this.store.dispatch(retrievedIsChangeDomainUsers({ isChangeDomainUsers: false }));
-    // this.interfaceService.getByProjectId(this.projectId)
-    //   .subscribe(res => {
-    //     this.store.dispatch(retrievedInterfaceByProjectIdAndCategory({data: res.result}))
-    // })
     const infoPanelHeight = localStorage.getItem(LocalStorageKeys.INFO_PANEL_HEIGHT)
     this.infoPanelHeightRestore = infoPanelHeight ? infoPanelHeight : '300px'
     this.style.height = this.infoPanelHeightRestore

@@ -198,7 +198,7 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
   }
 
   deleteInterfaces() {
-    this.infoPanelTableComponent?.delete(this.activeGBs);
+    this.infoPanelTableComponent?.delete();
   }
 
   editInterfaces() {

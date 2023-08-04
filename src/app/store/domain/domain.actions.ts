@@ -39,3 +39,18 @@ export const domainAddedSuccess = createAction(
   'domainAddedSuccess',
   props<{ domain: any }>()
 );
+
+export const deleteDomains = createAction(
+  'deleteDomains',
+  props<{
+    ids: number[],
+    projectId: string,
+  }>()
+);
+
+export const domainsDeletedSuccess = createAction(
+  'domainsDeletedSuccess',
+  props<{
+    ids: number[],
+  }>()
+);

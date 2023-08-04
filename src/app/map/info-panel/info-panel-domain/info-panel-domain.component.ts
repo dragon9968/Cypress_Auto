@@ -176,8 +176,8 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
       }
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '450px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
-        if (confirm) {
-          this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.infoPanelTableComponent?.rowsSelectedIds);
+        if (confirm && this.infoPanelTableComponent && this.infoPanelTableComponent.rowsSelectedIds.length > 0) {
+          this.infoPanelService.deleteDomains(this.infoPanelTableComponent.rowsSelectedIds, this.projectId);
           this.clearRowSelected();
         }
       })

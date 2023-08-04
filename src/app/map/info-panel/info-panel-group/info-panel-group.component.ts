@@ -13,6 +13,7 @@ import { AddUpdateGroupDialogComponent } from "../../add-update-group-dialog/add
 import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
 import { MatMenuTrigger } from "@angular/material/menu";
 import { FormControl, FormGroup } from "@angular/forms";
+import { deleteGroups } from "src/app/store/group/group.actions";
 
 @Component({
   selector: 'app-info-panel-group',
@@ -204,8 +205,8 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
       }
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '450px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
-        if (confirm) {
-          this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.infoPanelTableComponent?.rowsSelectedIds);
+        if (confirm && this.infoPanelTableComponent && this.infoPanelTableComponent.rowsSelectedIds.length > 0) {
+          this.store.dispatch(deleteGroups({ ids: this.infoPanelTableComponent.rowsSelectedIds }));
           this.clearRowSelected();
         }
       })
