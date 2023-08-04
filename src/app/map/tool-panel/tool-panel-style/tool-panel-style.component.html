@@ -184,9 +184,9 @@
 </section>
 
 <section class="tab-section"
-    [hidden]="!((activeNodes.length + activePGs.length + activeMBs.length) == 1 && isHideEdge)">
+    [hidden]="!((selectedNodes.length + selectedPortGroups.length + selectedMapImages.length) == 1 && isHideEdge)">
     <mat-divider></mat-divider>
-    <div  [hidden]="!(activeMBs.length == 1 && isHideEdge)">
+    <div  [hidden]="!(selectedMapImages.length == 1 && isHideEdge)">
         <h4>Size</h4>
         <div class="tab-field">
             <label class="control-label">Size</label>
@@ -217,10 +217,10 @@
                 <mat-icon>check</mat-icon>
               </button>
             </ng-template>
-            <button mat-raised-button class="z-index-btn" color="primary" matTooltip="Lock" (click)="lockNodes()">
+            <button mat-raised-button class="z-index-btn" type="button" color="primary" matTooltip="Lock" (click)="lockNodes()">
                 <mat-icon>lock</mat-icon>
             </button>
-            <button mat-raised-button class="z-index-btn" color="primary" matTooltip="Unlock" (click)="unlockNodes()">
+            <button mat-raised-button class="z-index-btn" type="button" color="primary" matTooltip="Unlock" (click)="unlockNodes()">
                 <mat-icon>lock_open</mat-icon>
             </button>
         </div>

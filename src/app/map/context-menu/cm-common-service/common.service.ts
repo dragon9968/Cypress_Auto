@@ -22,18 +22,18 @@ export class CommonService {
       }
     });
   }
-
-  changeNodeSize(size: any, activeNodes: any[]) {
+  
+  changeNodeSize(size: any, selectedNodes: any[], cy: any) {
     const newNodeSize = size.value;
-    this.ur?.do('changeNodeSize', { activeNodes, newNodeSize });
+    this.ur?.do('changeNodeSize', { selectedNodes, newNodeSize, cy });
   }
 
-  changeMapImageSize(size: any, activeMBs: any[]) {
+  changeMapImageSize(size: any, selectedMapImages: any[], cy: any) {
     const newMapImageSize = size.value;
-    this.ur?.do('changeMapImageSize', { activeMBs, newMapImageSize})
+    this.ur?.do('changeMapImageSize', { selectedMapImages, newMapImageSize, cy})
   }
 
-  textColor(color: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[]) {
+  textColor(color: any, selectedNodes: any[], selectedPortGroups: any[], selectedInterfaces: any[], selectedGroups: any[], cy: any) {
     const hexPattern = '#d{0,}';
     const hexColor = color;
     const hexPatternFound = hexColor.match(hexPattern)
@@ -42,48 +42,48 @@ export class CommonService {
       const g = parseInt(hexColor.slice(3, 5), 16).toString();
       const b = parseInt(hexColor.slice(5, 7), 16).toString();
       const newTextColor = "rgb(" + r + ',' + g + ',' + b + ")";
-      const activeEles = activeNodes.concat(activeEdges, activePGs, activeGBs);
-      this.ur?.do('changTextColor', { activeEles, newTextColor });
+      const selectedEles = selectedNodes.concat(selectedInterfaces, selectedPortGroups, selectedGroups);
+      this.ur?.do('changTextColor', { selectedEles, newTextColor, cy });
     }
   }
 
-  textSize(size: any, activeNodes: any[], activeEdges: any[], activePGs: any[]) {
+  textSize(size: any, selectedNodes: any[], selectedInterfaces: any[], selectedPortGroups: any[], cy: any) {
     const newTextSize = size.value
-    const activeEles = activeNodes.concat(activeEdges, activePGs);
-    this.ur?.do('changeTextSize', {activeEles, newTextSize});
+    const selectedEles = selectedNodes.concat(selectedInterfaces, selectedPortGroups);
+    this.ur?.do('changeTextSize', {selectedEles, newTextSize, cy});
   }
 
-  pgColor(color: any, activePGs: any[]) {
+  pgColor(color: any, selectedPortGroups: any[], cy: any) {
     const newPGColor = color;
-    this.ur?.do('changePGColor', {activePGs, newPGColor});
+    this.ur?.do('changePGColor', {selectedPortGroups, newPGColor, cy});
   }
 
-  pgSize(size: any, activePGs: any[]) {
+  pgSize(size: any, selectedPortGroups: any[], cy: any) {
     const newPGSize = size.value;
-    this.ur?.do('changePGSize', {activePGs, newPGSize});
+    this.ur?.do('changePGSize', {selectedPortGroups, newPGSize, cy});
   }
 
-  edgeColor (color: any, activeEdges: any[]) {
+  edgeColor (color: any, selectedInterfaces: any[], cy: any) {
     const newEdgeColor = color;
-    this.ur?.do('changeEdgeColor', {activeEdges, newEdgeColor});
+    this.ur?.do('changeEdgeColor', {selectedInterfaces, newEdgeColor, cy});
   }
 
-  edgeSize (size: any, activeEdges: any[]) {
+  edgeSize (size: any, selectedInterfaces: any[], cy: any) {
     const newEdgeSize = size.value;
-    this.ur?.do('changeEdgeSize', {activeEdges, newEdgeSize});
+    this.ur?.do('changeEdgeSize', {selectedInterfaces, newEdgeSize, cy});
   }
 
-  arrowScale(size: any, activeEdges: any[]) {
+  arrowScale(size: any, selectedInterfaces: any[], cy: any) {
     const newArrowScale = size.value;
-    this.ur?.do('changeArrowScale', {activeEdges, newArrowScale});
+    this.ur?.do('changeArrowScale', {selectedInterfaces, newArrowScale, cy});
   }
 
-  edgeDirection(value: string, activeEdges: any[]) {
+  edgeDirection(value: string, selectedInterfaces: any[], cy: any) {
     const newDirection = value;
-    this.ur?.do('changeDirection', {activeEdges, newDirection});
+    this.ur?.do('changeDirection', {selectedInterfaces, newDirection, cy});
   }
 
-  textBGColor(color: any, activeNodes: any[], activeEdges: any[], activePGs: any[], activeGBs: any[]) {
+  textBGColor(color: any, selectedNodes: any[], selectedInterfaces: any[], selectedPortGroups: any[], selectedGroups: any[], cy: any) {
     const hexPattern = '#d{0,}';
     const hexColor = color;
     const hexPatternFound = hexColor.match(hexPattern)
@@ -92,18 +92,18 @@ export class CommonService {
       const g = parseInt(hexColor.slice(3, 5), 16).toString();
       const b = parseInt(hexColor.slice(5, 7), 16).toString();
       const newTextBGColor = "rgb(" + r + ',' + g + ',' + b + ")";
-      const activeEles = activeNodes.concat(activeEdges, activePGs, activeGBs);
-      this.ur?.do('changeTextBGColor', { activeEles, newTextBGColor });
+      const selectedEles = selectedNodes.concat(selectedInterfaces, selectedPortGroups, selectedGroups);
+      this.ur?.do('changeTextBGColor', { selectedEles, newTextBGColor, cy });
     }
   }
 
-  textBGOpacity(opacity: any, activeNodes: any[], activeEdges: any[], activePGs: any[]) {
+  textBGOpacity(opacity: any, selectedNodes: any[], selectedInterfaces: any[], selectedPortGroups: any[], cy: any) {
     const newTextBGOpacity = opacity.value;
-    const activeEles = activeNodes.concat(activeEdges, activePGs);
-    this.ur?.do('changeTextBGOpacity', {activeEles, newTextBGOpacity});
+    const selectedEles = selectedNodes.concat(selectedInterfaces, selectedPortGroups);
+    this.ur?.do('changeTextBGOpacity', {selectedEles, newTextBGOpacity, cy});
   }
 
-  textOutlineColor(color: any, activeNodes: any[], activeEdges: any[], activePGs: any[], activeGBs: any[]) {
+  textOutlineColor(color: any, selectedNodes: any[], selectedInterfaces: any[], selectedPortGroups: any[], selectedGroups: any[], cy: any) {
     const hexPattern = '#d{0,}';
     const hexColor = color;
     const hexPatternFound = hexColor.match(hexPattern)
@@ -112,48 +112,48 @@ export class CommonService {
       const g = parseInt(hexColor.slice(3, 5), 16).toString();
       const b = parseInt(hexColor.slice(5, 7), 16).toString();
       const newTextOutlineColor = "rgb(" + r + ',' + g + ',' + b + ")";
-      const activeEles = activeNodes.concat(activeEdges, activePGs, activeGBs);
-      this.ur?.do('changeTextOutlineColor', { activeEles, newTextOutlineColor });
+      const selectedEles = selectedNodes.concat(selectedInterfaces, selectedPortGroups, selectedGroups);
+      this.ur?.do('changeTextOutlineColor', { selectedEles, newTextOutlineColor, cy });
     }
   }
 
-  textOutlineWidth(width: any, activeNodes: any[], activeEdges: any[], activePGs: any[], activeGBs: any[]) {
+  textOutlineWidth(width: any, selectedNodes: any[], selectedInterfaces: any[], selectedPortGroups: any[], selectedGroups: any[], cy: any) {
     const newTextOutlineWidth = width.value;
-    const activeEles = activeNodes.concat(activeEdges, activePGs, activeGBs);
-    this.ur?.do('changeTextOutlineWidth', {activeEles, newTextOutlineWidth});
+    const selectedEles = selectedNodes.concat(selectedInterfaces, selectedPortGroups, selectedGroups);
+    this.ur?.do('changeTextOutlineWidth', {selectedEles, newTextOutlineWidth, cy});
   }
 
-  textVAlign(value: string, activeNodes: any[], activePGs: any[]) {
+  textVAlign(value: string, selectedNodes: any[], selectedPortGroups: any[], cy: any) {
     const newTextVAlign = value;
-    const activeEles = activeNodes.concat(activePGs);
-    this.ur?.do('changeTextVAlign', {activeEles, newTextVAlign});
+    const selectedEles = selectedNodes.concat(selectedPortGroups);
+    this.ur?.do('changeTextVAlign', {selectedEles, newTextVAlign, cy});
   }
 
-  textHAlign(value: string, activeNodes: any[], activePGs: any[]) {
+  textHAlign(value: string, selectedNodes: any[], selectedPortGroups: any[], cy: any) {
     const newTextHAlign = value;
-    const activeEles = activeNodes.concat(activePGs);
-    this.ur?.do('changeTextHAlign', {activeEles, newTextHAlign})
+    const selectedEles = selectedNodes.concat(selectedPortGroups);
+    this.ur?.do('changeTextHAlign', {selectedEles, newTextHAlign, cy})
   }
 
-  gbOpacity(event: any, activeGBs: any[]){
+  gbOpacity(event: any, selectedGroups: any[], cy: any){
     const newGBOpacity = event.value;
-    this.ur?.do('changeGBOpacity', {activeGBs, newGBOpacity});
+    this.ur?.do('changeGBOpacity', {selectedGroups, newGBOpacity, cy});
   }
 
-  gBColor(newGBColor: any, activeGBs: any[]) {
-    this.ur?.do('changeGBColor', {activeGBs, newGBColor});
+  gBColor(newGBColor: any, selectedGroups: any[], cy: any) {
+    this.ur?.do('changeGBColor', {selectedGroups, newGBColor, cy});
   }
 
-  gBBorderColor(newGBBorderColor: any, activeGBs: any[]) {
-    this.ur?.do('changeGBBorderColor', {activeGBs, newGBBorderColor});
+  gBBorderColor(newGBBorderColor: any, selectedGroups: any[], cy: any) {
+    this.ur?.do('changeGBBorderColor', {selectedGroups, newGBBorderColor, cy});
   }
 
-  gBType(newGBBorderType: any, activeGBs: any[]) {
-    this.ur?.do('changeGBType', {activeGBs, newGBBorderType});
+  gBType(newGBBorderType: any, selectedGroups: any[], cy: any) {
+    this.ur?.do('changeGBType', {selectedGroups, newGBBorderType, cy});
   }
 
-  gbBorderSize(event: any, activeGBs: any[]){
+  gbBorderSize(event: any, selectedGroups: any[], cy: any){
     const newGBBorderSize = event.value;
-    this.ur?.do('changeGBBorderSize', {activeGBs, newGBBorderSize});
+    this.ur?.do('changeGBBorderSize', {selectedGroups, newGBBorderSize, cy});
   }
 }

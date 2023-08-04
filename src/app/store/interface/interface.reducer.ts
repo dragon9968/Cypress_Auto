@@ -363,7 +363,13 @@ export const interfaceReducerByIds = createReducer(
   on(randomizeIpBulkSuccess, (state, { interfacesData }) => {
     const logicalMapInterfaces = state.logicalMapInterfaces.map((interfaceData: any) => {
       const updatedLogicalMapInterfaces = interfacesData.find((i: any) => i.id == interfaceData.id);
-      return updatedLogicalMapInterfaces ? {...interfaceData, ...updatedLogicalMapInterfaces} : interfaceData
+      return updatedLogicalMapInterfaces ? 
+      {
+        ...interfaceData,
+        ...updatedLogicalMapInterfaces, 
+        node: interfaceData.node, 
+        port_group: interfaceData.port_group
+      } : interfaceData
     })
     return {
       ...state,

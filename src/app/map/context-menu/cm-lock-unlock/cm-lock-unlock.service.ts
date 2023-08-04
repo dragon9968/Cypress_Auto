@@ -26,13 +26,13 @@ export class CMLockUnlockService {
     }
   }
 
-  getUnlockMenu(activeNodes: any[], activePGs: any[], activeMBs: any[], activeMapLinks: any[]) {
+  getUnlockMenu(cy: any, activeNodes: any[], activePGs: any[], activeMBs: any[], activeMapLinks: any[]) {
     return {
       id: "unlock_node",
       content: "Unlock",
       selector: "node",
       onClickFunction: (event: any) => {
-        this.unlockNodes(activeNodes, activePGs, activeMBs, activeMapLinks);
+        this.unlockNodes(cy, activeNodes, activePGs, activeMBs, activeMapLinks);
         this.toastr.success("Unlocked the nodes");
       },
       hasTrailingDivider: true,
@@ -40,31 +40,33 @@ export class CMLockUnlockService {
     }
   }
 
-  lockNodes(cy: any, activeNodes: any[], activePGs: any[], activeMBs: any[], activeMapLinks: any[]) {
-    activeNodes.concat(activePGs, activeMBs, activeMapLinks).forEach((ele: any) => {
-      ele.data('locked', true);
-      ele.lock();
-      const d = ele.data();
+  lockNodes(cy: any, selectedNodes: any[], selectedPortGroups: any[], selectedMapImages: any[], selectedMapLinks: any[]) {
+    selectedNodes.concat(selectedPortGroups, selectedMapImages, selectedMapLinks).forEach((ele: any) => {
+      const selectedEle = cy.getElementById(ele.data.id);
+      selectedEle.data('locked', true);
+      selectedEle.lock();
+      const d = selectedEle.data();
       if (!(d.new)) {
         d.new = false;
         d.updated = true;
         d.deleted = false;
       }
-      this.helpersService.addBadge(cy, ele);
+      this.helpersService.addBadge(cy, selectedEle);
     });
   }
 
-  unlockNodes(activeNodes: any[], activePGs: any[], activeMBs: any[], activeMapLinks: any[]) {
-    activeNodes.concat(activePGs, activeMBs, activeMapLinks).forEach((ele: any) => {
-      ele.data('locked', false);
-      ele.unlock();
-      const d = ele.data();
+  unlockNodes(cy: any, selectedNodes: any[], selectedPortGroups: any[], selectedMapImages: any[], selectedMapLinks: any[]) {
+    selectedNodes.concat(selectedPortGroups, selectedMapImages, selectedMapLinks).forEach((ele: any) => {
+      const selectedEle = cy.getElementById(ele.data.id);
+      selectedEle.data('locked', false);
+      selectedEle.unlock();
+      const d = selectedEle.data();
       if (!d.new) {
         d.new = false;
         d.updated = true;
         d.deleted = false;
       }
-      this.helpersService.removeBadge(ele);
+      this.helpersService.removeBadge(selectedEle);
     });
   }
 }

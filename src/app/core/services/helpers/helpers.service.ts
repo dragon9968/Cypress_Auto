@@ -420,6 +420,24 @@ export class HelpersService implements OnDestroy {
         },
       },
       {
+        selector: 'edge[text_size]',
+        style: {
+          'font-size': (ele: any) => ele.data('text_size'),
+        }
+      },
+      {
+        selector: 'edge[text_bg_color]',
+        style: {
+          'text-background-color': (ele: any) => ele.data('text_bg_color'),
+        }
+      },
+      {
+        selector: 'edge[text_bg_opacity]',
+        style: {
+          'text-background-opacity': (ele: any) => ele.data('text_bg_opacity'),
+        }
+      },
+      {
         selector: "[category='wireless']",
         style: {
           "line-style": "dashed",

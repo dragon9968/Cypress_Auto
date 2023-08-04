@@ -102,7 +102,7 @@
                 <div class="interface-content__bottom__left">
                   <mat-form-field class="field">
                     <mat-label>VLAN Mode</mat-label>
-                    <mat-select data-cy="select-vlanmode" formControlName="vlanModeCtr">
+                    <mat-select data-cy="select-vlanmode" formControlName="vlanModeCtr" [disabled]="isViewMode">
                       <mat-option value="access">Access</mat-option>
                       <mat-option value="trunk">Trunk</mat-option>
                     </mat-select>
@@ -127,7 +127,7 @@
                 <div class="interface-content__bottom__right">
                   <mat-form-field class="field">
                     <mat-label>VLAN ID</mat-label>
-                    <input autocomplete="off" id="interface-vlan-id" matInput formControlName="vlanIdCtr">
+                    <input autocomplete="off" id="interface-vlanid" matInput formControlName="vlanIdCtr" [readonly]="isViewMode">
                     <mat-error *ngIf="vlanIdCtr?.errors?.pattern">{{ errorMessages.FIELD_IS_NUMBER }}</mat-error>
                     <mat-error *ngIf="vlanIdCtr?.errors?.isNotMatch">{{ vlanIdCtr?.errors?.value }}</mat-error>
                   </mat-form-field>

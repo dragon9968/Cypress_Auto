@@ -846,12 +846,16 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
       const d = elm.data();
       if (d.elem_category == 'node' && !this.activeNodes.includes(elm)) {
         this.activeNodes.push(elm);
+        this.store.dispatch(selectNode({ id: d.id }));
       } else if (d.elem_category == 'port_group' && !this.activePGs.includes(elm)) {
         this.activePGs.push(elm);
+        this.store.dispatch(selectPG({ id: d.id }));
       } else if (d.elem_category == 'map_link' && !this.activeMapLinks.includes(elm)) {
         this.activeMapLinks.push(elm);
+        this.store.dispatch(selectMapLink({id: d.id}))
       } else if (d.elem_category == 'bg_image' && !this.activeMBs.includes(elm)) {
         this.activeMBs.push(elm);
+        this.store.dispatch(selectMapImage({ id: d.id }));
       } else if (elm.isEdge() && !this.activeEdges.includes(elm)) {
         this.activeEdges.push(elm);
       }
@@ -1226,7 +1230,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         this.cmEditService.getMenu(this.cy, this.isCanWriteOnProject, this.mapCategory, Number(this.projectId)),
         this.cmDeleteService.getMenu(this.cy, this.activeGBs, this.activeMBs, this.activeMapLinks, this.isCanWriteOnProject),
         this.cmLockUnlockService.getLockMenu(this.cy, this.activeNodes, this.activePGs, this.activeMBs, this.activeMapLinks),
-        this.cmLockUnlockService.getUnlockMenu(this.activeNodes, this.activePGs, this.activeMBs, this.activeMapLinks),
+        this.cmLockUnlockService.getUnlockMenu(this.cy, this.activeNodes, this.activePGs, this.activeMBs, this.activeMapLinks),
         this.cmGroupBoxService.getCollapseMenu(this.cy, this.activeGBs),
         this.cmGroupBoxService.getExpandMenu(this.cy, this.activeGBs),
         this.cmProjectNodeService.getCollapseNodeMenu(this.cy),
@@ -1237,7 +1241,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         this.cmMapService.getDownloadMenu(),
         this.cmMapService.getLockAllMenu(this.cy),
         this.cmMapService.getUnlockAllMenu(this.cy),
-        this.cmMapService.getSelectAllMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks),
+        this.cmMapService.getSelectAllMenu(this.cy),
         this.cmMapService.getDeselectAllMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks),
       ],
       submenuIndicator: { src: '/assets/icons/submenu-indicator-default.svg', width: 12, height: 12 }

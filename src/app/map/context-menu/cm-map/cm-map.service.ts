@@ -90,7 +90,7 @@ export class CMMapService {
             this.helpersService.addBadge(cy, ele);
           }
         });
-        this.toastr.success("Locked all nodes");
+        this.toastr.success("Locked all elements");
       },
       hasTrailingDivider: false,
       disabled: false,
@@ -116,14 +116,14 @@ export class CMMapService {
             this.helpersService.removeBadge(ele);
           }
         });
-        this.toastr.success("Unlocked all nodes");
+        this.toastr.success("Unlocked all elements");
       },
       hasTrailingDivider: false,
       disabled: false,
     }
   }
 
-  getSelectAllMenu(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], activeMBs: any[], activeMapLinks: any[]) {
+  getSelectAllMenu(cy: any) {
     return {
       id: "select_all",
       content: "Select All",
