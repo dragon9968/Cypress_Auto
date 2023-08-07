@@ -49,7 +49,7 @@ const addCYDataToLogicalInterface = (edge: any) => {
   }
   return {
     ...edge,
-    data: { ...edge, ...baseCyData },
+    data: { ...edge, ...baseCyData, ...edge.logical_map?.map_style },
     locked: edge.logical_map?.locked
   }
 }
@@ -160,7 +160,7 @@ export const interfaceReducerByIds = createReducer(
             }
             physicalInterfaces.push({
               ...i,
-              data: { ...i, ...baseCyData },
+              data: { ...i, ...baseCyData, ...i.physical_map?.map_style },
               locked: i.physical_map?.locked
             });
           } else if (i.category == 'management') {

@@ -128,7 +128,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
           this.xCtr?.setValue(ele.position().x.toFixed(2));
           this.yCtr?.setValue(ele.position().y.toFixed(2));
           this.textOutlineColor = data.text_outline_color ? data.text_outline_color : data.logical_map.map_style.text_outline_color;
-          this.textOutlineWidth = data.text_outline_width ? data.text_outline_width : data.logical_map.map_style.text_outline_width;
+          this.textOutlineWidth = this.removePx(data.text_outline_width ? data.text_outline_width : data.logical_map.map_style.text_outline_width);
           this._setPropertiesCommon(data);
         }
       }
@@ -144,7 +144,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
           this.arrowActivated = this.isEdgeDirectionChecked ? data.direction : data.prev_direction;
           this.arrowSize = data.arrow_scale ? this.removePx(data.arrow_scale) : 1;
           this.textOutlineColor = data.text_outline_color ? data.text_outline_color : data.logical_map.map_style.text_outline_color;
-          this.textOutlineWidth = data.text_outline_width ? data.text_outline_width : data.logical_map.map_style.text_outline_width;
+          this.textOutlineWidth = this.removePx(data.text_outline_width ? data.text_outline_width : data.logical_map.map_style.text_outline_width);
           this._setPropertiesCommon(data);
         }
         this.isHideText = this.selectedNodes.length + this.selectedInterfaces.length + this.selectedPortGroups.length + this.selectedGroups.length == 0;
@@ -165,7 +165,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
           this.xCtr?.setValue(ele.position().x.toFixed(2));
           this.yCtr?.setValue(ele.position().y.toFixed(2));
           this.textOutlineColor = data.text_outline_color ? data.text_outline_color : data.logical_map.map_style.text_outline_color;
-          this.textOutlineWidth = data.text_outline_width ? data.text_outline_width : data.logical_map.map_style.text_outline_width;
+          this.textOutlineWidth = this.removePx(data.text_outline_width ? data.text_outline_width : data.logical_map.map_style.text_outline_width);
           this._setPropertiesCommon(data);
         }
       }
