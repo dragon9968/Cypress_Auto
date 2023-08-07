@@ -12,7 +12,7 @@ import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
 import { CommonService } from 'src/app/map/context-menu/cm-common-service/common.service';
 import { retrievedMapContextMenu } from 'src/app/store/map-context-menu/map-context-menu.actions';
-import { loadMap, retrievedMap } from 'src/app/store/map/map.actions';
+import { loadMap } from 'src/app/store/map/map.actions';
 import { GroupService } from "../../core/services/group/group.service";
 import { selectGroups } from "../../store/group/group.selectors";
 import { retrievedGroups } from "../../store/group/group.actions";

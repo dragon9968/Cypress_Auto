@@ -3,10 +3,11 @@ import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { selectAllGroup, unSelectAllGroup } from 'src/app/store/group/group.actions';
-import { selectAllInterface, unselectAllInterface } from 'src/app/store/interface/interface.actions';
+import { selectAllInterface, unSelectAllInterface } from 'src/app/store/interface/interface.actions';
 import { retrievedMapContextMenu } from 'src/app/store/map-context-menu/map-context-menu.actions';
 import { selectAllNode, unSelectAllNode } from 'src/app/store/node/node.actions';
 import { selectAllPG, unselectAllPG } from 'src/app/store/portgroup/portgroup.actions';
+import { selectAllElementsOnMap, unSelectAllElementsOnMap } from "../../../store/map/map.actions";
 
 @Injectable({
   providedIn: 'root'
@@ -131,10 +132,7 @@ export class CMMapService {
       onClickFunction: (event: any) => {
         cy.nodes().selectify();
         cy.edges().selectify();
-        this.store.dispatch(selectAllNode());
-        this.store.dispatch(selectAllPG());
-        this.store.dispatch(selectAllInterface());
-        this.store.dispatch(selectAllGroup());
+        this.store.dispatch(selectAllElementsOnMap());
         cy.nodes().select();
         cy.edges().select();
       },
@@ -157,10 +155,7 @@ export class CMMapService {
         activeEdges.splice(0);
         activeMBs.splice(0);
         activeMapLinks.splice(0);
-        this.store.dispatch(unSelectAllNode());
-        this.store.dispatch(unselectAllPG());
-        this.store.dispatch(unselectAllInterface());
-        this.store.dispatch(unSelectAllGroup());
+        this.store.dispatch(unSelectAllElementsOnMap());
         cy.nodes().unselect();
         cy.edges().unselect();
       },

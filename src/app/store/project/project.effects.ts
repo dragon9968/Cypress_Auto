@@ -1,15 +1,20 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { EMPTY, of } from 'rxjs';
-import { map, exhaustMap, catchError } from 'rxjs/operators';
+import { map, exhaustMap, catchError, mergeMap } from 'rxjs/operators';
 import {
   loadProject,
   loadProjectsNotLinkYet,
   projectLoadedSuccess,
-  projectsNotLinkYetLoadedSuccess
+  projectsNotLinkYetLoadedSuccess,
+  validateProject
 } from './project.actions';
 import { ProjectService } from 'src/app/project/services/project.service';
 import { pushNotification } from "../app/app.actions";
+import { ValidateProjectDialogComponent } from "../../project/validate-project-dialog/validate-project-dialog.component";
+import { MatDialog } from "@angular/material/dialog";
+import { loadGroups } from "../group/group.actions";
+import { loadDomains } from "../domain/domain.actions";
 
 @Injectable()
 export class ProjectEffects {
@@ -38,8 +43,36 @@ export class ProjectEffects {
       ))
   ))
 
+  validateProject$ = createEffect(() => this.actions$.pipe(
+    ofType(validateProject),
+    mergeMap(payload => this.projectService.validateProject({ pk: payload.projectId }).pipe(
+      map(res => pushNotification({ notification: {
+        type: 'success',
+        message: res.message
+      }})),
+      catchError(e => {
+        this.dialog.open(ValidateProjectDialogComponent, {
+          disableClose: true,
+          autoFocus: false,
+          width: 'auto',
+          data: e.error.result
+        });
+        return of(
+          pushNotification({
+          notification: {
+            type: 'error',
+            message: e.error.message
+          }}),
+          loadDomains({ projectId: payload.projectId.toString() }),
+          loadGroups({ projectId: payload.projectId.toString() })
+        )
+      })
+    ))
+  ))
+
   constructor(
     private actions$: Actions,
-    private projectService: ProjectService
+    private projectService: ProjectService,
+    private dialog: MatDialog
   ) {}
 }

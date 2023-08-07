@@ -1,5 +1,5 @@
 import { Store } from '@ngrx/store';
-import { map, startWith, Subscription } from 'rxjs';
+import { catchError, map, startWith, Subscription, throwError } from 'rxjs';
 import { Injectable, Input, OnDestroy } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
@@ -9,7 +9,6 @@ import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { ToastrService } from 'ngx-toastr';
 import { selectLinkedMapNodes, selectLogicalNodes, } from "../../../store/node/node.selectors";
 import { removeNodes, restoreNodes } from "../../../store/node/node.actions";
-import { environment } from "../../../../environments/environment";
 import { RemoteCategories } from "../../enums/remote-categories.enum";
 import {
   retrievedIsConfiguratorConnect,
@@ -33,10 +32,16 @@ import {
   selectInterfacesCommonMapLinks,
   selectLinkedMapInterfaces, selectLogicalMapInterfaces
 } from "../../../store/interface/interface.selectors";
-import { selectLinkedMapImages } from "../../../store/map-image/map-image.selectors";
+import { selectLinkedMapImages, selectMapImages } from "../../../store/map-image/map-image.selectors";
 import { clearLinkedMap } from "../../../store/map/map.actions";
 import { removePGs, restorePGs } from 'src/app/store/portgroup/portgroup.actions';
 import { removeInterfaces, restoreInterfaces } from 'src/app/store/interface/interface.actions';
+import { retrievedMapContextMenu } from "../../../store/map-context-menu/map-context-menu.actions";
+import { ProjectService } from "../../../project/services/project.service";
+import { GroupService } from "../group/group.service";
+import { loadGroups, retrievedGroups } from "../../../store/group/group.actions";
+import { ValidateProjectDialogComponent } from "../../../project/validate-project-dialog/validate-project-dialog.component";
+import { validateProject } from "../../../store/project/project.actions";
 
 @Injectable({
   providedIn: 'root'
@@ -57,6 +62,7 @@ export class HelpersService implements OnDestroy {
   selectLinkedMapImages$ = new Subscription();
   selectInterfacesCommonMapLinks$ = new Subscription();
   selectLogicalMapInterfaces$ = new Subscription();
+  selectMapImages$ = new Subscription();
   nodes: any[] = [];
   portGroups: any[] = [];
   interfacesLogical: any[] = [];
@@ -65,6 +71,7 @@ export class HelpersService implements OnDestroy {
   linkedMapInterfaces: any;
   linkedMapImages: any;
   interfacesCommonMapLinks!: any[];
+  mapImages!: any[];
   groupCategoryId!: string;
   errorMessages = ErrorMessages;
   isGroupBoxesChecked!: boolean;
@@ -93,6 +100,8 @@ export class HelpersService implements OnDestroy {
     private domSanitizer: DomSanitizer,
     private serverConnectionService: ServerConnectService,
     private dialog: MatDialog,
+    private projectService: ProjectService,
+    private groupService: GroupService
   ) {
     this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
       if (notification) {
@@ -150,6 +159,11 @@ export class HelpersService implements OnDestroy {
         this.interfacesLogical = interfacesLogical
       }
     })
+    this.selectMapImages$ = this.store.select(selectMapImages).subscribe(mapImage => {
+      if (mapImage) {
+        this.mapImages = mapImage
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -166,6 +180,7 @@ export class HelpersService implements OnDestroy {
     this.selectLinkedMapImages$.unsubscribe();
     this.selectInterfacesCommonMapLinks$.unsubscribe();
     this.selectLogicalMapInterfaces$.unsubscribe();
+    this.selectMapImages$.unsubscribe();
   }
 
   showNotification(notification: any) {
@@ -569,26 +584,22 @@ export class HelpersService implements OnDestroy {
     });
   }
 
-  addCYNodeAndEdge(cy: any, nodes: any[], edges: any[], newPosition: any = { x: 0, y: 0 }, mapLinkId = undefined) {
+  addCYNodeAndEdge(cy: any, nodes: any[], edges: any[], newPosition: any = { x: 0, y: 0 }) {
     // Draw new nodes from the other project into the current project.
     nodes.map((node: any) => {
-      if (node.data.elem_category == 'node' || node.data.elem_category == 'map_link') {
-        node.data.icon = environment.apiBaseUrl + node.data.icon;
-      }
       node.data.updated = true;
       let position = null;
       if (node.position) {
         position = { x: newPosition.x + node.position.x, y: newPosition.y + node.position.y }
       }
-      const nodeEle = this.addCYNode({ newNodeData: node.data, newNodePosition: position });
-      if (mapLinkId) {
-        nodeEle.move({ parent: `project-link-${mapLinkId}` });
-      }
+      this.addCYNode({ newNodeData: node.data, newNodePosition: position });
     })
 
     // Draw new interfaces from the other project into the current project.
     edges.map((edge: any) => {
-      this.addCYEdge(edge.data);
+      if (edge.data.port_group_id) {
+        this.addCYEdge(edge.data);
+      }
     })
   }
 
@@ -1271,6 +1282,40 @@ export class HelpersService implements OnDestroy {
   addNewNodeToMap(id: number) {
     const cyNodeData = this.nodes.find((n: any) => n.id == id);
     this.addCYNode(JSON.parse(JSON.stringify(cyNodeData)));
+  }
+
+  addTemplateItemsToMap(data: any, newPosition: { x: number, y: number }) {
+    const newNodeIds = data.node_ids;
+    const newPGIds = data.port_group_ids;
+    const mapImageIds = data.map_image_ids;
+    const newInterfaceIds = data.interface_ids;
+    const nodes = this.nodes.filter((node: any) => newNodeIds.includes(node.id));
+    const portGroups = this.portGroups.filter((pg: any) => pg.category !== 'management' && newPGIds.includes(pg.id));
+    const mapImages = this.mapImages.filter((mi: any) => mapImageIds.includes(mi.id));
+    const interfaces = JSON.parse(JSON.stringify(this.interfacesLogical.filter((i: any) => newInterfaceIds.includes(i.id))));
+    const elements = JSON.parse(JSON.stringify([...nodes, ...portGroups, ...mapImages]));
+    const isNodesHasPosition = elements.every((node: any) =>
+      node.position && node.position?.x !== 0 && node.position?.y !== 0
+    );
+    if (isNodesHasPosition) {
+      this.addCYNodeAndEdge(this.cy, elements, interfaces, newPosition);
+      this.store.dispatch(retrievedMapContextMenu({ data: { event: 'save' } }));
+    } else {
+      this.cy.elements().lock();
+      this.addCYNodeAndEdge(this.cy, elements, interfaces);
+      this.cy.layout({
+        name: "cose",
+        avoidOverlap: true,
+        nodeDimensionsIncludeLabels: true,
+        spacingFactor: 5,
+        fit: true,
+        animate: false,
+        padding: 150
+      }).run();
+      this.cy.elements().unlock();
+    }
+    this.changeEdgeDirectionOnMap(this.cy, this.isEdgeDirectionChecked);
+    this.store.dispatch(validateProject({ projectId: this.projectService.getProjectId() }))
   }
 
   updateNodeOnMap(id: string, data: any) {

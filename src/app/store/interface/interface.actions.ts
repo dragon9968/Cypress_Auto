@@ -71,7 +71,7 @@ export const selectAllInterface = createAction(
   'selectAllInterface'
 );
 
-export const unselectAllInterface = createAction(
+export const unSelectAllInterface = createAction(
   'unselectAllInterface'
 );
 

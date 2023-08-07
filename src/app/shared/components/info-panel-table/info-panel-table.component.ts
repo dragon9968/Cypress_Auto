@@ -88,7 +88,7 @@ export class InfoPanelTableComponent {
           groupCy.select();
         } else {
           this.cy.nodes().forEach((node: any) => {
-            if (node.data().groups[0].id === r.id) {
+            if (node.data().groups && node.data().groups[0]?.id === r.id) {
               node.select();
             }
           });

@@ -3,12 +3,12 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { map, exhaustMap, catchError, switchMap, tap } from 'rxjs/operators';
 import {
-  mapLinkUpdatedSuccess,
-  updateMapLink,
   addNewMapLink,
   mapLinkAddedSuccess,
   addNewMapLinkToMap,
-  loadMapLinks, mapLinksLoadedSuccess, addLinkedElementsToMap
+  loadMapLinks,
+  mapLinksLoadedSuccess,
+  addLinkedElementsToMap
 } from './map-link.actions';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { pushNotification } from '../app/app.actions';

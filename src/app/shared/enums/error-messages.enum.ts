@@ -33,5 +33,6 @@ export enum ErrorMessages {
   DHCP_INVALID = 'DHCP Server is invalid. Should be a system path and no special characters or IP address',
   IP_IS_EXISTING = 'The IP has existing in this port group',
   ADD_NEW_EDGE_FAILED = 'Add new edge failed!',
-  CONNECT_EDGE_TO_PG_FAILED = 'Connect Edge to Port Group failed!'
+  CONNECT_EDGE_TO_PG_FAILED = 'Connect Edge to Port Group failed!',
+  ADD_TEMPLATE_TO_PROJECT_FAILED = 'Added items from template into project successfully',
 }

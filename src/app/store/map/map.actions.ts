@@ -18,6 +18,16 @@ export const loadMap = createAction(
   }>()
 );
 
+export const addTemplateIntoProject = createAction(
+  'addTemplateIntoProject',
+  props<{ data: any, newPosition: { x: number, y: number } }>()
+)
+
+export const addTemplateItemsToMap = createAction(
+  'addTemplateItemsToMap',
+  props<{ newItemIds: any, newPosition: { x: number, y: number } }>()
+);
+
 export const loadLinkedMap = createAction(
   'loadLinkedMap',
   props<{
@@ -50,3 +60,11 @@ export const removeNodesOnMap = createAction(
   'removeNodesOnMap',
   props<{ ids: number[] }>()
 );
+
+export const selectAllElementsOnMap = createAction(
+  'selectAllElementsOnMap'
+)
+
+export const unSelectAllElementsOnMap = createAction(
+  'unSelectAllElementsOnMap'
+)

@@ -13,11 +13,10 @@ import { selectDevices } from "../../store/device/device.selectors";
 import { selectMapPortGroups } from "../../store/portgroup/portgroup.selectors";
 import { GroupService } from "../../core/services/group/group.service";
 import { selectTemplates } from "../../store/template/template.selectors";
-import { addGroup, retrievedGroups, updateGroup } from "../../store/group/group.actions";
+import { addGroup, updateGroup } from "../../store/group/group.actions";
 import { validateNameExist } from "../../shared/validations/name-exist.validation";
 import { CATEGORIES } from 'src/app/shared/contants/categories.constant';
 import { ROLES } from 'src/app/shared/contants/roles.constant';
-import { retrievedMap } from 'src/app/store/map/map.actions';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
 import { selectNotification } from 'src/app/store/app/app.selectors';
@@ -68,7 +67,7 @@ export class AddUpdateGroupDialogComponent implements OnInit, OnDestroy {
     this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
       if (notification?.type == 'success') {
         this.dialogRef.close();
-      } 
+      }
     });
     this.selectNodes$ = this.store.select(selectLogicalNodes).subscribe(nodes => this.nodes = nodes);
     this.selectPortGroups$ = this.store.select(selectMapPortGroups).subscribe(portGroups => this.portGroups = portGroups);

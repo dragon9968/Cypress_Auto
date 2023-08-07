@@ -227,7 +227,7 @@ export const nodeReducer = createReducer(
             ? `${interfaceData.name} - ${interfaceData.ip + interfaceData.netmaskName}`
             : interfaceData.name
         }
-        const interfaces = [...n.interfaces, newEdge]
+        const interfaces = n.interfaces ? [...n.interfaces, newEdge] : [newEdge]
         return {
           ...n,
           interfaces

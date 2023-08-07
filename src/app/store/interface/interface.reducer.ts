@@ -17,7 +17,7 @@ import {
   logicalInterfaceUpdatedSuccess,
   bulkEditlogicalInterfaceSuccess,
   selectAllInterface,
-  unselectAllInterface,
+  unSelectAllInterface,
   linkedMapInterfacesLoadedSuccess,
   clearLinkedMapInterfaces,
   interfaceAddedMapLinkToPGSuccess,
@@ -253,7 +253,7 @@ export const interfaceReducerByIds = createReducer(
       logicalMapInterfaces
     }
   }),
-  on(unselectAllInterface, (state) => {
+  on(unSelectAllInterface, (state) => {
     const logicalMapInterfaces = state.logicalMapInterfaces.map(n => {
       return { ...n, isSelected: false };
     })
@@ -363,11 +363,11 @@ export const interfaceReducerByIds = createReducer(
   on(randomizeIpBulkSuccess, (state, { interfacesData }) => {
     const logicalMapInterfaces = state.logicalMapInterfaces.map((interfaceData: any) => {
       const updatedLogicalMapInterfaces = interfacesData.find((i: any) => i.id == interfaceData.id);
-      return updatedLogicalMapInterfaces ? 
+      return updatedLogicalMapInterfaces ?
       {
         ...interfaceData,
-        ...updatedLogicalMapInterfaces, 
-        node: interfaceData.node, 
+        ...updatedLogicalMapInterfaces,
+        node: interfaceData.node,
         port_group: interfaceData.port_group
       } : interfaceData
     })

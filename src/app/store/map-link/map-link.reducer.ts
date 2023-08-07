@@ -3,10 +3,9 @@ import { createReducer, on } from "@ngrx/store";
 import {
   selectMapLink,
   unSelectMapLink,
-  mapLinkUpdatedSuccess,
   removeMapLink,
   mapLinkAddedSuccess,
-  mapLinksLoadedSuccess, clearMapLinks,
+  mapLinksLoadedSuccess, clearMapLinks, unSelectAllMapLink, selectAllMapLink,
 } from "./map-link.actions";
 import { environment } from "../../../environments/environment";
 
@@ -63,6 +62,22 @@ export const mapLinkReducer = createReducer(
     const mapLinks = state.mapLinks.map(m => (m.data.id === id) ? { ...m, isSelected: false } : m)
     return {
       ...state,
+      mapLinks
+    }
+  }),
+  on(selectAllMapLink, (state) => {
+    const mapLinks = state.mapLinks.map(m => ({ ...m, isSelected: true }))
+    return {
+      ...state,
+      isSelectedFlag: true,
+      mapLinks
+    }
+  }),
+  on(unSelectAllMapLink, (state) => {
+    const mapLinks = state.mapLinks.map(m => ({ ...m, isSelected: false }))
+    return {
+      ...state,
+      isSelectedFlag: true,
       mapLinks
     }
   }),

@@ -21,6 +21,14 @@ export const unSelectMapLink = createAction(
   props<{ id: string }>()
 );
 
+export const selectAllMapLink = createAction(
+  'selectAllMapLink'
+);
+
+export const unSelectAllMapLink = createAction(
+  'unSelectAllMapLink'
+);
+
 export const addNewMapLink = createAction(
   'addNewMapLink',
   props<{ mapLink: any }>()
@@ -34,19 +42,6 @@ export const mapLinkAddedSuccess = createAction(
 export const addNewMapLinkToMap = createAction(
   'addNewMapLinkToMap',
   props<{ id: number }>()
-);
-
-export const updateMapLink = createAction(
-  'updateMapLink',
-  props<{
-    id: number,
-    data: any
-  }>()
-);
-
-export const mapLinkUpdatedSuccess = createAction(
-  'mapLinkUpdatedSuccess',
-  props<{ mapLink: any }>()
 );
 
 export const removeMapLink = createAction(

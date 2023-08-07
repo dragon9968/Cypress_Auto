@@ -364,9 +364,11 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     if (mode == 'view') {
       this.isGatewayCtr?.disable();
       this.isNatCtr?.disable();
+      this.vlanModeCtr?.disable();
     } else {
       this.isGatewayCtr?.enable();
       this.isNatCtr?.enable();
+      this.vlanModeCtr?.enable();
     }
   }
 }

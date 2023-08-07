@@ -15,10 +15,12 @@ import { selectIsOpen, selectProjectCategory, selectProjectName } from 'src/app/
 import {
   retrievedAllProjects,
   retrievedCurrentProject,
-  retrievedIsOpen, retrievedProjectCategory,
+  retrievedIsOpen,
+  retrievedProjectCategory,
   retrievedProjectName,
   retrievedProjects,
-  retrievedVMStatus
+  retrievedVMStatus,
+  validateProject
 } from 'src/app/store/project/project.actions';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ToastrService } from 'ngx-toastr';
@@ -382,27 +384,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   validateProject() {
-    const dialogData = {
-      pk: this.projectId
-    }
-    this.projectService.validateProject(dialogData).pipe(
-      catchError((e: any) => {
-        this.toastr.error(e.error.message);
-        this.dialog.open(ValidateProjectDialogComponent, {
-          disableClose: true,
-          autoFocus: false,
-          width: 'auto',
-          data: e.error.result
-        });
-        if (e.error.result.includes('underscore(s) character')) {
-          this.domainService.getDomainByProjectId(this.projectService.getProjectId())
-            .subscribe((data: any) => this.store.dispatch(retrievedDomains({ data: data.result })));
-        }
-        return throwError(() => e);
-      })
-    ).subscribe(response => {
-      this.toastr.success(response.message);
-    });
+    this.store.dispatch(validateProject({ projectId: this.projectId }))
   }
 
   openAdminConfig() {

@@ -74,3 +74,8 @@ export const removeProjectNotLink = createAction(
   'removeProjectNotLink',
   props<{ projectNotLinkId: number }>()
 )
+
+export const validateProject = createAction(
+  'validateProject',
+  props<{ projectId: number }>()
+)

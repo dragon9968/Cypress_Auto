@@ -2,7 +2,13 @@ import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { catchError, Subject, Subscription, throwError } from 'rxjs';
-import { retrievedIsMapOpen, loadMap, loadLinkedMap } from '../store/map/map.actions';
+import {
+  retrievedIsMapOpen,
+  loadMap,
+  loadLinkedMap,
+  addTemplateIntoProject,
+  unSelectAllElementsOnMap
+} from '../store/map/map.actions';
 import { environment } from 'src/environments/environment';
 import * as cytoscape from 'cytoscape';
 import { HelpersService } from '../core/services/helpers/helpers.service';
@@ -23,7 +29,7 @@ import { selectMapPref } from '../store/map-style/map-style.selectors';
 import { ToastrService } from 'ngx-toastr';
 import { AddUpdatePGDialogComponent } from './add-update-pg-dialog/add-update-pg-dialog.component';
 import { AddUpdateInterfaceDialogComponent } from './add-update-interface-dialog/add-update-interface-dialog.component';
-import { addNewPG, retrievedPortGroups, selectPG, unSelectPG } from '../store/portgroup/portgroup.actions';
+import { addNewPG, loadPGs, retrievedPortGroups, selectPG, unSelectPG } from '../store/portgroup/portgroup.actions';
 import { selectMapPortGroups } from '../store/portgroup/portgroup.selectors';
 import { MapState } from '../store/map/map.state';
 import { CMActionsService } from './context-menu/cm-actions/cm-actions.service';
@@ -60,7 +66,7 @@ import {
 import { ICON_PATH } from '../shared/contants/icon-path.constant';
 import { InfoPanelService } from '../core/services/info-panel/info-panel.service';
 import {
-  addInterfaceMapLinkToPG,
+  addInterfaceMapLinkToPG, loadInterfaces,
   retrievedInterfacePkConnectNode,
   retrievedInterfacesByDestinationNode,
   retrievedIsInterfaceConnectPG,
@@ -73,7 +79,13 @@ import {
   selectIsHypervisorConnect
 } from "../store/server-connect/server-connect.selectors";
 import { MapImageService } from '../core/services/map-image/map-image.service';
-import { retrievedImages, retrievedMapImages, selectMapImage, unSelectMapImage } from '../store/map-image/map-image.actions';
+import {
+  loadMapImages,
+  retrievedImages,
+  retrievedMapImages,
+  selectMapImage,
+  unSelectMapImage
+} from '../store/map-image/map-image.actions';
 import { RouteSegments } from "../core/enums/route-segments.enum";
 import { ContextMenuService } from './context-menu/context-menu.service';
 import { retrievedMapEdit } from "../store/map-edit/map-edit.actions";
@@ -86,8 +98,8 @@ import {
 } from "../store/interface/interface.selectors";
 import { CMInterfaceService } from "./context-menu/cm-interface/cm-interface.service";
 import { GroupService } from "../core/services/group/group.service";
-import { addNewNode, loadNodes, selectNode, unSelectNode } from "../store/node/node.actions";
-import { retrievedGroups, selectGroup, unSelectGroup } from "../store/group/group.actions";
+import { addNewNode, addNewNodeToMap, loadNodes, selectNode, unSelectNode } from "../store/node/node.actions";
+import { loadGroups, retrievedGroups, selectGroup, unSelectGroup } from "../store/group/group.actions";
 import { ValidateProjectDialogComponent } from "../project/validate-project-dialog/validate-project-dialog.component";
 import {
   selectProjectCategory,
@@ -530,6 +542,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.selectMapImages$.unsubscribe();
     this.selectMapLinks$.unsubscribe();
     this.selectProjectName$.unsubscribe();
+    this.store.dispatch(unSelectAllElementsOnMap());
   }
 
   private _disableMapEditButtons() {
@@ -1731,50 +1744,10 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
       layout_only: layoutOnly,
       category: 'logical'
     }
-    this.mapService.addTemplateIntoMap(jsonData).pipe(
-      catchError(error => {
-        this.toastr.error('Add items from template into project failed!', 'Error');
-        this.isAddProjectTemplate = false;
-        this._enableMapEditButtons();
-        return throwError(() => error);
-      })
-    ).subscribe(response => {
-      this.isAddProjectTemplate = false;
-      this.projectTemplateId = 0;
-      this._enableMapEditButtons();
-      const templateItems = response.result.map_items;
-      this.store.dispatch(loadDomains({ projectId }));
-      this.store.dispatch(loadNodes({ projectId }));
-
-      this.portgroupService.getByProjectId(projectId).subscribe(pgRes => {
-        this.store.dispatch(retrievedPortGroups({ data: pgRes.result }));
-        const nodesNotManagement = templateItems.nodes.filter((node: any) => node.data.category !== 'management');
-        const isNodesHasPosition = nodesNotManagement.every((node: any) =>
-          (node.position && node.data.category != 'management') && node.position?.x !== 0 && node.position?.y !== 0
-        )
-        if (isNodesHasPosition) {
-          this.helpersService.addCYNodeAndEdge(this.cy, templateItems.nodes, templateItems.interfaces, newPosition);
-          this.saveMapSubject.next();
-        } else {
-          this.cy.elements().lock();
-          this.helpersService.addCYNodeAndEdge(this.cy, templateItems.nodes, templateItems.interfaces);
-          this.cy.layout({
-            name: "cose",
-            avoidOverlap: true,
-            nodeDimensionsIncludeLabels: true,
-            spacingFactor: 5,
-            fit: true,
-            animate: false,
-            padding: 150
-          }).run();
-          this.cy.elements().unlock();
-        }
-        this.toastr.success('Added items from template into project successfully', 'Success');
-        this.mapEditService.updateGroupBoxesInMapStorage(this.cy, templateItems.group_boxes)
-        this.helpersService.changeEdgeDirectionOnMap(this.cy, this.isEdgeDirectionChecked);
-        this.validateProject(projectId);
-      })
-    })
+    this.store.dispatch(addTemplateIntoProject({ data: jsonData, newPosition }));
+    this.isAddProjectTemplate = false;
+    this.projectTemplateId = 0;
+    this._enableMapEditButtons();
   }
 
   addProjectNode(linkProjectId: number, projectId: any, newNodePosition: any) {
