@@ -39,8 +39,6 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
   @Input() activeEdges: any[] = [];
   @Input() activeGBs: any[] = [];
   @Input() activeMBs: any[] = [];
-  @Input() deletedNodes: any[] = [];
-  @Input() deletedInterfaces: any[] = [];
   @Input() isDisableAddNode = true;
   @Input() isDisableAddPG = false;
   @Input() isDisableAddImage = true;

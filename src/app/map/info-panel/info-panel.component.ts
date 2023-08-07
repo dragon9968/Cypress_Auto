@@ -23,8 +23,6 @@ export class InfoPanelComponent implements OnInit{
   @Input() activePGs: any[] = [];
   @Input() activeEdges: any[] = [];
   @Input() activeGBs: any[] = [];
-  @Input() deletedNodes: any[] = [];
-  @Input() deletedInterfaces: any[] = [];
   selectDomainUser$ = new Subscription();
   isShowMaximize = true
   isShowMinimize = true

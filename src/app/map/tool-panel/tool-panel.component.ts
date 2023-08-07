@@ -16,15 +16,16 @@ import { loadMap, retrievedMap } from 'src/app/store/map/map.actions';
 import { GroupService } from "../../core/services/group/group.service";
 import { selectGroups } from "../../store/group/group.selectors";
 import { retrievedGroups } from "../../store/group/group.actions";
-import { selectMapPortGroups } from "../../store/portgroup/portgroup.selectors";
+import { selectDeletedPortGroups, selectMapPortGroups } from "../../store/portgroup/portgroup.selectors";
 import { ProjectService } from "../../project/services/project.service";
 import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
 import { retrievedMapOption } from "../../store/map-option/map-option.actions";
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 import { loadPGs } from 'src/app/store/portgroup/portgroup.actions';
 import { loadNodes } from 'src/app/store/node/node.actions';
-import { selectLogicalNodes } from 'src/app/store/node/node.selectors';
+import { selectDeletedLogicalNodes, selectLogicalNodes } from 'src/app/store/node/node.selectors';
 import { loadProjectsNotLinkYet } from "../../store/project/project.actions";
+import { selectDeletedLogicalInterfaces } from 'src/app/store/interface/interface.selectors';
 
 @Component({
   selector: 'app-tool-panel',
@@ -51,8 +52,6 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   @Input() activeGBs: any[] = [];
   @Input() activeMBs: any[] = [];
   @Input() activeMapLinks: any[] = [];
-  @Input() deletedNodes: any[] = [];
-  @Input() deletedInterfaces: any[] = [];
   @Input() saveMapSubject!: Observable<any>;
   @Input() isAddNode = false;
   @Input() isAddPublicPG = false;
@@ -60,8 +59,15 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   @Input() isAddMapImage = false;
   @Input() isAddProjectNode = false;
   @Input() isAddProjectTemplate = false;
+  deletedLogicalNodes: any[] = [];
+  deletedPortGroups: any[] = [];
+  deletedLogicalInterfaces: any[] = [];
+  deletedMapLinks: any[] = [];
+  deletedMapImages: any[] = [];
   updatedNodes: any[] = [];
+  updatedPGs: any[] = [];
   updatedInterfaces: any[] = [];
+  updatedMapLinks: any[] = [];
   updatedGroupBoxes: any[] = [];
   updatedMapBackgrounds: any[] = [];
   updatedNodeAndPGInGroups: any[] = [];
@@ -78,6 +84,9 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   selectMapImages$ = new Subscription();
   saveMap$ = new Subscription();
   selectMapPortGroups$ = new Subscription();
+  selectDeletedLogicalNodes$ = new Subscription();
+  selectDeletedPortGroups$ = new Subscription();
+  selectDeletedLogicalInterfaces$ = new Subscription();
   isEdgeDirectionChecked!: boolean;
   isGroupBoxesChecked!: boolean;
   isMapGridChecked!: boolean;
@@ -93,11 +102,8 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     private toastr: ToastrService,
     private mapService: MapService,
     private dialog: MatDialog,
-    private groupService: GroupService,
-    private projectService: ProjectService,
     private helpersService: HelpersService,
     private commonService: CommonService,
-    private interfaceService: InterfaceService,
   ) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
@@ -130,6 +136,21 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     });
     this.selectGroups$ = this.store.select(selectGroups).subscribe(groups => this.groups = groups);
     this.selectNodes$ = this.store.select(selectLogicalNodes).subscribe(nodes => this.nodes = nodes);
+    this.selectDeletedLogicalNodes$ = this.store.select(selectDeletedLogicalNodes).subscribe(deletedLogicalNodes => {
+      if (deletedLogicalNodes) {
+        this.deletedLogicalNodes = deletedLogicalNodes;
+      }
+    });
+    this.selectDeletedPortGroups$ = this.store.select(selectDeletedPortGroups).subscribe(deletedPortGroups => {
+      if (deletedPortGroups) {
+        this.deletedPortGroups = deletedPortGroups;
+      }
+    });
+    this.selectDeletedLogicalInterfaces$ = this.store.select(selectDeletedLogicalInterfaces).subscribe(deletedLogicalInterfaces => {
+      if (deletedLogicalInterfaces) {
+        this.deletedLogicalInterfaces = deletedLogicalInterfaces;
+      }
+    });
     this.selectMapPortGroups$ = this.store.select(selectMapPortGroups).subscribe(portGroups => this.portGroups = portGroups);
     this.selectMapImages$ = this.store.select(selectMapImages).subscribe(mapImage => this.mapImages = mapImage);
   }
@@ -148,6 +169,8 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     this.selectMapContextMenu$.unsubscribe();
     this.selectDefaultPreferences$.unsubscribe();
     this.selectMapImages$.unsubscribe();
+    this.selectDeletedLogicalNodes$.unsubscribe();
+    this.selectDeletedLogicalInterfaces$.unsubscribe();
   }
 
   download() {
@@ -219,21 +242,26 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     formData.append('file', file, 'map_overview.png');
     this.mapService.uploadMapOverviewImage(formData)
       .pipe(catchError((error: any) => {
-          this.toastr.error("Map Overview saved failed");
-          return throwError(() => error);
-        })
+        this.toastr.error("Map Overview saved failed");
+        return throwError(() => error);
+      })
       ).subscribe((resp: any) => {
-      this.toastr.success("Map Overview saved");
-    });
+        this.toastr.success("Map Overview saved");
+      });
 
     const jsonData = {
+      deletedNodes: this.deletedLogicalNodes,
+      deletedPGs: this.deletedPortGroups,
+      deletedInterfaces: this.deletedLogicalInterfaces,
+      deletedMaplinks: this.deletedMapLinks,
+      deletedMapImages: this.deletedMapImages,
       updatedNodes: this.updatedNodes,
+      updatedPGs: this.updatedPGs,
       updatedInterfaces: this.updatedInterfaces,
-      deletedNodes: this.deletedNodes,
-      deletedInterfaces: this.deletedInterfaces,
+      updatedMapLinks: this.updatedMapLinks,
+      updatedMapBackgrounds: this.updatedMapBackgrounds,
       updatedGroupBoxes: this.updatedGroupBoxes,
       updatedNodeAndPGInGroups: this.updatedNodeAndPGInGroups,
-      updatedMapBackgrounds: this.updatedMapBackgrounds,
       updatedMapOptions
     }
     this.mapService.saveMap(this.projectId, this.mapCategory, jsonData).pipe(
@@ -242,38 +270,12 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         return throwError(() => error);
       })
     ).subscribe((_respData: any) => {
-      if (this.deletedNodes.length > 0) {
-        const nodeDeletedIds = this.deletedNodes.map(node => node.elem_category == 'node' && node.id);
-        if (nodeDeletedIds.length > 0) {
-          this.store.dispatch(loadNodes( {projectId: this.projectService.getProjectId()} ))
-        }
-        const deletedPGIds = this.deletedNodes.map(pg => pg.elem_category == 'port_group' && pg.id);
-        if (deletedPGIds.length > 0) {
-          this.store.dispatch(loadPGs( {projectId: this.projectService.getProjectId()} ))
-        }
-        const deletedNodesLinkProject = this.deletedNodes.filter(node => node.linked_project_id);
-        if (deletedNodesLinkProject.length > 0) {
-          this.store.dispatch(loadProjectsNotLinkYet({ projectId: this.projectId }))
-          this.toastr.success('Unlink Project Successfully', 'Success');
-        }
-      }
-      // if (this.deletedInterfaces.length > 0) {
-      //   const deletedInterfaceIds = this.deletedInterfaces.map(edge => edge.interface_pk);
-      //   if (deletedInterfaceIds.length > 0) {
-      //     this.store.dispatch(loadInterfaces( {projectId: this.projectService.getProjectId(), mapCategory: this.mapCategory} ))
-      //   }
-      // }
-      this.deletedNodes.splice(0);
-      this.deletedInterfaces.splice(0);
       this.cy.elements().forEach((ele: any) => {
         const data = ele.data();
         if (data.updated) {
           data.updated = false;
         }
       });
-      if (this.updatedNodeAndPGInGroups.length > 0) {
-        this.updateNodesAndPGInGroupStorageAndMap();
-      }
       this.store.dispatch(retrievedMapOption({
         data: {
           isEdgeDirectionChecked: this.isEdgeDirectionChecked,
@@ -287,8 +289,6 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       }));
       this.toastr.success("Map saved");
     })
-    this.updatedNodes.splice(0);
-    this.updatedInterfaces.splice(0);
   }
 
   refresh() {
@@ -429,7 +429,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
 
   getUpdateMapLinkNode(ele: any) {
     const data = ele.data();
-    const {collapsedChildren, ...dataParent} = data;
+    const { collapsedChildren, ...dataParent } = data;
     const updatedNode = {
       id: data.id,
       position: ele.position(),
@@ -457,7 +457,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         locked: ele.locked()
       }
     };
-    this.updatedNodes.push(updatedNode);
+    this.updatedMapLinks.push(updatedNode);
   }
 
 
@@ -491,8 +491,10 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       }
     };
     if (data.updated) {
-      if (data.id?.includes('node-') || data.id?.includes('pg-')) {
+      if (data.elem_category == 'node' || data.id?.includes('pg-')) {
         this.updatedNodes.push(updatedNode);
+      } else if (data.elem_category == 'port_group') {
+        this.updatedPGs.push(updatedNode);
       }
     }
   }
@@ -602,7 +604,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
             nodeEle.data('domain', group.domain);
             // Update the list of nodes in the group's storage
             const node = this.nodes.find(node => node.id === nodeId)
-            newNodes.push({id: nodeId, name: node.name})
+            newNodes.push({ id: nodeId, name: node.name })
           });
           newGroup.nodes = newNodes;
           this._updateGroupsPropertyOfNodeOnMap(nodesInGroup, newGroup, 'node')
@@ -618,7 +620,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
             pgEle.data('domain_id', group.domain_id);
             pgEle.data('domain', group.domain);
             const pg = this.portGroups.find(pg => pg.id === pgId);
-            newPortGroups.push({id: pgId, name: pg.name});
+            newPortGroups.push({ id: pgId, name: pg.name });
           })
           newGroup.port_groups = newPortGroups;
           this._updateGroupsPropertyOfNodeOnMap(portGroupInGroup, newGroup, 'pg')
@@ -632,7 +634,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
           mapImagesInGroup.map((mapImageId: number) => {
             // const mapImageEle = this.cy.getElementById(`map_image-${mapImageId}`);
             const mapImage = this.mapImages.find(el => el.id === mapImageId);
-            newMapImages.push({id: mapImageId, name: mapImage.name});
+            newMapImages.push({ id: mapImageId, name: mapImage.name });
           })
           newGroup.map_images = newMapImages;
           this._updateGroupsPropertyOfNodeOnMap(mapImagesInGroup, newGroup, 'map_image')
@@ -695,7 +697,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
             if (itemInOldGroupId.length > 0) {
               itemInOldGroupId.map((val: any) => {
                 const element = data.find(el => el.id === val)
-                newItems.push({id: val, name: element.name})
+                newItems.push({ id: val, name: element.name })
               })
               this._assignElementWithType(newGroup, typeOfElement, newItems)
             } else {

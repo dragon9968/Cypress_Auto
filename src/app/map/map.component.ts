@@ -196,8 +196,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   isAddTunnel: any;
   isConnectToPG: any;
   isConnectToNode: any;
-  deletedNodes: any[] = [];
-  deletedInterfaces: any[] = [];
   activeNodes: any[] = [];
   activePGs: any[] = [];
   activeEdges: any[] = [];
@@ -929,7 +927,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     if (this.isGroupBoxesChecked) {
       const target = $event.target;
       const data = target.data();
-      if (dropTarget.data('label') && dropTarget.data('label') == 'group_box' && target.data('groups')[0].id) {
+      if (dropTarget.data('label') && dropTarget.data('label') == 'group_box' && target.data('groups')[0]?.id) {
         if (this.groupCategoryId == 'domain') {
           const g = data.groups.filter((gb: any) => gb.category == 'domain');
           if (g[0]?.id != dropTarget.data('group_id')) {

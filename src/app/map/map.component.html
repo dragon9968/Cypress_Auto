@@ -4,7 +4,7 @@
                     [isDisableCancel]="isDisableCancel" [isDisableAddNode]="isDisableAddNode" [isDisableAddPG]="isDisableAddPG"
                     [isDisableAddImage]="isDisableAddImage" [isTemplateCategory]="isTemplateCategory" [activeNodes]="activeNodes"
                     [activePGs]="activePGs" [activeEdges]="activeEdges" [activeGBs]="activeGBs" [activeMBs]="activeMBs"
-                    [deletedNodes]="deletedNodes" [deletedInterfaces]="deletedInterfaces" [activeMapLinks]="activeMapLinks"
+                    [activeMapLinks]="activeMapLinks"
                     [isDisableAddProjectTemplate]="isDisableAddProjectTemplate" [isDisableLinkProject]="isDisableLinkProject"
                     [isDisableNewFromSelected]="isDisableNewFromSelected" [saveMapSubject]="saveMapSubject.asObservable()"
                     [isAddNode]="isAddNode" [isAddPublicPG]="isAddPublicPG" [isAddPrivatePG]="isAddPrivatePG"
@@ -34,7 +34,7 @@
       <div class="map-editor">
         <div id="cy" style="height: calc(100vh - 64px); width:100%; z-index: 1;"></div>
         <app-info-panel [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs" [activeEdges]="activeEdges"
-          [activeGBs]="activeGBs" [deletedNodes]="deletedNodes" [deletedInterfaces]="deletedInterfaces">
+          [activeGBs]="activeGBs">
 
         </app-info-panel>
       </div>

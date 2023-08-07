@@ -27,8 +27,6 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
   @Input() activePGs: any[] = [];
   @Input() activeEdges: any[] = [];
   @Input() activeGBs: any[] = [];
-  @Input() deletedNodes: any[] = [];
-  @Input() deletedInterfaces: any[] = [];
   @Input() infoPanelheight = '300px';
   filterOptionForm!: FormGroup;
   interfaces: any[] = [];

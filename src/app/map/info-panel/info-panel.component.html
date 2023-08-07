@@ -3,19 +3,19 @@
   <mat-tab-group dynamicHeight class="map-info-panel">
     <mat-tab label="Nodes">
       <app-info-panel-node [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs" [activeEdges]="activeEdges"
-        [activeGBs]="activeGBs" [deletedNodes]="deletedNodes" [deletedInterfaces]="deletedInterfaces" [infoPanelheight]="style.height">
+        [activeGBs]="activeGBs" [infoPanelheight]="style.height">
       </app-info-panel-node>
     </mat-tab>
     <mat-tab label="Port Groups">
       <app-info-panel-port-group [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs"
-        [activeEdges]="activeEdges" [activeGBs]="activeGBs" [deletedNodes]="deletedNodes"
-        [deletedInterfaces]="deletedInterfaces" [infoPanelheight]="style.height">
+        [activeEdges]="activeEdges" [activeGBs]="activeGBs"
+        [infoPanelheight]="style.height">
       </app-info-panel-port-group>
     </mat-tab>
     <mat-tab label="Interfaces">
       <app-info-panel-interface [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs"
-        [activeEdges]="activeEdges" [activeGBs]="activeGBs" [deletedNodes]="deletedNodes"
-        [deletedInterfaces]="deletedInterfaces" [infoPanelheight]="style.height">
+        [activeEdges]="activeEdges" [activeGBs]="activeGBs"
+        [infoPanelheight]="style.height">
       </app-info-panel-interface>
     </mat-tab>
     <mat-tab label="Domains">

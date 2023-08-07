@@ -9,3 +9,4 @@ export const selectPhysicalNodes = createSelector(selectNodesFeature, (state: No
 export const selectSelectedLogicalNodes = createSelector(selectLogicalNodes, (logicalNodes) => logicalNodes?.filter(n => n.isSelected));
 export const selectIsSelectedFlag = createSelector(selectNodesFeature, (state: NodeState) => state.isSelectedFlag);
 export const selectLinkedMapNodes = createSelector(selectNodesFeature, (state: NodeState) => state.linkedMapNodes);
+export const selectDeletedLogicalNodes = createSelector(selectNodesFeature, (state: NodeState) => state.logicalNodes?.filter(n => n.isDeleted));

@@ -9,5 +9,8 @@ export const selectPortGroups = createSelector(selectMapPortGroups, selectManage
 export const selectSelectedPortGroups = createSelector(selectPortGroups, (selectPortGroups) => selectPortGroups?.filter(pg => pg.isSelected));
 export const selectIsSelectedFlag = createSelector(selectPortGroupFeature, (state: PortGroupState) => state.isSelectedFlag);
 export const selectLinkedMapPortGroups = createSelector(selectPortGroupFeature, (state: PortGroupState) => state.linkedMapPortGroups);
+export const selectDeletedMapPortGroups = createSelector(selectPortGroupFeature, (state: PortGroupState) => state.portgroups?.filter(pg => pg.isDeleted));
+export const selectDeletedManagementPGs = createSelector(selectPortGroupFeature, (state: PortGroupState) => state.managementPGs?.filter(pg => pg.isDeleted));
+export const selectDeletedPortGroups = createSelector(selectDeletedMapPortGroups, selectDeletedManagementPGs, (selectDeletedMapPortGroups, selectDeletedManagementPGs) => selectDeletedMapPortGroups?.concat(selectDeletedManagementPGs));
 
 

@@ -77,8 +77,6 @@ export class HelpersService implements OnDestroy {
   lastHeight = 0;
   zoomLimit = false;
   configTemplateAddsType = CONFIG_TEMPLATE_ADDS_TYPE;
-  @Input() deletedInterfaces!: any[];
-  @Input() deletedNodes!: any[];
   isValidOSPFBgpMetric: boolean = true;
   isValidOSPFConnectedMetric: boolean = true;
   isValidOSPFStaticMetric: boolean = true;
