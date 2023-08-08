@@ -704,7 +704,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         this.store.dispatch(selectGroup({ id: d.id }));
       } else {
         if (d.elem_category == 'node' && !this.activeNodes.includes(t)) {
-          // this.activeNodes.push(t);
+          this.activeNodes.push(t);
           this.store.dispatch(selectNode({ id: d.id }));
         } else if (d.elem_category == 'port_group' && !this.activePGs.includes(t)) {
           this.activePGs.push(t);
