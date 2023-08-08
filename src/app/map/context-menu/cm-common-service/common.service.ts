@@ -2,10 +2,6 @@ import { Injectable, Input } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
-import { InterfaceService } from 'src/app/core/services/interface/interface.service';
-import { retrievedInterfacesConnectedNode } from 'src/app/store/interface/interface.actions';
-import { ProjectService } from 'src/app/project/services/project.service';
-import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +18,7 @@ export class CommonService {
       }
     });
   }
-  
+
   changeNodeSize(size: any, selectedNodes: any[], cy: any) {
     const newNodeSize = size.value;
     this.ur?.do('changeNodeSize', { selectedNodes, newNodeSize, cy });

@@ -34,5 +34,6 @@ export enum ErrorMessages {
   IP_IS_EXISTING = 'The IP has existing in this port group',
   ADD_NEW_EDGE_FAILED = 'Add new edge failed!',
   CONNECT_EDGE_TO_PG_FAILED = 'Connect Edge to Port Group failed!',
-  ADD_TEMPLATE_TO_PROJECT_FAILED = 'Added items from template into project successfully',
+  ADD_TEMPLATE_TO_PROJECT_FAILED = 'Add items from template into project failed',
+  CLONE_NODE_FAILED = 'Clone node(s) failed',
 }

@@ -25,7 +25,8 @@ import {
   removeInterfacesSuccess,
   restoreInterfacesSuccess,
   interfaceLogicalMapAddedSuccess,
-  addInterfacesNotConnectPG
+  addInterfacesNotConnectPG,
+  logicalInterfacesAddedSuccess
 } from "./interface.actions";
 
 const initialState = {} as InterfaceState;
@@ -219,6 +220,23 @@ export const interfaceReducerByIds = createReducer(
     return {
       ...state,
       logicalMapInterfaces
+    }
+  }),
+  on(logicalInterfacesAddedSuccess, (state, { edges }) => {
+    let logicalMapInterfaces = JSON.parse(JSON.stringify(state.logicalMapInterfaces));
+    let logicalManagementInterfaces = JSON.parse(JSON.stringify(state.logicalManagementInterfaces));
+    edges.map(edge => {
+      if (edge.category != 'management' && edge.port_group_id) {
+        const edgeCY = addCYDataToLogicalInterface(edge);
+        logicalMapInterfaces.push(edgeCY);
+      } else if (edge.category == 'management') {
+        logicalManagementInterfaces.push(edge);
+      }
+    })
+    return {
+      ...state,
+      logicalMapInterfaces,
+      logicalManagementInterfaces
     }
   }),
   on(selectInterface, (state, { id }) => {

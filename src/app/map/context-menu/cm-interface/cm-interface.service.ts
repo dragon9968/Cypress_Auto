@@ -1,23 +1,29 @@
 import { Store } from "@ngrx/store";
 import { MatDialog } from "@angular/material/dialog";
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { InterfaceService } from "../../../core/services/interface/interface.service";
 import {
   retrievedIsInterfaceConnectPG,
   retrievedInterfacePkConnectNode,
   retrievedInterfacesBySourceNode,
   retrievedInterfacesConnectedNode,
-  retrievedInterfacesNotConnectPG, retrievedInterfacesConnectedPG
+  retrievedInterfacesNotConnectPG,
+  retrievedInterfacesConnectedPG
 } from "../../../store/interface/interface.actions";
 import { ToastrService } from "ngx-toastr";
 import { ProjectService } from "../../../project/services/project.service";
 import { retrievedNameNodeBySourceNode } from "src/app/store/node/node.actions";
 import { ConnectInterfaceToPgDialogComponent } from "../cm-dialog/connect-interface-to-pg-dialog/connect-interface-to-pg-dialog.component";
+import { Subscription } from "rxjs";
+import { selectSelectedLogicalNodes } from "../../../store/node/node.selectors";
 
 @Injectable({
   providedIn: 'root'
 })
-export class CMInterfaceService {
+export class CMInterfaceService implements OnDestroy {
+
+  selectSelectedLogicalNodes$ = new Subscription();
+  selectedNodes: any[] = [];
 
   constructor(
     private store: Store,
@@ -26,28 +32,26 @@ export class CMInterfaceService {
     private projectService: ProjectService,
     private interfaceService: InterfaceService
   ) {
-
+    this.selectSelectedLogicalNodes$ = this.store.select(selectSelectedLogicalNodes).subscribe(nodes => {
+      if (nodes) {
+        this.selectedNodes = nodes;
+      }
+    })
   }
 
-  getNodeInterfaceMenu(queueEdge: Function, cy: any, activeNodes: any[], isCanWriteOnProject: boolean, mapCategory: any, isEdgeDirectionChecked: boolean, projectId: number) {
-    // const addInterface = {
-    //   id: "add_new_interface",
-    //   content: "New",
-    //   onClickFunction: (event: any) => {
-    //     queueEdge(event.target, event.position, "wired");
-    //   },
-    //   hasTrailingDivider: true,
-    //   disabled: !isCanWriteOnProject,
-    // }
+  ngOnDestroy(): void {
+     this.selectSelectedLogicalNodes$.unsubscribe();
+  }
 
+  getNodeInterfaceMenu(queueEdge: Function, cy: any, isCanWriteOnProject: boolean, mapCategory: any) {
     const connectInterface = {
       id: "connect_interface",
       content: "Connect",
       hasTrailingDivider: true,
       disabled: !isCanWriteOnProject,
       onClickFunction: (event: any) => {
-        const nodeId = activeNodes[0].data('node_id');
-        const nodeName = activeNodes[0].data('name');
+        const nodeId = this.selectedNodes[0].id;
+        const nodeName = this.selectedNodes[0].name;
         if (mapCategory == 'logical') {
           this.interfaceService.getByNodeAndNotConnectToPG(nodeId).subscribe(response => {
             this.store.dispatch(retrievedInterfacesNotConnectPG({ interfacesNotConnectPG: response.result }));
@@ -74,7 +78,7 @@ export class CMInterfaceService {
       hasTrailingDivider: true,
       disabled: !isCanWriteOnProject,
       onClickFunction: (event: any) => {
-        const nodeId = activeNodes[0].data('node_id');
+        const nodeId = this.selectedNodes[0].id;
         const dialogData = {
           mode: 'disconnect',
           nodeId: nodeId,
@@ -96,7 +100,6 @@ export class CMInterfaceService {
       hasTrailingDivider: false,
       disabled: false,
       submenu: [
-        // addInterface,
         connectInterface,
         disconnectInterfacePortGroup,
       ]

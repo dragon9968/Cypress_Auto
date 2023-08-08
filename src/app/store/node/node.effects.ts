@@ -17,13 +17,18 @@ import {
   removeNodesSuccess,
   restoreNodes,
   restoreNodesSuccess,
+  cloneNodeById,
 } from './node.actions';
 import { ConfigTemplateService } from 'src/app/core/services/config-template/config-template.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { pushNotification } from '../app/app.actions';
-import { updateNodeInInterfaces } from '../interface/interface.actions';
+import {
+  addLogicalInterfacesByNodeId,
+  updateNodeInInterfaces
+} from '../interface/interface.actions';
 import { removeNodesInGroup, restoreNodesInGroup, updateNodeInGroup } from '../group/group.actions';
 import { reloadGroupBoxes } from '../map/map.actions';
+import { ErrorMessages } from "../../shared/enums/error-messages.enum";
 
 @Injectable()
 export class NodesEffects {
@@ -71,6 +76,30 @@ export class NodesEffects {
     ofType(addNewNodeToMap),
     tap((payload) => this.helpersService.addNewNodeToMap(payload.id))
   ), { dispatch: false });
+
+  cloneNewNodeById$ = createEffect(() => this.actions$.pipe(
+    ofType(cloneNodeById),
+    mergeMap(payload => this.nodeService.get(payload.id).pipe(
+      switchMap(res => [
+        nodeAddedSuccess({ node: res.result }),
+        updateNodeInGroup({ node: res.result }),
+        addNewNodeToMap({ id: res.result.id }),
+        addLogicalInterfacesByNodeId({ nodeId: res.result.id }),
+        pushNotification({
+          notification: {
+            type: 'success',
+            message: `Cloned node ${res.result.name} successfully`
+          }
+        })
+      ]),
+      catchError(e => of(pushNotification({
+        notification: {
+          type: 'error',
+          message: ErrorMessages.CLONE_NODE_FAILED
+        }
+      })))
+    ))
+  ));
 
   updateNode$ = createEffect(() => this.actions$.pipe(
     ofType(updateNode),

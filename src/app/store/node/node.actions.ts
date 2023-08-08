@@ -98,6 +98,11 @@ export const addNewNode = createAction(
   props<{ node: any }>()
 );
 
+export const cloneNodeById = createAction(
+  'cloneNodeById',
+  props<{ id: number }>()
+);
+
 export const nodeAddedSuccess = createAction(
   'nodeAddedSuccess',
   props<{ node: any }>()

@@ -1637,24 +1637,23 @@ export class HelpersService implements OnDestroy {
     }
   }
 
-  getConfigAddsTypeByDeviceCategory(deviceCategory: string) {
-    switch (deviceCategory) {
-      case 'Firewall':
-        return this.configTemplateAddsType.filter(
-          addType => addType.id == 'add_firewall_rule' || addType.id == 'add_route'
-        )
-      case 'Router':
-        return this.configTemplateAddsType.filter(
-          addType => addType.id == 'add_firewall_rule' || addType.id == 'add_route' || addType.id == 'add_ospf' || addType.id == 'add_bgp'
-        )
-      case 'Windows Server':
-        return this.configTemplateAddsType.filter(
-          addType => addType.id == 'add_roles_service' || addType.id == 'add_domain_membership'
-        )
-      case 'Windows Client': case 'Linux Client':
-        return this.configTemplateAddsType.filter(addType => addType.id == 'add_domain_membership')
-      default:
-        return this.configTemplateAddsType.filter(addType => addType.id != 'add_ospf' && addType.id != 'add_bgp')
+  getConfigAddsTypeByDeviceCategory(deviceCategory: string | string[]) {
+    if (deviceCategory.includes('Firewall')) {
+      return this.configTemplateAddsType.filter(
+        addType => addType.id == 'add_firewall_rule' || addType.id == 'add_route'
+      );
+    } else if (deviceCategory.includes('Router')) {
+      return this.configTemplateAddsType.filter(
+        addType => addType.id == 'add_firewall_rule' || addType.id == 'add_route' || addType.id == 'add_ospf' || addType.id == 'add_bgp'
+      );
+    } else if (deviceCategory.includes('Windows Server')) {
+      return this.configTemplateAddsType.filter(
+        addType => addType.id == 'add_roles_service' || addType.id == 'add_domain_membership'
+      );
+    } else if (deviceCategory.includes('Windows Client') || deviceCategory.includes('Linux Client')) {
+      return this.configTemplateAddsType.filter(addType => addType.id == 'add_domain_membership');
+    } else {
+      return this.configTemplateAddsType.filter(addType => addType.id != 'add_ospf' && addType.id != 'add_bgp')
     }
   }
 
@@ -1728,15 +1727,25 @@ export class HelpersService implements OnDestroy {
   }
 
   addInterfaceMapLinkToMap(id: number) {
-    const edge = this.interfacesCommonMapLinks.find(e => e.id === id)
-    this.addCYEdge(JSON.parse(JSON.stringify(edge.data)))
-    this.showOrHideArrowDirectionOnEdge(edge.id)
+    const edge = this.interfacesCommonMapLinks.find(e => e.id === id);
+    if (edge) {
+      this.addCYEdge(JSON.parse(JSON.stringify(edge.data)));
+      this.showOrHideArrowDirectionOnEdge(edge.id);
+    }
+  }
+
+  addInterfacesLogicalToMap(edges: any[]) {
+    edges.map(edge => {
+      this.addInterfaceLogicalToMap(edge.id);
+    });
   }
 
   addInterfaceLogicalToMap(id: number) {
-    const edge = this.interfacesLogical.find(e => e.id === id)
-    this.addCYEdge(JSON.parse(JSON.stringify(edge.data)))
-    this.showOrHideArrowDirectionOnEdge(edge.id)
+    const edge = this.interfacesLogical.find(e => e.id === id);
+    if (edge) {
+      this.addCYEdge(JSON.parse(JSON.stringify(edge.data)));
+      this.showOrHideArrowDirectionOnEdge(edge.id);
+    }
   }
 
   addPGToMap(id: number) {

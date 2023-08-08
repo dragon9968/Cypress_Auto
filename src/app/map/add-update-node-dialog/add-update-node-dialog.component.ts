@@ -396,6 +396,13 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       this.devices = devices;
       this.deviceCtr.setValidators([Validators.required, autoCompleteValidator(this.devices)]);
       this.filteredDevices = this.helpers.filterOptions(this.deviceCtr, this.devices);
+      const deviceCategories = devices.find((device: any) => device.id === this.data.genData.device_id)
+                                      .category.map((deviceCategory: any) => deviceCategory.name);
+      this.configTemplateAddsType = this.helpers.getConfigAddsTypeByDeviceCategory(deviceCategories);
+      this.filteredAddActions = this.helpers.filterOptions(this.addTypeCtr, this.configTemplateAddsType);
+      this.addTypeCtr?.setValue(this.configTemplateAddsType[0]);
+      this.addTypeCtr?.setValidators([Validators.required, autoCompleteValidator(this.configTemplateAddsType)]);
+      this.helpers.setAutoCompleteValue(this.addTypeCtr, this.configTemplateAddsType, this.configTemplateAddsType[0].id);
     });
     this.selectTemplates$ = this.store.select(selectTemplates).subscribe((templates: any) => {
       this.templates = templates;
@@ -435,8 +442,6 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       this.ipCtr.setValidators([autoCompleteValidator(this.listNodeIP, 'ip')]);
       this.filteredNodeIP = this.helpers.filterOptions(this.ipCtr, this.listNodeIP, 'ip');
     })
-    this.configTemplateAddsType = this.helpers.getConfigAddsTypeByDeviceCategory(this.data.genData.device_category);
-    this.filteredAddActions = this.helpers.filterOptions(this.addTypeCtr, this.configTemplateAddsType);
     this.configTemplateService.getWinRoles().subscribe(data => {
       this.rolesAndService = data;
       this.rolesCtr.setValidators([Validators.required, autoCompleteValidator(this.rolesAndService)]);
@@ -614,9 +619,6 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       this.configTemplateCtr?.setValue(this.data.genData.configs.map((item: any) => item.id));
     }
     this.helpers.validateAllFormFields(this.nodeAddForm);
-    this.addTypeCtr?.setValue(this.configTemplateAddsType[0]);
-    this.addTypeCtr?.setValidators([Validators.required, autoCompleteValidator(this.configTemplateAddsType)])
-    this.helpers.setAutoCompleteValue(this.addTypeCtr, this.configTemplateAddsType, this.configTemplateAddsType[0].id)
   }
 
   ngOnDestroy(): void {

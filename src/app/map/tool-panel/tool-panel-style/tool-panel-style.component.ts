@@ -447,11 +447,11 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   }
 
   lockNodes() {
-    this.cmLockUnlockService.lockNodes(this.cy, this.selectedNodes, this.selectedPortGroups, this.selectedMapImages, this.selectedMapLinks);
+    this.cmLockUnlockService.lockNodes(this.cy);
   }
 
   unlockNodes() {
-    this.cmLockUnlockService.unlockNodes(this.cy, this.selectedNodes, this.selectedPortGroups, this.selectedMapImages, this.selectedMapLinks);
+    this.cmLockUnlockService.unlockNodes(this.cy);
   }
 
   setMapImageSize(size: any) {

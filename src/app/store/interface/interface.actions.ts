@@ -175,6 +175,21 @@ export const interfaceAddedMapLinkToPGSuccess = createAction(
   props<{ edge: any }>()
 )
 
+export const addLogicalInterfacesByNodeId = createAction(
+  'addLogicalInterfacesByNodeId',
+  props<{ nodeId: number }>()
+)
+
+export const logicalInterfacesAddedSuccess = createAction(
+  'logicalInterfacesAddedSuccess',
+  props<{ edges: any[] }>()
+)
+
+export const addInterfacesLogicalToMap = createAction(
+  'addInterfacesLogicalToMap',
+  props<{ edges: any[] }>()
+)
+
 export const addInterfaceMapLinkToMap = createAction(
   'addInterfaceMapLinkToMap',
   props<{ id: any }>()

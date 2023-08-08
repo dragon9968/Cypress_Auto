@@ -22,7 +22,11 @@ import {
   addLogicalInterface,
   interfaceLogicalMapAddedSuccess,
   addInterfaceLogicalToMap,
-  addInterfacesNotConnectPG, connectInterfaceToPG
+  addInterfacesNotConnectPG,
+  connectInterfaceToPG,
+  addInterfacesLogicalToMap,
+  addLogicalInterfacesByNodeId,
+  logicalInterfacesAddedSuccess
 } from './interface.actions';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { pushNotification } from '../app/app.actions';
@@ -127,7 +131,21 @@ export class InterfacesEffects {
         }
       })))
     ))
+  ));
+
+  addLogicalInterfacesByNodeId$ = createEffect(() => this.actions$.pipe(
+    ofType(addLogicalInterfacesByNodeId),
+    mergeMap((payload) => this.interfaceService.getByNode(payload.nodeId)),
+    switchMap(res => [
+      logicalInterfacesAddedSuccess({ edges: res.result }),
+      addInterfacesLogicalToMap({ edges: res.result })
+    ])
   ))
+
+  addInterfacesLogicalToMap$ = createEffect(() => this.actions$.pipe(
+    ofType(addInterfacesLogicalToMap),
+    tap((payload) => this.helpersService.addInterfacesLogicalToMap(payload.edges))
+  ), { dispatch: false })
 
   addInterfaceMapLinkToMap$ = createEffect(() => this.actions$.pipe(
     ofType(addInterfaceMapLinkToMap),

@@ -112,7 +112,7 @@ export const groupReducer = createReducer(
   }),
   on(updateNodeInGroup, (state, { node }) => {
     const groups = state.groups.map((g: any) => {
-      if (g.id == node.groups[0].id) {
+      if (g.id == node.groups[0]?.id) {
         return {
           ...g,
           nodes: [...g.nodes, node]

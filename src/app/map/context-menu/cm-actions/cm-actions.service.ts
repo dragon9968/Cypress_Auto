@@ -1,5 +1,5 @@
 import { Store } from "@ngrx/store";
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription, catchError, throwError } from 'rxjs';
@@ -7,21 +7,24 @@ import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 import { NodeService } from 'src/app/core/services/node/node.service';
 import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
-import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { InfoPanelShowValidationResultsComponent } from '../../../shared/components/info-panel-show-validation-results/info-panel-show-validation-results.component';
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { selectMapOption } from "src/app/store/map-option/map-option.selectors";
 import { PortGroupValidateModel } from "../../../core/models/port-group.model";
 import { selectLogicalMapInterfaces } from "src/app/store/interface/interface.selectors";
+import { selectSelectedLogicalNodes } from "../../../store/node/node.selectors";
+import { cloneNodeById } from "../../../store/node/node.actions";
 
 @Injectable({
   providedIn: 'root'
 })
-export class CMActionsService {
+export class CMActionsService implements OnDestroy {
   selectMapOption$ = new Subscription();
   selectLogicalMapInterfaces$ = new Subscription();
+  selectSelectedLogicalNodes = new Subscription();
   isEdgeDirectionChecked = false;
   logicalMapInterfaces!: any[];
+  selectedNodes: any[] = [];
   constructor(
     private store: Store,
     private dialog: MatDialog,
@@ -40,9 +43,16 @@ export class CMActionsService {
         this.logicalMapInterfaces = logicalMapInterfaces;
       }
     });
+    this.selectSelectedLogicalNodes = this.store.select(selectSelectedLogicalNodes).subscribe(nodes => this.selectedNodes = nodes);
    }
 
-  getNodeActionsMenu(cy: any, activeNodes: any[], isCanWriteOnProject: boolean) {
+  ngOnDestroy(): void {
+    this.selectMapOption$.unsubscribe();
+    this.selectSelectedLogicalNodes.unsubscribe();
+    this.selectLogicalMapInterfaces$.unsubscribe();
+  }
+
+  getNodeActionsMenu(cy: any, isCanWriteOnProject: boolean) {
     return {
       id: "node_actions",
       content: "Actions",
@@ -53,7 +63,7 @@ export class CMActionsService {
           id: "clone_node",
           content: "Clone",
           onClickFunction: ($event: any) => {
-            const ids = activeNodes.map((ele: any) => ele.data('node_id'));
+            const ids = this.selectedNodes.map((node: any) => node.id);
             this.cloneNodes(cy, ids);
           },
           hasTrailingDivider: true,
@@ -63,7 +73,7 @@ export class CMActionsService {
           id: "validate_node",
           content: "Validate",
           onClickFunction: (_$event: any) => {
-            const pks = activeNodes.map((ele: any) => ele.data('node_id'));
+            const pks = this.selectedNodes.map((node: any) => node.id);
             this.nodeService.validate({ pks }).pipe(
               catchError((e: any) => {
                 this.toastr.error(e.error.message);
@@ -139,14 +149,6 @@ export class CMActionsService {
       selector: "edge",
       hasTrailingDivider: true,
       submenu: [
-        // {
-        //   id: "add_edge_config",
-        //   content: "Add Configuration",
-        //   selector: "edge",
-        //   onClickFunction: (event: any) => { },
-        //   hasTrailingDivider: true,
-        //   disabled: true,
-        // },
         {
           id: "randomize_edge_ip",
           content: "Randomize IP",
@@ -196,72 +198,8 @@ export class CMActionsService {
     ).subscribe(response => {
       const newNodes = response.result;
       newNodes.map((node: any) => {
-        const id = node.data.id
-        const deviceCategory = cy.nodes(`[node_id=${node.ids}]`).data('device_category')
-        const configs = cy.nodes(`[node_id=${node.ids}]`).data('configs')
-        this.nodeService.get(id).subscribe(nodeData => {
-          const cyData = nodeData.result;
-          cyData.id = 'node-' + id;
-          cyData.node_id = id;
-          cyData.height = cyData.logical_map.map_style.height;
-          cyData.width = cyData.logical_map.map_style.width;
-          cyData.text_color = cyData.logical_map.map_style.text_color;
-          cyData.text_size = cyData.logical_map.map_style.text_size;
-          cyData.elem_category = "node";
-          cyData.device_category = deviceCategory
-          cyData.configs = configs
-          cyData.icon = ICON_PATH + cyData.icon.photo;
-          cyData.type = cyData.role;
-          cyData.zIndex = 999;
-          cyData['background-image'] = cyData.icon;
-          cyData['background-opacity'] = 0;
-          cyData.shape = "roundrectangle";
-          cyData['text-opacity'] = 1;
-          this.helpers.addCYNode({ newNodeData: cyData, newNodePosition: cyData.logical_map.position });
-          this.helpers.reloadGroupBoxes();
-          // Draw interface related to Nodes
-          this.interfaceService.getByNode(id).subscribe((respData: any) => {
-            respData.result.map((edgeData: any) => {
-              if (edgeData.category !== 'management') {
-                const id = edgeData.id;
-                const ip_str = edgeData.ip ? edgeData.ip : "";
-                const ip = ip_str.split(".");
-                const last_octet = ip.length == 4 ? "." + ip[3] : "";
-                const cyData = edgeData;
-                cyData.id = id;
-                cyData.interface_pk = id;
-                cyData.ip_last_octet = last_octet;
-                const logicalMapStyle = cyData.logical_map.map_style;
-                cyData.width = logicalMapStyle.width;
-                cyData.text_color = logicalMapStyle.text_color;
-                cyData.text_size = logicalMapStyle.text_size;
-                cyData.color = logicalMapStyle.color;
-                cyData.node = nodeData.result.name;
-                cyData.port_group = cyData.port_group.name;
-                cyData.netmask = cyData.netmask.mask;
-                const directionMapStyle = cyData.logical_map?.map_style?.direction
-                cyData.direction = directionMapStyle ? directionMapStyle : cyData.direction ? cyData.direction : 'both';
-                const newEdgeData = {
-                  source: 'node-' + edgeData.node_id,
-                  target: 'pg-' + edgeData.port_group_id,
-                  id: 'new_edge_' + this.helpers.createUUID(),
-                  name: "",
-                  category: cyData.category,
-                  direction: cyData.direction,
-                  curve_style: 'bezier',
-                  color: logicalMapStyle.color,
-                  width: logicalMapStyle.width,
-                }
-                this.helpers.addCYEdge({ ...newEdgeData, ...cyData });
-                this.helpers.showOrHideArrowDirectionOnEdge(cyData.interface_pk)
-              }
-            })
-          });
-        });
+        this.store.dispatch(cloneNodeById({ id: node.node_id }));
       });
-      response.result.map((ele: any) => {
-        this.toastr.success(`Cloned node ${ele.data.name}`, 'Success');
-      })
     });
   }
 }
