@@ -1752,4 +1752,10 @@ export class HelpersService implements OnDestroy {
     const portGroup = this.portGroups.find(pg => pg.id === id)
     this.addCYNode(JSON.parse(JSON.stringify(portGroup)))
   }
+
+  updateSubnetPgOnMap(pgData: any) {
+    const element = this.cy.getElementById('pg-' + pgData.id);
+    element.data('subnet', pgData.subnet);
+    element.data('name', pgData.name);
+  }
 }

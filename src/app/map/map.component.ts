@@ -732,12 +732,13 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     const t = $event.target;
     const eles = this.logicalNodes.concat(this.portGroups).concat(this.logicalMapInterfaces).concat(this.mapImages)
     const selectedEles = eles.filter((n: any) => n.isSelected)
+    const d = t.data()
+    d.updated = true
     if (this.cy.elements().length !== selectedEles.length) {
       const isChildrenOfProjectNode = t.connectedNodes().some((ele: any) => ele.parent()?.data('elem_category') == 'map_link')
       if (isChildrenOfProjectNode) {
         return;
       }
-      const d = t.data()
       if (this.isBoxSelecting || this.isSearching) { return; }
       if (t.isEdge() && !this.activeEdges.includes(t)) {
         if (t.data('category') !== 'link') {
@@ -746,7 +747,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         }
       }
       if (!d.new) {
-        d.updated = true
         if (this.activeEdges.length == 0) {
           this.activeEdges.splice(0);
         }
@@ -1230,7 +1230,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         this.cmGroupBoxService.getMoveToBackMenu(),
         this.cmInterfaceService.getNodeInterfaceMenu(this.queueEdge.bind(this), this.cy, this.isCanWriteOnProject, this.mapCategory),
         this.cmProjectNodeService.getLinkProjectMenu(this.queueEdge.bind(this), this.cy),
-        this.cmInterfaceService.getPortGroupInterfaceMenu(this.queueEdge.bind(this)),
+        // this.cmInterfaceService.getPortGroupInterfaceMenu(this.queueEdge.bind(this)),
         this.cmAddService.getEdgeAddMenu(),
         this.cmActionsService.getNodeActionsMenu(this.cy, this.isCanWriteOnProject),
         this.cmActionsService.getPortGroupActionsMenu(this.cy, Number(this.projectId), this.activePGs),

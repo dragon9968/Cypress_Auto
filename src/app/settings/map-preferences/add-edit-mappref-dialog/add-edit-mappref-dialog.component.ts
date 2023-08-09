@@ -137,7 +137,7 @@ export class AddEditMapprefDialogComponent {
         this.gridSpacingCtr?.setValue(this.listDefaultMapPref[0].grid_spacing);
         this.mapImageSizeCtr?.setValue(this.listDefaultMapPref[0].scale_image);
         this.textOutlineColor = this.listDefaultMapPref[0].text_outline_color;
-        this.textOutlineWidthCtr?.setValue(this.listDefaultMapPref[0].text_outline_width);
+        this.textOutlineWidthCtr?.setValue(Number(this.listDefaultMapPref[0].text_outline_width));
         this.gbBorderSize?.setValue(this.listDefaultMapPref[0].group_box_border_size)
         this._setPropertiesCommon(this.listDefaultMapPref[0]);
       }
@@ -398,6 +398,7 @@ export class AddEditMapprefDialogComponent {
     this.snapToGridCtr?.setValue(this.data.genData.grid_snap);
     this.gridSpacingCtr?.setValue(this.data.genData.grid_spacing);
     this.mapImageSizeCtr?.setValue(this.data.genData.scale_image);
+    this.textOutlineWidthCtr?.setValue(Number(this.data.genData.text_outline_width));
     this._setPropertiesCommon(this.data.genData);
   }
 }

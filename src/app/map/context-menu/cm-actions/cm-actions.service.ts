@@ -14,6 +14,7 @@ import { PortGroupValidateModel } from "../../../core/models/port-group.model";
 import { selectLogicalMapInterfaces } from "src/app/store/interface/interface.selectors";
 import { selectSelectedLogicalNodes } from "../../../store/node/node.selectors";
 import { cloneNodeById } from "../../../store/node/node.actions";
+import { selectSelectedPortGroups } from "src/app/store/portgroup/portgroup.selectors";
 
 @Injectable({
   providedIn: 'root'
@@ -25,6 +26,8 @@ export class CMActionsService implements OnDestroy {
   isEdgeDirectionChecked = false;
   logicalMapInterfaces!: any[];
   selectedNodes: any[] = [];
+  selectSelectedPortGroups$ = new Subscription();
+  selectedPortGroups!: any[];
   constructor(
     private store: Store,
     private dialog: MatDialog,
@@ -44,6 +47,11 @@ export class CMActionsService implements OnDestroy {
       }
     });
     this.selectSelectedLogicalNodes = this.store.select(selectSelectedLogicalNodes).subscribe(nodes => this.selectedNodes = nodes);
+    this.selectSelectedPortGroups$ = this.store.select(selectSelectedPortGroups).subscribe((selectedPortGroups: any) => {
+      if (selectedPortGroups) {
+        this.selectedPortGroups = selectedPortGroups;
+      }
+    });
    }
 
   ngOnDestroy(): void {
@@ -106,7 +114,7 @@ export class CMActionsService implements OnDestroy {
           id: "randomize_pg_subnet",
           content: "Randomize Subnet",
           onClickFunction: (event: any) => {
-            const pks = activePGs.map(pg => pg.data('pg_id'));
+            const pks = this.selectedPortGroups.map(pg => pg.id);
             this.infoPanelService.randomizeSubnetPortGroups(pks, projectId);
           },
           hasTrailingDivider: true,
@@ -117,7 +125,7 @@ export class CMActionsService implements OnDestroy {
           content: "Validate",
           onClickFunction: (event: any) => {
             const jsonData: PortGroupValidateModel = {
-              pks: activePGs.map((ele: any) => ele.data('pg_id'))
+              pks: this.selectedPortGroups.map((ele: any) => ele.id)
             }
             this.portGroupService.validate(jsonData).pipe(
               catchError((e: any) => {

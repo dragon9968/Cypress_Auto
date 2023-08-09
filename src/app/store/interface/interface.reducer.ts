@@ -386,7 +386,8 @@ export const interfaceReducerByIds = createReducer(
         ...interfaceData,
         ...updatedLogicalMapInterfaces,
         node: interfaceData.node,
-        port_group: interfaceData.port_group
+        port_group: interfaceData.port_group,
+        netmask: interfaceData.netmask
       } : interfaceData
     })
     return {

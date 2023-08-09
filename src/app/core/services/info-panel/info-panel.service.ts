@@ -26,6 +26,7 @@ import { PortGroupRandomizeSubnetModel } from "../../models/port-group.model";
 import { randomizeIpBulk } from "src/app/store/interface/interface.actions";
 import { selectNetmasks } from "src/app/store/netmask/netmask.selectors";
 import { selectDomains } from "src/app/store/domain/domain.selectors";
+import { randomizeSubnetPortGroups } from "src/app/store/portgroup/portgroup.actions";
 
 @Injectable({
   providedIn: 'root'
@@ -480,56 +481,31 @@ export class InfoPanelService implements OnDestroy {
       pks: pks,
       project_id: projectId
     }
-    this.portGroupService.randomizeSubnetBulk(jsonData).pipe(
-      catchError((e: any) => {
-        this.toastr.error(e.error.message);
-        return throwError(() => e);
-      })
-    ).subscribe(response => {
-      response.result.map((ele: any) => {
-        const element = this.cy.getElementById('pg-' + ele.id);
-        element.data('subnet', ele.subnet);
-        element.data('name', ele.name);
-      })
-      this.updateInterfaceIPBasedOnPGId(pks);
-      this.toastr.success(response.message);
-    })
+    this.store.dispatch(randomizeSubnetPortGroups({
+      pks: pks,
+      data: jsonData
+    }))
   }
 
   updateInterfaceIPBasedOnPGId(portGroupIds: any) {
     portGroupIds.map((portGroupId: any) => {
       this.interfaceService.getByPortGroup(portGroupId).subscribe(response => {
-        this.checkIpAlocation(response.result)
-        if (this.interfacePks.length > 0) {
-          this.interfaceService.randomizeIpBulk({ pks: this.interfacePks }).pipe(
-            catchError((error: any) => {
-              this.toastr.error(error.error.message);
-              return throwError(error.error.message);
-            })
-          ).subscribe(data => {
-            const interfaces = data.result;
-            interfaces.map((ele: any) => {
-              const element = this.cy.getElementById(ele.id);
-              const ip_str = ele.ip ? ele.ip : "";
-              const ip = ip_str.split(".");
-              const last_octet = ip.length == 4 ? "." + ip[3] : "";
-              element.data('ip', ip_str);
-              element.data('ip_last_octet', last_octet);
-            })
-            data.message.map((message: string) => {
-              this.toastr.success(message);
-            });
-          })
+        const interfacePks = this.checkIpAlocation(response.result)
+        if (interfacePks.length > 0) {
+          this.store.dispatch(randomizeIpBulk({
+            pks: interfacePks,
+            netmasks: this.netmasks
+          }))
         }
       })
     })
   }
 
   randomizeIpInterfaces(listInterfaces: any[]) {
-    this.checkIpAlocation(listInterfaces);
+    const interfacePks = this.checkIpAlocation(listInterfaces);
     let pks;
-    if (this.interfacePks.length > 0) {
-      pks = this.interfacePks
+    if (interfacePks.length > 0) {
+      pks = interfacePks
       this.store.dispatch(randomizeIpBulk({
         pks: pks,
         netmasks: this.netmasks
@@ -538,16 +514,16 @@ export class InfoPanelService implements OnDestroy {
   }
 
   checkIpAlocation(data: any[]) {
-    this.interfacePks = []
+    const interfacePks: any = [];
     data.forEach((val: any) => {
       if (val.ip_allocation === 'static_manual') {
         this.toastr.warning(`Interface ${val.name}'s IP address of “static_manual” interfaces cannot be randomized.`)
       } else {
-        const id = val.data.interface_pk ? val.data.interface_pk : val.id
-        if (id) {
-          this.interfacePks.push(id)
+        if (val.id) {
+          interfacePks.push(val.id)
         }
       }
     });
+    return interfacePks
   }
 }

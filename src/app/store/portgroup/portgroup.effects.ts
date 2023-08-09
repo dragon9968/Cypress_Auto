@@ -16,7 +16,10 @@ import {
   updatePG,
   addNewPG,
   portGroupAddedSuccess,
-  addNewPGToMap
+  addNewPGToMap,
+  randomizeSubnetPortGroups,
+  randomizeSubnetPortGroupsSuccess,
+  updateInterfaceIPBasedOnPGId
 } from './portgroup.actions';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { updatePGInInterfaces } from '../interface/interface.actions';
@@ -24,6 +27,8 @@ import { pushNotification } from '../app/app.actions';
 import { reloadGroupBoxes } from '../map/map.actions';
 import { removePGsInGroup, restorePGsInGroup } from '../group/group.actions';
 import { updatePGInGroup } from "../group/group.actions";
+import { InfoPanelService } from 'src/app/core/services/info-panel/info-panel.service';
+import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 
 @Injectable()
 export class PortGroupsEffects {
@@ -184,9 +189,45 @@ export class PortGroupsEffects {
       ))
   ));
 
+  randomizeSubnetPortGroups$ = createEffect(() => this.actions$.pipe(
+    ofType(randomizeSubnetPortGroups),
+    exhaustMap(payload => this.portGroupService.randomizeSubnetBulk(payload.data)
+      .pipe(
+        map(res => {
+          res.result.map((ele: any) => {
+            this.helpersService.updateSubnetPgOnMap(ele)
+          })
+          return res
+        }),
+        switchMap((res: any) => [
+          updateInterfaceIPBasedOnPGId({ ids: payload.pks }),
+          randomizeSubnetPortGroupsSuccess({ portGroups: res.result }),
+          pushNotification({
+            notification: {
+              type: 'success',
+              message: res.message
+            }
+          })
+        ]),
+        catchError((e) => of(pushNotification({
+          notification: {
+            type: 'error',
+            message: `${e.error.message}`
+          }
+        })))
+      ))
+  ))
+
+  updateInterfaceIPBasedOnPGId$ = createEffect(() => this.actions$.pipe(
+    ofType(updateInterfaceIPBasedOnPGId),
+    tap((payload) => this.infoPanelService.updateInterfaceIPBasedOnPGId(payload.ids))
+  ), { dispatch: false });
+
   constructor(
     private actions$: Actions,
     private portGroupService: PortGroupService,
     private helpersService: HelpersService,
+    private interfaceService: InterfaceService,
+    private infoPanelService: InfoPanelService
   ) { }
 }

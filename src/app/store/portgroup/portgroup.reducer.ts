@@ -14,7 +14,8 @@ import {
   updateDomainInPG,
   clearLinkedMapPGs,
   linkedMapPGsLoadedSuccess,
-  portGroupAddedSuccess
+  portGroupAddedSuccess,
+  randomizeSubnetPortGroupsSuccess
 } from './portgroup.actions';
 
 const initialState = {} as PortGroupState;
@@ -207,4 +208,15 @@ export const portGroupReducer = createReducer(
       portgroups
     }
   }),
+  on(randomizeSubnetPortGroupsSuccess, (state, { portGroups }) => {
+    const portgroups = state.portgroups.map((pg: any) => {
+      const updatedPG = portGroups.find((i: any) => i.id == pg.id);
+      return updatedPG ? {...pg, ...updatedPG} : pg
+    });
+    return {
+      ...state,
+      isSelectedFlag: false,
+      portgroups
+    }
+  }) 
 );

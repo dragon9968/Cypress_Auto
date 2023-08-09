@@ -108,7 +108,7 @@ export class ContextMenuService implements OnDestroy {
         contextMenu.showMenuItem('edit');
         contextMenu.showMenuItem('pg_remote');
       } else if (activePGsLength == 1) {
-        contextMenu.showMenuItem('pg_interface');
+        // contextMenu.showMenuItem('pg_interface');
         contextMenu.showMenuItem('pg_actions');
         contextMenu.showMenuItem('view_details');
         contextMenu.showMenuItem('edit');
@@ -166,7 +166,7 @@ export class ContextMenuService implements OnDestroy {
   hideAllMenuOptions(contextMenu: any) {
     contextMenu.hideMenuItem('node_interface');
     contextMenu.hideMenuItem('link_project');
-    contextMenu.hideMenuItem('pg_interface');
+    // contextMenu.hideMenuItem('pg_interface');
     contextMenu.hideMenuItem('edge_add');
     contextMenu.hideMenuItem('node_actions');
     contextMenu.hideMenuItem('pg_actions');
