@@ -1,10 +1,5 @@
 import { createAction, props } from "@ngrx/store";
 
-export const retrievedGroups = createAction(
-  'retrievedGroups',
-  props<{data: any}>()
-);
-
 export const loadGroups = createAction(
   'loadGroups',
   props<{ projectId: string }>()

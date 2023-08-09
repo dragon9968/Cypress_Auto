@@ -1,5 +1,5 @@
 import { Store } from '@ngrx/store';
-import { catchError, map, startWith, Subscription, throwError } from 'rxjs';
+import { map, startWith, Subscription, throwError } from 'rxjs';
 import { Injectable, Input, OnDestroy } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
@@ -39,8 +39,6 @@ import { removeInterfaces, restoreInterfaces } from 'src/app/store/interface/int
 import { retrievedMapContextMenu } from "../../../store/map-context-menu/map-context-menu.actions";
 import { ProjectService } from "../../../project/services/project.service";
 import { GroupService } from "../group/group.service";
-import { loadGroups, retrievedGroups } from "../../../store/group/group.actions";
-import { ValidateProjectDialogComponent } from "../../../project/validate-project-dialog/validate-project-dialog.component";
 import { validateProject } from "../../../store/project/project.actions";
 
 @Injectable({

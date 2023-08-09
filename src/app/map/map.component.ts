@@ -17,7 +17,7 @@ import { retrievedIcons } from '../store/icon/icon.actions';
 import { retrievedDevices } from '../store/device/device.actions';
 import { retrievedTemplates } from '../store/template/template.actions';
 import { retrievedHardwares } from '../store/hardware/hardware.actions';
-import { loadDomains, retrievedDomains } from '../store/domain/domain.actions';
+import { loadDomains } from '../store/domain/domain.actions';
 import { retrievedConfigTemplates } from '../store/config-template/config-template.actions';
 import { retrievedLoginProfiles } from '../store/login-profile/login-profile.actions';
 import { DeviceService } from '../core/services/device/device.service';
@@ -29,7 +29,7 @@ import { selectMapPref } from '../store/map-style/map-style.selectors';
 import { ToastrService } from 'ngx-toastr';
 import { AddUpdatePGDialogComponent } from './add-update-pg-dialog/add-update-pg-dialog.component';
 import { AddUpdateInterfaceDialogComponent } from './add-update-interface-dialog/add-update-interface-dialog.component';
-import { addNewPG, loadPGs, retrievedPortGroups, selectPG, unSelectPG } from '../store/portgroup/portgroup.actions';
+import { addNewPG, selectPG, unSelectPG, updatePG } from '../store/portgroup/portgroup.actions';
 import { selectMapPortGroups } from '../store/portgroup/portgroup.selectors';
 import { MapState } from '../store/map/map.state';
 import { CMActionsService } from './context-menu/cm-actions/cm-actions.service';
@@ -66,23 +66,20 @@ import {
 import { ICON_PATH } from '../shared/contants/icon-path.constant';
 import { InfoPanelService } from '../core/services/info-panel/info-panel.service';
 import {
-  addInterfaceMapLinkToPG, loadInterfaces,
+  addInterfaceMapLinkToPG,
   retrievedInterfacePkConnectNode,
   retrievedInterfacesByDestinationNode,
   retrievedIsInterfaceConnectPG,
   selectInterface,
   unSelectInterface
 } from "../store/interface/interface.actions";
-import { retrievedMapSelection } from '../store/map-selection/map-selection.actions';
 import {
   selectIsConfiguratorConnect,
   selectIsHypervisorConnect
 } from "../store/server-connect/server-connect.selectors";
 import { MapImageService } from '../core/services/map-image/map-image.service';
 import {
-  loadMapImages,
   retrievedImages,
-  retrievedMapImages,
   selectMapImage,
   unSelectMapImage
 } from '../store/map-image/map-image.actions';
@@ -98,8 +95,8 @@ import {
 } from "../store/interface/interface.selectors";
 import { CMInterfaceService } from "./context-menu/cm-interface/cm-interface.service";
 import { GroupService } from "../core/services/group/group.service";
-import { addNewNode, addNewNodeToMap, loadNodes, selectNode, unSelectNode } from "../store/node/node.actions";
-import { loadGroups, retrievedGroups, selectGroup, unSelectGroup } from "../store/group/group.actions";
+import { addNewNode, selectNode, unSelectNode, updateNode } from "../store/node/node.actions";
+import { loadGroups, selectGroup, unSelectGroup } from "../store/group/group.actions";
 import { ValidateProjectDialogComponent } from "../project/validate-project-dialog/validate-project-dialog.component";
 import {
   selectProjectCategory,
@@ -711,7 +708,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
           this.store.dispatch(selectPG({ id: d.id }));
         } else if (d.elem_category == 'map_link' && !this.activeMapLinks.includes(t)) {
           this.activeMapLinks.push(t)
-          this.store.dispatch(selectMapLink({id: d.id}))
+          this.store.dispatch(selectMapLink({ id: d.id }))
         }
         if (!d.new) {
           if (this.activeNodes.length == 0) {
@@ -722,9 +719,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
           }
         }
       }
-      this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
-        this.activeMBs, this.activeMapLinks, this.isTemplateCategory, this.isGroupBoxesChecked, this.mapCategory);
-      this.store.dispatch(retrievedMapSelection({ data: true }));
+      this.contextMenuService.showContextMenu(this.cy, this.isTemplateCategory, this.isGroupBoxesChecked, this.mapCategory);
     }
   }
 
@@ -751,9 +746,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
           this.activeEdges.splice(0);
         }
       }
-      this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs,
-        this.activeMBs, this.activeMapLinks, this.isTemplateCategory, this.isGroupBoxesChecked, this.mapCategory);
-      this.store.dispatch(retrievedMapSelection({ data: true }));
+      this.contextMenuService.showContextMenu(this.cy, this.isTemplateCategory, this.isGroupBoxesChecked, this.mapCategory);
     }
   }
 
@@ -828,7 +821,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
 
   private _selectNodeAndEdgesInBox() {
     this._processNodeList(this.activeNodeInBox);
-    this.store.dispatch(retrievedMapSelection({ data: true }));
   }
 
   private _selectGroupBox() {
@@ -864,7 +856,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         this.store.dispatch(selectPG({ id: d.id }));
       } else if (d.elem_category == 'map_link' && !this.activeMapLinks.includes(elm)) {
         this.activeMapLinks.push(elm);
-        this.store.dispatch(selectMapLink({id: d.id}))
+        this.store.dispatch(selectMapLink({ id: d.id }))
       } else if (d.elem_category == 'bg_image' && !this.activeMBs.includes(elm)) {
         this.activeMBs.push(elm);
         this.store.dispatch(selectMapImage({ id: d.id }));
@@ -1236,7 +1228,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         this.cmActionsService.getPortGroupActionsMenu(this.cy, Number(this.projectId), this.activePGs),
         this.cmActionsService.getEdgeActionsMenu(this.cy),
         this.cmGroupOptionService.getNodePgGroupMenu(this.cy, this.activeNodes, this.activePGs, this.projectId, this.isCanWriteOnProject),
-        this.cmRemoteService.getNodeRemoteMenu(this.activeNodes),
+        this.cmRemoteService.getNodeRemoteMenu(),
         this.cmRemoteService.getPortGroupRemoteMenu(this.activePGs),
         this.cmViewDetailsService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.mapCategory, Number(this.projectId)),
         this.cmEditService.getMenu(this.cy, this.isCanWriteOnProject, this.mapCategory, Number(this.projectId)),
@@ -1263,8 +1255,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   private _rightClickAndShowContextMenu($event: any) {
     const t = $event.target;
     t.select();
-    this.contextMenuService.showContextMenu(this.cy, this.activeNodes, this.activePGs,
-      this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks, this.isTemplateCategory, this.isGroupBoxesChecked, this.mapCategory);
+    this.contextMenuService.showContextMenu(this.cy, this.isTemplateCategory, this.isGroupBoxesChecked, this.mapCategory);
   }
 
   private _openAddUpdateNodeDialog(genData: any, newNodeData: any, newNodePosition: any) {
@@ -1790,9 +1781,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     }
     this.projectService.validateProject(jsonData).pipe(
       catchError((e: any) => {
-        this.groupService.getGroupByProjectId(projectId).subscribe(groupRes =>
-          this.store.dispatch(retrievedGroups({ data: groupRes.result }))
-        )
+        this.store.dispatch(loadGroups({ projectId }));
         this.toastr.error(e.error.message);
         this.dialog.open(ValidateProjectDialogComponent, {
           disableClose: true,
@@ -1803,9 +1792,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         return throwError(() => e);
       })
     ).subscribe(response => {
-      this.groupService.getGroupByProjectId(projectId).subscribe(groupRes =>
-        this.store.dispatch(retrievedGroups({ data: groupRes.result }))
-      )
+      this.store.dispatch(loadGroups({ projectId }));
       this.toastr.success(response.message);
     });
   }
@@ -1885,33 +1872,19 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
 
   private updateGroups(data: any) {
     if (data.elem_category === 'port_group') {
-      this.portgroupService.put(data.pg_id, {
-        domain_id: data.domain_id,
-      }).subscribe(resp => {
-        this.portgroupService.get(data.pg_id).subscribe(resp => {
-          const pgEle = this.cy.getElementById(`pg-${data.pg_id}`)
-          pgEle.data('groups', resp.result.groups);
-          this.toastr.success('Groups updated!');
-          this.groupService.getGroupByProjectId(this.projectId).subscribe(
-            groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
-          );
-          this.helpersService.reloadGroupBoxes();
-        });
-      });
+      this.store.dispatch(updatePG({
+        id: data.pg_id,
+        data: { domain_id: data.domain_id }
+      }));
+      this.store.dispatch(loadGroups({ projectId: this.projectId }));
+      this.helpersService.reloadGroupBoxes();
     } else if (data.elem_category === 'node') {
-      this.nodeService.put(data.node_id, {
-        domain_id: data.domain_id,
-      }).subscribe(resp => {
-        this.nodeService.get(data.node_id).subscribe(resp => {
-          const nodeEle = this.cy.getElementById(`node-${data.node_id}`)
-          nodeEle.data('groups', resp.result.groups);
-          this.toastr.success('Groups updated!');
-          this.groupService.getGroupByProjectId(this.projectId).subscribe(
-            groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
-          );
-          this.helpersService.reloadGroupBoxes();
-        });
-      });
+      this.store.dispatch(updateNode({
+        id: data.node_id,
+        data: { domain_id: data.domain_id }
+      }));
+      this.store.dispatch(loadGroups({ projectId: this.projectId }));
+      this.helpersService.reloadGroupBoxes();
     }
   }
 }

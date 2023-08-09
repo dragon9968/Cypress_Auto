@@ -19,10 +19,6 @@ export class InfoPanelComponent implements OnInit{
   isOpenInfoPanel = false;
 
   @Input() cy: any;
-  @Input() activeNodes: any[] = [];
-  @Input() activePGs: any[] = [];
-  @Input() activeEdges: any[] = [];
-  @Input() activeGBs: any[] = [];
   selectDomainUser$ = new Subscription();
   isShowMaximize = true
   isShowMinimize = true

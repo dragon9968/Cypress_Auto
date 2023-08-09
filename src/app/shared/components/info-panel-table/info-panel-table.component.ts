@@ -17,10 +17,10 @@ import { AddUpdateInterfaceDialogComponent } from 'src/app/map/add-update-interf
 import { InterfaceBulkEditDialogComponent } from 'src/app/map/bulk-edit-dialog/interface-bulk-edit-dialog/interface-bulk-edit-dialog.component';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 import { DomainService } from 'src/app/core/services/domain/domain.service';
-import { retrievedDomains } from "../../../store/domain/domain.actions";
 import { ProjectService } from "../../../project/services/project.service";
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
+import { loadDomains } from 'src/app/store/domain/domain.actions';
 
 @Component({
   selector: 'app-info-panel-table',
@@ -215,8 +215,7 @@ export class InfoPanelTableComponent {
             data: e.error.result
           });
           if (this.tabName == 'domain' && e.error.result.includes('underscore(s) character')) {
-            this.domainService.getDomainByProjectId(this.projectService.getProjectId())
-              .subscribe((data: any) => this.store.dispatch(retrievedDomains({ data: data.result })));
+            this.store.dispatch(loadDomains({ projectId: this.projectService.getProjectId() }));
           }
           return throwError(() => e);
         })

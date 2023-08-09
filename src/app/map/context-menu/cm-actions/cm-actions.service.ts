@@ -23,11 +23,13 @@ export class CMActionsService implements OnDestroy {
   selectMapOption$ = new Subscription();
   selectLogicalMapInterfaces$ = new Subscription();
   selectSelectedLogicalNodes = new Subscription();
+  selectSelectedPortGroups$ = new Subscription();
+  selectedPortGroups!: any[];
+  selectSelectedLogicalNodes$ = new Subscription();
   isEdgeDirectionChecked = false;
   logicalMapInterfaces!: any[];
   selectedNodes: any[] = [];
-  selectSelectedPortGroups$ = new Subscription();
-  selectedPortGroups!: any[];
+  
   constructor(
     private store: Store,
     private dialog: MatDialog,
@@ -46,10 +48,14 @@ export class CMActionsService implements OnDestroy {
         this.logicalMapInterfaces = logicalMapInterfaces;
       }
     });
-    this.selectSelectedLogicalNodes = this.store.select(selectSelectedLogicalNodes).subscribe(nodes => this.selectedNodes = nodes);
     this.selectSelectedPortGroups$ = this.store.select(selectSelectedPortGroups).subscribe((selectedPortGroups: any) => {
       if (selectedPortGroups) {
         this.selectedPortGroups = selectedPortGroups;
+      }
+    });
+    this.selectSelectedLogicalNodes$ = this.store.select(selectSelectedLogicalNodes).subscribe(selectedNodes => {
+      if (selectedNodes) {
+        this.selectedNodes = selectedNodes;
       }
     });
    }
@@ -58,6 +64,7 @@ export class CMActionsService implements OnDestroy {
     this.selectMapOption$.unsubscribe();
     this.selectSelectedLogicalNodes.unsubscribe();
     this.selectLogicalMapInterfaces$.unsubscribe();
+    this.selectSelectedLogicalNodes$.unsubscribe();
   }
 
   getNodeActionsMenu(cy: any, isCanWriteOnProject: boolean) {

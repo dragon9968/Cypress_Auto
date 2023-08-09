@@ -28,10 +28,6 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
   @ViewChild(InfoPanelTableComponent) infoPanelTableComponent: InfoPanelTableComponent | undefined;
 
   @Input() cy: any;
-  @Input() activeNodes: any[] = [];
-  @Input() activePGs: any[] = [];
-  @Input() activeEdges: any[] = [];
-  @Input() activeGBs: any[] = [];
   @Input() infoPanelheight = '300px';
   filterOptionForm!: FormGroup;
   portGroups: any[] = [];

@@ -6,13 +6,12 @@ import { ToastrService } from 'ngx-toastr';
 import { Subscription, forkJoin, map, of } from 'rxjs';
 import { GroupService } from 'src/app/core/services/group/group.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
-import { MapService } from 'src/app/core/services/map/map.service';
 import { NodeService } from 'src/app/core/services/node/node.service';
 import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
-import { retrievedGroups } from 'src/app/store/group/group.actions';
+import { loadGroups } from 'src/app/store/group/group.actions';
 import { selectGroups } from 'src/app/store/group/group.selectors';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 
@@ -112,11 +111,11 @@ export class AddNodePgToGroupboxDialogComponent implements OnInit {
 
     const updateNodeOnMap = activeNodeLength > 0 ? forkJoin(this.data.genData.activeNodes.map((node: any) => {
       return this.nodeService.get(node.node_id).pipe(map(nodeData => { this._updateNodeOnMap(nodeData.result); }));
-      })) : of(null)
+    })) : of(null)
 
     const updatePgOnMap = activePgLength > 0 ? forkJoin(this.data.genData.activePGs.map((pg: any) => {
       return this.portGroupService.get(pg.pg_id).pipe(map(pgData => { this._updatePGOnMap(pgData.result); }));
-      })) : of(null)
+    })) : of(null)
     const successMessage = 'Add node/port group to group successfully'
     const jsonData = {
       name: this.selectGroupCtr?.value.name,
@@ -132,17 +131,15 @@ export class AddNodePgToGroupboxDialogComponent implements OnInit {
 
     this.groupService.put(this.selectGroupCtr?.value.id, jsonData).subscribe(response => {
       this.toastr.success(`Updated for the ${response.result} successfully`);
-        return forkJoin({
-          node: updateNodeOnMap,
-          port_group: updatePgOnMap,
-        }).subscribe(() => {
-          this.helpers.reloadGroupBoxes();
-          this.dialogRef.close();
-          this.groupService.getGroupByProjectId(this.data.projectId).subscribe(
-            groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
-          )
-          this.toastr.success(successMessage, 'Success');
-        })
+      return forkJoin({
+        node: updateNodeOnMap,
+        port_group: updatePgOnMap,
+      }).subscribe(() => {
+        this.store.dispatch(loadGroups({ projectId: this.data.project }));
+        this.helpers.reloadGroupBoxes();
+        this.dialogRef.close();
+        this.toastr.success(successMessage, 'Success');
+      })
     })
   }
 

@@ -42,12 +42,10 @@ import { ServerConnectService } from '../../services/server-connect/server-conne
 import { ServerConnectDialogComponent } from 'src/app/map/tool-panel/tool-panel-remote/server-connect-dialog/server-connect-dialog.component';
 import { retrievedServerConnect} from 'src/app/store/server-connect/server-connect.actions';
 import { AboutComponent } from 'src/app/help/about/about.component';
-import { ValidateProjectDialogComponent } from 'src/app/project/validate-project-dialog/validate-project-dialog.component';
 import { CloneProjectDialogComponent } from 'src/app/project/clone-project-dialog/clone-project-dialog.component';
 import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
 import { LDAPConfigurationComponent } from 'src/app/administration/ldap-configuration/ldap-configuration.component';
 import { LdapConfigService } from '../../services/ldap-config/ldap-config.service';
-import { retrievedDomains } from "../../../store/domain/domain.actions";
 import { DomainService } from "../../services/domain/domain.service";
 import { selectUserProfile } from 'src/app/store/user-profile/user-profile.selectors';
 

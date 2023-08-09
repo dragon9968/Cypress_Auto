@@ -5,26 +5,74 @@ import {
   selectIsConfiguratorConnect,
   selectIsHypervisorConnect
 } from "../../store/server-connect/server-connect.selectors";
+import { selectSelectedLogicalNodes } from 'src/app/store/node/node.selectors';
+import { selectSelectedPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
+import { selectSelectedLogicalInterfaces } from 'src/app/store/interface/interface.selectors';
+import { selectSelectedGroups } from 'src/app/store/group/group.selectors';
+import { selectSelectedMapImages } from 'src/app/store/map-image/map-image.selectors';
+import { selectSelectedMapLinks } from 'src/app/store/map-link/map-link.selectors';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ContextMenuService implements OnDestroy {
 
-  selectIsHypervisorConnect$ = new Subscription()
-  selectIsConfiguratorConnect$ = new Subscription()
+  selectIsHypervisorConnect$ = new Subscription();
+  selectIsConfiguratorConnect$ = new Subscription();
+  selectSelectedLogicalNodes$ = new Subscription();
+  selectSelectedPortGroups$ = new Subscription();
+  selectSelectedLogicalInterfaces$ = new Subscription();
+  selectSelectedGroups$ = new Subscription();
+  selectSelectedMapImages$ = new Subscription();
+  selectSelectedMapLinks$ = new Subscription();
+  selectedNodes: any[] = [];
+  selectedPGs: any[] = [];
+  selectedInterfaces: any[] = [];
+  selectedGroups: any[] = [];
+  selectedMapImages: any[] = [];
+  selectedMapLinks: any[] = [];
   isHypervisorConnect = false;
   isConfiguratorConnect = false;
-
+  
   constructor(
     private store: Store
   ) {
     this.selectIsHypervisorConnect$ = this.store.select(selectIsHypervisorConnect).subscribe(isHypervisorConnect => {
       this.isHypervisorConnect = isHypervisorConnect
-    })
+    });
     this.selectIsConfiguratorConnect$ = this.store.select(selectIsConfiguratorConnect).subscribe(isConfiguratorConnect => {
       this.isConfiguratorConnect = isConfiguratorConnect
-    })
+    });
+    this.selectSelectedLogicalNodes$ = this.store.select(selectSelectedLogicalNodes).subscribe(selectedNodes => {
+      if (selectedNodes) {
+        this.selectedNodes = selectedNodes;
+      }
+    });
+    this.selectSelectedPortGroups$ = this.store.select(selectSelectedPortGroups).subscribe(selectedPGs => {
+      if (selectedPGs) {
+        this.selectedPGs = selectedPGs;
+      }
+    });
+    this.selectSelectedLogicalInterfaces$ = this.store.select(selectSelectedLogicalInterfaces).subscribe(selectedInterfaces => {
+      if (selectedInterfaces) {
+        this.selectedInterfaces = selectedInterfaces;
+      }
+    });
+    this.selectSelectedGroups$ = this.store.select(selectSelectedGroups).subscribe(selectedGroups => {
+      if (selectedGroups) {
+        this.selectedGroups = selectedGroups;
+      }
+    });
+    this.selectSelectedMapImages$ = this.store.select(selectSelectedMapImages).subscribe(selectedMapImages => {
+      if (selectedMapImages) {
+        this.selectedMapImages = selectedMapImages;
+      }
+    });
+    this.selectSelectedMapLinks$ = this.store.select(selectSelectedMapLinks).subscribe(selectedMapLinks => {
+      if (selectedMapLinks) {
+        this.selectedMapLinks = selectedMapLinks;
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -32,14 +80,13 @@ export class ContextMenuService implements OnDestroy {
     this.selectIsConfiguratorConnect$.unsubscribe();
   }
 
-  showContextMenu(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], activeMBs: any[],
-    activeMapLinks: any[], isTemplateCategory: any, isGroupBoxesChecked: boolean, mapCategory: string) {
-    const activeNodesLength = activeNodes.length;
-    const activePGsLength = activePGs.length;
-    const activeEdgesLength = activeEdges.length;
-    const activeGBsLength = activeGBs.length;
-    const activeMBsLength = activeMBs.length;
-    const activeMapLinksLength = activeMapLinks.length;
+  showContextMenu(cy: any, isTemplateCategory: any, isGroupBoxesChecked: boolean, mapCategory: string) {
+    const activeNodesLength = this.selectedNodes.length;
+    const activePGsLength = this.selectedPGs.length;
+    const activeEdgesLength = this.selectedInterfaces.length;
+    const activeGBsLength = this.selectedGroups.length;
+    const activeMBsLength = this.selectedMapImages.length;
+    const activeMapLinksLength = this.selectedMapLinks.length;
     const contextMenu = cy.contextMenus('get');
     this.hideAllMenuOptions(contextMenu);
     if (activeGBsLength > 0) {

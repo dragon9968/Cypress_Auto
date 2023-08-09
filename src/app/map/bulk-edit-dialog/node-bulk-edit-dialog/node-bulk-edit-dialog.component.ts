@@ -19,7 +19,6 @@ import { selectTemplates } from "../../../store/template/template.selectors";
 import { selectLoginProfiles } from "../../../store/login-profile/login-profile.selectors";
 import { selectConfigTemplates } from "../../../store/config-template/config-template.selectors";
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
-import { retrievedGroups } from "../../../store/group/group.actions";
 import { GroupService } from "../../../core/services/group/group.service";
 import { bulkEditNode } from "src/app/store/node/node.actions";
 import { selectNotification } from "src/app/store/app/app.selectors";

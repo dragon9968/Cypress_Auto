@@ -58,8 +58,8 @@ export const updateNode = createAction(
   props<{
     id: number,
     data: any,
-    configTemplate: any,
-    configDefaultNode: any
+    configTemplate?: any,
+    configDefaultNode?: any
   }>()
 );
 

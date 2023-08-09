@@ -5,7 +5,6 @@ import {
   groupAddedSuccess,
   groupUpdatedSuccess,
   groupsLoadedSuccess,
-  retrievedGroups,
   selectGroup,
   unSelectGroup,
   updateNodeInGroup,
@@ -43,10 +42,6 @@ const addCyDataToGroup = (group: any) => {
 
 export const groupReducer = createReducer(
   initialState,
-  on(retrievedGroups, (state, { data }) => ({
-    ...state,
-    groups: data
-  })),
   on(groupsLoadedSuccess, (state, { groups }) => {
     const g = groups.map((group: any) => addCyDataToGroup(group));
     return {

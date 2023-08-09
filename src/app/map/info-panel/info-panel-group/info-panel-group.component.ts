@@ -25,10 +25,6 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
 
   @Input() cy: any;
   @Input() infoPanelheight = '300px';
-  @Input() activeNodes: any[] = [];
-  @Input() activePGs: any[] = [];
-  @Input() activeEdges: any[] = [];
-  @Input() activeGBs: any[] = [];
   filterOptionForm!: FormGroup;
   mapCategory = '';
   projectId: string = '0';
@@ -178,14 +174,7 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
           project_id: groupData.result.project_id,
           map_category: 'logical'
         };
-        const dialogRef = this.dialog.open(AddUpdateGroupDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
-        dialogRef.afterClosed().subscribe(result => {
-          if (result) {
-            this.activePGs.splice(0);
-            this.activeEdges.splice(0);
-            this.activeNodes.splice(0);
-          }
-        });
+        this.dialog.open(AddUpdateGroupDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
       })
     } else {
       this.toastr.info('Bulk edits do not apply to the Group.<br>Please select only one Group',

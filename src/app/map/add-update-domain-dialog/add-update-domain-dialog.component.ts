@@ -8,9 +8,8 @@ import { DomainService } from "../../core/services/domain/domain.service";
 import { HelpersService } from "../../core/services/helpers/helpers.service";
 import { ErrorMessages } from "../../shared/enums/error-messages.enum";
 import { selectDomains } from "../../store/domain/domain.selectors";
-import { addDomain, retrievedDomains, updateDomain } from "../../store/domain/domain.actions";
+import { addDomain, updateDomain } from "../../store/domain/domain.actions";
 import { validateNameExist } from "../../shared/validations/name-exist.validation";
-import { retrievedGroups } from "src/app/store/group/group.actions";
 import { GroupService } from "src/app/core/services/group/group.service";
 import { selectNotification } from "src/app/store/app/app.selectors";
 

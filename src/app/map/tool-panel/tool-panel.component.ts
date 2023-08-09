@@ -13,18 +13,11 @@ import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
 import { CommonService } from 'src/app/map/context-menu/cm-common-service/common.service';
 import { retrievedMapContextMenu } from 'src/app/store/map-context-menu/map-context-menu.actions';
 import { loadMap } from 'src/app/store/map/map.actions';
-import { GroupService } from "../../core/services/group/group.service";
 import { selectGroups } from "../../store/group/group.selectors";
-import { retrievedGroups } from "../../store/group/group.actions";
 import { selectDeletedPortGroups, selectMapPortGroups } from "../../store/portgroup/portgroup.selectors";
-import { ProjectService } from "../../project/services/project.service";
 import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
 import { retrievedMapOption } from "../../store/map-option/map-option.actions";
-import { InterfaceService } from 'src/app/core/services/interface/interface.service';
-import { loadPGs } from 'src/app/store/portgroup/portgroup.actions';
-import { loadNodes } from 'src/app/store/node/node.actions';
 import { selectDeletedLogicalNodes, selectLogicalNodes } from 'src/app/store/node/node.selectors';
-import { loadProjectsNotLinkYet } from "../../store/project/project.actions";
 import { selectDeletedLogicalInterfaces } from 'src/app/store/interface/interface.selectors';
 
 @Component({
@@ -46,12 +39,6 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   @Input() isDisableAddProjectTemplate = true;
   @Input() isDisableNewFromSelected = true;
   @Input() isTemplateCategory = false;
-  @Input() activeNodes: any[] = [];
-  @Input() activePGs: any[] = [];
-  @Input() activeEdges: any[] = [];
-  @Input() activeGBs: any[] = [];
-  @Input() activeMBs: any[] = [];
-  @Input() activeMapLinks: any[] = [];
   @Input() saveMapSubject!: Observable<any>;
   @Input() isAddNode = false;
   @Input() isAddPublicPG = false;
@@ -308,10 +295,6 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
           this.store.dispatch(loadMap({ projectId: this.projectId, mapCategory: this.mapCategory }));
-          this.activeNodes.splice(0);
-          this.activePGs.splice(0);
-          this.activeEdges.splice(0);
-          this.activeGBs.splice(0);
         }
       });
     }
@@ -648,7 +631,6 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       newGroups.splice(indexGroup, 1, newGroup);
     })
     this.updatedNodeAndPGInGroups.splice(0);
-    this.store.dispatch(retrievedGroups({ data: newGroups }));
   }
 
   private _updateGroupsPropertyOfNodeOnMap(itemsIds: any[], group: any, typeOfElement: string) {

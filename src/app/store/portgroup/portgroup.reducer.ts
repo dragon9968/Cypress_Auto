@@ -6,7 +6,6 @@ import {
   bulkUpdatedPGSuccess,
   removePGsSuccess,
   restorePGsSuccess,
-  retrievedPortGroups,
   selectAllPG,
   selectPG,
   unSelectPG,
@@ -41,10 +40,6 @@ const addCYDataToPG = (portGroup: any) => {
 
 export const portGroupReducer = createReducer(
   initialState,
-  on(retrievedPortGroups, (state, { data }) => ({
-    ...state,
-    portgroups: data,
-  })),
   on(PGsLoadedSuccess, (state, { portgroups }) => {
     const pgs: any[] = [];
     const managementPGs: any[] = [];
