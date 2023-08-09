@@ -72,7 +72,7 @@ export class DeleteNodeDeployDialogComponent implements OnInit, OnDestroy {
 
   deleteNodeDeployed() {
     const jsonData = {
-      connection_id: this.connection ? this.connection.id : 0,
+      hypervisor_id: this.connection ? this.connection.id : 0,
       category: 'node',
       job_name: 'delete_node',
       pks: this.data.activeNodes.map((ele: any) => ele.data('node_id')).join(','),

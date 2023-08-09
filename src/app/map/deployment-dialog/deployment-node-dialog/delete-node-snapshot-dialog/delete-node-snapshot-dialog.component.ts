@@ -51,7 +51,7 @@ export class DeleteNodeSnapshotDialogComponent {
       category: 'node',
       pks: this.data.activeNodes.map((ele: any) => ele.data('node_id')).join(","),
       snapshot_name: this.nameCtr?.value?.name,
-      connection_id: connection ? connection.id : 0
+      hypervisor_id: connection ? connection.id : 0
     };
     this.taskService.add(jsonData).pipe(
       catchError((e: any) => {

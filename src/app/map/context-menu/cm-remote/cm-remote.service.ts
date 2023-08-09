@@ -238,7 +238,7 @@ export class CMRemoteService implements OnDestroy{
               const projectId = this.projectService.getProjectId()
               const connection = this.serverConnectionService.getConnection(this.connectionCategory);
               const pks = this.selectedNodes.map(ele => ele.id);
-              this.nodeService.getSnapshots({pks: pks, project_id: projectId, connection_id: connection ? connection?.id : 0}).subscribe({
+              this.nodeService.getSnapshots({pks: pks, project_id: projectId, hypervisor_id: connection ? connection?.id : 0}).subscribe({
                 next: response => {
                   const dialogData = {
                     activeNodes: this.selectedNodes,
@@ -264,7 +264,7 @@ export class CMRemoteService implements OnDestroy{
               const projectId = this.projectService.getProjectId()
               const connection = this.serverConnectionService.getConnection(this.connectionCategory);
               const pks = this.selectedNodes.map(ele => ele.id);
-              this.nodeService.getSnapshots({pks: pks, project_id: projectId, connection_id: connection ? connection?.id : 0}).subscribe({
+              this.nodeService.getSnapshots({pks: pks, project_id: projectId, hypervisor_id: connection ? connection?.id : 0}).subscribe({
                 next: response => {
                   const dialogData = {
                     activeNodes: this.selectedNodes,

@@ -280,7 +280,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
         jsonData = {
           pks: pks,
           project_id: projectId,
-          connection_id: connection ? connection?.id : 0
+          hypervisor_id: connection ? connection?.id : 0
         }
         this.nodeService.getSnapshots(jsonData).subscribe(response => {
           const dialogData = {
@@ -298,7 +298,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
         jsonData = {
           pks: pks,
           project_id: projectId,
-          connection_id: connection ? connection?.id : 0
+          hypervisor_id: connection ? connection?.id : 0
         }
         this.nodeService.getSnapshots(jsonData).subscribe(response => {
           const dialogData = {
