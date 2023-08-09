@@ -9,34 +9,6 @@
       <mat-label class="remote-item__field--label">Server <span>:</span></mat-label>
       <span class="remote-item__field--content">{{ connectionServer }}</span>
     </div>
-    <!--<div class="remote-item__field">
-      <mat-label class="remote-item__field&#45;&#45;label">Category <span>:</span></mat-label>
-      <span class="remote-item__field&#45;&#45;content">{{ connectionCategory }}</span>
-    </div>
-    <div class="remote-item__field">
-      <mat-label class="remote-item__field&#45;&#45;label">Datacenter <span>:</span></mat-label>
-      <span class="remote-item__field&#45;&#45;content">{{ connectionDatacenter }}</span>
-    </div>
-    <div class="remote-item__field">
-      <mat-label class="remote-item__field&#45;&#45;label">Cluster <span>:</span></mat-label>
-      <span class="remote-item__field&#45;&#45;content">{{ connectionCluster }}</span>
-    </div>
-    <div class="remote-item__field">
-      <mat-label class="remote-item__field&#45;&#45;label">Switch <span>:</span></mat-label>
-      <span class="remote-item__field&#45;&#45;content">{{ connectionSwitch }}</span>
-    </div>
-    <div class="remote-item__field">
-      <mat-label class="remote-item__field&#45;&#45;label">Datastore <span>:</span></mat-label>
-      <span class="remote-item__field&#45;&#45;content">{{ connectionDatastore }}</span>
-    </div>
-    <div class="remote-item__field">
-      <mat-label class="remote-item__field&#45;&#45;label">Switch Type<span>:</span> </mat-label>
-      <span class="remote-item__field&#45;&#45;content">{{ connectionSwitchType }}</span>
-    </div>
-    <div class="remote-item__field">
-      <mat-label class="remote-item__field&#45;&#45;label">Username<span>:</span></mat-label>
-      <span class="remote-item__field&#45;&#45;content">{{ userName }}</span>
-    </div>-->
     <div class="remote-item__field">
       <mat-label class="remote-item__field--label">Status<span>:</span></mat-label>
       <mat-slide-toggle [(ngModel)]="vmStatusChecked" color="primary" (change)="toggleVMStatus($event)">
@@ -52,63 +24,6 @@
       </button>
     </div>
   </section>
-  <!-- <section *ngIf="activeNodes.length !== 0 || activePGs.length !== 0" class="tab-section">
-    <h4 class="remote-item__title">Hypervisor Deployment</h4>
-    <div *ngIf="activeNodes.length !== 0">
-      <form [formGroup]="nodeTaskForm" (ngSubmit)="goNodeTask('vmware_vcenter')" class="tab-form">
-        <mat-form-field class="tab-select-field">
-          <mat-label>Node Task</mat-label>
-          <input matInput placeholder="Select a task"
-                  formControlName="nodeTaskCtr"
-                  [matAutocomplete]="autoTask">
-          <mat-autocomplete #autoTask="matAutocomplete" [displayWith]="helpersService.optionDisplay">
-            <mat-option *ngFor="let task of filteredNodeTasks | async" [value]="task">
-              {{ task.name }}
-            </mat-option>
-          </mat-autocomplete>
-          <mat-error *ngIf="nodeTaskCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-          <mat-error *ngIf="nodeTaskCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
-        </mat-form-field>
-        <button mat-raised-button class="tab-select-btn" type="submit" color="primary" [disabled]="nodeTaskForm.invalid">Go</button>
-      </form>
-    </div>
-    <div *ngIf="activeNodes.length !== 0">
-      <form class="tab-form" [formGroup]="nodeToolForm" (ngSubmit)="goNodeTool('vmware_vcenter')">
-        <mat-form-field class="tab-select-field">
-          <mat-label>Node Tool</mat-label>
-          <input matInput placeholder="Select a tool"
-                  formControlName="toolCtr"
-                  [matAutocomplete]="autoTool">
-          <mat-autocomplete #autoTool="matAutocomplete" [displayWith]="helpersService.optionDisplay">
-            <mat-option *ngFor="let tool of filteredTools | async" [value]="tool">
-              {{ tool.name }}
-            </mat-option>
-          </mat-autocomplete>
-          <mat-error *ngIf="toolCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-          <mat-error *ngIf="toolCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
-        </mat-form-field>
-        <button mat-raised-button class="tab-select-btn" type="submit" color="primary" [disabled]="nodeToolForm.invalid">Go</button>
-      </form>
-    </div>
-    <div *ngIf="activePGs.length !== 0">
-      <form class="tab-form" [formGroup]="portGroupTaskFrom" (ngSubmit)="goPGTask('vmware_vcenter')">
-        <mat-form-field class="tab-select-field">
-          <mat-label>Port Group Task</mat-label>
-          <input matInput placeholder="Select a task"
-                  formControlName="pgTaskCtr"
-                  [matAutocomplete]="autoTask">
-          <mat-autocomplete #autoTask="matAutocomplete" [displayWith]="helpersService.optionDisplay">
-            <mat-option *ngFor="let task of filteredTasks | async" [value]="task">
-              {{ task.name }}
-            </mat-option>
-          </mat-autocomplete>
-          <mat-error *ngIf="pgTaskCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-          <mat-error *ngIf="pgTaskCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
-        </mat-form-field>
-        <button mat-raised-button class="tab-select-btn" type="submit" color="primary" [disabled]="portGroupTaskFrom.invalid">Go</button>
-      </form>
-    </div>
-  </section> -->
 </section>
 
 <section *ngIf="isDatasourceConnect" class="tab-remote remote-list">
@@ -127,7 +42,7 @@
       <span class="remote-item__field--content">{{ connectionDatasourceUsername }}</span>
     </div>
   </section>
-  <section *ngIf="activeNodes.length !== 0" class="tab-section">
+  <section *ngIf="selectedNodes.length !== 0" class="tab-section">
     <button mat-raised-button color="primary" class="add-pg-btn" matTooltip="Query" (click)="queryES()">
         <mat-icon>search</mat-icon>
         <span>Query</span>
@@ -150,21 +65,12 @@
       <mat-label class="remote-item__field--label">Username<span>:</span></mat-label>
       <span class="remote-item__field--content">{{ connectionConfiguratorUsername }}</span>
     </div>
-    <!-- <div class="remote-item__field">
-      <mat-label class="remote-item__field--label">Status<span>:</span></mat-label>
-      <mat-slide-toggle [(ngModel)]="vmStatusChecked" color="primary" (change)="toggleVMStatus($event)">
-      </mat-slide-toggle>
-      <button mat-mini-fab class="btn-refresh" color="primary"
-              matTooltip="Refresh Map Status" (click)="refreshVMStatus()">
-        <mat-icon small>autorenew</mat-icon>
-      </button>
-    </div> -->
   </section>
 </section>
 <section *ngIf="isConfiguratorConnect || isHyperConnect">
-  <section *ngIf="activeNodes.length !== 0 || activePGs.length !== 0" class="tab-section">
+  <section *ngIf="selectedNodes.length !== 0 || selectedPGs.length !== 0" class="tab-section">
     <h4 class="remote-item__title">Deployment</h4>
-    <div *ngIf="activeNodes.length !== 0">
+    <div *ngIf="selectedNodes.length !== 0">
       <form [formGroup]="nodeTaskForm" (ngSubmit)="goNodeTask('vmware_vcenter')" class="tab-form">
         <mat-form-field class="tab-select-field">
           <mat-label>Node Task</mat-label>
@@ -182,7 +88,7 @@
         <button mat-raised-button class="tab-select-btn" type="submit" color="primary" [disabled]="nodeTaskForm.invalid">Go</button>
       </form>
     </div>
-    <div *ngIf="activeNodes.length !== 0">
+    <div *ngIf="selectedNodes.length !== 0">
       <form class="tab-form" [formGroup]="nodeToolForm" (ngSubmit)="goNodeTool('vmware_vcenter')">
         <mat-form-field class="tab-select-field">
           <mat-label>Node Tool</mat-label>
@@ -200,7 +106,7 @@
         <button mat-raised-button class="tab-select-btn" type="submit" color="primary" [disabled]="nodeToolForm.invalid">Go</button>
       </form>
     </div>
-    <div *ngIf="activePGs.length !== 0">
+    <div *ngIf="selectedPGs.length !== 0">
       <form class="tab-form" [formGroup]="portGroupTaskFrom" (ngSubmit)="goPGTask('vmware_vcenter')">
         <mat-form-field class="tab-select-field">
           <mat-label>Port Group Task</mat-label>

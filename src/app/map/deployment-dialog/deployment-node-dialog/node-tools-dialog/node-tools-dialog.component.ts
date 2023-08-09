@@ -53,8 +53,7 @@ export class NodeToolsDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const activeNodes = this.data.activeNodes;
-    const loginProfileId = activeNodes.find((node: any) => node.data('login_profile_id'))?.data('login_profile_id');
+    const loginProfileId = this.data.activeNodes[0].login_profile_id;
     if (loginProfileId) {
       this.helpersService.setAutoCompleteValue(this.loginProfileCtr, this.loginProfiles, loginProfileId);
     }
@@ -75,7 +74,7 @@ export class NodeToolsDialogComponent implements OnInit {
     const connection = this.serviceConnectionService.getConnection(this.data.category);
     const connectionId = connection ? connection.id : 0;
     let jsonData: any = {
-      pks: this.data.activeNodes.map((node: any) => node.data('node_id')).join(","),
+      pks: this.data.activeNodes.map((node: any) => node.id).join(","),
       job_name: this.jobName,
       category: 'node',
       hypervisor_id: connectionId,

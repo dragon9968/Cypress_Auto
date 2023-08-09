@@ -48,8 +48,7 @@ export class AddUpdateNodeDeployDialogComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    const activeNodes = this.data.activeNodes;
-    const loginProfileId = activeNodes.find((node: any) => node.data('login_profile_id'))?.data('login_profile_id');
+    const loginProfileId = this.data.activeNodes[0].login_profile_id;
     if (loginProfileId) {
       this.helpers.setAutoCompleteValue(this.loginProfileCtr, this.loginProfiles, loginProfileId);
     }
@@ -77,7 +76,7 @@ export class AddUpdateNodeDeployDialogComponent implements OnInit, OnDestroy {
       datasource_id: datasource ? datasource.id : 0,
       job_name: this.data.jobName,
       category: 'node',
-      pks: this.data.activeNodes.map((ele: any) => ele.data('node_id')).join(","),
+      pks: this.data.activeNodes.map((ele: any) => ele.id).join(","),
       backup_vm: this.isBackupVMCtr?.value,
       os_customization: this.isOSCustomizationCtr?.value,
       login_profile_id: this.loginProfileCtr?.value?.id

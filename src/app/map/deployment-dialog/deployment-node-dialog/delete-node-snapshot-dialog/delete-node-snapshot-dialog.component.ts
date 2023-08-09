@@ -49,7 +49,7 @@ export class DeleteNodeSnapshotDialogComponent {
     const jsonData = {
       job_name: 'delete_snapshot',
       category: 'node',
-      pks: this.data.activeNodes.map((ele: any) => ele.data('node_id')).join(","),
+      pks: this.data.activeNodes.map((ele: any) => ele.id).join(","),
       snapshot_name: this.nameCtr?.value?.name,
       hypervisor_id: connection ? connection.id : 0
     };

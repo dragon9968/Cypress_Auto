@@ -292,7 +292,7 @@ export class CMRemoteService implements OnDestroy{
           activeNodes: this.selectedNodes,
           category: this.connectionCategory
         };
-        this.dialog.open(UpdateFactsNodeDialogComponent, { disableClose: true, width: '600px', data: dialogData });
+        this.dialog.open(UpdateFactsNodeDialogComponent, { disableClose: true, width: '600px', data: dialogData, autoFocus: false });
       },
       hasTrailingDivider: true,
       disabled: false,
