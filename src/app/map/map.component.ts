@@ -79,6 +79,7 @@ import {
 } from "../store/server-connect/server-connect.selectors";
 import { MapImageService } from '../core/services/map-image/map-image.service';
 import {
+  addNewMapImage,
   retrievedImages,
   selectMapImage,
   unSelectMapImage
@@ -1714,47 +1715,9 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         position: newNodePosition,
       }
     }
-    this.mapImageService.add(jsonData).pipe(
-      catchError((resp: any) => {
-        this.isAddMapImage = false;
-        this._enableMapEditButtons();
-        this.toastr.error('Add map image failed!', 'Error');
-        if (resp.status == 422) {
-          const errorMsg: any[] = resp.error.message;
-          const m = Object.keys(errorMsg).map((key: any) => key + ': ' + errorMsg[key])
-          this.toastr.error(m.join(','));
-        }
-        return throwError(() => resp.message);
-      })
-    ).subscribe(response => {
-      this.isAddMapImage = false;
-      this._enableMapEditButtons();
-      this.mapImageService.get(response.id).subscribe(respData => {
-        const cyData = respData.result;
-        cyData.id = 'map_image-' + respData.id;
-        cyData.map_image_id = respData.id;
-        cyData.collapsed = true;
-        cyData.height = cyData.logical_map.map_style.height;
-        cyData.width = cyData.logical_map.map_style.width;
-        cyData.text_color = cyData.logical_map.map_style.text_color;
-        cyData.text_size = cyData.logical_map.map_style.text_size;
-        const newNodeData = {
-          "label": "map_background",
-          "elem_category": "bg_image",
-          "updated": false,
-          "src": ICON_PATH + cyData.image.photo,
-          "zIndex": 998,
-          "width": width,
-          "height": height,
-          "locked": false,
-          "scale_image": 100,
-          "original_width": width,
-          "original_height": height,
-        }
-        this.helpersService.addCYNode({ newNodeData: { ...newNodeData, ...cyData }, newNodePosition });
-        this.toastr.success('Add map image successfully', 'Success');
-      });
-    });
+    this.store.dispatch(addNewMapImage({ mapImage: jsonData }))
+    this.isAddMapImage = false;
+    this._enableMapEditButtons();
   }
 
   private updateGroups(data: any) {

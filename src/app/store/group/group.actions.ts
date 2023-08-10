@@ -50,6 +50,13 @@ export const updatePGInGroup = createAction(
   props<{ portGroup: any }>()
 );
 
+export const updateMapImageInGroup = createAction(
+  'updateMapImageInGroup',
+  props<{ mapImage: any }>()
+);
+
+updateMapImageInGroup
+
 export const addGroup = createAction(
   'addGroup',
   props<{

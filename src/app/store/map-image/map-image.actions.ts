@@ -20,6 +20,21 @@ export const mapImagesLoadedSuccess = createAction(
   props<{ mapImages: any }>()
 );
 
+export const addNewMapImage = createAction(
+  'addNewMapImage',
+  props<{ mapImage: any }>()
+)
+
+export const mapImageAddedSuccess = createAction(
+  'mapImageAddedSuccess',
+  props<{ mapImage: any }>()
+)
+
+export const addNewMapImageToMap = createAction(
+  'addNewMapImageToMap',
+  props<{ id: number }>()
+)
+
 export const selectMapImage = createAction(
   'selectMapImage',
   props<{ id: string }>()

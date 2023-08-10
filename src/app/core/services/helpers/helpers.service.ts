@@ -1746,6 +1746,11 @@ export class HelpersService implements OnDestroy {
     this.addCYNode(JSON.parse(JSON.stringify(portGroup)))
   }
 
+  addMapImageToMap(id: number) {
+    const mapImage = this.mapImages.find(mi => mi.id === id)
+    this.addCYNode(JSON.parse(JSON.stringify(mapImage)))
+  }
+
   updateSubnetPgOnMap(pgData: any) {
     const element = this.cy.getElementById('pg-' + pgData.id);
     element.data('subnet', pgData.subnet);

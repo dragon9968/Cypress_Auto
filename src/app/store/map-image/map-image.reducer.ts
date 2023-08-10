@@ -8,7 +8,8 @@ import {
   unSelectAllMapImage,
   unSelectMapImage,
   clearLinkedMapImages,
-  linkedMapImagesLoadedSuccess
+  linkedMapImagesLoadedSuccess,
+  mapImageAddedSuccess
 } from './map-image.actions';
 import { MapImageState } from './map-image.state';
 
@@ -90,6 +91,16 @@ export const mapImagesReducer = createReducer(
       mapImages
     }
   }),
+
+  on(mapImageAddedSuccess, (state, { mapImage }) => {
+    const mapImageCY = addCyDataToMapImages(mapImage);
+    const mapImages = state.mapImages.concat(mapImageCY)
+    return {
+      ...state,
+      mapImages
+    }
+  }),
+
   on(linkedMapImagesLoadedSuccess, (state, { mapImages, mapLinkId, position }) => {
     const linkedMapImages = JSON.parse(JSON.stringify(mapImages)).map((mapImage: any) => {
       let mapImagesCY = addCyDataToMapImages(mapImage)

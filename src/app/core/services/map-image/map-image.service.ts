@@ -22,7 +22,7 @@ export class MapImageService {
     });
   }
 
-  get(id: string): Observable<any> {
+  get(id: number): Observable<any> {
     return this.http.get<any>(ApiPaths.MAP_IMAGE + id);
   }
 
