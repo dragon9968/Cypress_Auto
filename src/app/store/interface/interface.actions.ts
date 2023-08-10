@@ -67,6 +67,16 @@ export const unSelectInterface = createAction(
   props<{ id: string }>()
 );
 
+export const selectPhysicalInterface = createAction(
+  'selectPhysicalInterface',
+  props<{ id: string }>()
+);
+
+export const unSelectPhysicalInterface = createAction(
+  'unSelectPhysicalInterface',
+  props<{ id: string }>()
+);
+
 export const selectAllInterface = createAction(
   'selectAllInterface'
 );

@@ -218,7 +218,7 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
       this.data.cy.remove(edge);
       const id = this.sourceInterfaceCtr?.value.id
       const cyData = respData.result;
-      cyData.id = id;
+      cyData.id = `interface-${id}`;
       cyData.interface_pk = id;
       cyData.width = cyData.logical_map.map_style.width;
       cyData.text_color = cyData.logical_map.map_style.text_color;

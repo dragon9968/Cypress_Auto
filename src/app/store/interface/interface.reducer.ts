@@ -26,7 +26,9 @@ import {
   restoreInterfacesSuccess,
   interfaceLogicalMapAddedSuccess,
   addInterfacesNotConnectPG,
-  logicalInterfacesAddedSuccess
+  logicalInterfacesAddedSuccess,
+  selectPhysicalInterface,
+  unSelectPhysicalInterface
 } from "./interface.actions";
 
 const initialState = {} as InterfaceState;
@@ -257,6 +259,28 @@ export const interfaceReducerByIds = createReducer(
       ...state,
       isSelectedFlag: true,
       logicalMapInterfaces
+    }
+  }),
+  on(selectPhysicalInterface, (state, { id }) => {
+    const physicalInterfaces = state.physicalInterfaces.map(n => {
+      if (n.data.id == id) return { ...n, isSelected: true };
+      return n;
+    })
+    return {
+      ...state,
+      isSelectedFlag: true,
+      physicalInterfaces
+    }
+  }),
+  on(unSelectPhysicalInterface, (state, { id }) => {
+    const physicalInterfaces = state.physicalInterfaces.map(n => {
+      if (n.data.id == id) return { ...n, isSelected: false };
+      return n;
+    })
+    return {
+      ...state,
+      isSelectedFlag: true,
+      physicalInterfaces
     }
   }),
   on(selectAllInterface, (state) => {

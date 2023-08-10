@@ -65,6 +65,7 @@ export class CMActionsService implements OnDestroy {
     this.selectSelectedLogicalNodes.unsubscribe();
     this.selectLogicalMapInterfaces$.unsubscribe();
     this.selectSelectedLogicalNodes$.unsubscribe();
+    this.selectSelectedPortGroups$.unsubscribe();
   }
 
   getNodeActionsMenu(isCanWriteOnProject: boolean) {

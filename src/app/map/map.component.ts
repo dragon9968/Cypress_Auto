@@ -71,6 +71,7 @@ import {
   retrievedInterfacesByDestinationNode,
   retrievedIsInterfaceConnectPG,
   selectInterface,
+  selectPhysicalInterface,
   unSelectInterface
 } from "../store/interface/interface.actions";
 import {
@@ -689,7 +690,11 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
       if (this.isBoxSelecting || this.isSearching) { return; }
       if (t.isEdge()) {
         if (t.data('category') !== 'link') {
-          this.store.dispatch(selectInterface({ id: t.data('id') }));
+          if (this.mapCategory === 'logical') {
+            this.store.dispatch(selectInterface({ id: t.data('id') }));
+          } else {
+            this.store.dispatch(selectPhysicalInterface({ id: t.data('id') }));
+          }
         }
       }
       this.contextMenuService.showContextMenu(this.cy, this.isTemplateCategory, this.isGroupBoxesChecked, this.mapCategory);

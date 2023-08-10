@@ -26,6 +26,7 @@ export const selectPhysicalManagementInterfaces = createSelector(selectInterface
 export const selectLinkedMapInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.linkedMapInterfaces);
 export const selectInterfacesCommonMapLinks = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.interfacesCommonMapLinks);
 export const selectSelectedLogicalInterfaces = createSelector(selectLogicalInterfaces, (selectLogicalInterfaces) => selectLogicalInterfaces?.filter(i => i.isSelected));
+export const selectSelectedPhysicalInterfaces = createSelector(selectPhysicalInterfaces, (selectPhysicalInterfaces) => selectPhysicalInterfaces?.filter(i => i.isSelected));
 export const selectIsSelectedFlag = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.isSelectedFlag);
 export const selectDeletedLogicalMapInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.logicalMapInterfaces?.filter(i => i.isDeleted));
 export const selectDeletedLogicalManagementInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.logicalManagementInterfaces?.filter(i => i.isDeleted));

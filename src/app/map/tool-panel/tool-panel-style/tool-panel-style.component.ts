@@ -17,7 +17,7 @@ import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { ErrorMessages } from "../../../shared/enums/error-messages.enum";
 import { selectMapOption } from "../../../store/map-option/map-option.selectors";
 import { selectSelectedLogicalNodes } from 'src/app/store/node/node.selectors';
-import { selectSelectedLogicalInterfaces } from 'src/app/store/interface/interface.selectors';
+import { selectSelectedLogicalInterfaces, selectSelectedPhysicalInterfaces } from 'src/app/store/interface/interface.selectors';
 import { selectSelectedPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { selectSelectedMapImages } from 'src/app/store/map-image/map-image.selectors';
 import { selectGroups } from 'src/app/store/group/group.selectors';
@@ -81,6 +81,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   selectMapImages$ = new Subscription();
   selectGroups$ = new Subscription();
   selectMapLinks$ = new Subscription();
+  selectSelectedPhysicalInterfaces$ = new Subscription();
   filteredMapPrefs!: Observable<any[]>;
   selectedNodes: any[] = [];
   selectedInterfaces: any[] = [];
@@ -145,6 +146,24 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
           this.arrowSize = data.arrow_scale ? this.removePx(data.arrow_scale) : 1;
           this.textOutlineColor = data.text_outline_color ? data.text_outline_color : data.logical_map.map_style.text_outline_color;
           this.textOutlineWidth = this.removePx(data.text_outline_width ? data.text_outline_width : data.logical_map.map_style.text_outline_width);
+          this._setPropertiesCommon(data);
+        }
+        this.isHideText = this.selectedNodes.length + this.selectedInterfaces.length + this.selectedPortGroups.length + this.selectedGroups.length == 0;
+        this.isHideIndex = this.selectedNodes.length + this.selectedPortGroups.length + this.selectedInterfaces.length + this.selectedGroups.length + this.selectedMapImages.length == 0;
+      }
+    });
+    this.selectSelectedPhysicalInterfaces$ = this.store.select(selectSelectedPhysicalInterfaces).subscribe(selectSelectedPhysicalInterfaces => {
+      if (selectSelectedPhysicalInterfaces) {
+        this.selectedInterfaces = selectSelectedPhysicalInterfaces;
+        this.isHideEdge = this.selectedInterfaces.length == 0;
+        if (this.selectedInterfaces.length >= 1) {
+          const data = this.selectedInterfaces[0].data;
+          this.edgeColor = data.physical_map.map_style.color;
+          this.edgeSize = this.removePx(data.physical_map.map_style.width);
+          this.arrowActivated = this.isEdgeDirectionChecked ? data.direction : data.prev_direction;
+          this.arrowSize = data.arrow_scale ? this.removePx(data.arrow_scale) : 1;
+          this.textOutlineColor = data.text_outline_color ? data.text_outline_color : data.physical_map.map_style.text_outline_color;
+          this.textOutlineWidth = this.removePx(data.text_outline_width ? data.text_outline_width : data.logical_map.physical_map.text_outline_width);
           this._setPropertiesCommon(data);
         }
         this.isHideText = this.selectedNodes.length + this.selectedInterfaces.length + this.selectedPortGroups.length + this.selectedGroups.length == 0;
