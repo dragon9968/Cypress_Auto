@@ -1,16 +1,13 @@
 import { Store } from "@ngrx/store";
 import { Subscription } from "rxjs";
-import { ToastrService } from "ngx-toastr";
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { DomainService } from "../../core/services/domain/domain.service";
 import { HelpersService } from "../../core/services/helpers/helpers.service";
 import { ErrorMessages } from "../../shared/enums/error-messages.enum";
 import { selectDomains } from "../../store/domain/domain.selectors";
 import { addDomain, updateDomain } from "../../store/domain/domain.actions";
 import { validateNameExist } from "../../shared/validations/name-exist.validation";
-import { GroupService } from "src/app/core/services/group/group.service";
 import { selectNotification } from "src/app/store/app/app.selectors";
 
 
@@ -29,10 +26,7 @@ export class AddUpdateDomainDialogComponent implements OnInit {
 
   constructor(
     private store: Store,
-    private toastr: ToastrService,
     public helpers: HelpersService,
-    private domainService: DomainService,
-    private groupService: GroupService,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<AddUpdateDomainDialogComponent>,
   ) {
@@ -46,12 +40,11 @@ export class AddUpdateDomainDialogComponent implements OnInit {
     })
     this.isViewMode = this.data.mode == 'view';
     this.domainAddForm = new FormGroup({
-      nameCtr: new FormControl({
-        value: '',
-        disabled: this.isViewMode
-      }, [Validators.required, validateNameExist(() => this.domains, this.data.mode, this.data.genData.id)]),
-      adminUserCtr: new FormControl({ value: '', disabled: this.isViewMode }),
-      adminPasswordCtr: new FormControl({ value: '', disabled: this.isViewMode })
+      nameCtr: new FormControl('',
+        [Validators.required, validateNameExist(() => this.domains, this.data.mode, this.data.genData.id)]
+      ),
+      adminUserCtr: new FormControl(''),
+      adminPasswordCtr: new FormControl('')
     })
   }
 
@@ -94,8 +87,5 @@ export class AddUpdateDomainDialogComponent implements OnInit {
   changeViewToEdit() {
     this.data.mode = 'update';
     this.isViewMode = false;
-    this.nameCtr?.enable();
-    this.adminUserCtr?.enable();
-    this.adminPasswordCtr?.enable();
   }
 }

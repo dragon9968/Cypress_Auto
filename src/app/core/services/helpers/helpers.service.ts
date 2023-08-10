@@ -1,5 +1,5 @@
 import { Store } from '@ngrx/store';
-import { map, startWith, Subscription, throwError } from 'rxjs';
+import { map, startWith, Subscription } from 'rxjs';
 import { Injectable, Input, OnDestroy } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
@@ -12,8 +12,8 @@ import { removeNodes, restoreNodes } from "../../../store/node/node.actions";
 import { RemoteCategories } from "../../enums/remote-categories.enum";
 import {
   retrievedIsConfiguratorConnect,
-  retrievedIsHypervisorConnect,
-  retrievedIsDatasourceConnect
+  retrievedIsDatasourceConnect,
+  retrievedIsHypervisorConnect
 } from "../../../store/server-connect/server-connect.actions";
 import { ServerConnectService } from "../server-connect/server-connect.service";
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
@@ -30,7 +30,8 @@ import { selectNotification } from 'src/app/store/app/app.selectors';
 import { selectMapLinks } from "../../../store/map-link/map-link.selectors";
 import {
   selectInterfacesCommonMapLinks,
-  selectLinkedMapInterfaces, selectLogicalMapInterfaces
+  selectLinkedMapInterfaces,
+  selectLogicalMapInterfaces
 } from "../../../store/interface/interface.selectors";
 import { selectLinkedMapImages, selectMapImages } from "../../../store/map-image/map-image.selectors";
 import { clearLinkedMap } from "../../../store/map/map.actions";
@@ -40,6 +41,8 @@ import { retrievedMapContextMenu } from "../../../store/map-context-menu/map-con
 import { ProjectService } from "../../../project/services/project.service";
 import { GroupService } from "../group/group.service";
 import { validateProject } from "../../../store/project/project.actions";
+import { removeMapLinks, restoreMapLinks } from "../../../store/map-link/map-link.actions";
+import { removeMapImages, restoreMapImages } from "../../../store/map-image/map-image.actions";
 
 @Injectable({
   providedIn: 'root'
@@ -239,7 +242,7 @@ export class HelpersService implements OnDestroy {
           "text-outline-width": 3,
           "background-fit": "contain",
           "background-image-opacity": 1,
-          "z-index": (ele: any) => ele.data('zIndex'),
+          "z-index": (ele: any) => ele.data('zIndex') ? ele.data('zIndex') : 1,
           "z-compound-depth": "bottom",
           "min-zoomed-font-size": 10
         },
@@ -662,21 +665,21 @@ export class HelpersService implements OnDestroy {
     const gbs = this.groups.filter((gb: any) => gb.data.group_category == this.groupCategoryId);
     this.cy.add(gbs);
     gbs.map(g => {
-      this.cy.nodes().forEach((ele: any) => {
-        if (!Boolean(ele.data('parent_id')) && ele.data('elem_category') != 'map_link') {
-          const data = ele.data();
-          if (data.elem_category == 'node' || data.elem_category == 'port_group') {
-            const node = g.nodes.find((n: any) => !n.isDeleted && n.id == data.node_id);
-            const pg = g.port_groups.find((pg: any) => !pg.isDeleted && pg.id == data.pg_id);
-            if (node?.name == 'linux-client-15') {
-              console.log(node);
-            }
-            if (node || pg) {
-              ele.move({ parent: g.data.id });
+      if (g.nodes.length > 0 || g.port_groups.length > 0 || g.map_images.length > 0) {
+        this.cy.nodes().forEach((ele: any) => {
+          if (!Boolean(ele.data('parent_id')) && ele.data('elem_category') != 'map_link') {
+            const data = ele.data();
+            if (data.elem_category == 'node' || data.elem_category == 'port_group') {
+              const node = g.nodes.find((n: any) => !n.isDeleted && n.id == data.node_id);
+              const pg = g.port_groups.find((pg: any) => !pg.isDeleted && pg.id == data.pg_id);
+              const map_image = g.map_images.find((pg: any) => !pg.isDeleted && pg.id == data.pg_id);
+              if (node || pg || map_image) {
+                ele.move({ parent: g.data.id });
+              }
             }
           }
-        }
-      });
+        });
+      }
     });
 
     let done = false;
@@ -730,9 +733,9 @@ export class HelpersService implements OnDestroy {
     if (dropTarget.data() && dropTarget.data('elem_category') != 'group' && dropTarget.hasClass('cdnd-new-parent')) {
       const children = dropTarget.children()
       if (children.length == 2) {
-        const g0 = children[0].map((ele: any) => ele.data('groups'))[0].map((g: any) => g.id).sort()
-        const g1 = children[1].map((ele: any) => ele.data('groups'))[0].map((g: any) => g.id).sort()
-        const isBelongedOneGroup = g0.some((g: any) => g1.includes(g))
+        const g0 = children[0].map((ele: any) => ele.data('groups'))[0]?.map((g: any) => g.id).sort() || [];
+        const g1 = children[1].map((ele: any) => ele.data('groups'))[0]?.map((g: any) => g.id).sort() || [];
+        const isBelongedOneGroup = g0.some((g: any) => g1.includes(g));
         if (g0.length == 0 || g1.length == 0 || !isBelongedOneGroup) {
           const nodes = children.filter('[elem_category="node"]')
           const portGroups = children.filter('[elem_category="port_group"]')
@@ -959,6 +962,14 @@ export class HelpersService implements OnDestroy {
     if (ids.length > 0) this.ur?.do("removeInterfaces", { ids });
   }
 
+  removeMapLinksOnMap(ids: number[]) {
+    if (ids.length > 0) this.ur?.do("removeMapLinks", { ids });
+  }
+
+  removeMapImagesOnMap(ids: number[]) {
+    if (ids.length > 0) this.ur?.do("removeMapImages", { ids });
+  }
+
   removeNodes(data: any) {
     const eles = data.ids.map((id: number) => {
       const node = this.cy.getElementById(`node-${id}`);
@@ -1029,6 +1040,52 @@ export class HelpersService implements OnDestroy {
   restoreInterfaces(data: any) {
     const eles = data.eles.map((e: any) => e.restore());
     this.store.dispatch(restoreInterfaces({ ids: data.ids }));
+    return { ids: data.ids, eles };
+  }
+
+  removeMapLinks(data: any) {
+    const eles = data.ids.map((id: number) => {
+      const mapLink = this.cy.getElementById(`project-link-${id}`);
+      const removedMapLinkEles = mapLink.remove();
+      const removedInterfacesCommon = removedMapLinkEles.filter((ele: any) => ele.data('elem_category') == 'interface');
+      if (removedInterfacesCommon.length > 0) {
+        const removedInterfaceIds = removedInterfacesCommon.map((i: any) => i.data('interface_pk'));
+        this.store.dispatch(removeInterfaces({ ids: removedInterfaceIds }));
+      }
+      return removedMapLinkEles;
+    })
+    this.store.dispatch(removeMapLinks({ ids: data.ids }));
+    return { ids: data.ids, eles };
+  }
+
+  restoreMapLinks(data: any) {
+    const eles = data.eles.map((e: any) => {
+      const restoredEles = e.restore();
+      const restoredInterfaces = restoredEles.filter((ele: any) => ele.data('elem_category') == 'interface');
+      if (restoredInterfaces.length > 0) {
+        const restoredInterfaceIds = restoredInterfaces.map((i: any) => i.data('interface_pk'));
+        this.store.dispatch(restoreInterfaces({ ids: restoredInterfaceIds }));
+      }
+      return restoredEles;
+    });
+    this.store.dispatch(restoreMapLinks({ ids: data.ids }));
+    return { ids: data.ids, eles };
+  }
+
+  removeMapImages(data: any) {
+    const eles = data.ids.map((id: number) => {
+      const mapImage = this.cy.getElementById(`map_image-${id}`);
+      return mapImage.remove();
+    })
+    this.store.dispatch(removeMapImages({ ids: data.ids }));
+    return { ids: data.ids, eles };
+  }
+
+  restoreMapImages(data: any) {
+    const eles = data.eles.map((e: any) => {
+      return e.restore();
+    });
+    this.store.dispatch(restoreMapImages({ ids: data.ids }));
     return { ids: data.ids, eles };
   }
 

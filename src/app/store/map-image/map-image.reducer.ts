@@ -9,7 +9,9 @@ import {
   unSelectMapImage,
   clearLinkedMapImages,
   linkedMapImagesLoadedSuccess,
-  mapImageAddedSuccess
+  mapImageAddedSuccess,
+  removeMapImagesSuccess,
+  restoreMapImagesSuccess
 } from './map-image.actions';
 import { MapImageState } from './map-image.state';
 
@@ -91,7 +93,6 @@ export const mapImagesReducer = createReducer(
       mapImages
     }
   }),
-
   on(mapImageAddedSuccess, (state, { mapImage }) => {
     const mapImageCY = addCyDataToMapImages(mapImage);
     const mapImages = state.mapImages.concat(mapImageCY)
@@ -100,7 +101,6 @@ export const mapImagesReducer = createReducer(
       mapImages
     }
   }),
-
   on(linkedMapImagesLoadedSuccess, (state, { mapImages, mapLinkId, position }) => {
     const linkedMapImages = JSON.parse(JSON.stringify(mapImages)).map((mapImage: any) => {
       let mapImagesCY = addCyDataToMapImages(mapImage)
@@ -119,6 +119,20 @@ export const mapImagesReducer = createReducer(
   }),
   on(clearLinkedMapImages, (state) => {
     return { ...state, linkedMapImages: undefined }
+  }),
+  on(removeMapImagesSuccess, (state, { ids })  => {
+    const mapImages = state.mapImages.map(mi => ids.includes(mi.id) ? { ...mi, isDeleted: true } : mi);
+    return {
+      ...state,
+      mapImages
+    }
+  }),
+  on(restoreMapImagesSuccess, (state, { ids }) => {
+    const mapImages = state.mapImages.map(mi => ids.includes(mi.id) ? { ...mi, isDeleted: false } : mi);
+    return {
+      ...state,
+      mapImages
+    }
   })
 );
 

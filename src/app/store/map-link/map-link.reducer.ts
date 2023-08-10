@@ -3,9 +3,13 @@ import { createReducer, on } from "@ngrx/store";
 import {
   selectMapLink,
   unSelectMapLink,
-  removeMapLink,
+  removeMapLinksSuccess,
   mapLinkAddedSuccess,
-  mapLinksLoadedSuccess, clearMapLinks, unSelectAllMapLink, selectAllMapLink,
+  mapLinksLoadedSuccess,
+  clearMapLinks,
+  unSelectAllMapLink,
+  selectAllMapLink,
+  restoreMapLinksSuccess,
 } from "./map-link.actions";
 import { environment } from "../../../environments/environment";
 
@@ -80,16 +84,23 @@ export const mapLinkReducer = createReducer(
     }
   }),
   on(mapLinkAddedSuccess, (state, { mapLink }) => {
-    const mapLinks = JSON.parse(JSON.stringify(state.mapLinks))
-    const mapLinkCYData = addCYDataToMapLink(mapLink, true)
+    const mapLinks = JSON.parse(JSON.stringify(state.mapLinks));
+    const mapLinkCYData = addCYDataToMapLink(mapLink, true);
     mapLinks.push(mapLinkCYData)
     return {
       ...state,
       mapLinks
     }
   }),
-  on(removeMapLink, (state, { id }) => {
-    const mapLinks = state.mapLinks.filter(n => n.id !== id)
+  on(removeMapLinksSuccess, (state, { ids }) => {
+    const mapLinks = state.mapLinks.map(ml => ids.includes(ml.id) ? { ...ml, isDeleted: true } : ml);
+    return {
+      ...state,
+      mapLinks
+    }
+  }),
+  on(restoreMapLinksSuccess, (state, { ids }) => {
+    const mapLinks = state.mapLinks.map(ml => ids.includes(ml.id) ? { ...ml, isDeleted: false } : ml);
     return {
       ...state,
       mapLinks

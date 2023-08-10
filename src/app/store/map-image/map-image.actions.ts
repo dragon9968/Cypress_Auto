@@ -61,3 +61,23 @@ export const linkedMapImagesLoadedSuccess = createAction(
 export const clearLinkedMapImages = createAction(
   'clearLinkedMapImages'
 )
+
+export const removeMapImages = createAction(
+  'removeMapImages',
+  props<{ ids: number[] }>()
+)
+
+export const removeMapImagesSuccess = createAction(
+  'removeMapImagesSuccess',
+  props<{ ids: number[] }>()
+)
+
+export const restoreMapImages = createAction(
+  'restoreMapImages',
+  props<{ ids: number[] }>()
+)
+
+export const restoreMapImagesSuccess = createAction(
+  'restoreMapImagesSuccess',
+  props<{ ids: number[] }>()
+)

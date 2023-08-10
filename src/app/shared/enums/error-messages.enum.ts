@@ -36,4 +36,12 @@ export enum ErrorMessages {
   CONNECT_EDGE_TO_PG_FAILED = 'Connect Edge to Port Group failed!',
   ADD_TEMPLATE_TO_PROJECT_FAILED = 'Add items from template into project failed',
   CLONE_NODE_FAILED = 'Clone node(s) failed',
+  LOAD_PROJECT_NODE_FAILED = 'Load map links failed!',
+  ADD_PROJECT_NODE_FAILED = 'Add project link failed!',
+  REMOVE_PROJECT_NODE_FAILED = 'Remove project node(s) failed!',
+  RESTORE_PROJECT_NODE_FAILED = 'Restore project node(s) failed!',
+  LOAD_MAP_IMAGE_FAILED = 'Load map images failed!',
+  ADD_MAP_IMAGE_FAILED = 'Add map image failed!',
+  REMOVE_MAP_IMAGE_FAILED = 'Remove map image(s) failed!',
+  RESTORE_MAP_IMAGE_FAILED = 'Restore map image(s) failed!',
 }

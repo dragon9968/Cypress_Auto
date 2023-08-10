@@ -2,7 +2,6 @@ import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ErrorMessages } from "../../shared/enums/error-messages.enum";
 import { Store } from "@ngrx/store";
-import { ToastrService } from "ngx-toastr";
 import { Observable, Subscription } from "rxjs";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { selectGroups } from "../../store/group/group.selectors";
@@ -11,13 +10,11 @@ import { selectLogicalNodes } from "../../store/node/node.selectors";
 import { selectDomains } from "../../store/domain/domain.selectors";
 import { selectDevices } from "../../store/device/device.selectors";
 import { selectMapPortGroups } from "../../store/portgroup/portgroup.selectors";
-import { GroupService } from "../../core/services/group/group.service";
 import { selectTemplates } from "../../store/template/template.selectors";
 import { addGroup, updateGroup } from "../../store/group/group.actions";
 import { validateNameExist } from "../../shared/validations/name-exist.validation";
 import { CATEGORIES } from 'src/app/shared/contants/categories.constant';
 import { ROLES } from 'src/app/shared/contants/roles.constant';
-import { MapService } from 'src/app/core/services/map/map.service';
 import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
 import { selectNotification } from 'src/app/store/app/app.selectors';
 
@@ -57,12 +54,9 @@ export class AddUpdateGroupDialogComponent implements OnInit, OnDestroy {
 
   constructor(
     private store: Store,
-    private toastr: ToastrService,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<AddUpdateGroupDialogComponent>,
     public helpers: HelpersService,
-    private groupService: GroupService,
-    private mapService: MapService,
   ) {
     this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
       if (notification?.type == 'success') {
@@ -78,8 +72,7 @@ export class AddUpdateGroupDialogComponent implements OnInit, OnDestroy {
     this.selectMapImages$ = this.store.select(selectMapImages).subscribe(mapImage => this.mapImages = mapImage);
     this.isViewMode = this.data.mode == 'view';
     this.groupAddForm = new FormGroup({
-      nameCtr: new FormControl(
-        { value: '', disabled: this.isViewMode },
+      nameCtr: new FormControl('',
         [Validators.required, validateNameExist(() => this.groups, this.data.mode, this.data.genData.id)]
       ),
       categoryCtr: new FormControl(''),
@@ -178,9 +171,9 @@ export class AddUpdateGroupDialogComponent implements OnInit, OnDestroy {
       description: this.descriptionCtr?.value,
       project_id: this.data.project_id,
       domain_id: this.categoryCtr?.value.id == 'domain' ? this.categoryIdCtr?.value.id : undefined,
-      nodes: this.data.genData.nodes?.map((node: any) => node.id),
-      port_groups: this.data.genData.port_groups?.map((pg: any) => pg.id),
-      map_images: this.getMapImageIds(this.data.genData.map_images),
+      nodes: this.data.genData.nodes?.map((node: any) => node.data('node_id')),
+      port_groups: this.data.genData.port_groups?.map((pg: any) => pg.data('pg_id')),
+      map_images: this.data.genData.map_images?.map((mi: any) => mi.data('map_image_id')),
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.store.dispatch(addGroup({ data: jsonData }));
@@ -192,7 +185,7 @@ export class AddUpdateGroupDialogComponent implements OnInit, OnDestroy {
     const mapImagesEle = this.mapImages.filter(ele => this.mapImagesCtr?.value.includes(ele.id))
     const nodeIds = nodes.map((node: any) => node.id);
     const pgIds = portGroups.map((pg: any) => pg.id);
-    const mapImageIds = this.getMapImageIds(mapImagesEle);
+    const mapImageIds = mapImagesEle.map((mi: any) => mi.id);
     const jsonDataValue = {
       name: this.nameCtr?.value,
       category: this.categoryCtr?.value.id,
@@ -229,7 +222,6 @@ export class AddUpdateGroupDialogComponent implements OnInit, OnDestroy {
   changeViewToEdit() {
     this.data.mode = 'update';
     this.isViewMode = false;
-    this.nameCtr?.enable();
     this.setNodesPgsMapImagesData()
     this.helpers.setAutoCompleteValue(this.categoryCtr, this.CATEGORIES, this.data.genData.category);
   }
@@ -238,9 +230,5 @@ export class AddUpdateGroupDialogComponent implements OnInit, OnDestroy {
     this.nodesCtr?.setValue(this.data.genData.nodes?.map((ele: any) => ele.id));
     this.portGroupsCtr?.setValue(this.data.genData.port_groups?.map((ele: any) => ele.id));
     this.mapImagesCtr?.setValue(this.data.genData.map_images?.map((ele: any) => ele.id));
-  }
-
-  getMapImageIds(mapImagesEle: any) {
-    return mapImagesEle?.map((mapImageEle: any) => mapImageEle.data ? mapImageEle.data('map_image_id') : mapImageEle.id)
   }
 }

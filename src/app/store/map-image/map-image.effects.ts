@@ -2,9 +2,20 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { map, exhaustMap, catchError, mergeMap, switchMap, tap } from 'rxjs/operators';
 import { pushNotification } from '../app/app.actions';
-import { addNewMapImage, addNewMapImageToMap, loadMapImages, mapImageAddedSuccess, mapImagesLoadedSuccess } from './map-image.actions';
+import {
+  addNewMapImage,
+  addNewMapImageToMap,
+  mapImageAddedSuccess,
+  loadMapImages,
+  mapImagesLoadedSuccess,
+  removeMapImages,
+  removeMapImagesSuccess,
+  restoreMapImages, restoreMapImagesSuccess
+} from './map-image.actions';
 import { MapImageService } from 'src/app/core/services/map-image/map-image.service';
 import { of } from 'rxjs';
+import { SuccessMessages } from "../../shared/enums/success-messages.enum";
+import { ErrorMessages } from "../../shared/enums/error-messages.enum";
 import { reloadGroupBoxes } from '../map/map.actions';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 
@@ -19,7 +30,7 @@ export class MapImagesEffects {
         catchError((e) => of(pushNotification({
           notification: {
             type: 'error',
-            message: 'Load Map Images failed!'
+            message: ErrorMessages.LOAD_MAP_IMAGE_FAILED
           }
         })))
       ))
@@ -37,14 +48,14 @@ export class MapImagesEffects {
           pushNotification({
             notification: {
               type: 'success',
-              message: 'Add map image successfully!'
+              message: SuccessMessages.ADDED_MAP_IMAGE_SUCCESS
             }
           })
         ]),
         catchError(e => of(pushNotification({
           notification: {
             type: 'error',
-            message: 'Add map image failed'
+            message: ErrorMessages.ADD_MAP_IMAGE_FAILED
           }
         })))
     ))
@@ -54,6 +65,49 @@ export class MapImagesEffects {
     ofType(addNewMapImageToMap),
     tap(payload => this.helpersService.addMapImageToMap(payload.id))
   ), { dispatch: false })
+
+  removeMapImages$ = createEffect(() => this.actions$.pipe(
+    ofType(removeMapImages),
+    exhaustMap(payload => of([]).pipe(
+      switchMap(() => [
+        removeMapImagesSuccess({ ids: payload.ids }),
+        pushNotification({
+          notification: {
+            type: 'success',
+            message: SuccessMessages.REMOVE_MAP_IMAGE_SUCCESS
+          }
+        })
+      ]),
+      catchError(e => of(pushNotification({
+        notification: {
+          type: 'error',
+          message: ErrorMessages.REMOVE_MAP_IMAGE_FAILED
+        }
+      })))
+    ))
+  ))
+
+  restoreMapImages$ = createEffect(() => this.actions$.pipe(
+    ofType(restoreMapImages),
+    exhaustMap(payload => of([]).pipe(
+      switchMap(() => [
+        restoreMapImagesSuccess({ ids: payload.ids }),
+        pushNotification({
+          notification: {
+            type: 'success',
+            message: SuccessMessages.RESTORE_MAP_IMAGE_SUCCESS
+          }
+        })
+      ]),
+      catchError(e => of(pushNotification({
+        notification: {
+          type: 'error',
+          message: ErrorMessages.RESTORE_MAP_IMAGE_FAILED
+        }
+      })))
+      )
+    )
+  ))
 
   constructor(
     private actions$: Actions,

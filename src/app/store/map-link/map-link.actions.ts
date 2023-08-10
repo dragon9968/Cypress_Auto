@@ -44,9 +44,24 @@ export const addNewMapLinkToMap = createAction(
   props<{ id: number }>()
 );
 
-export const removeMapLink = createAction(
-  'removeMapLink',
-  props<{ id: string }>()
+export const removeMapLinks = createAction(
+  'removeMapLinks',
+  props<{ ids: number[] }>()
+);
+
+export const removeMapLinksSuccess = createAction(
+  'removeMapLinksSuccess',
+  props<{ ids: number[] }>()
+);
+
+export const restoreMapLinks = createAction(
+  'restoreMapLinks',
+  props<{ ids: number[] }>()
+);
+
+export const restoreMapLinksSuccess = createAction(
+  'restoreMapLinksSuccess',
+  props<{ ids: number[] }>()
 );
 
 export const addLinkedElementsToMap = createAction(

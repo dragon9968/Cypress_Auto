@@ -47,11 +47,6 @@
       <input autocomplete="off" id="group-description" matInput formControlName="descriptionCtr" placeholder="Description" [readonly]="isViewMode">
     </mat-form-field>
 
-    <!-- <mat-form-field *ngIf="isViewMode && data.mode !== 'add'" class="field">
-      <mat-label>Nodes</mat-label>
-      <input matInput formControlName="nodesCtr" [readonly]="isViewMode">
-    </mat-form-field> -->
-
     <ng-select
       *ngIf="data.mode !== 'add'"
       class="ng-select-nodes"
@@ -64,11 +59,6 @@
       [readonly]="isViewMode"
       >
     </ng-select>
-<!--
-    <mat-form-field *ngIf="isViewMode && data.mode !== 'add'" class="field">
-      <mat-label>Port Groups</mat-label>
-      <input matInput formControlName="portGroupsCtr" [readonly]="isViewMode">
-    </mat-form-field> -->
 
     <ng-select
       *ngIf="data.mode !== 'add'"
@@ -81,7 +71,6 @@
       placeholder="Port Groups"
       [readonly]="isViewMode">
     </ng-select>
-
 
     <ng-select
       *ngIf="data.mode !== 'add'"

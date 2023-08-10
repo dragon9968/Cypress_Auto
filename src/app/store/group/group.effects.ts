@@ -2,7 +2,16 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { forkJoin, of } from 'rxjs';
 import { map, exhaustMap, catchError, mergeMap, switchMap } from 'rxjs/operators';
-import { addGroup, deleteGroups, groupAddedSuccess, groupDeletedSuccess, groupUpdatedSuccess, groupsDeletedSuccess, groupsLoadedSuccess, loadGroups, updateGroup } from './group.actions';
+import {
+  addGroup,
+  deleteGroups,
+  groupAddedSuccess,
+  groupUpdatedSuccess,
+  groupsDeletedSuccess,
+  groupsLoadedSuccess,
+  loadGroups,
+  updateGroup
+} from './group.actions';
 import { GroupService } from 'src/app/core/services/group/group.service';
 import { pushNotification } from '../app/app.actions';
 import { reloadGroupBoxes } from '../map/map.actions';
@@ -32,6 +41,7 @@ export class GroupsEffects {
         mergeMap(res => this.groupService.get(res.result.id)),
         switchMap((res: any) => [
           groupAddedSuccess({ group: res.result }),
+          reloadGroupBoxes(),
           pushNotification({
             notification: {
               type: 'success',

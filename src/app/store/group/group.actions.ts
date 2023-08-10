@@ -55,8 +55,6 @@ export const updateMapImageInGroup = createAction(
   props<{ mapImage: any }>()
 );
 
-updateMapImageInGroup
-
 export const addGroup = createAction(
   'addGroup',
   props<{
