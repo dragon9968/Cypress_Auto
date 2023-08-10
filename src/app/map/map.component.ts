@@ -112,7 +112,6 @@ import { MapEditService } from "../core/services/map-edit/map-edit.service";
 import { RolesService } from '../core/services/roles/roles.service';
 import { CmGroupOptionService } from './context-menu/cm-group-option/cm-group-option.service';
 import { PortGroupAddModel } from "../core/models/port-group.model";
-import { selectMapCategory } from '../store/map-category/map-category.selectors';
 import { ConnectInterfaceDialogComponent } from './context-menu/cm-dialog/connect-interface-dialog/connect-interface-dialog.component';
 import { ConnectInterfaceToPgDialogComponent } from "./context-menu/cm-dialog/connect-interface-to-pg-dialog/connect-interface-to-pg-dialog.component";
 import { selectLogicalNodes, selectPhysicalNodes } from '../store/node/node.selectors';
@@ -164,7 +163,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   isAddMapImage = false;
   isTemplateCategory = false;
   isCanWriteOnProject = false;
-  mapCategory = '';
+  mapCategory = 'logical';
   projectId = '0';
   logicalNodes!: any[];
   physicalNodes!: any[];
@@ -205,12 +204,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   isAddTunnel: any;
   isConnectToPG: any;
   isConnectToNode: any;
-  activeNodes: any[] = [];
-  activePGs: any[] = [];
-  activeEdges: any[] = [];
-  activeGBs: any[] = [];
-  activeMBs: any[] = [];
-  activeMapLinks: any[] = [];
   interfacesCommonMapLinks: any[] = [];
   isBoxSelecting = false;
   isSearching = false;
@@ -401,10 +394,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         this.isConfiguratorConnect = isConfiguratorConnect
       }
     })
-
-    this.selectMapCategory$ = this.store.select(selectMapCategory).subscribe((mapCategory: any) => {
-      this.mapCategory = mapCategory ? mapCategory : 'logical'
-    })
     this.mapCategoryLabel = this.mapCategory == 'logical' ? 'Physical' : 'Logical'
     this.projectId = this.projectService.getProjectId();
     this.store.dispatch(loadProject({ projectId: this.projectId }));
@@ -564,19 +553,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
 
   private _dragFreeOnNode($event: any) {
     const node = $event.target;
-    node._private['data'] = { ...node._private['data'] };
     const data = node.data();
-    if (data && data.category != 'bg_image') {
-      if (data.new) {
-        data.new = true;
-        data.updated = false;
-        data.deleted = false;
-      } else {
-        data.new = false;
-        data.updated = true;
-        data.deleted = false;
-      }
-    }
 
     if (data.label && data.label == 'group_box') {
       const expandCollapse = this.cy.expandCollapse('get');
@@ -586,17 +563,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         gbNodes = this.cy.nodes().filter(`[domain=${d}]`);
       } else {
         gbNodes = expandCollapse.getCollapsedChildrenRecursively($event.target);
-      }
-
-      if (gbNodes.length) {
-        gbNodes.forEach((node: any) => {
-          if (node.group() == 'nodes') {
-            const data = node.data();
-            if (!data.new) {
-              data.updated = true;
-            }
-          }
-        });
       }
     }
   }
@@ -685,11 +651,9 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         return;
       }
       if (d.label == 'map_background') {
-        this.activeMBs.push(t);
         this.store.dispatch(selectMapImage({ id: d.id }));
       } else if (d.label == 'group_box') {
         this.isBoxSelecting = true;
-        this.activeGBs.push(t);
         t.children().forEach((ele: any) => {
           ele.select();
           this.boxSelectedNodes.add(ele);
@@ -700,23 +664,12 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         this.boxSelectedNodes.clear();
         this.store.dispatch(selectGroup({ id: d.id }));
       } else {
-        if (d.elem_category == 'node' && !this.activeNodes.includes(t)) {
-          this.activeNodes.push(t);
+        if (d.elem_category == 'node') {
           this.store.dispatch(selectNode({ id: d.id }));
-        } else if (d.elem_category == 'port_group' && !this.activePGs.includes(t)) {
-          this.activePGs.push(t);
+        } else if (d.elem_category == 'port_group') {
           this.store.dispatch(selectPG({ id: d.id }));
-        } else if (d.elem_category == 'map_link' && !this.activeMapLinks.includes(t)) {
-          this.activeMapLinks.push(t)
+        } else if (d.elem_category == 'map_link') {
           this.store.dispatch(selectMapLink({ id: d.id }))
-        }
-        if (!d.new) {
-          if (this.activeNodes.length == 0) {
-            this.activeNodes.splice(0);
-          }
-          if (this.activePGs.length == 0) {
-            this.activePGs.splice(0);
-          }
         }
       }
       this.contextMenuService.showContextMenu(this.cy, this.isTemplateCategory, this.isGroupBoxesChecked, this.mapCategory);
@@ -727,23 +680,15 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     const t = $event.target;
     const eles = this.logicalNodes.concat(this.portGroups).concat(this.logicalMapInterfaces).concat(this.mapImages)
     const selectedEles = eles.filter((n: any) => n.isSelected)
-    const d = t.data()
-    d.updated = true
     if (this.cy.elements().length !== selectedEles.length) {
       const isChildrenOfProjectNode = t.connectedNodes().some((ele: any) => ele.parent()?.data('elem_category') == 'map_link')
       if (isChildrenOfProjectNode) {
         return;
       }
       if (this.isBoxSelecting || this.isSearching) { return; }
-      if (t.isEdge() && !this.activeEdges.includes(t)) {
+      if (t.isEdge()) {
         if (t.data('category') !== 'link') {
-          this.activeEdges.push(t);
-          this.store.dispatch(selectInterface({ id: d.id }));
-        }
-      }
-      if (!d.new) {
-        if (this.activeEdges.length == 0) {
-          this.activeEdges.splice(0);
+          this.store.dispatch(selectInterface({ id: t.data('id') }));
         }
       }
       this.contextMenuService.showContextMenu(this.cy, this.isTemplateCategory, this.isGroupBoxesChecked, this.mapCategory);
@@ -752,54 +697,25 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
 
   private _unselectNode($event: any) {
     const t = $event.target;
-    const activeEles = this.activeNodes.concat(this.activePGs, this.activeGBs, this.activeMapLinks, this.activeMBs)
-    if (activeEles.length > 0) {
-      if (t.data('label') == 'map_background') {
-        if (this.activeMBs.includes(t)) {
-          const index = this.activeMBs.indexOf(t);
-          this.activeMBs.splice(index, 1);
-          this.store.dispatch(unSelectMapImage({ id: t.data('id') }));
-        }
-      } else if (t.data('label') == 'group_box') {
-        if (this.activeGBs.includes(t)) {
-          const index = this.activeGBs.indexOf(t);
-          this.activeGBs.splice(index, 1);
-          t.children().forEach((el: any) => {
-            el.unselect();
-          });
-          this.store.dispatch(unSelectGroup({ id: t.data('id') }));
-        }
-      } else if (t.data('elem_category') == 'port_group') {
-        if (this.activePGs.includes(t)) {
-          const index = this.activePGs.indexOf(t);
-          this.activePGs.splice(index, 1);
-          this.store.dispatch(unSelectPG({ id: t.data('id') }));
-        }
-      } else if (t.data('elem_category') == 'node') {
-        if (this.activeNodes.includes(t)) {
-          const index = this.activeNodes.indexOf(t);
-          this.activeNodes.splice(index, 1);
-          this.store.dispatch(unSelectNode({ id: t.data('id') }));
-        }
-      } else {
-        if (this.activeMapLinks.includes(t)) {
-          const index = this.activeMapLinks.indexOf(t);
-          this.activeMapLinks.splice(index, 1);
-          this.store.dispatch(unSelectMapLink({ id: t.data('id') }))
-        }
-      }
+    if (t.data('label') == 'map_background') {
+      this.store.dispatch(unSelectMapImage({ id: t.data('id') }));
+    } else if (t.data('label') == 'group_box') {
+      t.children().forEach((el: any) => {
+        el.unselect();
+      });
+      this.store.dispatch(unSelectGroup({ id: t.data('id') }));
+    } else if (t.data('elem_category') == 'port_group') {
+      this.store.dispatch(unSelectPG({ id: t.data('id') }));
+    } else if (t.data('elem_category') == 'node') {
+      this.store.dispatch(unSelectNode({ id: t.data('id') }));
+    } else {
+      this.store.dispatch(unSelectMapLink({ id: t.data('id') }))
     }
   }
 
   private _unselectEdge($event: any) {
     const t = $event.target;
-    if (this.activeEdges.length > 0) {
-      if (this.activeEdges.includes(t)) {
-        const index = this.activeEdges.indexOf(t);
-        this.activeEdges.splice(index, 1);
-        this.store.dispatch(unSelectInterface({ id: t.data('id') }));
-      }
-    }
+    this.store.dispatch(unSelectInterface({ id: t.data('id') }));
   }
 
   private _boxStart(_$event: any) {
@@ -838,30 +754,18 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   }
 
   private _processNodeList(elms: any) {
-    const activeEles = this.activeNodes.concat(this.activePGs, this.activeEdges, this.activeMapLinks, this.activeMBs);
-    if (activeEles.length == 0) {
-      this.activeNodes.splice(0);
-      this.activePGs.splice(0);
-      this.activeEdges.splice(0);
-      this.activeMapLinks.splice(0);
-      this.activeMBs.splice(0);
-    }
     for (let elm of elms) {
       const d = elm.data();
-      if (d.elem_category == 'node' && !this.activeNodes.includes(elm)) {
-        this.activeNodes.push(elm);
+      if (d.elem_category == 'node') {
         this.store.dispatch(selectNode({ id: d.id }));
-      } else if (d.elem_category == 'port_group' && !this.activePGs.includes(elm)) {
-        this.activePGs.push(elm);
+      } else if (d.elem_category == 'port_group') {
         this.store.dispatch(selectPG({ id: d.id }));
-      } else if (d.elem_category == 'map_link' && !this.activeMapLinks.includes(elm)) {
-        this.activeMapLinks.push(elm);
+      } else if (d.elem_category == 'map_link') {
         this.store.dispatch(selectMapLink({ id: d.id }))
-      } else if (d.elem_category == 'bg_image' && !this.activeMBs.includes(elm)) {
-        this.activeMBs.push(elm);
+      } else if (d.elem_category == 'bg_image') {
         this.store.dispatch(selectMapImage({ id: d.id }));
-      } else if (elm.isEdge() && !this.activeEdges.includes(elm)) {
-        this.activeEdges.push(elm);
+      } else if (elm.isEdge()) {
+        this.store.dispatch(selectInterface({ id: d.id }));
       }
     }
     this.isSelectedProcessed = true;
@@ -948,11 +852,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         data.domain_id = this.domains.filter(d => d.name == 'default.test')[0].id;
         this.updateGroups(data);
       }
-      if (data.category != "bg_image") {
-        data.new = false;
-        data.updated = true;
-        data.deleted = false;
-      }
       this.helpersService.addNewGroupBoxByMovingNodes(this.cy, dropTarget, this.projectId, this.mapCategory);
     }
   }
@@ -964,13 +863,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   }
 
   private _keyDown($event: any) {
-    if ($event.which === 46) {
-      const selecteds = this.cy.$(":selected");
-      if (selecteds.length > 0) {
-        // this._tool_panel.$edge_delete.click();
-        // this._tool_panel.$node_delete.click();
-      }
-    } else if ($event.ctrlKey && $event.target.nodeName === "BODY") {
+    if ($event.ctrlKey && $event.target.nodeName === "BODY") {
       if ($event.which === 90) this.ur.undo();
       else if ($event.which === 89) this.ur.redo();
     }
@@ -1224,19 +1117,19 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         this.cmProjectNodeService.getLinkProjectMenu(this.queueEdge.bind(this), this.cy),
         // this.cmInterfaceService.getPortGroupInterfaceMenu(this.queueEdge.bind(this)),
         this.cmAddService.getEdgeAddMenu(),
-        this.cmActionsService.getNodeActionsMenu(this.cy, this.isCanWriteOnProject),
-        this.cmActionsService.getPortGroupActionsMenu(this.cy, Number(this.projectId), this.activePGs),
-        this.cmActionsService.getEdgeActionsMenu(this.cy),
-        this.cmGroupOptionService.getNodePgGroupMenu(this.cy, this.activeNodes, this.activePGs, this.projectId, this.isCanWriteOnProject),
+        this.cmActionsService.getNodeActionsMenu(this.isCanWriteOnProject),
+        this.cmActionsService.getPortGroupActionsMenu(Number(this.projectId)),
+        this.cmActionsService.getEdgeActionsMenu(),
+        this.cmGroupOptionService.getNodePgGroupMenu(this.cy, this.projectId, this.isCanWriteOnProject),
         this.cmRemoteService.getNodeRemoteMenu(),
-        this.cmRemoteService.getPortGroupRemoteMenu(this.activePGs),
-        this.cmViewDetailsService.getMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.mapCategory, Number(this.projectId)),
+        this.cmRemoteService.getPortGroupRemoteMenu(),
+        this.cmViewDetailsService.getMenu(this.cy, this.mapCategory, Number(this.projectId)),
         this.cmEditService.getMenu(this.cy, this.isCanWriteOnProject, this.mapCategory, Number(this.projectId)),
-        this.cmDeleteService.getMenu(this.cy, this.activeGBs, this.activeMBs, this.activeMapLinks, this.isCanWriteOnProject),
+        this.cmDeleteService.getMenu(this.isCanWriteOnProject),
         this.cmLockUnlockService.getLockMenu(this.cy),
         this.cmLockUnlockService.getUnlockMenu(this.cy),
-        this.cmGroupBoxService.getCollapseMenu(this.cy, this.activeGBs),
-        this.cmGroupBoxService.getExpandMenu(this.cy, this.activeGBs),
+        this.cmGroupBoxService.getCollapseMenu(this.cy),
+        this.cmGroupBoxService.getExpandMenu(this.cy),
         this.cmProjectNodeService.getCollapseNodeMenu(this.cy),
         this.cmProjectNodeService.getExpandNodeMenu(this.cy),
         this.cmMapService.getSaveChangesMenu(this.isCanWriteOnProject),
@@ -1246,7 +1139,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         this.cmMapService.getLockAllMenu(this.cy),
         this.cmMapService.getUnlockAllMenu(this.cy),
         this.cmMapService.getSelectAllMenu(this.cy),
-        this.cmMapService.getDeselectAllMenu(this.cy, this.activeNodes, this.activePGs, this.activeEdges, this.activeGBs, this.activeMBs, this.activeMapLinks),
+        this.cmMapService.getDeselectAllMenu(this.cy),
       ],
       submenuIndicator: { src: '/assets/icons/submenu-indicator-default.svg', width: 12, height: 12 }
     });
@@ -1719,12 +1612,8 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   switchMap() {
     this.mapCategory = this.mapCategory === 'logical' ? 'physical' : 'logical'
     this.mapCategoryLabel = this.mapCategory == 'logical' ? 'Physical' : 'Logical'
-    this.activeNodes.splice(0);
-    this.activeGBs.splice(0)
-    this.activePGs.splice(0);
-    this.activeEdges.splice(0);
-    this.activeMBs.splice(0);
-    this.activeMapLinks.splice(0);
+
+    this.store.dispatch(unSelectAllElementsOnMap());
     this.store.dispatch(loadMap({ projectId: this.projectId, mapCategory: this.mapCategory }));
   }
 
@@ -1852,9 +1741,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         const newNodeData = {
           "label": "map_background",
           "elem_category": "bg_image",
-          "new": true,
           "updated": false,
-          "deleted": false,
           "src": ICON_PATH + cyData.image.photo,
           "zIndex": 998,
           "width": width,

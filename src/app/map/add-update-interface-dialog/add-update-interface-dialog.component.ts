@@ -9,7 +9,7 @@ import { DIRECTIONS } from 'src/app/shared/contants/directions.constant';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 import { selectPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { Store } from '@ngrx/store';
-import { catchError, Observable, Subscription, throwError } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { selectMapOption } from "../../store/map-option/map-option.selectors";
@@ -18,7 +18,6 @@ import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
 import { validateNameExist } from "../../shared/validations/name-exist.validation";
 import { networksValidation } from 'src/app/shared/validations/networks.validation';
 import { showErrorFromServer } from 'src/app/shared/validations/error-server-response.validation';
-import { selectMapCategory } from 'src/app/store/map-category/map-category.selectors';
 import { selectInterfacesByHwNodes, selectLogicalMapInterfaces } from 'src/app/store/interface/interface.selectors';
 import { vlanInterfaceValidator } from 'src/app/shared/validations/vlan-interface.validation';
 import { addLogicalInterface, connectInterfaceToPG, updateLogicalInterface } from "../../store/interface/interface.actions";
@@ -65,7 +64,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   filteredInterfacesByHwNodes!: Observable<any[]>;
   edgesConnected = [];
   errors: any[] = [];
-  mapCategory: any;
+  mapCategory = 'logical';
   interfacesByHwNodes: any[] = [];
 
   constructor(
@@ -117,9 +116,6 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         }
       }
     });
-    this.selectMapCategory$ = this.store.select(selectMapCategory).subscribe((mapCategory: any) => {
-      this.mapCategory = mapCategory ? mapCategory : 'logical'
-    })
 
     this.selectInterfacesByHwNodes$ = this.store.select(selectInterfacesByHwNodes).subscribe(interfacesData => {
       if (interfacesData) {

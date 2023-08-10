@@ -1,17 +1,42 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AddNodePgToGroupboxDialogComponent } from '../../add-node-pg-to-groupbox-dialog/add-node-pg-to-groupbox-dialog.component';
+import { selectSelectedLogicalNodes } from 'src/app/store/node/node.selectors';
+import { selectSelectedPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
+import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
-export class CmGroupOptionService {
+export class CmGroupOptionService implements OnDestroy {
+  selectSelectedLogicalNodes$ = new Subscription();
+  selectSelectedPortGroups$ = new Subscription();
+  selectedNodes: any[] = [];
+  selectedPGs: any[] = [];
 
   constructor(
     private dialog: MatDialog,
-  ) { }
+    private store: Store
+  ) {
+    this.selectSelectedLogicalNodes$ = this.store.select(selectSelectedLogicalNodes).subscribe(selectedNodes => {
+      if (selectedNodes) {
+        this.selectedNodes = selectedNodes;
+      }
+    });
+    this.selectSelectedPortGroups$ = this.store.select(selectSelectedPortGroups).subscribe(selectedPGs => {
+      if (selectedPGs) {
+        this.selectedPGs = selectedPGs;
+      }
+    });
+  }
 
-  getNodePgGroupMenu(cy: any, activeNodes: any[], activePGs: any[], projectId: any, isCanWriteOnProject: boolean) {
+  ngOnDestroy(): void {
+    this.selectSelectedLogicalNodes$.unsubscribe();
+    this.selectSelectedPortGroups$.unsubscribe();
+  }
+
+  getNodePgGroupMenu(cy: any, projectId: any, isCanWriteOnProject: boolean) {
     return {
       id: "group",
       content: "Group",
@@ -24,10 +49,10 @@ export class CmGroupOptionService {
           onClickFunction: ($event: any) => {
             const dialogData = {
               genData: {
-                nodeIds: activeNodes.map((ele: any) => ele.data().node_id),
-                activeNodes: activeNodes.map((ele: any) => ele.data()),
-                pgIds: activePGs.map((ele: any) => ele.data().pg_id),
-                activePGs: activePGs.map((ele: any) => ele.data())
+                nodeIds: this.selectedNodes.map((ele: any) => ele.id),
+                selectedNodes: this.selectedNodes.map((ele: any) => ele.data()),
+                pgIds: this.selectedPGs.map((ele: any) => ele.id),
+                selectedPGs: this.selectedPGs.map((ele: any) => ele.data())
               },
               cy,
               projectId
@@ -46,10 +71,10 @@ export class CmGroupOptionService {
           id: "delete_node_pg_from_group",
           content: "Delete",
           onClickFunction: ($event: any) => {
-            activeNodes.forEach(node => {
+            this.selectedNodes.forEach(node => {
               node.move({ parent: null })
             })
-            activePGs.forEach(pg => {
+            this.selectedPGs.forEach(pg => {
               pg.move({ parent: null })
             })
           },

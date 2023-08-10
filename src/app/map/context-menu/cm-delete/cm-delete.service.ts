@@ -49,8 +49,7 @@ export class CMDeleteService {
     });
   }
 
-  getMenu(cy: any, activeGBs: any[], activeMBs: any[],
-    activeMapLinks: any[], isCanWriteOnProject: boolean) {
+  getMenu(isCanWriteOnProject: boolean) {
     return {
       id: "delete",
       content: "Delete",

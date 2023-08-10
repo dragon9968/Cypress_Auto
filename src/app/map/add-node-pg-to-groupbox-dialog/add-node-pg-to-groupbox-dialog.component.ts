@@ -94,8 +94,8 @@ export class AddNodePgToGroupboxDialogComponent implements OnInit {
   }
 
   addGroup() {
-    const activeNodeLength = this.data.genData.activeNodes.length;
-    const activePgLength = this.data.genData.activePGs.length;
+    const activeNodeLength = this.data.genData.selectedNodes.length;
+    const activePgLength = this.data.genData.selectedPGs.length;
     let listNode = this.selectGroupCtr?.value.nodes.map((node: any) => node.id);
     let listPg = this.selectGroupCtr?.value.port_groups.map((pg: any) => pg.id);
     this.data.genData.nodeIds.forEach((el: any) => {
@@ -109,11 +109,11 @@ export class AddNodePgToGroupboxDialogComponent implements OnInit {
       }
     })
 
-    const updateNodeOnMap = activeNodeLength > 0 ? forkJoin(this.data.genData.activeNodes.map((node: any) => {
+    const updateNodeOnMap = activeNodeLength > 0 ? forkJoin(this.data.genData.selectedNodes.map((node: any) => {
       return this.nodeService.get(node.node_id).pipe(map(nodeData => { this._updateNodeOnMap(nodeData.result); }));
     })) : of(null)
 
-    const updatePgOnMap = activePgLength > 0 ? forkJoin(this.data.genData.activePGs.map((pg: any) => {
+    const updatePgOnMap = activePgLength > 0 ? forkJoin(this.data.genData.selectedPGs.map((pg: any) => {
       return this.portGroupService.get(pg.pg_id).pipe(map(pgData => { this._updatePGOnMap(pgData.result); }));
     })) : of(null)
     const successMessage = 'Add node/port group to group successfully'

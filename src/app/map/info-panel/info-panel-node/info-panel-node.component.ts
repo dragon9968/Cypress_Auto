@@ -226,7 +226,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm && this.infoPanelTableComponent) {
           const ids = this.infoPanelTableComponent.rowsSelectedIds;
-          this.cmActionsService.cloneNodes(this.cy, ids);
+          this.cmActionsService.cloneNodes(ids);
         }
       })
     }

@@ -20,6 +20,7 @@ import { RemoteCategories } from "../../../core/enums/remote-categories.enum";
 import { Store } from "@ngrx/store";
 import { selectIsHypervisorConnect } from "../../../store/server-connect/server-connect.selectors";
 import { selectSelectedLogicalNodes } from 'src/app/store/node/node.selectors';
+import { selectSelectedPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +29,9 @@ export class CMRemoteService implements OnDestroy{
 
   selectIsHypervisorConnect$ = new Subscription();
   selectSelectedLogicalNodes$ = new Subscription();
+  selectSelectedPortGroups$ = new Subscription();
   selectedNodes: any[] = [];
+  selectedPGs: any[] = [];
   isHypervisorConnect = false;
   connectionCategory = '';
 
@@ -56,10 +59,17 @@ export class CMRemoteService implements OnDestroy{
         this.selectedNodes = selectedNodes;
       }
     });
+    this.selectSelectedPortGroups$ = this.store.select(selectSelectedPortGroups).subscribe(selectedPGs => {
+      if (selectedPGs) {
+        this.selectedPGs = selectedPGs;
+      }
+    });
   }
 
   ngOnDestroy(): void {
     this.selectIsHypervisorConnect$.unsubscribe();
+    this.selectSelectedLogicalNodes$.unsubscribe();
+    this.selectSelectedPortGroups$.unsubscribe();
   }
 
   getNodeRemoteMenu() {
@@ -152,7 +162,7 @@ export class CMRemoteService implements OnDestroy{
           onClickFunction: (event: any) => {
             const dialogData = {
               jobName: 'deploy_node',
-              activeNodes: this.selectedNodes,
+              selectedNodes: this.selectedNodes,
               category: this.connectionCategory
             };
             const taskData = {
@@ -172,7 +182,7 @@ export class CMRemoteService implements OnDestroy{
           selector: "node[icon]",
           onClickFunction: (event: any) => {
             const dialogData = {
-              activeNodes: this.selectedNodes,
+              selectedNodes: this.selectedNodes,
               category: this.connectionCategory
             };
             const taskData = {
@@ -193,7 +203,7 @@ export class CMRemoteService implements OnDestroy{
           onClickFunction: (event: any) => {
             const dialogData = {
               jobName: 'update_node',
-              activeNodes: this.selectedNodes,
+              selectedNodes: this.selectedNodes,
               category: this.connectionCategory
             };
             const taskData = {
@@ -221,7 +231,7 @@ export class CMRemoteService implements OnDestroy{
           selector: "node[icon]",
           onClickFunction: (event: any) => {
             const dialogData = {
-              activeNodes: this.selectedNodes,
+              selectedNodes: this.selectedNodes,
               category: this.connectionCategory
             };
             this.dialog.open(CreateNodeSnapshotDialogComponent, { disableClose: true, width: '600px', data: dialogData });
@@ -246,7 +256,7 @@ export class CMRemoteService implements OnDestroy{
               this.nodeService.getSnapshots(jsonData).subscribe({
                 next: response => {
                   const dialogData = {
-                    activeNodes: this.selectedNodes,
+                    selectedNodes: this.selectedNodes,
                     names: response,
                     category: this.connectionCategory
                   };
@@ -277,7 +287,7 @@ export class CMRemoteService implements OnDestroy{
               this.nodeService.getSnapshots(jsonData).subscribe({
                 next: response => {
                   const dialogData = {
-                    activeNodes: this.selectedNodes,
+                    selectedNodes: this.selectedNodes,
                     names: response,
                     category: this.connectionCategory
                   };
@@ -299,7 +309,7 @@ export class CMRemoteService implements OnDestroy{
       selector: "node[icon]",
       onClickFunction: (event: any) => {
         const dialogData = {
-          activeNodes: this.selectedNodes,
+          selectedNodes: this.selectedNodes,
           category: this.connectionCategory
         };
         this.dialog.open(UpdateFactsNodeDialogComponent, { disableClose: true, width: '600px', data: dialogData, autoFocus: false });
@@ -318,7 +328,7 @@ export class CMRemoteService implements OnDestroy{
           selector: 'node[icon]',
           onClickFunction: () => {
             const dialogData = {
-              activeNodes: this.selectedNodes,
+              selectedNodes: this.selectedNodes,
               jobName: 'ping_test',
               category: this.connectionCategory
             }
@@ -333,7 +343,7 @@ export class CMRemoteService implements OnDestroy{
           selector: 'node[icon]',
           onClickFunction: () => {
             const dialogData = {
-              activeNodes: this.selectedNodes,
+              selectedNodes: this.selectedNodes,
               jobName: 'shell_command',
               category: this.connectionCategory
             }
@@ -362,7 +372,7 @@ export class CMRemoteService implements OnDestroy{
     }
   }
 
-  getPortGroupRemoteMenu(activePGs: any[]) {
+  getPortGroupRemoteMenu() {
     const deploy = {
       id: "deploy_pg",
       content: "Deploy",
@@ -376,14 +386,14 @@ export class CMRemoteService implements OnDestroy{
           onClickFunction: (event: any) => {
             const dialogData = {
               jobName: 'create_pg',
-              activePGs,
+              selectedPGs: this.selectedPGs,
               message: 'Deploy this port group?',
               category: this.connectionCategory
             };
             const taskData = {
               job_name: 'create_pg',
               category: 'port_group',
-              pks: activePGs.map((ele: any) => ele.data('pg_id')).join(','),
+              pks: this.selectedPGs.map((ele: any) => ele.id).join(','),
             }
             if (this.taskService.isTaskInQueue(taskData)) return;
             this.dialog.open(AddDeletePGDeployDialogComponent, { disableClose: true, width: '450px', data: dialogData });
@@ -398,14 +408,14 @@ export class CMRemoteService implements OnDestroy{
           onClickFunction: (event: any) => {
             const dialogData = {
               jobName: 'delete_pg',
-              activePGs,
+              selectedPGs: this.selectedPGs,
               message: 'Delete port group(s)?',
               category: this.connectionCategory
             };
             const taskData = {
               job_name: 'delete_pg',
               category: 'port_group',
-              pks: activePGs.map((ele: any) => ele.data('pg_id')).join(','),
+              pks: this.selectedPGs.map((ele: any) => ele.id).join(','),
             }
             if (this.taskService.isTaskInQueue(taskData)) return;
             this.dialog.open(AddDeletePGDeployDialogComponent, { disableClose: true, width: '450px', data: dialogData });
@@ -420,14 +430,14 @@ export class CMRemoteService implements OnDestroy{
           onClickFunction: (event: any) => {
             const dialogData = {
               jobName: 'update_pg',
-              activePGs,
+              selectedPGs: this.selectedPGs,
               message: 'Update port group(s)?',
               category: this.connectionCategory
             };
             const taskData = {
               job_name: 'update_pg',
               category: 'port_group',
-              pks: activePGs.map((ele: any) => ele.data('pg_id')).join(','),
+              pks: this.selectedPGs.map((ele: any) => ele.id).join(','),
             }
             if (this.taskService.isTaskInQueue(taskData)) return;
             this.dialog.open(AddDeletePGDeployDialogComponent, { disableClose: true, width: '450px', data: dialogData });
@@ -444,7 +454,7 @@ export class CMRemoteService implements OnDestroy{
       onClickFunction: (event: any) => {
         const dialogData = {
           jobName: 'get_pg_facts',
-          activePGs,
+          selectedPGs: this.selectedPGs,
           message: 'Get port group facts?',
           category: this.connectionCategory
         };

@@ -51,10 +51,10 @@ export class CMLockUnlockService implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-     this.selectSelectedLogicalNodes$.unsubscribe();
-     this.selectSelectedPortGroups$.unsubscribe();
-     this.selectSelectedMapImages$.unsubscribe();
-     this.selectSelectedMapLinks$.unsubscribe();
+    this.selectSelectedLogicalNodes$.unsubscribe();
+    this.selectSelectedPortGroups$.unsubscribe();
+    this.selectSelectedMapImages$.unsubscribe();
+    this.selectSelectedMapLinks$.unsubscribe();
   }
 
   getLockMenu(cy: any) {
@@ -91,11 +91,7 @@ export class CMLockUnlockService implements OnDestroy {
       selectedEle.data('locked', true);
       selectedEle.lock();
       const d = selectedEle.data();
-      if (!(d.new)) {
-        d.new = false;
-        d.updated = true;
-        d.deleted = false;
-      }
+      d.updated = true;
       this.helpersService.addBadge(cy, selectedEle);
     });
   }
@@ -106,11 +102,7 @@ export class CMLockUnlockService implements OnDestroy {
       selectedEle.data('locked', false);
       selectedEle.unlock();
       const d = selectedEle.data();
-      if (!d.new) {
-        d.new = false;
-        d.updated = true;
-        d.deleted = false;
-      }
+      d.updated = true;
       this.helpersService.removeBadge(selectedEle);
     });
   }

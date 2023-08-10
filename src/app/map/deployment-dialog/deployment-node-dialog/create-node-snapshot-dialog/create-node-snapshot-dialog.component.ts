@@ -42,7 +42,7 @@ export class CreateNodeSnapshotDialogComponent {
     const jsonDataValue = {
       job_name: 'create_snapshot',
       category: 'node',
-      pks: this.data.activeNodes.map((ele: any) => ele.id).join(","),
+      pks: this.data.selectedNodes.map((ele: any) => ele.id).join(","),
       hypervisor_id: connection ? connection.id : 0,
       snapshot_name: this.nameCtr?.value,
     };

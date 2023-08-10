@@ -604,7 +604,6 @@ export class HelpersService implements OnDestroy {
   addCYNodeAndEdge(cy: any, nodes: any[], edges: any[], newPosition: any = { x: 0, y: 0 }) {
     // Draw new nodes from the other project into the current project.
     nodes.map((node: any) => {
-      node.data.updated = true;
       let position = null;
       if (node.position) {
         position = { x: newPosition.x + node.position.x, y: newPosition.y + node.position.y }
@@ -840,9 +839,7 @@ export class HelpersService implements OnDestroy {
     mapLinkNode.on('expandcollapse.aftercollapse', (event: any) => {
       mapLinkNode.data('width', '90px')
       mapLinkNode.data('height', '90px')
-      mapLinkNode.data('new', false);
       mapLinkNode.data('updated', true);
-      mapLinkNode.data('deleted', false);
       mapLinkNode.data('collapsed', true);
       mapLinkNode.data('lastPos', mapLinkNode.position())
       mapLinkNode.style({
@@ -855,9 +852,7 @@ export class HelpersService implements OnDestroy {
     mapLinkNode.on('expandcollapse.afterexpand', (event: any) => {
       mapLinkNode.data('width', '90px');
       mapLinkNode.data('height', '90px');
-      mapLinkNode.data('new', false);
       mapLinkNode.data('updated', true);
-      mapLinkNode.data('deleted', false);
       mapLinkNode.data('collapsed', false);
       mapLinkNode.data('lastPos', mapLinkNode.position());
       mapLinkNode.style({

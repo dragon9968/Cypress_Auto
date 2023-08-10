@@ -12,7 +12,6 @@ import { InfoPanelService } from "../../../../core/services/info-panel/info-pane
 import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
 import { autoCompleteValidator } from "../../../../shared/validations/auto-complete.validation";
 import { selectLoginProfiles } from "../../../../store/login-profile/login-profile.selectors";
-import { RemoteCategories } from "../../../../core/enums/remote-categories.enum";
 
 @Component({
   selector: 'app-delete-node-deploy-dialog',
@@ -57,7 +56,7 @@ export class DeleteNodeDeployDialogComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    const loginProfileId = this.data.activeNodes[0].login_profile_id;
+    const loginProfileId = this.data.selectedNodes[0].login_profile_id;
     if (loginProfileId) {
       this.helperService.setAutoCompleteValue(this.loginProfileCtr, this.loginProfiles, loginProfileId);
     }
@@ -74,7 +73,7 @@ export class DeleteNodeDeployDialogComponent implements OnInit, OnDestroy {
       hypervisor_id: this.connection ? this.connection.id : 0,
       category: 'node',
       job_name: 'delete_node',
-      pks: this.data.activeNodes.map((ele: any) => ele.id).join(','),
+      pks: this.data.selectedNodes.map((ele: any) => ele.id).join(','),
       login_profile_id: this.loginProfileCtr?.value?.id
     }
     this.taskService.add(jsonData).pipe(

@@ -54,9 +54,9 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
   ngOnChanges(valueChange: any) {
     if (valueChange.cy?.currentValue && valueChange.config.currentValue) {
       this.isEdgeDirectionChecked = this.config.default_preferences.edge_direction_checkbox != undefined
-                                  ? this.config.default_preferences.edge_direction_checkbox : this.isEdgeDirectionChecked;
+        ? this.config.default_preferences.edge_direction_checkbox : this.isEdgeDirectionChecked;
       this.isGroupBoxesChecked = this.config.default_preferences.groupbox_checkbox
-                               ? this.config.default_preferences.groupbox_checkbox : false;
+        ? this.config.default_preferences.groupbox_checkbox : false;
       if (!this.groupCategoryId) {
         const groupCategory = this.groupCategories.filter(category => category.id == this.config.default_preferences.group_category)[0];
         this.groupCategoryCtr.setValue(groupCategory ? groupCategory : this.groupCategories[0]);
@@ -98,19 +98,6 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
       this.nav.destroy();
       this.nav = undefined;
     }
-  }
-
-  private _updateNodeStatus() {
-    this.cy.nodes().forEach((ele: any) => {
-      const data = ele.data();
-      if (data.elem_category != 'group') {
-        if (data.elem_category != 'bg_image') {
-          data.new = false;
-          data.updated = true;
-          data.deleted = false;
-        }
-      }
-    });
   }
 
   toggleEdgeDirection() {
@@ -192,9 +179,6 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
     if (this.isMapGridChecked) {
       this.cy.gridGuide(this.config.grid_on_options);
     }
-    if (this.isSnapToGridChecked) {
-      this._updateNodeStatus();
-    }
     this.store.dispatch(retrievedMapOption({
       data: {
         isEdgeDirectionChecked: this.isEdgeDirectionChecked,
@@ -212,9 +196,6 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
     this.config.grid_on_options.snapToGridOnRelease = this.isSnapToGridChecked;
     this.config.grid_on_options.gridSpacing = this.gridSpacingSize;
     this.cy.gridGuide(this.config.grid_on_options);
-    if (this.isSnapToGridChecked) {
-      this._updateNodeStatus();
-    }
     this.store.dispatch(retrievedMapOption({
       data: {
         isEdgeDirectionChecked: this.isEdgeDirectionChecked,
@@ -273,10 +254,8 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
             // text
             ele.data("text_size", defaultPreferences.text.size);
             ele.data("text_color", this.helpers.hexToRGB(defaultPreferences.text.color));
-            var d = ele.data()
-            if (!d.new) {
-              d.updated = true;
-            }
+            const d = ele.data()
+            d.updated = true;
             if (d.elem_category == "port_group") {
               ele.data("color", defaultPreferences.port_group.color);
               ele.data("height", defaultPreferences.port_group.size);

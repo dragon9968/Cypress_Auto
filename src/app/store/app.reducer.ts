@@ -32,7 +32,6 @@ import { lookupFeaturesReducer } from "./lookup-features/lookup-features.reducer
 import { LookupNamesReducer } from "./lookup-names/lookup-names.reducer";
 import { netmaskReducer } from "./netmask/netmask.reducer";
 import { historyReducer } from "./history/history.reducer";
-import { mapCategoryReducer } from "./map-category/map-category.reducer";
 import { appReducer } from "./app/app.reducer";
 import { lookupOsFirmwaresReducer } from "./lookup-os-firmware/lookup-os-firmwares.reducer";
 import { mapLinkReducer } from "./map-link/map-link.reducer";
@@ -52,7 +51,6 @@ export const reducers = {
     [ReducerKeys.MAP_STYLE]: mapStyleReducer,
     [ReducerKeys.MAP_EDIT]: mapEditReducer,
     [ReducerKeys.MAP_OPTION]: mapOptionReducer,
-    [ReducerKeys.MAP_CATEGORY]: mapCategoryReducer,
     [ReducerKeys.PORTGROUP]: portGroupReducer,
     [ReducerKeys.MAP_CM]: mapContextMenuReducer,
     [ReducerKeys.NODE]: nodeReducer,

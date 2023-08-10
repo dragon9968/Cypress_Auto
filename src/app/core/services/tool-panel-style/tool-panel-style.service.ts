@@ -1,8 +1,6 @@
 import { Injectable, Input, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
-import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
-import { selectMapCategory } from 'src/app/store/map-category/map-category.selectors';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 
 @Injectable({
@@ -10,7 +8,7 @@ import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 })
 export class ToolPanelStyleService implements OnDestroy {
   @Input() ur: any;
-  mapCategory: any;
+  mapCategory = 'logical';
   isGroupBoxesChecked!: boolean;
   selectMapOption$ = new Subscription();
   selectMapCategory$ = new Subscription();
@@ -23,9 +21,6 @@ export class ToolPanelStyleService implements OnDestroy {
         this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
       }
     });
-    this.selectMapCategory$ = this.store.select(selectMapCategory).subscribe((mapCategory: any) => {
-      this.mapCategory = mapCategory ? mapCategory : 'logical'
-    })
   }
   ngOnDestroy(): void {
     this.selectMapOption$.unsubscribe();
@@ -33,18 +28,16 @@ export class ToolPanelStyleService implements OnDestroy {
   }
 
   changTextColor(data: any) {
-    data.selectedEles?.forEach((ele : any) => {
+    data.selectedEles?.forEach((ele: any) => {
       const selectedEle = data.cy.getElementById(ele.data.id)
       data.oldTextColor = selectedEle.data("text_color");
-      selectedEle._private['data'] = {...selectedEle._private['data']};
+      selectedEle._private['data'] = { ...selectedEle._private['data'] };
       if (selectedEle.data("label") == "map_background") {
         data.newColor = "#ffffff";
       } else {
         if (!selectedEle.data('label')) {
           const d = selectedEle.data();
-          if (!d.new) {
-            d.updated = true;
-          }
+          d.updated = true;
         }
       }
       selectedEle.data("text_color", data.newTextColor);
@@ -67,9 +60,7 @@ export class ToolPanelStyleService implements OnDestroy {
       selectedEle.data("text_size", data.newTextSize);
       if (!selectedEle.data('label')) {
         const d = selectedEle.data();
-        if (!d.new) {
-          d.updated = true;
-        }
+        d.updated = true;
       }
     })
 
@@ -92,9 +83,7 @@ export class ToolPanelStyleService implements OnDestroy {
         node.data("width", data.newNodeSize);
         node.data("height", data.newNodeSize);
         const d = node.data();
-        if (!d.new) {
-          d.updated = true;
-        }
+        d.updated = true;
       }
     })
     return data;
@@ -107,9 +96,7 @@ export class ToolPanelStyleService implements OnDestroy {
         node.data("width", data.oldNodeSize);
         node.data("height", data.oldNodeSize);
         const d = node.data();
-        if (!d.new) {
-          d.updated = true;
-        }
+        d.updated = true;
       }
     });
     return data;
@@ -129,9 +116,7 @@ export class ToolPanelStyleService implements OnDestroy {
         mapImage.data('height', (data.newMapImageSize * originalHeight) / 100);
         mapImage.data('scale_image', data.newMapImageSize)
         const d = mapImage.data();
-        if (!d.new) {
-          d.updated = true;
-        }
+        d.updated = true;
       }
     })
     return data;
@@ -145,9 +130,7 @@ export class ToolPanelStyleService implements OnDestroy {
         mapImage.data("height", data.oldMapImageHeight);
         mapImage.data('scale_image', data.oldMapImageSize);
         const d = mapImage.data();
-        if (!d.new) {
-          d.updated = true;
-        }
+        d.updated = true;
       }
     });
     return data;
@@ -160,9 +143,7 @@ export class ToolPanelStyleService implements OnDestroy {
       if (pg.data("elem_category") == "port_group") {
         pg.data("color", data.newPGColor);
         const d = pg.data();
-        if (!d.new) {
-          d.updated = true;
-        }
+        d.updated = true;
       }
     })
     return data;
@@ -187,9 +168,7 @@ export class ToolPanelStyleService implements OnDestroy {
         pg.data("height", data.newPGSize);
         pg.style({ "background-fit": "cover" });
         const d = pg.data();
-        if (!d.new) {
-          d.updated = true;
-        }
+        d.updated = true;
       }
     })
     return data;
@@ -212,9 +191,7 @@ export class ToolPanelStyleService implements OnDestroy {
       data.oldEdgeColor = edge.data("color") ? edge.data("color") : edge.data().logical_map.map_style.color;
       edge.data("color", data.newEdgeColor);
       const d = edge.data();
-      if (!d.new) {
-        d.updated = true;
-      }
+      d.updated = true;
     });
     return data;
   }
@@ -233,9 +210,7 @@ export class ToolPanelStyleService implements OnDestroy {
       data.oldEdgeSize = edge.data("width") ? edge.data("width") : edge.data().logical_map.map_style.width;
       edge.data("width", data.newEdgeSize);
       const d = edge.data();
-      if (!d.new) {
-        d.updated = true;
-      }
+      d.updated = true;
     })
     return data;
   }
@@ -254,9 +229,7 @@ export class ToolPanelStyleService implements OnDestroy {
       data.oldArrowScale = edge.data("arrow_scale");
       edge.data("arrow_scale", data.newArrowScale);
       const d = edge.data();
-      if (!d.new) {
-        d.updated = true;
-      }
+      d.updated = true;
     })
     return data;
   }
@@ -275,9 +248,7 @@ export class ToolPanelStyleService implements OnDestroy {
       data.oldDirection = interfaces.data("direction")
       interfaces.data("direction", data.newDirection);
       const d = interfaces.data();
-      if (!d.new) {
-        d.updated = true;
-      }
+      d.updated = true;
     })
     return data;
   }
@@ -294,12 +265,10 @@ export class ToolPanelStyleService implements OnDestroy {
     data.selectedEles.forEach((ele: any) => {
       const interfaces = data.cy.getElementById(ele.data.id)
       data.oldTextBGColor = interfaces.data("text_bg_color") ? interfaces.data("text_bg_color") : interfaces.data().logical_map.map_style.text_bg_color;
-      interfaces._private['data'] = {...interfaces._private['data']};
+      interfaces._private['data'] = { ...interfaces._private['data'] };
       interfaces.data("text_bg_color", data.newTextBGColor);
       const d = interfaces.data();
-      if (!d.new) {
-        d.updated = true;
-      }
+      d.updated = true;
     });
     return data;
   }
@@ -319,14 +288,12 @@ export class ToolPanelStyleService implements OnDestroy {
       data.oldTextBGOpacity = selectedEle.data("text_bg_opacity");
       selectedEle.data("text_bg_opacity", data.newTextBGOpacity);
       const d = selectedEle.data();
-      if (!d.new) {
-        d.updated = true;
-      }
+      d.updated = true;
     })
     return data;
   }
 
-  restoreTextBGOpacity (data: any) {
+  restoreTextBGOpacity(data: any) {
     data.selectedEles.forEach((ele: any) => {
       const selectedEle = data.cy.getElementById(ele.data.id);
       selectedEle.data("text_bg_opacity", data.oldTextBGOpacity);
@@ -338,12 +305,10 @@ export class ToolPanelStyleService implements OnDestroy {
     data.selectedEles.forEach((ele: any) => {
       const selectedEle = data.cy.getElementById(ele.data.id);
       data.oldTextOutlineColor = selectedEle.data("text_outline_color");
-      selectedEle._private['data'] = {...selectedEle._private['data']};
+      selectedEle._private['data'] = { ...selectedEle._private['data'] };
       selectedEle.data("text_outline_color", data.newTextOutlineColor);
       const d = selectedEle.data();
-      if (!d.new) {
-        d.updated = true;
-      }
+      d.updated = true;
     });
     return data;
   }
@@ -363,9 +328,7 @@ export class ToolPanelStyleService implements OnDestroy {
       data.oldTextOutlineWidth = selectedEle.data("text_outline_width");
       selectedEle.data("text_outline_width", data.newTextOutlineWidth);
       const d = selectedEle.data();
-      if (!d.new) {
-        d.updated = true;
-      }
+      d.updated = true;
     })
     return data;
   }
@@ -384,9 +347,7 @@ export class ToolPanelStyleService implements OnDestroy {
       data.oldTextVAlign = eles.data("text_valign");
       eles.data("text_valign", data.newTextVAlign);
       const d = eles.data();
-      if (!d.new) {
-        d.updated = true;
-      }
+      d.updated = true;
     })
     return data;
   }
@@ -405,14 +366,12 @@ export class ToolPanelStyleService implements OnDestroy {
       data.oldTextHAlign = eles.data("text_halign");
       eles.data("text_halign", data.newTextHAlign);
       const d = eles.data();
-      if (!d.new) {
-        d.updated = true;
-      }
+      d.updated = true;
     })
     return data;
   }
 
-  restoreTextHAlign(data: any){
+  restoreTextHAlign(data: any) {
     data.selectedEles.forEach((ele: any) => {
       const eles = data.cy.getElementById(ele.data.id);
       eles.data("text_halign", data.oldTextHAlign);
@@ -424,12 +383,10 @@ export class ToolPanelStyleService implements OnDestroy {
     data.selectedGroups.forEach((ele: any) => {
       const group = data.cy.getElementById(ele.data.id);
       data.oldGBOpacity = group.data("group_opacity");
-      group._private['data'] = {...group._private['data']};
+      group._private['data'] = { ...group._private['data'] };
       group.data("group_opacity", data.newGBOpacity);
       const d = group.data();
-      if (!d.new) {
-        d.updated = true;
-      }
+      d.updated = true;
     })
     return data;
   }
@@ -446,12 +403,10 @@ export class ToolPanelStyleService implements OnDestroy {
     data.selectedGroups.forEach((ele: any) => {
       const gb = data.cy.getElementById(ele.data.id);
       data.oldGBColor = gb.data("color");
-      gb._private['data'] = {...gb._private['data']};
+      gb._private['data'] = { ...gb._private['data'] };
       gb.data("color", data.newGBColor);
       const d = gb.data();
-      if (!d.new) {
-        d.updated = true;
-      }
+      d.updated = true;
     });
 
     return data;
@@ -470,12 +425,10 @@ export class ToolPanelStyleService implements OnDestroy {
     data.selectedGroups.forEach((ele: any) => {
       const gb = data.cy.getElementById(ele.data.id);
       data.oldGBBorderColor = gb.data("border_color");
-      gb._private['data'] = {...gb._private['data']};
+      gb._private['data'] = { ...gb._private['data'] };
       gb.data("border_color", data.newGBBorderColor);
       const d = gb.data();
-      if (!d.new) {
-        d.updated = true;
-      }
+      d.updated = true;
     })
 
     return data;
@@ -494,12 +447,10 @@ export class ToolPanelStyleService implements OnDestroy {
     data.selectedGroups.forEach((ele: any) => {
       const gb = data.cy.getElementById(ele.data.id);
       data.oldGBBorderType = gb.data("border_style");
-      gb._private['data'] = {...gb._private['data']};
+      gb._private['data'] = { ...gb._private['data'] };
       gb.data("border_style", data.newGBBorderType);
       const d = gb.data();
-      if (!d.new) {
-        d.updated = true;
-      }
+      d.updated = true;
     })
     return data;
   }
@@ -516,12 +467,10 @@ export class ToolPanelStyleService implements OnDestroy {
     data.selectedGroups.forEach((ele: any) => {
       const gb = data.cy.getElementById(ele.data.id);
       data.oldGBBorderSize = gb.data("border_width");
-      gb._private['data'] = {...gb._private['data']};
+      gb._private['data'] = { ...gb._private['data'] };
       gb.data("border_width", data.newGBBorderSize);
       const d = gb.data();
-      if (!d.new) {
-        d.updated = true;
-      }
+      d.updated = true;
     })
     return data;
   }

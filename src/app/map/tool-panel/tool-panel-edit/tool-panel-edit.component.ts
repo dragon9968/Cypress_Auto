@@ -355,50 +355,6 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  // loadMapImage(bg: any) {
-  //   if (this.config.gb_exists) {
-  //     if (!(this.cy.getElementById('default.test'))) {
-  //       const gb = {
-  //         data: Object.assign({
-  //           id: 'default.test',
-  //           domain_id: this.config.default_domain_id,
-  //           label: "group_box"
-  //         }, {
-  //           "group_color": this.helpers.fullColorHex(this.selectedMapPref.group_box_color),
-  //           "group_opacity": this.selectedMapPref.group_box_opacity,
-  //           "border-width": "4",
-  //           "text-valign": "top",
-  //           "zIndex": 997
-  //         }),
-  //         position: {
-  //           x: 0,
-  //           y: 0
-  //         },
-  //         group: "nodes",
-  //         removed: false,
-  //         selected: false,
-  //       };
-  //       this.cy.add(gb);
-  //     }
-  //   }
-  //   this.cy.add({
-  //     group: "nodes",
-  //     data: {
-  //       "label": "map_background",
-  //       "elem_category": "bg_image",
-  //       "new": true,
-  //       "updated": false,
-  //       "deleted": false,
-  //       "src": bg.src,
-  //       "zIndex": 998,
-  //       "width": bg.width,
-  //       "height": bg.height,
-  //       "locked": false
-  //     },
-  //     position: { x: 0, y: 0 }
-  //   })[0];
-  // }
-
   addNewProjectFromSelected() {
     const nodeIds = this.selectedNodes.map(node => node.id);
     const portGroupIds = this.selectedPGs.map(pg => pg.id);

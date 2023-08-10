@@ -78,29 +78,35 @@ export class ContextMenuService implements OnDestroy {
   ngOnDestroy(): void {
     this.selectIsHypervisorConnect$.unsubscribe();
     this.selectIsConfiguratorConnect$.unsubscribe();
+    this.selectSelectedLogicalNodes$.unsubscribe();
+    this.selectSelectedPortGroups$.unsubscribe();
+    this.selectSelectedLogicalInterfaces$.unsubscribe();
+    this.selectSelectedGroups$.unsubscribe();
+    this.selectSelectedMapImages$.unsubscribe();
+    this.selectSelectedMapLinks$.unsubscribe();
   }
 
   showContextMenu(cy: any, isTemplateCategory: any, isGroupBoxesChecked: boolean, mapCategory: string) {
-    const activeNodesLength = this.selectedNodes.length;
-    const activePGsLength = this.selectedPGs.length;
-    const activeEdgesLength = this.selectedInterfaces.length;
-    const activeGBsLength = this.selectedGroups.length;
-    const activeMBsLength = this.selectedMapImages.length;
-    const activeMapLinksLength = this.selectedMapLinks.length;
+    const selectedNodesLength = this.selectedNodes.length;
+    const selectedPGsLength = this.selectedPGs.length;
+    const selectedInterfacesLength = this.selectedInterfaces.length;
+    const selectedGroupsLength = this.selectedGroups.length;
+    const selectedMapImagesLength = this.selectedMapImages.length;
+    const selectedMapLinksLength = this.selectedMapLinks.length;
     const contextMenu = cy.contextMenus('get');
     this.hideAllMenuOptions(contextMenu);
-    if (activeGBsLength > 0) {
+    if (selectedGroupsLength > 0) {
       this.showMenuOptionsForselectedGBs(contextMenu);
-    } else if (activeMBsLength > 0) {
-      this.showMenuOptionsForselectedMBs(contextMenu, activeNodesLength, activePGsLength, activeEdgesLength);
-    } else if (activeNodesLength > 0) {
-      this.showMenuOptionsForselectedNodes(contextMenu, activeNodesLength, activePGsLength, activeEdgesLength, mapCategory);
-    } else if (activePGsLength > 0) {
-      this.showMenuOptionsForselectedPGs(contextMenu, activeNodesLength, activePGsLength, activeEdgesLength);
-    } else if (activeEdgesLength > 0) {
-      this.showMenuOptionsForselectedEdges(contextMenu, activeNodesLength, activePGsLength, activeEdgesLength, mapCategory);
-    } else if (activeMapLinksLength > 0) {
-      this.showMenuOptionsForselectedMapLinks(contextMenu, activeMapLinksLength);
+    } else if (selectedMapImagesLength > 0) {
+      this.showMenuOptionsForselectedMBs(contextMenu, selectedNodesLength, selectedPGsLength, selectedInterfacesLength);
+    } else if (selectedNodesLength > 0) {
+      this.showMenuOptionsForselectedNodes(contextMenu, selectedNodesLength, selectedPGsLength, selectedInterfacesLength, mapCategory);
+    } else if (selectedPGsLength > 0) {
+      this.showMenuOptionsForselectedPGs(contextMenu, selectedNodesLength, selectedPGsLength, selectedInterfacesLength);
+    } else if (selectedInterfacesLength > 0) {
+      this.showMenuOptionsForselectedEdges(contextMenu, selectedNodesLength, selectedPGsLength, selectedInterfacesLength, mapCategory);
+    } else if (selectedMapLinksLength > 0) {
+      this.showMenuOptionsForselectedMapLinks(contextMenu, selectedMapLinksLength);
     }
     if ((!this.isHypervisorConnect && !this.isConfiguratorConnect) || isTemplateCategory) {
       contextMenu.hideMenuItem('node_remote');
@@ -111,12 +117,12 @@ export class ContextMenuService implements OnDestroy {
       contextMenu.hideMenuItem('group');
     }
   }
-  showMenuOptionsForselectedMapLinks(contextMenu: any, activeMapLinksLength: number) {
+  showMenuOptionsForselectedMapLinks(contextMenu: any, selectedMapLinksLength: number) {
     contextMenu.showMenuItem('delete');
     contextMenu.showMenuItem('lock_node');
     contextMenu.showMenuItem('unlock_node');
     contextMenu.hideMenuItem('group');
-    if (activeMapLinksLength == 1) {
+    if (selectedMapLinksLength == 1) {
       contextMenu.showMenuItem('link_project');
       contextMenu.showMenuItem('view_details');
       contextMenu.showMenuItem('edit');
@@ -124,68 +130,67 @@ export class ContextMenuService implements OnDestroy {
       contextMenu.showMenuItem('expand_node');
     }
   }
-  showMenuOptionsForselectedEdges(contextMenu: any, activeNodesLength: number, activePGsLength: number, activeEdgesLength: number, mapCategory: string) {
+  showMenuOptionsForselectedEdges(contextMenu: any, selectedNodesLength: number, selectedPGsLength: number, selectedInterfacesLength: number, mapCategory: string) {
     contextMenu.showMenuItem('delete');
-    if (activeNodesLength == 0 && activePGsLength == 0) {
-      if (activeEdgesLength > 1 && mapCategory === 'logical') {
+    if (selectedNodesLength == 0 && selectedPGsLength == 0) {
+      if (selectedInterfacesLength > 1 && mapCategory === 'logical') {
         contextMenu.showMenuItem('edge_actions');
         contextMenu.showMenuItem('edit');
-      } else if (activeEdgesLength > 1 && mapCategory === 'physical') {
+      } else if (selectedInterfacesLength > 1 && mapCategory === 'physical') {
         contextMenu.hideMenuItem('edge_actions');
         contextMenu.hideMenuItem('edit');
-      } else if (activeEdgesLength == 1 && mapCategory === 'logical') {
+      } else if (selectedInterfacesLength == 1 && mapCategory === 'logical') {
         contextMenu.showMenuItem('edge_actions');
         contextMenu.showMenuItem('view_details');
         contextMenu.showMenuItem('edit');
-      } else if (activeEdgesLength == 1 && mapCategory === 'physical') {
+      } else if (selectedInterfacesLength == 1 && mapCategory === 'physical') {
         contextMenu.hideMenuItem('edge_actions');
         contextMenu.hideMenuItem('view_details');
         contextMenu.showMenuItem('edit');
       }
     }
   }
-  showMenuOptionsForselectedPGs(contextMenu: any, activeNodesLength: number, activePGsLength: number, activeEdgesLength: number) {
+  showMenuOptionsForselectedPGs(contextMenu: any, selectedNodesLength: number, selectedPGsLength: number, selectedInterfacesLength: number) {
     contextMenu.showMenuItem('delete');
     contextMenu.showMenuItem('lock_node');
     contextMenu.showMenuItem('unlock_node');
     contextMenu.showMenuItem('group');
-    if (activeNodesLength == 0 && activeEdgesLength == 0) {
-      if (activePGsLength > 1) {
+    if (selectedNodesLength == 0 && selectedInterfacesLength == 0) {
+      if (selectedPGsLength > 1) {
         contextMenu.showMenuItem('pg_actions');
         contextMenu.showMenuItem('edit');
         contextMenu.showMenuItem('pg_remote');
-      } else if (activePGsLength == 1) {
-        // contextMenu.showMenuItem('pg_interface');
+      } else if (selectedPGsLength == 1) {
         contextMenu.showMenuItem('pg_actions');
         contextMenu.showMenuItem('view_details');
         contextMenu.showMenuItem('edit');
         contextMenu.showMenuItem('pg_remote');
       }
-    } else if (activeEdgesLength > 0) {
+    } else if (selectedInterfacesLength > 0) {
       contextMenu.hideMenuItem('lock_node');
       contextMenu.hideMenuItem('unlock_node');
       contextMenu.hideMenuItem('group');
     }
   }
-  showMenuOptionsForselectedNodes(contextMenu: any, activeNodesLength: number, activePGsLength: number, activeEdgesLength: number, mapCategory: string) {
+  showMenuOptionsForselectedNodes(contextMenu: any, selectedNodesLength: number, selectedPGsLength: number, selectedInterfacesLength: number, mapCategory: string) {
     contextMenu.showMenuItem('delete');
     contextMenu.showMenuItem('lock_node');
     contextMenu.showMenuItem('unlock_node');
     contextMenu.showMenuItem('group');
-    if (activePGsLength == 0 && activeEdgesLength == 0) {
-      if (activeNodesLength > 1) {
+    if (selectedPGsLength == 0 && selectedInterfacesLength == 0) {
+      if (selectedNodesLength > 1) {
         contextMenu.showMenuItem('node_actions');
         contextMenu.showMenuItem('edit');
         contextMenu.showMenuItem('node_remote');
         contextMenu.hideMenuItem('web_console');
-      } else if (activeNodesLength == 1 && mapCategory === 'logical') {
+      } else if (selectedNodesLength == 1 && mapCategory === 'logical') {
         contextMenu.showMenuItem('node_interface');
         contextMenu.showMenuItem('node_actions');
         contextMenu.showMenuItem('view_details');
         contextMenu.showMenuItem('edit');
         contextMenu.showMenuItem('node_remote');
         contextMenu.showMenuItem('web_console');
-      } else if (activeNodesLength == 1 && mapCategory === 'physical') {
+      } else if (selectedNodesLength == 1 && mapCategory === 'physical') {
         contextMenu.showMenuItem('node_interface');
         contextMenu.showMenuItem('node_actions');
         contextMenu.showMenuItem('view_details');
@@ -193,18 +198,18 @@ export class ContextMenuService implements OnDestroy {
         contextMenu.showMenuItem('node_remote');
         contextMenu.showMenuItem('web_console');
       }
-    } else if (activeEdgesLength > 0) {
+    } else if (selectedInterfacesLength > 0) {
       contextMenu.hideMenuItem('lock_node');
       contextMenu.hideMenuItem('unlock_node');
       contextMenu.hideMenuItem('group');
     }
   }
 
-  showMenuOptionsForselectedMBs(contextMenu: any, activeNodesLength: number, activePGsLength: number, activeEdgesLength: number) {
+  showMenuOptionsForselectedMBs(contextMenu: any, selectedNodesLength: number, selectedPGsLength: number, selectedInterfacesLength: number) {
     contextMenu.showMenuItem('delete');
     contextMenu.showMenuItem('lock_node');
     contextMenu.showMenuItem('unlock_node');
-    if (activeNodesLength == 0 && activePGsLength == 0 && activeEdgesLength == 0) {
+    if (selectedNodesLength == 0 && selectedPGsLength == 0 && selectedInterfacesLength == 0) {
       contextMenu.showMenuItem('move_to_front');
       contextMenu.showMenuItem('move_to_back');
     }
@@ -213,7 +218,6 @@ export class ContextMenuService implements OnDestroy {
   hideAllMenuOptions(contextMenu: any) {
     contextMenu.hideMenuItem('node_interface');
     contextMenu.hideMenuItem('link_project');
-    // contextMenu.hideMenuItem('pg_interface');
     contextMenu.hideMenuItem('edge_add');
     contextMenu.hideMenuItem('node_actions');
     contextMenu.hideMenuItem('pg_actions');

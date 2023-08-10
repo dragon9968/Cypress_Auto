@@ -11,7 +11,6 @@ import { InfoPanelService } from "../../../../core/services/info-panel/info-pane
 import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
 import { selectLoginProfiles } from "../../../../store/login-profile/login-profile.selectors";
 import { autoCompleteValidator } from "../../../../shared/validations/auto-complete.validation";
-import { RemoteCategories } from "../../../../core/enums/remote-categories.enum";
 
 @Component({
   selector: 'app-add-node-deploy-dialog',
@@ -48,7 +47,7 @@ export class AddUpdateNodeDeployDialogComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    const loginProfileId = this.data.activeNodes[0].login_profile_id;
+    const loginProfileId = this.data.selectedNodes[0].login_profile_id;
     if (loginProfileId) {
       this.helpers.setAutoCompleteValue(this.loginProfileCtr, this.loginProfiles, loginProfileId);
     }
@@ -76,7 +75,7 @@ export class AddUpdateNodeDeployDialogComponent implements OnInit, OnDestroy {
       datasource_id: datasource ? datasource.id : 0,
       job_name: this.data.jobName,
       category: 'node',
-      pks: this.data.activeNodes.map((ele: any) => ele.id).join(","),
+      pks: this.data.selectedNodes.map((ele: any) => ele.id).join(","),
       backup_vm: this.isBackupVMCtr?.value,
       os_customization: this.isOSCustomizationCtr?.value,
       login_profile_id: this.loginProfileCtr?.value?.id

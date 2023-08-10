@@ -62,9 +62,7 @@ const addCYDataToMapLinkInterface = (edge: any) => {
     interface_fk: edge.interface_id,
     elem_category: "interface",
     zIndex: 999,
-    new: false,
     updated: false,
-    deleted: false,
     source: `project-link-${edge.map_link_id}`,
     target: `pg-${edge.port_group_id}`,
     'line-style': 'dotted'

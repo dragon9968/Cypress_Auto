@@ -1,4 +1,4 @@
-import { Injectable, Input } from '@angular/core';
+import { Injectable, Input, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
@@ -6,7 +6,7 @@ import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 @Injectable({
   providedIn: 'root'
 })
-export class CommonService {
+export class CommonService implements OnDestroy {
   @Input() ur: any;
   isGroupBoxesChecked!: boolean;
   selectMapOption$ = new Subscription();
@@ -17,6 +17,9 @@ export class CommonService {
         this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
       }
     });
+  }
+  ngOnDestroy(): void {
+    this.selectMapOption$.unsubscribe();
   }
 
   changeNodeSize(size: any, selectedNodes: any[], cy: any) {

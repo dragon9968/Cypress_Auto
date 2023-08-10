@@ -10,7 +10,6 @@ import { HelpersService } from "../../../../core/services/helpers/helpers.servic
 import { InfoPanelService } from "../../../../core/services/info-panel/info-panel.service";
 import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
 import { autoCompleteValidator } from "../../../../shared/validations/auto-complete.validation";
-import { RemoteCategories } from "../../../../core/enums/remote-categories.enum";
 
 
 @Component({
@@ -45,7 +44,7 @@ export class RevertNodeSnapshotDialogComponent {
     const jsonData = {
       job_name: 'revert_snapshot',
       category: 'node',
-      pks: this.data.activeNodes.map((ele: any) => ele.id).join(','),
+      pks: this.data.selectedNodes.map((ele: any) => ele.id).join(','),
       snapshot_name: this.nameCtr?.value?.name,
       hypervisor_id: connection ? connection?.id : 0
     }

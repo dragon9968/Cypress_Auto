@@ -67,7 +67,7 @@ export class CMActionsService implements OnDestroy {
     this.selectSelectedLogicalNodes$.unsubscribe();
   }
 
-  getNodeActionsMenu(cy: any, isCanWriteOnProject: boolean) {
+  getNodeActionsMenu(isCanWriteOnProject: boolean) {
     return {
       id: "node_actions",
       content: "Actions",
@@ -79,7 +79,7 @@ export class CMActionsService implements OnDestroy {
           content: "Clone",
           onClickFunction: ($event: any) => {
             const ids = this.selectedNodes.map((node: any) => node.id);
-            this.cloneNodes(cy, ids);
+            this.cloneNodes(ids);
           },
           hasTrailingDivider: true,
           disabled: !isCanWriteOnProject,
@@ -110,7 +110,7 @@ export class CMActionsService implements OnDestroy {
     }
   }
 
-  getPortGroupActionsMenu(cy: any, projectId: number, activePGs: any[]) {
+  getPortGroupActionsMenu(projectId: number) {
     return {
       id: "pg_actions",
       content: "Actions",
@@ -157,7 +157,7 @@ export class CMActionsService implements OnDestroy {
     }
   }
 
-  getEdgeActionsMenu(cy: any) {
+  getEdgeActionsMenu() {
     return {
       id: "edge_actions",
       content: "Actions",
@@ -203,7 +203,7 @@ export class CMActionsService implements OnDestroy {
     }
   }
 
-  cloneNodes(cy: any, ids: any[]) {
+  cloneNodes(ids: any[]) {
     const jsonData = { ids }
     this.nodeService.cloneBulk(jsonData).pipe(
       catchError((e: any) => {

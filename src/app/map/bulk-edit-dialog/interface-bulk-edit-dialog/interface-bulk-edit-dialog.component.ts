@@ -7,12 +7,9 @@ import { DIRECTIONS } from "../../../shared/contants/directions.constant";
 import { STATUS } from "../../../shared/contants/status.constant";
 import { ErrorMessages } from "../../../shared/enums/error-messages.enum";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
-import { InterfaceService } from "../../../core/services/interface/interface.service";
-import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
 import { Observable, Subscription } from "rxjs";
 import { selectMapOption } from "../../../store/map-option/map-option.selectors";
-import { ProjectService } from "src/app/project/services/project.service";
 import { bulkEditLogicalInterface } from "src/app/store/interface/interface.actions";
 import { selectNotification } from "src/app/store/app/app.selectors";
 
@@ -27,7 +24,7 @@ export class InterfaceBulkEditDialogComponent implements OnInit, OnDestroy {
   STATUS = STATUS;
   errorMessages = ErrorMessages;
   isEdgeDirectionChecked = false;
-  mapCategory = '';
+  mapCategory = 'logical';
   filteredStatus!: Observable<any[]>;
   filteredDirections!: Observable<any[]>;
   selectMapOption$ = new Subscription();
@@ -39,9 +36,6 @@ export class InterfaceBulkEditDialogComponent implements OnInit, OnDestroy {
     public dialogRef: MatDialogRef<InterfaceBulkEditDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public helpers: HelpersService,
-    private interfaceService: InterfaceService,
-    private infoPanelService: InfoPanelService,
-    private projectService: ProjectService
   ) {
     this.interfaceBulkEditForm = new FormGroup({
       statusCtr: new FormControl(''),

@@ -17,8 +17,6 @@ const addCYDataToMapLink = (mapLink: any, isLogicalMapLink: boolean) => {
     id: `project-link-${mapLink.id}`,
     map_link_id: mapLink.id,
     updated: false,
-    new: false,
-    deleted: false,
     zIndex: 999,
     elem_category: 'map_link',
     icon: environment.apiBaseUrl +  '/static/img/icons/default_icon.png',

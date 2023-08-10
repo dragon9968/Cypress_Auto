@@ -83,11 +83,7 @@ export class CMMapService {
           if (d.elem_category != 'group') {
             ele.lock();
             d.locked = true;
-            if (!d.new) {
-                d.new = false;
-                d.updated = true;
-                d.deleted = false;
-            }
+            d.updated = true;
             this.helpersService.addBadge(cy, ele);
           }
         });
@@ -109,11 +105,7 @@ export class CMMapService {
           if (d.elem_category != 'group') {
             ele.unlock();
             d.locked = false;
-            if (!d.new) {
-                d.new = false;
-                d.updated = true;
-                d.deleted = false;
-            }
+            d.updated = true;
             this.helpersService.removeBadge(ele);
           }
         });
@@ -141,7 +133,7 @@ export class CMMapService {
     }
   }
 
-  getDeselectAllMenu(cy: any, activeNodes: any[], activePGs: any[], activeEdges: any[], activeGBs: any[], activeMBs: any[], activeMapLinks: any[]) {
+  getDeselectAllMenu(cy: any) {
     return {
       id: "deselect_all",
       content: "Deselect All",
@@ -149,12 +141,6 @@ export class CMMapService {
       onClickFunction: (event: any) => {
         cy.nodes().selectify();
         cy.edges().selectify();
-        activeNodes.splice(0);
-        activeGBs.splice(0)
-        activePGs.splice(0);
-        activeEdges.splice(0);
-        activeMBs.splice(0);
-        activeMapLinks.splice(0);
         this.store.dispatch(unSelectAllElementsOnMap());
         cy.nodes().unselect();
         cy.edges().unselect();

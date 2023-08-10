@@ -13,10 +13,10 @@ import { InterfaceService } from 'src/app/core/services/interface/interface.serv
 import { retrievedInterfacesByDestinationNode, retrievedInterfacesByHwNodes, retrievedInterfacesBySourceNode } from 'src/app/store/interface/interface.actions';
 import { ConnectInterfaceDialogComponent } from '../cm-dialog/connect-interface-dialog/connect-interface-dialog.component';
 import { retrievedNameNodeBySourceNode } from 'src/app/store/node/node.actions';
-import { selectLogicalMapInterfaces } from 'src/app/store/interface/interface.selectors';
+import { selectLogicalMapInterfaces, selectSelectedLogicalInterfaces } from 'src/app/store/interface/interface.selectors';
 import { Subscription } from 'rxjs';
-import { selectLogicalNodes } from 'src/app/store/node/node.selectors';
-import { selectMapPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
+import { selectLogicalNodes, selectSelectedLogicalNodes } from 'src/app/store/node/node.selectors';
+import { selectMapPortGroups, selectSelectedPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { selectSelectedMapLinks } from "../../../store/map-link/map-link.selectors";
 import { ProjectService } from "../../../project/services/project.service";
 import { retrievedAllProjects } from "../../../store/project/project.actions";
@@ -26,13 +26,13 @@ import { retrievedAllProjects } from "../../../store/project/project.actions";
 })
 export class CMEditService implements OnDestroy {
 
-  nodes: any[] = [];
-  portgroups: any[] = [];
-  interfaces: any[] = [];
-  mapLinks: any[] = [];
-  selectLogicalNodes$ = new Subscription();
-  selectMapPortGroups$ = new Subscription();
-  selectLogicalMapInterfaces$ = new Subscription();
+  selectedNodes: any[] = [];
+  selectedPGs: any[] = [];
+  selectedInterfaces: any[] = [];
+  selectedMapLinks: any[] = [];
+  selectSelectedLogicalNodes$ = new Subscription();
+  selectSelectedPortGroups$ = new Subscription();
+  selectSelectedLogicalInterfaces$ = new Subscription();
   selectSelectedMapLinks$ = new Subscription();
   constructor(
     private dialog: MatDialog,
@@ -41,32 +41,33 @@ export class CMEditService implements OnDestroy {
     private interfaceService: InterfaceService,
     private projectService: ProjectService
   ) {
-    this.selectLogicalNodes$ = this.store.select(selectLogicalNodes).subscribe(nodes => {
-      if (nodes) {
-        this.nodes = nodes.filter(i => i.isSelected);
+    this.selectSelectedLogicalNodes$ = this.store.select(selectSelectedLogicalNodes).subscribe(selectedNodes => {
+      if (selectedNodes) {
+        this.selectedNodes = selectedNodes;
       }
     });
-    this.selectMapPortGroups$ = this.store.select(selectMapPortGroups).subscribe(portgroups => {
-      if (portgroups) {
-        this.portgroups = portgroups.filter(i => i.isSelected);
+    this.selectSelectedPortGroups$ = this.store.select(selectSelectedPortGroups).subscribe(selectedPGs => {
+      if (selectedPGs) {
+        this.selectedPGs = selectedPGs;
       }
     });
-    this.selectLogicalMapInterfaces$ = this.store.select(selectLogicalMapInterfaces).subscribe(interfaces => {
-      if (interfaces) {
-        this.interfaces = interfaces.filter(i => i.isSelected);
+    this.selectSelectedLogicalInterfaces$ = this.store.select(selectSelectedLogicalInterfaces).subscribe(selectedInterfaces => {
+      if (selectedInterfaces) {
+        this.selectedInterfaces = selectedInterfaces;
       }
     });
-    this.selectSelectedMapLinks$ = this.store.select(selectSelectedMapLinks).subscribe(mapLinks => {
-      if (mapLinks) {
-        this.mapLinks = mapLinks
+    this.selectSelectedMapLinks$ = this.store.select(selectSelectedMapLinks).subscribe(selectedMapLinks => {
+      if (selectedMapLinks) {
+        this.selectedMapLinks = selectedMapLinks;
       }
-    })
+    });
   }
 
   ngOnDestroy(): void {
-    this.selectLogicalNodes$.unsubscribe();
-    this.selectMapPortGroups$.unsubscribe();
-    this.selectLogicalMapInterfaces$.unsubscribe();
+    this.selectSelectedLogicalNodes$.unsubscribe();
+    this.selectSelectedPortGroups$.unsubscribe();
+    this.selectSelectedLogicalInterfaces$.unsubscribe();
+    this.selectSelectedMapLinks$.unsubscribe();
   }
 
   getMenu(cy: any, isCanWriteOnProject: boolean, mapCategory: string, projectId: number) {
@@ -83,36 +84,36 @@ export class CMEditService implements OnDestroy {
   }
 
   openEditForm(cy: any, mapCategory: string, projectId: number) {
-    const activeNodesLength = this.nodes.length;
-    const activePGsLength = this.portgroups.length;
-    const activeEdgesLength = this.interfaces.length;
-    const activeMapLinksLength = this.mapLinks.length;
+    const selectedNodesLength = this.selectedNodes.length;
+    const selectedPGsLength = this.selectedPGs.length;
+    const selectedInterfacesLength = this.selectedInterfaces.length;
+    const selectedMapLinksLength = this.selectedMapLinks.length;
 
-    if (activeMapLinksLength == 1) {
+    if (selectedMapLinksLength == 1) {
       this.projectService.getProjectByStatus('active').subscribe(resp => {
         this.store.dispatch(retrievedAllProjects({ listAllProject: resp.result }));
         const dialogData = {
           mode: 'update',
-          genData: this.mapLinks[0],
+          genData: this.selectedMapLinks[0],
           cy
         }
         this.dialog.open(ViewUpdateProjectNodeComponent, { disableClose: true, width: '450px', autoFocus: false, data: dialogData });
       })
-    } else if (activeNodesLength == 0 && activePGsLength == 0) {
-      if (activeEdgesLength > 1) {
-        const edgeActiveIds = this.interfaces.map((ele: any) => ele.id);
+    } else if (selectedNodesLength == 0 && selectedPGsLength == 0) {
+      if (selectedInterfacesLength > 1) {
+        const edgeActiveIds = this.selectedInterfaces.map((ele: any) => ele.id);
         const dialogData = {
           genData: {
             ids: edgeActiveIds,
-            activeEles: this.interfaces
+            activeEles: this.selectedInterfaces
           },
           cy
         };
         this.dialog.open(InterfaceBulkEditDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
-      } else if (activeEdgesLength == 1) {
+      } else if (selectedInterfacesLength == 1) {
         const dialogData = {
           mode: 'update',
-          genData: this.interfaces[0],
+          genData: this.selectedInterfaces[0],
           cy,
           projectId: projectId
         }
@@ -122,8 +123,8 @@ export class CMEditService implements OnDestroy {
             this.dialog.open(AddUpdateInterfaceDialogComponent, { disableClose: true, width: '650px', autoFocus: false, data: dialogData });
           })
         } else {
-          const nodeId = this.interfaces[0].data.node_id;
-          const nodeName = this.interfaces[0].data.node;
+          const nodeId = this.selectedInterfaces[0].data.node_id;
+          const nodeName = this.selectedInterfaces[0].data.node;
           this.interfaceService.getByNodeAndConnectedToInterface(nodeId).subscribe(response => {
             this.store.dispatch(retrievedInterfacesBySourceNode({ interfacesBySourceNode: response.result }));
             this.interfaceService.getByProjectIdAndHwNode(projectId).subscribe(interfaceData => {
@@ -135,7 +136,7 @@ export class CMEditService implements OnDestroy {
                   nodeId: nodeId,
                   cy,
                   mapCategory: mapCategory,
-                  genData: this.interfaces[0]
+                  genData: this.selectedInterfaces[0]
                 }
                 const dialogRef =  this.dialog.open(ConnectInterfaceDialogComponent, { disableClose: true, width: '850px', data: dialogData, autoFocus: false, panelClass: 'custom-connect-interfaces-form-modal'})
                 dialogRef.afterClosed().subscribe(result => {
@@ -145,21 +146,21 @@ export class CMEditService implements OnDestroy {
           })
         }
       }
-    } else if (activeNodesLength == 0 && activeEdgesLength == 0) {
-      if (activePGsLength > 1) {
-        const pgActiveIds = this.portgroups.map((ele: any) => ele.id);
+    } else if (selectedNodesLength == 0 && selectedInterfacesLength == 0) {
+      if (selectedPGsLength > 1) {
+        const pgActiveIds = this.selectedPGs.map((ele: any) => ele.id);
         const dialogData = {
           genData: {
             ids: pgActiveIds,
-            activeEles: this.portgroups
+            activeEles: this.selectedPGs
           },
           cy
         }
         this.dialog.open(PortGroupBulkEditDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
-      } else if (activePGsLength == 1) {
+      } else if (selectedPGsLength == 1) {
         const dialogData = {
           mode: 'update',
-          genData: this.portgroups[0],
+          genData: this.selectedPGs[0],
           cy
         }
         this.dialog.open(AddUpdatePGDialogComponent, {
@@ -170,21 +171,21 @@ export class CMEditService implements OnDestroy {
           panelClass: 'custom-node-form-modal'
         });
       }
-    } else if (activePGsLength == 0 && activeEdgesLength == 0) {
-      if (activeNodesLength > 1) {
-        const nodeActiveIds = this.nodes.map((ele: any) => ele.id);
+    } else if (selectedPGsLength == 0 && selectedInterfacesLength == 0) {
+      if (selectedNodesLength > 1) {
+        const nodeActiveIds = this.selectedNodes.map((ele: any) => ele.id);
         const dialogData = {
           genData: {
             ids: nodeActiveIds,
-            activeEles: this.nodes
+            activeEles: this.selectedNodes
           },
           cy
         }
         this.dialog.open(NodeBulkEditDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
-      } else if (activeNodesLength == 1) {
+      } else if (selectedNodesLength == 1) {
         const dialogData = {
           mode: 'update',
-          genData: this.nodes[0],
+          genData: this.selectedNodes[0],
           cy,
           mapCategory: mapCategory
         }

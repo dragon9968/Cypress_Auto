@@ -12,7 +12,6 @@ import { InfoPanelService } from "../../../../core/services/info-panel/info-pane
 import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
 import { selectLoginProfiles } from "../../../../store/login-profile/login-profile.selectors";
 import { autoCompleteValidator } from "../../../../shared/validations/auto-complete.validation";
-import { RemoteCategories } from "../../../../core/enums/remote-categories.enum";
 
 @Component({
   selector: 'app-node-tools-dialog',
@@ -53,7 +52,7 @@ export class NodeToolsDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const loginProfileId = this.data.activeNodes[0].login_profile_id;
+    const loginProfileId = this.data.selectedNodes[0].login_profile_id;
     if (loginProfileId) {
       this.helpersService.setAutoCompleteValue(this.loginProfileCtr, this.loginProfiles, loginProfileId);
     }
@@ -74,7 +73,7 @@ export class NodeToolsDialogComponent implements OnInit {
     const connection = this.serviceConnectionService.getConnection(this.data.category);
     const connectionId = connection ? connection.id : 0;
     let jsonData: any = {
-      pks: this.data.activeNodes.map((node: any) => node.id).join(","),
+      pks: this.data.selectedNodes.map((node: any) => node.id).join(","),
       job_name: this.jobName,
       category: 'node',
       hypervisor_id: connectionId,

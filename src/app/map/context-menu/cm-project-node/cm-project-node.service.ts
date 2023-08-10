@@ -119,8 +119,6 @@ export class CMProjectNodeService {
       mapLinkElement.data('lastPos', mapLinkElement.position());
       mapLinkElement.data('collapsed', true);
       mapLinkElement.data('updated', true);
-      mapLinkElement.data('deleted', false);
-      mapLinkElement.data('new', false);
       mapLinkElement.style({
         'background-opacity': '0',
         'background-color': '#fff',
@@ -139,9 +137,7 @@ export class CMProjectNodeService {
       mapLinkElement.removeData('lastPos');
       mapLinkElement.removeData('width');
       mapLinkElement.removeData('height');
-      mapLinkElement.data('new', false);
       mapLinkElement.data('updated', true);
-      mapLinkElement.data('deleted', false);
       mapLinkElement.data('collapsed', false);
       mapLinkElement.style({
         'background-opacity': '.20',

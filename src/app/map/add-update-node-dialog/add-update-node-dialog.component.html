@@ -108,9 +108,9 @@
                 <input autocomplete="off" id="node-folder" matInput formControlName="folderCtr" [readonly]="isViewMode">
                 <mat-error *ngIf="folderCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
               </mat-form-field>
-              <div *ngIf="data.mapCategory == 'logical'" class="category-temp">
+              <div *ngIf="data.mapCategory === 'logical'" class="category-temp">
               </div>
-              <div *ngIf="data.mapCategory == 'physical'" class="infrastructure">
+              <div *ngIf="data.mapCategory === 'physical'" class="infrastructure">
                 <label class="infrastructure-label">Infrastructure</label>
                 <mat-checkbox class="infrastructure-field" formControlName="infrastructureCtr" color="primary" [(ngModel)]="infrastructureChecked"></mat-checkbox>
               </div>
@@ -190,10 +190,10 @@
                   <mat-error *ngIf="addTypeCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
                   <mat-error *ngIf="addTypeCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
                 </mat-form-field>
-                <button mat-raised-button type="submit" color="primary" class="btn-show-form" [disabled]="actionsAddForm.invalid || data.mode != 'update'">
+                <button mat-raised-button type="submit" color="primary" class="btn-show-form" [disabled]="actionsAddForm.invalid || data.mode !== 'update'">
                   Show Form
                 </button>
-                <button mat-raised-button type="button" color="primary" [disabled]="actionsAddForm.invalid || data.mode != 'update'" (click)="hideAddForm()">
+                <button mat-raised-button type="button" color="primary" [disabled]="actionsAddForm.invalid || data.mode !== 'update'" (click)="hideAddForm()">
                   <mat-icon>cancel</mat-icon>
                 </button>
               </form>

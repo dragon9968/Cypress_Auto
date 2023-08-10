@@ -9,9 +9,9 @@ import { InterfaceService } from 'src/app/core/services/interface/interface.serv
 import { Store } from '@ngrx/store';
 import { retrievedInterfacesByHwNodes } from 'src/app/store/interface/interface.actions';
 import { Subscription } from "rxjs";
-import { selectLogicalNodes } from "../../../store/node/node.selectors";
-import { selectMapPortGroups } from "../../../store/portgroup/portgroup.selectors";
-import { selectLogicalMapInterfaces } from "../../../store/interface/interface.selectors";
+import { selectSelectedLogicalNodes } from "../../../store/node/node.selectors";
+import { selectSelectedPortGroups } from "../../../store/portgroup/portgroup.selectors";
+import { selectSelectedLogicalInterfaces } from "../../../store/interface/interface.selectors";
 import { selectSelectedMapLinks } from "../../../store/map-link/map-link.selectors";
 import { ProjectService } from "../../../project/services/project.service";
 import { retrievedAllProjects } from "../../../store/project/project.actions";
@@ -21,13 +21,13 @@ import { retrievedAllProjects } from "../../../store/project/project.actions";
 })
 export class CMViewDetailsService implements OnDestroy {
 
-  nodes: any[] = [];
-  portgroups: any[] = [];
-  interfaces: any[] = [];
-  mapLinks: any[] = [];
-  selectLogicalNodes$ = new Subscription();
-  selectMapPortGroups$ = new Subscription();
-  selectLogicalMapInterfaces$ = new Subscription();
+  selectedNodes: any[] = [];
+  selectedPGs: any[] = [];
+  selectedInterfaces: any[] = [];
+  selectedMapLinks: any[] = [];
+  selectSelectedLogicalNodes$ = new Subscription();
+  selectSelectedPortGroups$ = new Subscription();
+  selectSelectedLogicalInterfaces$ = new Subscription();
   selectSelectedMapLinks$ = new Subscription();
 
   constructor(
@@ -37,66 +37,67 @@ export class CMViewDetailsService implements OnDestroy {
     private interfaceService: InterfaceService,
     private projectService: ProjectService
   ) {
-    this.selectLogicalNodes$ = this.store.select(selectLogicalNodes).subscribe(nodes => {
-      if (nodes) {
-        this.nodes = nodes.filter(i => i.isSelected);
+    this.selectSelectedLogicalNodes$ = this.store.select(selectSelectedLogicalNodes).subscribe(selectedNodes => {
+      if (selectedNodes) {
+        this.selectedNodes = selectedNodes;
       }
     });
-    this.selectMapPortGroups$ = this.store.select(selectMapPortGroups).subscribe(portgroups => {
-      if (portgroups) {
-        this.portgroups = portgroups.filter(i => i.isSelected);
+    this.selectSelectedPortGroups$ = this.store.select(selectSelectedPortGroups).subscribe(selectedPGs => {
+      if (selectedPGs) {
+        this.selectedPGs = selectedPGs;
       }
     });
-    this.selectLogicalMapInterfaces$ = this.store.select(selectLogicalMapInterfaces).subscribe(interfaces => {
-      if (interfaces) {
-        this.interfaces = interfaces.filter(i => i.isSelected);
+    this.selectSelectedLogicalInterfaces$ = this.store.select(selectSelectedLogicalInterfaces).subscribe(selectedInterfaces => {
+      if (selectedInterfaces) {
+        this.selectedInterfaces = selectedInterfaces;
       }
     });
-    this.selectSelectedMapLinks$ = this.store.select(selectSelectedMapLinks).subscribe(mapLinks => {
-      if (mapLinks) {
-        this.mapLinks = mapLinks
+    this.selectSelectedMapLinks$ = this.store.select(selectSelectedMapLinks).subscribe(selectedMapLinks => {
+      if (selectedMapLinks) {
+        this.selectedMapLinks = selectedMapLinks
       }
     })
   }
 
   ngOnDestroy(): void {
-     this.selectLogicalNodes$.unsubscribe();
-     this.selectMapPortGroups$.unsubscribe();
-     this.selectLogicalMapInterfaces$.unsubscribe();
+    this.selectSelectedLogicalNodes$.unsubscribe();
+    this.selectSelectedPortGroups$.unsubscribe();
+    this.selectSelectedLogicalInterfaces$.unsubscribe();
+    this.selectSelectedMapLinks$.unsubscribe();
   }
 
-  getMenu(cy: any, activeNodes: any, activePGs: any, activeEdges: any, mapCategory: string, projectId: number) {
+  getMenu(cy: any, mapCategory: string, projectId: number) {
     return {
       id: "view_details",
       content: "View",
       selector: "node[label!='group_box'], edge, node[elem_category='map_link']",
       onClickFunction: (event: any) => {
-        this.openViewDetailForm(cy, activeNodes, activePGs, activeEdges, mapCategory, projectId);
+        this.openViewDetailForm(cy, mapCategory, projectId);
       },
       hasTrailingDivider: false,
       disabled: false,
     }
   }
 
-  openViewDetailForm(cy: any, activeNodes: any, activePGs: any, activeEdges: any, mapCategory: string, projectId: number) {
-    const activeNodesLength = activeNodes.length;
-    const activePGsLength = activePGs.length;
-    const activeEdgesLength = activeEdges.length;
-    const activeMapLinksLength = this.mapLinks.length;
-    if (activeEdgesLength == 1 && activeNodesLength == 0 && activePGsLength == 0) {
+  openViewDetailForm(cy: any, mapCategory: string, projectId: number) {
+    const selectedNodesLength = this.selectedNodes.length;
+    const selectedPGsLength = this.selectedPGs.length;
+    const selectedInterfacesLength = this.selectedInterfaces.length;
+    const selectedMapLinksLength = this.selectedMapLinks.length;
+    if (selectedInterfacesLength == 1 && selectedNodesLength == 0 && selectedPGsLength == 0) {
       const dialogData = {
         mode: 'view',
-        genData: this.interfaces[0],
+        genData: this.selectedInterfaces[0],
         cy
       }
       this.interfaceService.getByProjectIdAndHwNode(projectId).subscribe(response => {
         this.store.dispatch(retrievedInterfacesByHwNodes({ interfacesByHwNodes: response.result }))
         this.dialog.open(AddUpdateInterfaceDialogComponent, { disableClose: true, width: '650px', autoFocus: false, data: dialogData });
       })
-    } else if (activePGsLength == 1 && activeNodesLength == 0 && activeEdgesLength == 0) {
+    } else if (selectedPGsLength == 1 && selectedNodesLength == 0 && selectedInterfacesLength == 0) {
       const dialogData = {
         mode: 'view',
-        genData: this.portgroups[0],
+        genData: this.selectedPGs[0],
         cy
       }
       this.dialog.open(AddUpdatePGDialogComponent, {
@@ -106,22 +107,22 @@ export class CMViewDetailsService implements OnDestroy {
         data: dialogData,
         panelClass: 'custom-node-form-modal'
       });
-    } else if (activeNodesLength == 1 && activePGsLength == 0 && activeEdgesLength == 0) {
+    } else if (selectedNodesLength == 1 && selectedPGsLength == 0 && selectedInterfacesLength == 0) {
       const dialogData = {
         mode: 'view',
-        genData: this.nodes[0],
+        genData: this.selectedNodes[0],
         cy,
         mapCategory: mapCategory
       }
       this.dialog.open(AddUpdateNodeDialogComponent,
-        { disableClose: true, width: '1000px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal'}
+        { disableClose: true, width: '1000px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
       );
-    } else if (activeMapLinksLength == 1 && activePGsLength == 0 && activeEdgesLength == 0 && activeNodesLength == 0) {
+    } else if (selectedMapLinksLength == 1 && selectedPGsLength == 0 && selectedInterfacesLength == 0 && selectedNodesLength == 0) {
       this.projectService.getProjectByStatus('active').subscribe(resp => {
         this.store.dispatch(retrievedAllProjects({ listAllProject: resp.result }));
         const dialogData = {
           mode: 'view',
-          genData: this.mapLinks[0],
+          genData: this.selectedMapLinks[0],
           cy
         }
         this.dialog.open(ViewUpdateProjectNodeComponent,
