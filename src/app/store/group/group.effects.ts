@@ -2,15 +2,17 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { forkJoin, of } from 'rxjs';
 import { map, exhaustMap, catchError, mergeMap, switchMap } from 'rxjs/operators';
-import {
-  addGroup,
-  deleteGroups,
-  groupAddedSuccess,
-  groupUpdatedSuccess,
-  groupsDeletedSuccess,
-  groupsLoadedSuccess,
-  loadGroups,
-  updateGroup
+import { 
+  addGroup, 
+  addNodePgToGroup, 
+  addNodePgToGroupSuccess, 
+  deleteGroups, 
+  groupAddedSuccess, 
+  groupUpdatedSuccess, 
+  groupsDeletedSuccess, 
+  groupsLoadedSuccess, 
+  loadGroups, 
+  updateGroup 
 } from './group.actions';
 import { GroupService } from 'src/app/core/services/group/group.service';
 import { pushNotification } from '../app/app.actions';
@@ -31,7 +33,7 @@ export class GroupsEffects {
           }
         })))
       ))
-    )
+  )
   );
 
   addGroup$ = createEffect(() => this.actions$.pipe(
@@ -105,8 +107,32 @@ export class GroupsEffects {
       )),
   ));
 
+  addNodePgToGroup$ = createEffect(() => this.actions$.pipe(
+    ofType(addNodePgToGroup),
+    exhaustMap((payload) => this.groupService.put(payload.id, payload.data)
+      .pipe(
+        mergeMap(res => this.groupService.getGroupByProjectId(payload.projectId)),
+        switchMap((res: any) => [
+          addNodePgToGroupSuccess({ groupsData: res.result }),
+          reloadGroupBoxes(),
+          pushNotification({
+            notification: {
+              type: 'success',
+              message: 'Add node/port group to group successfully!'
+            }
+          })
+        ]),
+        catchError((e) => of(pushNotification({
+          notification: {
+            type: 'error',
+            message: 'Add node/port group to group failed!'
+          }
+        })))
+      )),
+  ));
+
   constructor(
     private actions$: Actions,
     private groupService: GroupService,
-  ) {}
+  ) { }
 }

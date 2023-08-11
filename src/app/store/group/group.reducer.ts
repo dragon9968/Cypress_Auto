@@ -15,7 +15,8 @@ import {
   unSelectAllGroup,
   groupDeletedSuccess,
   groupsDeletedSuccess,
-  updatePGInGroup
+  updatePGInGroup,
+  addNodePgToGroupSuccess
 } from "./group.actions";
 
 const initialState = {} as GroupState;
@@ -100,6 +101,27 @@ export const groupReducer = createReducer(
         port_groups: group.port_groups,
       }
     } : g);
+    return {
+      ...state,
+      groups,
+    };
+  }),
+  on(addNodePgToGroupSuccess, (state, { groupsData }) => {
+    const groups = state.groups.map((g: any) => {
+      const groupsUpdated = groupsData.find((groupData: any) => groupData.id == g.id)
+      return groupsUpdated ? {
+        ...g,
+        ...groupsUpdated,
+        data: {
+          ...g.data,
+          name: groupsUpdated.name,
+          category: groupsUpdated.category,
+          description: groupsUpdated.description,
+          nodes: groupsUpdated.nodes,
+          port_groups: groupsUpdated.port_groups,
+        }
+      } : g;
+    })
     return {
       ...state,
       groups,

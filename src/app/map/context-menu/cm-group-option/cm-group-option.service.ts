@@ -50,9 +50,9 @@ export class CmGroupOptionService implements OnDestroy {
             const dialogData = {
               genData: {
                 nodeIds: this.selectedNodes.map((ele: any) => ele.id),
-                selectedNodes: this.selectedNodes.map((ele: any) => ele.data()),
+                selectedNodes: this.selectedNodes.map((ele: any) => ele.data),
                 pgIds: this.selectedPGs.map((ele: any) => ele.id),
-                selectedPGs: this.selectedPGs.map((ele: any) => ele.data())
+                selectedPGs: this.selectedPGs.map((ele: any) => ele.data)
               },
               cy,
               projectId
