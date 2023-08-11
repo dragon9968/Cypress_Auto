@@ -1590,6 +1590,7 @@ export class HelpersService implements OnDestroy {
   validateDHCPData(editorData: any) {
     const configData = JSON.parse(editorData)
     const dhcpData = configData['dhcp_server']
+    if (Object.keys(dhcpData).length === 0) return true;
     const isLeaseNumber = Number.isInteger(dhcpData.lease)
     if (!isLeaseNumber) {
       this.toastr.warning('Lease property in DHCP server is a number field', 'Warning');
@@ -1688,14 +1689,20 @@ export class HelpersService implements OnDestroy {
   }
 
   getConfigAddsTypeByDeviceCategory(deviceCategory: string | string[]) {
-    if (deviceCategory.includes('Firewall')) {
-      return this.configTemplateAddsType.filter(
-        addType => addType.id == 'add_firewall_rule' || addType.id == 'add_route'
-      );
-    } else if (deviceCategory.includes('Router')) {
-      return this.configTemplateAddsType.filter(
-        addType => addType.id == 'add_firewall_rule' || addType.id == 'add_route' || addType.id == 'add_ospf' || addType.id == 'add_bgp'
-      );
+    if (deviceCategory.includes('Firewall') || deviceCategory.includes('Router')) {
+      if (deviceCategory.includes('Router')) {
+        return this.configTemplateAddsType.filter(
+          addType => addType.id == 'add_firewall_rule'
+                  || addType.id == 'add_route'
+                  || addType.id == 'add_ospf'
+                  || addType.id == 'add_bgp'
+                  || addType.id == 'add_dhcp'
+        );
+      } else {
+        return this.configTemplateAddsType.filter(
+          addType => addType.id == 'add_firewall_rule' || addType.id == 'add_route'
+        );
+      }
     } else if (deviceCategory.includes('Windows Server')) {
       return this.configTemplateAddsType.filter(
         addType => addType.id == 'add_roles_service' || addType.id == 'add_domain_membership'
