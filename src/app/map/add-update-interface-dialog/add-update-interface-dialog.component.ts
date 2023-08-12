@@ -66,6 +66,8 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   errors: any[] = [];
   mapCategory = 'logical';
   interfacesByHwNodes: any[] = [];
+  targetPGName: any[] = [];
+  sourceNodeName: any[] = [];
 
   constructor(
     private store: Store,
@@ -192,6 +194,8 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this._setDataAddInterfaceForm(this.data.genData, this.data.mode)
     if (this.data.mode == 'connect') {
+      this.targetPGName = this.data.genData.port_group_name
+      this.sourceNodeName = this.data.genData.node_name
       this.helpers.setAutoCompleteValue(this.targetPortGroupCtr, this.portGroups, this.data.genData.port_group_id);
     }
     this.helpers.setAutoCompleteValue(this.interfaceCtr, this.interfacesByHwNodes, this.data.genData.interface_fk);

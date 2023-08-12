@@ -178,7 +178,7 @@
               <form class="configuration-template__left__actions-add__form--show" [formGroup]="actionsAddForm" (ngSubmit)="showAddConfigForm()">
                 <mat-form-field class="configuration-template__left__actions-add__form--show--field">
                   <mat-label>Add Configuration Type</mat-label>
-                  <input matInput placeholder="Select a add type"
+                  <input autocomplete="off" id="node-config-type" matInput placeholder="Select a add type"
                          formControlName="addTypeCtr"
                          [matAutocomplete]="autoActionsAdd" [readonly]="isViewMode">
                   <mat-autocomplete #autoActionsAdd="matAutocomplete" [displayWith]="helpers.optionDisplay"

@@ -127,6 +127,7 @@ import {
   selectMapLink,
   unSelectMapLink
 } from "../store/map-link/map-link.actions";
+import { retrievedMapCategory } from '../store/map-category/map-category.actions';
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -667,7 +668,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         this.store.dispatch(selectGroup({ id: d.id }));
       } else {
         if (d.elem_category == 'node') {
-          this.store.dispatch(selectNode({ id: d.id }));
+          this.store.dispatch(selectNode({ id: d.id, mapCategory: this.mapCategory }));
         } else if (d.elem_category == 'port_group') {
           this.store.dispatch(selectPG({ id: d.id }));
         } else if (d.elem_category == 'map_link') {
@@ -713,7 +714,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     } else if (t.data('elem_category') == 'port_group') {
       this.store.dispatch(unSelectPG({ id: t.data('id') }));
     } else if (t.data('elem_category') == 'node') {
-      this.store.dispatch(unSelectNode({ id: t.data('id') }));
+      this.store.dispatch(unSelectNode({ id: t.data('id') , mapCategory: this.mapCategory}));
     } else {
       this.store.dispatch(unSelectMapLink({ id: t.data('id') }))
     }
@@ -763,7 +764,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     for (let elm of elms) {
       const d = elm.data();
       if (d.elem_category == 'node') {
-        this.store.dispatch(selectNode({ id: d.id }));
+        this.store.dispatch(selectNode({ id: d.id, mapCategory: this.mapCategory }));
       } else if (d.elem_category == 'port_group') {
         this.store.dispatch(selectPG({ id: d.id }));
       } else if (d.elem_category == 'map_link') {
@@ -1439,7 +1440,9 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         this.newEdgeData.target = targ;
         const genData = {
           node_id: this.edgeNode.data().node_id,
-          port_group_id: portGroupData.pg_id
+          node_name: this.edgeNode.data().name,
+          port_group_id: portGroupData.pg_id,
+          port_group_name: portGroupData.name
         }
         this._openConnectInterfaceToPGDialog(genData, this.newEdgeData);
       } else {
@@ -1464,7 +1467,8 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
           cy: this.cy,
           newEdgeData: this.newEdgeData,
           mapCategory: this.mapCategory,
-          nameTargetNode: nodeData.name
+          nameTargetNode: nodeData.name,
+          nameSourceNode: this.edgeNode.data().name
         }
         this.interfaceService.getByNode(nodeData.node_id).subscribe(response => {
           this.store.dispatch(retrievedInterfacesByDestinationNode({ interfacesByDestinationNode: response.result }));
@@ -1622,6 +1626,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.mapCategoryLabel = this.mapCategory == 'logical' ? 'Physical' : 'Logical'
 
     this.store.dispatch(unSelectAllElementsOnMap());
+    this.store.dispatch(retrievedMapCategory({ mapCategory : this.mapCategory}));
     this.store.dispatch(loadMap({ projectId: this.projectId, mapCategory: this.mapCategory }));
   }
 

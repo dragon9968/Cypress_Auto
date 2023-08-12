@@ -1,7 +1,6 @@
 import { NodeState } from "./node.state";
 import { createReducer, on } from "@ngrx/store";
 import {
-  retrievedNameNodeBySourceNode,
   nodesLoadedSuccess,
   selectNode,
   unSelectNode,
@@ -62,7 +61,7 @@ const addCYDataToNode = (node: any, isLogicalNode: boolean) => {
   } else {
     return {
       ...node,
-      data: { ...node, ...baseCyData, ...node.physical?.map_style },
+      data: { ...node, ...baseCyData, ...node.physical_map?.map_style },
       position: node.physical?.position,
       locked: node.physical?.locked
     }
@@ -71,10 +70,6 @@ const addCYDataToNode = (node: any, isLogicalNode: boolean) => {
 
 export const nodeReducer = createReducer(
   initialState,
-  on(retrievedNameNodeBySourceNode, (state, { nameNode }) => ({
-    ...state,
-    nameNode
-  })),
   on(nodesLoadedSuccess, (state, { nodes }) => {
     const logicalNodes: any = [];
     const physicalNodes: any = [];
@@ -120,20 +115,38 @@ export const nodeReducer = createReducer(
       linkedMapNodes: undefined
     }
   }),
-  on(selectNode, (state, { id }) => {
-    const logicalNodes = state.logicalNodes.map(n => (n.data.id == id) ? { ...n, isSelected: true } : n);
-    return {
-      ...state,
-      isSelectedFlag: true,
-      logicalNodes,
+  on(selectNode, (state, { id, mapCategory }) => {
+    if (mapCategory === 'logical') {
+      const logicalNodes = state.logicalNodes.map(n => (n.data.id == id) ? { ...n, isSelected: true } : n);
+      return {
+        ...state,
+        isSelectedFlag: true,
+        logicalNodes,
+      }
+    } else {
+      const physicalNodes = state.physicalNodes.map(n => (n.data.id == id) ? { ...n, isSelected: true } : n);
+      return {
+        ...state,
+        isSelectedFlag: true,
+        physicalNodes,
+      }
     }
   }),
-  on(unSelectNode, (state, { id }) => {
-    const logicalNodes = state.logicalNodes.map(n => (n.data.id == id) ? { ...n, isSelected: false } : n);
-    return {
-      ...state,
-      isSelectedFlag: true,
-      logicalNodes,
+  on(unSelectNode, (state, { id, mapCategory }) => {
+    if (mapCategory === 'logical') {
+      const logicalNodes = state.logicalNodes.map(n => (n.data.id == id) ? { ...n, isSelected: false } : n);
+      return {
+        ...state,
+        isSelectedFlag: true,
+        logicalNodes,
+      }
+    } else {
+      const physicalNodes = state.physicalNodes.map(n => (n.data.id == id) ? { ...n, isSelected: false } : n);
+      return {
+        ...state,
+        isSelectedFlag: true,
+        physicalNodes,
+      }
     }
   }),
   on(removeNodesSuccess, (state, { ids }) => {

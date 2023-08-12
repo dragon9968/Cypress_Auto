@@ -5,7 +5,7 @@ import {
   selectIsConfiguratorConnect,
   selectIsHypervisorConnect
 } from "../../store/server-connect/server-connect.selectors";
-import { selectSelectedLogicalNodes } from 'src/app/store/node/node.selectors';
+import { selectSelectedLogicalNodes, selectSelectedPhysicalNodes } from 'src/app/store/node/node.selectors';
 import { selectSelectedPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { selectSelectedLogicalInterfaces } from 'src/app/store/interface/interface.selectors';
 import { selectSelectedGroups } from 'src/app/store/group/group.selectors';
@@ -25,7 +25,10 @@ export class ContextMenuService implements OnDestroy {
   selectSelectedGroups$ = new Subscription();
   selectSelectedMapImages$ = new Subscription();
   selectSelectedMapLinks$ = new Subscription();
+  selectSelectedPhysicalNodes$ = new Subscription();
   selectedNodes: any[] = [];
+  selectedLogicalNodes: any[] = [];
+  selectedPhysicalNodes: any[] = [];
   selectedPGs: any[] = [];
   selectedInterfaces: any[] = [];
   selectedGroups: any[] = [];
@@ -45,7 +48,12 @@ export class ContextMenuService implements OnDestroy {
     });
     this.selectSelectedLogicalNodes$ = this.store.select(selectSelectedLogicalNodes).subscribe(selectedNodes => {
       if (selectedNodes) {
-        this.selectedNodes = selectedNodes;
+        this.selectedLogicalNodes = selectedNodes;
+      }
+    });
+    this.selectSelectedPhysicalNodes$ = this.store.select(selectSelectedPhysicalNodes).subscribe(selectedNodes => {
+      if (selectedNodes) {
+        this.selectedPhysicalNodes = selectedNodes;
       }
     });
     this.selectSelectedPortGroups$ = this.store.select(selectSelectedPortGroups).subscribe(selectedPGs => {
@@ -84,10 +92,13 @@ export class ContextMenuService implements OnDestroy {
     this.selectSelectedGroups$.unsubscribe();
     this.selectSelectedMapImages$.unsubscribe();
     this.selectSelectedMapLinks$.unsubscribe();
+    this.selectSelectedPhysicalNodes$.unsubscribe();
+    
   }
 
   showContextMenu(cy: any, isTemplateCategory: any, isGroupBoxesChecked: boolean, mapCategory: string) {
-    const selectedNodesLength = this.selectedNodes.length;
+    const selectedNodes = mapCategory === 'logical' ? this.selectedLogicalNodes : this.selectedPhysicalNodes
+    const selectedNodesLength = selectedNodes.length;
     const selectedPGsLength = this.selectedPGs.length;
     const selectedInterfacesLength = this.selectedInterfaces.length;
     const selectedGroupsLength = this.selectedGroups.length;

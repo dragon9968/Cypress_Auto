@@ -1,10 +1,5 @@
 import { createAction, props } from "@ngrx/store";
 
-export const retrievedNameNodeBySourceNode = createAction(
-  'retrievedNameNodeBySourceNode',
-  props<{ nameNode: any }>()
-);
-
 export const loadNodes = createAction(
   'loadNodes',
   props<{ projectId: string }>()
@@ -17,12 +12,18 @@ export const nodesLoadedSuccess = createAction(
 
 export const selectNode = createAction(
   'selectNode',
-  props<{ id: string }>()
+  props<{ 
+    id: string,
+    mapCategory: string
+  }>()
 );
 
 export const unSelectNode = createAction(
   'unSelectNode',
-  props<{ id: string }>()
+  props<{ 
+    id: string,
+    mapCategory: string 
+  }>()
 );
 
 export const selectAllNode = createAction(

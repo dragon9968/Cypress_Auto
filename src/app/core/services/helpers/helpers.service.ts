@@ -7,7 +7,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { validateIP } from 'src/app/shared/validations/ip-subnet.validation.ag-grid';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { ToastrService } from 'ngx-toastr';
-import { selectLinkedMapNodes, selectLogicalNodes, } from "../../../store/node/node.selectors";
+import { selectLinkedMapNodes, selectLogicalNodes, selectPhysicalNodes, } from "../../../store/node/node.selectors";
 import { removeNodes, restoreNodes } from "../../../store/node/node.actions";
 import { RemoteCategories } from "../../enums/remote-categories.enum";
 import {
@@ -43,6 +43,7 @@ import { GroupService } from "../group/group.service";
 import { validateProject } from "../../../store/project/project.actions";
 import { removeMapLinks, restoreMapLinks } from "../../../store/map-link/map-link.actions";
 import { removeMapImages, restoreMapImages } from "../../../store/map-image/map-image.actions";
+import { selectMapCategory } from 'src/app/store/map-category/map-category.selectors';
 
 @Injectable({
   providedIn: 'root'
@@ -64,7 +65,12 @@ export class HelpersService implements OnDestroy {
   selectInterfacesCommonMapLinks$ = new Subscription();
   selectLogicalMapInterfaces$ = new Subscription();
   selectMapImages$ = new Subscription();
+  selectPhysicalNodes$ = new Subscription();
+  selectMapCategory$ = new Subscription();
+  mapCategory = 'logical';
   nodes: any[] = [];
+  logicalNodes: any[] = [];
+  physicalNodes: any[] = [];
   portGroups: any[] = [];
   interfacesLogical: any[] = [];
   linkedMapNodes: any;
@@ -109,6 +115,11 @@ export class HelpersService implements OnDestroy {
         this.showNotification(notification);
       }
     });
+    this.selectMapCategory$ = this.store.select(selectMapCategory).subscribe((mapCategory: any) => {
+      if (mapCategory) {
+        this.mapCategory = mapCategory
+      }
+    })
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
         this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
@@ -122,7 +133,8 @@ export class HelpersService implements OnDestroy {
         this.groups = groups;
       }
     })
-    this.selectNodes$ = this.store.select(selectLogicalNodes).subscribe(nodes => this.nodes = nodes);
+    this.selectNodes$ = this.store.select(selectLogicalNodes).subscribe(nodes => this.logicalNodes = nodes);
+    this.selectPhysicalNodes$ = this.store.select(selectPhysicalNodes).subscribe(nodes => this.physicalNodes = nodes);
     this.selectMapPortGroups$ = this.store.select(selectMapPortGroups).subscribe((portGroups: any) => {
       this.portGroups = portGroups;
     });
@@ -182,6 +194,8 @@ export class HelpersService implements OnDestroy {
     this.selectInterfacesCommonMapLinks$.unsubscribe();
     this.selectLogicalMapInterfaces$.unsubscribe();
     this.selectMapImages$.unsubscribe();
+    this.selectPhysicalNodes$.unsubscribe();
+    this.selectMapCategory$.unsubscribe();
   }
 
   showNotification(notification: any) {
@@ -1349,7 +1363,8 @@ export class HelpersService implements OnDestroy {
   }
 
   addNewNodeToMap(id: number) {
-    const cyNodeData = this.nodes.find((n: any) => n.id == id);
+    const nodesData = this.mapCategory === 'logical' ? this.logicalNodes : this.physicalNodes;
+    const cyNodeData = nodesData.find((n: any) => n.id == id);
     this.addCYNode(JSON.parse(JSON.stringify(cyNodeData)));
   }
 
@@ -1358,7 +1373,8 @@ export class HelpersService implements OnDestroy {
     const newPGIds = data.port_group_ids;
     const mapImageIds = data.map_image_ids;
     const newInterfaceIds = data.interface_ids;
-    const nodes = this.nodes.filter((node: any) => newNodeIds.includes(node.id));
+    const nodesData = this.mapCategory === 'logical' ? this.logicalNodes : this.physicalNodes;
+    const nodes = nodesData.filter((node: any) => newNodeIds.includes(node.id));
     const portGroups = this.portGroups.filter((pg: any) => pg.category !== 'management' && newPGIds.includes(pg.id));
     const mapImages = this.mapImages.filter((mi: any) => mapImageIds.includes(mi.id));
     const interfaces = JSON.parse(JSON.stringify(this.interfacesLogical.filter((i: any) => newInterfaceIds.includes(i.id))));

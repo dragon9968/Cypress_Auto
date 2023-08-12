@@ -12,7 +12,6 @@ import { Store } from '@ngrx/store';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 import { retrievedInterfacesByDestinationNode, retrievedInterfacesByHwNodes, retrievedInterfacesBySourceNode } from 'src/app/store/interface/interface.actions';
 import { ConnectInterfaceDialogComponent } from '../cm-dialog/connect-interface-dialog/connect-interface-dialog.component';
-import { retrievedNameNodeBySourceNode } from 'src/app/store/node/node.actions';
 import { selectLogicalMapInterfaces, selectSelectedLogicalInterfaces } from 'src/app/store/interface/interface.selectors';
 import { Subscription } from 'rxjs';
 import { selectLogicalNodes, selectSelectedLogicalNodes } from 'src/app/store/node/node.selectors';
@@ -130,7 +129,6 @@ export class CMEditService implements OnDestroy {
             this.interfaceService.getByProjectIdAndHwNode(projectId).subscribe(interfaceData => {
                 const listInterface = interfaceData.result.filter((val: any) => val.node_id != nodeId)
                 this.store.dispatch(retrievedInterfacesByDestinationNode({ interfacesByDestinationNode: listInterface }));
-                this.store.dispatch(retrievedNameNodeBySourceNode({ nameNode: nodeName }));
                 const dialogData = {
                   mode: 'edit_connected_interface',
                   nodeId: nodeId,

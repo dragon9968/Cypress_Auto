@@ -19,7 +19,6 @@ import { vlanInterfaceValidator } from 'src/app/shared/validations/vlan-interfac
 import { retrievedInterfacesByDestinationNode, retrievedInterfacesBySourceNode, retrievedInterfacesConnectedNode } from 'src/app/store/interface/interface.actions';
 import { selectInterfacesByDestinationNode, selectInterfacesBySourceNode, selectInterfacesConnectedNode } from 'src/app/store/interface/interface.selectors';
 import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
-import { selectNameBySourceNode } from 'src/app/store/node/node.selectors';
 
 @Component({
   selector: 'app-connect-interface-dialog',
@@ -37,7 +36,6 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
   selectDestinationInterface$ = new Subscription();
   selectInterfaceConnectedNode$ = new Subscription();
   selectNetmasks$ = new Subscription();
-  selectNameBySourceNode$ = new Subscription();
   sourceInterface: any[] = [];
   destinationInterface: any[] = [];
   netmasks: any[] = [];
@@ -103,9 +101,6 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
         this.filteredByDestinationInterfaces = this.helpersService.filterOptions(this.destinationInterfaceCtr, filteredDestinationInterface);
       }
     })
-    this.selectNameBySourceNode$ = this.store.select(selectNameBySourceNode).subscribe(nameNode => {
-      this.nameSourceNode = nameNode;
-    })
     this._setTitle();
 
     this.interfaceAddFormSource = new FormGroup({
@@ -157,7 +152,6 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
     this.selectInterfaceConnectedNode$.unsubscribe();
     this.selectDestinationInterface$.unsubscribe();
     this.selectNetmasks$.unsubscribe();
-    this.selectNameBySourceNode$.unsubscribe();
   }
 
   ngOnInit(): void {
@@ -398,7 +392,7 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
   private _updateInterfacesStorage(newInterface: any, mode: string) {
     if (mode == 'source') {
       const interfaceIds = this.sourceInterface.map(el => el.id);
-      newInterface.node = this.nameSourceNode
+      newInterface.node = this.data.nameSourceNode
       const newInterfaces = [...this.sourceInterface];
       if (interfaceIds.includes(newInterface.id)) {
         const index = this.sourceInterface.findIndex(val => val.id === newInterface.id);
