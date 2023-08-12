@@ -581,23 +581,18 @@ export class HelpersService implements OnDestroy {
         }
       },
       {
-        selector: "node[?updated][text_outline_width][text_outline_color]",
+        selector: "[updated]",
         style: {
-          "text-outline-color": (ele: any) => ele.data('text_outline_color'),
-          "text-outline-width": (ele: any) => ele.data('text_outline_width'),
-        }
-      },
-      {
-        selector: "edge[?updated][text_outline_width][text_outline_color]",
-        style: {
-          "text-outline-color": (ele: any) => ele.data('text_outline_color'),
-          "text-outline-width": (ele: any) => ele.data('text_outline_width'),
+          "text-border-color": "#FF0000",
+          "text-border-opacity": 1,
+          "text-border-style": "solid",
+          "text-border-width": "1px"
         }
       },
       {
         selector: "[!updated]",
         style: {
-          "text-outline-color": "#ffffff",
+          "text-border-opacity": 0,
         }
       }
     ]

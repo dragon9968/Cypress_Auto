@@ -279,9 +279,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
     this.textBGOpacity = data.text_bg_opacity != undefined ? data.text_bg_opacity : data.logical_map?.map_style?.text_bg_opacity;
     this.textBGOpacityLabel = this.textBGOpacity ? Math.round(this.textBGOpacity * 100) : 0;
     this.vAlignSelect = data.text_valign ? data.text_valign : data.logical_map?.map_style?.text_valign;
-    this.commonService.textVAlign(this.vAlignSelect, this.selectedNodes, this.selectedPortGroups, this.cy);
     this.hAlignSelect = data.text_halign ? data.text_halign : data.logical_map?.map_style?.text_halign;
-    this.commonService.textHAlign(this.hAlignSelect, this.selectedNodes, this.selectedPortGroups, this.cy);
     this.textOutlineWidthLabel = this.textOutlineWidth ? this.textOutlineWidth : 0;
   }
 

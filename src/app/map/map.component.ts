@@ -568,6 +568,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         gbNodes = expandCollapse.getCollapsedChildrenRecursively($event.target);
       }
     }
+    data.updated = true;
   }
 
   private _zoom() { }
