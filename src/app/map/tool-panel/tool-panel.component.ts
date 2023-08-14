@@ -519,7 +519,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       }
     };
     if (data.updated) {
-      if (data.elem_category == 'node' || data.id?.includes('pg-')) {
+      if (data.elem_category == 'node') {
         this.updatedNodes.push(updatedNode);
       } else if (data.elem_category == 'port_group') {
         this.updatedPGs.push(updatedNode);

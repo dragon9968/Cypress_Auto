@@ -26,8 +26,8 @@
       </div>
       <div class="switch-map">
         <mat-button-toggle-group class="button-group" (change)="switchMap($event)" [(ngModel)]="mapCategory">
-          <mat-button-toggle value="logical"><i class="fa-solid fa-xl fa-diagram-project"></i></mat-button-toggle>
-          <mat-button-toggle value="physical"><i class="fa-solid fa-xl fa-network-wired"></i></mat-button-toggle>
+          <mat-button-toggle value="logical" matTooltip="Logical"><i class="fa-solid fa-xl fa-diagram-project"></i></mat-button-toggle>
+          <mat-button-toggle value="physical" matTooltip="Physical"><i class="fa-solid fa-xl fa-network-wired"></i></mat-button-toggle>
         </mat-button-toggle-group>
       </div>
       <div class="map-editor">

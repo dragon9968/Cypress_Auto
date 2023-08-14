@@ -13,7 +13,7 @@ import { CONFIG_TEMPLATE_ADDS_TYPE } from "../../../shared/contants/config-templ
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { PORT } from "../../../shared/contants/port.constant";
-import { AceEditorComponent } from "ng2-ace-editor";
+import { AceEditorComponent } from "ng12-ace-editor";
 import { networksValidation } from 'src/app/shared/validations/networks.validation';
 import { ColDef, GridApi, GridReadyEvent, ValueSetterParams } from "ag-grid-community";
 import { ButtonRenderersComponent } from "../../../project/renderers/button-renderers-component";

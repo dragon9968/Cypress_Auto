@@ -192,6 +192,7 @@ export const portGroupReducer = createReducer(
     const portgroups = state.portgroups.concat(portGroupCY)
     return {
       ...state,
+      isSelectedFlag: false,
       portgroups
     }
   }),
@@ -213,5 +214,5 @@ export const portGroupReducer = createReducer(
       isSelectedFlag: false,
       portgroups
     }
-  }) 
+  })
 );

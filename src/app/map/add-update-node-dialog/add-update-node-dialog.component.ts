@@ -28,7 +28,7 @@ import { InterfaceService } from "../../core/services/interface/interface.servic
 import { ConfigTemplateService } from "../../core/services/config-template/config-template.service";
 import { retrievedConfigTemplates } from "../../store/config-template/config-template.actions";
 import { PORT } from "../../shared/contants/port.constant";
-import { AceEditorComponent } from "ng2-ace-editor";
+import { AceEditorComponent } from "ng12-ace-editor";
 import { networksValidation } from 'src/app/shared/validations/networks.validation';
 import { selectIsConfiguratorConnect, selectIsDatasourceConnect, selectIsHypervisorConnect } from 'src/app/store/server-connect/server-connect.selectors';
 import { RemoteCategories } from 'src/app/core/enums/remote-categories.enum';

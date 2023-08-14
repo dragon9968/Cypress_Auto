@@ -5,7 +5,7 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dial
 import { UserTaskService } from "../../../../core/services/user-task/user-task.service";
 import { InfoPanelService } from "../../../../core/services/info-panel/info-panel.service";
 import { ConfirmationDialogComponent } from "../../../../shared/components/confirmation-dialog/confirmation-dialog.component";
-import { AceEditorComponent } from "ng2-ace-editor";
+import { AceEditorComponent } from "ng12-ace-editor";
 
 @Component({
   selector: 'app-show-user-task-dialog',

@@ -254,7 +254,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   destroy$: Subject<boolean> = new Subject<boolean>();
   saveMapSubject: Subject<void> = new Subject<void>();
   activeNodeInBox: any[] = [];
-  mapCategoryLabel: any;
 
   constructor(
     private router: Router,
@@ -400,7 +399,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         this.isConfiguratorConnect = isConfiguratorConnect
       }
     })
-    this.mapCategoryLabel = this.mapCategory == 'logical' ? 'Physical' : 'Logical'
     this.projectId = this.projectService.getProjectId();
     this.store.dispatch(loadProject({ projectId: this.projectId }));
     this.store.dispatch(loadMap({ projectId: this.projectId, mapCategory: this.mapCategory }));
@@ -1627,8 +1625,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
 
   switchMap($event: MatButtonToggleChange) {
     this.mapCategory = $event.value
-    this.mapCategoryLabel = this.mapCategory == 'logical' ? 'Physical' : 'Logical'
-
     this.store.dispatch(unSelectAllElementsOnMap());
     this.store.dispatch(retrievedMapCategory({ mapCategory : this.mapCategory}));
     this.store.dispatch(loadMap({ projectId: this.projectId, mapCategory: this.mapCategory }));
