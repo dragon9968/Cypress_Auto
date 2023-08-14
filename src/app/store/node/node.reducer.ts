@@ -54,16 +54,14 @@ const addCYDataToNode = (node: any, isLogicalNode: boolean) => {
   if (isLogicalNode) {
     return {
       ...node,
-      data: { ...node, ...baseCyData, ...node.logical_map?.map_style },
-      position: node.logical_map?.position,
-      locked: node.logical_map?.locked
+      data: { ...node, ...baseCyData, ...node.logical_map?.map_style, locked: node.logical_map?.locked },
+      position: node.logical_map?.position
     };
   } else {
     return {
       ...node,
-      data: { ...node, ...baseCyData, ...node.physical_map?.map_style },
-      position: node.physical?.position,
-      locked: node.physical?.locked
+      data: { ...node, ...baseCyData, ...node.physical_map?.map_style, locked: node.physical_map?.locked },
+      position: node.physical_map?.position,
     }
   }
 }

@@ -78,16 +78,21 @@ export class CMMapService {
       content: "Lock All",
       coreAsWell: true,
       onClickFunction: (event: any) => {
-        cy.nodes().forEach((ele: any) => {
-          const d = ele.data();
-          if (d.elem_category != 'group') {
-            ele.lock();
-            d.locked = true;
-            d.updated = true;
-            this.helpersService.addBadge(cy, ele);
-          }
-        });
-        this.toastr.success("Locked all elements");
+        const lockedNodes = cy.nodes().filter((node: any) => node.data().locked)
+        if (lockedNodes.length === cy.nodes().length) {
+          this.toastr.warning("Already Locked");
+        } else {
+          cy.nodes().forEach((ele: any) => {
+            const d = ele.data();
+            if (d.elem_category != 'group') {
+              ele.lock();
+              d.locked = true;
+              d.updated = true;
+              this.helpersService.addBadge(cy, ele);
+            }
+          });
+          this.toastr.success("Locked all elements");
+        }
       },
       hasTrailingDivider: false,
       disabled: false,
@@ -100,16 +105,21 @@ export class CMMapService {
       content: "Unlock All",
       coreAsWell: true,
       onClickFunction: (event: any) => {
-        cy.nodes().forEach((ele: any) => {
-          const d = ele.data();
-          if (d.elem_category != 'group') {
-            ele.unlock();
-            d.locked = false;
-            d.updated = true;
-            this.helpersService.removeBadge(ele);
-          }
-        });
-        this.toastr.success("Unlocked all elements");
+        const unLockedNodes = cy.nodes().filter((node: any) => !node.data().locked)
+        if (unLockedNodes.length === cy.nodes().length) {
+          this.toastr.warning("Already Unlocked");
+        } else {
+          cy.nodes().forEach((ele: any) => {
+            const d = ele.data();
+            if (d.elem_category != 'group') {
+              ele.unlock();
+              d.locked = false;
+              d.updated = true;
+              this.helpersService.removeBadge(ele);
+            }
+          });
+          this.toastr.success("Unlocked all elements");
+        }
       },
       hasTrailingDivider: false,
       disabled: false,

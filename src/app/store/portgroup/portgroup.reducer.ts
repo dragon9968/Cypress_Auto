@@ -30,11 +30,10 @@ const addCYDataToPG = (portGroup: any) => {
   }
   return {
     ...portGroup,
-    data: { ...portGroup, ...baseCyData, ...portGroup.logical_map?.map_style },
+    data: { ...portGroup, ...baseCyData, ...portGroup.logical_map?.map_style, locked: portGroup.logical_map?.locked },
     position: portGroup.logical_map?.position,
     groups: portGroup.groups,
-    interfaces: portGroup.interfaces,
-    locked: portGroup.logical_map?.locked
+    interfaces: portGroup.interfaces
   }
 }
 
