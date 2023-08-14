@@ -46,8 +46,8 @@ import { CloneProjectDialogComponent } from 'src/app/project/clone-project-dialo
 import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
 import { LDAPConfigurationComponent } from 'src/app/administration/ldap-configuration/ldap-configuration.component';
 import { LdapConfigService } from '../../services/ldap-config/ldap-config.service';
-import { DomainService } from "../../services/domain/domain.service";
 import { selectUserProfile } from 'src/app/store/user-profile/user-profile.selectors';
+import { LocalStorageKeys } from "../../storage/local-storage/local-storage-keys.enum";
 
 @Component({
   selector: 'app-nav-bar',
@@ -98,7 +98,6 @@ export class NavBarComponent implements OnInit, OnDestroy {
     private serverConnectService: ServerConnectService,
     public breakpointObserver: BreakpointObserver,
     private ldapConfigService: LdapConfigService,
-    private domainService: DomainService
   ) {
     this.iconRegistry.addSvgIcon('connected', this.helpersService.setIconPath('/assets/icons/nav/connected.svg'));
     this.iconRegistry.addSvgIcon('disconnected', this.helpersService.setIconPath('/assets/icons/nav/disconnected.svg'));
@@ -366,8 +365,10 @@ export class NavBarComponent implements OnInit, OnDestroy {
             if (shareProject) {
               this.listProject = [...this.listProject, ...shareProject];
             }
-            const listProjectId = this.listProject.map(val => val.id)
+            const listProjectId = this.listProject.map(val => val.id);
             if (listProjectId.includes(projectId)) {
+              const project = this.listProject.find(p => p.id == projectId);
+              localStorage.setItem(LocalStorageKeys.MAP_STATE, project.map_state)
               this.projectService.openProject(projectId);
             } else {
               this.projectService.closeProject();

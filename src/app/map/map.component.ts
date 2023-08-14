@@ -128,6 +128,8 @@ import {
   unSelectMapLink
 } from "../store/map-link/map-link.actions";
 import { retrievedMapCategory } from '../store/map-category/map-category.actions';
+import { LocalStorageKeys } from "../core/storage/local-storage/local-storage-keys.enum";
+import { MatButtonToggleChange } from "@angular/material/button-toggle";
 
 const navigator = require('cytoscape-navigator');
 const gridGuide = require('cytoscape-grid-guide');
@@ -305,6 +307,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     cytoscape.use(compoundDragAndDrop);
     cytoscape.use(popper);
     nodeEditing(cytoscape, jquery, konva);
+    this.mapCategory = localStorage.getItem(LocalStorageKeys.MAP_STATE) || 'logical'
     this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
       this.icons = icons;
     });
@@ -1622,8 +1625,8 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.router.navigate([RouteSegments.DASHBOARD]);
   }
 
-  switchMap() {
-    this.mapCategory = this.mapCategory === 'logical' ? 'physical' : 'logical'
+  switchMap($event: MatButtonToggleChange) {
+    this.mapCategory = $event.value
     this.mapCategoryLabel = this.mapCategory == 'logical' ? 'Physical' : 'Logical'
 
     this.store.dispatch(unSelectAllElementsOnMap());

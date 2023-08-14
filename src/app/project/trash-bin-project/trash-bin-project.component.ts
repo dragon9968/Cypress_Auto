@@ -126,7 +126,7 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
           pk: this.rowsSelectedId,
         }
         if (result) {
-          this.projectService.permanentDeteleProject(jsonData).subscribe({
+          this.projectService.permanentDeleteProject(jsonData).subscribe({
             next: (rest) => {
               this.toastr.success(`Permanent delete Project successfully`);
               this.projectService.getProjectByStatus(this.status).subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));

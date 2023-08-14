@@ -3,13 +3,14 @@ import { Subscription } from "rxjs";
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { ProjectService } from "../project/services/project.service";
-import { selectAllProjects, selectProjects, selectRecentProjects } from "../store/project/project.selectors";
+import { selectAllProjects, selectRecentProjects } from "../store/project/project.selectors";
 import { retrievedAllProjects, retrievedProjectName, retrievedProjects, retrievedRecentProjects } from "../store/project/project.actions";
 import { AuthService } from "../core/services/auth/auth.service";
 import { ToastrService } from "ngx-toastr";
 import { Router } from "@angular/router";
 import { ImportProjectDialogComponent } from 'src/app/project/import-project-dialog/import-project-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { LocalStorageKeys } from "../core/storage/local-storage/local-storage-keys.enum";
 
 @Component({
   selector: 'app-home',
@@ -79,6 +80,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   openProject(projectId: any, projectName: string) {
     const project = this.listProject.find(val => val.id == projectId);
     if (!!project) {
+      localStorage.setItem(LocalStorageKeys.MAP_STATE, project.map_state);
       this.projectService.openProject(projectId.toString());
       this.store.dispatch(retrievedProjectName({ projectName }));
     } else {

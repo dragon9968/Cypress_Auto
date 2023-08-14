@@ -9,4 +9,5 @@ export type LocalStorageData = {
   [LocalStorageKeys.PERMISSIONS]: any[];
   [LocalStorageKeys.ROLES]: any[];
   [LocalStorageKeys.INFO_PANEL_HEIGHT]: string;
+  [LocalStorageKeys.MAP_STATE]: string;
 };

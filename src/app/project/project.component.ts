@@ -18,6 +18,7 @@ import { ConfirmationDialogComponent } from '../shared/components/confirmation-d
 import { ExportProjectDialogComponent } from './export-project-dialog/export-project-dialog.component';
 import { UserService } from '../core/services/user/user.service';
 import { retrievedUser } from '../store/user/user.actions';
+import { LocalStorageKeys } from "../core/storage/local-storage/local-storage-keys.enum";
 
 @Component({
   selector: 'app-project',
@@ -189,7 +190,9 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   onRowDoubleClicked() {
     if (!this.isAdmin) {
-      const projectIdSelected = this.gridApi.getSelectedRows()[0]["id"];
+      const project = this.gridApi.getSelectedRows()[0];
+      const projectIdSelected = project["id"];
+      localStorage.setItem(LocalStorageKeys.MAP_STATE, project["map_state"]);
       this.projectService.openProject(projectIdSelected);
     }
   }
@@ -202,7 +205,9 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   openProject() {
-    const projectIdSelected = this.gridApi.getSelectedRows()[0]["id"];
+    const project = this.gridApi.getSelectedRows()[0];
+    const projectIdSelected = project["id"];
+    localStorage.setItem(LocalStorageKeys.MAP_STATE, project["map_state"]);
     this.projectService.openProject(projectIdSelected);
   }
 

@@ -69,7 +69,7 @@ export class ProjectService {
     return this.http.post<any>(ApiPaths.DELETE_RESTORE_PROJECT, data);
   }
 
-  permanentDeteleProject(data: any) {
+  permanentDeleteProject(data: any) {
     return this.http.post<any>(ApiPaths.PERMANENT_DELETE_PROJECT, data);
   }
 

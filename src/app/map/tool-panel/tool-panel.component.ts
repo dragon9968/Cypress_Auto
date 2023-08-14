@@ -24,6 +24,7 @@ import { loadProjectsNotLinkYet } from "../../store/project/project.actions";
 import { loadGroups } from "../../store/group/group.actions";
 import { updateNode } from "../../store/node/node.actions";
 import { updatePG } from "../../store/portgroup/portgroup.actions";
+import { LocalStorageKeys } from "../../core/storage/local-storage/local-storage-keys.enum";
 
 @Component({
   selector: 'app-tool-panel',
@@ -304,6 +305,8 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       this.updatedMapBackgrounds.splice(0);
       this.updatedGroupBoxes.splice(0);
       this.updatedNodeAndPGInGroups.splice(0);
+      this.cy.elements().map((ele: any) => ele.data('update', false));
+      localStorage.setItem(LocalStorageKeys.MAP_STATE, this.mapCategory);
       this.store.dispatch(retrievedMapOption({
         data: {
           isEdgeDirectionChecked: this.isEdgeDirectionChecked,
