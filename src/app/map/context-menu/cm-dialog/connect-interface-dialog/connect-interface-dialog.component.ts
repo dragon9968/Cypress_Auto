@@ -214,10 +214,12 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
       const cyData = respData.result;
       cyData.id = `interface-${id}`;
       cyData.interface_pk = id;
-      cyData.width = cyData.logical_map.map_style.width;
-      cyData.text_color = cyData.logical_map.map_style.text_color;
-      cyData.text_size = cyData.logical_map.map_style.text_size;
-      cyData.color = cyData.logical_map.map_style.color;
+      cyData.width = cyData.physical_map.map_style.width;
+      cyData.text_color = cyData.physical_map.map_style.text_color;
+      cyData.text_size = cyData.physical_map.map_style.text_size;
+      cyData.text_outline_width = cyData.physical_map.map_style.text_outline_width;
+      cyData.text_outline_color = cyData.physical_map.map_style.text_outline_color;
+      cyData.color = cyData.physical_map.map_style.color;
       cyData.source_label = this.sourceInterfaceCtr?.value.name
       cyData.target_label = this.destinationInterfaceCtr?.value.name
       this.helpersService.addCYEdge({ ...newEdgeData, ...cyData });

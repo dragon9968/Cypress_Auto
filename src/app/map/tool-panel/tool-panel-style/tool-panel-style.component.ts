@@ -88,6 +88,8 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   selectedLogicalNodes: any[] = [];
   selectedPhysicalNodes: any[] = [];
   selectedInterfaces: any[] = [];
+  selectedLogicalInterfaces: any[] = [];
+  selectedPhysicalInterfaces: any[] = [];
   selectedPortGroups: any[] = [];
   selectedMapImages: any[] = [];
   selectedGroups: any[] = [];
@@ -156,11 +158,11 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
       }
     });
     this.selectLogicalInterfaces$ = this.store.select(selectSelectedLogicalInterfaces).subscribe(selectedLogicalInterfaces => {
-      if (selectedLogicalInterfaces) {
-        this.selectedInterfaces = selectedLogicalInterfaces;
-        this.isHideEdge = this.selectedInterfaces.length == 0;
-        if (this.selectedInterfaces.length >= 1) {
-          const ele = this.cy.getElementById(this.selectedInterfaces[0].data.id);
+      if (selectedLogicalInterfaces && this.mapCategory === 'logical') {
+        this.selectedLogicalInterfaces = selectedLogicalInterfaces;
+        this.isHideEdge = this.selectedLogicalInterfaces.length == 0;
+        if (this.selectedLogicalInterfaces.length >= 1) {
+          const ele = this.cy.getElementById(this.selectedLogicalInterfaces[0].data.id);
           const data = ele.data();
           this.edgeColor = data.color;
           this.edgeSize = this.removePx(data.width);
@@ -170,36 +172,36 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
           this.textOutlineWidth = this.removePx(data.text_outline_width ? data.text_outline_width : data.logical_map.map_style.text_outline_width);
           this._setPropertiesCommon(data);
         }
-        this._getSelectedNodeByMapCategory();
-        this.isHideText = this.selectedNodes.length + this.selectedInterfaces.length + this.selectedPortGroups.length + this.selectedGroups.length == 0;
-        this.isHideIndex = this.selectedNodes.length + this.selectedPortGroups.length + this.selectedInterfaces.length + this.selectedGroups.length + this.selectedMapImages.length == 0;
+        this._getSelectedNodeAndEdgeByMapCategory();
+        this.isHideText = this.selectedNodes.length + this.selectedLogicalInterfaces.length + this.selectedPortGroups.length + this.selectedGroups.length == 0;
+        this.isHideIndex = this.selectedNodes.length + this.selectedPortGroups.length + this.selectedLogicalInterfaces.length + this.selectedGroups.length + this.selectedMapImages.length == 0;
       }
     });
     this.selectSelectedPhysicalInterfaces$ = this.store.select(selectSelectedPhysicalInterfaces).subscribe(selectSelectedPhysicalInterfaces => {
-      if (selectSelectedPhysicalInterfaces) {
-        this.selectedInterfaces = selectSelectedPhysicalInterfaces;
-        this.isHideEdge = this.selectedInterfaces.length == 0;
-        if (this.selectedInterfaces.length >= 1) {
-          const ele = this.cy.getElementById(this.selectedInterfaces[0].data.id);
+      if (selectSelectedPhysicalInterfaces && this.mapCategory === 'physical') {
+        this.selectedPhysicalInterfaces = selectSelectedPhysicalInterfaces;
+        this.isHideEdge = this.selectedPhysicalInterfaces.length == 0;
+        if (this.selectedPhysicalInterfaces.length >= 1) {
+          const ele = this.cy.getElementById(this.selectedPhysicalInterfaces[0].data.id);
           const data = ele.data();
           this.edgeColor = data.color;
           this.edgeSize = this.removePx(data.width);
           this.arrowActivated = this.isEdgeDirectionChecked ? data.direction : data.prev_direction;
           this.arrowSize = data.arrow_scale ? this.removePx(data.arrow_scale) : 1;
-          this.textOutlineColor = data.text_outline_color ? data.text_outline_color : data.physical_map.map_style.text_outline_color;
-          this.textOutlineWidth = this.removePx(data.text_outline_width ? data.text_outline_width : data.logical_map.physical_map.text_outline_width);
+          this.textOutlineColor = data?.text_outline_color ? data.text_outline_color : data.physical_map.map_style.text_outline_color;
+          this.textOutlineWidth = data?.text_outline_width ? data.text_outline_width : data.physical_map.map_style.text_outline_width;
           this._setPropertiesCommon(data);
         }
-        this._getSelectedNodeByMapCategory();
-        this.isHideText = this.selectedNodes.length + this.selectedInterfaces.length + this.selectedPortGroups.length + this.selectedGroups.length == 0;
-        this.isHideIndex = this.selectedNodes.length + this.selectedPortGroups.length + this.selectedInterfaces.length + this.selectedGroups.length + this.selectedMapImages.length == 0;
+        this._getSelectedNodeAndEdgeByMapCategory();
+        this.isHideText = this.selectedNodes.length + this.selectedPhysicalInterfaces.length + this.selectedPortGroups.length + this.selectedGroups.length == 0;
+        this.isHideIndex = this.selectedNodes.length + this.selectedPortGroups.length + this.selectedPhysicalInterfaces.length + this.selectedGroups.length + this.selectedMapImages.length == 0;
       }
     });
     this.selectPortGroups$ = this.store.select(selectSelectedPortGroups).subscribe(selectedPortGroups => {
       if (selectedPortGroups) {
         this.selectedPortGroups = selectedPortGroups;
         this.isHidePGs = this.selectedPortGroups.length == 0;
-        this._getSelectedNodeByMapCategory();
+        this._getSelectedNodeAndEdgeByMapCategory();
         this.isHideText = this.selectedNodes.length + this.selectedInterfaces.length + this.selectedPortGroups.length + this.selectedGroups.length == 0;
         this.isHideIndex = this.selectedNodes.length + this.selectedPortGroups.length + this.selectedInterfaces.length + this.selectedGroups.length + this.selectedMapImages.length == 0;
         if (this.selectedPortGroups.length >= 1) {
@@ -227,7 +229,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
           this.mapImageSize = ele.data('scale_image')
           this._setPropertiesCommon(data);
         }
-        this._getSelectedNodeByMapCategory();
+        this._getSelectedNodeAndEdgeByMapCategory();
         this.isHideIndex = this.selectedNodes.length + this.selectedPortGroups.length + this.selectedInterfaces.length + this.selectedGroups.length + this.selectedMapImages.length == 0;
       }
     });
@@ -247,7 +249,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
           this.textColor = data.text_color;
         }
         this.isHideGBs = this.selectedGroups.length == 0;
-        this._getSelectedNodeByMapCategory();
+        this._getSelectedNodeAndEdgeByMapCategory();
         this.isHideText = this.selectedNodes.length + this.selectedInterfaces.length + this.selectedPortGroups.length + this.selectedGroups.length == 0;
         this.isHideIndex = this.selectedNodes.length + this.selectedPortGroups.length + this.selectedInterfaces.length + this.selectedGroups.length + this.selectedMapImages.length == 0;
       }
@@ -272,7 +274,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   get yCtr() { return this.positionForm.get('yCtr'); }
 
   private _setPropertiesCommon(data: any) {
-    this._getSelectedNodeByMapCategory();
+    this._getSelectedNodeAndEdgeByMapCategory();
     this.textColor = data.text_color ? data.text_color : data.logical_map.map_style.text_color;
     this.textSize = this.removePx(data.text_size ? data.text_size : data.logical_map.map_style.text_size);
     this.textBGColor = data.text_bg_color ? data.text_bg_color : data.logical_map?.map_style?.text_bg_color;
@@ -309,7 +311,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   }
 
   applyMapPref() {
-    this._getSelectedNodeByMapCategory();
+    this._getSelectedNodeAndEdgeByMapCategory();
     const selectedEles = this.selectedNodes.concat(this.selectedPortGroups, this.selectedInterfaces, this.selectedGroups);
     const newTextColor = this.selectedMapPref.text_color;
     const newTextSize = this.selectedMapPref.text_size + 'px';
@@ -362,18 +364,19 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   }
 
   setTextVAlign($event: MatButtonToggleChange) {
-    this._getSelectedNodeByMapCategory();
+    this._getSelectedNodeAndEdgeByMapCategory();
     this.vAlignSelect = $event.value;
     this.commonService.textVAlign(this.vAlignSelect, this.selectedNodes, this.selectedPortGroups, this.cy);
   }
 
   setTextHAlign($event: MatButtonToggleChange) {
-    this._getSelectedNodeByMapCategory();
+    this._getSelectedNodeAndEdgeByMapCategory();
     this.hAlignSelect = $event.value;
     this.commonService.textHAlign(this.hAlignSelect, this.selectedNodes, this.selectedPortGroups, this.cy);
   }
 
   setDirection($event: MatButtonToggleChange) {
+    this._getSelectedNodeAndEdgeByMapCategory();
     this.commonService.edgeDirection($event.value, this.selectedInterfaces, this.cy);
   }
 
@@ -383,44 +386,44 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   }
 
   setNodeSize(size: any) {
-    this._getSelectedNodeByMapCategory();
+    this._getSelectedNodeAndEdgeByMapCategory();
     this.nodeSize = size.value <= 100 ? size.value : 100;
     this.commonService.changeNodeSize(size, this.selectedNodes, this.cy);
   }
 
   setTextColor(color: string) {
-    this._getSelectedNodeByMapCategory();
+    this._getSelectedNodeAndEdgeByMapCategory();
     this.textColor = this.helpers.fullColorHex(color);
     this.commonService.textColor(color, this.selectedNodes, this.selectedPortGroups, this.selectedInterfaces, this.selectedGroups, this.cy);
   }
 
   setTextSize(size: any) {
-    this._getSelectedNodeByMapCategory();
+    this._getSelectedNodeAndEdgeByMapCategory();
     this.textSize = size.value <= 100 ? size.value : 100;
     this.commonService.textSize(size, this.selectedNodes, this.selectedInterfaces, this.selectedPortGroups, this.cy);
   }
 
   setTextBGOpacity(opacity: any) {
-    this._getSelectedNodeByMapCategory();
+    this._getSelectedNodeAndEdgeByMapCategory();
     this.textBGOpacity = opacity.value;
     this.textBGOpacityLabel = Math.round(this.textBGOpacity * 100);
     this.commonService.textBGOpacity(opacity, this.selectedNodes, this.selectedInterfaces, this.selectedPortGroups, this.cy);
   }
 
   setTextBGColor(color: any) {
-    this._getSelectedNodeByMapCategory();
+    this._getSelectedNodeAndEdgeByMapCategory();
     this.textBGColor = this.helpers.fullColorHex(color);
     this.commonService.textBGColor(color, this.selectedNodes, this.selectedInterfaces, this.selectedPortGroups, this.selectedGroups, this.cy);
   }
 
   setTextOutlineColor(color: any) {
-    this._getSelectedNodeByMapCategory();
+    this._getSelectedNodeAndEdgeByMapCategory();
     this.textOutlineColor = this.helpers.fullColorHex(color);
     this.commonService.textOutlineColor(color, this.selectedNodes, this.selectedInterfaces, this.selectedPortGroups, this.selectedGroups, this.cy);
   }
 
   setTextOutlineWidth(width: any) {
-    this._getSelectedNodeByMapCategory();
+    this._getSelectedNodeAndEdgeByMapCategory();
     this.textOutlineWidth = width.value <= 10 ? width.value : 10;
     this.textOutlineWidthLabel = this.textOutlineWidth ? this.textOutlineWidth : 0;
     this.commonService.textOutlineWidth(width, this.selectedNodes, this.selectedInterfaces, this.selectedPortGroups, this.selectedGroups, this.cy);
@@ -438,16 +441,19 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   }
 
   setEdgeColor(color: string) {
+    this._getSelectedNodeAndEdgeByMapCategory();
     this.edgeColor = this.helpers.fullColorHex(color);
     this.commonService.edgeColor(color, this.selectedInterfaces, this.cy);
   }
 
   setEdgeSize(size: any) {
+    this._getSelectedNodeAndEdgeByMapCategory();
     this.edgeSize = size.value <= 100 ? size.value : 100;
     this.commonService.edgeSize(size, this.selectedInterfaces, this.cy);
   }
 
   setArrowScale(size: any) {
+    this._getSelectedNodeAndEdgeByMapCategory();
     this.arrowSize = size.value <= 200 ? size.value : 200;
     this.commonService.arrowScale(size, this.selectedInterfaces, this.cy);
   }
@@ -475,7 +481,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   }
 
   increaseZIndex() {
-    this._getSelectedNodeByMapCategory();
+    this._getSelectedNodeAndEdgeByMapCategory();
     this.selectedNodes.concat(this.selectedPortGroups, this.selectedInterfaces, this.selectedGroups, this.selectedMapImages).map(ele => {
       const selectedEle = this.cy.getElementById(ele.data.id);
       this.cmGroupBoxService.moveUp(selectedEle);
@@ -483,7 +489,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   }
 
   decreaseZIndex() {
-    this._getSelectedNodeByMapCategory();
+    this._getSelectedNodeAndEdgeByMapCategory();
     this.selectedNodes.concat(this.selectedPortGroups, this.selectedInterfaces, this.selectedGroups, this.selectedMapImages).map(ele => {
       const selectedEle = this.cy.getElementById(ele.data.id);
       selectedEle._private['data'] = { ...selectedEle._private['data'] };
@@ -521,7 +527,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   }
 
   updatePosition() {
-    this._getSelectedNodeByMapCategory();
+    this._getSelectedNodeAndEdgeByMapCategory();
     let data: any;
     if (this.selectedNodes.length >= 1) {
       data = this.selectedNodes[0].data;
@@ -537,7 +543,8 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
     this.toastr.success('Updated element\'s position on map successfully', 'Success');
   }
 
-  private _getSelectedNodeByMapCategory() {
+  private _getSelectedNodeAndEdgeByMapCategory() {
     this.selectedNodes = this.mapCategory === 'logical' ? this.selectedLogicalNodes : this.selectedPhysicalNodes;
+    this.selectedInterfaces = this.mapCategory === 'logical' ? this.selectedLogicalInterfaces : this.selectedPhysicalInterfaces;
   }
 }

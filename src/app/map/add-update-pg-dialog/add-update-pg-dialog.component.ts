@@ -235,6 +235,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
       this.portGroupService.getDeployData(this.data.genData.id, connectionId).subscribe(resp => {
         const deployData = resp.result;
         this.switchCtr?.setValue(deployData?.dvswitch_name);
+        this.switchCtr?.setValue(deployData?.uuid);
       });
     }
   }
