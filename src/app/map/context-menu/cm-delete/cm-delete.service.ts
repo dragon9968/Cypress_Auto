@@ -30,7 +30,6 @@ export class CMDeleteService implements OnDestroy {
 
   constructor(
     private store: Store,
-    private commonService: CommonService,
     private helpersService: HelpersService,
   ) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {

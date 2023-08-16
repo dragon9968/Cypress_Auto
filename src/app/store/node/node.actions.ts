@@ -84,6 +84,16 @@ export const updateInterfaceInNode = createAction(
   props<{ interfaceData: any }>()
 );
 
+export const removeInterfacesInNode = createAction(
+  'removeInterfacesInNode',
+  props<{ ids: number[] }>()
+);
+
+export const restoreInterfacesInNode = createAction(
+  'restoreInterfacesInNode',
+  props<{ ids: number[] }>()
+);
+
 export const bulkUpdateInterfaceInNode = createAction(
   'bulkUpdateInterfaceInNode',
   props<{ interfacesData: any }>()

@@ -16,7 +16,9 @@ import {
   bulkUpdateInterfaceInNode,
   removeNodesSuccess,
   restoreNodesSuccess,
-  addInterfaceInNode
+  addInterfaceInNode,
+  removeInterfacesInNode,
+  restoreInterfacesInNode
 } from "./node.actions";
 import { environment } from "src/environments/environment";
 
@@ -253,6 +255,34 @@ export const nodeReducer = createReducer(
       logicalNodes,
     }
   }),
+  on(removeInterfacesInNode, (state, { ids }) => {
+    const logicalNodes = state.logicalNodes.map((n: any) => {
+      const interfaces = n.interfaces.map((i: any) => ids.includes(i.id) ? { ...i, isDeleted: true } : i);
+      return {
+        ...n,
+        interfaces
+      };
+    });
+    return {
+      ...state,
+      isSelectedFlag: false,
+      logicalNodes,
+    };
+  }),
+  on(restoreInterfacesInNode, (state, { ids }) => {
+    const logicalNodes = state.logicalNodes.map((n: any) => {
+      const interfaces = n.interfaces.map((i: any) => ids.includes(i.id) ? { ...i, isDeleted: false } : i);
+      return {
+        ...n,
+        interfaces
+      };
+    });
+    return {
+      ...state,
+      isSelectedFlag: false,
+      logicalNodes,
+    };
+  }),
   on(bulkUpdateInterfaceInNode, (state, { interfacesData }) => {
     const logicalNodes = state.logicalNodes.map((n: any) => {
       const updatedLogicalInterfaceInNode = interfacesData.interfacesData.find((i: any) => i.node_id == n.id);
@@ -265,7 +295,7 @@ export const nodeReducer = createReducer(
         const interfaces = n.interfaces.map((i: any) => {
           return (i.id == newEdge.id) ? newEdge : i;
         })
-        return {...n, interfaces}
+        return { ...n, interfaces }
       } else {
         return n
       }
