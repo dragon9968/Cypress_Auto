@@ -1601,7 +1601,7 @@ export class HelpersService implements OnDestroy {
   validateDHCPData(editorData: any) {
     const configData = JSON.parse(editorData)
     const dhcpData = configData['dhcp_server']
-    if (Object.keys(dhcpData).length === 0) return true;
+    if (!Boolean(dhcpData) || Object.keys(dhcpData).length === 0) return true;
     const isLeaseNumber = Number.isInteger(dhcpData.lease)
     if (!isLeaseNumber) {
       this.toastr.warning('Lease property in DHCP server is a number field', 'Warning');
