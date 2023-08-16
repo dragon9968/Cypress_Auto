@@ -678,10 +678,10 @@ export class HelpersService implements OnDestroy {
         this.cy.nodes().forEach((ele: any) => {
           if (!Boolean(ele.data('parent_id')) && ele.data('elem_category') != 'map_link') {
             const data = ele.data();
-            if (data.elem_category == 'node' || data.elem_category == 'port_group') {
+            if (data.elem_category == 'node' || data.elem_category == 'port_group' || data.elem_category == 'bg_image') {
               const node = g.nodes.find((n: any) => !n.isDeleted && n.id == data.node_id);
               const pg = g.port_groups.find((pg: any) => !pg.isDeleted && pg.id == data.pg_id);
-              const map_image = g.map_images.find((pg: any) => !pg.isDeleted && pg.id == data.pg_id);
+              const map_image = g.map_images.find((mi: any) => !mi.isDeleted && mi.id == data.map_image_id);
               if (node || pg || map_image) {
                 ele.move({ parent: g.data.id });
               }
@@ -742,10 +742,16 @@ export class HelpersService implements OnDestroy {
     if (dropTarget.data() && dropTarget.data('elem_category') != 'group' && dropTarget.hasClass('cdnd-new-parent')) {
       const children = dropTarget.children()
       if (children.length == 2) {
+        const nodeId0 = children[0].map((ele: any) => ele.data('elem_category') == 'node' ? ele.data().node_id : ele.data().pg_id )[0];
+        const nodeId1 = children[1].map((ele: any) => ele.data('elem_category') == 'node' ? ele.data().node_id : ele.data().pg_id )[0];
         const g0 = children[0].map((ele: any) => ele.data('groups'))[0]?.map((g: any) => g.id).sort() || [];
         const g1 = children[1].map((ele: any) => ele.data('groups'))[0]?.map((g: any) => g.id).sort() || [];
-        const isBelongedOneGroup = g0.some((g: any) => g1.includes(g));
-        if (g0.length == 0 || g1.length == 0 || !isBelongedOneGroup) {
+        const group0 = this.groups.filter((g: any) => g.id === g0[0])
+        const group1 = this.groups.filter((g: any) => g.id === g1[0])
+        const isBelongedOneGroup = group0.some((g: any) => group1.includes(g));
+        const nodeIdInGroup0 = group0.map((ele: any) => ele.nodes.map((node: any) => node.id))
+        const nodeIdInGroup1 = group1.map((ele: any) => ele.nodes.map((node: any) => node.id))
+        if (!nodeIdInGroup0.includes(nodeId0) || !nodeIdInGroup1.includes(nodeId1) || !isBelongedOneGroup) {
           const nodes = children.filter('[elem_category="node"]')
           const portGroups = children.filter('[elem_category="port_group"]')
           const mapImages = children.filter('[elem_category="bg_image"]')
@@ -1830,5 +1836,15 @@ export class HelpersService implements OnDestroy {
     const element = this.cy.getElementById('pg-' + pgData.id);
     element.data('subnet', pgData.subnet);
     element.data('name', pgData.name);
+  }
+
+  updateUnSelectedNodeInGroup(groupId: any) {
+    const element = this.cy.getElementById('group-' + groupId)
+    element.unselect();
+  }
+
+  updateSelectedNodeInGroup(groupId: any) {
+    const element = this.cy.getElementById('group-' + groupId)
+    element.select();
   }
 }

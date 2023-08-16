@@ -186,6 +186,7 @@ export class AddUpdateGroupDialogComponent implements OnInit, OnDestroy {
     const nodeIds = nodes.map((node: any) => node.id);
     const pgIds = portGroups.map((pg: any) => pg.id);
     const mapImageIds = mapImagesEle.map((mi: any) => mi.id);
+    this.helpers.updateUnSelectedNodeInGroup(this.data.genData.id);
     const jsonDataValue = {
       name: this.nameCtr?.value,
       category: this.categoryCtr?.value.id,

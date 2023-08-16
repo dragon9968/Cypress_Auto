@@ -37,7 +37,7 @@ const addCyDataToGroup = (group: any) => {
   }
   return {
     ...group,
-    data: { ...baseCyData, ...group.logical_map?.map_style }
+    data: { ...group, ...baseCyData, ...group.logical_map?.map_style }
   }
 }
 

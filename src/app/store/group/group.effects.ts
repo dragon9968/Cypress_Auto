@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { forkJoin, of } from 'rxjs';
-import { map, exhaustMap, catchError, mergeMap, switchMap } from 'rxjs/operators';
+import { map, exhaustMap, catchError, mergeMap, switchMap, tap } from 'rxjs/operators';
 import { 
   addGroup, 
   addNodePgToGroup, 
@@ -12,11 +12,13 @@ import {
   groupsDeletedSuccess, 
   groupsLoadedSuccess, 
   loadGroups, 
-  updateGroup 
+  updateGroup, 
+  updateSelectedNodeInGroup
 } from './group.actions';
 import { GroupService } from 'src/app/core/services/group/group.service';
 import { pushNotification } from '../app/app.actions';
 import { reloadGroupBoxes } from '../map/map.actions';
+import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 
 @Injectable()
 export class GroupsEffects {
@@ -68,6 +70,7 @@ export class GroupsEffects {
         switchMap((res: any) => [
           groupUpdatedSuccess({ group: res.result }),
           reloadGroupBoxes(),
+          updateSelectedNodeInGroup({id: payload.id}),
           pushNotification({
             notification: {
               type: 'success',
@@ -131,8 +134,14 @@ export class GroupsEffects {
       )),
   ));
 
+  updateSelectedNodeInGroup$ = createEffect(() => this.actions$.pipe(
+    ofType(updateSelectedNodeInGroup),
+    tap((payload) => this.helpersService.updateSelectedNodeInGroup(payload.id))
+  ), { dispatch: false });
+
   constructor(
     private actions$: Actions,
     private groupService: GroupService,
+    private helpersService: HelpersService
   ) { }
 }

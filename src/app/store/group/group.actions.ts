@@ -44,6 +44,13 @@ export const addNodePgToGroup = createAction(
   }>()
 );
 
+export const updateSelectedNodeInGroup = createAction(
+  'updateSelectedNodeInGroup',
+  props<{
+    id: number,
+  }>()
+)
+
 export const addNodePgToGroupSuccess = createAction(
   'addNodePgToGroupSuccess',
   props<{ groupsData: any }>()
