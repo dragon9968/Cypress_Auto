@@ -192,16 +192,18 @@ export const nodeReducer = createReducer(
     };
   }),
   on(nodeUpdatedSuccess, (state, { node }) => {
-    let logicalNodes = state.logicalNodes;
-    let physicalNodes = state.physicalNodes;
-    const newNode = { ...node };
-    if (newNode.category !== 'hw') {
-      newNode.hardware = null;
-      newNode.hardware_id = null;
-    } else {
-      physicalNodes = physicalNodes.map((n: any) => (n.id == newNode.id) ? { ...n, ...newNode } : n);
-    }
-    logicalNodes = logicalNodes.map((n: any) => (n.id == newNode.id) ? { ...n, ...newNode } : n);
+    const logicalNodes = state.logicalNodes.map((n: any) => {
+      return n.id == node.id && node.category !== 'hw' ? {
+        ...n,
+        ...node,
+        hardware: null,
+        hardware_id: null,
+      } : {
+        ...n,
+        ...node
+      }
+    });
+    const physicalNodes = state.physicalNodes.map((n: any) => n.id == node.id && node.category == 'hw' ? { ...n, ...node } : n);
     return {
       ...state,
       isSelectedFlag: false,
