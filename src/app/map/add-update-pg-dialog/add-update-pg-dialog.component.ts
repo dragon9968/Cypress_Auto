@@ -172,7 +172,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
         Validators.required,
         ipSubnetValidation(true),
         showErrorFromServer(() => this.errors)]),
-      uuidCtr: new FormControl(''),
+      moidCtr: new FormControl(''),
       switchCtr: new FormControl('')
     });
     this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
@@ -235,7 +235,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
       this.portGroupService.getDeployData(this.data.genData.id, connectionId).subscribe(resp => {
         const deployData = resp.result;
         this.switchCtr?.setValue(deployData?.dvswitch_name);
-        this.switchCtr?.setValue(deployData?.uuid);
+        this.moidCtr?.setValue(deployData?.key);
       });
     }
   }
@@ -255,7 +255,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
   get domainCtr() { return this.helpers.getAutoCompleteCtr(this.pgAddForm.get('domainCtr'), this.domains); }
   get subnetAllocationCtr() { return this.pgAddForm.get('subnetAllocationCtr'); }
   get subnetCtr() { return this.pgAddForm.get('subnetCtr'); }
-  get uuidCtr() { return this.pgAddForm.get('uuidCtr'); }
+  get moidCtr() { return this.pgAddForm.get('moidCtr'); }
   get switchCtr() { return this.pgAddForm.get('switchCtr'); }
 
   ngOnInit(): void {
