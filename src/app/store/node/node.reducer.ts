@@ -193,14 +193,18 @@ export const nodeReducer = createReducer(
   }),
   on(nodeUpdatedSuccess, (state, { node }) => {
     const logicalNodes = state.logicalNodes.map((n: any) => {
-      return n.id == node.id && node.category !== 'hw' ? {
-        ...n,
-        ...node,
-        hardware: null,
-        hardware_id: null,
-      } : {
-        ...n,
-        ...node
+      if (n.id == node.id) {
+        return node.category !== 'hw' ? {
+          ...n,
+          ...node,
+          hardware: null,
+          hardware_id: null,
+        } : {
+          ...n,
+          ...node
+        }
+      } else {
+        return n;
       }
     });
     const physicalNodes = state.physicalNodes.map((n: any) => n.id == node.id && node.category == 'hw' ? { ...n, ...node } : n);
