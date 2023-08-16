@@ -69,7 +69,7 @@ export class AddEditUserDialogComponent implements OnInit, OnDestroy {
       activeCtr: new FormControl({value: '', disabled: this.isViewMode}),
       emailCtr: new FormControl({value: '', disabled: this.isViewMode},
       [Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$'), Validators.required, validateNameExist(() => this.listUser, this.data.mode, this.data.genData.id, "email")]),
-      roleCtr: new FormControl({value: '', disabled: this.isViewMode}, [Validators.required]),
+      roleCtr: new FormControl({value: '', disabled: this.isViewMode}),
       passwordCtr: new FormControl({value: '', disabled: this.isViewMode}, [Validators.required]),
       confirmPasswordCtr: new FormControl({value: '', disabled: this.isViewMode}),
       loginCountCtr: new FormControl({value: '', disabled: this.isViewMode})
@@ -109,6 +109,9 @@ export class AddEditUserDialogComponent implements OnInit, OnDestroy {
       this.roleCtr?.setErrors({
         required: this.errorMessages.FIELD_IS_REQUIRED
       });
+    }
+    if (this.data.mode === 'add') {
+      this.roleCtr?.setValidators([Validators.required]);
     }
   }
 
