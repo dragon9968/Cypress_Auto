@@ -242,11 +242,6 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
     this.infoPanelTableComponent?.validate();
   }
 
-  clearTable() {
-    this.infoPanelTableComponent?.clearTable();
-  }
-
-
   changeFilterOption(menuTrigger: MatMenuTrigger, $event: any) {
     menuTrigger.closeMenu();
     this.filterOption = $event.value;

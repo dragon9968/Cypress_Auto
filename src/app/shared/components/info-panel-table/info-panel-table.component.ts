@@ -124,11 +124,6 @@ export class InfoPanelTableComponent {
     })
   }
 
-  clearTable() {
-    this.rowsSelected = [];
-    this.rowsSelectedIds = [];
-  }
-
   deselectAll() {
     this.rowsSelected = [];
     this.rowsSelectedIds = [];
@@ -137,7 +132,6 @@ export class InfoPanelTableComponent {
 
   setSelectedEles(activeEleIds: any[], rowData: any[]) {
     if (activeEleIds.length === 0) {
-      this.clearTable();
       this.gridApi.setRowData([]);
     } else {
       this.setRowData(rowData);
@@ -264,7 +258,6 @@ export class InfoPanelTableComponent {
           } else if (this.tabName == 'interface') {
             this.helpersService.removeInterfacesOnMap(this.rowsSelectedIds);
           }
-          this.clearTable();
         }
       })
     }

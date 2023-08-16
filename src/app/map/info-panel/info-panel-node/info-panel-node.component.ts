@@ -264,10 +264,6 @@ export class InfoPanelNodeComponent implements OnDestroy {
     this.infoPanelTableComponent?.validate();
   }
 
-  clearTable() {
-    this.infoPanelTableComponent?.clearTable();
-  }
-
   changeFilterOption(menuTrigger: MatMenuTrigger, $event: any) {
     menuTrigger.closeMenu();
     this.filterOption = $event.value;
