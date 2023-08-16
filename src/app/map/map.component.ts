@@ -1359,7 +1359,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
       mapCategory: this.mapCategory
     }
     const dialogRef = this.dialog.open(AddUpdateInterfaceDialogComponent,
-      { disableClose: true, width: '600px', data: dialogData, autoFocus: false, panelClass: 'custom-node-form-modal' });
+      { disableClose: true, width: '800px', data: dialogData, autoFocus: false, panelClass: 'custom-node-form-modal' });
     dialogRef.afterClosed().subscribe(() => {
       this.cy.unbind('mousemove');
       this.inv.remove();

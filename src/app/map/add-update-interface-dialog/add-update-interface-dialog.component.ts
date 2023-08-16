@@ -1,5 +1,5 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
@@ -27,16 +27,28 @@ import { NodeService } from 'src/app/core/services/node/node.service';
 import { selectNotification } from 'src/app/store/app/app.selectors';
 import { selectLogicalNodes } from 'src/app/store/node/node.selectors';
 import { SuccessMessages } from "../../shared/enums/success-messages.enum";
+import { ErrorStateMatcher } from '@angular/material/core';
+import { ipInPortGroupSubnet } from 'src/app/shared/validations/ip-inpgsubnet.validation';
 
+class CrossFieldErrorMatcher implements ErrorStateMatcher {
+  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
+    return !!control?.dirty && (
+      control?.errors?.['required'] ||
+      form?.errors?.['isNotMatch']
+    );
+  }
+}
 @Component({
   selector: 'app-add-update-interface-dialog',
   templateUrl: './add-update-interface-dialog.component.html',
   styleUrls: ['./add-update-interface-dialog.component.scss']
 })
+
 export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   connectInterfaceToPGForm: FormGroup;
   interfacesNotConnectPG: any[] = [];
   selectInterfacesNotConnectPG$ = new Subscription();
+  errorMatcher = new CrossFieldErrorMatcher();
   filteredInterfaces!: Observable<any[]>;
   isShowAddInterfaceForm = false
   interfaceAddForm: FormGroup;
@@ -103,7 +115,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     this.connectInterfaceToPGForm = new FormGroup({
       interfaceCtr: new FormControl(''),
       targetPortGroupCtr: new FormControl(''),
-    })
+    }, { validators: ipInPortGroupSubnet })
     this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
       if (notification?.type == 'success') {
         if (notification.message === SuccessMessages.ADDED_NEW_EDGE_SUCCESS) {
@@ -256,14 +268,30 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       vlan: this.vlanIdCtr?.value,
       vlan_mode: this.vlanModeCtr?.value,
       netmask_id: this.netMaskCtr?.value.id,
-      logical_map: (this.data.mode == 'add') ? {
-        "map_style": {
+      logical_map: (this.data.mode == 'connect') ? {
+        map_style: {
           "width": this.data.selectedMapPref.edge_width,
           "color": this.data.selectedMapPref.edge_color,
           "text_size": this.data.selectedMapPref.text_size,
           "text_color": this.data.selectedMapPref.text_color,
           "text_halign": this.data.selectedMapPref.text_halign,
           "text_valign": this.data.selectedMapPref.text_valign,
+          "text_outline_color": this.data.selectedMapPref.text_outline_color,
+          "text_outline_width": this.data.selectedMapPref.text_outline_width,
+          "text_bg_color": this.data.selectedMapPref.text_bg_color,
+          "text_bg_opacity": this.data.selectedMapPref.text_bg_opacity
+        }
+      } : undefined,
+      physical_map: (this.data.mode == 'connect') ? {
+        map_style: {
+          "width": this.data.selectedMapPref.edge_width,
+          "color": this.data.selectedMapPref.edge_color,
+          "text_size": this.data.selectedMapPref.text_size,
+          "text_color": this.data.selectedMapPref.text_color,
+          "text_halign": this.data.selectedMapPref.text_halign,
+          "text_valign": this.data.selectedMapPref.text_valign,
+          "text_outline_color": this.data.selectedMapPref.text_outline_color,
+          "text_outline_width": this.data.selectedMapPref.text_outline_width,
           "text_bg_color": this.data.selectedMapPref.text_bg_color,
           "text_bg_opacity": this.data.selectedMapPref.text_bg_opacity
         }

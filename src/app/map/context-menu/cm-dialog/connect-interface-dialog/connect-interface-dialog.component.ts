@@ -343,14 +343,30 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
       vlan: mode == 'source' ? this.vlanIdSourceCtr?.value : this.vlanIdTargetCtr?.value,
       vlan_mode: mode == 'source' ? this.vlanModeSourceCtr?.value : this.vlanModeTargetCtr?.value,
       netmask_id: mode == 'source' ? this.netMaskSourceCtr?.value.id : this.netMaskTargetCtr?.value.id,
-      logical_map: (this.data.mode == 'add') ? {
-        "map_style": {
+      logical_map: (this.data.mode == 'connect_node') ? {
+        map_style: {
           "width": this.data.selectedMapPref.edge_width,
           "color": this.data.selectedMapPref.edge_color,
           "text_size": this.data.selectedMapPref.text_size,
           "text_color": this.data.selectedMapPref.text_color,
           "text_halign": this.data.selectedMapPref.text_halign,
           "text_valign": this.data.selectedMapPref.text_valign,
+          "text_outline_color": this.data.selectedMapPref.text_outline_color,
+          "text_outline_width": this.data.selectedMapPref.text_outline_width,
+          "text_bg_color": this.data.selectedMapPref.text_bg_color,
+          "text_bg_opacity": this.data.selectedMapPref.text_bg_opacity
+        }
+      } : undefined,
+      physical_map: (this.data.mode == 'connect_node') ? {
+        map_style: {
+          "width": this.data.selectedMapPref.edge_width,
+          "color": this.data.selectedMapPref.edge_color,
+          "text_size": this.data.selectedMapPref.text_size,
+          "text_color": this.data.selectedMapPref.text_color,
+          "text_halign": this.data.selectedMapPref.text_halign,
+          "text_valign": this.data.selectedMapPref.text_valign,
+          "text_outline_color": this.data.selectedMapPref.text_outline_color,
+          "text_outline_width": this.data.selectedMapPref.text_outline_width,
           "text_bg_color": this.data.selectedMapPref.text_bg_color,
           "text_bg_opacity": this.data.selectedMapPref.text_bg_opacity
         }

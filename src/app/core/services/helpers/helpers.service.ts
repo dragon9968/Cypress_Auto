@@ -820,7 +820,7 @@ export class HelpersService implements OnDestroy {
     const ip = ip_str.split(".");
     const last_octet = ip.length == 4 ? "." + ip[3] : "";
     ele.data('ip_last_octet', last_octet);
-    ele.data('target', `pg-${data.port_group_id}`);
+    ele.move({target: `pg-${data.port_group_id}`});
     ele.data('netmask_id', data.netmask_id);
     ele.data('vlan', data.vlan);
     ele.data('vlan_mode', data.vlan_mode);

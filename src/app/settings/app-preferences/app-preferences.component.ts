@@ -1,5 +1,5 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
@@ -12,7 +12,18 @@ import { loadAppPref } from 'src/app/store/app-pref/app-pref.actions';
 import { selectAppPref } from 'src/app/store/app-pref/app-pref.selectors';
 import { selectMapPrefs } from 'src/app/store/map-pref/map-pref.selectors';
 import { HelpersService } from "../../core/services/helpers/helpers.service";
+import { ErrorStateMatcher } from '@angular/material/core';
 
+class CrossFieldErrorMatcher implements ErrorStateMatcher {
+  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
+    return !!control?.dirty && (
+      control?.errors?.['required'] ||
+      form?.errors?.['isNotMatchPublicNetwork'] || 
+      form?.errors?.['isNotMatchPrivateNetwork'] || 
+      form?.errors?.['isNotMatchManagementNetwork']
+    );
+  }
+}
 @Component({
   selector: 'app-app-preferences',
   templateUrl: './app-preferences.component.html',
@@ -22,6 +33,7 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
   appPrefForm!: FormGroup;
   selectMapPrefs$ = new Subscription();
   selectAppPref$ = new Subscription();
+  errorMatcher = new CrossFieldErrorMatcher();
   errorMessages = ErrorMessages;
   listMapPref!: any[];
   appPrefDefault!: any[];
@@ -44,13 +56,13 @@ export class AppPreferencesComponent implements OnInit, OnDestroy {
       // sessionTimeoutCtr: new FormControl('', [Validators.required]),
       mapPrefCtr: new FormControl(''),
       publicNetworkCtr: new FormControl('', [Validators.required, ipSubnetValidation(true)]),
-      publicNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.public_network, "public"), ipSubnetValidation(false)]),
+      publicNetworkIPsCtr: new FormControl('', [ipSubnetValidation(false)]),
       privateNetworkCtr: new FormControl('', [Validators.required, ipSubnetValidation(true)]),
-      privateNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.private_network , "private"), ipSubnetValidation(false)]),
+      privateNetworkIPsCtr: new FormControl('', [ipSubnetValidation(false)]),
       managementNetworkCtr: new FormControl('', [Validators.required, ipSubnetValidation(true)]),
-      managementNetworkIPsCtr: new FormControl('', [ipInNetworkValidator(this.data.genData.management_network, "management"), ipSubnetValidation(false)]),
+      managementNetworkIPsCtr: new FormControl('', [ipSubnetValidation(false)]),
       dhcpServerCtr: new FormControl('', [Validators.pattern(this.pattern)]),
-    });
+    }, { validators: ipInNetworkValidator });
     if (this.data) {
       // this.sessionTimeoutCtr?.setValue(this.data.genData.preferences.session_timeout);
       this.mapPrefCtr?.setValue(this.data.genData.default_map_pref);

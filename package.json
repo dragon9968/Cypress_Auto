@@ -47,6 +47,7 @@
     "cytoscape-popper": "^2.0.0",
     "cytoscape-svg": "^0.4.0",
     "cytoscape-undo-redo": "^1.3.3",
+    "ip-matching": "^2.1.2",
     "is-ip": "^5.0.0",
     "is-subnet": "^1.0.0",
     "konva": "^7.0.3",

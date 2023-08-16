@@ -39,9 +39,10 @@
       </mat-form-field>
       <mat-form-field class="field">
         <mat-label>Public Network Reserved IPs</mat-label>
-        <input autocomplete="off" id="apppref-public-networkips" type="text" matInput formControlName="publicNetworkIPsCtr">
+        <input autocomplete="off" id="apppref-public-networkips" type="text" matInput formControlName="publicNetworkIPsCtr" [errorStateMatcher]="errorMatcher">
         <mat-error *ngIf="publicNetworkIPsCtr?.errors?.isNotMatch">{{ errorMessages.IP_IN_NETWORK }}</mat-error>
         <mat-error *ngIf="publicNetworkIPsCtr?.errors?.isNotMatchIP">{{ publicNetworkIPsCtr?.errors?.value }}</mat-error>
+        <mat-error *ngIf="appPrefForm.errors?.['isNotMatchPublicNetwork']">{{ appPrefForm.errors.message }}</mat-error>
       </mat-form-field>
     </section>
     <section>
@@ -58,9 +59,10 @@
       </mat-form-field>
       <mat-form-field class="field">
         <mat-label>Private Network Reserved IPs</mat-label>
-        <input autocomplete="off" id="apppref-private-networkips" type="text" matInput formControlName="privateNetworkIPsCtr">
+        <input autocomplete="off" id="apppref-private-networkips" type="text" matInput formControlName="privateNetworkIPsCtr" [errorStateMatcher]="errorMatcher">
         <mat-error *ngIf="privateNetworkIPsCtr?.errors?.isNotMatch">{{ errorMessages.IP_IN_NETWORK }}</mat-error>
         <mat-error *ngIf="privateNetworkIPsCtr?.errors?.isNotMatchIP">{{ privateNetworkIPsCtr?.errors?.value }}</mat-error>
+        <mat-error *ngIf="appPrefForm.errors?.['isNotMatchPrivateNetwork']">{{ appPrefForm.errors.message }}</mat-error>
       </mat-form-field>
     </section>
     <section>
@@ -77,9 +79,10 @@
       </mat-form-field>
       <mat-form-field class="field">
         <mat-label>Management Network Reserved IPs</mat-label>
-        <input autocomplete="off" id="apppref-management-networkips" type="text" matInput formControlName="managementNetworkIPsCtr">
+        <input autocomplete="off" id="apppref-management-networkips" type="text" matInput formControlName="managementNetworkIPsCtr" [errorStateMatcher]="errorMatcher">
         <mat-error *ngIf="managementNetworkIPsCtr?.errors?.isNotMatch">{{ errorMessages.IP_IN_NETWORK }}</mat-error>
         <mat-error *ngIf="managementNetworkIPsCtr?.errors?.isNotMatchIP">{{ managementNetworkIPsCtr?.errors?.value }}</mat-error>
+        <mat-error *ngIf="appPrefForm.errors?.['isNotMatchManagementNetwork']">{{ appPrefForm.errors.message }}</mat-error>
       </mat-form-field>
       <mat-form-field class="dhcp-field">
         <mat-label>DHCP Server</mat-label>

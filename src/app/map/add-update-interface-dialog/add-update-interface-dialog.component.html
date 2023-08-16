@@ -25,16 +25,18 @@
           <mat-form-field class="field">
             <mat-label>Interface</mat-label>
             <input autocomplete="off" id="connect-interface" matInput placeholder="Select a interface" formControlName="interfaceCtr"
-                   [matAutocomplete]="autoInterface">
+                   [matAutocomplete]="autoInterface" [errorStateMatcher]="errorMatcher">
             <mat-autocomplete #autoInterface="matAutocomplete" [displayWith]="helpers.optionDisplay">
               <mat-option class="edge-option" *ngFor="let option of filteredInterfaces | async" [value]="option">
                 <div>
                   <span class="edge-option__item">Interface Name: <b>{{ option.name }}</b></span>
+                  <span class="edge-option__item">Interface Ip: <b>{{ option.ip }}</b></span>
                 </div>
               </mat-option>
             </mat-autocomplete>
             <mat-error *ngIf="interfaceCtr?.errors?.required && interfaceCtr?.touched">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
             <mat-error *ngIf="interfaceCtr?.errors?.isNotMatch">{{errorMessages.OPTION_NOT_MATCH }}</mat-error>
+            <mat-error *ngIf="connectInterfaceToPGForm.errors?.['isNotMatch']">{{ connectInterfaceToPGForm.errors.message }}</mat-error>
           </mat-form-field>
         </div>
         <div *ngIf="isShowAddInterfaceForm" class="interface-source-content">
