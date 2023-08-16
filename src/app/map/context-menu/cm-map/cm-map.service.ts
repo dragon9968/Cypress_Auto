@@ -2,11 +2,7 @@ import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
-import { selectAllGroup, unSelectAllGroup } from 'src/app/store/group/group.actions';
-import { selectAllInterface, unSelectAllInterface } from 'src/app/store/interface/interface.actions';
 import { retrievedMapContextMenu } from 'src/app/store/map-context-menu/map-context-menu.actions';
-import { selectAllNode, unSelectAllNode } from 'src/app/store/node/node.actions';
-import { selectAllPG, unselectAllPG } from 'src/app/store/portgroup/portgroup.actions';
 import { selectAllElementsOnMap, unSelectAllElementsOnMap } from "../../../store/map/map.actions";
 
 @Injectable({

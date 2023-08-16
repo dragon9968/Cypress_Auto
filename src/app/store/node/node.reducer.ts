@@ -76,12 +76,16 @@ export const nodeReducer = createReducer(
     nodes.map((node: any) => {
       let cyNode;
       if (!node.infrastructure) {
-        cyNode = addCYDataToNode(node, true);
-        logicalNodes.push(cyNode);
+        const nodeNoHW = { ...node };
         if (node.category === 'hw') {
           cyNode = addCYDataToNode(node, false);
           physicalNodes.push(cyNode);
+        } else {
+          nodeNoHW.hardware = null;
+          nodeNoHW.hardware_id = null;
         }
+        cyNode = addCYDataToNode(nodeNoHW, true);
+        logicalNodes.push(cyNode);
       } else {
         cyNode = addCYDataToNode(node, false);
         physicalNodes.push(cyNode);
@@ -188,11 +192,21 @@ export const nodeReducer = createReducer(
     };
   }),
   on(nodeUpdatedSuccess, (state, { node }) => {
-    const logicalNodes = state.logicalNodes.map((n: any) => (n.id == node.id) ? { ...n, ...node } : n);
+    let logicalNodes = state.logicalNodes;
+    let physicalNodes = state.physicalNodes;
+    const newNode = { ...node };
+    if (newNode.category !== 'hw') {
+      newNode.hardware = null;
+      newNode.hardware_id = null;
+    } else {
+      physicalNodes = physicalNodes.map((n: any) => (n.id == newNode.id) ? { ...n, ...newNode } : n);
+    }
+    logicalNodes = logicalNodes.map((n: any) => (n.id == newNode.id) ? { ...n, ...newNode } : n);
     return {
       ...state,
       isSelectedFlag: false,
       logicalNodes,
+      physicalNodes
     };
   }),
   on(bulkUpdatedNodeSuccess, (state, { nodes }) => {

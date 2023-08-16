@@ -355,6 +355,7 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
           "text_bg_opacity": this.data.selectedMapPref.text_bg_opacity
         }
       } : undefined,
+      project_id: this.projectService.getProjectId()
     }
     const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.interfaceService.add(jsonData).pipe(

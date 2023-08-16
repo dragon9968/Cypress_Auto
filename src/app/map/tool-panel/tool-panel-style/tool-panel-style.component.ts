@@ -60,6 +60,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
   selectDefaultPreferences$ = new Subscription();
   selectMapPref$ = new Subscription();
   isEdgeDirectionChecked = false;
+  isGroupBoxesChecked = false;
   selectMapOption$ = new Subscription();
   isHideNode: boolean = true;
   isHidePGs: boolean = true;
@@ -234,7 +235,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
       }
     });
     this.selectGroups$ = this.store.select(selectGroups).subscribe(groups => {
-      if (groups) {
+      if (groups && this.isGroupBoxesChecked) {
         this.selectedGroups = groups.filter((n: any) => n.isSelected);
         if (this.selectedGroups.length >= 1) {
           const ele = this.cy.getElementById(this.selectedGroups[0].data.id);
@@ -266,6 +267,7 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe(mapOption => {
       if (mapOption) {
         this.isEdgeDirectionChecked = mapOption.isEdgeDirectionChecked
+        this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked
       }
     })
   }

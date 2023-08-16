@@ -672,7 +672,7 @@ export class HelpersService implements OnDestroy {
 
   addGroupBoxes() {
     const gbs = this.groups.filter((gb: any) => gb.data.group_category == this.groupCategoryId);
-    this.cy.add(gbs);
+    this.cy.add(JSON.parse(JSON.stringify(gbs)));
     gbs.map(g => {
       if (g.nodes.length > 0 || g.port_groups.length > 0 || g.map_images.length > 0) {
         this.cy.nodes().forEach((ele: any) => {
