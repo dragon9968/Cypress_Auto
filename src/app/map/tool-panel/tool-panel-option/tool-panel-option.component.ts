@@ -211,6 +211,10 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
 
   toggleMapOverview() {
     if (this.isMapOverviewChecked) {
+      if (this.nav) {
+        this.nav.destroy();
+        this.nav = undefined;
+      }
       this.nav = this.cy.navigator(this.config.nav_defaults);
     } else if (this.nav) {
       this.nav.destroy();
@@ -232,7 +236,7 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
   reinitializeMap() {
     const dialogData = {
       title: 'Network Map',
-      message: 'Do you want to remove all custom stylings and/or map background?'
+      message: 'Do you want to remove all custom styling and/or map background?'
     }
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '600px', data: dialogData });
     dialogRef.afterClosed().subscribe(result => {

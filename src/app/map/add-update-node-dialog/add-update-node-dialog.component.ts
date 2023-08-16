@@ -813,6 +813,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       hostname: this.hostnameCtr?.value,
       login_profile_id: this.loginProfileCtr?.value.id ? this.loginProfileCtr?.value.id : null,
       project_id: this.data.genData.project_id,
+      is_add_log: true
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     const isUpdateConfigDefault = JSON.stringify(this.defaultConfig, null, 2) !== this.editor.value;

@@ -19,7 +19,8 @@ export interface PortGroupPutModel {
   subnet_allocation?: string,
   subnet?: string,
   project_id?: number,
-  logical_map?: any
+  logical_map?: any,
+  is_add_log?: boolean
 }
 
 export interface PortGroupValidateModel {

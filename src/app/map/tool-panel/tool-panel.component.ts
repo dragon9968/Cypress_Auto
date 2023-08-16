@@ -609,7 +609,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
           nodesInGroup.map((nodeId: any) => {
             this.store.dispatch(updateNode({
               id: nodeId,
-              data: { domain_id: group.domain_id }
+              data: { domain_id: group.domain_id, is_add_log: false }
             }));
           });
         }
@@ -617,7 +617,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
           portGroupInGroup.map((pgId: number) => {
             this.store.dispatch(updatePG({
               id: pgId,
-              data: { domain_id: group.domain_id }
+              data: { domain_id: group.domain_id, is_add_log: false }
             }));
           })
         }

@@ -342,7 +342,8 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
       logical_map: {
         ...ele.data('logical_map'),
         position: ele.position()
-      }
+      },
+      is_add_log: true
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.store.dispatch(updatePG({

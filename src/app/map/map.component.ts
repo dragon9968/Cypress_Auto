@@ -1740,14 +1740,14 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     if (data.elem_category === 'port_group') {
       this.store.dispatch(updatePG({
         id: data.pg_id,
-        data: { domain_id: data.domain_id }
+        data: { domain_id: data.domain_id, is_add_log: false }
       }));
       this.store.dispatch(loadGroups({ projectId: this.projectId }));
       this.helpersService.reloadGroupBoxes();
     } else if (data.elem_category === 'node') {
       this.store.dispatch(updateNode({
         id: data.node_id,
-        data: { domain_id: data.domain_id }
+        data: { domain_id: data.domain_id, is_add_log: false }
       }));
       this.store.dispatch(loadGroups({ projectId: this.projectId }));
       this.helpersService.reloadGroupBoxes();

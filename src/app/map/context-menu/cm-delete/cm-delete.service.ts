@@ -70,6 +70,7 @@ export class CMDeleteService implements OnDestroy {
      this.selectSelectedLogicalInterfaces$.unsubscribe();
      this.selectSelectedMapLinks$.unsubscribe();
      this.selectSelectedMapImages$.unsubscribe();
+     this.selectMapOption$.unsubscribe();
   }
 
   getMenu(isCanWriteOnProject: boolean) {

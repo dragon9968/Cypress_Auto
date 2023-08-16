@@ -11,6 +11,7 @@ import { HelpersService } from "../../../../core/services/helpers/helpers.servic
 import { OS_FIRMWARE_CATEGORIES } from "../../../../shared/contants/os-firmware-categories.constant";
 import { addNewOSFirmware, updateOSFirmware } from "../../../../store/lookup-os-firmware/lookup-os-firmwares.actions";
 import { selectNotification } from "../../../../store/app/app.selectors";
+import { validateNameExist } from "../../../../shared/validations/name-exist.validation";
 
 @Component({
   selector: 'app-add-edit-lookup-os-firmware-dialog',
@@ -37,9 +38,12 @@ export class AddEditLookupOsFirmwareDialogComponent implements OnInit, OnDestroy
   ) {
     this.isViewMode = this.data.mode === 'view'
     this.lookupOSFirmwareForm = new FormGroup({
-      nameCtr: new FormControl({ value: '', disabled: this.isViewMode }, [Validators.required]),
-      categoryCtr: new FormControl({ value: '', disabled: this.isViewMode }, [Validators.required]),
-      versionCtr: new FormControl({ value: '', disabled: this.isViewMode }, [Validators.required])
+      nameCtr: new FormControl('', [
+        Validators.required,
+        validateNameExist(() => this.osFirmwares, this.data.mode, this.data.genData.id)
+      ]),
+      categoryCtr: new FormControl('', [Validators.required]),
+      versionCtr: new FormControl('', [Validators.required])
     })
     this.selectLookupOSFirmwares$ = this.store.select(selectLookupOSFirmwares).subscribe(osFirmwares => {
       this.osFirmwares = osFirmwares
@@ -59,16 +63,14 @@ export class AddEditLookupOsFirmwareDialogComponent implements OnInit, OnDestroy
   get versionCtr() { return this.lookupOSFirmwareForm.get('versionCtr') }
 
   ngOnInit(): void {
-    if (this.data.genData.mode !== 'add') {
-      this.nameCtr?.setValue(this.data.genData.name)
-      this.categoryCtr?.setValue(this.OS_FIRMWARE_CATEGORIES[0]);
-      this.versionCtr?.setValue(this.data.genData.version)
-    } else {
+    if (this.data.mode !== 'add') {
+      this.nameCtr?.setValue(this.data.genData.name);
       this.helpersService.setAutoCompleteValue(
         this.categoryCtr,
-        this.osFirmwares,
+        this.OS_FIRMWARE_CATEGORIES,
         this.data.genData.category
-      )
+      );
+      this.versionCtr?.setValue(this.data.genData.version);
     }
   }
 

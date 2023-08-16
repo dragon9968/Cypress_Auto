@@ -13,7 +13,6 @@ import {
 } from "../../../store/lookup-os-firmware/lookup-os-firmwares.actions";
 import { AddEditLookupOsFirmwareDialogComponent } from "./add-edit-lookup-os-firmware-dialog/add-edit-lookup-os-firmware-dialog.component";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
-import { selectNotification } from "../../../store/app/app.selectors";
 import { ImportLookupOsFirmwareDialogComponent } from "./import-lookup-os-firmware-dialog/import-lookup-os-firmware-dialog.component";
 
 @Component({
@@ -46,6 +45,7 @@ export class LookupOsFirmwareComponent implements OnInit, OnDestroy {
     },
     {
       field: 'name',
+      sort: 'asc',
     },
     {
       field: 'category',

@@ -19,6 +19,7 @@ export enum ErrorMessages {
   RANGE_LENGTH_50 = 'Field must be between 3 and 50 characters long.',
   NAME_EXISTS = 'Name already exists, please enter a different name',
   MAIL_EXISTS = 'Email already exists, please enter a different email',
+  OS_FIRMWARE_EXISTS = 'OS/Firmware name already exists, please enter a different name',
   MIN_MAX_VALUE_1_100 = 'Valid value is between 1 and 100',
   MIN_MAX_VALUE_0_100 = 'Valid value is between 0 and 100',
   MIN_MAX_VALUE_1_4093 = 'Valid value is between 1 and 4093',

@@ -1,8 +1,6 @@
 import { Store } from "@ngrx/store";
 import { Subscription } from "rxjs";
 import { Injectable, OnDestroy } from '@angular/core';
-import { HelpersService } from "../helpers/helpers.service";
-import { retrievedMap } from "../../../store/map/map.actions";
 import { selectMapOption } from "../../../store/map-option/map-option.selectors";
 import { selectDefaultPreferences } from "../../../store/map/map.selectors";
 import { selectGroups } from "src/app/store/group/group.selectors";
@@ -29,7 +27,6 @@ export class MapEditService implements OnDestroy{
 
   constructor(
     private store: Store,
-    private helpersService: HelpersService
   ) {
     this.selectGroups$ = this.store.select(selectGroups).subscribe(groups => this.groups = groups);
     this.selectMapProperties$ = this.store.select(selectDefaultPreferences).subscribe(defaultPreferences => this.defaultPreferences = defaultPreferences);
