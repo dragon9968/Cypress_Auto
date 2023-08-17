@@ -110,10 +110,25 @@ export const addLogicalInterface = createAction(
   props<{ edge: any, netmasks: any[] }>()
 )
 
+export const addPhysicalInterface = createAction(
+  'addPhysicalInterface',
+  props<{ data: any, mode: any, netmasks: any[] }>()
+)
+
 export const interfaceLogicalMapAddedSuccess = createAction(
   'interfaceLogicalMapAddedMapSuccess',
   props<{ edge: any }>()
 )
+
+export const interfacePhysicalMapAddedSuccess = createAction(
+  'interfacePhysicalMapAddedSuccess',
+  props<{ edge: any }>()
+)
+
+export const addInterfacesToSourceNodeOrTargetNode = createAction(
+  'addInterfacesToSourceNodeOrTargetNode',
+  props<{ edge: any, mode: any }>()
+);
 
 export const addInterfaceLogicalToMap = createAction(
   'addInterfaceLogicalToMap',

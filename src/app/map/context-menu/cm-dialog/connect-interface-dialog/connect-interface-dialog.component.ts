@@ -1,10 +1,9 @@
 import { Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, Subscription, catchError, throwError } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { InfoPanelService } from 'src/app/core/services/info-panel/info-panel.service';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
@@ -12,11 +11,13 @@ import { AddUpdateInterfaceDialogComponent } from 'src/app/map/add-update-interf
 import { ProjectService } from 'src/app/project/services/project.service';
 import { DIRECTIONS } from 'src/app/shared/contants/directions.constant';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
+import { SuccessMessages } from 'src/app/shared/enums/success-messages.enum';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { showErrorFromServer } from 'src/app/shared/validations/error-server-response.validation';
 import { networksValidation } from 'src/app/shared/validations/networks.validation';
 import { vlanInterfaceValidator } from 'src/app/shared/validations/vlan-interface.validation';
-import { retrievedInterfacesByDestinationNode, retrievedInterfacesBySourceNode, retrievedInterfacesConnectedNode } from 'src/app/store/interface/interface.actions';
+import { selectNotification } from 'src/app/store/app/app.selectors';
+import { addPhysicalInterface, retrievedInterfacesConnectedNode } from 'src/app/store/interface/interface.actions';
 import { selectInterfacesByDestinationNode, selectInterfacesBySourceNode, selectInterfacesConnectedNode } from 'src/app/store/interface/interface.selectors';
 import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
 
@@ -35,6 +36,7 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
   selectSourceInterface$ = new Subscription();
   selectDestinationInterface$ = new Subscription();
   selectInterfaceConnectedNode$ = new Subscription();
+  selectNotification$ = new Subscription();
   selectNetmasks$ = new Subscription();
   sourceInterface: any[] = [];
   destinationInterface: any[] = [];
@@ -66,10 +68,20 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
     private dialogRef: MatDialogRef<ConnectInterfaceDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
+
     this.connectInterfacePhysicalForm = new FormGroup({
       sourceInterfaceCtr: new FormControl(''),
       destinationInterfaceCtr: new FormControl('')
     })
+    this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
+      if (notification?.type == 'success') {
+        if (notification.message === SuccessMessages.ADDED_NEW_EDGE_SUCCESS) {
+          this.backToSelectInterfaces();
+        } else {
+          this.dialogRef.close();
+        }
+      }
+    });
     this.selectInterfaceConnectedNode$ = this.store.select(selectInterfacesConnectedNode).subscribe(interfaces => {
       if (interfaces) {
         const filteredInterfaceByCategory = interfaces.filter((el: any) => el.category !== 'management' && el.interface_fk !== null)
@@ -77,14 +89,13 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
         this.listInterfaceConnectedSource = filteredInterfaceByCategory.map((val: any) => val.interface_pk);
       }
     })
-
     this.selectSourceInterface$ = this.store.select(selectInterfacesBySourceNode).subscribe(interfaces => {
       if (interfaces) {
         this.sourceInterface = interfaces.filter((el: any) => el.category !== 'management' && !this.listInterfaceConnectedTarget.includes(el.id))
         if (this.data.mode === 'edit_connected_interface') {
           this.sourceInterface = interfaces.filter((el: any) => el.interface_id !== null)
         }
-        this.sourceInterface = this.sourceInterface.map((val: any) => ({...val, node: val.node?.name ? val.node?.name : val.node}))
+        this.sourceInterface = this.sourceInterface.map((val: any) => ({ ...val, node: val.node?.name ? val.node?.name : val.node }))
         this.sourceInterfaceCtr.setValidators([Validators.required, autoCompleteValidator(this.sourceInterface)]);
         this.filteredBySourceInterfaces = this.helpersService.filterOptions(this.sourceInterfaceCtr, this.sourceInterface);
       }
@@ -93,10 +104,10 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
       if (interfaces) {
         this.destinationInterface = interfaces.filter((el: any) => el.category !== 'management');
         if (this.data.mode === 'connect_node') {
-          this.destinationInterface = this.destinationInterface.map((val: any) => ({...val, node: val.node?.name ? val.node?.name : val.node}))
+          this.destinationInterface = this.destinationInterface.map((val: any) => ({ ...val, node: val.node?.name ? val.node?.name : val.node }))
         }
         const filteredDestinationInterface = this.destinationInterface.filter((el: any) =>
-        !this.listInterfaceConnectedTarget.includes(el.id) && !this.listInterfaceConnectedSource.includes(el.id))
+          !this.listInterfaceConnectedTarget.includes(el.id) && !this.listInterfaceConnectedSource.includes(el.id))
         this.destinationInterfaceCtr.setValidators([Validators.required, autoCompleteValidator(this.destinationInterface)]);
         this.filteredByDestinationInterfaces = this.helpersService.filterOptions(this.destinationInterfaceCtr, filteredDestinationInterface);
       }
@@ -146,12 +157,13 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
       this.netMaskTargetCtr.setValidators([autoCompleteValidator(this.netmasks)]);
       this.filteredNetmasksTarget = this.helpersService.filterOptions(this.netMaskTargetCtr, this.netmasks, 'mask');
     });
-   }
+  }
   ngOnDestroy(): void {
     this.selectSourceInterface$.unsubscribe();
     this.selectInterfaceConnectedNode$.unsubscribe();
     this.selectDestinationInterface$.unsubscribe();
     this.selectNetmasks$.unsubscribe();
+    this.selectNotification$.unsubscribe();
   }
 
   ngOnInit(): void {
@@ -256,7 +268,16 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
   }
 
   onCancelTarget() {
-    this.isOpenAddInterfaceFormOfDestination= false;
+    this.isOpenAddInterfaceFormOfDestination = false;
+  }
+
+  backToSelectInterfaces() {
+    if (this.categorySection === 'source') {
+      this.isOpenAddInterfaceFormOfSource = false;
+    } else {
+      this.isOpenAddInterfaceFormOfDestination = false;
+    }
+    this.dialogRef.updateSize('1200px');
   }
 
   changeSection(mode: any) {
@@ -293,7 +314,7 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
         this.interfaceAddFormSource?.markAllAsTouched();
       });
     } else {
-      this.isOpenAddInterfaceFormOfDestination= true;
+      this.isOpenAddInterfaceFormOfDestination = true;
       const targetNodeId = this.data.mode === 'connect_node' ? this.data.newEdgeData.target : this.data.genData.target
       this.targetNodeId = targetNodeId.split('-')[1]
       this.interfaceService.genData(this.targetNodeId, undefined).subscribe(response => {
@@ -374,63 +395,11 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
       project_id: this.projectService.getProjectId()
     }
     const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.interfaceService.add(jsonData).pipe(
-      catchError(err => {
-        const errorMessage = err.error.message;
-        if (err.status === 422) {
-          if (errorMessage.ip) {
-            if (mode === 'source') {
-              this.ipSourceCtr?.setErrors({
-                serverError: errorMessage.ip
-              });
-              this.errors.push({ 'valueCtr': this.ipSourceCtr?.value, 'error': errorMessage.ip });
-            } else {
-              this.ipTargetCtr?.setErrors({
-                serverError: errorMessage.ip
-              });
-              this.errors.push({ 'valueCtr': this.ipTargetCtr?.value, 'error': errorMessage.ip });
-            }
-          }
-        }
-        return throwError(() => err);
-      })
-    ).subscribe((respData: any) => {
-      const cyData = respData.result;
-      cyData.id = respData.id
-      this._updateInterfacesStorage({...cyData}, mode);
-      this.toastr.success('Edge details added!');
-      if (mode === 'source') {
-        this.isOpenAddInterfaceFormOfSource = false;
-      } else {
-        this.isOpenAddInterfaceFormOfDestination= false;
-      }
-    });
-  }
-
-
-  private _updateInterfacesStorage(newInterface: any, mode: string) {
-    if (mode == 'source') {
-      const interfaceIds = this.sourceInterface.map(el => el.id);
-      newInterface.node = this.data.nameSourceNode
-      const newInterfaces = [...this.sourceInterface];
-      if (interfaceIds.includes(newInterface.id)) {
-        const index = this.sourceInterface.findIndex(val => val.id === newInterface.id);
-        newInterfaces.splice(index, 1, newInterface);
-        this.store.dispatch(retrievedInterfacesBySourceNode({ interfacesBySourceNode: newInterfaces }));
-      } else {
-        this.store.dispatch(retrievedInterfacesBySourceNode({ interfacesBySourceNode: newInterfaces.concat(newInterface) }));
-      }
+    this.store.dispatch(addPhysicalInterface({ data: jsonData, mode: mode, netmasks: this.netmasks }));
+    if (mode === 'source') {
+      this.isOpenAddInterfaceFormOfSource = false;
     } else {
-      const interfaceIds = this.destinationInterface.map(el => el.id);
-      const newInterfaces = [...this.destinationInterface];
-      newInterface.node = this.data.nameTargetNode;
-      if (interfaceIds.includes(newInterface.id)) {
-        const index = this.destinationInterface.findIndex(val => val.id === newInterface.id);
-        newInterfaces.splice(index, 1, newInterface);
-        this.store.dispatch(retrievedInterfacesByDestinationNode({ interfacesByDestinationNode: newInterfaces }));
-      } else {
-        this.store.dispatch(retrievedInterfacesByDestinationNode({ interfacesByDestinationNode: newInterfaces.concat(newInterface) }));
-      }
+      this.isOpenAddInterfaceFormOfDestination = false;
     }
   }
 

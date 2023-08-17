@@ -12,7 +12,7 @@ import { InfoPanelService } from "../../../core/services/info-panel/info-panel.s
 import { selectMapOption } from "src/app/store/map-option/map-option.selectors";
 import { PortGroupValidateModel } from "../../../core/models/port-group.model";
 import { selectLogicalMapInterfaces } from "src/app/store/interface/interface.selectors";
-import { selectSelectedLogicalNodes } from "../../../store/node/node.selectors";
+import { selectSelectedLogicalNodes, selectSelectedPhysicalNodes } from "../../../store/node/node.selectors";
 import { cloneNodeById } from "../../../store/node/node.actions";
 import { selectSelectedPortGroups } from "src/app/store/portgroup/portgroup.selectors";
 
@@ -26,9 +26,12 @@ export class CMActionsService implements OnDestroy {
   selectSelectedPortGroups$ = new Subscription();
   selectedPortGroups!: any[];
   selectSelectedLogicalNodes$ = new Subscription();
+  selectSelectedPhysicalNodes$ = new Subscription();
   isEdgeDirectionChecked = false;
   logicalMapInterfaces!: any[];
   selectedNodes: any[] = [];
+  selectedLogicalNodes: any[] = [];
+  selectedPhysicalNodes: any[] = [];
   
   constructor(
     private store: Store,
@@ -55,7 +58,12 @@ export class CMActionsService implements OnDestroy {
     });
     this.selectSelectedLogicalNodes$ = this.store.select(selectSelectedLogicalNodes).subscribe(selectedNodes => {
       if (selectedNodes) {
-        this.selectedNodes = selectedNodes;
+        this.selectedLogicalNodes = selectedNodes;
+      }
+    });
+    this.selectSelectedPhysicalNodes$ = this.store.select(selectSelectedPhysicalNodes).subscribe(selectedNodes => {
+      if (selectedNodes) {
+        this.selectedPhysicalNodes = selectedNodes;
       }
     });
    }
@@ -66,9 +74,10 @@ export class CMActionsService implements OnDestroy {
     this.selectLogicalMapInterfaces$.unsubscribe();
     this.selectSelectedLogicalNodes$.unsubscribe();
     this.selectSelectedPortGroups$.unsubscribe();
+    this.selectSelectedPhysicalNodes$.unsubscribe();
   }
 
-  getNodeActionsMenu(isCanWriteOnProject: boolean) {
+  getNodeActionsMenu(isCanWriteOnProject: boolean, mapCategory: any) {
     return {
       id: "node_actions",
       content: "Actions",
@@ -79,6 +88,7 @@ export class CMActionsService implements OnDestroy {
           id: "clone_node",
           content: "Clone",
           onClickFunction: ($event: any) => {
+            this.selectedNodes = mapCategory === 'logical' ? this.selectedLogicalNodes : this.selectedPhysicalNodes
             const ids = this.selectedNodes.map((node: any) => node.id);
             this.cloneNodes(ids);
           },
@@ -89,6 +99,7 @@ export class CMActionsService implements OnDestroy {
           id: "validate_node",
           content: "Validate",
           onClickFunction: (_$event: any) => {
+            this.selectedNodes = mapCategory === 'logical' ? this.selectedLogicalNodes : this.selectedPhysicalNodes
             const pks = this.selectedNodes.map((node: any) => node.id);
             this.nodeService.validate({ pks }).pipe(
               catchError((e: any) => {

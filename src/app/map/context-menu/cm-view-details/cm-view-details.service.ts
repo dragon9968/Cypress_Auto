@@ -9,9 +9,9 @@ import { InterfaceService } from 'src/app/core/services/interface/interface.serv
 import { Store } from '@ngrx/store';
 import { retrievedInterfacesByHwNodes } from 'src/app/store/interface/interface.actions';
 import { Subscription } from "rxjs";
-import { selectSelectedLogicalNodes } from "../../../store/node/node.selectors";
+import { selectSelectedLogicalNodes, selectSelectedPhysicalNodes } from "../../../store/node/node.selectors";
 import { selectSelectedPortGroups } from "../../../store/portgroup/portgroup.selectors";
-import { selectSelectedLogicalInterfaces } from "../../../store/interface/interface.selectors";
+import { selectSelectedLogicalInterfaces, selectSelectedPhysicalInterfaces } from "../../../store/interface/interface.selectors";
 import { selectSelectedMapLinks } from "../../../store/map-link/map-link.selectors";
 import { ProjectService } from "../../../project/services/project.service";
 import { retrievedAllProjects } from "../../../store/project/project.actions";
@@ -22,13 +22,19 @@ import { retrievedAllProjects } from "../../../store/project/project.actions";
 export class CMViewDetailsService implements OnDestroy {
 
   selectedNodes: any[] = [];
+  selectedLogicalNodes: any[] = [];
+  selectedPhysicalNodes: any[] = [];
   selectedPGs: any[] = [];
   selectedInterfaces: any[] = [];
+  selectedLogicalInterfaces: any[] = [];
+  selectedPhysicalInterfaces: any[] = [];
   selectedMapLinks: any[] = [];
   selectSelectedLogicalNodes$ = new Subscription();
   selectSelectedPortGroups$ = new Subscription();
   selectSelectedLogicalInterfaces$ = new Subscription();
   selectSelectedMapLinks$ = new Subscription();
+  selectSelectedPhysicalNodes$ = new Subscription();
+  selectSelectedPhysicalInterfaces$ = new Subscription();
 
   constructor(
     private store: Store,
@@ -39,7 +45,12 @@ export class CMViewDetailsService implements OnDestroy {
   ) {
     this.selectSelectedLogicalNodes$ = this.store.select(selectSelectedLogicalNodes).subscribe(selectedNodes => {
       if (selectedNodes) {
-        this.selectedNodes = selectedNodes;
+        this.selectedLogicalNodes = selectedNodes;
+      }
+    });
+    this.selectSelectedPhysicalNodes$ = this.store.select(selectSelectedPhysicalNodes).subscribe(selectedNodes => {
+      if (selectedNodes) {
+        this.selectedPhysicalNodes = selectedNodes;
       }
     });
     this.selectSelectedPortGroups$ = this.store.select(selectSelectedPortGroups).subscribe(selectedPGs => {
@@ -49,7 +60,12 @@ export class CMViewDetailsService implements OnDestroy {
     });
     this.selectSelectedLogicalInterfaces$ = this.store.select(selectSelectedLogicalInterfaces).subscribe(selectedInterfaces => {
       if (selectedInterfaces) {
-        this.selectedInterfaces = selectedInterfaces;
+        this.selectedLogicalInterfaces = selectedInterfaces;
+      }
+    });
+    this.selectSelectedPhysicalInterfaces$ = this.store.select(selectSelectedPhysicalInterfaces).subscribe(selectedInterfaces => {
+      if (selectedInterfaces) {
+        this.selectedPhysicalInterfaces = selectedInterfaces;
       }
     });
     this.selectSelectedMapLinks$ = this.store.select(selectSelectedMapLinks).subscribe(selectedMapLinks => {
@@ -64,6 +80,8 @@ export class CMViewDetailsService implements OnDestroy {
     this.selectSelectedPortGroups$.unsubscribe();
     this.selectSelectedLogicalInterfaces$.unsubscribe();
     this.selectSelectedMapLinks$.unsubscribe();
+    this.selectSelectedPhysicalNodes$.unsubscribe();
+    this.selectSelectedPhysicalInterfaces$.unsubscribe();
   }
 
   getMenu(cy: any, mapCategory: string, projectId: number) {
@@ -80,6 +98,8 @@ export class CMViewDetailsService implements OnDestroy {
   }
 
   openViewDetailForm(cy: any, mapCategory: string, projectId: number) {
+    this.selectedNodes = mapCategory === 'logical' ? this.selectedLogicalNodes : this.selectedPhysicalNodes;
+    this.selectedInterfaces = mapCategory === 'logical' ? this.selectedLogicalInterfaces : this.selectedPhysicalInterfaces;
     const selectedNodesLength = this.selectedNodes.length;
     const selectedPGsLength = this.selectedPGs.length;
     const selectedInterfacesLength = this.selectedInterfaces.length;

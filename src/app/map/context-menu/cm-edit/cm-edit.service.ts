@@ -12,9 +12,9 @@ import { Store } from '@ngrx/store';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 import { retrievedInterfacesByDestinationNode, retrievedInterfacesByHwNodes, retrievedInterfacesBySourceNode } from 'src/app/store/interface/interface.actions';
 import { ConnectInterfaceDialogComponent } from '../cm-dialog/connect-interface-dialog/connect-interface-dialog.component';
-import { selectLogicalMapInterfaces, selectSelectedLogicalInterfaces } from 'src/app/store/interface/interface.selectors';
+import { selectLogicalMapInterfaces, selectSelectedLogicalInterfaces, selectSelectedPhysicalInterfaces } from 'src/app/store/interface/interface.selectors';
 import { Subscription } from 'rxjs';
-import { selectLogicalNodes, selectSelectedLogicalNodes } from 'src/app/store/node/node.selectors';
+import { selectLogicalNodes, selectSelectedLogicalNodes, selectSelectedPhysicalNodes } from 'src/app/store/node/node.selectors';
 import { selectMapPortGroups, selectSelectedPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { selectSelectedMapLinks } from "../../../store/map-link/map-link.selectors";
 import { ProjectService } from "../../../project/services/project.service";
@@ -26,13 +26,19 @@ import { retrievedAllProjects } from "../../../store/project/project.actions";
 export class CMEditService implements OnDestroy {
 
   selectedNodes: any[] = [];
+  selectedLogicalNodes: any[] = [];
+  selectedPhysicalNodes: any[] = [];
   selectedPGs: any[] = [];
   selectedInterfaces: any[] = [];
+  selectedLogicalInterfaces: any[] = [];
+  selectedPhysicalInterfaces: any[] = [];
   selectedMapLinks: any[] = [];
   selectSelectedLogicalNodes$ = new Subscription();
   selectSelectedPortGroups$ = new Subscription();
   selectSelectedLogicalInterfaces$ = new Subscription();
   selectSelectedMapLinks$ = new Subscription();
+  selectSelectedPhysicalNodes$ = new Subscription();
+  selectSelectedPhysicalInterfaces$ = new Subscription();
   constructor(
     private dialog: MatDialog,
     private toastr: ToastrService,
@@ -42,7 +48,12 @@ export class CMEditService implements OnDestroy {
   ) {
     this.selectSelectedLogicalNodes$ = this.store.select(selectSelectedLogicalNodes).subscribe(selectedNodes => {
       if (selectedNodes) {
-        this.selectedNodes = selectedNodes;
+        this.selectedLogicalNodes = selectedNodes;
+      }
+    });
+    this.selectSelectedPhysicalNodes$ = this.store.select(selectSelectedPhysicalNodes).subscribe(selectedNodes => {
+      if (selectedNodes) {
+        this.selectedPhysicalNodes = selectedNodes;
       }
     });
     this.selectSelectedPortGroups$ = this.store.select(selectSelectedPortGroups).subscribe(selectedPGs => {
@@ -52,7 +63,12 @@ export class CMEditService implements OnDestroy {
     });
     this.selectSelectedLogicalInterfaces$ = this.store.select(selectSelectedLogicalInterfaces).subscribe(selectedInterfaces => {
       if (selectedInterfaces) {
-        this.selectedInterfaces = selectedInterfaces;
+        this.selectedLogicalInterfaces = selectedInterfaces;
+      }
+    });
+    this.selectSelectedPhysicalInterfaces$ = this.store.select(selectSelectedPhysicalInterfaces).subscribe(selectedInterfaces => {
+      if (selectedInterfaces) {
+        this.selectedPhysicalInterfaces = selectedInterfaces;
       }
     });
     this.selectSelectedMapLinks$ = this.store.select(selectSelectedMapLinks).subscribe(selectedMapLinks => {
@@ -67,6 +83,8 @@ export class CMEditService implements OnDestroy {
     this.selectSelectedPortGroups$.unsubscribe();
     this.selectSelectedLogicalInterfaces$.unsubscribe();
     this.selectSelectedMapLinks$.unsubscribe();
+    this.selectSelectedPhysicalNodes$.unsubscribe();
+    this.selectSelectedPhysicalInterfaces$.unsubscribe();
   }
 
   getMenu(cy: any, isCanWriteOnProject: boolean, mapCategory: string, projectId: number) {
@@ -83,6 +101,8 @@ export class CMEditService implements OnDestroy {
   }
 
   openEditForm(cy: any, mapCategory: string, projectId: number) {
+    this.selectedNodes = mapCategory === 'logical' ? this.selectedLogicalNodes : this.selectedPhysicalNodes
+    this.selectedInterfaces = mapCategory === 'logical' ? this.selectedLogicalInterfaces : this.selectedPhysicalInterfaces
     const selectedNodesLength = this.selectedNodes.length;
     const selectedPGsLength = this.selectedPGs.length;
     const selectedInterfacesLength = this.selectedInterfaces.length;

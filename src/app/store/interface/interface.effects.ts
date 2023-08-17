@@ -26,7 +26,10 @@ import {
   connectInterfaceToPG,
   addInterfacesLogicalToMap,
   addLogicalInterfacesByNodeId,
-  logicalInterfacesAddedSuccess
+  logicalInterfacesAddedSuccess,
+  addPhysicalInterface,
+  interfacePhysicalMapAddedSuccess,
+  addInterfacesToSourceNodeOrTargetNode
 } from './interface.actions';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { pushNotification } from '../app/app.actions';
@@ -59,6 +62,36 @@ export class InterfacesEffects {
       switchMap(res => [
         interfaceLogicalMapAddedSuccess({ edge: res.result }),
         addInterfacesNotConnectPG({ edge: res.result }),
+        addInterfaceInNode({
+          interfaceData: {
+            id: res.id,
+            ...res.result,
+            netmaskName: this.helpersService.getOptionById(payload.netmasks, res.result.netmask_id).name
+          }
+        }),
+        pushNotification({
+          notification: {
+            type: 'success',
+            message: SuccessMessages.ADDED_NEW_EDGE_SUCCESS
+          }
+        })
+      ]),
+      catchError(e => of(pushNotification({
+        notification: {
+          type: 'error',
+          message: ErrorMessages.ADD_NEW_EDGE_FAILED
+        }
+      })))
+    ))
+  ))
+
+  addPhysicalInterface$ = createEffect(() => this.actions$.pipe(
+    ofType(addPhysicalInterface),
+    exhaustMap(payload => this.interfaceService.add(payload.data).pipe(
+      mergeMap(res => this.interfaceService.get(res.id)),
+      switchMap(res => [
+        interfacePhysicalMapAddedSuccess({ edge: res.result }),
+        addInterfacesToSourceNodeOrTargetNode({ edge: res.result, mode: payload.mode }),
         addInterfaceInNode({
           interfaceData: {
             id: res.id,

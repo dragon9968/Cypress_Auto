@@ -1128,7 +1128,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         this.cmProjectNodeService.getLinkProjectMenu(this.queueEdge.bind(this), this.cy),
         // this.cmInterfaceService.getPortGroupInterfaceMenu(this.queueEdge.bind(this)),
         this.cmAddService.getEdgeAddMenu(),
-        this.cmActionsService.getNodeActionsMenu(this.isCanWriteOnProject),
+        this.cmActionsService.getNodeActionsMenu(this.isCanWriteOnProject, this.mapCategory),
         this.cmActionsService.getPortGroupActionsMenu(Number(this.projectId)),
         this.cmActionsService.getEdgeActionsMenu(),
         this.cmGroupOptionService.getNodePgGroupMenu(this.cy, this.projectId, this.isCanWriteOnProject),
@@ -1136,7 +1136,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         this.cmRemoteService.getPortGroupRemoteMenu(),
         this.cmViewDetailsService.getMenu(this.cy, this.mapCategory, Number(this.projectId)),
         this.cmEditService.getMenu(this.cy, this.isCanWriteOnProject, this.mapCategory, Number(this.projectId)),
-        this.cmDeleteService.getMenu(this.isCanWriteOnProject),
+        this.cmDeleteService.getMenu(this.isCanWriteOnProject, this.mapCategory),
         this.cmLockUnlockService.getLockMenu(this.cy, this.mapCategory),
         this.cmLockUnlockService.getUnlockMenu(this.cy, this.mapCategory),
         this.cmGroupBoxService.getCollapseMenu(this.cy),
@@ -1186,6 +1186,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
       notes: genData.notes,
       icon_id: genData.icon_id,
       category: genData.category,
+      infrastructure: this.mapCategory === 'physical' ? true : false,
       device_id: genData.device_id,
       template_id: genData.template_id,
       hardware_id: genData.hardware_id,
@@ -1195,7 +1196,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
       hostname: genData.hostname,
       project_id: this.projectId,
       logical_map: {
-        "map_style": {
+        map_style: {
           "height": this.selectedMapPref.node_size,
           "width": this.selectedMapPref.node_size,
           "text_size": this.selectedMapPref.text_size,
@@ -1210,7 +1211,25 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
           "background-image": "",
           "background-fit": "contain"
         },
-        "position": newNodePosition
+        position: newNodePosition
+      },
+      physical_map: {
+        map_style: {
+          "height": this.selectedMapPref.node_size,
+          "width": this.selectedMapPref.node_size,
+          "text_size": this.selectedMapPref.text_size,
+          "text_color": this.selectedMapPref.text_color,
+          "text_halign": this.selectedMapPref.text_halign,
+          "text_valign": this.selectedMapPref.text_valign,
+          "text_outline_color": this.selectedMapPref.text_outline_color,
+          "text_outline_width": this.selectedMapPref.text_outline_width,
+          "text_bg_color": this.selectedMapPref.text_bg_color,
+          "text_bg_opacity": this.selectedMapPref.text_bg_opacity,
+          "background-color": "rgb(255,255,255)",
+          "background-image": "",
+          "background-fit": "contain"
+        },
+        position: newNodePosition
       }
     };
     this.store.dispatch(addNewNode({ node: jsonData }));

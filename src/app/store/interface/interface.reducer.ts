@@ -28,7 +28,9 @@ import {
   addInterfacesNotConnectPG,
   logicalInterfacesAddedSuccess,
   selectPhysicalInterface,
-  unSelectPhysicalInterface
+  unSelectPhysicalInterface,
+  interfacePhysicalMapAddedSuccess,
+  addInterfacesToSourceNodeOrTargetNode
 } from "./interface.actions";
 
 const initialState = {} as InterfaceState;
@@ -47,6 +49,26 @@ const addCYDataToLogicalInterface = (edge: any) => {
     source: `node-${edge.node_id}`,
     target: `pg-${edge.port_group_id}`,
     ip_last_octet: edge.ip_allocation != "dhcp" ? lastOctet : "DHCP",
+    source_label: edge.name,
+    target_label: ''
+  }
+  return {
+    ...edge,
+    data: { ...edge, ...baseCyData, ...edge.logical_map?.map_style },
+    locked: edge.logical_map?.locked
+  }
+}
+
+const addCYDataToPhysicalInterface = (edge: any) => {
+  const baseCyData = {
+    id: `interface-${edge.id}`,
+    interface_pk: edge.id,
+    interface_fk: edge.interface_id,
+    elem_category: "interface",
+    zIndex: 999,
+    updated: false,
+    source: `node-${edge.node_id}`,
+    target: '',
     source_label: edge.name,
     target_label: ''
   }
@@ -114,6 +136,21 @@ export const interfaceReducerByIds = createReducer(
     return {
       ...state,
       interfacesNotConnectPG
+    }
+  }),
+  on(addInterfacesToSourceNodeOrTargetNode, (state, { edge, mode }) => {
+    if (mode === 'source') {
+      const interfacesBySourceNode = state.interfacesBySourceNode.concat(edge)
+      return {
+        ...state,
+        interfacesBySourceNode
+      }
+    } else {
+      const interfacesByDestinationNode = state.interfacesByDestinationNode.concat(edge)
+      return {
+        ...state,
+        interfacesByDestinationNode
+      }
     }
   }),
   on(interfacesLoadedSuccess, (state, { interfaces, nodes }) => {
@@ -214,12 +251,20 @@ export const interfaceReducerByIds = createReducer(
       interfacesCommonMapLinks: state.interfacesCommonMapLinks.concat(edgeCYData)
     }
   }),
-  on(interfaceLogicalMapAddedSuccess, (state , { edge }) => {
+  on(interfaceLogicalMapAddedSuccess, (state, { edge }) => {
     const edgeCY = addCYDataToLogicalInterface(edge)
     const logicalMapInterfaces = state.logicalMapInterfaces.concat(edgeCY)
     return {
       ...state,
       logicalMapInterfaces
+    }
+  }),
+  on(interfacePhysicalMapAddedSuccess, (state, { edge }) => {
+    const edgeCY = addCYDataToPhysicalInterface(edge)
+    const physicalInterfaces = state.physicalInterfaces.concat(edgeCY)
+    return {
+      ...state,
+      physicalInterfaces
     }
   }),
   on(logicalInterfacesAddedSuccess, (state, { edges }) => {
@@ -381,7 +426,7 @@ export const interfaceReducerByIds = createReducer(
     if (interfacesData.category == 'management') {
       const logicalManagementInterfaces = state.logicalManagementInterfaces.map((interfaceData: any) => {
         const updatedLogicalManagementInterfaces = interfacesData.find((i: any) => i.id == interfaceData.id);
-        return updatedLogicalManagementInterfaces ? {...interfaceData, ...updatedLogicalManagementInterfaces} : interfaceData
+        return updatedLogicalManagementInterfaces ? { ...interfaceData, ...updatedLogicalManagementInterfaces } : interfaceData
       })
       return {
         ...state,
@@ -391,7 +436,7 @@ export const interfaceReducerByIds = createReducer(
     } else {
       const logicalMapInterfaces = state.logicalMapInterfaces.map((interfaceData: any) => {
         const updatedLogicalMapInterfaces = interfacesData.find((i: any) => i.id == interfaceData.id);
-        return updatedLogicalMapInterfaces ? {...interfaceData, ...updatedLogicalMapInterfaces} : interfaceData
+        return updatedLogicalMapInterfaces ? { ...interfaceData, ...updatedLogicalMapInterfaces } : interfaceData
       })
       return {
         ...state,
@@ -404,13 +449,13 @@ export const interfaceReducerByIds = createReducer(
     const logicalMapInterfaces = state.logicalMapInterfaces.map((interfaceData: any) => {
       const updatedLogicalMapInterfaces = interfacesData.find((i: any) => i.id == interfaceData.id);
       return updatedLogicalMapInterfaces ?
-      {
-        ...interfaceData,
-        ...updatedLogicalMapInterfaces,
-        node: interfaceData.node,
-        port_group: interfaceData.port_group,
-        netmask: interfaceData.netmask
-      } : interfaceData
+        {
+          ...interfaceData,
+          ...updatedLogicalMapInterfaces,
+          node: interfaceData.node,
+          port_group: interfaceData.port_group,
+          netmask: interfaceData.netmask
+        } : interfaceData
     })
     return {
       ...state,
