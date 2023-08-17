@@ -356,7 +356,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
     this.dialog.open(AboutComponent, { disableClose: true, width: '600px', autoFocus: false });
   }
 
-  openProject(projectId: string) {
+  openProject(projectId: number) {
     this.projectService.getProjectByStatus(this.status).subscribe((data: any) => {
       if (data.result) {
           this.projectService.getShareProject('active', 'project').subscribe((resp: any) => {

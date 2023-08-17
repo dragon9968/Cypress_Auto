@@ -77,7 +77,7 @@ export class ProjectService {
     return this.http.post<any>(ApiPaths.ASSOCIATE_PROJECT, data);
   }
 
-  openProject(projectId: string) {
+  openProject(projectId: number) {
     const currentProjectId = this.getProjectId();
     if (!currentProjectId || currentProjectId !== projectId) {
       this.store.dispatch(retrievedIsOpen({data: false}));
@@ -89,7 +89,7 @@ export class ProjectService {
     })
   }
 
-  setProjectId(projectId: string) {
+  setProjectId(projectId: number) {
     this.localStorageService.setItem(LocalStorageKeys.PROJECT_ID, projectId);
   }
 

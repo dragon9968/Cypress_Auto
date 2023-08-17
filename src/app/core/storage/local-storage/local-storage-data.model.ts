@@ -4,7 +4,7 @@ export type LocalStorageData = {
   [LocalStorageKeys.ACCESS_TOKEN]: string;
   [LocalStorageKeys.REFRESH_TOKEN]: string;
   [LocalStorageKeys.CONNECTIONS]: string;
-  [LocalStorageKeys.PROJECT_ID]: string;
+  [LocalStorageKeys.PROJECT_ID]: number;
   [LocalStorageKeys.USER_ID]: string;
   [LocalStorageKeys.PERMISSIONS]: any[];
   [LocalStorageKeys.ROLES]: any[];
