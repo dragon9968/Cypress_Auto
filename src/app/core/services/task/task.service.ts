@@ -31,11 +31,11 @@ export class TaskService implements OnDestroy {
   }
 
   isTaskInQueue(taskData: any) {
-    if (taskData.category == 'node' || taskData.category == 'port_group') {
-      const tasksByCategory = this.userTasks.filter(task => taskData.category == task.task_metadata.category)
+    if (taskData.job_category == 'node' || taskData.job_category == 'port_group') {
+      const tasksByCategory = this.userTasks.filter(task => taskData.job_category == task.task_metadata.job_category)
       const tasksIncludeItem = tasksByCategory.filter(task =>
-        task.task_metadata[`${taskData.category}s`].some(
-          (item: any) => taskData.category === 'port_group'
+        task.task_metadata[`${taskData.job_category}s`].some(
+          (item: any) => taskData.job_category === 'port_group'
                         ? taskData.pks.includes(item.id)
                         : taskData.pks.includes(item.config.id)
         )
