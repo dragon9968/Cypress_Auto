@@ -189,6 +189,9 @@ export class InfoPanelNodeComponent implements OnDestroy {
         this.selectedNodes = selectedNodes;
         this.selectedIds = selectedNodes.map(n => n.id);
         this.infoPanelTableComponent?.deselectAll();
+        if (this.filterOption === 'selected') {
+          this.infoPanelTableComponent?.setRowData(this.selectedNodes);
+        }
         this.infoPanelTableComponent?.setRowActive(this.selectedIds);
       }
     });

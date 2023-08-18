@@ -13,6 +13,8 @@ import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-ta
 import { FormControl, FormGroup } from "@angular/forms";
 import { MatMenuTrigger } from "@angular/material/menu";
 import { selectIsSelectedFlag, selectLogicalInterfaces, selectLogicalManagementInterfaces, selectSelectedLogicalInterfaces } from "../../../store/interface/interface.selectors";
+import { selectSelectedLogicalNodes } from "src/app/store/node/node.selectors";
+import { selectSelectedPortGroups } from "src/app/store/portgroup/portgroup.selectors";
 
 @Component({
   selector: 'app-info-panel-interface',
@@ -28,13 +30,22 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
   interfaces: any[] = [];
   managementInterfaces: any[] = [];
   selectedInterfaces: any[] = [];
+  selectedNodes: any[] = [];
+  selectedNodesId: any[] = [];
+  selectedInterfacesByNodes: any[] = [];
   selectedIds: any[] = [];
+  selectedInterfacesIdsByNodes: any[] = [];
+  selectedInterfacesIdsByPG: any[] = [];
+  selectedPGs: any[] = [];
+  selectedPGsId: any[] = [];
   isSelectedFlag = false;
   filterOption = 'all';
   tabName = 'interface';
   selectLogicalInterfaces$ = new Subscription();
   selectLogicalManagementInterfaces$ = new Subscription();
   selectSelectedLogicalInterfaces$ = new Subscription();
+  selectSelectedLogicalNodes$ = new Subscription();
+  selectSelectedPortGroups$ = new Subscription();
   selectIsSelectedFlag$ = new Subscription();
   gridOptions: GridOptions = {
     headerHeight: 48,
@@ -165,7 +176,36 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
         this.selectedInterfaces = selectedInterfaces;
         this.selectedIds = selectedInterfaces.map(i => i.id);
         this.infoPanelTableComponent?.deselectAll();
+        if (this.filterOption == 'selected') {
+          this.infoPanelTableComponent?.setRowData(this.selectedInterfaces);
+        }
         this.infoPanelTableComponent?.setRowActive(this.selectedIds);
+      }
+    });
+    this.selectSelectedLogicalNodes$ = this.store.select(selectSelectedLogicalNodes).subscribe(selectedNodes => {
+      if (selectedNodes) {
+        this.selectedNodes = selectedNodes;
+        this.selectedNodesId = this.selectedNodes.map((ele: any) => ele.id)
+        const interfacesData = this.interfaces.filter((i: any) => this.selectedNodesId.includes(i.node_id))
+        this.selectedInterfacesIdsByNodes = interfacesData.map(i => i.id);
+        this.infoPanelTableComponent?.deselectAll();
+        if (this.filterOption == 'selected_by_node') {
+          this.infoPanelTableComponent?.setRowData(interfacesData);
+          this.infoPanelTableComponent?.setRowActive(this.selectedInterfacesIdsByNodes);
+        }
+      }
+    });
+    this.selectSelectedPortGroups$ = this.store.select(selectSelectedPortGroups).subscribe(selectedPGs => {
+      if (selectedPGs) {
+        this.selectedPGs = selectedPGs;
+        this.selectedPGsId = selectedPGs.map(pg => pg.id);
+        const interfacesData = this.interfaces.filter((i: any) => this.selectedPGsId.includes(i.port_group_id))
+        this.selectedInterfacesIdsByPG = interfacesData.map(i => i.id);
+        this.infoPanelTableComponent?.deselectAll();
+        if (this.filterOption === 'selected_by_pg') {
+          this.infoPanelTableComponent?.setRowData(interfacesData);
+          this.infoPanelTableComponent?.setRowActive(this.selectedInterfacesIdsByPG);
+        }
       }
     });
     this.filterOptionForm = new FormGroup({
@@ -176,6 +216,8 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.selectLogicalInterfaces$.unsubscribe();
     this.selectLogicalManagementInterfaces$.unsubscribe();
+    this.selectSelectedLogicalNodes$.unsubscribe();
+    this.selectIsSelectedFlag$.unsubscribe();
   }
 
   private loadInterfacesTable() {
@@ -185,10 +227,18 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
       this.infoPanelTableComponent?.setRowData(this.selectedInterfaces);
     } else if (this.filterOption === 'management') {
       this.infoPanelTableComponent?.setRowData(this.managementInterfaces);
+    } else if (this.filterOption === 'selected_by_node') {
+      const interfacesData = this.interfaces.filter((i: any) => this.selectedNodesId.includes(i.node_id))
+      this.infoPanelTableComponent?.setRowData(interfacesData);
+    } else if (this.filterOption === 'selected_by_pg') {
+      const interfacesData = this.interfaces.filter((i: any) => this.selectedPGsId.includes(i.port_group_id))
+      this.infoPanelTableComponent?.setRowData(interfacesData);
     }
 
     this.infoPanelTableComponent?.deselectAll();
     this.infoPanelTableComponent?.setRowActive(this.selectedIds);
+    this.infoPanelTableComponent?.setRowActive(this.selectedInterfacesIdsByNodes);
+    this.infoPanelTableComponent?.setRowActive(this.selectedInterfacesIdsByPG);
   }
 
   deleteInterfaces() {

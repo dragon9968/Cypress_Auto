@@ -72,7 +72,8 @@ import {
   retrievedIsInterfaceConnectPG,
   selectInterface,
   selectPhysicalInterface,
-  unSelectInterface
+  unSelectInterface,
+  unSelectPhysicalInterface
 } from "../store/interface/interface.actions";
 import {
   selectIsConfiguratorConnect,
@@ -718,7 +719,11 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
 
   private _unselectEdge($event: any) {
     const t = $event.target;
-    this.store.dispatch(unSelectInterface({ id: t.data('id') }));
+    if (this.mapCategory === 'logical') {
+      this.store.dispatch(unSelectInterface({ id: t.data('id') }));
+    } else {
+      this.store.dispatch(unSelectPhysicalInterface({ id: t.data('id') }));
+    }
   }
 
   private _boxStart(_$event: any) {

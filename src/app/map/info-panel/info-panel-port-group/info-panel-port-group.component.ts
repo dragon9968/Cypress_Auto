@@ -151,6 +151,9 @@ export class InfoPanelPortGroupComponent implements OnInit, OnDestroy {
         this.selectedPGs = selectedPGs;
         this.selectedIds = selectedPGs.map(pg => pg.id);
         this.infoPanelTableComponent?.deselectAll();
+        if (this.filterOption === 'selected') {
+          this.infoPanelTableComponent?.setRowData(this.selectedPGs);
+        }
         this.infoPanelTableComponent?.setRowActive(this.selectedIds);
       }
     });

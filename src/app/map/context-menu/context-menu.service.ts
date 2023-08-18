@@ -7,7 +7,7 @@ import {
 } from "../../store/server-connect/server-connect.selectors";
 import { selectSelectedLogicalNodes, selectSelectedPhysicalNodes } from 'src/app/store/node/node.selectors';
 import { selectSelectedPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
-import { selectSelectedLogicalInterfaces } from 'src/app/store/interface/interface.selectors';
+import { selectSelectedLogicalInterfaces, selectSelectedPhysicalInterfaces } from 'src/app/store/interface/interface.selectors';
 import { selectSelectedGroups } from 'src/app/store/group/group.selectors';
 import { selectSelectedMapImages } from 'src/app/store/map-image/map-image.selectors';
 import { selectSelectedMapLinks } from 'src/app/store/map-link/map-link.selectors';
@@ -26,11 +26,14 @@ export class ContextMenuService implements OnDestroy {
   selectSelectedMapImages$ = new Subscription();
   selectSelectedMapLinks$ = new Subscription();
   selectSelectedPhysicalNodes$ = new Subscription();
+  selectSelectedPhysicalInterfaces$ = new Subscription();
   selectedNodes: any[] = [];
   selectedLogicalNodes: any[] = [];
   selectedPhysicalNodes: any[] = [];
   selectedPGs: any[] = [];
   selectedInterfaces: any[] = [];
+  selectedLogicalInterfaces: any[] = [];
+  selectedPhysicalInterfaces: any[] = [];
   selectedGroups: any[] = [];
   selectedMapImages: any[] = [];
   selectedMapLinks: any[] = [];
@@ -63,7 +66,12 @@ export class ContextMenuService implements OnDestroy {
     });
     this.selectSelectedLogicalInterfaces$ = this.store.select(selectSelectedLogicalInterfaces).subscribe(selectedInterfaces => {
       if (selectedInterfaces) {
-        this.selectedInterfaces = selectedInterfaces;
+        this.selectedLogicalInterfaces = selectedInterfaces;
+      }
+    });
+    this.selectSelectedPhysicalInterfaces$ = this.store.select(selectSelectedPhysicalInterfaces).subscribe(selectedInterfaces => {
+      if (selectedInterfaces) {
+        this.selectedPhysicalInterfaces = selectedInterfaces;
       }
     });
     this.selectSelectedGroups$ = this.store.select(selectSelectedGroups).subscribe(selectedGroups => {
@@ -93,11 +101,12 @@ export class ContextMenuService implements OnDestroy {
     this.selectSelectedMapImages$.unsubscribe();
     this.selectSelectedMapLinks$.unsubscribe();
     this.selectSelectedPhysicalNodes$.unsubscribe();
-    
+    this.selectSelectedPhysicalInterfaces$.unsubscribe();
   }
 
   showContextMenu(cy: any, isTemplateCategory: any, isGroupBoxesChecked: boolean, mapCategory: string) {
-    const selectedNodes = mapCategory === 'logical' ? this.selectedLogicalNodes : this.selectedPhysicalNodes
+    const selectedNodes = mapCategory === 'logical' ? this.selectedLogicalNodes : this.selectedPhysicalNodes;
+    this.selectedInterfaces = mapCategory === 'logical' ? this.selectedLogicalInterfaces : this.selectedPhysicalInterfaces;
     const selectedNodesLength = selectedNodes.length;
     const selectedPGsLength = this.selectedPGs.length;
     const selectedInterfacesLength = this.selectedInterfaces.length;
