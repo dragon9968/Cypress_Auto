@@ -106,7 +106,8 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
         disableClose: true,
         width: `${screen.width}px`,
         autoFocus: false,
-        data: dialogData
+        data: dialogData,
+        panelClass: 'custom-node-form-modal'
       });
     })
   }

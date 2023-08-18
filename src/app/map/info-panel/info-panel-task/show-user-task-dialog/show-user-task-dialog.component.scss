@@ -1,3 +1,7 @@
+.show-user-task-title {
+ margin-bottom: 0;
+}
+
 .field {
   width: 100%;
 }
@@ -5,6 +9,7 @@
   display: flex;
   place-content: center space-between;
 }
+
 .btn-close {
   background-color: #c71414;
   color: #fff;
@@ -15,16 +20,31 @@
   &__info {
     width: 30%;
     overflow-y: auto;
+    margin-top: 6px;
+    background-color: #fff;
+    padding: 8px;
   }
   &__result {
     margin-left: 5px;
     width: 69%;
     &__editor {
       overflow-y: auto;
-      max-height: 62vh;
+      max-height: 55vh;
       ace-editor {
-        height: 62vh;
+        background-color: #fff;
+        height: 55vh;
       }
     }
+  }
+}
+
+.metadata {
+  background-color: #fff;
+  max-height: 57vh;
+  padding: 8px;
+  margin-top: 6px;
+  overflow-y: scroll;
+  &__json {
+    min-height: 57vh;
   }
 }
