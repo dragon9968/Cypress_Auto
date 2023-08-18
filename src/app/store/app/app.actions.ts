@@ -1,10 +1,11 @@
 import { createAction, props } from "@ngrx/store";
+import { NotificationType } from "../../core/models/common.model";
 
 export const pushNotification = createAction(
   'pushNotification',
   props<{
     notification: {
-      type: string,
+      type: NotificationType,
       message: string
     }
   }>()

@@ -113,25 +113,4 @@ export class CMInterfaceService implements OnDestroy {
       ]
     }
   }
-
-  // getPortGroupInterfaceMenu(queueEdge: Function) {
-  //   return {
-  //     id: "pg_interface",
-  //     content: "Interface",
-  //     selector: "node[elem_category='port_group']",
-  //     hasTrailingDivider: false,
-  //     submenu: [
-  //       {
-  //         id: "add_interface",
-  //         content: "New",
-  //         selector: "node[label!='group_box']",
-  //         onClickFunction: (event: any) => {
-  //           queueEdge(event.target, event.position, "wired");
-  //         },
-  //         hasTrailingDivider: true,
-  //         disabled: false,
-  //       },
-  //     ]
-  //   }
-  // }
 }

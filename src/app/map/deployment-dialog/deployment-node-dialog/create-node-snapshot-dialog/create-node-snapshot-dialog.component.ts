@@ -1,34 +1,43 @@
-import { TaskService } from 'src/app/core/services/task/task.service';
-import { ToastrService } from 'ngx-toastr';
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { catchError, throwError } from 'rxjs';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
-import { InfoPanelService } from "../../../../core/services/info-panel/info-panel.service";
 import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
-import { RemoteCategories } from "../../../../core/enums/remote-categories.enum";
+import { Store } from "@ngrx/store";
+import { addTask } from "../../../../store/user-task/user-task.actions";
+import { TaskAddModel } from "../../../../core/models/task.model";
+import { Subscription } from "rxjs";
+import { selectNotification } from "../../../../store/app/app.selectors";
+import { NotificationTypes } from "../../../../shared/enums/notifications-types.enum";
 
 @Component({
   selector: 'app-create-node-snapshot-dialog',
   templateUrl: './create-node-snapshot-dialog.component.html',
   styleUrls: ['./create-node-snapshot-dialog.component.scss']
 })
-export class CreateNodeSnapshotDialogComponent {
+export class CreateNodeSnapshotDialogComponent implements OnDestroy {
   createNodeSnapshotForm: FormGroup;
+  selectNotification$ = new Subscription();
 
   constructor(
-    private taskService: TaskService,
-    private toastr: ToastrService,
+    private store: Store,
     private serverConnectionService: ServerConnectService,
     public dialogRef: MatDialogRef<CreateNodeSnapshotDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public helpers: HelpersService,
-    private infoPanelService: InfoPanelService
   ) {
     this.createNodeSnapshotForm = new FormGroup({
       nameCtr: new FormControl(''),
     });
+    this.selectNotification$ = this.store.select(selectNotification).subscribe(notification => {
+      if (notification?.type === NotificationTypes.SUCCESS) {
+        this.dialogRef.close();
+      }
+    })
+  }
+
+  ngOnDestroy(): void {
+    this.selectNotification$.unsubscribe();
   }
 
   get nameCtr() { return this.createNodeSnapshotForm.get('nameCtr'); }
@@ -39,7 +48,7 @@ export class CreateNodeSnapshotDialogComponent {
 
   create() {
     const connection = this.serverConnectionService.getConnection(this.data.category);
-    const jsonDataValue = {
+    const jsonDataValue: TaskAddModel = {
       job_name: 'create_snapshot',
       category: 'node',
       pks: this.data.selectedNodes.map((ele: any) => ele.id).join(","),
@@ -47,15 +56,6 @@ export class CreateNodeSnapshotDialogComponent {
       snapshot_name: this.nameCtr?.value,
     };
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.taskService.add(jsonData).pipe(
-      catchError((e: any) => {
-        this.toastr.error(e.error.message);
-        return throwError(() => e);
-      })
-    ).subscribe(respData => {
-      this.toastr.success("Task added to the queue");
-      this.infoPanelService.updateTaskList();
-      this.dialogRef.close();
-    });
+    this.store.dispatch(addTask({ task: jsonData }));
   }
 }

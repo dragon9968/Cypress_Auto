@@ -12,10 +12,8 @@ import { DomainUserService } from "../domain-user/domain-user.service";
 import { ServerConnectService } from "../server-connect/server-connect.service";
 import { selectVMStatus } from "../../../store/project/project.selectors";
 import { selectMapOption } from "../../../store/map-option/map-option.selectors";
-import { deleteGroups } from "../../../store/group/group.actions";
 import { deleteDomains } from "../../../store/domain/domain.actions";
 import { selectDomainUsers } from "../../../store/domain-user/domain-user.selectors";
-import { retrievedUserTasks } from "../../../store/user-task/user-task.actions";
 import { selectLogicalNodes, selectSelectedLogicalNodes } from "../../../store/node/node.selectors";
 import { retrievedIsChangeDomainUsers } from "../../../store/domain-user-change/domain-user-change.actions";
 import { selectMapPortGroups } from "../../../store/portgroup/portgroup.selectors";
@@ -166,91 +164,6 @@ export class InfoPanelService implements OnDestroy {
           throwError(() => err.message);
         }
       })
-    })
-  }
-
-  deleteUserTask(userTaskId: number) {
-    this.userTaskService.delete(userTaskId).subscribe({
-      next: () => {
-        this.userTaskService.getAll().subscribe(data => {
-          this.store.dispatch(retrievedUserTasks({ data: data.result }));
-        })
-        this.toastr.success('Deleted Row', 'Success');
-      },
-      error: error => {
-        this.toastr.error(error.error.message, 'Error');
-        throwError(() => error.message);
-      }
-    })
-  }
-
-  rerunTask(userTaskIds: any[]) {
-    this.userTaskService.rerunTask({ pks: userTaskIds }).subscribe({
-      next: value => {
-        this.userTaskService.getAll().subscribe(data => {
-          this.store.dispatch(retrievedUserTasks({ data: data.result }));
-        })
-        value.result.map((message: string) => {
-          this.toastr.success(`Rerun task - ${message} `, 'Success');
-        })
-      },
-      error: err => {
-        this.toastr.error(err.error.message, 'Error');
-        throwError(() => err.message);
-      }
-    })
-  }
-
-  revokeTask(userTaskIds: any[]) {
-    this.userTaskService.revokeTask({ pks: userTaskIds }).subscribe({
-      next: value => {
-        this.userTaskService.getAll().subscribe(data => {
-          this.store.dispatch(retrievedUserTasks({ data: data.result }));
-        })
-        value.result.map((message: string) => {
-          this.toastr.success(`Revoke task - ${message} `, 'Success');
-        })
-      },
-      error: err => {
-        this.toastr.error('Revoke task failed', 'Error');
-        throwError(() => err.message);
-      }
-    })
-  }
-
-  postTask(userTaskIds: any[]) {
-    this.userTaskService.postTask({ pks: userTaskIds }).subscribe({
-      next: value => {
-        this.userTaskService.getAll().subscribe(data => {
-          this.store.dispatch(retrievedUserTasks({ data: data.result }));
-        })
-        value.result.map((message: string) => {
-          this.toastr.success(`Post task - ${message} `, 'Success');
-        })
-      },
-      error: err => {
-        this.toastr.error('Post task failed', 'Error');
-        throwError(() => err.message);
-      }
-    })
-  }
-
-  refreshTask() {
-    this.userTaskService.refreshTask().subscribe({
-      next: response => {
-        this.toastr.success(response.message, 'Success');
-        this.updateTaskList();
-      },
-      error: err => {
-        this.toastr.error(err.error.message, 'Error');
-        throwError(() => err.message);
-      }
-    })
-  }
-
-  updateTaskList() {
-    this.userTaskService.getAll().subscribe(data => {
-      this.store.dispatch(retrievedUserTasks({ data: data.result }));
     })
   }
 
@@ -490,7 +403,7 @@ export class InfoPanelService implements OnDestroy {
   updateInterfaceIPBasedOnPGId(portGroupIds: any) {
     portGroupIds.map((portGroupId: any) => {
       this.interfaceService.getByPortGroup(portGroupId).subscribe(response => {
-        const interfacePks = this.checkIpAlocation(response.result)
+        const interfacePks = this.checkIpAllocation(response.result)
         if (interfacePks.length > 0) {
           this.store.dispatch(randomizeIpBulk({
             pks: interfacePks,
@@ -502,7 +415,7 @@ export class InfoPanelService implements OnDestroy {
   }
 
   randomizeIpInterfaces(listInterfaces: any[]) {
-    const interfacePks = this.checkIpAlocation(listInterfaces);
+    const interfacePks = this.checkIpAllocation(listInterfaces);
     let pks;
     if (interfacePks.length > 0) {
       pks = interfacePks
@@ -513,7 +426,7 @@ export class InfoPanelService implements OnDestroy {
     }
   }
 
-  checkIpAlocation(data: any[]) {
+  checkIpAllocation(data: any[]) {
     const interfacePks: any = [];
     data.forEach((val: any) => {
       if (val.ip_allocation === 'static_manual') {

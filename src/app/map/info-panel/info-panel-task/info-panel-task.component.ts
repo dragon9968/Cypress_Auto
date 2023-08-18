@@ -6,12 +6,19 @@ import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { interval, Subject, Subscription } from "rxjs";
 import { GridOptions, RowDoubleClickedEvent } from "ag-grid-community";
 import { UserTaskService } from "../../../core/services/user-task/user-task.service";
-import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { selectUserTasks } from "../../../store/user-task/user-task.selectors";
-import { retrievedUserTasks } from "../../../store/user-task/user-task.actions";
+import {
+  deleteTasks,
+  loadUserTasks,
+  refreshTasks,
+  rerunTasks,
+  revokeTasks
+} from "../../../store/user-task/user-task.actions";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { ShowUserTaskDialogComponent } from "./show-user-task-dialog/show-user-task-dialog.component";
 import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
+import { selectNotification } from "../../../store/app/app.selectors";
+import { SuccessMessages } from "../../../shared/enums/success-messages.enum";
 
 @Component({
   selector: 'app-info-panel-task',
@@ -23,6 +30,7 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
 
   @Input() infoPanelheight = '300px';
   selectUserTasks$ = new Subscription();
+  selectNotification = new Subscription();
   userTasks!: any[];
   tabName = 'userTask';
   nodesIdRendered: any[] = [];
@@ -92,7 +100,6 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
   onRowDoubleClicked(row: RowDoubleClickedEvent) {
     this.userTaskService.get(row.data.id).subscribe(response => {
       const dialogData = {
-        mode: 'postTask',
         genData: response.result
       };
       this.dialog.open(ShowUserTaskDialogComponent, {
@@ -109,7 +116,6 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private toastr: ToastrService,
     private userTaskService: UserTaskService,
-    private infoPanelService: InfoPanelService
   ) {
     this.selectUserTasks$ = this.store.select(selectUserTasks).pipe(takeUntil(this.destroy$)).subscribe(userTasks => {
       if (userTasks) {
@@ -118,19 +124,23 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
         this.infoPanelTableComponent?.setRowActive(this.infoPanelTableComponent?.rowsSelectedIds);
       }
     })
+    this.selectNotification = this.store.select(selectNotification).subscribe(notification => {
+      if (notification?.message === SuccessMessages.USER_TASK_DELETED_TASK_SUCCESS) {
+        this.clearRowSelected();
+      }
+    })
   }
 
   ngOnInit(): void {
-    this.userTaskService.getAll().pipe(takeUntil(this.destroy$)).subscribe(data => {
-      this.store.dispatch(retrievedUserTasks({ data: data.result }));
-    })
-    this.refreshTaskListByInterval()
+    this.store.dispatch(loadUserTasks());
+    this.refreshTaskListByInterval();
   }
 
 
   ngOnDestroy(): void {
     this.destroy$.next(true);
     this.destroy$.unsubscribe();
+    this.selectNotification.unsubscribe();
   }
 
   delete() {
@@ -146,8 +156,7 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '450px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm && this.infoPanelTableComponent) {
-          this.infoPanelTableComponent.rowsSelectedIds.map(id => this.infoPanelService.deleteUserTask(id));
-          this.clearRowSelected();
+          this.store.dispatch(deleteTasks({ pks: this.infoPanelTableComponent.rowsSelectedIds }));
         }
       })
     }
@@ -166,7 +175,7 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
       const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '450px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
         if (confirm && this.infoPanelTableComponent) {
-          this.infoPanelService.rerunTask(this.infoPanelTableComponent.rowsSelectedIds);
+          this.store.dispatch(rerunTasks({ pks: this.infoPanelTableComponent.rowsSelectedIds }))
         }
       });
     }
@@ -194,7 +203,7 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
             }
           })
           if (taskPendingId.length !== 0) {
-            this.infoPanelService.revokeTask(taskPendingId);
+            this.store.dispatch(revokeTasks({ pks: taskPendingId }))
           }
         }
       });
@@ -202,7 +211,7 @@ export class InfoPanelTaskComponent implements OnInit, OnDestroy {
   }
 
   refreshTask() {
-    this.infoPanelService.refreshTask();
+    this.store.dispatch(refreshTasks());
   }
 
   refreshTaskListByInterval() {

@@ -33,7 +33,13 @@ export class TaskService implements OnDestroy {
   isTaskInQueue(taskData: any) {
     if (taskData.category == 'node' || taskData.category == 'port_group') {
       const tasksByCategory = this.userTasks.filter(task => taskData.category == task.task_metadata.category)
-      const tasksIncludeItem = tasksByCategory.filter(task => task.task_metadata[`${taskData.category}s`].some((item: any) => taskData.pks.includes(item.id)))
+      const tasksIncludeItem = tasksByCategory.filter(task =>
+        task.task_metadata[`${taskData.category}s`].some(
+          (item: any) => taskData.category === 'port_group'
+                        ? taskData.pks.includes(item.id)
+                        : taskData.pks.includes(item.config.id)
+        )
+      )
       const isTaskInQueue = tasksIncludeItem.some(task => task.task_state == 'PENDING' && task.task_metadata.job_name == taskData.job_name)
       if (isTaskInQueue) {
         this.toastr.warning('Existing task already in queue', 'Warning')

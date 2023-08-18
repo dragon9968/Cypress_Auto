@@ -1,18 +1,17 @@
 import { Store } from "@ngrx/store";
-import { catchError } from "rxjs/operators";
-import { ToastrService } from "ngx-toastr";
 import { FormGroup, FormControl } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { Observable, Subscription, throwError } from "rxjs";
+import { Observable, Subscription } from "rxjs";
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ErrorMessages } from "../../../../shared/enums/error-messages.enum";
-import { TaskService } from "../../../../core/services/task/task.service";
 import { HelpersService } from "../../../../core/services/helpers/helpers.service";
-import { InfoPanelService } from "../../../../core/services/info-panel/info-panel.service";
 import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
 import { selectLoginProfiles } from "../../../../store/login-profile/login-profile.selectors";
 import { autoCompleteValidator } from "../../../../shared/validations/auto-complete.validation";
 import { RemoteCategories } from "../../../../core/enums/remote-categories.enum";
+import { selectNotification } from "../../../../store/app/app.selectors";
+import { NotificationTypes } from "../../../../shared/enums/notifications-types.enum";
+import { addTask } from "../../../../store/user-task/user-task.actions";
 
 @Component({
   selector: 'app-update-facts-node-dialog',
@@ -26,15 +25,13 @@ export class UpdateFactsNodeDialogComponent implements OnInit, OnDestroy {
   loginProfiles: any[] = [];
   connection: any;
   filteredLoginProfiles!: Observable<any[]>;
+  selectNotification$ = new Subscription();
 
   constructor(
     private store: Store,
-    private toastr: ToastrService,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private dialogRef: MatDialogRef<UpdateFactsNodeDialogComponent>,
-    private taskService: TaskService,
     public helpersService: HelpersService,
-    private infoPanelService: InfoPanelService,
     private serverConnectionService: ServerConnectService
   ) {
     this.updateFactsNodeForm = new FormGroup({
@@ -54,6 +51,11 @@ export class UpdateFactsNodeDialogComponent implements OnInit, OnDestroy {
         name: 'Test Connection'
       }
     }
+    this.selectNotification$ = this.store.select(selectNotification).subscribe(notification => {
+      if (notification?.type === NotificationTypes.SUCCESS) {
+        this.dialogRef.close();
+      }
+    })
   }
 
   ngOnInit(): void {
@@ -67,6 +69,7 @@ export class UpdateFactsNodeDialogComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.selectLoginProfiles$.unsubscribe();
+    this.selectNotification$.unsubscribe();
   }
 
   updateFactsNode() {
@@ -78,16 +81,6 @@ export class UpdateFactsNodeDialogComponent implements OnInit, OnDestroy {
       pks: this.data.selectedNodes.map((ele: any) => ele.id).join(','),
       login_profile_id: this.loginProfileCtr?.value?.id
     }
-    this.taskService.add(jsonData).pipe(
-      catchError(err => {
-        this.toastr.error(err.error.message, 'Error');
-        return throwError(() => err);
-      })
-    ).subscribe(() => {
-      this.infoPanelService.updateTaskList();
-      this.dialogRef.close();
-      this.toastr.success('Task added to the queue', 'Success');
-    })
+    this.store.dispatch(addTask({ task: jsonData }));
   }
-
 }

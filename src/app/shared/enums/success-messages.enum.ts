@@ -8,4 +8,11 @@ export enum SuccessMessages {
   ADDED_MAP_IMAGE_SUCCESS = 'Add map image successfully!',
   REMOVE_MAP_IMAGE_SUCCESS = 'Map image(s) removed!',
   RESTORE_MAP_IMAGE_SUCCESS = 'Map image(s) restored!',
+  USER_TASK_RERUN_SUCCESS = 'Completed the rerun task(s) success!',
+  USER_TASK_REVOKE_SUCCESS = 'Completed the revoke task(s) success!',
+  USER_TASK_POST_SUCCESS = 'Completed the post task(s) success!',
+  USER_TASK_REFRESH_SUCCESS = 'Refresh task(s) successfully!',
+  USER_TASK_ADDED_TASK_SUCCESS = 'Task added to the queue',
+  USER_TASK_ADDED_PG_TASK_SUCCESS = 'Add port group task to queue',
+  USER_TASK_DELETED_TASK_SUCCESS = 'Delete task(s) success!',
 }

@@ -600,12 +600,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
           if (this.edgeNode.data('elem_category') == 'map_link') {
             this.toastr.warning('Please select the common port group that has been highlighted to connect', 'Warning');
             return;
-          } else {
-            // Add a new edge without connecting to the port group
-            return this.interfaceService.genData(this.edgeNode.data().node_id, undefined)
-              .subscribe(genData => {
-                this._openAddUpdateInterfaceDialog(genData, this.newEdgeData);
-              });
           }
         } else if (!this.edgePortGroup) {
           // Add a new edge connecting to the port group with some of the edges already connected to this port group before.
@@ -1392,33 +1386,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     });
   }
 
-  private _openConnectInterfaceToNodeDialog(genData: any, newEdgeData: any) {
-    const dialogData = {
-      mode: 'connect_node',
-      projectId: this.projectId,
-      portGroups: this.portGroups,
-      gateways: this.gateways,
-      selectedMapPref: this.selectedMapPref,
-      cy: this.cy,
-      genData,
-      newEdgeData,
-      mapCategory: this.mapCategory
-    }
-    this.interfaceService.getByNode(genData.target_node_id).subscribe(response => {
-      this.store.dispatch(retrievedInterfacesByDestinationNode({ interfacesByDestinationNode: response.result }));
-      const dialogRef = this.dialog.open(ConnectInterfaceToPgDialogComponent, { disableClose: true, width: '450px', data: dialogData, autoFocus: false })
-      dialogRef.afterClosed().subscribe((_data: any) => {
-        this.cy.unbind('mousemove');
-        this.inv.remove();
-        this.e.remove();
-        this.inv = null;
-        this.edgeNode = null;
-        this.isConnectToNode = false;
-        this.store.dispatch(retrievedInterfacePkConnectNode({ interfacePkConnectNode: undefined }));
-      });
-    })
-  }
-
   private _addNewEdge($event: any) {
     if (this.isAddEdge) {
       this.cy.unbind('mousemove');
@@ -1698,28 +1665,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
       this.isAddProjectNode = false;
       this.linkProjectId = 0;
     })
-  }
-
-  validateProject(projectId: any) {
-    const jsonData = {
-      pk: projectId
-    }
-    this.projectService.validateProject(jsonData).pipe(
-      catchError((e: any) => {
-        this.store.dispatch(loadGroups({ projectId }));
-        this.toastr.error(e.error.message);
-        this.dialog.open(ValidateProjectDialogComponent, {
-          disableClose: true,
-          autoFocus: false,
-          width: 'auto',
-          data: e.error.result
-        });
-        return throwError(() => e);
-      })
-    ).subscribe(response => {
-      this.store.dispatch(loadGroups({ projectId }));
-      this.toastr.success(response.message);
-    });
   }
 
   addImage(width: any, height: any, url: any, projectId: any, newNodePosition: any) {

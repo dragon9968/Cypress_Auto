@@ -45,4 +45,11 @@ export enum ErrorMessages {
   ADD_MAP_IMAGE_FAILED = 'Add map image failed!',
   REMOVE_MAP_IMAGE_FAILED = 'Remove map image(s) failed!',
   RESTORE_MAP_IMAGE_FAILED = 'Restore map image(s) failed!',
+  USER_TASK_LOAD_FAILED = 'Load user tasks failed',
+  USER_TASK_RERUN_FAILED = 'Rerun task(s) failed!',
+  USER_TASK_REVOKE_FAILED = 'Revoke task(s) failed!',
+  USER_TASK_POST_FAILED = 'Post task(s) failed!',
+  USER_TASK_REFRESH_FAILED = 'Refresh task(s) failed!',
+  USER_TASK_ADD_TASK_FAILED = 'Add task failed!',
+  USER_TASK_DELETE_TASK_FAILED = 'Delete task(s) failed!',
 }

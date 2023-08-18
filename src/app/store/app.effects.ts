@@ -9,6 +9,7 @@ import { ProjectEffects } from "./project/project.effects";
 import { LookupOsFirmwaresEffects } from "./lookup-os-firmware/lookup-os-firmwares.effects";
 import { MapImagesEffects } from "./map-image/map-image.effects";
 import { MapLinkEffects } from "./map-link/map-link.effects";
+import { UserTaskEffect } from "./user-task/user-task.effect";
 
 export const effects = [
   MapEffects,
@@ -21,5 +22,6 @@ export const effects = [
   AppPrefEffects,
   LookupOsFirmwaresEffects,
   MapImagesEffects,
-  MapLinkEffects
+  MapLinkEffects,
+  UserTaskEffect
 ];

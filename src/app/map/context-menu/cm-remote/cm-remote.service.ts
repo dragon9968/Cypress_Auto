@@ -21,6 +21,8 @@ import { Store } from "@ngrx/store";
 import { selectIsHypervisorConnect } from "../../../store/server-connect/server-connect.selectors";
 import { selectSelectedLogicalNodes } from 'src/app/store/node/node.selectors';
 import { selectSelectedPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
+import { TaskAddModel } from "../../../core/models/task.model";
+import { addTask } from "../../../store/user-task/user-task.actions";
 
 @Injectable({
   providedIn: 'root'
@@ -477,16 +479,8 @@ export class CMRemoteService implements OnDestroy{
 
   add_task(category: string, jobName: string, pks: string, connectionCategory: string) {
     let connection = this.serverConnectionService.getConnection(connectionCategory);
-    const jsonData = { job_name: jobName, category, pks, hypervisor_id: connection ? connection?.id : 0 };
+    const jsonData: TaskAddModel = { job_name: jobName, category, pks, hypervisor_id: connection ? connection?.id : 0 };
     if (this.taskService.isTaskInQueue(jsonData)) return;
-    this.taskService.add(jsonData).pipe(
-      catchError((e: any) => {
-        this.toastr.error(e.error.message);
-        return throwError(() => e);
-      })
-    ).subscribe(respData => {
-      this.infoPanelService.updateTaskList();
-      this.toastr.success("Task added to the queue", "Success");
-    });
+    this.store.dispatch(addTask({ task: jsonData }));
   }
 }
