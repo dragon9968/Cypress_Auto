@@ -4,8 +4,10 @@ import { EMPTY, of } from 'rxjs';
 import { map, exhaustMap, catchError, mergeMap } from 'rxjs/operators';
 import {
   loadProject,
+  loadProjects,
   loadProjectsNotLinkYet,
   projectLoadedSuccess,
+  projectsLoadedSuccess,
   projectsNotLinkYetLoadedSuccess,
   validateProject
 } from './project.actions';
@@ -21,12 +23,12 @@ export class ProjectEffects {
 
   loadProject$ = createEffect(() => this.actions$.pipe(
     ofType(loadProject),
-    exhaustMap((payload) => this.projectService.get(+payload.projectId)
+    exhaustMap((payload) => this.projectService.get(payload.projectId)
       .pipe(
         map(res => (projectLoadedSuccess({ project: res.result }))),
         catchError(() => EMPTY)
       ))
-    )
+  )
   );
 
   loadProjectsNotLinkYet$ = createEffect(() => this.actions$.pipe(
@@ -46,10 +48,12 @@ export class ProjectEffects {
   validateProject$ = createEffect(() => this.actions$.pipe(
     ofType(validateProject),
     mergeMap(payload => this.projectService.validateProject({ pk: payload.projectId }).pipe(
-      map(res => pushNotification({ notification: {
-        type: 'success',
-        message: res.message
-      }})),
+      map(res => pushNotification({
+        notification: {
+          type: 'success',
+          message: res.message
+        }
+      })),
       catchError(e => {
         this.dialog.open(ValidateProjectDialogComponent, {
           disableClose: true,
@@ -59,20 +63,36 @@ export class ProjectEffects {
         });
         return of(
           pushNotification({
-          notification: {
-            type: 'error',
-            message: e.error.message
-          }}),
-          loadDomains({ projectId: payload.projectId.toString() }),
-          loadGroups({ projectId: payload.projectId.toString() })
+            notification: {
+              type: 'error',
+              message: e.error.message
+            }
+          }),
+          loadDomains({ projectId: payload.projectId }),
+          loadGroups({ projectId: payload.projectId })
         )
       })
     ))
-  ))
+  ));
+
+  loadProjects$ = createEffect(() => this.actions$.pipe(
+    ofType(loadProjects),
+    exhaustMap((payload) => this.projectService.getAll()
+      .pipe(
+        map(res => (projectsLoadedSuccess({ allProjects: res.result }))),
+        catchError(e => (of(pushNotification({
+          notification: {
+            type: 'error',
+            message: 'Load projects failed!'
+          }
+        }))))
+      ))
+  )
+  );
 
   constructor(
     private actions$: Actions,
     private projectService: ProjectService,
     private dialog: MatDialog
-  ) {}
+  ) { }
 }

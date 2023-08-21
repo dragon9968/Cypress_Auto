@@ -32,7 +32,7 @@ export class MapLinkService {
     return this.http.delete<any>(ApiPaths.MAP_LINK + id);
   }
 
-  getMapLinksByProjectId(projectId: string): Observable<any> {
+  getMapLinksByProjectId(projectId: number): Observable<any> {
     return this.http.get<any>(ApiPaths.MAP_LINK, {
       params: {
         q: '(filters:!((col:project_id,opr:eq,value:' + projectId +')),keys:!(list_columns),page:0,page_size:1000)'

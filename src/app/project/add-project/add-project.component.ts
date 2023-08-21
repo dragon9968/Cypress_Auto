@@ -6,8 +6,7 @@ import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { Router } from '@angular/router';
 import { FormGroup, FormBuilder, Validators, FormControl, FormGroupDirective, NgForm } from '@angular/forms';
 import { ProjectService } from 'src/app/project/services/project.service';
-import { selectProjectTemplate } from 'src/app/store/project/project.selectors';
-import { retrievedProjects, retrievedProjectsTemplate } from 'src/app/store/project/project.actions';
+import { selectActiveTemplates } from 'src/app/store/project/project.selectors';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -27,6 +26,7 @@ import { selectMapPrefs } from 'src/app/store/map-pref/map-pref.selectors';
 import { vlanValidator } from "../../shared/validations/vlan.validation";
 import { ErrorStateMatcher } from "@angular/material/core";
 import { RolesService } from 'src/app/core/services/roles/roles.service';
+import { loadProjects } from 'src/app/store/project/project.actions';
 
 class CrossFieldErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -54,10 +54,10 @@ export class AddProjectComponent implements OnInit {
   errorMatcher = new CrossFieldErrorMatcher();
   routeSegments = RouteSegments;
   errorMessages = ErrorMessages;
-  selectProjects$ = new Subscription();
-  selectProjectTemplate$ = new Subscription();
+  selectActiveProjects$ = new Subscription();
+  selectActiveTemplates$ = new Subscription();
   nameProject!: any[];
-  projectTemplate!: any[];
+  activeTemplates!: any[];
   rowData!: any[];
   checked = false;
   status = 'active';
@@ -162,11 +162,11 @@ export class AddProjectComponent implements OnInit {
       this.nameProject = data.result;
     });
 
-    this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(templateData => {
-      this.projectTemplate = templateData;
-      if (this.projectTemplate) {
-        this.template.setValidators([autoCompleteValidator(this.projectTemplate)]);
-        this.filteredTemplate = this.helpers.filterOptions(this.template, this.projectTemplate);
+    this.selectActiveTemplates$ = this.store.select(selectActiveTemplates).subscribe(activeTemplates => {
+      this.activeTemplates = activeTemplates;
+      if (this.activeTemplates.length > 0) {
+        this.template.setValidators([autoCompleteValidator(this.activeTemplates)]);
+        this.filteredTemplate = this.helpers.filterOptions(this.template, this.activeTemplates);
       }
     })
     this.selectAppPref$ = this.store.select(selectAppPref).subscribe((data: any)=> {
@@ -216,13 +216,10 @@ export class AddProjectComponent implements OnInit {
       this.toastr.warning('Not authorized!', 'Warning');
       this.router.navigate([RouteSegments.ROOT]);
     }
-    this.helpers.setAutoCompleteValue(this.template, this.projectTemplate, '');
-    this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe(data => {
-      this.store.dispatch(retrievedProjects({data: data.result}));
-    })
+    this.helpers.setAutoCompleteValue(this.template, this.activeTemplates, '');
+    this.store.dispatch(loadProjects());
     this.store.dispatch(loadAppPref());
     this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPrefs({ data: data.result })));
-    this.projectService.getProjectByStatusAndCategory(this.status, 'template').subscribe((data: any) => this.store.dispatch(retrievedProjectsTemplate({ template: data.result })));
   }
 
   get name() { return this.projectForm.get('name'); }
@@ -231,7 +228,7 @@ export class AddProjectComponent implements OnInit {
   get target() { return this.projectForm.get('target'); }
   get option() { return this.projectForm.get('option'); }
   get layoutOnly() { return this.projectForm.get('layoutOnly'); }
-  get template() { return this.helpers.getAutoCompleteCtr(this.projectForm.get('template'), this.projectTemplate);  }
+  get template() { return this.helpers.getAutoCompleteCtr(this.projectForm.get('template'), this.activeTemplates);  }
   get enclave_number() { return this.projectForm.get('enclave_number'); }
   get enclave_clients() { return this.projectForm.get('enclave_clients'); }
   get enclave_servers() { return this.projectForm.get('enclave_servers'); }

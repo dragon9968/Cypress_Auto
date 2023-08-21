@@ -2,7 +2,7 @@ import { createAction, props } from '@ngrx/store';
 
 export const loadPGs = createAction(
   'loadPGs',
-  props<{ projectId: string }>()
+  props<{ projectId: number }>()
 );
 
 export const addNewPG = createAction(

@@ -2,9 +2,7 @@ import { createAction, props } from "@ngrx/store";
 
 export const loadInterfaces = createAction(
   'loadInterfaces',
-  props<{
-    projectId: string
-  }>()
+  props<{ projectId: number }>()
 );
 
 export const interfacesLoadedSuccess = createAction(

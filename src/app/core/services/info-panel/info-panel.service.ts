@@ -129,7 +129,7 @@ export class InfoPanelService implements OnDestroy {
     return interfacesDeleted.map(ele => ele.interface_pk);
   }
 
-  deleteDomains(ids: any[]= [], projectId: string) {
+  deleteDomains(ids: any[]= [], projectId: number) {
     let isError = false;
     ids.map(id => {
       const domain = this.domains.find(d => d.id == id);

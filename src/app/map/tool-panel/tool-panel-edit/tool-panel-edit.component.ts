@@ -14,18 +14,18 @@ import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.
 import { selectImages, selectSelectedMapImages } from 'src/app/store/map-image/map-image.selectors';
 import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
 import { MatDialog } from "@angular/material/dialog";
-import { retrievedProjectsTemplate } from "../../../store/project/project.actions";
 import { ProjectService } from "../../../project/services/project.service";
 import { Router } from "@angular/router";
 import { ToastrService } from "ngx-toastr";
 import { RouteSegments } from "../../../core/enums/route-segments.enum";
 import {
+  selectActiveTemplates,
   selectProjectsNotLinkYet,
-  selectProjectTemplate
 } from "../../../store/project/project.selectors";
 import { AuthService } from "../../../core/services/auth/auth.service";
 import { selectSelectedLogicalNodes } from 'src/app/store/node/node.selectors';
 import { selectSelectedPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
+import { loadProjects } from 'src/app/store/project/project.actions';
 
 @Component({
   selector: 'app-tool-panel-edit',
@@ -64,7 +64,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
   selectMapOption$ = new Subscription();
   selectMapPref$ = new Subscription();
   selectProjectsNotLinkYet$ = new Subscription();
-  selectProjectTemplate$ = new Subscription();
+  selectActiveTemplates$ = new Subscription();
   selectSelectedLogicalNodes$ = new Subscription();
   selectSelectedMapImages$ = new Subscription();
   selectSelectedPortGroups$ = new Subscription();
@@ -140,7 +140,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
     this.selectMapPref$ = this.store.select(selectMapPref).subscribe((selectedMapPref: any) => {
       this.selectedMapPref = selectedMapPref;
     });
-    this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(projectTemplates => {
+    this.selectActiveTemplates$ = this.store.select(selectActiveTemplates).subscribe(projectTemplates => {
       if (projectTemplates != undefined) {
         this.projectTemplates = projectTemplates;
         this.projectTemplateCtr.setValidators([autoCompleteValidator(this.projectTemplates)]);
@@ -220,9 +220,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnInit(): void {
     this.templateCtr?.disable();
-    this.projectService.getProjectByStatusAndCategory('active', 'template').subscribe(
-      data => this.store.dispatch(retrievedProjectsTemplate({ template: data.result }))
-    );
+    this.store.dispatch(loadProjects());
   }
 
   ngOnDestroy(): void {
@@ -231,7 +229,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
     this.selectTemplates$.unsubscribe();
     this.selectMapOption$.unsubscribe();
     this.selectMapPref$.unsubscribe();
-    this.selectProjectTemplate$.unsubscribe();
+    this.selectActiveTemplates$.unsubscribe();
     this.selectImages$.unsubscribe();
   }
 

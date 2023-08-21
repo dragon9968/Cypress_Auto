@@ -17,7 +17,7 @@ export class GroupService {
     return this.http.get<any>(ApiPaths.GROUP);
   }
 
-  getGroupByProjectId(projectId: string): Observable<any> {
+  getGroupByProjectId(projectId: number): Observable<any> {
     return this.http.get<any>(ApiPaths.GROUP, {
       params: {
         q: '(filters:!((col:project_id,opr:eq,value:' + projectId + ')),keys:!(list_columns),page:0,page_size:1000)'

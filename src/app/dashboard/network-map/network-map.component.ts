@@ -40,7 +40,7 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
   cy: any;
   eles: any;
   config: any;
-  projectId = '0';
+  projectId = 0;
   category = 'logical';
   vmStatusChecked: any;
   selectMap$ = new Subscription();

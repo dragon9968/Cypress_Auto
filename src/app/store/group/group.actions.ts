@@ -2,7 +2,7 @@ import { createAction, props } from "@ngrx/store";
 
 export const loadGroups = createAction(
   'loadGroups',
-  props<{ projectId: string }>()
+  props<{ projectId: number }>()
 );
 
 export const groupsLoadedSuccess = createAction(

@@ -3,8 +3,8 @@ import { Subscription } from "rxjs";
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { ProjectService } from "../project/services/project.service";
-import { selectAllProjects, selectRecentProjects } from "../store/project/project.selectors";
-import { retrievedAllProjects, retrievedProjectName, retrievedProjects, retrievedRecentProjects } from "../store/project/project.actions";
+import { selectActiveProjects, selectRecentProjects } from "../store/project/project.selectors";
+import { loadProjects, retrievedRecentProjects } from "../store/project/project.actions";
 import { AuthService } from "../core/services/auth/auth.service";
 import { ToastrService } from "ngx-toastr";
 import { Router } from "@angular/router";
@@ -22,7 +22,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   routeSegments = RouteSegments;
   recentProjects: any[] = [];
   selectRecentProjects = new Subscription();
-  selectProjects$ = new Subscription();
+  selectActiveProjects$ = new Subscription();
   listShare: any[] = [];
   listProject: any[] = [];
   status = 'active';
@@ -40,10 +40,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.recentProjects = recentProjects;
       }
     });
-    this.projectService.getProjectByStatus(this.status).subscribe(data => {
-      this.store.dispatch(retrievedAllProjects({listAllProject: data.result}));
-    });
-    this.selectProjects$ = this.store.select(selectAllProjects)
+    this.store.dispatch(loadProjects());
+    this.selectActiveProjects$ = this.store.select(selectActiveProjects)
       .subscribe((data) => {
         if (data) {
           this.listProject = data.filter((val: any) => val.created_by_fk === userId);
@@ -69,20 +67,18 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.projectService.getRecentProjects().subscribe(response => {
       this.store.dispatch(retrievedRecentProjects({ recentProjects: response.result }));
     })
-    this.projectService.getProjectByStatusAndCategory('active', 'project').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
   }
 
   ngOnDestroy(): void {
     this.selectRecentProjects.unsubscribe();
-    this.selectProjects$.unsubscribe();
+    this.selectActiveProjects$.unsubscribe();
   }
 
   openProject(projectId: any, projectName: string) {
     const project = this.listProject.find(val => val.id == projectId);
     if (!!project) {
       localStorage.setItem(LocalStorageKeys.MAP_STATE, project.map_state);
-      this.projectService.openProject(projectId.toString());
-      this.store.dispatch(retrievedProjectName({ projectName }));
+      this.projectService.openProject(projectId);
     } else {
       this.toastr.warning(`The user doesn't has access to the project ${projectName}`)
       this.router.navigate([RouteSegments.PROJECTS])

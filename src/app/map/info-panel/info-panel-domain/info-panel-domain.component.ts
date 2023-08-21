@@ -27,7 +27,7 @@ export class InfoPanelDomainComponent implements OnInit, OnDestroy {
   @ViewChild(InfoPanelTableComponent) infoPanelTableComponent: InfoPanelTableComponent | undefined;
 
   @Input() infoPanelheight = '300px';
-  projectId: string = '0';
+  projectId = 0;
   selectDomains$ = new Subscription();
   domains!: any;
   tabName = 'domain';

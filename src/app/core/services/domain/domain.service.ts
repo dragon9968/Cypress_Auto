@@ -14,7 +14,7 @@ export class DomainService {
     return this.http.get<any>(ApiPaths.DOMAINS);
   }
 
-  getDomainByProjectId(projectId: string): Observable<any> {
+  getDomainByProjectId(projectId: number): Observable<any> {
     return this.http.get<any>(ApiPaths.DOMAINS, {
       params: {
         q: '(filters:!((col:project_id,opr:eq,value:' + projectId + ')),keys:!(list_columns),page:0,page_size:1000)'

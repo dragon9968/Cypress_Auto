@@ -13,12 +13,9 @@ import { RouteSegments } from '../../enums/route-segments.enum';
 import { AuthService } from '../../services/auth/auth.service';
 import { selectIsOpen, selectProjectCategory, selectProjectName } from 'src/app/store/project/project.selectors';
 import {
-  retrievedAllProjects,
-  retrievedCurrentProject,
+  loadProject,
+  loadProjects,
   retrievedIsOpen,
-  retrievedProjectCategory,
-  retrievedProjectName,
-  retrievedProjects,
   retrievedVMStatus,
   validateProject
 } from 'src/app/store/project/project.actions';
@@ -40,7 +37,7 @@ import {
 } from 'src/app/store/server-connect/server-connect.selectors';
 import { ServerConnectService } from '../../services/server-connect/server-connect.service';
 import { ServerConnectDialogComponent } from 'src/app/map/tool-panel/tool-panel-remote/server-connect-dialog/server-connect-dialog.component';
-import { retrievedServerConnect} from 'src/app/store/server-connect/server-connect.actions';
+import { retrievedServerConnect } from 'src/app/store/server-connect/server-connect.actions';
 import { AboutComponent } from 'src/app/help/about/about.component';
 import { CloneProjectDialogComponent } from 'src/app/project/clone-project-dialog/clone-project-dialog.component';
 import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
@@ -73,7 +70,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   isHypervisorConnect = false;
   isDatasourceConnect = false;
   isConfiguratorConnect = false;
-  projectId: any;
+  projectId = 0;
   projectName: any;
   username: any;
   userId: any;
@@ -113,8 +110,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
       if (isOpen) {
         this.projectId = this.projectService.getProjectId();
         this.projectService.get(this.projectId).subscribe(projectData => {
-          this.store.dispatch(retrievedCurrentProject({ data: projectData.result}))
-          this.store.dispatch(retrievedProjectCategory({ projectCategory: projectData.result.category}))
+          this.store.dispatch(loadProject({ projectId: this.projectId }))
           if (this.isHypervisorConnect || this.isConfiguratorConnect) {
             this.store.dispatch(retrievedVMStatus({ vmStatus: projectData.result.configuration.vm_status }));
           }
@@ -122,12 +118,8 @@ export class NavBarComponent implements OnInit, OnDestroy {
           if (projectData.result.created_by_fk != this.userId && !sharedProjectId.includes(this.userId) && this.router.url === '/map') {
             this.toastr.warning(`The user is not the owner of project ${projectData.result.name}. Cannot open the project ${projectData.result.name}`);
             this.projectService.closeProject();
-            this.store.dispatch(retrievedProjectName({ projectName: undefined }));
             this.store.dispatch(retrievedIsOpen({ data: false }));
             this.router.navigate([RouteSegments.PROJECTS]);
-          } else {
-            this.store.dispatch(retrievedProjectName({ projectName: projectData.result.name }));
-            this.store.dispatch(retrievedProjectCategory({ projectCategory: projectData.result.category }))
           }
 
         });
@@ -165,7 +157,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
       this.store.dispatch(retrievedIsOpen({ data: true }));
     }
     this.serverConnectService.getAll().subscribe((data: any) => this.store.dispatch(retrievedServerConnect({ data: data.result })));
-    this.breakpointObserver.observe(['(max-width: 1365px)']).subscribe((state: BreakpointState) =>{
+    this.breakpointObserver.observe(['(max-width: 1365px)']).subscribe((state: BreakpointState) => {
       if (state.matches) {
         this.isSmallScreen = true;
       } else {
@@ -204,7 +196,6 @@ export class NavBarComponent implements OnInit, OnDestroy {
 
   closeProject() {
     this.projectService.closeProject();
-    this.store.dispatch(retrievedProjectName({ projectName: undefined }));
     this.store.dispatch(retrievedIsOpen({ data: false }));
     this.router.navigate([RouteSegments.ROOT]);
   }
@@ -214,20 +205,17 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   editProject() {
-    this.projectService.getProjectByStatus(this.status).subscribe(data => {
-      this.store.dispatch(retrievedAllProjects({listAllProject: data.result}));
-      this.projectService.get(this.projectId).subscribe(resp => {
-        const dialogData = {
-          mode: 'update',
-          category: resp.result.category,
-          genData: resp.result
-        }
-        const dialogRef = this.dialog.open(EditProjectDialogComponent, {
-          disableClose: true,
-          autoFocus: false,
-          width: 'auto',
-          data: dialogData
-        });
+    this.projectService.get(this.projectId).subscribe(resp => {
+      const dialogData = {
+        mode: 'update',
+        category: resp.result.category,
+        genData: resp.result
+      }
+      const dialogRef = this.dialog.open(EditProjectDialogComponent, {
+        disableClose: true,
+        autoFocus: false,
+        width: 'auto',
+        data: dialogData
       });
     });
   }
@@ -252,14 +240,12 @@ export class NavBarComponent implements OnInit, OnDestroy {
               return throwError(() => error);
             })
           )
-          .subscribe( rest => {
+          .subscribe(rest => {
             const category = rest.result.category;
             this.toastr.success(`Delete Project successfully`);
             this.projectService.closeProject();
             this.store.dispatch(retrievedIsOpen({ data: false }));
-            this.projectService.getProjectByStatusAndCategory(this.status, category).subscribe(
-              (data: any) => this.store.dispatch(retrievedProjects({ data: data.result }))
-            );
+            this.store.dispatch(loadProjects());
             if (category === 'project') {
               this.router.navigate([RouteSegments.PROJECTS]);
             } else {
@@ -359,26 +345,25 @@ export class NavBarComponent implements OnInit, OnDestroy {
   openProject(projectId: number) {
     this.projectService.getProjectByStatus(this.status).subscribe((data: any) => {
       if (data.result) {
-          this.projectService.getShareProject('active', 'project').subscribe((resp: any) => {
-            const shareProject = resp.result;
-            this.listProject = data.result.filter((val: any) => val.created_by_fk === this.userId);
-            if (shareProject) {
-              this.listProject = [...this.listProject, ...shareProject];
-            }
-            const listProjectId = this.listProject.map(val => val.id);
-            if (listProjectId.includes(projectId)) {
-              const project = this.listProject.find(p => p.id == projectId);
-              localStorage.setItem(LocalStorageKeys.MAP_STATE, project.map_state)
-              this.projectService.openProject(projectId);
-            } else {
-              this.projectService.closeProject();
-              this.store.dispatch(retrievedProjectName({ projectName: undefined }));
-              this.store.dispatch(retrievedIsOpen({ data: false }));
-              this.toastr.warning(`The user is not the owner of project. Cannot open the project`)
-              this.router.navigate([RouteSegments.PROJECTS])
-            }
-          })
-        }
+        this.projectService.getShareProject('active', 'project').subscribe((resp: any) => {
+          const shareProject = resp.result;
+          this.listProject = data.result.filter((val: any) => val.created_by_fk === this.userId);
+          if (shareProject) {
+            this.listProject = [...this.listProject, ...shareProject];
+          }
+          const listProjectId = this.listProject.map(val => val.id);
+          if (listProjectId.includes(projectId)) {
+            const project = this.listProject.find(p => p.id == projectId);
+            localStorage.setItem(LocalStorageKeys.MAP_STATE, project.map_state)
+            this.projectService.openProject(projectId);
+          } else {
+            this.projectService.closeProject();
+            this.store.dispatch(retrievedIsOpen({ data: false }));
+            this.toastr.warning(`The user is not the owner of project. Cannot open the project`)
+            this.router.navigate([RouteSegments.PROJECTS])
+          }
+        })
+      }
     });
   }
 

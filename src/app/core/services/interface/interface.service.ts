@@ -94,7 +94,7 @@ export class InterfaceService {
     });
   }
 
-  getByProjectId(projectId: any): Observable<any> {
+  getByProjectId(projectId: number): Observable<any> {
     return this.http.get<any>(ApiPaths.INTERFACE, {
       params: {
         q: `(filters:!((col:project_id,opr:eq,value:${projectId})),page:0,page_size:1000)`

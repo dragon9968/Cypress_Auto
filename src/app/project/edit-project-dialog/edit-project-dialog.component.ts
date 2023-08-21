@@ -14,10 +14,7 @@ import { UserService } from 'src/app/core/services/user/user.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import {
-  retrievedAllProjects, retrievedProjectCategory,
-  retrievedProjectName,
-  retrievedProjects,
-  retrievedProjectsTemplate,
+  loadProjects,
   retrievedRecentProjects
 } from 'src/app/store/project/project.actions';
 import { ButtonRenderersComponent } from '../renderers/button-renderers-component';
@@ -43,7 +40,6 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
   errorMessages = ErrorMessages;
   selectAllProjects$ = new Subscription();
   selectRecentProjects$ = new Subscription();
-  selectProjectTemplate$ = new Subscription();
   selectIsMapOpen$ = new Subscription();
   selectUser$ = new Subscription();
   currentUser: any = {};
@@ -175,7 +171,6 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
     this.selectRecentProjects$.unsubscribe();
     this.selectUser$.unsubscribe();
     this.selectIsMapOpen$.unsubscribe();
-    this.selectProjectTemplate$.unsubscribe();
   }
 
   get nameCtr() { return this.editProjectForm.get('nameCtr'); }
@@ -249,8 +244,6 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
           return throwError(() => e);
         })
       ).subscribe((_respData: any) => {
-        this.store.dispatch(retrievedProjectCategory({ projectCategory: jsonData.category }))
-        this.store.dispatch(retrievedProjectName({ projectName: jsonData.name }));
         // Update Recent Projects Storage if the project in recent projects and project is updated
         const recentProject = this.recentProjects.find(project => project.id === this.data.genData.id);
         if (recentProject && recentProject.name !== jsonData.name || recentProject?.description !== jsonData.description) {
@@ -272,18 +265,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
           const message = `Updated ${jsonData.category} ${jsonData.name} successfully`
           this.toastr.success(message, 'Success')
           this.historyService.addNewHistoryIntoStorage(message)
-          if (jsonData.category === 'project') {
-            if (this.isMapOpen) {
-              this.projectService.getProjectsNotLinkedYet(this.projectService.getProjectId()).subscribe(res => {
-                this.store.dispatch(retrievedProjects({ data: res.result }))
-              })
-            } else {
-              this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
-            }
-          } else {
-            this.projectService.getProjectByStatusAndCategory(this.status, 'template').subscribe((data: any) => this.store.dispatch(retrievedProjectsTemplate({ template: data.result })));
-          }
-          this.projectService.getProjectByStatus(this.status).subscribe((data: any) => this.store.dispatch(retrievedAllProjects({ listAllProject: data.result })));
+          this.store.dispatch(loadProjects());
         });
         this.dialogRef.close();
       });

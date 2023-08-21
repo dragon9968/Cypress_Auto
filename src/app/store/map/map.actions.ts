@@ -13,7 +13,7 @@ export const retrievedIsMapOpen = createAction(
 export const loadMap = createAction(
   'loadMap',
   props<{
-    projectId: string,
+    projectId: number,
     mapCategory: string
   }>()
 );
@@ -31,7 +31,7 @@ export const addTemplateItemsToMap = createAction(
 export const loadLinkedMap = createAction(
   'loadLinkedMap',
   props<{
-    projectId: string,
+    projectId: number,
     mapCategory: string,
     mapLinkId: number,
     position: any

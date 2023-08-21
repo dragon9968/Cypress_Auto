@@ -2,7 +2,7 @@ import { createAction, props } from '@ngrx/store';
 
 export const loadDomains = createAction(
   'loadDomains',
-  props<{ projectId: string }>()
+  props<{ projectId: number }>()
 );
 
 export const domainsLoadedSuccess = createAction(
@@ -39,7 +39,7 @@ export const deleteDomains = createAction(
   'deleteDomains',
   props<{
     ids: number[],
-    projectId: string,
+    projectId: number,
   }>()
 );
 

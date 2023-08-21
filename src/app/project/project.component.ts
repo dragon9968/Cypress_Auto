@@ -4,8 +4,7 @@ import { catchError, forkJoin, Observable, of, Subscription, throwError } from '
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ProjectService } from './services/project.service';
-import { selectAllProjects, selectProjects, selectProjectTemplate } from '../store/project/project.selectors';
-import { retrievedAllProjects, retrievedProjects, retrievedProjectsTemplate } from '../store/project/project.actions';
+import { selectActiveProjects, selectActiveTemplates } from '../store/project/project.selectors';
 import { AuthService } from '../core/services/auth/auth.service';
 import { HelpersService } from '../core/services/helpers/helpers.service';
 import { Router } from '@angular/router';
@@ -37,8 +36,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
   rowsSelectedId: any[] = [];
   isSubmitBtnDisabled: boolean = true;
   private gridApi!: GridApi;
-  private selectProjects$ = new Subscription();
-  selectProjectTemplate$ = new Subscription();
+  private selectActiveProjects$ = new Subscription();
+  selectActiveTemplates$ = new Subscription();
   selectUser$ = new Subscription();
   selectAllProjects$ = new Subscription();
   rowData$!: Observable<any[]>;
@@ -116,26 +115,26 @@ export class ProjectComponent implements OnInit, OnDestroy {
     const userId = this.authService.getUserId();
     this.isAdmin = this.router.url === this.projectAdminUrl
     if (this.router.url === this.templatePageUrl) {
-      this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(templateData => {
+      this.selectActiveTemplates$ = this.store.select(selectActiveTemplates).subscribe(templateData => {
         this.processUpdateChangedByField(templateData);
       });
     } else if (this.router.url === this.projectPageUrl) {
-      this.selectProjects$ = this.store.select(selectProjects)
-      .subscribe((data) => {
-        if (data) {
-          this.projectService.getShareProject(this.status, 'project').subscribe((resp: any) => {
-            const shareProject = resp.result;
-            let filteredProjectsByUserId: any[];
-            filteredProjectsByUserId = data.filter((val: any) => val.created_by_fk === userId);
-            if (shareProject) {
-              filteredProjectsByUserId = [...filteredProjectsByUserId, ...shareProject];
-            }
-            this.processUpdateChangedByField(filteredProjectsByUserId);
-          })
-        }
-      });
+      this.selectActiveProjects$ = this.store.select(selectActiveProjects)
+        .subscribe((data) => {
+          if (data) {
+            this.projectService.getShareProject(this.status, 'project').subscribe((resp: any) => {
+              const shareProject = resp.result;
+              let filteredProjectsByUserId: any[];
+              filteredProjectsByUserId = data.filter((val: any) => val.created_by_fk === userId);
+              if (shareProject) {
+                filteredProjectsByUserId = [...filteredProjectsByUserId, ...shareProject];
+              }
+              this.processUpdateChangedByField(filteredProjectsByUserId);
+            })
+          }
+        });
     } else {
-      this.selectAllProjects$ = this.store.select(selectAllProjects).subscribe((data: any) => {
+      this.selectAllProjects$ = this.store.select(selectActiveProjects).subscribe((data: any) => {
         if (data) {
           this.processUpdateChangedByField(data);
         }
@@ -147,20 +146,15 @@ export class ProjectComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.userService.getAll().subscribe(data => this.store.dispatch(retrievedUser({ data: data.result })));
     if (!this.isAdmin && this.router.url === this.projectPageUrl) {
-      this.categoryPage = 'project'
-      this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
+      this.categoryPage = 'project';
     } else if (!this.isAdmin && this.router.url === this.templatePageUrl) {
       this.categoryPage = 'template'
-      this.projectService.getProjectByStatusAndCategory(this.status, 'template').subscribe((data: any) => this.store.dispatch(retrievedProjectsTemplate({ template: data.result })));
-    } else {
-      this.projectService.getProjectByStatus(this.status).subscribe((data: any) => this.store.dispatch(retrievedAllProjects({ listAllProject: data.result })));
     }
   }
 
   ngOnDestroy(): void {
-    this.selectProjects$.unsubscribe();
-    this.selectProjectTemplate$.unsubscribe();
-    this.selectAllProjects$.unsubscribe();
+    this.selectActiveProjects$.unsubscribe();
+    this.selectActiveTemplates$.unsubscribe();
     this.selectUser$.unsubscribe();
   }
 
@@ -225,25 +219,22 @@ export class ProjectComponent implements OnInit, OnDestroy {
     if (this.rowsSelectedId.length === 0) {
       this.toastr.info('No row selected');
     } else if (this.rowsSelectedId.length === 1) {
-        this.projectService.get(this.rowsSelectedId[0]).subscribe(data => {
-          this.projectService.getProjectByStatus(this.status).subscribe(resp => {
-            this.store.dispatch(retrievedAllProjects({listAllProject: resp.result}));
-            const dialogData = {
-              mode: 'update',
-              category: data.result.category,
-              genData: data.result
-            }
-            this.dialog.open(EditProjectDialogComponent, {
-              disableClose: true,
-              autoFocus: false,
-              width: '600px',
-              data: dialogData
-            });
-          });
+      this.projectService.get(this.rowsSelectedId[0]).subscribe(data => {
+        const dialogData = {
+          mode: 'update',
+          category: data.result.category,
+          genData: data.result
+        }
+        this.dialog.open(EditProjectDialogComponent, {
+          disableClose: true,
+          autoFocus: false,
+          width: '600px',
+          data: dialogData
         });
+      });
     } else {
       this.toastr.info('Bulk edits do not apply to projects.<br> Please select only one project',
-          'Info', { enableHtml: true });
+        'Info', { enableHtml: true });
     }
   }
 
@@ -273,7 +264,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
             );
           })).subscribe(() => {
             this.toastr.success('Deleted Project(s) successfully', 'Success');
-            this.projectService.getProjectByStatus(this.status).subscribe((data: any) => this.store.dispatch(retrievedAllProjects({ listAllProject: data.result })));
             this.clearRow();
           })
         }
@@ -300,7 +290,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
       let projectData = data.map((item: any) => {
         const fullName = this.listUsers.find(val => item.changed_by_fk === val.id)
         const changedByValue = fullName?.first_name + ' ' + fullName?.last_name;
-        return Object.assign({}, item, {changed_by: changedByValue})
+        return Object.assign({}, item, { changed_by: changedByValue })
       })
 
       if (this.gridApi) {

@@ -18,14 +18,14 @@ export class PortGroupService {
 
   constructor(private http: HttpClient) { }
 
-  genData(projectId: string, category: string): Observable<any> {
+  genData(projectId: number, category: string): Observable<any> {
     return this.http.post<any>(ApiPaths.GEN_PG_DATA, {
       project_id: projectId,
       category
     });
   }
 
-  getByProjectId(projectId: string): Observable<any> {
+  getByProjectId(projectId: number): Observable<any> {
     return this.http.get<any>(ApiPaths.PORTGROUP, {
       params: {
         q: '(filters:!((col:project_id,opr:eq,value:' + projectId + ')),' +

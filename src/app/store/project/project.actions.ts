@@ -1,15 +1,5 @@
 import { createAction, props } from '@ngrx/store';
 
-export const retrievedProjects = createAction(
-    'retrievedProjects',
-    props<{ data: any }>()
-);
-
-export const retrievedCurrentProject = createAction(
-    'retrievedCurrentProject',
-    props<{ data: any }>()
-);
-
 export const retrievedVMStatus = createAction(
   'retrievedVMStatus',
   props<{ vmStatus: any }>()
@@ -25,34 +15,14 @@ export const retrievedDashboard = createAction(
   props<{ dashboard: any }>()
 );
 
-export const retrievedProjectName = createAction(
-  'retrievedProjectName',
-  props<{ projectName: any }>()
-);
-
 export const retrievedRecentProjects = createAction(
   'retrievedRecentProjects',
   props<{ recentProjects: any }>()
 );
 
-export const retrievedProjectsTemplate = createAction(
-  'retrievedProjectsTemplate',
-  props<{ template: any }>()
-);
-
-export const retrievedAllProjects = createAction(
-  'retrievedAllProjects',
-  props<{ listAllProject: any }>()
-);
-
-export const retrievedProjectCategory = createAction(
-  'retrievedProjectCategory',
-  props<{ projectCategory: string }>()
-);
-
 export const loadProject = createAction(
   'loadProject',
-  props<{ projectId: string }>()
+  props<{ projectId: number }>()
 );
 
 export const projectLoadedSuccess = createAction(
@@ -62,7 +32,7 @@ export const projectLoadedSuccess = createAction(
 
 export const loadProjectsNotLinkYet = createAction(
   'loadProjectsNotLinkYet',
-  props<{ projectId: string }>()
+  props<{ projectId: number }>()
 )
 
 export const projectsNotLinkYetLoadedSuccess = createAction(
@@ -79,3 +49,16 @@ export const validateProject = createAction(
   'validateProject',
   props<{ projectId: number }>()
 )
+
+export const loadProjects = createAction(
+  'loadProjects',
+);
+
+export const projectsLoadedSuccess = createAction(
+  'projectsLoadedSuccess',
+  props<{ allProjects: any }>()
+);
+
+export const closeProject = createAction(
+  'closeProject',
+);

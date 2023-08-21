@@ -70,12 +70,12 @@ export class MapEffects {
   loadMap$ = createEffect(() => this.actions$.pipe(
     ofType(loadMap),
     exhaustMap((payload) => forkJoin([
-      this.projectService.get(Number(payload.projectId)),
+      this.projectService.get(payload.projectId),
       this.nodeService.getNodesByProjectId(payload.projectId),
       this.portGroupService.getByProjectId(payload.projectId),
       this.interfaceService.getByProjectId(payload.projectId),
       this.groupService.getGroupByProjectId(payload.projectId),
-      this.mapImageService.getMapImageByProjectId(Number(payload.projectId)),
+      this.mapImageService.getMapImageByProjectId(payload.projectId),
       this.mapLinkService.getMapLinksByProjectId(payload.projectId)
     ]).pipe(
       switchMap(([

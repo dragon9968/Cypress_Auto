@@ -6,12 +6,11 @@ import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
-import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
-import { retrievedProjects, retrievedProjectsTemplate } from 'src/app/store/project/project.actions';
 import { ProjectService } from '../services/project.service';
 import { HelpersService } from "../../core/services/helpers/helpers.service";
 import { throwError } from "rxjs";
 import { catchError } from "rxjs/operators";
+import { loadProjects } from 'src/app/store/project/project.actions';
 
 @Component({
   selector: 'app-clone-project-dialog',
@@ -75,20 +74,16 @@ export class CloneProjectDialogComponent implements OnInit {
         .subscribe(() => {
           if (this.categoryCtr?.value === 'project') {
             this.toastr.success('Clone project successfully', 'Success');
-            this.projectService.getProjectByStatusAndCategory(this.status, this.categoryCtr?.value).subscribe((data: any) => {
-              this.store.dispatch(retrievedProjects({ data: data.result }));
-              this.router.navigate([RouteSegments.PROJECTS]);
-            });
+            this.store.dispatch(loadProjects());
+            this.router.navigate([RouteSegments.PROJECTS]);
           } else {
             this.toastr.success('Clone project to template successfully', 'Success');
-            this.projectService.getProjectByStatusAndCategory(this.status, this.categoryCtr?.value).subscribe((data: any) => {
-              this.store.dispatch(retrievedProjectsTemplate({ template: data.result }));
-              this.router.navigate([RouteSegments.PROJECTS_TEMPLATES]);
-            });
+            this.store.dispatch(loadProjects());
+            this.router.navigate([RouteSegments.PROJECTS_TEMPLATES]);
           }
           this.dialogRef.close();
         }
-      )
+        )
     }
   }
 }

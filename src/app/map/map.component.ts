@@ -58,9 +58,8 @@ import { ToolPanelStyleService } from 'src/app/core/services/tool-panel-style/to
 import { ProjectService } from "../project/services/project.service";
 import {
   loadProject,
+  loadProjects,
   loadProjectsNotLinkYet,
-  retrievedProjectCategory,
-  retrievedProjects,
   retrievedVMStatus
 } from "../store/project/project.actions";
 import { ICON_PATH } from '../shared/contants/icon-path.constant';
@@ -100,12 +99,10 @@ import { CMInterfaceService } from "./context-menu/cm-interface/cm-interface.ser
 import { GroupService } from "../core/services/group/group.service";
 import { addNewNode, selectNode, unSelectNode, updateNode } from "../store/node/node.actions";
 import { loadGroups, selectGroup, unSelectGroup } from "../store/group/group.actions";
-import { ValidateProjectDialogComponent } from "../project/validate-project-dialog/validate-project-dialog.component";
 import {
   selectProjectCategory,
-  selectCurrentProject,
-  selectProjects,
-  selectProjectName
+  selectProjectName,
+  selectProject
 } from "../store/project/project.selectors";
 import { CMProjectNodeService } from "./context-menu/cm-project-node/cm-project-node.service";
 import { MapLinkService } from "../core/services/map-link/map-link.service";
@@ -116,7 +113,6 @@ import { RolesService } from '../core/services/roles/roles.service';
 import { CmGroupOptionService } from './context-menu/cm-group-option/cm-group-option.service';
 import { PortGroupAddModel } from "../core/models/port-group.model";
 import { ConnectInterfaceDialogComponent } from './context-menu/cm-dialog/connect-interface-dialog/connect-interface-dialog.component';
-import { ConnectInterfaceToPgDialogComponent } from "./context-menu/cm-dialog/connect-interface-to-pg-dialog/connect-interface-to-pg-dialog.component";
 import { selectLogicalNodes, selectPhysicalNodes } from '../store/node/node.selectors';
 import { selectGroups } from '../store/group/group.selectors';
 import { selectMapImages } from '../store/map-image/map-image.selectors';
@@ -170,7 +166,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   isTemplateCategory = false;
   isCanWriteOnProject = false;
   mapCategory = 'logical';
-  projectId = '0';
+  projectId = 0;
   logicalNodes!: any[];
   physicalNodes!: any[];
   portGroups!: any[];
@@ -201,7 +197,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   selectedMapPref: any;
   gateways!: any[];
   newEdgeData: any;
-  projects: any[] = [];
   e: any;
   inv: any;
   edgeNode: any;
@@ -234,8 +229,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   selectIsConfiguratorConnect$ = new Subscription();
   isHypervisorConnect = false;
   isConfiguratorConnect = false;
-  selectProjects$ = new Subscription();
-  selectCurrentProject$ = new Subscription();
   selectInterfacePkConnectPG$ = new Subscription();
   selectInterfacePkConnectNode$ = new Subscription();
   selectMapOption$ = new Subscription();
@@ -424,14 +417,8 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.selectInterfacePkConnectPG$ = this.store.select(selectIsInterfaceConnectPG).subscribe(interfacePkConnectPG => {
       this.isInterfaceConnectPG = interfacePkConnectPG;
     })
-    this.selectProjects$ = this.store.select(selectProjects).subscribe(projects => {
-      if (projects) {
-        this.projects = projects;
-      }
-    })
-    this.selectCurrentProject$ = this.store.select(selectCurrentProject).subscribe(project => {
+    this.selectProject$ = this.store.select(selectProject).subscribe(project => {
       if (project) {
-        this.store.dispatch(retrievedProjectCategory({ projectCategory: project.category }))
         if (this.isHypervisorConnect || this.isConfiguratorConnect) {
           this.vmStatus = project.configuration.vm_status;
           this.store.dispatch(retrievedVMStatus({ vmStatus: project.configuration.vm_status }));
@@ -441,15 +428,12 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.selectInterfacePkConnectNode$ = this.store.select(selectInterfacePkConnectNode).subscribe(interfacePkConnectNode => {
       this.interfacePkConnectNode = interfacePkConnectNode;
     })
-    this.selectProjects$ = this.store.select(selectProjects).subscribe(projects => this.projects = projects ? projects : []);
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe(mapOption => {
       this.isEdgeDirectionChecked = mapOption?.isEdgeDirectionChecked != undefined ? mapOption.isEdgeDirectionChecked : false;
       this.isGroupBoxesChecked = mapOption?.isGroupBoxesChecked != undefined ? mapOption.isGroupBoxesChecked : false;
       this.groupCategoryId = mapOption?.groupCategoryId;
     })
-    this.projectService.getProjectsNotLinkedYet(Number(this.projectId)).subscribe(response => {
-      this.store.dispatch(retrievedProjects({ data: response.result }))
-    });
+    this.store.dispatch(loadProjects());
     this.selectProjectName$ = this.store.select(selectProjectName).subscribe(projectName => {
       if (projectName) {
         this.projectName = projectName;
@@ -507,8 +491,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.selectSearchText$.unsubscribe();
     this.selectIsHypervisorConnect$.unsubscribe();
     this.selectIsConfiguratorConnect$.unsubscribe();
-    this.selectProjects$.unsubscribe();
-    this.selectCurrentProject$.unsubscribe();
+    this.selectProject$.unsubscribe();
     this.cy?.nodes().forEach((ele: any) => {
       this.helpersService.removeBadge(ele);
     });
@@ -529,7 +512,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.selectLogicalMapInterfaces$.unsubscribe();
     this.selectLogicalManagementInterfaces$.unsubscribe();
     this.selectGroups$.unsubscribe();
-    this.selectProject$.unsubscribe();
     this.selectMapImages$.unsubscribe();
     this.selectMapLinks$.unsubscribe();
     this.selectProjectName$.unsubscribe();

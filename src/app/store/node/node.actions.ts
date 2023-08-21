@@ -2,7 +2,7 @@ import { createAction, props } from "@ngrx/store";
 
 export const loadNodes = createAction(
   'loadNodes',
-  props<{ projectId: string }>()
+  props<{ projectId: number }>()
 );
 
 export const nodesLoadedSuccess = createAction(

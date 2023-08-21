@@ -12,13 +12,12 @@ import { Store } from '@ngrx/store';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 import { retrievedInterfacesByDestinationNode, retrievedInterfacesByHwNodes, retrievedInterfacesBySourceNode } from 'src/app/store/interface/interface.actions';
 import { ConnectInterfaceDialogComponent } from '../cm-dialog/connect-interface-dialog/connect-interface-dialog.component';
-import { selectLogicalMapInterfaces, selectSelectedLogicalInterfaces, selectSelectedPhysicalInterfaces } from 'src/app/store/interface/interface.selectors';
+import { selectSelectedLogicalInterfaces, selectSelectedPhysicalInterfaces } from 'src/app/store/interface/interface.selectors';
 import { Subscription } from 'rxjs';
-import { selectLogicalNodes, selectSelectedLogicalNodes, selectSelectedPhysicalNodes } from 'src/app/store/node/node.selectors';
-import { selectMapPortGroups, selectSelectedPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
+import { selectSelectedLogicalNodes, selectSelectedPhysicalNodes } from 'src/app/store/node/node.selectors';
+import { selectSelectedPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { selectSelectedMapLinks } from "../../../store/map-link/map-link.selectors";
 import { ProjectService } from "../../../project/services/project.service";
-import { retrievedAllProjects } from "../../../store/project/project.actions";
 
 @Injectable({
   providedIn: 'root'
@@ -109,15 +108,12 @@ export class CMEditService implements OnDestroy {
     const selectedMapLinksLength = this.selectedMapLinks.length;
 
     if (selectedMapLinksLength == 1) {
-      this.projectService.getProjectByStatus('active').subscribe(resp => {
-        this.store.dispatch(retrievedAllProjects({ listAllProject: resp.result }));
-        const dialogData = {
-          mode: 'update',
-          genData: this.selectedMapLinks[0],
-          cy
-        }
-        this.dialog.open(ViewUpdateProjectNodeComponent, { disableClose: true, width: '450px', autoFocus: false, data: dialogData });
-      })
+      const dialogData = {
+        mode: 'update',
+        genData: this.selectedMapLinks[0],
+        cy
+      }
+      this.dialog.open(ViewUpdateProjectNodeComponent, { disableClose: true, width: '450px', autoFocus: false, data: dialogData });
     } else if (selectedNodesLength == 0 && selectedPGsLength == 0) {
       if (selectedInterfacesLength > 1) {
         const edgeActiveIds = this.selectedInterfaces.map((ele: any) => ele.id);
@@ -147,18 +143,18 @@ export class CMEditService implements OnDestroy {
           this.interfaceService.getByNodeAndConnectedToInterface(nodeId).subscribe(response => {
             this.store.dispatch(retrievedInterfacesBySourceNode({ interfacesBySourceNode: response.result }));
             this.interfaceService.getByProjectIdAndHwNode(projectId).subscribe(interfaceData => {
-                const listInterface = interfaceData.result.filter((val: any) => val.node_id != nodeId)
-                this.store.dispatch(retrievedInterfacesByDestinationNode({ interfacesByDestinationNode: listInterface }));
-                const dialogData = {
-                  mode: 'edit_connected_interface',
-                  nodeId: nodeId,
-                  cy,
-                  mapCategory: mapCategory,
-                  genData: this.selectedInterfaces[0]
-                }
-                const dialogRef =  this.dialog.open(ConnectInterfaceDialogComponent, { disableClose: true, width: '850px', data: dialogData, autoFocus: false, panelClass: 'custom-connect-interfaces-form-modal'})
-                dialogRef.afterClosed().subscribe(result => {
-                  cy.edges().unselect();
+              const listInterface = interfaceData.result.filter((val: any) => val.node_id != nodeId)
+              this.store.dispatch(retrievedInterfacesByDestinationNode({ interfacesByDestinationNode: listInterface }));
+              const dialogData = {
+                mode: 'edit_connected_interface',
+                nodeId: nodeId,
+                cy,
+                mapCategory: mapCategory,
+                genData: this.selectedInterfaces[0]
+              }
+              const dialogRef = this.dialog.open(ConnectInterfaceDialogComponent, { disableClose: true, width: '850px', data: dialogData, autoFocus: false, panelClass: 'custom-connect-interfaces-form-modal' })
+              dialogRef.afterClosed().subscribe(result => {
+                cy.edges().unselect();
               })
             })
           })
@@ -211,7 +207,7 @@ export class CMEditService implements OnDestroy {
           { disableClose: true, width: '1000px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
         );
       }
-    } else  {
+    } else {
       this.toastr.success("Cannot bulk edit for various of element types");
     }
   }

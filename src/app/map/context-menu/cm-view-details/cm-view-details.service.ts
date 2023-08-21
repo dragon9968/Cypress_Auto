@@ -14,7 +14,6 @@ import { selectSelectedPortGroups } from "../../../store/portgroup/portgroup.sel
 import { selectSelectedLogicalInterfaces, selectSelectedPhysicalInterfaces } from "../../../store/interface/interface.selectors";
 import { selectSelectedMapLinks } from "../../../store/map-link/map-link.selectors";
 import { ProjectService } from "../../../project/services/project.service";
-import { retrievedAllProjects } from "../../../store/project/project.actions";
 
 @Injectable({
   providedIn: 'root'
@@ -138,18 +137,14 @@ export class CMViewDetailsService implements OnDestroy {
         { disableClose: true, width: '1000px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
       );
     } else if (selectedMapLinksLength == 1 && selectedPGsLength == 0 && selectedInterfacesLength == 0 && selectedNodesLength == 0) {
-      this.projectService.getProjectByStatus('active').subscribe(resp => {
-        this.store.dispatch(retrievedAllProjects({ listAllProject: resp.result }));
-        const dialogData = {
-          mode: 'view',
-          genData: this.selectedMapLinks[0],
-          cy
-        }
-        this.dialog.open(ViewUpdateProjectNodeComponent,
-          { disableClose: true, width: '450px', autoFocus: false, data: dialogData }
-        );
-      })
-
+      const dialogData = {
+        mode: 'view',
+        genData: this.selectedMapLinks[0],
+        cy
+      }
+      this.dialog.open(ViewUpdateProjectNodeComponent,
+        { disableClose: true, width: '450px', autoFocus: false, data: dialogData }
+      );
     }
   }
 }

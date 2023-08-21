@@ -3,7 +3,7 @@ import { createAction, props } from "@ngrx/store";
 
 export const loadMapLinks = createAction(
   'loadMapLinks',
-  props<{ projectId: string }>()
+  props<{ projectId: number }>()
 );
 
 export const mapLinksLoadedSuccess = createAction(

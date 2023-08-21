@@ -10,7 +10,7 @@ export class NodeService {
 
   constructor(private http: HttpClient) { }
 
-  genData(projectId: string, deviceId: string, templateId: string): Observable<any> {
+  genData(projectId: number, deviceId: string, templateId: string): Observable<any> {
     return this.http.post<any>(ApiPaths.GEN_NODE_DATA, {
       project_id: projectId,
       device_id: deviceId,
@@ -42,7 +42,7 @@ export class NodeService {
     return this.http.post<any>(ApiPaths.VALIDATE_NODE, data);
   }
 
-  getNodesByProjectId(projectId: string): Observable<any> {
+  getNodesByProjectId(projectId: number): Observable<any> {
     return this.http.get<any>(ApiPaths.NODE, {
       params: {
         q: '(filters:!((col:project_id,opr:eq,value:' + projectId +')),keys:!(list_columns),page:0,page_size:1000)'
