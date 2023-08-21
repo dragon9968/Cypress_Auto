@@ -17,6 +17,12 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
   @Input() cy: any;
   @Input() config: any;
   isEdgeDirectionChecked = false;
+  isPGNameLabelChecked = false;
+  isPGSubnetLabelChecked = false;
+  isPGVLANLabelChecked = false;
+  isEdgeNameLabelChecked = false;
+  isEdgeIPLabelChecked = false;
+  isEdgeVLANModeLabelChecked = false;
   isGroupBoxesChecked = false;
   isMapGridChecked = false;
   isSnapToGridChecked = false;
@@ -73,6 +79,20 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
         this.isMapGridChecked = false;
       }
       this.isMapOverviewChecked = this.config.default_preferences.display_map_overview_checkbox;
+      this.isPGNameLabelChecked = this.config.default_preferences.pg_name_label_checkbox != undefined
+        ? this.config.default_preferences.pg_name_label_checkbox: false;
+      this.isPGSubnetLabelChecked = this.config.default_preferences.pg_subnet_label_checkbox != undefined
+        ? this.config.default_preferences.pg_subnet_label_checkbox : false;
+      this.isPGVLANLabelChecked = this.config.default_preferences.pg_vlan_label_checkbox != undefined
+        ? this.config.default_preferences.pg_vlan_label_checkbox : false;
+
+      this.isEdgeNameLabelChecked = this.config.default_preferences.edge_name_label_checkbox != undefined
+        ? this.config.default_preferences.edge_name_label_checkbox : false;
+      this.isEdgeIPLabelChecked = this.config.default_preferences.edge_ip_label_checkbox != undefined
+        ? this.config.default_preferences.edge_ip_label_checkbox : false;
+      this.isEdgeVLANModeLabelChecked = this.config.default_preferences.edge_vlan_mode_label_checkbox != undefined
+        ? this.config.default_preferences.edge_vlan_mode_label_checkbox : false;
+
       this.store.dispatch(retrievedMapOption({
         data: {
           isEdgeDirectionChecked: this.isEdgeDirectionChecked,
@@ -81,7 +101,13 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
           isSnapToGridChecked: this.isSnapToGridChecked,
           isMapOverviewChecked: this.isMapOverviewChecked,
           gridSpacingSize: this.gridSpacingSize,
-          groupCategoryId: this.groupCategoryId
+          groupCategoryId: this.groupCategoryId,
+          isPGNameLabelChecked: this.isPGNameLabelChecked,
+          isPGSubnetLabelChecked: this.isPGSubnetLabelChecked,
+          isPGVLANLabelChecked: this.isPGVLANLabelChecked,
+          isEdgeNameLabelChecked: this.isEdgeNameLabelChecked,
+          isEdgeIPLabelChecked: this.isEdgeIPLabelChecked,
+          isEdgeVLANModeLabelChecked: this.isEdgeVLANModeLabelChecked,
         }
       }));
       this.toggleEdgeDirection();
@@ -89,6 +115,8 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
       this.toggleMapGrid();
       this.toggleSnapToGrid();
       this.toggleMapOverview();
+      this.togglePGLabel();
+      this.toggleEdgeLabel();
     }
   }
 
@@ -102,17 +130,7 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
 
   toggleEdgeDirection() {
     this.helpers.changeEdgeDirectionOnMap(this.cy, this.isEdgeDirectionChecked)
-    this.store.dispatch(retrievedMapOption({
-      data: {
-        isEdgeDirectionChecked: this.isEdgeDirectionChecked,
-        isGroupBoxesChecked: this.isGroupBoxesChecked,
-        isMapGridChecked: this.isMapGridChecked,
-        isSnapToGridChecked: this.isSnapToGridChecked,
-        isMapOverviewChecked: this.isMapOverviewChecked,
-        gridSpacingSize: this.gridSpacingSize,
-        groupCategoryId: this.isGroupBoxesChecked ? this.groupCategoryCtr?.value?.id : this.groupCategoryId
-      }
-    }));
+    this._dispatchMapOptionBasedOnCurrentValue();
   }
 
   toggleGroupBoxes() {
@@ -121,31 +139,11 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
     } else {
       this.helpers.removeGroupBoxes();
     }
-    this.store.dispatch(retrievedMapOption({
-      data: {
-        isEdgeDirectionChecked: this.isEdgeDirectionChecked,
-        isGroupBoxesChecked: this.isGroupBoxesChecked,
-        isMapGridChecked: this.isMapGridChecked,
-        isSnapToGridChecked: this.isSnapToGridChecked,
-        isMapOverviewChecked: this.isMapOverviewChecked,
-        gridSpacingSize: this.gridSpacingSize,
-        groupCategoryId: this.isGroupBoxesChecked ? this.groupCategoryCtr?.value?.id : this.groupCategoryId
-      }
-    }));
+    this._dispatchMapOptionBasedOnCurrentValue();
   }
 
   selectGroupCategory() {
-    this.store.dispatch(retrievedMapOption({
-      data: {
-        isEdgeDirectionChecked: this.isEdgeDirectionChecked,
-        isGroupBoxesChecked: this.isGroupBoxesChecked,
-        isMapGridChecked: this.isMapGridChecked,
-        isSnapToGridChecked: this.isSnapToGridChecked,
-        isMapOverviewChecked: this.isMapOverviewChecked,
-        gridSpacingSize: this.gridSpacingSize,
-        groupCategoryId: this.isGroupBoxesChecked ? this.groupCategoryCtr?.value?.id : this.groupCategoryId
-      }
-    }));
+    this._dispatchMapOptionBasedOnCurrentValue();
     this.helpers.reloadGroupBoxes();
   }
 
@@ -160,17 +158,7 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
     } else {
       this.cy.gridGuide(this.config.grid_off_options);
     }
-    this.store.dispatch(retrievedMapOption({
-      data: {
-        isEdgeDirectionChecked: this.isEdgeDirectionChecked,
-        isGroupBoxesChecked: this.isGroupBoxesChecked,
-        isMapGridChecked: this.isMapGridChecked,
-        isSnapToGridChecked: this.isSnapToGridChecked,
-        isMapOverviewChecked: this.isMapOverviewChecked,
-        gridSpacingSize: this.gridSpacingSize,
-        groupCategoryId: this.isGroupBoxesChecked ? this.groupCategoryCtr?.value?.id : this.groupCategoryId
-      }
-    }));
+    this._dispatchMapOptionBasedOnCurrentValue();
   }
 
   toggleSnapToGrid() {
@@ -179,34 +167,14 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
     if (this.isMapGridChecked) {
       this.cy.gridGuide(this.config.grid_on_options);
     }
-    this.store.dispatch(retrievedMapOption({
-      data: {
-        isEdgeDirectionChecked: this.isEdgeDirectionChecked,
-        isGroupBoxesChecked: this.isGroupBoxesChecked,
-        isMapGridChecked: this.isMapGridChecked,
-        isSnapToGridChecked: this.isSnapToGridChecked,
-        isMapOverviewChecked: this.isMapOverviewChecked,
-        gridSpacingSize: this.gridSpacingSize,
-        groupCategoryId: this.isGroupBoxesChecked ? this.groupCategoryCtr?.value?.id : this.groupCategoryId
-      }
-    }));
+    this._dispatchMapOptionBasedOnCurrentValue();
   }
 
   changeGridSpacingSize() {
     this.config.grid_on_options.snapToGridOnRelease = this.isSnapToGridChecked;
     this.config.grid_on_options.gridSpacing = this.gridSpacingSize;
     this.cy.gridGuide(this.config.grid_on_options);
-    this.store.dispatch(retrievedMapOption({
-      data: {
-        isEdgeDirectionChecked: this.isEdgeDirectionChecked,
-        isGroupBoxesChecked: this.isGroupBoxesChecked,
-        isMapGridChecked: this.isMapGridChecked,
-        isSnapToGridChecked: this.isSnapToGridChecked,
-        isMapOverviewChecked: this.isMapOverviewChecked,
-        gridSpacingSize: this.gridSpacingSize,
-        groupCategoryId: this.isGroupBoxesChecked ? this.groupCategoryCtr?.value?.id : this.groupCategoryId
-      }
-    }));
+    this._dispatchMapOptionBasedOnCurrentValue();
   }
 
   toggleMapOverview() {
@@ -220,17 +188,17 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
       this.nav.destroy();
       this.nav = undefined;
     }
-    this.store.dispatch(retrievedMapOption({
-      data: {
-        isEdgeDirectionChecked: this.isEdgeDirectionChecked,
-        isGroupBoxesChecked: this.isGroupBoxesChecked,
-        isMapGridChecked: this.isMapGridChecked,
-        isSnapToGridChecked: this.isSnapToGridChecked,
-        isMapOverviewChecked: this.isMapOverviewChecked,
-        gridSpacingSize: this.gridSpacingSize,
-        groupCategoryId: this.isGroupBoxesChecked ? this.groupCategoryCtr?.value?.id : this.groupCategoryId
-      }
-    }));
+    this._dispatchMapOptionBasedOnCurrentValue();
+  }
+
+  togglePGLabel() {
+    this.helpers.changePGLabel(this.isPGNameLabelChecked, this.isPGSubnetLabelChecked, this.isPGVLANLabelChecked);
+    this._dispatchMapOptionBasedOnCurrentValue();
+  }
+
+  toggleEdgeLabel() {
+    this.helpers.changeEdgeLabel(this.isEdgeNameLabelChecked, this.isEdgeIPLabelChecked, this.isEdgeVLANModeLabelChecked);
+    this._dispatchMapOptionBasedOnCurrentValue();
   }
 
   reinitializeMap() {
@@ -294,17 +262,27 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
           this.cy.gridGuide(this.config.grid_off_options);
         }
       }
-      this.store.dispatch(retrievedMapOption({
-        data: {
-          isEdgeDirectionChecked: this.isEdgeDirectionChecked,
-          isGroupBoxesChecked: this.isGroupBoxesChecked,
-          isMapGridChecked: this.isMapGridChecked,
-          isSnapToGridChecked: this.isSnapToGridChecked,
-          isMapOverviewChecked: this.isMapOverviewChecked,
-          gridSpacingSize: this.gridSpacingSize,
-          groupCategoryId: this.groupCategoryCtr?.value?.id
-        }
-      }));
+      this._dispatchMapOptionBasedOnCurrentValue();
     });
+  }
+
+  private _dispatchMapOptionBasedOnCurrentValue() {
+    this.store.dispatch(retrievedMapOption({
+      data: {
+        isEdgeDirectionChecked: this.isEdgeDirectionChecked,
+        isGroupBoxesChecked: this.isGroupBoxesChecked,
+        isMapGridChecked: this.isMapGridChecked,
+        isSnapToGridChecked: this.isSnapToGridChecked,
+        isMapOverviewChecked: this.isMapOverviewChecked,
+        gridSpacingSize: this.gridSpacingSize,
+        groupCategoryId: this.isGroupBoxesChecked ? this.groupCategoryCtr?.value?.id : this.groupCategoryId,
+        isPGNameLabelChecked: this.isPGNameLabelChecked,
+        isPGSubnetLabelChecked: this.isPGSubnetLabelChecked,
+        isPGVLANLabelChecked: this.isPGVLANLabelChecked,
+        isEdgeNameLabelChecked: this.isEdgeNameLabelChecked,
+        isEdgeIPLabelChecked: this.isEdgeIPLabelChecked,
+        isEdgeVLANModeLabelChecked: this.isEdgeVLANModeLabelChecked
+      }
+    }));
   }
 }

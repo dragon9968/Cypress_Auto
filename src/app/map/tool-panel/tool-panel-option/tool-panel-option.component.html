@@ -1,31 +1,154 @@
-<section class="tab-section">
-  <mat-slide-toggle class="tab-field direction-toggle" color="primary" labelPosition="before" [(ngModel)]="isEdgeDirectionChecked"
-    (change)="toggleEdgeDirection()">Edge Direction</mat-slide-toggle>
-  <mat-slide-toggle class="tab-field groupboxes-toggle" color="primary" labelPosition="before" [(ngModel)]="isGroupBoxesChecked"
-    (change)="toggleGroupBoxes()">Group Boxes</mat-slide-toggle>
-  <mat-form-field *ngIf="isGroupBoxesChecked" class="tab-select-field">
-    <mat-label>Group Category</mat-label>
-    <input autocomplete="off" id="group-category" matInput type="text" placeholder="Select Group Category" [formControl]="groupCategoryCtr"
-      [matAutocomplete]="autoGroupCategory">
-    <mat-autocomplete #autoGroupCategory="matAutocomplete" [displayWith]="helpers.optionDisplay"
-      (optionSelected)="selectGroupCategory()">
-      <mat-option *ngFor="let option of filteredGroupCategories | async" [value]="option">
-        {{ option.name }}
-      </mat-option>
-    </mat-autocomplete>
-  </mat-form-field>
-  <mat-slide-toggle class="tab-field matgrid-toggle" color="primary" labelPosition="before" [(ngModel)]="isMapGridChecked" (change)="toggleMapGrid()">
-    Map Grid</mat-slide-toggle>
-  <mat-slide-toggle *ngIf="isMapGridChecked" color="primary"  class="tab-field" labelPosition="before" [(ngModel)]="isSnapToGridChecked"
-    (change)="toggleSnapToGrid()">Snap To Grid</mat-slide-toggle>
-  <div *ngIf="isMapGridChecked" class="tab-field">
-    <label>Grid Spacing</label>
-    <mat-slider color="primary" step="1" min="50" max="250" [(ngModel)]="gridSpacingSize" (change)="changeGridSpacingSize()">
-    </mat-slider>
-    <label>{{ gridSpacingSize }}px</label>
-  </div>
-  <mat-slide-toggle class="tab-field mapoverview-toggle" color="primary" labelPosition="before" [(ngModel)]="isMapOverviewChecked"
-    (change)="toggleMapOverview()">Map Overview</mat-slide-toggle>
+<section class="tab-section option-list">
+  <section class="option-item">
+    <div class="option-item__field">
+      <mat-label class="option-item__field--label">Edge Direction<span>:</span></mat-label>
+      <mat-slide-toggle
+        class="tab-field direction-toggle"
+        color="primary"
+        labelPosition="before"
+        [(ngModel)]="isEdgeDirectionChecked"
+        (change)="toggleEdgeDirection()">
+      </mat-slide-toggle>
+    </div>
+  </section>
+
+  <section class="option-item">
+    <div class="option-item__field" [ngClass]="{'option-item__field--no-border': isGroupBoxesChecked}">
+      <mat-label class="option-item__field--label">Group Boxes<span>:</span></mat-label>
+      <mat-slide-toggle
+        class="tab-field groupboxes-toggle"
+        color="primary"
+        labelPosition="before"
+        [(ngModel)]="isGroupBoxesChecked"
+        (change)="toggleGroupBoxes()">
+      </mat-slide-toggle>
+    </div>
+    <mat-form-field *ngIf="isGroupBoxesChecked" class="tab-select-field">
+      <mat-label>Group Category</mat-label>
+      <input autocomplete="off"
+             id="group-category"
+             matInput type="text"
+             placeholder="Select Group Category"
+             [formControl]="groupCategoryCtr"
+             [matAutocomplete]="autoGroupCategory">
+      <mat-autocomplete #autoGroupCategory="matAutocomplete" [displayWith]="helpers.optionDisplay"
+                        (optionSelected)="selectGroupCategory()">
+        <mat-option *ngFor="let option of filteredGroupCategories | async" [value]="option">
+          {{ option.name }}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+  </section>
+
+  <section class="option-item">
+    <div class="option-item__field" [ngClass]="{'option-item__field--no-border': isMapGridChecked}">
+      <mat-label class="option-item__field--label">Map Grid<span>:</span></mat-label>
+      <mat-slide-toggle
+        class="tab-field"
+        color="primary"
+        labelPosition="before"
+        [(ngModel)]="isMapGridChecked"
+        (change)="toggleMapGrid()">
+      </mat-slide-toggle>
+    </div>
+    <div *ngIf="isMapGridChecked" class="option-item__field option-item__field--no-border">
+      <mat-label class="option-item__field--label">Snap To Grid<span>:</span></mat-label>
+      <mat-slide-toggle
+        color="primary"
+        class="tab-field"
+        labelPosition="before"
+        [(ngModel)]="isSnapToGridChecked"
+        (change)="toggleSnapToGrid()">
+      </mat-slide-toggle>
+    </div>
+    <div *ngIf="isMapGridChecked" class="tab-field option-item__grid-spacing">
+      <mat-label class="option-item__grid-spacing--label">Grid Spacing</mat-label>
+      <mat-slider color="primary" step="1" min="50" max="250" [(ngModel)]="gridSpacingSize" (change)="changeGridSpacingSize()">
+      </mat-slider>
+      <label>{{ gridSpacingSize }}px</label>
+    </div>
+  </section>
+
+  <section class="option-item">
+    <div class="option-item__field">
+      <mat-label class="option-item__field--label">Map Overview<span>:</span></mat-label>
+      <mat-slide-toggle
+        class="tab-field mapoverview-toggle"
+        color="primary"
+        labelPosition="before"
+        [(ngModel)]="isMapOverviewChecked"
+        (change)="toggleMapOverview()">
+      </mat-slide-toggle>
+    </div>
+  </section>
+
+
+  <section class="option-item">
+    <h4 class="option-item__title">Port Group Label</h4>
+    <div class="option-item__field">
+      <mat-label class="option-item__field--label">Name<span>:</span></mat-label>
+      <mat-slide-toggle
+        class="tab-field"
+        color="primary"
+        labelPosition="before"
+        [(ngModel)]="isPGNameLabelChecked"
+        (change)="togglePGLabel()">
+      </mat-slide-toggle>
+    </div>
+    <div class="option-item__field">
+      <mat-label class="option-item__field--label">Subnet<span>:</span></mat-label>
+      <mat-slide-toggle
+        class="tab-field"
+        color="primary"
+        labelPosition="before"
+        [(ngModel)]="isPGSubnetLabelChecked"
+        (change)="togglePGLabel()">
+      </mat-slide-toggle>
+    </div>
+    <div class="option-item__field">
+      <mat-label class="option-item__field--label">VLAN<span>:</span></mat-label>
+      <mat-slide-toggle
+        class="tab-field"
+        color="primary"
+        labelPosition="before"
+        [(ngModel)]="isPGVLANLabelChecked"
+        (change)="togglePGLabel()">
+      </mat-slide-toggle>
+    </div>
+  </section>
+  <section class="option-item">
+    <h4 class="option-item__title">Interface Label</h4>
+    <div class="option-item__field">
+      <mat-label class="option-item__field--label">Name<span>:</span></mat-label>
+      <mat-slide-toggle
+        class="tab-field"
+        color="primary"
+        labelPosition="before"
+        [(ngModel)]="isEdgeNameLabelChecked"
+        (change)="toggleEdgeLabel()">
+      </mat-slide-toggle>
+    </div>
+    <div class="option-item__field">
+      <mat-label class="option-item__field--label">IP<span>:</span></mat-label>
+      <mat-slide-toggle
+        class="tab-field"
+        color="primary"
+        labelPosition="before"
+        [(ngModel)]="isEdgeIPLabelChecked"
+        (change)="toggleEdgeLabel()">
+      </mat-slide-toggle>
+    </div>
+    <div class="option-item__field">
+      <mat-label class="option-item__field--label">VLAN Mode<span>:</span></mat-label>
+      <mat-slide-toggle
+        class="tab-field"
+        color="primary"
+        labelPosition="before"
+        [(ngModel)]="isEdgeVLANModeLabelChecked"
+        (change)="toggleEdgeLabel()">
+      </mat-slide-toggle>
+    </div>
+  </section>
   <div class="tab-field">
     <button mat-raised-button color="primary" class="reinitialize-map-btn" (click)="reinitializeMap()">
       <mat-icon>restart_alt</mat-icon>

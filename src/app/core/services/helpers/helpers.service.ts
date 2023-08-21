@@ -100,6 +100,12 @@ export class HelpersService implements OnDestroy {
   isValidOSPFMetric: boolean = true;
   isValidOSPFState: boolean = true;
   isValidOSPFNetworks: boolean = true;
+  isPGNameLabelChecked = false;
+  isPGSubnetLabelChecked = false;
+  isPGVLANLabelChecked = false;
+  isEdgeNameLabelChecked = false;
+  isEdgeIPLabelChecked = false;
+  isEdgeVLANModeLabelChecked = false;
 
   constructor(
     private store: Store,
@@ -125,6 +131,12 @@ export class HelpersService implements OnDestroy {
         this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
         this.isEdgeDirectionChecked = mapOption.isEdgeDirectionChecked;
         this.groupCategoryId = mapOption.groupCategoryId;
+        this.isPGNameLabelChecked = mapOption.isPGNameLabelChecked;
+        this.isPGSubnetLabelChecked = mapOption.isPGSubnetLabelChecked;
+        this.isPGVLANLabelChecked = mapOption.isPGVLANLabelChecked;
+        this.isEdgeNameLabelChecked = mapOption.isEdgeNameLabelChecked;
+        this.isEdgeIPLabelChecked = mapOption.isEdgeIPLabelChecked;
+        this.isEdgeVLANModeLabelChecked = mapOption.isEdgeVLANModeLabelChecked;
       }
     });
 
@@ -426,7 +438,8 @@ export class HelpersService implements OnDestroy {
           "text-rotation": "autorotate",
           "arrow-scale": 2,
           "control-point-step-size": 100,
-          "min-zoomed-font-size": 9
+          "min-zoomed-font-size": 9,
+          "text-wrap": "wrap",
         },
       },
       {
@@ -649,21 +662,6 @@ export class HelpersService implements OnDestroy {
       this.removeParent(gb)
     })
     return true;
-  }
-
-  removeGroupBox(groupBoxId: any) {
-    const groupBox = this.cy.getElementById(`group-${groupBoxId}`)
-    if (groupBox && groupBox.length > 0) {
-      const data = groupBox.data();
-      if (data.collapsedChildren) {
-        this.cy.expandCollapse('get').expandRecursively(groupBox, {});
-      }
-      const gbNodes = groupBox.children();
-      gbNodes.forEach((node: any) => {
-        node.move({ 'parent': null });
-      });
-      this.cy.remove(groupBox);
-    }
   }
 
   isGroupBoxCreatedFromCdnd(node: any) {
@@ -1776,6 +1774,46 @@ export class HelpersService implements OnDestroy {
         }
       }
     }
+  }
+
+  generatePGLabel(pgEle: any, isPGNameLabelChecked: boolean, isPGSubnetLabelChecked: boolean, isPGVLANLabelChecked: boolean) {
+    return `${ isPGNameLabelChecked ? pgEle.data('name') + '\n': '' }` +
+           `${ isPGSubnetLabelChecked ? pgEle.data('subnet') + '\n' : '' }` +
+           `${ isPGVLANLabelChecked ? pgEle.data('vlan'): '' }`;
+  }
+
+  changePGLabel(isPGNameLabelChecked: boolean, isPGSubnetLabelChecked: boolean, isPGVLANLabelChecked: boolean) {
+    this.cy.nodes('[elem_category="port_group"]').map((portGroup: any) => {
+      const label = this.generatePGLabel(portGroup, isPGNameLabelChecked, isPGSubnetLabelChecked, isPGVLANLabelChecked)
+      portGroup.style({ label });
+      return portGroup;
+      }
+    )
+  }
+
+  changePGLabelById(id: number) {
+    const portGroup = this.cy.getElementById(`pg-${id}`);
+    const label = this.generatePGLabel(portGroup, this.isPGNameLabelChecked, this.isPGSubnetLabelChecked, this.isPGVLANLabelChecked);
+    portGroup.style({ label })
+  }
+
+  generateEdgeLabel(edgeEle: any, isEdgeNameLabelChecked: boolean, isEdgeIPLabelChecked: boolean, isEdgeVLANModeLabelChecked: boolean) {
+    return `${isEdgeNameLabelChecked ? edgeEle.data('name') + '\n' : ''}` +
+           `${isEdgeIPLabelChecked && edgeEle.data('ip_last_octet') ? edgeEle.data('ip_last_octet') + '\n' : ''}` +
+           `${isEdgeVLANModeLabelChecked && edgeEle.data('vlan_mode') ? edgeEle.data('vlan_mode') : ''}`;
+  }
+
+  changeEdgeLabel(isEdgeNameLabelChecked: boolean, isEdgeIPLabelChecked: boolean, isEdgeVLANModeLabelChecked: boolean) {
+    this.cy.edges('[elem_category!="link"]').map((edge: any) => {
+      const label = this.generateEdgeLabel(edge, isEdgeNameLabelChecked, isEdgeIPLabelChecked, isEdgeVLANModeLabelChecked);
+      edge.style({ label });
+    })
+  }
+
+  changeEdgeLabelById(id: number) {
+    const edge = this.cy.getElementById(`interface-${id}`);
+    const label = this.generateEdgeLabel(edge, this.isEdgeNameLabelChecked, this.isEdgeIPLabelChecked, this.isEdgeVLANModeLabelChecked);
+    edge.style({ label });
   }
 
   addNewMapLinkToMap(id: number) {

@@ -87,6 +87,7 @@ export class PortGroupsEffects {
         map((res: any) => {
           if (res.result.category != 'management') {
             this.helpersService.updatePGOnMap(`pg-${payload.id}`, res.result);
+            this.helpersService.changePGLabelById(payload.id);
             this.helpersService.reloadGroupBoxes();
           }
           return res.result;

@@ -83,6 +83,12 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   selectDeletedMapLinks$ = new Subscription();
   selectDeletedMapImages$ = new Subscription();
   isEdgeDirectionChecked!: boolean;
+  isPGNameLabelChecked = false;
+  isPGSubnetLabelChecked = false;
+  isPGVLANLabelChecked = false;
+  isEdgeNameLabelChecked = false;
+  isEdgeIPLabelChecked = false;
+  isEdgeVLANModeLabelChecked = false;
   isGroupBoxesChecked!: boolean;
   isMapGridChecked!: boolean;
   isSnapToGridChecked!: boolean;
@@ -109,6 +115,12 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         this.isMapOverviewChecked = mapOption.isMapOverviewChecked;
         this.gridSpacingSize = mapOption.gridSpacingSize;
         this.groupCategoryId = mapOption.groupCategoryId;
+        this.isPGNameLabelChecked = mapOption.isPGNameLabelChecked;
+        this.isPGSubnetLabelChecked = mapOption.isPGSubnetLabelChecked;
+        this.isPGVLANLabelChecked = mapOption.isPGVLANLabelChecked;
+        this.isEdgeNameLabelChecked = mapOption.isEdgeNameLabelChecked;
+        this.isEdgeIPLabelChecked = mapOption.isEdgeIPLabelChecked;
+        this.isEdgeVLANModeLabelChecked = mapOption.isEdgeVLANModeLabelChecked;
       }
     });
     this.selectMapPref$ = this.store.select(selectMapPref).subscribe((selectedMapPref: any) => {
@@ -239,7 +251,13 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         enabled: this.isMapGridChecked,
         spacing: this.gridSpacingSize,
         snap_to_grid: this.isSnapToGridChecked
-      }
+      },
+      pg_name_label_checkbox: this.isPGNameLabelChecked,
+      pg_subnet_label_checkbox: this.isPGSubnetLabelChecked,
+      pg_vlan_label_checkbox: this.isPGVLANLabelChecked,
+      edge_name_label_checkbox: this.isEdgeNameLabelChecked,
+      edge_ip_label_checkbox: this.isEdgeIPLabelChecked,
+      edge_vlan_mode_label_checkbox: this.isEdgeVLANModeLabelChecked,
     }
 
     const text = this.cy.png({
@@ -315,7 +333,13 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
           isSnapToGridChecked: this.isSnapToGridChecked,
           isMapOverviewChecked: this.isMapOverviewChecked,
           gridSpacingSize: this.gridSpacingSize,
-          groupCategoryId: this.groupCategoryId
+          groupCategoryId: this.groupCategoryId,
+          isPGNameLabelChecked: this.isPGNameLabelChecked,
+          isPGSubnetLabelChecked: this.isPGSubnetLabelChecked,
+          isPGVLANLabelChecked: this.isPGVLANLabelChecked,
+          isEdgeNameLabelChecked: this.isEdgeNameLabelChecked,
+          isEdgeIPLabelChecked: this.isEdgeIPLabelChecked,
+          isEdgeVLANModeLabelChecked: this.isEdgeVLANModeLabelChecked
         }
       }));
       this.toastr.success("Map saved");

@@ -194,6 +194,7 @@ export class InterfacesEffects {
           if (res.result.category != 'management') {
             this.helpersService.updateInterfaceOnMap(`interface-${payload.id}`, res.result);
             this.helpersService.showOrHideArrowDirectionOnEdge(payload.id);
+            this.helpersService.changeEdgeLabelById(payload.id);
           }
           return res.result;
         }),
