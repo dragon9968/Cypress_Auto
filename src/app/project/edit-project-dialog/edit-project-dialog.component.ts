@@ -15,7 +15,8 @@ import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmat
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import {
   loadProjects,
-  retrievedRecentProjects
+  retrievedRecentProjects,
+  updateProject
 } from 'src/app/store/project/project.actions';
 import { ButtonRenderersComponent } from '../renderers/button-renderers-component';
 import { ProjectService } from '../services/project.service';
@@ -219,7 +220,11 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
   }
 
   updateProject() {
-    const sharedUpdate = this.listShared.map(el => el.username)
+    const sharedUpdate = this.listShared.map(el => el.username);
+    const configData = {
+      pk: this.data.genData.id,
+      username: sharedUpdate
+    }
     let items: any[] = [];
     this.gridApi.forEachNode(node => items.push(node.data));
     Object.values(items).forEach(val => {
@@ -238,37 +243,22 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
         networks: items
       }
       const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-      this.projectService.put(this.data.genData.id, jsonData).pipe(
-        catchError((e: any) => {
-          this.toastr.error(e.error.message);
-          return throwError(() => e);
-        })
-      ).subscribe((_respData: any) => {
-        // Update Recent Projects Storage if the project in recent projects and project is updated
-        const recentProject = this.recentProjects.find(project => project.id === this.data.genData.id);
-        if (recentProject && recentProject.name !== jsonData.name || recentProject?.description !== jsonData.description) {
-          const newRecentProjects = [...this.recentProjects];
-          const index = newRecentProjects.findIndex(project => project.id === this.data.genData.id);
-          const newRecentProject = {
-            id: this.data.genData.id,
-            name: jsonData.name,
-            description: jsonData.description
-          }
-          newRecentProjects.splice(index, 1, newRecentProject);
-          this.store.dispatch(retrievedRecentProjects({ recentProjects: newRecentProjects }));
+      this.store.dispatch(updateProject({ id: this.data.genData.id, data: jsonData, configData }));
+
+      // Update Recent Projects Storage if the project in recent projects and project is updated
+      const recentProject = this.recentProjects.find(project => project.id === this.data.genData.id);
+      if (recentProject && recentProject.name !== jsonData.name || recentProject?.description !== jsonData.description) {
+        const newRecentProjects = [...this.recentProjects];
+        const index = newRecentProjects.findIndex(project => project.id === this.data.genData.id);
+        const newRecentProject = {
+          id: this.data.genData.id,
+          name: jsonData.name,
+          description: jsonData.description
         }
-        const configData = {
-          pk: this.data.genData.id,
-          username: sharedUpdate
-        }
-        this.projectService.associate(configData).subscribe(respData => {
-          const message = `Updated ${jsonData.category} ${jsonData.name} successfully`
-          this.toastr.success(message, 'Success')
-          this.historyService.addNewHistoryIntoStorage(message)
-          this.store.dispatch(loadProjects());
-        });
-        this.dialogRef.close();
-      });
+        newRecentProjects.splice(index, 1, newRecentProject);
+        this.store.dispatch(retrievedRecentProjects({ recentProjects: newRecentProjects }));
+      }
+      this.dialogRef.close();
     }
     else {
       this.toastr.warning('Category and network fields are required.')

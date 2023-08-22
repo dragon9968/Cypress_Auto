@@ -7,7 +7,6 @@ import { Observable, Subscription } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { MapPrefService } from 'src/app/core/services/map-pref/map-pref.service';
 import { retrievedMapPref } from 'src/app/store/map-style/map-style.actions';
-import { selectDefaultPreferences } from 'src/app/store/map/map.selectors';
 import { CommonService } from 'src/app/map/context-menu/cm-common-service/common.service';
 import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
 import { ToastrService } from 'ngx-toastr';
@@ -22,6 +21,7 @@ import { selectSelectedPortGroups } from 'src/app/store/portgroup/portgroup.sele
 import { selectSelectedMapImages } from 'src/app/store/map-image/map-image.selectors';
 import { selectGroups } from 'src/app/store/group/group.selectors';
 import { selectSelectedMapLinks } from 'src/app/store/map-link/map-link.selectors';
+import { selectDefaultPreferences } from 'src/app/store/project/project.selectors';
 
 @Component({
   selector: 'app-tool-panel-style',

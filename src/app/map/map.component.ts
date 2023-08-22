@@ -12,7 +12,7 @@ import {
 import { environment } from 'src/environments/environment';
 import * as cytoscape from 'cytoscape';
 import { HelpersService } from '../core/services/helpers/helpers.service';
-import { selectMapFeature } from '../store/map/map.selectors';
+import { selectIsMapLoadedSuccess, selectMapFeature } from '../store/map/map.selectors';
 import { retrievedIcons } from '../store/icon/icon.actions';
 import { retrievedDevices } from '../store/device/device.actions';
 import { retrievedTemplates } from '../store/template/template.actions';
@@ -31,7 +31,6 @@ import { AddUpdatePGDialogComponent } from './add-update-pg-dialog/add-update-pg
 import { AddUpdateInterfaceDialogComponent } from './add-update-interface-dialog/add-update-interface-dialog.component';
 import { addNewPG, selectPG, unSelectPG, updatePG } from '../store/portgroup/portgroup.actions';
 import { selectMapPortGroups } from '../store/portgroup/portgroup.selectors';
-import { MapState } from '../store/map/map.state';
 import { CMActionsService } from './context-menu/cm-actions/cm-actions.service';
 import { TemplateService } from '../core/services/template/template.service';
 import { NodeService } from '../core/services/node/node.service';
@@ -57,8 +56,6 @@ import { CommonService } from 'src/app/map/context-menu/cm-common-service/common
 import { ToolPanelStyleService } from 'src/app/core/services/tool-panel-style/tool-panel-style.service';
 import { ProjectService } from "../project/services/project.service";
 import {
-  loadProject,
-  loadProjects,
   loadProjectsNotLinkYet,
   retrievedVMStatus
 } from "../store/project/project.actions";
@@ -102,7 +99,8 @@ import { loadGroups, selectGroup, unSelectGroup } from "../store/group/group.act
 import {
   selectProjectCategory,
   selectProjectName,
-  selectProject
+  selectProject,
+  selectDefaultPreferences
 } from "../store/project/project.selectors";
 import { CMProjectNodeService } from "./context-menu/cm-project-node/cm-project-node.service";
 import { MapLinkService } from "../core/services/map-link/map-link.service";
@@ -217,7 +215,8 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   interfacePkConnectNode!: any;
   groupCategoryId!: string;
   projectName = ''
-  selectMap$ = new Subscription();
+  selectDefaultPreferences$ = new Subscription();
+  selectIsMapLoadedSuccess$ = new Subscription();
   selectMapPref$ = new Subscription();
   selectMapEdit$ = new Subscription();
   selectMapCategory$ = new Subscription();
@@ -333,6 +332,11 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         }
       }
     });
+    this.selectDefaultPreferences$ = this.store.select(selectDefaultPreferences).subscribe(defaultPreferences => {
+      if (defaultPreferences) {
+        this.defaultPreferences = defaultPreferences;
+      }
+    });
     this.selectLogicalNodes$ = this.store.select(selectLogicalNodes).subscribe((logicalNodes: any) => {
       if (logicalNodes) {
         this.logicalNodes = logicalNodes;
@@ -394,7 +398,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
       }
     })
     this.projectId = this.projectService.getProjectId();
-    this.store.dispatch(loadProject({ projectId: this.projectId }));
     this.store.dispatch(loadMap({ projectId: this.projectId, mapCategory: this.mapCategory }));
     this.store.dispatch(loadDomains({ projectId: this.projectId }));
     this.store.dispatch(loadMapLinks({ projectId: this.projectId }));
@@ -432,8 +435,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
       this.isEdgeDirectionChecked = mapOption?.isEdgeDirectionChecked != undefined ? mapOption.isEdgeDirectionChecked : false;
       this.isGroupBoxesChecked = mapOption?.isGroupBoxesChecked != undefined ? mapOption.isGroupBoxesChecked : false;
       this.groupCategoryId = mapOption?.groupCategoryId;
-    })
-    this.store.dispatch(loadProjects());
+    });
     this.selectProjectName$ = this.store.select(selectProjectName).subscribe(projectName => {
       if (projectName) {
         this.projectName = projectName;
@@ -442,9 +444,10 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   }
 
   ngOnInit(): void {
-    this.selectMap$ = this.store.select(selectMapFeature).subscribe((map: MapState) => {
+    this.selectIsMapLoadedSuccess$ = this.store.select(selectIsMapLoadedSuccess).subscribe(isLoaded => {
       if (
-        map.defaultPreferences
+        isLoaded &&
+        this.defaultPreferences
         && (this.logicalNodes || this.physicalNodes)
         && this.portGroups
         && (this.logicalMapInterfaces || this.physicalInterfaces)
@@ -452,7 +455,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         && this.mapLinks
         && this.interfacesCommonMapLinks
       ) {
-        this.defaultPreferences = map.defaultPreferences;
         this._initCytoscape();
         this._initMouseEvents();
         this._initContextMenu();
@@ -482,7 +484,8 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   }
 
   ngOnDestroy(): void {
-    this.selectMap$.unsubscribe();
+    this.selectDefaultPreferences$.unsubscribe();
+    this.selectIsMapLoadedSuccess$.unsubscribe();
     this.selectMapPref$.unsubscribe();
     this.selectMapEdit$.unsubscribe();
     this.selectMapPortGroups$.unsubscribe();

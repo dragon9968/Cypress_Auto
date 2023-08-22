@@ -1,5 +1,4 @@
 export interface MapState {
-  defaultPreferences: any;
   nodes: any;
   portgroups: any;
   interfaces: any;
@@ -13,4 +12,5 @@ export interface MapState {
   loginProfiles: any;
   isMapOpen: boolean;
   IsFinishLoadedElements: boolean
+  isLoaded: boolean
 }

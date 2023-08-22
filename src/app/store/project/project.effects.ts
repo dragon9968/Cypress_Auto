@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { EMPTY, of } from 'rxjs';
-import { map, exhaustMap, catchError, mergeMap } from 'rxjs/operators';
+import { map, exhaustMap, catchError, mergeMap, switchMap } from 'rxjs/operators';
 import {
-  loadProject,
   loadProjects,
   loadProjectsNotLinkYet,
-  projectLoadedSuccess,
+  openProject,
+  projectUpdatedSuccess,
   projectsLoadedSuccess,
   projectsNotLinkYetLoadedSuccess,
+  updateProject,
   validateProject
 } from './project.actions';
 import { ProjectService } from 'src/app/project/services/project.service';
@@ -17,19 +18,10 @@ import { ValidateProjectDialogComponent } from "../../project/validate-project-d
 import { MatDialog } from "@angular/material/dialog";
 import { loadGroups } from "../group/group.actions";
 import { loadDomains } from "../domain/domain.actions";
+import { HistoryService } from 'src/app/core/services/history/history.service';
 
 @Injectable()
 export class ProjectEffects {
-
-  loadProject$ = createEffect(() => this.actions$.pipe(
-    ofType(loadProject),
-    exhaustMap((payload) => this.projectService.get(payload.projectId)
-      .pipe(
-        map(res => (projectLoadedSuccess({ project: res.result }))),
-        catchError(() => EMPTY)
-      ))
-  )
-  );
 
   loadProjectsNotLinkYet$ = createEffect(() => this.actions$.pipe(
     ofType(loadProjectsNotLinkYet),
@@ -79,7 +71,10 @@ export class ProjectEffects {
     ofType(loadProjects),
     exhaustMap((payload) => this.projectService.getAll()
       .pipe(
-        map(res => (projectsLoadedSuccess({ allProjects: res.result }))),
+        switchMap((res: any) => [
+          projectsLoadedSuccess({ projects: res.result }),
+          openProject({ id: this.projectService.getProjectId()}),
+        ]),
         catchError(e => (of(pushNotification({
           notification: {
             type: 'error',
@@ -87,12 +82,41 @@ export class ProjectEffects {
           }
         }))))
       ))
-  )
-  );
+  ));
+
+  updateProject$ = createEffect(() => this.actions$.pipe(
+    ofType(updateProject),
+    exhaustMap((payload) => this.projectService.put(payload.id, payload.data)
+      .pipe(
+        mergeMap(res => this.projectService.associate(payload.configData)),
+        map((res: any) => {
+          const message = `Updated ${payload.data.category} ${payload.data.name} successfully`;
+          this.historyService.addNewHistoryIntoStorage(message);
+        }),
+        mergeMap(res => this.projectService.get(payload.id)),
+        switchMap((res: any) => [
+          projectUpdatedSuccess({ project: res.result }),
+          loadProjects(),
+          pushNotification({
+            notification: {
+              type: 'success',
+              message: 'Project details updated!'
+            }
+          })
+        ]),
+        catchError((e) => of(pushNotification({
+          notification: {
+            type: 'error',
+            message: 'Update Project failed!'
+          }
+        })))
+      )),
+  ));
 
   constructor(
     private actions$: Actions,
+    private dialog: MatDialog,
     private projectService: ProjectService,
-    private dialog: MatDialog
+    private historyService: HistoryService,
   ) { }
 }

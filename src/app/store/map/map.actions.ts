@@ -44,12 +44,6 @@ export const clearLinkedMap = createAction(
 
 export const mapLoadedSuccess = createAction(
   'mapLoadedSuccess',
-  props<{ data: any }>()
-);
-
-export const mapLoadedDefaultPreferencesSuccess = createAction(
-  'mapLoadedDefaultPreferencesSuccess',
-  props<{ data: any }>()
 );
 
 export const reloadGroupBoxes = createAction(

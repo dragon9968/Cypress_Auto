@@ -61,7 +61,7 @@ export class ProjectService {
     return this.http.post<any>(ApiPaths.ADD_PROJECT, data);
   }
 
-  put(id: string, data: any): Observable<any> {
+  put(id: number, data: any): Observable<any> {
     return this.http.put<any>(ApiPaths.PROJECTS + id, data);
   }
 

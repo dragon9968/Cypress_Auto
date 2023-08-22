@@ -9,10 +9,12 @@ export const selectDashboard = createSelector(selectProjectFeature, (state: Proj
 export const selectRecentProjects = createSelector(selectProjectFeature, (state: ProjectState) => state.recentProjects);
 export const selectProjectsNotLinkYet = createSelector(selectProjectFeature, (state: ProjectState) => state.projectsNotLinkYet)
 
-export const selectProject = createSelector(selectProjectFeature, (state: ProjectState) => state.project);
+export const selectAllProjects = createSelector(selectProjectFeature, (state: ProjectState) => state.projects);
+export const selectProject = createSelector(selectAllProjects, (selectAllProjects) => selectAllProjects?.filter(p => p.isOpen)[0]);
 export const selectProjectName = createSelector(selectProject, (selectProject) => selectProject?.name);
 export const selectProjectCategory = createSelector(selectProject, (selectProject) => selectProject?.category);
-export const selectAllProjects = createSelector(selectProjectFeature, (state: ProjectState) => state.allProjects)
 export const selectActiveProjects = createSelector(selectAllProjects, (selectAllProjects) => selectAllProjects?.filter(p => p.status == 'active' && p.category == 'project'));
 export const selectActiveTemplates = createSelector(selectAllProjects, (selectAllProjects) => selectAllProjects?.filter(p => p.status == 'active' && p.category == 'template'));
 export const selectDeletedProjects = createSelector(selectAllProjects, (selectAllProjects) => selectAllProjects?.filter(p => p.status == 'delete'));
+export const selectActiveProjectsTemplates = createSelector(selectActiveProjects, selectActiveTemplates, (selectActiveProjects, selectActiveTemplates) => selectActiveProjects?.concat(selectActiveTemplates));
+export const selectDefaultPreferences = createSelector(selectProject, (selectProject) => selectProject?.logical_map.map_style);

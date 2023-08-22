@@ -6,7 +6,6 @@ import { ToastrService } from "ngx-toastr";
 import { MatIconRegistry } from "@angular/material/icon";
 import { Subscription, throwError } from "rxjs";
 import { Component, OnDestroy, OnInit, Output, EventEmitter, Input } from '@angular/core';
-import { MapState } from "../../store/map/map.state";
 import { environment } from "../../../environments/environment";
 import { RouteSegments } from "../../core/enums/route-segments.enum";
 import { HelpersService } from "../../core/services/helpers/helpers.service";
@@ -15,9 +14,8 @@ import { InfoPanelService } from "../../core/services/info-panel/info-panel.serv
 import { ServerConnectService } from "../../core/services/server-connect/server-connect.service";
 import { loadMap } from "../../store/map/map.actions";
 import { selectIsHypervisorConnect } from "../../store/server-connect/server-connect.selectors";
-import { selectMapFeature } from "../../store/map/map.selectors";
 import { retrievedIsHypervisorConnect } from "../../store/server-connect/server-connect.actions";
-import { selectDashboard, selectVMStatus } from "../../store/project/project.selectors";
+import { selectDashboard, selectDefaultPreferences, selectVMStatus } from "../../store/project/project.selectors";
 import { retrievedDashboard, retrievedIsOpen, retrievedVMStatus } from "../../store/project/project.actions";
 import { RemoteCategories } from "../../core/enums/remote-categories.enum";
 import { selectLogicalNodes, selectPhysicalNodes } from "src/app/store/node/node.selectors";
@@ -43,7 +41,7 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
   projectId = 0;
   category = 'logical';
   vmStatusChecked: any;
-  selectMap$ = new Subscription();
+  selectDefaultPreferences$ = new Subscription();
   selectVMStatus$ = new Subscription();
   selectIsHypervisorConnect$ = new Subscription();
   selectLogicalNodes$ = new Subscription();
@@ -146,11 +144,11 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
       this.store.dispatch(retrievedIsHypervisorConnect({ data: true }));
     }
     if (this.dashboard?.map) {
-      this.selectMap$ = this.store.select(selectMapFeature).subscribe((map: MapState) => {
-        if (map.defaultPreferences) {
-          this.defaultPreferences = map.defaultPreferences;
-          this.isEdgeDirectionChecked = map.defaultPreferences.edge_direction_checkbox != undefined
-            ? map.defaultPreferences.edge_direction_checkbox : this.isEdgeDirectionChecked;
+      this.selectDefaultPreferences$ = this.store.select(selectDefaultPreferences).subscribe(defaultPreferences => {
+        if (defaultPreferences) {
+          this.defaultPreferences = defaultPreferences;
+          this.isEdgeDirectionChecked = defaultPreferences.edge_direction_checkbox != undefined
+            ? defaultPreferences.edge_direction_checkbox : this.isEdgeDirectionChecked;
           this._initCytoscapeNetworkMap();
           if (this.connection && this.connection.id !== 0 && this.vmStatusChecked) {
             this.infoPanelService.changeVMStatusOnMap(+this.projectId, this.connection.id);
@@ -163,7 +161,7 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.selectMap$.unsubscribe();
+    this.selectDefaultPreferences$.unsubscribe();
     this.selectVMStatus$.unsubscribe();
     this.selectIsHypervisorConnect$.unsubscribe();
     this.selectDashboard$.unsubscribe();

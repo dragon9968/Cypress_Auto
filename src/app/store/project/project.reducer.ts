@@ -5,7 +5,12 @@ import {
   retrievedIsOpen,
   retrievedDashboard,
   retrievedRecentProjects,
-  projectLoadedSuccess, projectsNotLinkYetLoadedSuccess, removeProjectNotLink, projectsLoadedSuccess, closeProject
+  projectsNotLinkYetLoadedSuccess,
+  removeProjectNotLink,
+  projectsLoadedSuccess,
+  closeProject,
+  projectUpdatedSuccess,
+  openProject
 } from './project.actions';
 
 const initialState = {} as ProjectState;
@@ -28,9 +33,9 @@ export const projectReducer = createReducer(
     ...state,
     recentProjects: recentProjects
   })),
-  on(projectLoadedSuccess, (state, { project }) => ({
+  on(openProject, (state, { id }) => ({
     ...state,
-    project
+    projects: state.projects?.map(p => p.id == id ? { ...p, isOpen: true } : p)
   })),
   on(projectsNotLinkYetLoadedSuccess, (state, { projectsNotLinkYet }) => ({
     ...state,
@@ -43,12 +48,18 @@ export const projectReducer = createReducer(
       projectsNotLinkYet
     }
   }),
-  on(projectsLoadedSuccess, (state, { allProjects }) => ({
+  on(projectsLoadedSuccess, (state, { projects }) => ({
     ...state,
-    allProjects
+    projects
   })),
   on(closeProject, (state, { }) => ({
     ...state,
-    project: undefined
+    projects: state.projects.map(p => p.isOpen ? { ...p, isOpen: false } : p)
   })),
+  on(projectUpdatedSuccess, (state, { project }) => {
+    return {
+      ...state,
+      projects: state.projects.map(p => p.id == project.id ? { ...p, ...project } : p)
+    };
+  }),
 );

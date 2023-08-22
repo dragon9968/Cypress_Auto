@@ -40,7 +40,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.recentProjects = recentProjects;
       }
     });
-    this.store.dispatch(loadProjects());
     this.selectActiveProjects$ = this.store.select(selectActiveProjects)
       .subscribe((data) => {
         if (data) {

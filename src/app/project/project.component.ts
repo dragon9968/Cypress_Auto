@@ -4,7 +4,7 @@ import { catchError, forkJoin, Observable, of, Subscription, throwError } from '
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ProjectService } from './services/project.service';
-import { selectActiveProjects, selectActiveTemplates } from '../store/project/project.selectors';
+import { selectActiveProjects, selectActiveProjectsTemplates, selectActiveTemplates, selectProject } from '../store/project/project.selectors';
 import { AuthService } from '../core/services/auth/auth.service';
 import { HelpersService } from '../core/services/helpers/helpers.service';
 import { Router } from '@angular/router';
@@ -36,13 +36,16 @@ export class ProjectComponent implements OnInit, OnDestroy {
   rowsSelectedId: any[] = [];
   isSubmitBtnDisabled: boolean = true;
   private gridApi!: GridApi;
-  private selectActiveProjects$ = new Subscription();
+  selectActiveProjects$ = new Subscription();
   selectActiveTemplates$ = new Subscription();
-  selectUser$ = new Subscription();
-  selectAllProjects$ = new Subscription();
+  selectActiveProjectsTemplates$ = new Subscription();
   rowData$!: Observable<any[]>;
   listUsers!: any[];
+  projects!: any[];
   isAdmin = true;
+  isDisableEdit = true;
+  isDisableDelete = true;
+  isDisableExport = true;
   projectAdminUrl = `${this.routeSegments.ROOT + this.routeSegments.PROJECTS_ADMINISTRATION}`
   templatePageUrl = `${this.routeSegments.ROOT + this.routeSegments.PROJECTS_TEMPLATES}`
   projectPageUrl = `${this.routeSegments.ROOT + this.routeSegments.PROJECTS}`
@@ -115,28 +118,32 @@ export class ProjectComponent implements OnInit, OnDestroy {
     const userId = this.authService.getUserId();
     this.isAdmin = this.router.url === this.projectAdminUrl
     if (this.router.url === this.templatePageUrl) {
-      this.selectActiveTemplates$ = this.store.select(selectActiveTemplates).subscribe(templateData => {
-        this.processUpdateChangedByField(templateData);
+      this.selectActiveTemplates$ = this.store.select(selectActiveTemplates).subscribe(activeTemplates => {
+        if (activeTemplates) {
+          this.projects = activeTemplates;
+          this.processUpdateChangedByField(activeTemplates);
+        }
       });
     } else if (this.router.url === this.projectPageUrl) {
-      this.selectActiveProjects$ = this.store.select(selectActiveProjects)
-        .subscribe((data) => {
-          if (data) {
-            this.projectService.getShareProject(this.status, 'project').subscribe((resp: any) => {
-              const shareProject = resp.result;
-              let filteredProjectsByUserId: any[];
-              filteredProjectsByUserId = data.filter((val: any) => val.created_by_fk === userId);
-              if (shareProject) {
-                filteredProjectsByUserId = [...filteredProjectsByUserId, ...shareProject];
-              }
-              this.processUpdateChangedByField(filteredProjectsByUserId);
-            })
-          }
-        });
+      this.selectActiveProjects$ = this.store.select(selectActiveProjects).subscribe((activeProjects) => {
+        if (activeProjects) {
+          this.projectService.getShareProject(this.status, 'project').subscribe((resp: any) => {
+            const shareProject = resp.result;
+            let filteredProjectsByUserId: any[];
+            filteredProjectsByUserId = activeProjects.filter((val: any) => val.created_by_fk === userId);
+            if (shareProject) {
+              filteredProjectsByUserId = [...filteredProjectsByUserId, ...shareProject];
+            }
+            this.projects = filteredProjectsByUserId;
+            this.processUpdateChangedByField(filteredProjectsByUserId);
+          })
+        }
+      });
     } else {
-      this.selectAllProjects$ = this.store.select(selectActiveProjects).subscribe((data: any) => {
-        if (data) {
-          this.processUpdateChangedByField(data);
+      this.selectActiveProjectsTemplates$ = this.store.select(selectActiveProjectsTemplates).subscribe(activeProjectsTemplates => {
+        if (activeProjectsTemplates) {
+          this.projects = activeProjectsTemplates;
+          this.processUpdateChangedByField(activeProjectsTemplates);
         }
       })
     }
@@ -155,7 +162,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.selectActiveProjects$.unsubscribe();
     this.selectActiveTemplates$.unsubscribe();
-    this.selectUser$.unsubscribe();
+    this.selectActiveProjectsTemplates$.unsubscribe();
   }
 
   onGridReady(params: GridReadyEvent) {
@@ -195,6 +202,19 @@ export class ProjectComponent implements OnInit, OnDestroy {
     if (this.isAdmin) {
       this.rowsSelected = this.gridApi.getSelectedRows();
       this.rowsSelectedId = this.rowsSelected.map(ele => ele.id);
+      if (this.rowsSelectedId.length == 0) {
+        this.isDisableEdit = true;
+        this.isDisableDelete = true;
+        this.isDisableExport = true;
+      } else if (this.rowsSelectedId.length == 1) {
+        this.isDisableEdit = false;
+        this.isDisableDelete = false;
+        this.isDisableExport = false;
+      } else if (this.rowsSelectedId.length > 1) {
+        this.isDisableEdit = true;
+        this.isDisableDelete = false;
+        this.isDisableExport = false;
+      }
     }
   }
 
@@ -216,72 +236,56 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   editProject() {
-    if (this.rowsSelectedId.length === 0) {
-      this.toastr.info('No row selected');
-    } else if (this.rowsSelectedId.length === 1) {
-      this.projectService.get(this.rowsSelectedId[0]).subscribe(data => {
-        const dialogData = {
-          mode: 'update',
-          category: data.result.category,
-          genData: data.result
-        }
-        this.dialog.open(EditProjectDialogComponent, {
-          disableClose: true,
-          autoFocus: false,
-          width: '600px',
-          data: dialogData
-        });
-      });
-    } else {
-      this.toastr.info('Bulk edits do not apply to projects.<br> Please select only one project',
-        'Info', { enableHtml: true });
+    const selectedProject = this.projects.filter(p => p.id == this.rowsSelectedId[0])[0];
+    const dialogData = {
+      mode: 'update',
+      category: selectedProject.category,
+      genData: selectedProject
     }
+    this.dialog.open(EditProjectDialogComponent, {
+      disableClose: true,
+      autoFocus: false,
+      width: '600px',
+      data: dialogData
+    });
   }
 
   deleteProject() {
-    if (this.rowsSelectedId.length == 0) {
-      this.toastr.info('No row selected');
-    } else {
-      const suffix = this.rowsSelectedId.length === 1 ? 'this item' : 'these items';
-      const dialogData = {
-        title: 'User confirmation needed',
-        message: `Are you sure you want to delete ${suffix}?`,
-        submitButtonName: 'OK'
-      }
-      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData });
-      dialogRef.afterClosed().subscribe(result => {
-        if (result) {
-          forkJoin(this.rowsSelectedId.map(id => {
-            const jsonData = {
-              pk: id,
-              status: 'delete'
-            }
-            return this.projectService.deleteOrRecoverProject(jsonData).pipe(
-              catchError((e: any) => {
-                this.toastr.error(e.error.message);
-                return throwError(() => e);
-              })
-            );
-          })).subscribe(() => {
-            this.toastr.success('Deleted Project(s) successfully', 'Success');
-            this.clearRow();
-          })
-        }
-      })
+    const suffix = this.rowsSelectedId.length === 1 ? 'this item' : 'these items';
+    const dialogData = {
+      title: 'User confirmation needed',
+      message: `Are you sure you want to delete ${suffix}?`,
+      submitButtonName: 'OK'
     }
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        forkJoin(this.rowsSelectedId.map(id => {
+          const jsonData = {
+            pk: id,
+            status: 'delete'
+          }
+          return this.projectService.deleteOrRecoverProject(jsonData).pipe(
+            catchError((e: any) => {
+              this.toastr.error(e.error.message);
+              return throwError(() => e);
+            })
+          );
+        })).subscribe(() => {
+          this.toastr.success('Deleted Project(s) successfully', 'Success');
+          this.clearRow();
+        })
+      }
+    })
   }
 
   exportProject() {
-    if (this.rowsSelectedId.length === 0) {
-      this.toastr.info('No row selected');
-    } else {
-      const dialogData = {
-        pks: this.rowsSelectedId,
-        name: this.rowsSelectedId.length === 1 ? this.rowsSelected[0].name : 'Projects',
-        type: 'admin'
-      }
-      this.dialog.open(ExportProjectDialogComponent, { disableClose: true, autoFocus: false, width: '400px', data: dialogData });
+    const dialogData = {
+      pks: this.rowsSelectedId,
+      name: this.rowsSelectedId.length === 1 ? this.rowsSelected[0].name : 'Projects',
+      type: 'admin'
     }
+    this.dialog.open(ExportProjectDialogComponent, { disableClose: true, autoFocus: false, width: '400px', data: dialogData });
   }
 
   processUpdateChangedByField(data: any) {

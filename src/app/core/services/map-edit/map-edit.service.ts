@@ -2,15 +2,15 @@ import { Store } from "@ngrx/store";
 import { Subscription } from "rxjs";
 import { Injectable, OnDestroy } from '@angular/core';
 import { selectMapOption } from "../../../store/map-option/map-option.selectors";
-import { selectDefaultPreferences } from "../../../store/map/map.selectors";
 import { selectGroups } from "src/app/store/group/group.selectors";
+import { selectDefaultPreferences } from "src/app/store/project/project.selectors";
 
 @Injectable({
   providedIn: 'root'
 })
 export class MapEditService implements OnDestroy{
 
-  selectMapProperties$ = new Subscription();
+  selectDefaultPreferences$ = new Subscription();
   selectGroups$ = new Subscription();
   selectMapOption$ = new Subscription();
   isEdgeDirectionChecked!: boolean;
@@ -29,7 +29,7 @@ export class MapEditService implements OnDestroy{
     private store: Store,
   ) {
     this.selectGroups$ = this.store.select(selectGroups).subscribe(groups => this.groups = groups);
-    this.selectMapProperties$ = this.store.select(selectDefaultPreferences).subscribe(defaultPreferences => this.defaultPreferences = defaultPreferences);
+    this.selectDefaultPreferences$ = this.store.select(selectDefaultPreferences).subscribe(defaultPreferences => this.defaultPreferences = defaultPreferences);
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
         this.isEdgeDirectionChecked = mapOption.isEdgeDirectionChecked;
@@ -46,7 +46,7 @@ export class MapEditService implements OnDestroy{
   ngOnDestroy(): void {
     this.selectMapOption$.unsubscribe();
     this.selectGroups$.unsubscribe();
-    this.selectMapProperties$.unsubscribe();
+    this.selectDefaultPreferences$.unsubscribe();
   }
 
   removeAllProjectNodesOnMap(cy: any) {

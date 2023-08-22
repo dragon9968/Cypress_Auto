@@ -217,7 +217,6 @@ export class AddProjectComponent implements OnInit {
       this.router.navigate([RouteSegments.ROOT]);
     }
     this.helpers.setAutoCompleteValue(this.template, this.activeTemplates, '');
-    this.store.dispatch(loadProjects());
     this.store.dispatch(loadAppPref());
     this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPrefs({ data: data.result })));
   }
@@ -344,6 +343,7 @@ export class AddProjectComponent implements OnInit {
             } else {
               this.router.navigate([RouteSegments.PROJECTS_TEMPLATES]);
             }
+            this.store.dispatch(loadProjects());
         });
       }
     } else {

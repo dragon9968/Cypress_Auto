@@ -8,7 +8,7 @@ import {
   clearLinkedMap,
   loadLinkedMap,
   loadMap,
-  mapLoadedDefaultPreferencesSuccess,
+  mapLoadedSuccess,
   reloadGroupBoxes,
   removeNodesOnMap,
   selectAllElementsOnMap,
@@ -70,7 +70,6 @@ export class MapEffects {
   loadMap$ = createEffect(() => this.actions$.pipe(
     ofType(loadMap),
     exhaustMap((payload) => forkJoin([
-      this.projectService.get(payload.projectId),
       this.nodeService.getNodesByProjectId(payload.projectId),
       this.portGroupService.getByProjectId(payload.projectId),
       this.interfaceService.getByProjectId(payload.projectId),
@@ -79,7 +78,6 @@ export class MapEffects {
       this.mapLinkService.getMapLinksByProjectId(payload.projectId)
     ]).pipe(
       switchMap(([
-        defaultPreferences,
         nodesData,
         portgroupsData,
         interfacesData,
@@ -93,7 +91,7 @@ export class MapEffects {
         interfacesLoadedSuccess({ interfaces: interfacesData.result, nodes: nodesData.result }),
         groupsLoadedSuccess({ groups: groupsData.result }),
         mapImagesLoadedSuccess({ mapImages: mapImagesData.result }),
-        mapLoadedDefaultPreferencesSuccess({ data: defaultPreferences.result })
+        mapLoadedSuccess(),
       ]),
       catchError((e) => of(pushNotification({
         notification: {

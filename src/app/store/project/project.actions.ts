@@ -20,9 +20,9 @@ export const retrievedRecentProjects = createAction(
   props<{ recentProjects: any }>()
 );
 
-export const loadProject = createAction(
-  'loadProject',
-  props<{ projectId: number }>()
+export const openProject = createAction(
+  'openProject',
+  props<{ id: number }>()
 );
 
 export const projectLoadedSuccess = createAction(
@@ -56,9 +56,23 @@ export const loadProjects = createAction(
 
 export const projectsLoadedSuccess = createAction(
   'projectsLoadedSuccess',
-  props<{ allProjects: any }>()
+  props<{ projects: any }>()
 );
 
 export const closeProject = createAction(
   'closeProject',
+);
+
+export const updateProject = createAction(
+  'updateProject',
+  props<{
+    id: number,
+    data: any,
+    configData: any
+  }>()
+);
+
+export const projectUpdatedSuccess = createAction(
+  'projectUpdatedSuccess',
+  props<{ project: any }>()
 );
