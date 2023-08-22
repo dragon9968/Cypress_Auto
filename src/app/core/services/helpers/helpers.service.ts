@@ -39,7 +39,6 @@ import { removePGs, restorePGs } from 'src/app/store/portgroup/portgroup.actions
 import { removeInterfaces, restoreInterfaces } from 'src/app/store/interface/interface.actions';
 import { retrievedMapContextMenu } from "../../../store/map-context-menu/map-context-menu.actions";
 import { ProjectService } from "../../../project/services/project.service";
-import { GroupService } from "../group/group.service";
 import { validateProject } from "../../../store/project/project.actions";
 import { removeMapLinks, restoreMapLinks } from "../../../store/map-link/map-link.actions";
 import { removeMapImages, restoreMapImages } from "../../../store/map-image/map-image.actions";
@@ -103,7 +102,6 @@ export class HelpersService implements OnDestroy {
   isPGNameLabelChecked = false;
   isPGSubnetLabelChecked = false;
   isPGVLANLabelChecked = false;
-  isEdgeNameLabelChecked = false;
   isEdgeIPLabelChecked = false;
   isEdgeVLANModeLabelChecked = false;
 
@@ -114,7 +112,6 @@ export class HelpersService implements OnDestroy {
     private serverConnectionService: ServerConnectService,
     private dialog: MatDialog,
     private projectService: ProjectService,
-    private groupService: GroupService
   ) {
     this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
       if (notification) {
@@ -134,7 +131,6 @@ export class HelpersService implements OnDestroy {
         this.isPGNameLabelChecked = mapOption.isPGNameLabelChecked;
         this.isPGSubnetLabelChecked = mapOption.isPGSubnetLabelChecked;
         this.isPGVLANLabelChecked = mapOption.isPGVLANLabelChecked;
-        this.isEdgeNameLabelChecked = mapOption.isEdgeNameLabelChecked;
         this.isEdgeIPLabelChecked = mapOption.isEdgeIPLabelChecked;
         this.isEdgeVLANModeLabelChecked = mapOption.isEdgeVLANModeLabelChecked;
       }
@@ -1797,22 +1793,21 @@ export class HelpersService implements OnDestroy {
     portGroup.style({ label })
   }
 
-  generateEdgeLabel(edgeEle: any, isEdgeNameLabelChecked: boolean, isEdgeIPLabelChecked: boolean, isEdgeVLANModeLabelChecked: boolean) {
-    return `${isEdgeNameLabelChecked ? edgeEle.data('name') + '\n' : ''}` +
-           `${isEdgeIPLabelChecked && edgeEle.data('ip_last_octet') ? edgeEle.data('ip_last_octet') + '\n' : ''}` +
+  generateEdgeLabel(edgeEle: any, isEdgeIPLabelChecked: boolean, isEdgeVLANModeLabelChecked: boolean) {
+    return `${isEdgeIPLabelChecked && edgeEle.data('ip_last_octet') ? edgeEle.data('ip_last_octet') + '\n' : ''}` +
            `${isEdgeVLANModeLabelChecked && edgeEle.data('vlan_mode') ? edgeEle.data('vlan_mode') : ''}`;
   }
 
-  changeEdgeLabel(isEdgeNameLabelChecked: boolean, isEdgeIPLabelChecked: boolean, isEdgeVLANModeLabelChecked: boolean) {
+  changeEdgeLabel(isEdgeIPLabelChecked: boolean, isEdgeVLANModeLabelChecked: boolean) {
     this.cy.edges('[elem_category!="link"]').map((edge: any) => {
-      const label = this.generateEdgeLabel(edge, isEdgeNameLabelChecked, isEdgeIPLabelChecked, isEdgeVLANModeLabelChecked);
+      const label = this.generateEdgeLabel(edge, isEdgeIPLabelChecked, isEdgeVLANModeLabelChecked);
       edge.style({ label });
     })
   }
 
   changeEdgeLabelById(id: number) {
     const edge = this.cy.getElementById(`interface-${id}`);
-    const label = this.generateEdgeLabel(edge, this.isEdgeNameLabelChecked, this.isEdgeIPLabelChecked, this.isEdgeVLANModeLabelChecked);
+    const label = this.generateEdgeLabel(edge, this.isEdgeIPLabelChecked, this.isEdgeVLANModeLabelChecked);
     edge.style({ label });
   }
 
@@ -1856,13 +1851,15 @@ export class HelpersService implements OnDestroy {
     const edge = this.interfacesLogical.find(e => e.id === id);
     if (edge) {
       this.addCYEdge(JSON.parse(JSON.stringify(edge.data)));
-      this.showOrHideArrowDirectionOnEdge(edge.id);
+      this.showOrHideArrowDirectionOnEdge(id);
+      this.changeEdgeLabelById(id);
     }
   }
 
   addPGToMap(id: number) {
-    const portGroup = this.portGroups.find(pg => pg.id === id)
-    this.addCYNode(JSON.parse(JSON.stringify(portGroup)))
+    const portGroup = this.portGroups.find(pg => pg.id === id);
+    this.addCYNode(JSON.parse(JSON.stringify(portGroup)));
+    this.changePGLabelById(id);
   }
 
   addMapImageToMap(id: number) {

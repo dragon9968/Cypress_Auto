@@ -12,7 +12,7 @@ export const nodesLoadedSuccess = createAction(
 
 export const selectNode = createAction(
   'selectNode',
-  props<{ 
+  props<{
     id: string,
     mapCategory: string
   }>()
@@ -20,9 +20,9 @@ export const selectNode = createAction(
 
 export const unSelectNode = createAction(
   'unSelectNode',
-  props<{ 
+  props<{
     id: string,
-    mapCategory: string 
+    mapCategory: string
   }>()
 );
 

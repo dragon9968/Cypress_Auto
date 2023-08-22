@@ -20,7 +20,6 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
   isPGNameLabelChecked = false;
   isPGSubnetLabelChecked = false;
   isPGVLANLabelChecked = false;
-  isEdgeNameLabelChecked = false;
   isEdgeIPLabelChecked = false;
   isEdgeVLANModeLabelChecked = false;
   isGroupBoxesChecked = false;
@@ -86,8 +85,6 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
       this.isPGVLANLabelChecked = this.config.default_preferences.pg_vlan_label_checkbox != undefined
         ? this.config.default_preferences.pg_vlan_label_checkbox : false;
 
-      this.isEdgeNameLabelChecked = this.config.default_preferences.edge_name_label_checkbox != undefined
-        ? this.config.default_preferences.edge_name_label_checkbox : false;
       this.isEdgeIPLabelChecked = this.config.default_preferences.edge_ip_label_checkbox != undefined
         ? this.config.default_preferences.edge_ip_label_checkbox : false;
       this.isEdgeVLANModeLabelChecked = this.config.default_preferences.edge_vlan_mode_label_checkbox != undefined
@@ -105,7 +102,6 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
           isPGNameLabelChecked: this.isPGNameLabelChecked,
           isPGSubnetLabelChecked: this.isPGSubnetLabelChecked,
           isPGVLANLabelChecked: this.isPGVLANLabelChecked,
-          isEdgeNameLabelChecked: this.isEdgeNameLabelChecked,
           isEdgeIPLabelChecked: this.isEdgeIPLabelChecked,
           isEdgeVLANModeLabelChecked: this.isEdgeVLANModeLabelChecked,
         }
@@ -197,7 +193,7 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
   }
 
   toggleEdgeLabel() {
-    this.helpers.changeEdgeLabel(this.isEdgeNameLabelChecked, this.isEdgeIPLabelChecked, this.isEdgeVLANModeLabelChecked);
+    this.helpers.changeEdgeLabel(this.isEdgeIPLabelChecked, this.isEdgeVLANModeLabelChecked);
     this._dispatchMapOptionBasedOnCurrentValue();
   }
 
@@ -279,7 +275,6 @@ export class ToolPanelOptionComponent implements OnChanges, OnDestroy {
         isPGNameLabelChecked: this.isPGNameLabelChecked,
         isPGSubnetLabelChecked: this.isPGSubnetLabelChecked,
         isPGVLANLabelChecked: this.isPGVLANLabelChecked,
-        isEdgeNameLabelChecked: this.isEdgeNameLabelChecked,
         isEdgeIPLabelChecked: this.isEdgeIPLabelChecked,
         isEdgeVLANModeLabelChecked: this.isEdgeVLANModeLabelChecked
       }

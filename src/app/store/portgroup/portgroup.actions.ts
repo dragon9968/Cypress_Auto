@@ -105,7 +105,7 @@ export const clearLinkedMapPGs = createAction(
 
 export const randomizeSubnetPortGroups = createAction(
   'randomizeSubnetPortGroups',
-  props<{     
+  props<{
     pks: any,
     data: any
   }>()
@@ -118,7 +118,7 @@ export const randomizeSubnetPortGroupsSuccess = createAction(
 
 export const updateInterfaceIPBasedOnPGId = createAction(
   'updateInterfaceIPBasedOnPGId',
-  props<{ 
+  props<{
     ids: any
   }>()
 )

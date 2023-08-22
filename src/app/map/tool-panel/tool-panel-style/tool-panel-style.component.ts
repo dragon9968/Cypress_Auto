@@ -130,13 +130,15 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
         this.isHideIndex = this.selectedLogicalNodes.length + this.selectedPortGroups.length + this.selectedInterfaces.length + this.selectedGroups.length + this.selectedMapImages.length == 0;
         if (this.selectedLogicalNodes.length >= 1) {
           const ele = this.cy.getElementById(this.selectedLogicalNodes[0].data.id);
-          const data = ele.data();
-          this.nodeSize = this.removePx(data.height);
-          this.xCtr?.setValue(ele.position().x.toFixed(2));
-          this.yCtr?.setValue(ele.position().y.toFixed(2));
-          this.textOutlineColor = data.text_outline_color ? data.text_outline_color : data.logical_map.map_style.text_outline_color;
-          this.textOutlineWidth = this.removePx(data.text_outline_width ? data.text_outline_width : data.logical_map.map_style.text_outline_width);
-          this._setPropertiesCommon(data);
+          if (ele.length > 0) {
+            const data = ele.data();
+            this.nodeSize = this.removePx(data.height);
+            this.xCtr?.setValue(ele.position().x.toFixed(2));
+            this.yCtr?.setValue(ele.position().y.toFixed(2));
+            this.textOutlineColor = data.text_outline_color ? data.text_outline_color : data.logical_map.map_style.text_outline_color;
+            this.textOutlineWidth = this.removePx(data.text_outline_width ? data.text_outline_width : data.logical_map.map_style.text_outline_width);
+            this._setPropertiesCommon(data);
+          }
         }
       }
     });
@@ -148,13 +150,15 @@ export class ToolPanelStyleComponent implements OnInit, OnDestroy {
         this.isHideIndex = this.selectedPhysicalNodes.length + this.selectedPortGroups.length + this.selectedInterfaces.length + this.selectedGroups.length + this.selectedMapImages.length == 0;
         if (this.selectedPhysicalNodes.length >= 1) {
           const ele = this.cy.getElementById(this.selectedPhysicalNodes[0].data.id);
-          const data = ele.data();
-          this.nodeSize = this.removePx(data.height);
-          this.xCtr?.setValue(ele.position().x.toFixed(2));
-          this.yCtr?.setValue(ele.position().y.toFixed(2));
-          this.textOutlineColor = data.text_outline_color ? data.text_outline_color : data.physical_map.map_style.text_outline_color;
-          this.textOutlineWidth = this.removePx(data.text_outline_width ? data.text_outline_width : data.physical_map.map_style.text_outline_width);
-          this._setPropertiesCommon(data);
+          if (ele.length > 0) {
+            const data = ele.data();
+            this.nodeSize = this.removePx(data.height);
+            this.xCtr?.setValue(ele.position().x.toFixed(2));
+            this.yCtr?.setValue(ele.position().y.toFixed(2));
+            this.textOutlineColor = data.text_outline_color ? data.text_outline_color : data.physical_map.map_style.text_outline_color;
+            this.textOutlineWidth = this.removePx(data.text_outline_width ? data.text_outline_width : data.physical_map.map_style.text_outline_width);
+            this._setPropertiesCommon(data);
+          }
         }
       }
     });

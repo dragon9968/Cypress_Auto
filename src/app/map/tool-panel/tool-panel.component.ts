@@ -22,9 +22,15 @@ import { selectDeletedLogicalInterfaces } from 'src/app/store/interface/interfac
 import { selectDeletedMapLinks } from "../../store/map-link/map-link.selectors";
 import { loadProjectsNotLinkYet } from "../../store/project/project.actions";
 import { loadGroups } from "../../store/group/group.actions";
-import { updateNode } from "../../store/node/node.actions";
-import { updatePG } from "../../store/portgroup/portgroup.actions";
+import { loadNodes, updateNode } from "../../store/node/node.actions";
+import { loadPGs, updatePG } from "../../store/portgroup/portgroup.actions";
 import { LocalStorageKeys } from "../../core/storage/local-storage/local-storage-keys.enum";
+import { selectIsHypervisorConnect } from "../../store/server-connect/server-connect.selectors";
+import { RemoteCategories } from "../../core/enums/remote-categories.enum";
+import { ServerConnectService } from "../../core/services/server-connect/server-connect.service";
+import { loadUserTasks } from "../../store/user-task/user-task.actions";
+import { loadInterfaces } from "../../store/interface/interface.actions";
+import { loadMapImages } from "../../store/map-image/map-image.actions";
 
 @Component({
   selector: 'app-tool-panel',
@@ -82,11 +88,11 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   selectDeletedLogicalInterfaces$ = new Subscription();
   selectDeletedMapLinks$ = new Subscription();
   selectDeletedMapImages$ = new Subscription();
+  selectIsHypervisorConnect$ = new Subscription();
   isEdgeDirectionChecked!: boolean;
   isPGNameLabelChecked = false;
   isPGSubnetLabelChecked = false;
   isPGVLANLabelChecked = false;
-  isEdgeNameLabelChecked = false;
   isEdgeIPLabelChecked = false;
   isEdgeVLANModeLabelChecked = false;
   isGroupBoxesChecked!: boolean;
@@ -97,6 +103,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   groupCategoryId!: string;
   selectedMapPrefId!: string;
   defaultPreferences: any;
+  hypervisorId = 0;
 
   constructor(
     private store: Store,
@@ -105,6 +112,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private helpersService: HelpersService,
     private commonService: CommonService,
+    private serverConnectionService: ServerConnectService
   ) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
@@ -118,7 +126,6 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         this.isPGNameLabelChecked = mapOption.isPGNameLabelChecked;
         this.isPGSubnetLabelChecked = mapOption.isPGSubnetLabelChecked;
         this.isPGVLANLabelChecked = mapOption.isPGVLANLabelChecked;
-        this.isEdgeNameLabelChecked = mapOption.isEdgeNameLabelChecked;
         this.isEdgeIPLabelChecked = mapOption.isEdgeIPLabelChecked;
         this.isEdgeVLANModeLabelChecked = mapOption.isEdgeVLANModeLabelChecked;
       }
@@ -170,6 +177,12 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     });
     this.selectMapPortGroups$ = this.store.select(selectMapPortGroups).subscribe(portGroups => this.portGroups = portGroups);
     this.selectMapImages$ = this.store.select(selectMapImages).subscribe(mapImage => this.mapImages = mapImage);
+    this.selectIsHypervisorConnect$ = this.store.select(selectIsHypervisorConnect).subscribe(isHypervisorConnect => {
+      if (isHypervisorConnect !== undefined) {
+        const connection = this.serverConnectionService.getConnection(RemoteCategories.HYPERVISOR);
+        this.hypervisorId = connection ? connection.id : 0;
+      }
+    })
   }
 
   ngOnInit(): void {
@@ -190,6 +203,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     this.selectDeletedLogicalInterfaces$.unsubscribe();
     this.selectDeletedMapLinks$.unsubscribe();
     this.selectDeletedMapImages$.unsubscribe();
+    this.selectIsHypervisorConnect$.unsubscribe();
   }
 
   download() {
@@ -255,7 +269,6 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       pg_name_label_checkbox: this.isPGNameLabelChecked,
       pg_subnet_label_checkbox: this.isPGSubnetLabelChecked,
       pg_vlan_label_checkbox: this.isPGVLANLabelChecked,
-      edge_name_label_checkbox: this.isEdgeNameLabelChecked,
       edge_ip_label_checkbox: this.isEdgeIPLabelChecked,
       edge_vlan_mode_label_checkbox: this.isEdgeVLANModeLabelChecked,
     }
@@ -290,6 +303,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       updatedMapBackgrounds: this.updatedMapBackgrounds,
       updatedGroupBoxes: this.updatedGroupBoxes,
       updatedNodeAndPGInGroups: this.updatedNodeAndPGInGroups,
+      hypervisor_id: this.hypervisorId,
       updatedMapOptions
     }
     this.mapService.saveMap(this.projectId, this.mapCategory, jsonData).pipe(
@@ -304,6 +318,9 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
           data.updated = false;
         }
       });
+      if (this.hypervisorId && (this.deletedLogicalNodes.length > 0 || this.deletedPortGroups.length > 0)) {
+        this.store.dispatch(loadUserTasks());
+      }
       if (this.deletedMapLinks.length > 0) {
         this.store.dispatch(loadProjectsNotLinkYet({ projectId: this.projectId }));
       }
@@ -311,11 +328,18 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         this.updateDomainInNodesAndPGs(this.updatedNodeAndPGInGroups)
         this.store.dispatch(loadGroups({ projectId: this.projectId }));
       }
-      this.deletedLogicalNodes.splice(0);
-      this.deletedPortGroups.splice(0);
-      this.deletedLogicalInterfaces.splice(0);
-      this.deletedMapLinks.splice(0);
-      this.deletedMapImages.splice(0);
+      if (this.deletedLogicalNodes.length > 0) {
+        this.store.dispatch(loadNodes({ projectId: this.projectId }));
+      }
+      if (this.deletedPortGroups.length > 0) {
+        this.store.dispatch(loadPGs({ projectId: this.projectId }));
+      }
+      if (this.deletedLogicalInterfaces.length > 0) {
+        this.store.dispatch(loadInterfaces({ projectId: this.projectId }));
+      }
+      if (this.deletedMapImages.length > 0) {
+        this.store.dispatch(loadMapImages({ projectId: this.projectId }));
+      }
       this.updatedNodes.splice(0);
       this.updatedPGs.splice(0);
       this.updatedInterfaces.splice(0);
@@ -337,7 +361,6 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
           isPGNameLabelChecked: this.isPGNameLabelChecked,
           isPGSubnetLabelChecked: this.isPGSubnetLabelChecked,
           isPGVLANLabelChecked: this.isPGVLANLabelChecked,
-          isEdgeNameLabelChecked: this.isEdgeNameLabelChecked,
           isEdgeIPLabelChecked: this.isEdgeIPLabelChecked,
           isEdgeVLANModeLabelChecked: this.isEdgeVLANModeLabelChecked
         }
