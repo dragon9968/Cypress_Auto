@@ -88,6 +88,13 @@ export const removeInterfaces = createAction(
   props<{ ids: number[] }>()
 );
 
+export const removeConnectedPhysicalInterfaces = createAction(
+  'removeConnectedPhysicalInterfaces',
+  props<{ 
+    ids: any[]
+   }>()
+)
+
 export const removeInterfacesSuccess = createAction(
   'removeInterfaceSuccess',
   props<{ ids: number[] }>()
@@ -133,6 +140,27 @@ export const addInterfaceLogicalToMap = createAction(
   props<{ id: any }>()
 )
 
+export const addPhysicalInterfaceToMap = createAction(
+  'addPhysicalInterfaceToMap',
+  props<{ id: any, mode: boolean }>()
+)
+
+export const removePhysicalInterfaceOnMap = createAction(
+  'removePhysicalInterfaceOnMap',
+  props<{ id: any, mode: boolean }>()
+)
+
+export const updateConnectedPhysicalInterface = createAction(
+  'updateConnectedPhysicalInterface',
+  props<{ 
+    id: any,
+    currentEdgeId: any,
+    data: any,
+    target: any,
+    mode: boolean
+   }>()
+)
+
 export const connectInterfaceToPG = createAction(
   'connectInterfaceToPG',
   props<{
@@ -141,6 +169,15 @@ export const connectInterfaceToPG = createAction(
     netmasks: any[],
   }>()
 );
+
+export const connectPhysicalInterfaces = createAction(
+  'connectPhysicalInterfaces',
+  props<{
+    id: number,
+    data: any,
+    target: number,
+  }>()
+)
 
 export const updateNodeInInterfaces = createAction(
   'updateNodeInInterface',
@@ -171,6 +208,11 @@ export const bulkEditLogicalInterface = createAction(
 
 export const logicalInterfaceUpdatedSuccess = createAction(
   'logicalInterfaceUpdatedSuccess',
+  props<{ interfaceData: any }>()
+);
+
+export const physicalInterfaceUpdatedSuccess = createAction(
+  'physicalInterfaceUpdatedSuccess',
   props<{ interfaceData: any }>()
 );
 

@@ -1,6 +1,8 @@
 export enum SuccessMessages {
   ADDED_NEW_EDGE_SUCCESS = 'Edge details added!',
   CONNECTED_EDGE_TO_PG_SUCCESS = 'Connected Edge to Port Group!',
+  CONNECTED_PHYSICAL_INTERFACE_SUCCESS = 'Connected Interface to Node!',
+  DELETE_CONNETECD_PHYSICAL_INTERFACE_SUCCESS = 'Deleted connected Interface successfully',
   ADDED_TEMPLATE_TO_PROJECT_SUCCESS = 'Added items from template into project successfully',
   ADDED_PROJECT_NODE_SUCCESS = 'Add project link successfully!',
   REMOVE_PROJECT_NODE_SUCCESS = 'Project node(s) removed!',
@@ -15,4 +17,5 @@ export enum SuccessMessages {
   USER_TASK_ADDED_TASK_SUCCESS = 'Task added to the queue',
   USER_TASK_ADDED_PG_TASK_SUCCESS = 'Add port group task to queue',
   USER_TASK_DELETED_TASK_SUCCESS = 'Delete task(s) success!',
+  UPDATED_CONNECTED_PHYSICAL_INTERFACES_SUCCESS = 'Updated connect Interface'
 }

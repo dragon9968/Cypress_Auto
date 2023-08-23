@@ -20,7 +20,7 @@ export const loadMap = createAction(
 
 export const addTemplateIntoProject = createAction(
   'addTemplateIntoProject',
-  props<{ data: any, newPosition: { x: number, y: number } }>()
+  props<{ data: any, newPosition: { x: number, y: number }, mapCategory: any }>()
 )
 
 export const addTemplateItemsToMap = createAction(

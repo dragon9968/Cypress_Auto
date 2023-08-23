@@ -19,6 +19,7 @@ import { selectSelectedPortGroups } from 'src/app/store/portgroup/portgroup.sele
 import { selectSelectedMapLinks } from "../../../store/map-link/map-link.selectors";
 import { ProjectService } from "../../../project/services/project.service";
 
+
 @Injectable({
   providedIn: 'root'
 })
@@ -139,22 +140,23 @@ export class CMEditService implements OnDestroy {
           })
         } else {
           const nodeId = this.selectedInterfaces[0].data.node_id;
-          const nodeName = this.selectedInterfaces[0].data.node;
-          this.interfaceService.getByNodeAndConnectedToInterface(nodeId).subscribe(response => {
+          const nameSourceNode = this.selectedInterfaces[0].data.node.name;
+          this.interfaceService.getByNode(nodeId).subscribe(response => {
             this.store.dispatch(retrievedInterfacesBySourceNode({ interfacesBySourceNode: response.result }));
             this.interfaceService.getByProjectIdAndHwNode(projectId).subscribe(interfaceData => {
-              const listInterface = interfaceData.result.filter((val: any) => val.node_id != nodeId)
-              this.store.dispatch(retrievedInterfacesByDestinationNode({ interfacesByDestinationNode: listInterface }));
-              const dialogData = {
-                mode: 'edit_connected_interface',
-                nodeId: nodeId,
-                cy,
-                mapCategory: mapCategory,
-                genData: this.selectedInterfaces[0]
-              }
-              const dialogRef = this.dialog.open(ConnectInterfaceDialogComponent, { disableClose: true, width: '850px', data: dialogData, autoFocus: false, panelClass: 'custom-connect-interfaces-form-modal' })
-              dialogRef.afterClosed().subscribe(result => {
-                cy.edges().unselect();
+                const listInterface = interfaceData.result.filter((val: any) => val.node_id != nodeId)
+                this.store.dispatch(retrievedInterfacesByDestinationNode({ interfacesByDestinationNode: listInterface }));
+                const dialogData = {
+                  mode: 'edit_connected_interface',
+                  nodeId: nodeId,
+                  cy,
+                  mapCategory: mapCategory,
+                  genData: this.selectedInterfaces[0],
+                  nameSourceNode
+                }
+                const dialogRef =  this.dialog.open(ConnectInterfaceDialogComponent, { disableClose: true, width: '850px', data: dialogData, autoFocus: false, panelClass: 'custom-connect-interfaces-form-modal'})
+                dialogRef.afterClosed().subscribe(result => {
+                  cy.edges().unselect();
               })
             })
           })

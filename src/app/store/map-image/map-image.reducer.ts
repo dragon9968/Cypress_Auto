@@ -17,7 +17,7 @@ import { MapImageState } from './map-image.state';
 
 const initialState = {} as MapImageState;
 
-const addCyDataToMapImages = (mapImage: any) => {
+const addCyDataToMapImages = (mapImage: any, mapCategory: any) => {
   const image = `/static/img/uploads/${mapImage.image.photo}` ? mapImage.image : ""
   const baseCyData = {
     id: `map_image-${mapImage.id}`,
@@ -29,12 +29,20 @@ const addCyDataToMapImages = (mapImage: any) => {
     zIndex: 998,
     image: image,
     src: image,
-    locked: mapImage.logical_map?.locked
+    locked: mapCategory === 'logical' ? mapImage.logical_map?.locked : mapImage.physical_map?.locked
   }
-  return {
-    ...mapImage,
-    data: { ...baseCyData, ...mapImage.logical_map?.map_style },
-    position: mapImage.logical_map?.position,
+  if (mapCategory === 'logical') {
+    return {
+      ...mapImage,
+      data: { ...baseCyData, ...mapImage.logical_map?.map_style },
+      position: mapImage.logical_map?.position,
+    }
+  } else {
+    return {
+      ...mapImage,
+      data: { ...baseCyData, ...mapImage.physical_map?.map_style },
+      position: mapImage.physical_map?.position,
+    }
   }
 }
 
@@ -48,8 +56,8 @@ export const mapImagesReducer = createReducer(
     ...state,
     images: data,
   })),
-  on(mapImagesLoadedSuccess, (state, { mapImages }) => {
-    const mi = mapImages.map((mapImage: any) => addCyDataToMapImages(mapImage));
+  on(mapImagesLoadedSuccess, (state, { mapImages, mapCategory }) => {
+    const mi = mapImages.map((mapImage: any) => addCyDataToMapImages(mapImage, mapCategory));
     return {
       ...state,
       mapImages: mi,
@@ -93,8 +101,8 @@ export const mapImagesReducer = createReducer(
       mapImages
     }
   }),
-  on(mapImageAddedSuccess, (state, { mapImage }) => {
-    const mapImageCY = addCyDataToMapImages(mapImage);
+  on(mapImageAddedSuccess, (state, { mapImage, mapCategory }) => {
+    const mapImageCY = addCyDataToMapImages(mapImage, mapCategory);
     const mapImages = state.mapImages.concat(mapImageCY)
     return {
       ...state,
@@ -103,7 +111,7 @@ export const mapImagesReducer = createReducer(
   }),
   on(linkedMapImagesLoadedSuccess, (state, { mapImages, mapLinkId, position }) => {
     const linkedMapImages = JSON.parse(JSON.stringify(mapImages)).map((mapImage: any) => {
-      let mapImagesCY = addCyDataToMapImages(mapImage)
+      let mapImagesCY = addCyDataToMapImages(mapImage, 'logical')
       mapImagesCY.data.parent_id = mapLinkId
       if (mapImagesCY.position) {
         mapImagesCY.position.x = position.x;

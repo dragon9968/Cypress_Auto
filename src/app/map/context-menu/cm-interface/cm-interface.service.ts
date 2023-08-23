@@ -59,7 +59,6 @@ export class CMInterfaceService implements OnDestroy {
       onClickFunction: (event: any) => {
         const nodeData = mapCategory === 'logical' ? this.selectedLogicalNodes : this.selectedPhysicalNodes
         const nodeId = nodeData[0].id;
-        const nodeName = nodeData[0].name;
         if (mapCategory == 'logical') {
           this.interfaceService.getByNodeAndNotConnectToPG(nodeId).subscribe(response => {
             this.store.dispatch(retrievedInterfacesNotConnectPG({ interfacesNotConnectPG: response.result }));
@@ -68,12 +67,9 @@ export class CMInterfaceService implements OnDestroy {
           })
         } else {
           this.interfaceService.getByNodeAndNotConnected(nodeId).subscribe(response => {
-            this.interfaceService.getByProjectId(this.projectService.getProjectId()).subscribe(resp => {
-              this.store.dispatch(retrievedInterfacesConnectedNode({ interfacesConnectedNode: resp.result }));
-              this.store.dispatch(retrievedInterfacesBySourceNode({ interfacesBySourceNode: response.result }));
-              this.store.dispatch(retrievedInterfacePkConnectNode({ interfacePkConnectNode: true }))
-              queueEdge(event.target, event.position, "wired");
-            })
+            this.store.dispatch(retrievedInterfacesBySourceNode({ interfacesBySourceNode: response.result }));
+            this.store.dispatch(retrievedInterfacePkConnectNode({ interfacePkConnectNode: true }))
+            queueEdge(event.target, event.position, "wired");
           })
         }
       }

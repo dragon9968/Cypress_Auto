@@ -8,6 +8,7 @@ import { selectSelectedPortGroups } from 'src/app/store/portgroup/portgroup.sele
 import { selectSelectedLogicalInterfaces, selectSelectedPhysicalInterfaces } from 'src/app/store/interface/interface.selectors';
 import { selectSelectedMapLinks } from "../../../store/map-link/map-link.selectors";
 import { selectSelectedMapImages } from "../../../store/map-image/map-image.selectors";
+import { removeConnectedPhysicalInterfaces } from 'src/app/store/interface/interface.actions';
 
 @Injectable({
   providedIn: 'root'
@@ -96,11 +97,18 @@ export class CMDeleteService implements OnDestroy {
       content: "Delete",
       selector: "node[label!='group_box'], edge",
       onClickFunction: (event: any) => {
+        if (mapCategory === 'logical') {
+          this.selectedNodeIds = this.selectedLogicalNodeIds;
+          this.selectedInterfaceIds = this.selectedLogicalInterfaceIds;
+          this.helpersService.removeInterfacesOnMap(this.selectedInterfaceIds);
+        } else {
+          this.selectedNodeIds = this.selectedPhysicalNodesIds;
+          this.selectedInterfaceIds = this.selectedPhysicalInterfacesIds;
+          this.store.dispatch(removeConnectedPhysicalInterfaces({ ids: this.selectedInterfaceIds }));
+        }
         this.selectedNodeIds = mapCategory === 'logical' ? this.selectedLogicalNodeIds : this.selectedPhysicalNodesIds;
-        this.selectedInterfaceIds = mapCategory === 'logical' ? this.selectedLogicalInterfaceIds : this.selectedPhysicalInterfacesIds;
         this.helpersService.removeNodesOnMap(this.selectedNodeIds);
         this.helpersService.removePGsOnMap(this.selectedPGIds);
-        this.helpersService.removeInterfacesOnMap(this.selectedInterfaceIds);
         this.helpersService.removeMapLinksOnMap(this.selectedMapLinkIds);
         this.helpersService.removeMapImagesOnMap(this.selectedMapImagesIds);
       },

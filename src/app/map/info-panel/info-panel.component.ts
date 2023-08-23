@@ -1,7 +1,7 @@
 import { Store } from "@ngrx/store";
 import { ResizeEvent } from 'angular-resizable-element';
 import { Subscription } from "rxjs";
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { NodeService } from "../../core/services/node/node.service";
 import { ProjectService } from "../../project/services/project.service";
 import { DomainUserService } from "../../core/services/domain-user/domain-user.service";
@@ -9,17 +9,20 @@ import { retrievedDomainUsers } from "../../store/domain-user/domain-user.action
 import { retrievedIsChangeDomainUsers } from "../../store/domain-user-change/domain-user-change.actions";
 import { InterfaceService } from "../../core/services/interface/interface.service";
 import { LocalStorageKeys } from "../../core/storage/local-storage/local-storage-keys.enum";
+import { selectMapCategory } from "src/app/store/map-category/map-category.selectors";
 
 @Component({
   selector: 'app-info-panel',
   templateUrl: './info-panel.component.html',
   styleUrls: ['./info-panel.component.scss']
 })
-export class InfoPanelComponent implements OnInit{
+export class InfoPanelComponent implements OnInit, OnDestroy{
   isOpenInfoPanel = false;
 
   @Input() cy: any;
   selectDomainUser$ = new Subscription();
+  selectMapCategory$ = new Subscription();
+  mapCategory: any;
   isShowMaximize = true
   isShowMinimize = true
   isShowRestoreHeight = false
@@ -28,6 +31,7 @@ export class InfoPanelComponent implements OnInit{
   style: any = {
     height: '300px'
   };
+  isHiddenPgTab = false;
 
   constructor(
     private store: Store,
@@ -35,7 +39,16 @@ export class InfoPanelComponent implements OnInit{
     private projectService: ProjectService,
     private interfaceService: InterfaceService,
     private domainUserService: DomainUserService,
-  ) {}
+  ) {
+    this.selectMapCategory$ = this.store.select(selectMapCategory).subscribe((mapCategory: any) => {
+      this.mapCategory = mapCategory ? mapCategory : localStorage.getItem(LocalStorageKeys.MAP_STATE)
+      this.isHiddenPgTab = this.mapCategory === 'physical' ? true : false;
+    })
+  }
+  ngOnDestroy(): void {
+    this.selectDomainUser$.unsubscribe();
+    this.selectMapCategory$.unsubscribe();
+  }
 
   validate(event: ResizeEvent): boolean {
     const MIN_DIMENSIONS_PX: number = 50;

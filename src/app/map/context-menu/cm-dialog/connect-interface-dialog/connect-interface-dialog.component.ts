@@ -17,8 +17,9 @@ import { showErrorFromServer } from 'src/app/shared/validations/error-server-res
 import { networksValidation } from 'src/app/shared/validations/networks.validation';
 import { vlanInterfaceValidator } from 'src/app/shared/validations/vlan-interface.validation';
 import { selectNotification } from 'src/app/store/app/app.selectors';
-import { addPhysicalInterface, retrievedInterfacesConnectedNode } from 'src/app/store/interface/interface.actions';
-import { selectInterfacesByDestinationNode, selectInterfacesBySourceNode, selectInterfacesConnectedNode } from 'src/app/store/interface/interface.selectors';
+import { addPhysicalInterface, connectPhysicalInterfaces, retrievedInterfacesConnectedNode, updateConnectedPhysicalInterface } from 'src/app/store/interface/interface.actions';
+import { selectInterfacesByDestinationNode, selectInterfacesBySourceNode, selectInterfacesConnectedNode, selectPhysicalInterfaces } from 'src/app/store/interface/interface.selectors';
+import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
 import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
 
 @Component({
@@ -38,6 +39,7 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
   selectInterfaceConnectedNode$ = new Subscription();
   selectNotification$ = new Subscription();
   selectNetmasks$ = new Subscription();
+  selectMapPref$ = new Subscription();
   sourceInterface: any[] = [];
   destinationInterface: any[] = [];
   netmasks: any[] = [];
@@ -57,6 +59,9 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
   listInterfaceConnectedSource: any[] = [];
   listInterfaceConnectedTarget: any[] = [];
   nameSourceNode: any;
+  nameTargetNode: any;
+  listPhysicalInterfaces: any[] = [];
+  selectedMapPref: any;
 
   constructor(
     public helpersService: HelpersService,
@@ -82,19 +87,27 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
         }
       }
     });
-    this.selectInterfaceConnectedNode$ = this.store.select(selectInterfacesConnectedNode).subscribe(interfaces => {
+    this.selectMapPref$ = this.store.select(selectMapPref).subscribe((selectedMapPref: any) => {
+      this.selectedMapPref = selectedMapPref;
+    });
+    this.selectInterfaceConnectedNode$ = this.store.select(selectPhysicalInterfaces).subscribe(interfaces => {
       if (interfaces) {
-        const filteredInterfaceByCategory = interfaces.filter((el: any) => el.category !== 'management' && el.interface_fk !== null)
-        this.listInterfaceConnectedTarget = filteredInterfaceByCategory.map((val: any) => val.interface_fk);
-        this.listInterfaceConnectedSource = filteredInterfaceByCategory.map((val: any) => val.interface_pk);
+        this.listPhysicalInterfaces = interfaces
+        const filteredInterfaceByCategory = interfaces.filter((el: any) => el.data.category !== 'management' && el.data.interface_fk !== null)
+        this.listInterfaceConnectedTarget = filteredInterfaceByCategory.map((val: any) => val.data.interface_fk);
+        this.listInterfaceConnectedSource = filteredInterfaceByCategory.map((val: any) => val.data.interface_pk);
       }
     })
     this.selectSourceInterface$ = this.store.select(selectInterfacesBySourceNode).subscribe(interfaces => {
       if (interfaces) {
-        this.sourceInterface = interfaces.filter((el: any) => el.category !== 'management' && !this.listInterfaceConnectedTarget.includes(el.id))
+        this.sourceInterface = interfaces.filter((el: any) =>
+          el.category !== 'management' && !this.listInterfaceConnectedTarget.includes(el.id))
         if (this.data.mode === 'edit_connected_interface') {
-          this.sourceInterface = interfaces.filter((el: any) => el.interface_id !== null)
+          const connectedInterfaces = interfaces.find((el: any) => el.id === this.data.genData.id )
+          const sourceInterface = this.sourceInterface.filter((el: any) => el.interface_id === null )
+          this.sourceInterface = sourceInterface.concat(connectedInterfaces)
         }
+
         this.sourceInterface = this.sourceInterface.map((val: any) => ({ ...val, node: val.node?.name ? val.node?.name : val.node }))
         this.sourceInterfaceCtr.setValidators([Validators.required, autoCompleteValidator(this.sourceInterface)]);
         this.filteredBySourceInterfaces = this.helpersService.filterOptions(this.sourceInterfaceCtr, this.sourceInterface);
@@ -103,9 +116,7 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
     this.selectDestinationInterface$ = this.store.select(selectInterfacesByDestinationNode).subscribe(interfaces => {
       if (interfaces) {
         this.destinationInterface = interfaces.filter((el: any) => el.category !== 'management');
-        if (this.data.mode === 'connect_node') {
-          this.destinationInterface = this.destinationInterface.map((val: any) => ({ ...val, node: val.node?.name ? val.node?.name : val.node }))
-        }
+        this.destinationInterface = this.destinationInterface.map((val: any) => ({ ...val, node: val.node?.name ? val.node?.name : val.node }))
         const filteredDestinationInterface = this.destinationInterface.filter((el: any) =>
           !this.listInterfaceConnectedTarget.includes(el.id) && !this.listInterfaceConnectedSource.includes(el.id))
         this.destinationInterfaceCtr.setValidators([Validators.required, autoCompleteValidator(this.destinationInterface)]);
@@ -113,6 +124,8 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
       }
     })
     this._setTitle();
+    this.nameSourceNode = this.data.nameSourceNode;
+    this.nameTargetNode = this.data.nameTargetNode;
 
     this.interfaceAddFormSource = new FormGroup({
       orderSourceCtr: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
@@ -164,12 +177,15 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
     this.selectDestinationInterface$.unsubscribe();
     this.selectNetmasks$.unsubscribe();
     this.selectNotification$.unsubscribe();
+    this.selectMapPref$.unsubscribe();
   }
 
   ngOnInit(): void {
     if (this.data.mode === 'edit_connected_interface') {
-      this.helpersService.setAutoCompleteValue(this.sourceInterfaceCtr, this.sourceInterface, this.data?.genData.interface_pk);
+      this.nameSourceNode = this.data.nameSourceNode;
+      this.helpersService.setAutoCompleteValue(this.sourceInterfaceCtr, this.sourceInterface, this.data?.genData.id);
       const interfaceFk = this.data?.genData.interface_fk ? this.data?.genData.interface_fk : this.data?.genData.interface_id;
+      this.nameTargetNode = this.listPhysicalInterfaces.find((ele: any) => ele.id === interfaceFk).node.name;
       this.helpersService.setAutoCompleteValue(this.destinationInterfaceCtr, this.destinationInterface, interfaceFk);
     }
   }
@@ -217,31 +233,7 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
       task: taskSuccess
     }
     const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.interfaceService.put(this.sourceInterfaceCtr.value.id, jsonData).subscribe((respData: any) => {
-      const newEdgeData = this.data.newEdgeData;
-      newEdgeData.target = `node-${this.destinationInterfaceCtr?.value.node_id}`;
-      const edge = this.data.cy.getElementById(this.sourceInterfaceCtr?.value.id);
-      this.data.cy.remove(edge);
-      const id = this.sourceInterfaceCtr?.value.id
-      const cyData = respData.result;
-      cyData.id = `interface-${id}`;
-      cyData.interface_pk = id;
-      cyData.width = cyData.physical_map.map_style.width;
-      cyData.text_color = cyData.physical_map.map_style.text_color;
-      cyData.text_size = cyData.physical_map.map_style.text_size;
-      cyData.text_outline_width = cyData.physical_map.map_style.text_outline_width;
-      cyData.text_outline_color = cyData.physical_map.map_style.text_outline_color;
-      cyData.color = cyData.physical_map.map_style.color;
-      cyData.source_label = this.sourceInterfaceCtr?.value.name
-      cyData.target_label = this.destinationInterfaceCtr?.value.name
-      this.helpersService.addCYEdge({ ...newEdgeData, ...cyData });
-      this.helpersService.changeEdgeDirectionOnMap(this.data.cy, this.data.isEdgeDirectionChecked)
-      this.interfaceService.getByProjectId(this.projectService.getProjectId()).subscribe(resp => {
-        this.store.dispatch(retrievedInterfacesConnectedNode({ interfacesConnectedNode: resp.result }));
-      })
-      this.dialogRef.close();
-      this.toastr.success(taskSuccess, 'Success');
-    });
+    this.store.dispatch(connectPhysicalInterfaces({ id: this.sourceInterfaceCtr.value.id, data: jsonData, target: this.destinationInterfaceCtr?.value }));
   }
 
   updateConnectedInterfacePhysical() {
@@ -251,16 +243,18 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
       interface_id: this.destinationInterfaceCtr?.value.id,
       task: taskSuccess
     }
+    const mode = edgeData.id === this.data.genData.id ? false : true;
+    const currentEdgeId = this.data.genData.id;
     const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.interfaceService.put(edgeData.id, jsonData).subscribe(() => {
-      const edge = this.data.cy.getElementById(`interface-${edgeData.id}`);
-      edge.move({ source: `node-${edgeData.node_id}` });
-      edge.move({ target: `node-${this.destinationInterfaceCtr?.value.node_id}` });
-      edge.data('source_label', edgeData.name);
-      edge.data('target_label', this.destinationInterfaceCtr?.value.name);
-      this.dialogRef.close();
-      this.toastr.success(taskSuccess, 'Success');
-    })
+    this.store.dispatch(updateConnectedPhysicalInterface(
+      { 
+        id: edgeData.id, 
+        currentEdgeId: currentEdgeId,
+        data: jsonData, 
+        target: this.destinationInterfaceCtr?.value, 
+        mode: mode 
+      }
+      ));
   }
 
   onCancelSource() {
@@ -285,7 +279,7 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
     this.dialogRef.updateSize('1200px');
     if (mode === 'source') {
       this.isOpenAddInterfaceFormOfSource = true;
-      const sourceNodeId = this.data.mode === 'connect_node' ? this.data.newEdgeData.source : this.data.genData.source
+      const sourceNodeId = this.data.mode === 'connect_node' ? this.data.newEdgeData.source : this.data.genData.data.source
       this.sourceNodeId = sourceNodeId.split('-')[1]
       this.interfaceService.genData(this.sourceNodeId, undefined).subscribe(response => {
         const genData = response;
@@ -315,7 +309,7 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
       });
     } else {
       this.isOpenAddInterfaceFormOfDestination = true;
-      const targetNodeId = this.data.mode === 'connect_node' ? this.data.newEdgeData.target : this.data.genData.target
+      const targetNodeId = this.data.mode === 'connect_node' ? this.data.newEdgeData.target : this.data.genData.data.target
       this.targetNodeId = targetNodeId.split('-')[1]
       this.interfaceService.genData(this.targetNodeId, undefined).subscribe(response => {
         const genData = response;
@@ -364,38 +358,39 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
       vlan: mode == 'source' ? this.vlanIdSourceCtr?.value : this.vlanIdTargetCtr?.value,
       vlan_mode: mode == 'source' ? this.vlanModeSourceCtr?.value : this.vlanModeTargetCtr?.value,
       netmask_id: mode == 'source' ? this.netMaskSourceCtr?.value.id : this.netMaskTargetCtr?.value.id,
-      logical_map: (this.data.mode == 'connect_node') ? {
+      logical_map: {
         map_style: {
-          "width": this.data.selectedMapPref.edge_width,
-          "color": this.data.selectedMapPref.edge_color,
-          "text_size": this.data.selectedMapPref.text_size,
-          "text_color": this.data.selectedMapPref.text_color,
-          "text_halign": this.data.selectedMapPref.text_halign,
-          "text_valign": this.data.selectedMapPref.text_valign,
-          "text_outline_color": this.data.selectedMapPref.text_outline_color,
-          "text_outline_width": this.data.selectedMapPref.text_outline_width,
-          "text_bg_color": this.data.selectedMapPref.text_bg_color,
-          "text_bg_opacity": this.data.selectedMapPref.text_bg_opacity
+          "width": this.selectedMapPref.edge_width,
+          "color": this.selectedMapPref.edge_color,
+          "text_size": this.selectedMapPref.text_size,
+          "text_color": this.selectedMapPref.text_color,
+          "text_halign": this.selectedMapPref.text_halign,
+          "text_valign": this.selectedMapPref.text_valign,
+          "text_outline_color": this.selectedMapPref.text_outline_color,
+          "text_outline_width": this.selectedMapPref.text_outline_width,
+          "text_bg_color": this.selectedMapPref.text_bg_color,
+          "text_bg_opacity": this.selectedMapPref.text_bg_opacity
         }
-      } : undefined,
-      physical_map: (this.data.mode == 'connect_node') ? {
+      },
+      physical_map: {
         map_style: {
-          "width": this.data.selectedMapPref.edge_width,
-          "color": this.data.selectedMapPref.edge_color,
-          "text_size": this.data.selectedMapPref.text_size,
-          "text_color": this.data.selectedMapPref.text_color,
-          "text_halign": this.data.selectedMapPref.text_halign,
-          "text_valign": this.data.selectedMapPref.text_valign,
-          "text_outline_color": this.data.selectedMapPref.text_outline_color,
-          "text_outline_width": this.data.selectedMapPref.text_outline_width,
-          "text_bg_color": this.data.selectedMapPref.text_bg_color,
-          "text_bg_opacity": this.data.selectedMapPref.text_bg_opacity
+          "width": this.selectedMapPref.edge_width,
+          "color": this.selectedMapPref.edge_color,
+          "text_size": this.selectedMapPref.text_size,
+          "text_color": this.selectedMapPref.text_color,
+          "text_halign": this.selectedMapPref.text_halign,
+          "text_valign": this.selectedMapPref.text_valign,
+          "text_outline_color": this.selectedMapPref.text_outline_color,
+          "text_outline_width": this.selectedMapPref.text_outline_width,
+          "text_bg_color": this.selectedMapPref.text_bg_color,
+          "text_bg_opacity": this.selectedMapPref.text_bg_opacity
         }
-      } : undefined,
+      },
       project_id: this.projectService.getProjectId()
     }
     const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.store.dispatch(addPhysicalInterface({ data: jsonData, mode: mode, netmasks: this.netmasks }));
+    this.categorySection = mode;
     if (mode === 'source') {
       this.isOpenAddInterfaceFormOfSource = false;
     } else {

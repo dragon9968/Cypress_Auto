@@ -12,9 +12,11 @@ import { AddUpdateInterfaceDialogComponent } from "../../add-update-interface-di
 import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
 import { FormControl, FormGroup } from "@angular/forms";
 import { MatMenuTrigger } from "@angular/material/menu";
-import { selectIsSelectedFlag, selectLogicalInterfaces, selectLogicalManagementInterfaces, selectSelectedLogicalInterfaces } from "../../../store/interface/interface.selectors";
+import { selectIsSelectedFlag, selectLogicalInterfaces, selectLogicalManagementInterfaces, selectPhysicalInterfaces, selectSelectedLogicalInterfaces, selectSelectedPhysicalInterfaces } from "../../../store/interface/interface.selectors";
 import { selectSelectedLogicalNodes } from "src/app/store/node/node.selectors";
 import { selectSelectedPortGroups } from "src/app/store/portgroup/portgroup.selectors";
+import { selectMapCategory } from "src/app/store/map-category/map-category.selectors";
+import { LocalStorageKeys } from "src/app/core/storage/local-storage/local-storage-keys.enum";
 
 @Component({
   selector: 'app-info-panel-interface',
@@ -28,6 +30,8 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
   @Input() infoPanelheight = '300px';
   filterOptionForm!: FormGroup;
   interfaces: any[] = [];
+  logicalInterfaces: any[] = [];
+  physicalInterfaces: any[] = [];
   managementInterfaces: any[] = [];
   selectedInterfaces: any[] = [];
   selectedNodes: any[] = [];
@@ -38,6 +42,7 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
   selectedInterfacesIdsByPG: any[] = [];
   selectedPGs: any[] = [];
   selectedPGsId: any[] = [];
+  mapCategory: any;
   isSelectedFlag = false;
   filterOption = 'all';
   tabName = 'interface';
@@ -47,6 +52,9 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
   selectSelectedLogicalNodes$ = new Subscription();
   selectSelectedPortGroups$ = new Subscription();
   selectIsSelectedFlag$ = new Subscription();
+  selectMapCategory$ = new Subscription();
+  selectPhysicalInterfaces$ = new Subscription();
+  selectSelectedPhysicalInterfaces$ = new Subscription();
   gridOptions: GridOptions = {
     headerHeight: 48,
     defaultColDef: {
@@ -157,12 +165,21 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
     private infoPanelService: InfoPanelService
   ) {
     this.iconRegistry.addSvgIcon('randomize-subnet', this.helpers.setIconPath('/assets/icons/randomize-subnet.svg'));
+    this.selectMapCategory$ = this.store.select(selectMapCategory).subscribe((mapCategory: any) => {
+      this.mapCategory = mapCategory ? mapCategory : localStorage.getItem(LocalStorageKeys.MAP_STATE)
+    })
     this.selectIsSelectedFlag$ = this.store.select(selectIsSelectedFlag).subscribe(isSelectedFlag => {
       this.isSelectedFlag = isSelectedFlag
     });
-    this.selectLogicalInterfaces$ = this.store.select(selectLogicalInterfaces).subscribe(interfaces => {
-      if (interfaces && !this.isSelectedFlag) {
-        this.interfaces = interfaces;
+    this.selectLogicalInterfaces$ = this.store.select(selectLogicalInterfaces).subscribe(logicalInterfaces => {
+      if (logicalInterfaces && !this.isSelectedFlag) {
+        this.logicalInterfaces = logicalInterfaces;
+        this.loadInterfacesTable();
+      }
+    });
+    this.selectPhysicalInterfaces$ = this.store.select(selectPhysicalInterfaces).subscribe(physicalInterfaces => {
+      if (physicalInterfaces && !this.isSelectedFlag) {
+        this.physicalInterfaces = physicalInterfaces;
         this.loadInterfacesTable();
       }
     });
@@ -172,9 +189,22 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
       }
     });
     this.selectSelectedLogicalInterfaces$ = this.store.select(selectSelectedLogicalInterfaces).subscribe(selectedInterfaces => {
-      if (selectedInterfaces) {
+      if (selectedInterfaces && this.mapCategory === 'logical') {
         this.selectedInterfaces = selectedInterfaces;
         this.selectedIds = selectedInterfaces.map(i => i.id);
+        this.infoPanelTableComponent?.deselectAll();
+        if (this.filterOption == 'selected') {
+          this.infoPanelTableComponent?.setRowData(this.selectedInterfaces);
+        }
+        this.infoPanelTableComponent?.setRowActive(this.selectedIds);
+      }
+    });
+    this.selectSelectedPhysicalInterfaces$ = this.store.select(selectSelectedPhysicalInterfaces).subscribe(selectedInterfaces => {
+      if (selectedInterfaces && this.mapCategory === 'physical') {
+        const listSelectedInterfaceId = selectedInterfaces.map((i: any) => i.interface_id)
+        const interfacesData = this.physicalInterfaces.filter((i: any) => listSelectedInterfaceId.includes(i.id))
+        this.selectedInterfaces = selectedInterfaces.concat(interfacesData)
+        this.selectedIds = this.selectedInterfaces.map(i => i.id);
         this.infoPanelTableComponent?.deselectAll();
         if (this.filterOption == 'selected') {
           this.infoPanelTableComponent?.setRowData(this.selectedInterfaces);
@@ -186,7 +216,7 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
       if (selectedNodes) {
         this.selectedNodes = selectedNodes;
         this.selectedNodesId = this.selectedNodes.map((ele: any) => ele.id)
-        const interfacesData = this.interfaces.filter((i: any) => this.selectedNodesId.includes(i.node_id))
+        const interfacesData = this.logicalInterfaces.filter((i: any) => this.selectedNodesId.includes(i.node_id))
         this.selectedInterfacesIdsByNodes = interfacesData.map(i => i.id);
         this.infoPanelTableComponent?.deselectAll();
         if (this.filterOption == 'selected_by_node') {
@@ -199,7 +229,7 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
       if (selectedPGs) {
         this.selectedPGs = selectedPGs;
         this.selectedPGsId = selectedPGs.map(pg => pg.id);
-        const interfacesData = this.interfaces.filter((i: any) => this.selectedPGsId.includes(i.port_group_id))
+        const interfacesData = this.logicalInterfaces.filter((i: any) => this.selectedPGsId.includes(i.port_group_id))
         this.selectedInterfacesIdsByPG = interfacesData.map(i => i.id);
         this.infoPanelTableComponent?.deselectAll();
         if (this.filterOption === 'selected_by_pg') {
@@ -218,9 +248,13 @@ export class InfoPanelInterfaceComponent implements OnDestroy {
     this.selectLogicalManagementInterfaces$.unsubscribe();
     this.selectSelectedLogicalNodes$.unsubscribe();
     this.selectIsSelectedFlag$.unsubscribe();
+    this.selectMapCategory$.unsubscribe();
+    this.selectPhysicalInterfaces$.unsubscribe();
+    this.selectSelectedPhysicalInterfaces$.unsubscribe();
   }
 
   private loadInterfacesTable() {
+    this.interfaces = this.mapCategory === 'logical' ? this.logicalInterfaces : this.physicalInterfaces;
     if (this.filterOption == 'all') {
       this.infoPanelTableComponent?.setRowData(this.interfaces);
     } else if (this.filterOption == 'selected') {

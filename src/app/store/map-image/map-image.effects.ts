@@ -26,7 +26,7 @@ export class MapImagesEffects {
     ofType(loadMapImages),
     exhaustMap((payload) => this.mapImageService.getMapImageByProjectId(Number(payload.projectId))
       .pipe(
-        map(res => (mapImagesLoadedSuccess({ mapImages: res.result }))),
+        map(res => (mapImagesLoadedSuccess({ mapImages: res.result, mapCategory: payload.mapCategory }))),
         catchError((e) => of(pushNotification({
           notification: {
             type: 'error',
@@ -42,7 +42,7 @@ export class MapImagesEffects {
       .pipe(
         mergeMap((res: any) => this.mapImageService.get(Number(res.id))),
         switchMap((res: any) => [
-          mapImageAddedSuccess({ mapImage: res.result }),
+          mapImageAddedSuccess({ mapImage: res.result, mapCategory: payload.mapCategory }),
           addNewMapImageToMap({ id: res.id }),
           reloadGroupBoxes(),
           pushNotification({

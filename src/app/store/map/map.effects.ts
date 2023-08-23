@@ -94,7 +94,7 @@ export class MapEffects {
         PGsLoadedSuccess({ portgroups: portgroupsData.result }),
         interfacesLoadedSuccess({ interfaces: interfacesData.result, nodes: nodesData.result }),
         groupsLoadedSuccess({ groups: groupsData.result }),
-        mapImagesLoadedSuccess({ mapImages: mapImagesData.result }),
+        mapImagesLoadedSuccess({ mapImages: mapImagesData.result, mapCategory: payload.mapCategory }),
         mapLoadedSuccess(),
       ]),
       catchError((e) => of(pushNotification({
@@ -129,7 +129,7 @@ export class MapEffects {
         nodesLoadedSuccess({ nodes: nodeRes.result }),
         PGsLoadedSuccess({ portgroups: portGroupRes.result }),
         interfacesLoadedSuccess({ interfaces: edgeRes.result, nodes: nodeRes.result }),
-        mapImagesLoadedSuccess({ mapImages: mapImageRes.result }),
+        mapImagesLoadedSuccess({ mapImages: mapImageRes.result, mapCategory: payload.mapCategory }),
         addTemplateItemsToMap({ newItemIds, newPosition: payload.newPosition }),
         pushNotification({
           notification: {

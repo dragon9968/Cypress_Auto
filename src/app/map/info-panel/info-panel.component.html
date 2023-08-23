@@ -4,7 +4,7 @@
     <mat-tab label="Nodes">
       <app-info-panel-node [cy]="cy" [infoPanelheight]="style.height"></app-info-panel-node>
     </mat-tab>
-    <mat-tab label="Port Groups">
+    <mat-tab *ngIf="!isHiddenPgTab" label="Port Groups">
       <app-info-panel-port-group [cy]="cy" [infoPanelheight]="style.height"></app-info-panel-port-group>
     </mat-tab>
     <mat-tab label="Interfaces">

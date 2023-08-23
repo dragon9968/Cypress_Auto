@@ -12,22 +12,28 @@ export const retrievedImages = createAction(
 
 export const loadMapImages = createAction(
   'loadMapImages',
-  props<{ projectId: string }>()
+  props<{ 
+    projectId: string,
+    mapCategory: any
+  }>()
 );
 
 export const mapImagesLoadedSuccess = createAction(
   'mapImagesLoadedSuccess',
-  props<{ mapImages: any }>()
+  props<{ 
+    mapImages: any,
+    mapCategory: any
+  }>()
 );
 
 export const addNewMapImage = createAction(
   'addNewMapImage',
-  props<{ mapImage: any }>()
+  props<{ mapImage: any, mapCategory: any}>()
 )
 
 export const mapImageAddedSuccess = createAction(
   'mapImageAddedSuccess',
-  props<{ mapImage: any }>()
+  props<{ mapImage: any, mapCategory: any }>()
 )
 
 export const addNewMapImageToMap = createAction(

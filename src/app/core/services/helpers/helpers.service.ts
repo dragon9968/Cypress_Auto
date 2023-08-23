@@ -31,7 +31,8 @@ import { selectMapLinks } from "../../../store/map-link/map-link.selectors";
 import {
   selectInterfacesCommonMapLinks,
   selectLinkedMapInterfaces,
-  selectLogicalMapInterfaces
+  selectLogicalMapInterfaces,
+  selectPhysicalInterfaces
 } from "../../../store/interface/interface.selectors";
 import { selectLinkedMapImages, selectMapImages } from "../../../store/map-image/map-image.selectors";
 import { clearLinkedMap } from "../../../store/map/map.actions";
@@ -72,6 +73,7 @@ export class HelpersService implements OnDestroy {
   physicalNodes: any[] = [];
   portGroups: any[] = [];
   interfacesLogical: any[] = [];
+  physicalInterface: any[] = [];
   linkedMapNodes: any;
   linkedMapPGs: any;
   linkedMapInterfaces: any;
@@ -178,6 +180,11 @@ export class HelpersService implements OnDestroy {
     this.selectLogicalMapInterfaces$ = this.store.select(selectLogicalMapInterfaces).subscribe(interfacesLogical => {
       if (interfacesLogical) {
         this.interfacesLogical = interfacesLogical
+      }
+    })
+    this.selectLogicalMapInterfaces$ = this.store.select(selectPhysicalInterfaces).subscribe(physicalInterface => {
+      if (physicalInterface) {
+        this.physicalInterface = physicalInterface
       }
     })
     this.selectMapImages$ = this.store.select(selectMapImages).subscribe(mapImage => {
@@ -1854,6 +1861,28 @@ export class HelpersService implements OnDestroy {
       this.showOrHideArrowDirectionOnEdge(id);
       this.changeEdgeLabelById(id);
     }
+  }
+
+  addPhysicalInterfaceToMap(id: number) {
+    const edge = this.physicalInterface.find(e => e.id === id);
+    if (edge) {
+      this.addCYEdge(JSON.parse(JSON.stringify(edge.data)));
+      this.showOrHideArrowDirectionOnEdge(edge.id);
+    }
+  }
+  
+  removePhysicalInterfaceOnMap(id: number) {
+    const edge = this.cy.getElementById(`interface-${id}`);
+    edge.unselect();
+    this.cy.remove(edge);
+  }
+
+  updatePhysicalInterfaceOnMap(id: string, data: any, target: any) {
+    const edge = this.cy.getElementById(id);
+    edge.move({ source: `node-${data.node_id}` });
+    edge.move({ target: `node-${target.node_id}` });
+    edge.data('source_label', data.name);
+    edge.data('target_label', target.name);
   }
 
   addPGToMap(id: number) {

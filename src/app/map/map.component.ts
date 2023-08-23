@@ -504,6 +504,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.destroy$.next(true);
     this.destroy$.unsubscribe();
     this.store.dispatch(retrievedMapEdit({ data: undefined }))
+    this.store.dispatch(retrievedMapCategory({ mapCategory : undefined}));
     this.deviceId = '';
     this.templateId = '';
     this.projectTemplateId = 0;
@@ -1608,6 +1609,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   switchMap($event: MatButtonToggleChange) {
     this.mapCategory = $event.value
     this.store.dispatch(unSelectAllElementsOnMap());
+    this.store.dispatch(mapDestroySuccess());
     this.store.dispatch(retrievedMapCategory({ mapCategory : this.mapCategory}));
     this.store.dispatch(loadMap({ projectId: this.projectId, mapCategory: this.mapCategory }));
   }
@@ -1620,7 +1622,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
       layout_only: layoutOnly,
       category: 'logical'
     }
-    this.store.dispatch(addTemplateIntoProject({ data: jsonData, newPosition }));
+    this.store.dispatch(addTemplateIntoProject({ data: jsonData, newPosition, mapCategory: this.mapCategory }));
     this.isAddProjectTemplate = false;
     this.projectTemplateId = 0;
     this._enableMapEditButtons();
@@ -1685,9 +1687,31 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         },
         locked: false,
         position: newNodePosition,
+      },
+      physical_map: {
+        map_style: {
+          height: height !== 0 ? height : 100,
+          width: width !== 0 ? width : 100,
+          text_size: '25',
+          text_color: '#000000',
+          text_halign: 'center',
+          text_valign: 'bottom',
+          text_bg_color: '#000000',
+          src: url,
+          zIndex: 998,
+          text_bg_opacity: 0,
+          label: "map_background",
+          elem_category: "bg_image",
+          'background-fit': 'contain',
+          "scale_image": 100,
+          original_width: width !== 0 ? width : 100,
+          original_height: height !== 0 ? height : 100,
+        },
+        locked: false,
+        position: newNodePosition,
       }
     }
-    this.store.dispatch(addNewMapImage({ mapImage: jsonData }))
+    this.store.dispatch(addNewMapImage({ mapImage: jsonData, mapCategory: this.mapCategory }))
     this.isAddMapImage = false;
     this._enableMapEditButtons();
   }

@@ -30,7 +30,8 @@ import {
   selectPhysicalInterface,
   unSelectPhysicalInterface,
   interfacePhysicalMapAddedSuccess,
-  addInterfacesToSourceNodeOrTargetNode
+  addInterfacesToSourceNodeOrTargetNode,
+  physicalInterfaceUpdatedSuccess
 } from "./interface.actions";
 
 const initialState = {} as InterfaceState;
@@ -59,7 +60,7 @@ const addCYDataToLogicalInterface = (edge: any) => {
   }
 }
 
-const addCYDataToPhysicalInterface = (edge: any) => {
+const addCYDataToPhysicalInterface = (edge: any, targetNode: any) => {
   const baseCyData = {
     id: `interface-${edge.id}`,
     interface_pk: edge.id,
@@ -68,9 +69,9 @@ const addCYDataToPhysicalInterface = (edge: any) => {
     zIndex: 999,
     updated: false,
     source: `node-${edge.node_id}`,
-    target: '',
+    target: targetNode ? `node-${targetNode.node_id}` : '',
     source_label: edge.name,
-    target_label: ''
+    target_label: targetNode ? targetNode.name : ''
   }
   return {
     ...edge,
@@ -194,7 +195,7 @@ export const interfaceReducerByIds = createReducer(
               source: `node-${i.node_id}`,
               target: i.interface_id ? `node-${targetNode.node_id}` : '',
               source_label: i.name,
-              target_label: (i.node_id === node.id) ? i.name : ""
+              target_label: i.interface_id ? targetNode.name : ""
             }
             physicalInterfaces.push({
               ...i,
@@ -260,7 +261,7 @@ export const interfaceReducerByIds = createReducer(
     }
   }),
   on(interfacePhysicalMapAddedSuccess, (state, { edge }) => {
-    const edgeCY = addCYDataToPhysicalInterface(edge)
+    const edgeCY = addCYDataToPhysicalInterface(edge, undefined)
     const physicalInterfaces = state.physicalInterfaces.concat(edgeCY)
     return {
       ...state,
@@ -421,6 +422,19 @@ export const interfaceReducerByIds = createReducer(
         logicalMapInterfaces
       };
     }
+  }),
+  on(physicalInterfaceUpdatedSuccess, (state, { interfaceData }) => {
+    let targetNode: any;
+    if (interfaceData.interface_id) {
+      targetNode = state.physicalInterfaces.find((el: any) => el.id === interfaceData.interface_id)
+    }
+    const interfaceCY = addCYDataToPhysicalInterface(interfaceData, targetNode)
+    const physicalInterfaces = state.physicalInterfaces.map((i: any) => (i.id == interfaceData.id) ? { ...i, ...interfaceCY } : i);
+    return {
+      ...state,
+      isSelectedFlag: false,
+      physicalInterfaces
+    };
   }),
   on(bulkEditlogicalInterfaceSuccess, (state, { interfacesData }) => {
     if (interfacesData.category == 'management') {

@@ -338,7 +338,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         this.store.dispatch(loadInterfaces({ projectId: this.projectId }));
       }
       if (this.deletedMapImages.length > 0) {
-        this.store.dispatch(loadMapImages({ projectId: this.projectId }));
+        this.store.dispatch(loadMapImages({ projectId: this.projectId, mapCategory: this.mapCategory }));
       }
       this.updatedNodes.splice(0);
       this.updatedPGs.splice(0);

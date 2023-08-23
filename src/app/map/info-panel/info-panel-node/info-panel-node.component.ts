@@ -12,8 +12,10 @@ import { ConfirmationDialogComponent } from "../../../shared/components/confirma
 import { AddUpdateNodeDialogComponent } from "../../add-update-node-dialog/add-update-node-dialog.component";
 import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
 import { MatMenuTrigger } from "@angular/material/menu";
-import { selectIsSelectedFlag, selectLogicalNodes, selectSelectedLogicalNodes } from "src/app/store/node/node.selectors";
+import { selectIsSelectedFlag, selectLogicalNodes, selectPhysicalNodes, selectSelectedLogicalNodes, selectSelectedPhysicalNodes } from "src/app/store/node/node.selectors";
 import { FormControl, FormGroup } from "@angular/forms";
+import { selectMapCategory } from "src/app/store/map-category/map-category.selectors";
+import { LocalStorageKeys } from "src/app/core/storage/local-storage/local-storage-keys.enum";
 
 
 @Component({
@@ -27,14 +29,20 @@ export class InfoPanelNodeComponent implements OnDestroy {
   @Input() cy: any;
   @Input() infoPanelheight = '300px';
   nodes!: any[];
+  logicalNodes!: any[];
+  physicalNodes!: any[];
   selectedNodes: any[] = [];
   selectedIds: any[] = [];
   isSelectedFlag = false;
   filterOption = 'all';
+  mapCategory: any;
   filterOptionForm!: FormGroup;
   selectLogicalNodes$ = new Subscription();
   selectSelectedLogicalNodes$ = new Subscription();
   selectIsSelectedFlag$ = new Subscription();
+  selectPhysicalNodes$ = new Subscription();
+  selectMapCategory$ = new Subscription();
+  selectSelectedPhysicalNodes$ = new Subscription();
   tabName = 'node';
   gridOptions: GridOptions = {
     headerHeight: 48,
@@ -175,24 +183,32 @@ export class InfoPanelNodeComponent implements OnDestroy {
     private cmActionsService: CMActionsService,
   ) {
     iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
+    this.selectMapCategory$ = this.store.select(selectMapCategory).subscribe((mapCategory: any) => {
+      this.mapCategory = mapCategory ? mapCategory : localStorage.getItem(LocalStorageKeys.MAP_STATE)
+    })
     this.selectIsSelectedFlag$ = this.store.select(selectIsSelectedFlag).subscribe(isSelectedFlag => {
       this.isSelectedFlag = isSelectedFlag
     });
     this.selectLogicalNodes$ = this.store.select(selectLogicalNodes).subscribe(nodes => {
       if (nodes && !this.isSelectedFlag) {
-        this.nodes = nodes;
+        this.logicalNodes = nodes;
         this.loadNodesTable();
       }
     });
-    this.selectSelectedLogicalNodes$ = this.store.select(selectSelectedLogicalNodes).subscribe(selectedNodes => {
-      if (selectedNodes) {
-        this.selectedNodes = selectedNodes;
-        this.selectedIds = selectedNodes.map(n => n.id);
-        this.infoPanelTableComponent?.deselectAll();
-        if (this.filterOption === 'selected') {
-          this.infoPanelTableComponent?.setRowData(this.selectedNodes);
-        }
-        this.infoPanelTableComponent?.setRowActive(this.selectedIds);
+    this.selectPhysicalNodes$ = this.store.select(selectPhysicalNodes).subscribe(nodes => {
+      if (nodes && !this.isSelectedFlag) {
+        this.physicalNodes = nodes;
+        this.loadNodesTable();
+      }
+    });
+    this.selectSelectedLogicalNodes$ = this.store.select(selectSelectedLogicalNodes).subscribe(selectedLogicalNodes => {
+      if (selectedLogicalNodes && this.mapCategory === 'logical') {
+        this.loadSelectedNodesTable(selectedLogicalNodes);
+      }
+    });
+    this.selectSelectedPhysicalNodes$ = this.store.select(selectSelectedPhysicalNodes).subscribe(selectedPhysicalNodes => {
+      if (selectedPhysicalNodes && this.mapCategory === 'physical') {
+        this.loadSelectedNodesTable(selectedPhysicalNodes);
       }
     });
     this.filterOptionForm = new FormGroup({
@@ -204,15 +220,29 @@ export class InfoPanelNodeComponent implements OnDestroy {
     this.selectLogicalNodes$.unsubscribe();
     this.selectSelectedLogicalNodes$.unsubscribe();
     this.selectIsSelectedFlag$.unsubscribe();
+    this.selectPhysicalNodes$.unsubscribe();
+    this.selectMapCategory$.unsubscribe();
+    this.selectSelectedPhysicalNodes$.unsubscribe();
   }
 
   private loadNodesTable() {
+    this.nodes = this.mapCategory === 'logical' ? this.logicalNodes : this.physicalNodes;
     if (this.filterOption == 'all') {
       this.infoPanelTableComponent?.setRowData(this.nodes);
     } else if (this.filterOption == 'selected') {
       this.infoPanelTableComponent?.setRowData(this.selectedNodes);
     }
     this.infoPanelTableComponent?.deselectAll();
+    this.infoPanelTableComponent?.setRowActive(this.selectedIds);
+  }
+
+  private loadSelectedNodesTable(nodesData: any) {
+    this.selectedNodes = nodesData;
+    this.selectedIds = nodesData.map((n: any) => n.id);
+    this.infoPanelTableComponent?.deselectAll();
+    if (this.filterOption === 'selected') {
+      this.infoPanelTableComponent?.setRowData(this.selectedNodes);
+    }
     this.infoPanelTableComponent?.setRowActive(this.selectedIds);
   }
 

@@ -29,7 +29,13 @@ import {
   logicalInterfacesAddedSuccess,
   addPhysicalInterface,
   interfacePhysicalMapAddedSuccess,
-  addInterfacesToSourceNodeOrTargetNode
+  addInterfacesToSourceNodeOrTargetNode,
+  connectPhysicalInterfaces,
+  physicalInterfaceUpdatedSuccess,
+  addPhysicalInterfaceToMap,
+  updateConnectedPhysicalInterface,
+  removePhysicalInterfaceOnMap,
+  removeConnectedPhysicalInterfaces
 } from './interface.actions';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { pushNotification } from '../app/app.actions';
@@ -121,7 +127,7 @@ export class InterfacesEffects {
       .pipe(
         mergeMap(res => this.interfaceService.get(payload.id)),
         switchMap((res: any) => [
-          logicalInterfaceUpdatedSuccess({ interfaceData: res.result }),
+          physicalInterfaceUpdatedSuccess({ interfaceData: res.result }),
           addInterfaceLogicalToMap({ id: payload.id }),
           pushNotification({
             notification: {
@@ -138,6 +144,125 @@ export class InterfacesEffects {
         })))
       )),
   ));
+
+  connectPhysicalInterfaces$ = createEffect(() => this.actions$.pipe(
+    ofType(connectPhysicalInterfaces),
+    exhaustMap((payload) => this.interfaceService.put(payload.id, payload.data)
+      .pipe(
+        mergeMap(res => this.interfaceService.get(payload.id)),
+        switchMap((res: any) => [
+          physicalInterfaceUpdatedSuccess({ interfaceData: res.result }),
+          addPhysicalInterfaceToMap({ id: payload.id, mode: true }),
+          pushNotification({
+            notification: {
+              type: 'success',
+              message: SuccessMessages.CONNECTED_PHYSICAL_INTERFACE_SUCCESS
+            }
+          })
+        ]),
+        catchError((e) => of(pushNotification({
+          notification: {
+            type: 'error',
+            message: ErrorMessages.CONNECTE_PHYSICAL_INTERFACE_FAILED
+          }
+        })))
+      )),
+  ));
+
+  removeConnectedPhysicalInterfaces$ = createEffect(() => this.actions$.pipe(
+    ofType(removeConnectedPhysicalInterfaces),
+    exhaustMap((payload) => {
+      return forkJoin(payload.ids.map((id: any) => {
+        const jsonDataValue = {
+          interface_id: null,
+          task: `Deleted connect interface`
+        }
+        return this.interfaceService.put(id, jsonDataValue)
+      }))
+      .pipe(
+        mergeMap(res => {
+          return forkJoin(payload.ids.map((id: any) => {
+            return this.interfaceService.get(id).pipe(map(interfaceData => {
+              this.helpersService.removePhysicalInterfaceOnMap(id);
+              return interfaceData.result;
+            }));
+          }))
+        }),
+        switchMap((res: any) => [
+          pushNotification({
+            notification: {
+              type: 'success',
+              message: SuccessMessages.DELETE_CONNETECD_PHYSICAL_INTERFACE_SUCCESS
+            }
+          })
+        ]),
+        catchError((e) => of(pushNotification({
+          notification: {
+            type: 'error',
+            message: ErrorMessages.DELETE_CONNETECD_PHYSICAL_INTERFACE_FAILED
+          }
+        })))
+      )
+    }),
+  ));
+
+  updateConnectedPhysicalInterface$ = createEffect(() => this.actions$.pipe(
+    ofType(updateConnectedPhysicalInterface),
+    exhaustMap((payload) => this.interfaceService.put(payload.id, payload.data)
+      .pipe(
+        mergeMap(res =>  {
+          if (payload.mode) {
+            const data = { interface_id: null, task: 'Updated connect Interface' };
+            return this.interfaceService.put(payload.currentEdgeId, data);
+          } else {
+            return of([]);
+          }
+        }),
+        mergeMap(res => this.interfaceService.get(payload.id)),
+        map((res: any) => {
+          if (res.result.category != 'management' && !payload.mode) {
+            this.helpersService.updatePhysicalInterfaceOnMap(`interface-${payload.id}`, res.result, payload.target);
+            this.helpersService.showOrHideArrowDirectionOnEdge(payload.id);
+          }
+          return res;
+        }),
+        switchMap((res: any) => [
+          physicalInterfaceUpdatedSuccess({ interfaceData: res.result }),
+          removePhysicalInterfaceOnMap({ id: payload.currentEdgeId, mode: payload.mode }),
+          addPhysicalInterfaceToMap({ id: payload.id, mode: payload.mode }),
+          pushNotification({
+            notification: {
+              type: 'success',
+              message: SuccessMessages.UPDATED_CONNECTED_PHYSICAL_INTERFACES_SUCCESS
+            }
+          })
+        ]),
+        catchError((e) => of(pushNotification({
+          notification: {
+            type: 'error',
+            message: ErrorMessages.UPDATED_CONNECTED_PHYSICAL_INTERFACES_FAILED
+          }
+        })))
+      )),
+  ));
+
+  addPhysicalInterfaceToMap$ = createEffect(() => this.actions$.pipe(
+    ofType(addPhysicalInterfaceToMap),
+    tap((payload) => {
+      if (payload.mode) {
+        this.helpersService.addPhysicalInterfaceToMap(payload.id)
+      }
+    })
+  ), { dispatch: false })
+
+  removePhysicalInterfaceOnMap$ = createEffect(() => this.actions$.pipe(
+    ofType(removePhysicalInterfaceOnMap),
+    tap((payload) => {
+      if (payload.mode) {
+        this.helpersService.removePhysicalInterfaceOnMap(payload.id)
+      }
+    })
+  ), { dispatch: false })
 
   addInterfaceLogicalToMap$ = createEffect(() => this.actions$.pipe(
     ofType(addInterfaceLogicalToMap),
