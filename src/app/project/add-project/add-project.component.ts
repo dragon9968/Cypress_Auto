@@ -163,8 +163,8 @@ export class AddProjectComponent implements OnInit {
     });
 
     this.selectActiveTemplates$ = this.store.select(selectActiveTemplates).subscribe(activeTemplates => {
-      this.activeTemplates = activeTemplates;
-      if (this.activeTemplates.length > 0) {
+      if (this.activeTemplates) {
+        this.activeTemplates = activeTemplates;
         this.template.setValidators([autoCompleteValidator(this.activeTemplates)]);
         this.filteredTemplate = this.helpers.filterOptions(this.template, this.activeTemplates);
       }

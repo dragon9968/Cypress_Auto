@@ -76,8 +76,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   openProject(projectId: any, projectName: string) {
     const project = this.listProject.find(val => val.id == projectId);
     if (!!project) {
-      localStorage.setItem(LocalStorageKeys.MAP_STATE, project.map_state);
-      this.projectService.openProject(projectId);
+      this.projectService.openProject(projectId, project.map_state);
     } else {
       this.toastr.warning(`The user doesn't has access to the project ${projectName}`)
       this.router.navigate([RouteSegments.PROJECTS])

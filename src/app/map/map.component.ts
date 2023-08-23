@@ -7,7 +7,8 @@ import {
   loadMap,
   loadLinkedMap,
   addTemplateIntoProject,
-  unSelectAllElementsOnMap
+  unSelectAllElementsOnMap,
+  mapDestroySuccess
 } from '../store/map/map.actions';
 import { environment } from 'src/environments/environment';
 import * as cytoscape from 'cytoscape';
@@ -499,6 +500,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
       this.helpersService.removeBadge(ele);
     });
     this.store.dispatch(retrievedIsMapOpen({ data: false }));
+    this.store.dispatch(mapDestroySuccess());
     this.destroy$.next(true);
     this.destroy$.unsubscribe();
     this.store.dispatch(retrievedMapEdit({ data: undefined }))

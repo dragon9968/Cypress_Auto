@@ -5,11 +5,6 @@ export const retrievedVMStatus = createAction(
   props<{ vmStatus: any }>()
 );
 
-export const retrievedIsOpen = createAction(
-  'retrievedIsOpen',
-  props<{ data: any }>()
-);
-
 export const retrievedDashboard = createAction(
   'retrievedDashboard',
   props<{ dashboard: any }>()
@@ -75,4 +70,9 @@ export const updateProject = createAction(
 export const projectUpdatedSuccess = createAction(
   'projectUpdatedSuccess',
   props<{ project: any }>()
+);
+
+export const defaultPreferencesLoadedSuccess = createAction(
+  'defaultPreferencesLoadedSuccess',
+  props<{ defaultPreferences: any }>()
 );

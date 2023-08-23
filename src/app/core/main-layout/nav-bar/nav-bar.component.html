@@ -561,7 +561,7 @@
         </mat-form-field>
     </div>
     <span class="menu-spacer"></span>
-    <span *ngIf="isOpen" class="project-name">
+    <span *ngIf="!!projectName" class="project-name">
       <mat-icon>folder</mat-icon>{{ categoryProject === 'project' ? 'Project:' : 'Project Template:'}}<a [matTooltip]="projectName" mat-button (click)="openProject(projectId)" class="project-name-label">{{projectName}}</a>
     </span>
     <a mat-button [matMenuTriggerFor]="account" data-cy="profile">

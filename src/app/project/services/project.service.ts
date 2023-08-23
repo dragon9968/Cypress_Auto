@@ -7,7 +7,7 @@ import { ApiPaths } from 'src/app/core/enums/api-paths.enum';
 import { RouteSegments } from "../../core/enums/route-segments.enum";
 import { LocalStorageKeys } from 'src/app/core/storage/local-storage/local-storage-keys.enum';
 import { LocalStorageService } from 'src/app/core/storage/local-storage/local-storage.service';
-import { retrievedIsOpen } from "../../store/project/project.actions";
+import { closeProject, openProject } from "../../store/project/project.actions";
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +25,7 @@ export class ProjectService {
     return this.http.get<any>(ApiPaths.PROJECTS);
   }
 
-  getProjectByStatus(status: string) : Observable<any> {
+  getProjectByStatus(status: string): Observable<any> {
     return this.http.get<any>(ApiPaths.PROJECTS, {
       params: {
         q: '(filters:!((col:status,opr:eq,value:' + status + ')),keys:!(list_columns),page:0,page_size:1000)'
@@ -33,7 +33,7 @@ export class ProjectService {
     });
   }
 
-  getProjectByStatusAndCategory(status: string, category: string) : Observable<any> {
+  getProjectByStatusAndCategory(status: string, category: string): Observable<any> {
     return this.http.get<any>(ApiPaths.PROJECTS, {
       params: {
         q: '(filters:!((col:status,opr:eq,value:' + status + '),(col:category,opr:eq,value:' + category + ')),keys:!(list_columns),page:0,page_size:1000)'
@@ -41,7 +41,7 @@ export class ProjectService {
     });
   }
 
-  getShareProject(status: string, category: string) : Observable<any>{
+  getShareProject(status: string, category: string): Observable<any> {
     return this.http.get<any>(ApiPaths.SHARE_PROJECT, {
       params: {
         q: '(filters:!((col:status,opr:eq,value:' + status + '),(col:category,opr:eq,value:' + category + ')),keys:!(list_columns),page:0,page_size:1000)'
@@ -53,7 +53,7 @@ export class ProjectService {
     return this.http.get<any>(ApiPaths.PROJECTS_NOT_LINKED_YET + projectId)
   }
 
-  get(id: number): Observable<any>  {
+  get(id: number): Observable<any> {
     return this.http.get<any>(ApiPaths.PROJECTS + id);
   }
 
@@ -77,20 +77,13 @@ export class ProjectService {
     return this.http.post<any>(ApiPaths.ASSOCIATE_PROJECT, data);
   }
 
-  openProject(projectId: number) {
-    const currentProjectId = this.getProjectId();
-    if (!currentProjectId || currentProjectId !== projectId) {
-      this.store.dispatch(retrievedIsOpen({data: false}));
-      this.setProjectId(projectId);
-    }
-    this.store.dispatch(retrievedIsOpen({data: true}));
+  openProject(projectId: number, mapState: string) {
+    localStorage.setItem(LocalStorageKeys.MAP_STATE, mapState);
+    this.localStorageService.setItem(LocalStorageKeys.PROJECT_ID, projectId);
+    this.store.dispatch(openProject({ id: projectId }));
     this.saveRecentProject({ project_id: projectId }).subscribe(() => {
       this.router.navigate([RouteSegments.MAP]);
-    })
-  }
-
-  setProjectId(projectId: number) {
-    this.localStorageService.setItem(LocalStorageKeys.PROJECT_ID, projectId);
+    });
   }
 
   getProjectId(): any {
@@ -98,12 +91,13 @@ export class ProjectService {
   }
 
   closeProject(): any {
+    this.store.dispatch(closeProject());
     if (this.getProjectId()) {
       this.localStorageService.removeItem(LocalStorageKeys.PROJECT_ID);
     }
   }
 
-  exportProject(data: any): Observable<any>  {
+  exportProject(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.EXPORT_PROJECT, data);
   }
 
@@ -111,7 +105,7 @@ export class ProjectService {
     return this.http.post<any>(ApiPaths.IMPORT_PROJECT, data);
   }
 
-  cloneProject(data: any): Observable<any>  {
+  cloneProject(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.CLONE_PROJECT, data);
   }
 
@@ -131,7 +125,7 @@ export class ProjectService {
     return this.http.post<any>(ApiPaths.PROJECT_RECENT, data);
   }
 
-  getRecentProjects():Observable<any> {
+  getRecentProjects(): Observable<any> {
     return this.http.get<any>(ApiPaths.PROJECT_RECENT);
   }
 

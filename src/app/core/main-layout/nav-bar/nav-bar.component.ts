@@ -11,10 +11,10 @@ import { selectIsMapOpen } from 'src/app/store/map/map.selectors';
 import { PermissionLevels } from '../../enums/permission-levels.enum';
 import { RouteSegments } from '../../enums/route-segments.enum';
 import { AuthService } from '../../services/auth/auth.service';
-import { selectIsOpen, selectProject, selectProjectCategory, selectProjectName } from 'src/app/store/project/project.selectors';
+import { selectProject, selectProjectCategory, selectProjectName } from 'src/app/store/project/project.selectors';
 import {
+  closeProject,
   loadProjects,
-  retrievedIsOpen,
   retrievedVMStatus,
   validateProject
 } from 'src/app/store/project/project.actions';
@@ -28,7 +28,6 @@ import { AppPreferencesComponent } from 'src/app/settings/app-preferences/app-pr
 import { AppPrefService } from '../../services/app-pref/app-pref.service';
 import { MapPrefService } from '../../services/map-pref/map-pref.service';
 import { retrievedMapPrefs } from 'src/app/store/map-pref/map-pref.actions';
-import { UserService } from '../../services/user/user.service';
 import {
   selectIsConfiguratorConnect,
   selectIsHypervisorConnect,
@@ -43,7 +42,6 @@ import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
 import { LDAPConfigurationComponent } from 'src/app/administration/ldap-configuration/ldap-configuration.component';
 import { LdapConfigService } from '../../services/ldap-config/ldap-config.service';
 import { selectUserProfile } from 'src/app/store/user-profile/user-profile.selectors';
-import { LocalStorageKeys } from "../../storage/local-storage/local-storage-keys.enum";
 
 @Component({
   selector: 'app-nav-bar',
@@ -54,11 +52,9 @@ export class NavBarComponent implements OnInit, OnDestroy {
   @ViewChild('searchbar') searchbar!: ElementRef;
   permissionLevels = PermissionLevels;
   routeSegments = RouteSegments;
-  selectIsOpen$ = new Subscription();
   selectProjectName$ = new Subscription();
   searchText = '';
   isMapOpen = false;
-  isOpen!: boolean;
   status = 'active';
   selectIsMapOpen$ = new Subscription();
   selectIsHypervisorConnect$ = new Subscription();
@@ -103,17 +99,14 @@ export class NavBarComponent implements OnInit, OnDestroy {
     this.userId = accessTokenPayload.sub;
     this.authService.updateUserId(this.userId);
 
-    this.selectIsMapOpen$ = this.store.select(selectIsMapOpen).subscribe((isMapOpen: boolean) => {
-      this.isMapOpen = isMapOpen;
-    });
     this.selectProject$ = this.store.select(selectProject).subscribe(project => {
       if (project) {
         this.project = project;
       }
     });
-    this.selectIsOpen$ = this.store.select(selectIsOpen).subscribe(isOpen => {
-      this.isOpen = isOpen;
-      if (isOpen && this.project) {
+    this.selectIsMapOpen$ = this.store.select(selectIsMapOpen).subscribe(isMapOpen => {
+      this.isMapOpen = isMapOpen;
+      if (isMapOpen && this.project) {
         this.projectId = this.projectService.getProjectId();
         if (this.isHypervisorConnect || this.isConfiguratorConnect) {
           this.store.dispatch(retrievedVMStatus({ vmStatus: this.project.configuration.vm_status }));
@@ -122,7 +115,6 @@ export class NavBarComponent implements OnInit, OnDestroy {
         if (this.project.created_by_fk != this.userId && !sharedUserIds.includes(this.userId) && this.router.url === '/map') {
           this.toastr.warning(`The user is not the owner of project ${this.project.name}. Cannot open the project ${this.project.name}`);
           this.projectService.closeProject();
-          this.store.dispatch(retrievedIsOpen({ data: false }));
           this.router.navigate([RouteSegments.PROJECTS]);
         }
       }
@@ -156,9 +148,6 @@ export class NavBarComponent implements OnInit, OnDestroy {
     this.projectId = this.projectService.getProjectId();
     this.store.dispatch(loadProjects());
     this.helpersService.initialConnectionStatus();
-    if (this.projectId) {
-      this.store.dispatch(retrievedIsOpen({ data: true }));
-    }
     this.serverConnectService.getAll().subscribe((data: any) => this.store.dispatch(retrievedServerConnect({ data: data.result })));
     this.breakpointObserver.observe(['(max-width: 1365px)']).subscribe((state: BreakpointState) => {
       if (state.matches) {
@@ -171,7 +160,6 @@ export class NavBarComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.selectIsMapOpen$.unsubscribe();
-    this.selectIsOpen$.unsubscribe();
     this.selectIsHypervisorConnect$.unsubscribe();
     this.selectIsDatasourceConnect$.unsubscribe();
     this.selectIsConfiguratorConnect$.unsubscribe();
@@ -200,7 +188,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
 
   closeProject() {
     this.projectService.closeProject();
-    this.store.dispatch(retrievedIsOpen({ data: false }));
+    this.store.dispatch(closeProject());
     this.router.navigate([RouteSegments.ROOT]);
   }
 
@@ -246,7 +234,6 @@ export class NavBarComponent implements OnInit, OnDestroy {
             const category = rest.result.category;
             this.toastr.success(`Delete Project successfully`);
             this.projectService.closeProject();
-            this.store.dispatch(retrievedIsOpen({ data: false }));
             this.store.dispatch(loadProjects());
             if (category === 'project') {
               this.router.navigate([RouteSegments.PROJECTS]);
@@ -356,11 +343,9 @@ export class NavBarComponent implements OnInit, OnDestroy {
           const listProjectId = this.listProject.map(val => val.id);
           if (listProjectId.includes(projectId)) {
             const project = this.listProject.find(p => p.id == projectId);
-            localStorage.setItem(LocalStorageKeys.MAP_STATE, project.map_state)
-            this.projectService.openProject(projectId);
+            this.projectService.openProject(projectId, project.map_state);
           } else {
             this.projectService.closeProject();
-            this.store.dispatch(retrievedIsOpen({ data: false }));
             this.toastr.warning(`The user is not the owner of project. Cannot open the project`)
             this.router.navigate([RouteSegments.PROJECTS])
           }

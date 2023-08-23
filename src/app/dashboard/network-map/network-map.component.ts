@@ -16,7 +16,7 @@ import { loadMap } from "../../store/map/map.actions";
 import { selectIsHypervisorConnect } from "../../store/server-connect/server-connect.selectors";
 import { retrievedIsHypervisorConnect } from "../../store/server-connect/server-connect.actions";
 import { selectDashboard, selectDefaultPreferences, selectVMStatus } from "../../store/project/project.selectors";
-import { retrievedDashboard, retrievedIsOpen, retrievedVMStatus } from "../../store/project/project.actions";
+import { retrievedDashboard, retrievedVMStatus } from "../../store/project/project.actions";
 import { RemoteCategories } from "../../core/enums/remote-categories.enum";
 import { selectLogicalNodes, selectPhysicalNodes } from "src/app/store/node/node.selectors";
 import { selectLogicalMapInterfaces, selectPhysicalInterfaces } from "src/app/store/interface/interface.selectors";
@@ -262,7 +262,6 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
   }
 
   openMap() {
-    this.store.dispatch(retrievedIsOpen({data: true}));
     this.router.navigate([RouteSegments.MAP]);
   }
 

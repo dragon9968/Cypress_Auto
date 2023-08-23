@@ -11,7 +11,7 @@ import { ServerConnectService } from "../server-connect/server-connect.service";
 import { catchError } from "rxjs/operators";
 import { forkJoin, of, throwError } from "rxjs";
 import { ToastrService } from "ngx-toastr";
-import { retrievedIsOpen, retrievedVMStatus } from "../../../store/project/project.actions";
+import { retrievedVMStatus } from "../../../store/project/project.actions";
 import { Store } from "@ngrx/store";
 import { NgxPermissionsService, NgxRolesService } from "ngx-permissions";
 import { HelpersService } from "../helpers/helpers.service";
@@ -101,12 +101,10 @@ export class AuthService {
               this.toastr.info(`Disconnected from ${connection.name} server!`, 'Info');
         })
         this._removeDataInLocalStorageAndPermission();
-        this.store.dispatch(retrievedIsOpen({data: false}));
         this.router.navigate([RouteSegments.ROOT, RouteSegments.LOGIN]);
       })
     } else {
       this._removeDataInLocalStorageAndPermission();
-      this.store.dispatch(retrievedIsOpen({data: false}));
       this.router.navigate([RouteSegments.ROOT, RouteSegments.LOGIN]);
     }
   }

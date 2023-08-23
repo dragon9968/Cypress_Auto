@@ -2,7 +2,6 @@ import { createReducer, on } from '@ngrx/store';
 import { ProjectState } from 'src/app/store/project/project.state';
 import {
   retrievedVMStatus,
-  retrievedIsOpen,
   retrievedDashboard,
   retrievedRecentProjects,
   projectsNotLinkYetLoadedSuccess,
@@ -10,7 +9,8 @@ import {
   projectsLoadedSuccess,
   closeProject,
   projectUpdatedSuccess,
-  openProject
+  openProject,
+  defaultPreferencesLoadedSuccess
 } from './project.actions';
 
 const initialState = {} as ProjectState;
@@ -21,10 +21,6 @@ export const projectReducer = createReducer(
     ...state,
     vmStatus: vmStatus,
   })),
-  on(retrievedIsOpen, (state, { data }) => ({
-    ...state,
-    isOpen: data,
-  })),
   on(retrievedDashboard, (state, { dashboard }) => ({
     ...state,
     dashboard: dashboard
@@ -33,10 +29,21 @@ export const projectReducer = createReducer(
     ...state,
     recentProjects: recentProjects
   })),
-  on(openProject, (state, { id }) => ({
-    ...state,
-    projects: state.projects?.map(p => p.id == id ? { ...p, isOpen: true } : p)
-  })),
+  on(openProject, (state, { id }) => {
+    let defaultPreferences = state.defaultPreferences;
+    return {
+      ...state,
+      projects: state.projects?.map(p => {
+        if (p.id == id) {
+          defaultPreferences = p.logical_map.map_style;
+          return { ...p, isOpen: true };
+        } else {
+          return { ...p, isOpen: false };
+        }
+      }),
+      defaultPreferences
+    };
+  }),
   on(projectsNotLinkYetLoadedSuccess, (state, { projectsNotLinkYet }) => ({
     ...state,
     projectsNotLinkYet
@@ -60,6 +67,12 @@ export const projectReducer = createReducer(
     return {
       ...state,
       projects: state.projects.map(p => p.id == project.id ? { ...p, ...project } : p)
+    };
+  }),
+  on(defaultPreferencesLoadedSuccess, (state, { defaultPreferences }) => {
+    return {
+      ...state,
+      defaultPreferences
     };
   }),
 );

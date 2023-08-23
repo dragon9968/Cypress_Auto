@@ -46,6 +46,10 @@ export const mapLoadedSuccess = createAction(
   'mapLoadedSuccess',
 );
 
+export const mapDestroySuccess = createAction(
+  'mapDestroySuccess',
+);
+
 export const reloadGroupBoxes = createAction(
   'reloadGroupBoxes',
 );

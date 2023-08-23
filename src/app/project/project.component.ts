@@ -191,10 +191,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   onRowDoubleClicked() {
     if (!this.isAdmin) {
-      const project = this.gridApi.getSelectedRows()[0];
-      const projectIdSelected = project["id"];
-      localStorage.setItem(LocalStorageKeys.MAP_STATE, project["map_state"]);
-      this.projectService.openProject(projectIdSelected);
+      this.openProject();
     }
   }
 
@@ -220,9 +217,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   openProject() {
     const project = this.gridApi.getSelectedRows()[0];
-    const projectIdSelected = project["id"];
-    localStorage.setItem(LocalStorageKeys.MAP_STATE, project["map_state"]);
-    this.projectService.openProject(projectIdSelected);
+    this.projectService.openProject(project["id"], project["map_state"]);
   }
 
   onQuickFilterInput(event: any) {

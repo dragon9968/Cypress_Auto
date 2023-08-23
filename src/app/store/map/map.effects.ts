@@ -63,6 +63,7 @@ import { domainsLoadedSuccess } from "../domain/domain.actions";
 import { DomainService } from "../../core/services/domain/domain.service";
 import { SuccessMessages } from "../../shared/enums/success-messages.enum";
 import { ErrorMessages } from "../../shared/enums/error-messages.enum";
+import { defaultPreferencesLoadedSuccess } from '../project/project.actions';
 
 @Injectable()
 export class MapEffects {
@@ -70,6 +71,7 @@ export class MapEffects {
   loadMap$ = createEffect(() => this.actions$.pipe(
     ofType(loadMap),
     exhaustMap((payload) => forkJoin([
+      this.projectService.get(payload.projectId),
       this.nodeService.getNodesByProjectId(payload.projectId),
       this.portGroupService.getByProjectId(payload.projectId),
       this.interfaceService.getByProjectId(payload.projectId),
@@ -78,6 +80,7 @@ export class MapEffects {
       this.mapLinkService.getMapLinksByProjectId(payload.projectId)
     ]).pipe(
       switchMap(([
+        projectData,
         nodesData,
         portgroupsData,
         interfacesData,
@@ -85,6 +88,7 @@ export class MapEffects {
         mapImagesData,
         mapLinkData,
       ]) => [
+        defaultPreferencesLoadedSuccess({ defaultPreferences: projectData.result.logical_map.map_style }),
         mapLinksLoadedSuccess({ mapLinks: mapLinkData.result }),
         nodesLoadedSuccess({ nodes: nodesData.result }),
         PGsLoadedSuccess({ portgroups: portgroupsData.result }),
