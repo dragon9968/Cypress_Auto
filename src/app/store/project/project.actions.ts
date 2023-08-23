@@ -42,7 +42,7 @@ export const removeProjectNotLink = createAction(
 
 export const validateProject = createAction(
   'validateProject',
-  props<{ projectId: number }>()
+  props<{ id: number }>()
 )
 
 export const loadProjects = createAction(
@@ -76,3 +76,8 @@ export const defaultPreferencesLoadedSuccess = createAction(
   'defaultPreferencesLoadedSuccess',
   props<{ defaultPreferences: any }>()
 );
+
+export const removeProject = createAction(
+  'removeProject',
+  props<{ id: number }>()
+)

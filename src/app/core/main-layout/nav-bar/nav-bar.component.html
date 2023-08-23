@@ -20,7 +20,7 @@
                     <mat-icon>create_new_folder</mat-icon>
                     <span>New</span>
                   </button>
-                  <button mat-menu-item [disabled]="!isOpen" (click)="cloneProject()">
+                  <button mat-menu-item [disabled]="!projectName" (click)="cloneProject()">
                     <mat-icon>file_copy</mat-icon>
                     <span>Clone</span>
                   </button>
@@ -44,7 +44,7 @@
                 </mat-menu>
               </ng-template>
               <ng-template [ngxPermissionsOnly]="['can_write on Project']">
-                <button mat-menu-item [disabled]="!isOpen" (click)="editProject()">
+                <button mat-menu-item [disabled]="!projectName" (click)="editProject()">
                   <mat-icon>edit</mat-icon>
                   <span>Edit</span>
                 </button>
@@ -63,14 +63,14 @@
                     </button>
                   </ng-template>
                 <ng-template [ngxPermissionsOnly]="['can_read on Project']">
-                  <button mat-menu-item [disabled]="!isOpen" (click)="exportProject()">
+                  <button mat-menu-item [disabled]="!projectName" (click)="exportProject()">
                     <mat-icon>download</mat-icon>
                     <span>Export</span>
                   </button>
                 </ng-template>
               </mat-menu>
               <ng-template [ngxPermissionsOnly]="['can_write on Project']">
-                <button mat-menu-item [disabled]="!isOpen" (click)="deleteProject()">
+                <button mat-menu-item [disabled]="!projectName" (click)="deleteProject()">
                   <mat-icon>delete</mat-icon>
                   <span>Delete</span>
                 </button>
@@ -80,11 +80,11 @@
                 </button>
               </ng-template>
               <ng-template [ngxPermissionsOnly]="['can_read on Project']">
-                <button mat-menu-item [disabled]="!isOpen" (click)="validateProject()" data-cy="btn-nav-project-validate">
+                <button mat-menu-item [disabled]="!projectName" (click)="validateProject()" data-cy="btn-nav-project-validate">
                   <mat-icon>check</mat-icon>
                   <span>Validate</span>
                 </button>
-                <button mat-menu-item [disabled]="!isOpen" (click)="closeProject()">
+                <button mat-menu-item [disabled]="!projectName" (click)="closeProject()">
                   <mat-icon>folder_delete</mat-icon>
                   <span>Close</span>
                 </button>
@@ -170,7 +170,7 @@
                 <mat-menu #remoteList="matMenu">
                   <button mat-menu-item class="remote-item">
                     <span class="remote-item__title">Hypervisor</span>
-                    <button mat-raised-button class="remote-item__btn" *ngIf="!isHypervisorConnect && isOpen" (click)="openConnectServerForm('vmware_vcenter')">
+                    <button mat-raised-button class="remote-item__btn" *ngIf="!isHypervisorConnect && projectName" (click)="openConnectServerForm('vmware_vcenter')">
                       <mat-icon svgIcon="disconnected"></mat-icon>
                       <span>Connect</span>
                     </button>
@@ -182,7 +182,7 @@
 
                   <button mat-menu-item class="remote-item">
                     <span class="remote-item__title">Datasource</span>
-                    <button mat-raised-button class="remote-item__btn" *ngIf="!isDatasourceConnect && isOpen" (click)="openConnectServerForm('datasource')">
+                    <button mat-raised-button class="remote-item__btn" *ngIf="!isDatasourceConnect && projectName" (click)="openConnectServerForm('datasource')">
                       <mat-icon svgIcon="disconnected"></mat-icon>
                       <span>Connect</span>
                     </button>
@@ -194,7 +194,7 @@
 
                   <button mat-menu-item class="remote-item">
                     <span class="remote-item__title">Configurator</span>
-                    <button mat-raised-button class="remote-item__btn" *ngIf="!isConfiguratorConnect && isOpen" (click)="openConnectServerForm('configurator')">
+                    <button mat-raised-button class="remote-item__btn" *ngIf="!isConfiguratorConnect && projectName" (click)="openConnectServerForm('configurator')">
                       <mat-icon svgIcon="disconnected"></mat-icon>
                       <span>Connect</span>
                     </button>
@@ -295,7 +295,7 @@
                 <mat-icon>create_new_folder</mat-icon>
                 <span>New</span>
               </button>
-              <button mat-menu-item [disabled]="!isOpen" (click)="cloneProject()" data-cy="btn-clone-project">
+              <button mat-menu-item [disabled]="!projectName" (click)="cloneProject()" data-cy="btn-clone-project">
                 <mat-icon>file_copy</mat-icon>
                 <span>Clone</span>
               </button>
@@ -319,7 +319,7 @@
             </mat-menu>
           </ng-template>
           <ng-template [ngxPermissionsOnly]="['can_write on Project']">
-            <button mat-menu-item [disabled]="!isOpen" (click)="editProject()" data-cy="btn-edit-project">
+            <button mat-menu-item [disabled]="!projectName" (click)="editProject()" data-cy="btn-edit-project">
               <mat-icon>edit</mat-icon>
               <span>Edit</span>
             </button>
@@ -338,14 +338,14 @@
                 </button>
               </ng-template>
             <ng-template [ngxPermissionsOnly]="['can_read on Project']">
-              <button mat-menu-item [disabled]="!isOpen" (click)="exportProject()" data-cy="btn-export-project">
+              <button mat-menu-item [disabled]="!projectName" (click)="exportProject()" data-cy="btn-export-project">
                 <mat-icon>download</mat-icon>
                 <span>Export</span>
               </button>
             </ng-template>
           </mat-menu>
           <ng-template [ngxPermissionsOnly]="['can_write on Project']">
-            <button mat-menu-item [disabled]="!isOpen" (click)="deleteProject()" data-cy="btn-delete-project">
+            <button mat-menu-item [disabled]="!projectName" (click)="deleteProject()" data-cy="btn-delete-project">
               <mat-icon>delete</mat-icon>
               <span>Delete</span>
             </button>
@@ -355,11 +355,11 @@
             </button>
           </ng-template>
           <ng-template [ngxPermissionsOnly]="['can_read on Project']">
-            <button mat-menu-item [disabled]="!isOpen" (click)="validateProject()" data-cy="btn-nav-project-validate">
+            <button mat-menu-item [disabled]="!projectName" (click)="validateProject()" data-cy="btn-nav-project-validate">
               <mat-icon>check</mat-icon>
               <span>Validate</span>
             </button>
-            <button mat-menu-item [disabled]="!isOpen" (click)="closeProject()">
+            <button mat-menu-item [disabled]="!projectName" (click)="closeProject()">
               <mat-icon>folder_delete</mat-icon>
               <span>Close</span>
             </button>
@@ -439,7 +439,7 @@
             <mat-menu #remoteList="matMenu">
               <button mat-menu-item class="remote-item">
                 <span class="remote-item__title">Hypervisor</span>
-                <button mat-raised-button class="remote-item__btn" *ngIf="!isHypervisorConnect && isOpen" (click)="openConnectServerForm('vmware_vcenter')">
+                <button mat-raised-button class="remote-item__btn" *ngIf="!isHypervisorConnect && projectName" (click)="openConnectServerForm('vmware_vcenter')">
                   <mat-icon svgIcon="disconnected"></mat-icon>
                   <span>Connect</span>
                 </button>
@@ -451,7 +451,7 @@
 
               <button mat-menu-item class="remote-item">
                 <span class="remote-item__title">Datasource</span>
-                <button mat-raised-button class="remote-item__btn" *ngIf="!isDatasourceConnect && isOpen" (click)="openConnectServerForm('datasource')">
+                <button mat-raised-button class="remote-item__btn" *ngIf="!isDatasourceConnect && projectName" (click)="openConnectServerForm('datasource')">
                   <mat-icon svgIcon="disconnected"></mat-icon>
                   <span>Connect</span>
                 </button>
@@ -463,7 +463,7 @@
 
               <button mat-menu-item class="remote-item">
                 <span class="remote-item__title">Configurator</span>
-                <button mat-raised-button class="remote-item__btn" *ngIf="!isConfiguratorConnect && isOpen" (click)="openConnectServerForm('configurator')">
+                <button mat-raised-button class="remote-item__btn" *ngIf="!isConfiguratorConnect && projectName" (click)="openConnectServerForm('configurator')">
                   <mat-icon svgIcon="disconnected"></mat-icon>
                   <span>Connect</span>
                 </button>

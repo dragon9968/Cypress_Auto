@@ -7,7 +7,7 @@ import { ApiPaths } from 'src/app/core/enums/api-paths.enum';
 import { RouteSegments } from "../../core/enums/route-segments.enum";
 import { LocalStorageKeys } from 'src/app/core/storage/local-storage/local-storage-keys.enum';
 import { LocalStorageService } from 'src/app/core/storage/local-storage/local-storage.service';
-import { closeProject, openProject } from "../../store/project/project.actions";
+import { openProject } from "../../store/project/project.actions";
 
 @Injectable({
   providedIn: 'root'
@@ -91,7 +91,6 @@ export class ProjectService {
   }
 
   closeProject(): any {
-    this.store.dispatch(closeProject());
     if (this.getProjectId()) {
       this.localStorageService.removeItem(LocalStorageKeys.PROJECT_ID);
     }

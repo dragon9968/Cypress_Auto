@@ -1395,7 +1395,7 @@ export class HelpersService implements OnDestroy {
       this.cy.elements().unlock();
     }
     this.changeEdgeDirectionOnMap(this.cy, this.isEdgeDirectionChecked);
-    this.store.dispatch(validateProject({ projectId: this.projectService.getProjectId() }))
+    this.store.dispatch(validateProject({ id: this.projectService.getProjectId() }))
   }
 
   updateNodeOnMap(id: string, data: any) {

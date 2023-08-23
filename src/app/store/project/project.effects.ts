@@ -9,6 +9,7 @@ import {
   projectUpdatedSuccess,
   projectsLoadedSuccess,
   projectsNotLinkYetLoadedSuccess,
+  removeProject,
   updateProject,
   validateProject
 } from './project.actions';
@@ -39,7 +40,7 @@ export class ProjectEffects {
 
   validateProject$ = createEffect(() => this.actions$.pipe(
     ofType(validateProject),
-    mergeMap(payload => this.projectService.validateProject({ pk: payload.projectId }).pipe(
+    mergeMap(payload => this.projectService.validateProject({ pk: payload.id }).pipe(
       map(res => pushNotification({
         notification: {
           type: 'success',
@@ -60,8 +61,8 @@ export class ProjectEffects {
               message: e.error.message
             }
           }),
-          loadDomains({ projectId: payload.projectId }),
-          loadGroups({ projectId: payload.projectId })
+          loadDomains({ projectId: payload.id }),
+          loadGroups({ projectId: payload.id })
         )
       })
     ))
@@ -73,7 +74,7 @@ export class ProjectEffects {
       .pipe(
         switchMap((res: any) => [
           projectsLoadedSuccess({ projects: res.result }),
-          openProject({ id: this.projectService.getProjectId()}),
+          openProject({ id: this.projectService.getProjectId() }),
         ]),
         catchError(e => (of(pushNotification({
           notification: {
@@ -111,6 +112,31 @@ export class ProjectEffects {
           }
         })))
       )),
+  ));
+
+  removeProject$ = createEffect(() => this.actions$.pipe(
+    ofType(removeProject),
+    exhaustMap(payload => this.projectService.deleteOrRecoverProject({
+      pk: payload.id,
+      status: 'delete'
+    }).pipe(
+      map((res: any) => this.projectService.closeProject()),
+      switchMap((res: any) => [
+        loadProjects(),
+        pushNotification({
+          notification: {
+            type: 'success',
+            message: 'Delete project successfully'
+          }
+        })
+      ]),
+      catchError(e => of(pushNotification({
+        notification: {
+          type: 'error',
+          message: e.error.message
+        }
+      })))
+    )),
   ));
 
   constructor(

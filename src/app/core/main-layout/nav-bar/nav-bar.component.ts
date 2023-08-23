@@ -15,6 +15,7 @@ import { selectProject, selectProjectCategory, selectProjectName } from 'src/app
 import {
   closeProject,
   loadProjects,
+  removeProject,
   retrievedVMStatus,
   validateProject
 } from 'src/app/store/project/project.actions';
@@ -23,7 +24,6 @@ import { ToastrService } from 'ngx-toastr';
 import { ExportProjectDialogComponent } from 'src/app/project/export-project-dialog/export-project-dialog.component';
 import { ImportProjectDialogComponent } from 'src/app/project/import-project-dialog/import-project-dialog.component';
 import { HelpersService } from "../../services/helpers/helpers.service";
-import { catchError } from "rxjs/operators";
 import { AppPreferencesComponent } from 'src/app/settings/app-preferences/app-preferences.component';
 import { AppPrefService } from '../../services/app-pref/app-pref.service';
 import { MapPrefService } from '../../services/map-pref/map-pref.service';
@@ -67,7 +67,8 @@ export class NavBarComponent implements OnInit, OnDestroy {
   isDatasourceConnect = false;
   isConfiguratorConnect = false;
   projectId = 0;
-  projectName: any;
+  projectName!: string;
+  projectCategory!: string;
   project: any;
   username: any;
   userId: any;
@@ -115,13 +116,21 @@ export class NavBarComponent implements OnInit, OnDestroy {
         if (this.project.created_by_fk != this.userId && !sharedUserIds.includes(this.userId) && this.router.url === '/map') {
           this.toastr.warning(`The user is not the owner of project ${this.project.name}. Cannot open the project ${this.project.name}`);
           this.projectService.closeProject();
+          this.store.dispatch(closeProject());
           this.router.navigate([RouteSegments.PROJECTS]);
         }
       }
     });
-    this.selectProjectName$ = this.store.select(selectProjectName).subscribe(
-      projectName => this.projectName = projectName
-    )
+    this.selectProjectName$ = this.store.select(selectProjectName).subscribe(projectName => {
+      if (projectName) {
+        this.projectName = projectName;
+      }
+    });
+    this.selectProjectCategory$ = this.store.select(selectProjectCategory).subscribe(projectCategory => {
+      if (projectCategory) {
+        this.projectCategory = projectCategory;
+      }
+    })
     this.selectIsHypervisorConnect$ = this.store.select(selectIsHypervisorConnect).subscribe(isHypervisorConnect => {
       this.isHypervisorConnect = isHypervisorConnect;
     })
@@ -218,29 +227,13 @@ export class NavBarComponent implements OnInit, OnDestroy {
     }
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData });
     dialogRef.afterClosed().subscribe(result => {
-      const jsonData = {
-        pk: this.projectId,
-        status: 'delete'
-      }
       if (result) {
-        this.projectService.deleteOrRecoverProject(jsonData)
-          .pipe(
-            catchError(error => {
-              this.toastr.error('Delete project failed!', 'Error');
-              return throwError(() => error);
-            })
-          )
-          .subscribe(rest => {
-            const category = rest.result.category;
-            this.toastr.success(`Delete Project successfully`);
-            this.projectService.closeProject();
-            this.store.dispatch(loadProjects());
-            if (category === 'project') {
-              this.router.navigate([RouteSegments.PROJECTS]);
-            } else {
-              this.router.navigate([RouteSegments.PROJECTS_TEMPLATES]);
-            }
-          })
+        this.store.dispatch(removeProject({ id: this.projectId }));
+        if (this.projectCategory === 'project') {
+          this.router.navigate([RouteSegments.PROJECTS]);
+        } else {
+          this.router.navigate([RouteSegments.PROJECTS_TEMPLATES]);
+        }
       }
     });
   }
@@ -346,6 +339,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
             this.projectService.openProject(projectId, project.map_state);
           } else {
             this.projectService.closeProject();
+            this.store.dispatch(closeProject());
             this.toastr.warning(`The user is not the owner of project. Cannot open the project`)
             this.router.navigate([RouteSegments.PROJECTS])
           }
@@ -355,7 +349,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   validateProject() {
-    this.store.dispatch(validateProject({ projectId: this.projectId }))
+    this.store.dispatch(validateProject({ id: this.projectId }));
   }
 
   openAdminConfig() {
