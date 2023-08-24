@@ -1,4 +1,4 @@
-describe('Map features e2e testing', () => {
+describe('Physical Map features e2e testing', () => {
   let node: any = {};
   let node2: any = {};
   let node3: any = {};
@@ -52,7 +52,7 @@ describe('Map features e2e testing', () => {
     cy.session('login', setup)
   })
 
-  it ('Create new blank project and add node, port group', () => {
+  it ('Create new blank project and add node', () => {
     cy.visit('/')
     cy.waitingLoadingFinish()
     cy.getByDataCy('btn-create-new').click({force: true})
@@ -112,7 +112,6 @@ describe('Map features e2e testing', () => {
       cy.get('.cy-context-menus-cxt-menu').first().should('exist')
       cy.get('#delete').should('exist').click({ force: true })
       cy.waitingLoadingFinish()
-      cy.getButtonByTypeAndContent('submit', 'OK').click()
       cy.checkingToastSuccess()
       })
     cy.wait(2000)

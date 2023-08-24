@@ -101,16 +101,17 @@ export class ConnectInterfaceDialogComponent implements OnInit, OnDestroy {
     this.selectSourceInterface$ = this.store.select(selectInterfacesBySourceNode).subscribe(interfaces => {
       if (interfaces) {
         this.sourceInterface = interfaces.filter((el: any) =>
-          el.category !== 'management' && !this.listInterfaceConnectedTarget.includes(el.id))
+          el.category !== 'management')
         if (this.data.mode === 'edit_connected_interface') {
           const connectedInterfaces = interfaces.find((el: any) => el.id === this.data.genData.id )
           const sourceInterface = this.sourceInterface.filter((el: any) => el.interface_id === null )
           this.sourceInterface = sourceInterface.concat(connectedInterfaces)
         }
-
         this.sourceInterface = this.sourceInterface.map((val: any) => ({ ...val, node: val.node?.name ? val.node?.name : val.node }))
+        const filteredSourceInterface = this.sourceInterface.filter((el: any) =>
+          !this.listInterfaceConnectedTarget.includes(el.id) && !this.listInterfaceConnectedSource.includes(el.id))
         this.sourceInterfaceCtr.setValidators([Validators.required, autoCompleteValidator(this.sourceInterface)]);
-        this.filteredBySourceInterfaces = this.helpersService.filterOptions(this.sourceInterfaceCtr, this.sourceInterface);
+        this.filteredBySourceInterfaces = this.helpersService.filterOptions(this.sourceInterfaceCtr, filteredSourceInterface);
       }
     })
     this.selectDestinationInterface$ = this.store.select(selectInterfacesByDestinationNode).subscribe(interfaces => {

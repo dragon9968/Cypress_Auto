@@ -35,7 +35,8 @@ import {
   addPhysicalInterfaceToMap,
   updateConnectedPhysicalInterface,
   removePhysicalInterfaceOnMap,
-  removeConnectedPhysicalInterfaces
+  removeConnectedPhysicalInterfaces,
+  bulkUpdatedPhysicalInterfaceSuccess
 } from './interface.actions';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { pushNotification } from '../app/app.actions';
@@ -189,6 +190,7 @@ export class InterfacesEffects {
           }))
         }),
         switchMap((res: any) => [
+          bulkUpdatedPhysicalInterfaceSuccess({ interfacesData: res }),
           pushNotification({
             notification: {
               type: 'success',

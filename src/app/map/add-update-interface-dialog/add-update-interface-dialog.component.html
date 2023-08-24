@@ -111,12 +111,12 @@
                   </mat-form-field>
                   <mat-form-field class="field">
                     <mat-label>IP Address</mat-label>
-                    <input autocomplete="off" id="connect-interface-ip" matInput formControlName="ipCtr" [readonly]="isViewMode">
+                    <input autocomplete="off" id="connect-interface-ip" matInput formControlName="ipCtr" [readonly]="isViewMode" [errorStateMatcher]="errorMatcher">
                     <mat-error *ngIf="ipCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
                     <mat-error *ngIf="ipCtr?.errors?.isExist">{{ errorMessages.IP_IS_EXISTING }}</mat-error>
-                    <mat-error *ngIf="ipCtr?.errors?.isNotMatchIP">{{ ipCtr?.errors?.value }}</mat-error>
-                    <mat-error *ngIf="ipCtr?.errors?.serverError">{{ ipCtr?.errors?.serverError }}</mat-error>
-                    <mat-error *ngIf="ipCtr?.errors?.errorServerExist">{{ ipCtr?.errors?.errorServerExist }}</mat-error>
+                    <!-- <mat-error *ngIf="ipCtr?.errors?.serverError">{{ ipCtr?.errors?.serverError }}</mat-error>
+                    <mat-error *ngIf="ipCtr?.errors?.errorServerExist">{{ ipCtr?.errors?.errorServerExist }}</mat-error> -->
+                    <mat-error *ngIf="interfaceAddForm.errors?.['isNotMatchIP']">{{ interfaceAddForm.errors.message }}</mat-error>
                   </mat-form-field>
                   <mat-form-field class="field padding-field">
                     <mat-label>Gateway</mat-label>
@@ -302,12 +302,13 @@
         </mat-form-field>
         <mat-form-field class="field">
           <mat-label>IP Address</mat-label>
-          <input autocomplete="off" id="interface-ip" matInput formControlName="ipCtr" [readonly]="isViewMode">
+          <input autocomplete="off" id="interface-ip" matInput formControlName="ipCtr" [readonly]="isViewMode" [errorStateMatcher]="errorMatcher">
           <mat-error *ngIf="ipCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
           <mat-error *ngIf="ipCtr?.errors?.isExist">{{ errorMessages.IP_IS_EXISTING }}</mat-error>
-          <mat-error *ngIf="ipCtr?.errors?.isNotMatchIP">{{ ipCtr?.errors?.value }}</mat-error>
-          <mat-error *ngIf="ipCtr?.errors?.serverError">{{ ipCtr?.errors?.serverError }}</mat-error>
-          <mat-error *ngIf="ipCtr?.errors?.errorServerExist">{{ ipCtr?.errors?.errorServerExist }}</mat-error>
+          <mat-error *ngIf="interfaceAddForm.errors?.['isNotMatchIP']">{{ interfaceAddForm.errors.message }}</mat-error>
+          <!-- <mat-error *ngIf="ipCtr?.errors?.serverError">{{ ipCtr?.errors?.serverError }}</mat-error>
+          <mat-error *ngIf="ipCtr?.errors?.errorServerExist">{{ ipCtr?.errors?.errorServerExist }}</mat-error> -->
+          <mat-error *ngIf="interfaceAddForm.errors?.['isNotMatch']">{{ interfaceAddForm.errors.message }}</mat-error>
         </mat-form-field>
         <mat-form-field class="field padding-field">
           <mat-label>Gateway</mat-label>

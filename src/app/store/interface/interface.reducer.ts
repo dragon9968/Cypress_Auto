@@ -31,7 +31,8 @@ import {
   unSelectPhysicalInterface,
   interfacePhysicalMapAddedSuccess,
   addInterfacesToSourceNodeOrTargetNode,
-  physicalInterfaceUpdatedSuccess
+  physicalInterfaceUpdatedSuccess,
+  bulkUpdatedPhysicalInterfaceSuccess
 } from "./interface.actions";
 
 const initialState = {} as InterfaceState;
@@ -430,6 +431,26 @@ export const interfaceReducerByIds = createReducer(
     }
     const interfaceCY = addCYDataToPhysicalInterface(interfaceData, targetNode)
     const physicalInterfaces = state.physicalInterfaces.map((i: any) => (i.id == interfaceData.id) ? { ...i, ...interfaceCY } : i);
+    return {
+      ...state,
+      isSelectedFlag: false,
+      physicalInterfaces
+    };
+  }),
+  on(bulkUpdatedPhysicalInterfaceSuccess, (state, { interfacesData }) => {
+    const physicalInterfaces = state.physicalInterfaces.map((i: any) => {
+      const updatedPhysicalInterfaces = interfacesData.find((interfaceData: any) => i.id == interfaceData.id);
+      if (updatedPhysicalInterfaces) {
+        let targetNode: any;
+        if (interfacesData.interface_id) {
+          targetNode = state.physicalInterfaces.find((el: any) => el.id === updatedPhysicalInterfaces.interface_id)
+        }
+        const interfaceCY = addCYDataToPhysicalInterface(updatedPhysicalInterfaces, targetNode)
+        return { ...i, ...interfaceCY }
+      } else {
+        return i
+      }
+    });
     return {
       ...state,
       isSelectedFlag: false,

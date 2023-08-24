@@ -216,6 +216,11 @@ export const physicalInterfaceUpdatedSuccess = createAction(
   props<{ interfaceData: any }>()
 );
 
+export const bulkUpdatedPhysicalInterfaceSuccess = createAction(
+  'bulkUpdatedPhysicalInterfaceSuccess',
+  props<{ interfacesData: any }>()
+)
+
 export const bulkEditlogicalInterfaceSuccess = createAction(
   'bulkEditlogicalInterfaceSuccess',
   props<{ interfacesData: any }>()

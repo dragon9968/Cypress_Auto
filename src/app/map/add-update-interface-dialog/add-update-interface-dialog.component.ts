@@ -34,7 +34,9 @@ class CrossFieldErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
     return !!control?.dirty && (
       control?.errors?.['required'] ||
-      form?.errors?.['isNotMatch']
+      control?.errors?.['isExist'] ||
+      form?.errors?.['isNotMatch'] || 
+      form?.errors?.['isNotMatchIP']
     );
   }
 }
@@ -103,7 +105,9 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       macAddressCtr: new FormControl(''),
       portGroupCtr: new FormControl(''),
       ipAllocationCtr: new FormControl(''),
-      ipCtr: new FormControl('', [Validators.required]),
+      ipCtr: new FormControl('', [
+        Validators.required,
+        validateNameExist(() => this.edgesConnected, this.data.mode, this.data.genData.id, 'ip')]),
       dnsServerCtr: new FormControl(''),
       gatewayCtr: new FormControl(''),
       isGatewayCtr: new FormControl(''),
@@ -111,11 +115,11 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
       netMaskCtr: new FormControl(''),
       vlanIdCtr: new FormControl('', [vlanInterfaceValidator()]),
       vlanModeCtr: new FormControl(''),
-    });
+    }, { validators: ipInPortGroupSubnet('edit') });
     this.connectInterfaceToPGForm = new FormGroup({
       interfaceCtr: new FormControl(''),
       targetPortGroupCtr: new FormControl(''),
-    }, { validators: ipInPortGroupSubnet })
+    }, { validators: ipInPortGroupSubnet('connect') })
     this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
       if (notification?.type == 'success') {
         if (notification.message === SuccessMessages.ADDED_NEW_EDGE_SUCCESS) {
@@ -383,12 +387,6 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
     this.isNatCtr?.setValue(interfaceData.is_nat);
     this.helpers.setAutoCompleteValue(this.netMaskCtr, this.netmasks, interfaceData.netmask_id);
     this._disableItems(this.ipAllocationCtr?.value);
-    this.ipCtr?.setValidators([
-      Validators.required,
-      networksValidation('single'),
-      validateNameExist(() => this.edgesConnected, mode, interfaceData.id, 'ip'),
-      showErrorFromServer(() => this.errors)
-    ])
     if (mode == 'view') {
       this.isGatewayCtr?.disable();
       this.isNatCtr?.disable();

@@ -1,17 +1,34 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from "@angular/forms";
 import { matches } from 'ip-matching';
+import { isIPv4 } from "is-ip";
+import { ErrorMessages } from "../enums/error-messages.enum";
 
-export const ipInPortGroupSubnet: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
-  const interfaceCtr = control.get('interfaceCtr');
-  const targetPortGroupCtr = control.get('targetPortGroupCtr');
-  const interfacesIp = interfaceCtr?.value.ip;
-  const targetPG = targetPortGroupCtr?.value.subnet;
-  if (interfacesIp && targetPG) {
-    const checkIpInSubnet = matches(interfacesIp, targetPG)
-    if (!checkIpInSubnet) {
-      let message = "IP Address not contained in port group subnet";
-      return { isNotMatch: true, message };
+export function ipInPortGroupSubnet(mode: any): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    let interfacesIp: any;
+    let subnetPG: any;
+    if (mode === 'connect') {
+      interfacesIp = control.get('interfaceCtr')?.value.ip;
+      subnetPG = control.get('targetPortGroupCtr')?.value.subnet;
+    } else {
+      interfacesIp = control.get('ipCtr')?.value;
+      subnetPG = control.get('portGroupCtr')?.value.subnet;
     }
+    if (interfacesIp && subnetPG) {
+      if (isIPv4(interfacesIp)) {
+        const checkIpInSubnet = matches(interfacesIp, subnetPG)
+        if (!checkIpInSubnet) {
+          let message = ErrorMessages.IP_IN_PGSUBNET;
+          return { isNotMatch: true, message };
+        }
+      } else {
+        const isNotIp = !isIPv4(interfacesIp)
+        if (isNotIp) {
+          let message = ErrorMessages.FIELD_IS_IP;
+          return { isNotMatchIP: true, message }
+        }
+      }
+    }
+    return null;
   }
-  return null;
-};
+}
