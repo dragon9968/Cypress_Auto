@@ -127,7 +127,7 @@ export class InterfacesEffects {
       .pipe(
         mergeMap(res => this.interfaceService.get(payload.id)),
         switchMap((res: any) => [
-          physicalInterfaceUpdatedSuccess({ interfaceData: res.result }),
+          logicalInterfaceUpdatedSuccess({ interfaceData: res.result }),
           addInterfaceLogicalToMap({ id: payload.id }),
           pushNotification({
             notification: {
