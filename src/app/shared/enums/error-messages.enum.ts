@@ -55,4 +55,5 @@ export enum ErrorMessages {
   USER_TASK_REFRESH_FAILED = 'Refresh task(s) failed!',
   USER_TASK_ADD_TASK_FAILED = 'Add task failed!',
   USER_TASK_DELETE_TASK_FAILED = 'Delete task(s) failed!',
+  REMOVE_PROJECTS_FAILED = 'Delete project(s) failed!',
 }

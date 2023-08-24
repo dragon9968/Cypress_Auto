@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { EMPTY, of } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
 import { map, exhaustMap, catchError, mergeMap, switchMap } from 'rxjs/operators';
 import {
   loadProjects,
@@ -9,7 +9,7 @@ import {
   projectUpdatedSuccess,
   projectsLoadedSuccess,
   projectsNotLinkYetLoadedSuccess,
-  removeProject,
+  removeProjects,
   updateProject,
   validateProject
 } from './project.actions';
@@ -20,6 +20,9 @@ import { MatDialog } from "@angular/material/dialog";
 import { loadGroups } from "../group/group.actions";
 import { loadDomains } from "../domain/domain.actions";
 import { HistoryService } from 'src/app/core/services/history/history.service';
+import { NotificationTypes } from 'src/app/shared/enums/notifications-types.enum';
+import { SuccessMessages } from 'src/app/shared/enums/success-messages.enum';
+import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 
 @Injectable()
 export class ProjectEffects {
@@ -114,35 +117,36 @@ export class ProjectEffects {
       )),
   ));
 
-  removeProject$ = createEffect(() => this.actions$.pipe(
-    ofType(removeProject),
-    exhaustMap(payload => this.projectService.deleteOrRecoverProject({
-      pk: payload.id,
+  removeProjects$ = createEffect(() => this.actions$.pipe(
+    ofType(removeProjects),
+    exhaustMap(payload => forkJoin(payload.ids.map(id => this.projectService.deleteOrRecoverProject({
+      pk: id,
       status: 'delete'
-    }).pipe(
-      map((res: any) => this.projectService.closeProject()),
-      switchMap((res: any) => [
-        loadProjects(),
-        pushNotification({
+    })))
+      .pipe(
+        switchMap(() => [
+          loadProjects(),
+          pushNotification({
+            notification: {
+              type: NotificationTypes.SUCCESS,
+              message: SuccessMessages.REMOVE_PROJECTS_SUCCESS
+            }
+          })
+        ]),
+        catchError(e => of(pushNotification({
           notification: {
-            type: 'success',
-            message: 'Delete project successfully'
+            type: NotificationTypes.FAILED,
+            message: ErrorMessages.REMOVE_PROJECTS_FAILED
           }
-        })
-      ]),
-      catchError(e => of(pushNotification({
-        notification: {
-          type: 'error',
-          message: e.error.message
-        }
-      })))
-    )),
+        })))
+      )
+    )
   ));
 
-  constructor(
-    private actions$: Actions,
-    private dialog: MatDialog,
-    private projectService: ProjectService,
-    private historyService: HistoryService,
-  ) { }
+constructor(
+  private actions$: Actions,
+  private dialog: MatDialog,
+  private projectService: ProjectService,
+  private historyService: HistoryService,
+) { }
 }

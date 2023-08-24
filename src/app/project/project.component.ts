@@ -1,10 +1,10 @@
 import { Store } from '@ngrx/store';
 import { AgGridAngular } from 'ag-grid-angular';
-import { catchError, forkJoin, Observable, of, Subscription, throwError } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ProjectService } from './services/project.service';
-import { selectActiveProjects, selectActiveProjectsTemplates, selectActiveTemplates, selectProject } from '../store/project/project.selectors';
+import { selectActiveProjects, selectActiveProjectsTemplates, selectActiveTemplates } from '../store/project/project.selectors';
 import { AuthService } from '../core/services/auth/auth.service';
 import { HelpersService } from '../core/services/helpers/helpers.service';
 import { Router } from '@angular/router';
@@ -17,7 +17,7 @@ import { ConfirmationDialogComponent } from '../shared/components/confirmation-d
 import { ExportProjectDialogComponent } from './export-project-dialog/export-project-dialog.component';
 import { UserService } from '../core/services/user/user.service';
 import { retrievedUser } from '../store/user/user.actions';
-import { LocalStorageKeys } from "../core/storage/local-storage/local-storage-keys.enum";
+import { removeProjects } from '../store/project/project.actions';
 
 @Component({
   selector: 'app-project',
@@ -33,7 +33,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   categoryPage: any;
   status = 'active';
   rowsSelected: any[] = [];
-  rowsSelectedId: any[] = [];
+  rowsSelectedIds: any[] = [];
   isSubmitBtnDisabled: boolean = true;
   private gridApi!: GridApi;
   selectActiveProjects$ = new Subscription();
@@ -171,9 +171,9 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   updateRow() {
-    if (this.gridApi && this.rowsSelectedId.length > 0) {
+    if (this.gridApi && this.rowsSelectedIds.length > 0) {
       this.gridApi.forEachNode(rowNode => {
-        if (this.rowsSelectedId.includes(rowNode.data.id)) {
+        if (this.rowsSelectedIds.includes(rowNode.data.id)) {
           rowNode.setSelected(true);
         }
       })
@@ -198,16 +198,16 @@ export class ProjectComponent implements OnInit, OnDestroy {
   selectedRows() {
     if (this.isAdmin) {
       this.rowsSelected = this.gridApi.getSelectedRows();
-      this.rowsSelectedId = this.rowsSelected.map(ele => ele.id);
-      if (this.rowsSelectedId.length == 0) {
+      this.rowsSelectedIds = this.rowsSelected.map(ele => ele.id);
+      if (this.rowsSelectedIds.length == 0) {
         this.isDisableEdit = true;
         this.isDisableDelete = true;
         this.isDisableExport = true;
-      } else if (this.rowsSelectedId.length == 1) {
+      } else if (this.rowsSelectedIds.length == 1) {
         this.isDisableEdit = false;
         this.isDisableDelete = false;
         this.isDisableExport = false;
-      } else if (this.rowsSelectedId.length > 1) {
+      } else if (this.rowsSelectedIds.length > 1) {
         this.isDisableEdit = true;
         this.isDisableDelete = false;
         this.isDisableExport = false;
@@ -227,11 +227,11 @@ export class ProjectComponent implements OnInit, OnDestroy {
   clearRow() {
     this.gridApi.deselectAll();
     this.rowsSelected = [];
-    this.rowsSelectedId = [];
+    this.rowsSelectedIds = [];
   }
 
   editProject() {
-    const selectedProject = this.projects.filter(p => p.id == this.rowsSelectedId[0])[0];
+    const selectedProject = this.projects.filter(p => p.id == this.rowsSelectedIds[0])[0];
     const dialogData = {
       mode: 'update',
       category: selectedProject.category,
@@ -246,7 +246,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   deleteProject() {
-    const suffix = this.rowsSelectedId.length === 1 ? 'this item' : 'these items';
+    const suffix = this.rowsSelectedIds.length === 1 ? 'this item' : 'these items';
     const dialogData = {
       title: 'User confirmation needed',
       message: `Are you sure you want to delete ${suffix}?`,
@@ -255,29 +255,19 @@ export class ProjectComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        forkJoin(this.rowsSelectedId.map(id => {
-          const jsonData = {
-            pk: id,
-            status: 'delete'
-          }
-          return this.projectService.deleteOrRecoverProject(jsonData).pipe(
-            catchError((e: any) => {
-              this.toastr.error(e.error.message);
-              return throwError(() => e);
-            })
-          );
-        })).subscribe(() => {
-          this.toastr.success('Deleted Project(s) successfully', 'Success');
-          this.clearRow();
-        })
+        this.store.dispatch(removeProjects({ ids: this.rowsSelectedIds }));
+        if (this.rowsSelectedIds.includes(this.projectService.getProjectId())) {
+          this.projectService.closeProject();
+        }
+        this.clearRow();
       }
     })
   }
 
   exportProject() {
     const dialogData = {
-      pks: this.rowsSelectedId,
-      name: this.rowsSelectedId.length === 1 ? this.rowsSelected[0].name : 'Projects',
+      pks: this.rowsSelectedIds,
+      name: this.rowsSelectedIds.length === 1 ? this.rowsSelected[0].name : 'Projects',
       type: 'admin'
     }
     this.dialog.open(ExportProjectDialogComponent, { disableClose: true, autoFocus: false, width: '400px', data: dialogData });

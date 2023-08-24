@@ -15,7 +15,7 @@ import { selectProject, selectProjectCategory, selectProjectName } from 'src/app
 import {
   closeProject,
   loadProjects,
-  removeProject,
+  removeProjects,
   retrievedVMStatus,
   validateProject
 } from 'src/app/store/project/project.actions';
@@ -116,21 +116,12 @@ export class NavBarComponent implements OnInit, OnDestroy {
         if (this.project.created_by_fk != this.userId && !sharedUserIds.includes(this.userId) && this.router.url === '/map') {
           this.toastr.warning(`The user is not the owner of project ${this.project.name}. Cannot open the project ${this.project.name}`);
           this.projectService.closeProject();
-          this.store.dispatch(closeProject());
           this.router.navigate([RouteSegments.PROJECTS]);
         }
       }
     });
-    this.selectProjectName$ = this.store.select(selectProjectName).subscribe(projectName => {
-      if (projectName) {
-        this.projectName = projectName;
-      }
-    });
-    this.selectProjectCategory$ = this.store.select(selectProjectCategory).subscribe(projectCategory => {
-      if (projectCategory) {
-        this.projectCategory = projectCategory;
-      }
-    })
+    this.selectProjectName$ = this.store.select(selectProjectName).subscribe(projectName => this.projectName = projectName);
+    this.selectProjectCategory$ = this.store.select(selectProjectCategory).subscribe(projectCategory => this.projectCategory = projectCategory);
     this.selectIsHypervisorConnect$ = this.store.select(selectIsHypervisorConnect).subscribe(isHypervisorConnect => {
       this.isHypervisorConnect = isHypervisorConnect;
     })
@@ -197,7 +188,6 @@ export class NavBarComponent implements OnInit, OnDestroy {
 
   closeProject() {
     this.projectService.closeProject();
-    this.store.dispatch(closeProject());
     this.router.navigate([RouteSegments.ROOT]);
   }
 
@@ -228,8 +218,10 @@ export class NavBarComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.store.dispatch(removeProject({ id: this.projectId }));
-        if (this.projectCategory === 'project') {
+        const projectCategory = this.projectCategory;
+        this.store.dispatch(removeProjects({ ids: [this.projectId] }));
+        this.projectService.closeProject();
+        if (projectCategory === 'project') {
           this.router.navigate([RouteSegments.PROJECTS]);
         } else {
           this.router.navigate([RouteSegments.PROJECTS_TEMPLATES]);
@@ -339,7 +331,6 @@ export class NavBarComponent implements OnInit, OnDestroy {
             this.projectService.openProject(projectId, project.map_state);
           } else {
             this.projectService.closeProject();
-            this.store.dispatch(closeProject());
             this.toastr.warning(`The user is not the owner of project. Cannot open the project`)
             this.router.navigate([RouteSegments.PROJECTS])
           }

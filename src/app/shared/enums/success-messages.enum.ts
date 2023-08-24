@@ -17,5 +17,6 @@ export enum SuccessMessages {
   USER_TASK_ADDED_TASK_SUCCESS = 'Task added to the queue',
   USER_TASK_ADDED_PG_TASK_SUCCESS = 'Add port group task to queue',
   USER_TASK_DELETED_TASK_SUCCESS = 'Delete task(s) success!',
-  UPDATED_CONNECTED_PHYSICAL_INTERFACES_SUCCESS = 'Updated connect Interface'
+  UPDATED_CONNECTED_PHYSICAL_INTERFACES_SUCCESS = 'Updated connect Interface',
+  REMOVE_PROJECTS_SUCCESS = 'Delete project(s) success!',
 }

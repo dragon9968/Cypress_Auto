@@ -77,7 +77,7 @@ export const defaultPreferencesLoadedSuccess = createAction(
   props<{ defaultPreferences: any }>()
 );
 
-export const removeProject = createAction(
-  'removeProject',
-  props<{ id: number }>()
+export const removeProjects = createAction(
+  'removeProjects',
+  props<{ ids: number[] }>()
 )
