@@ -979,7 +979,7 @@ function addNewPortGroupOnMap(portGroup: any, positionX: any, positionY: any, cu
 }
 Cypress.Commands.add('addNewPortGroupOnMap', addNewPortGroupOnMap);
 
-// Add new node on map
+// Add new interface on map
 declare namespace Cypress {
   interface Chainable<Subject = any> {
     addNewInterface(edge: any, nodeX: any, nodeY: any, pgX: any, pgY: any, isValidateIP?: boolean): typeof addNewInterface;
@@ -1008,30 +1008,36 @@ function addNewInterface(edge: any, nodeX: any, nodeY: any, pgX: any, pgY: any, 
         cy.getByFormControlName('ipAllocationCtr').children(`mat-radio-button[value="${edge.ip_allocation}"]`).click()
         cy.wait(1000)
       }
-      if (edge.ip_address) {
-        cy.getByFormControlName('ipCtr').clear().type(edge.ip_address)
-        if (isValidateIP) {
-          cy.checkingMatErrorIsExistOrNot(true)
-          return;
-        } else {
-          cy.checkingMatErrorIsExistOrNot(false)
+      if (edge.ip_allocation === 'static_manual') {
+        cy.getByFormControlName('netMaskCtr').first().click().then(() => {
+          cy.get('mat-option').first().click()
+        })
+        if (edge.ip_address) {
+          cy.getByFormControlName('ipCtr').clear().type(edge.ip_address);
+          if (isValidateIP) {
+            cy.checkingMatErrorIsExistOrNot(true)
+            return;
+          } else {
+            cy.checkingMatErrorIsExistOrNot(false)
+          }
+          cy.wait(1000)
         }
-        cy.wait(1000)
       }
     }
+
     cy.checkingMatErrorIsExistOrNot(false)
     cy.getByDataCy('interfaceAddForm').submit()
     cy.checkingToastSuccess()
+    cy.waitingLoadingFinish()
+    cy.getButtonByTypeAndContent('submit', 'Connect').click()
     cy.checkingToastSuccess()
+    cy.waitingLoadingFinish()
+    cy.get('button[matTooltip="Save"]').click()
+    cy.checkingToastSuccess()
+    cy.waitingLoadingFinish()
+    cy.log('END: Add new interface successfully')
   })
-  cy.waitingLoadingFinish()
-  cy.getButtonByTypeAndContent('submit', 'Connect').click()
-  cy.checkingToastSuccess()
-  cy.waitingLoadingFinish()
-  cy.get('button[matTooltip="Save"]').click()
-  cy.checkingToastSuccess()
-  cy.waitingLoadingFinish()
-  cy.log('END: Add new interface successfully')
+
 }
 Cypress.Commands.add('addNewInterface', addNewInterface);
 
@@ -1324,6 +1330,7 @@ declare namespace Cypress {
 }
 
 function waitingLoadingFinish() {
+  cy.wait(1000)
   cy.get('.loading', { timeout: 15000 }).should('not.exist')
 }
 Cypress.Commands.add('waitingLoadingFinish', waitingLoadingFinish);
@@ -1578,6 +1585,26 @@ function addUpdateMapPreferences (mapPreferences: any) {
   cy.log(`END: Add/Update new ${mapPreferences.name}`)
 }
 Cypress.Commands.add('addUpdateMapPreferences', addUpdateMapPreferences);
+
+// Clone node
+declare namespace Cypress {
+  interface Chainable<Subject = any> {
+    cloneNode(nodeX: number, nodeY: number): typeof cloneNode;
+  }
+}
+
+function cloneNode(nodeX: number, nodeY: number) {
+  cy.get('canvas.expand-collapse-canvas').click(nodeX, nodeY, { force: true })
+    .rightclick(300, 500,{force: true}).then(() => {
+    cy.get('.cy-context-menus-cxt-menu').first().should('exist')
+    cy.get('#node_actions').should('exist').click({ force: true })
+    cy.get('#clone_node').should('exist').click({ force: true })
+    cy.waitingLoadingFinish()
+    cy.checkingToastSuccess()
+  })
+}
+Cypress.Commands.add('cloneNode', cloneNode);
+
 
 // Unselect all elements on map
 declare namespace Cypress {

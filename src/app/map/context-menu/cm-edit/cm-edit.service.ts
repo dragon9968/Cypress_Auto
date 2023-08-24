@@ -17,7 +17,6 @@ import { Subscription } from 'rxjs';
 import { selectSelectedLogicalNodes, selectSelectedPhysicalNodes } from 'src/app/store/node/node.selectors';
 import { selectSelectedPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
 import { selectSelectedMapLinks } from "../../../store/map-link/map-link.selectors";
-import { ProjectService } from "../../../project/services/project.service";
 
 
 @Injectable({
@@ -44,7 +43,6 @@ export class CMEditService implements OnDestroy {
     private toastr: ToastrService,
     private store: Store,
     private interfaceService: InterfaceService,
-    private projectService: ProjectService
   ) {
     this.selectSelectedLogicalNodes$ = this.store.select(selectSelectedLogicalNodes).subscribe(selectedNodes => {
       if (selectedNodes) {

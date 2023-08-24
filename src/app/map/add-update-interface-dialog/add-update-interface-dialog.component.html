@@ -240,7 +240,7 @@
             <mat-option *ngFor="let option of filteredPortGroups | async" [value]="option">
               <div class="portgroup-option-text">
                 <span class="option-text-items"><b>{{ option.name }}</b></span>
-                <span class="option-text-items">Subnet: {{ option.subnet }}</span>
+                <span class="option-text-items" data-cy="port-group-subnet">Subnet: {{ option.subnet }}</span>
                 <span class="option-text-items">VLAN: {{ option.vlan }}</span>
               </div>
             </mat-option>

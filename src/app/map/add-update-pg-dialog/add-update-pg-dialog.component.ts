@@ -330,7 +330,7 @@ export class AddUpdatePGDialogComponent implements OnInit, OnDestroy {
   }
 
   updatePG() {
-    const ele = this.data.cy.getElementById(this.data.genData.data.id);
+    const ele = this.data.cy.getElementById(this.data.genData?.data?.id);
     const jsonDataValue: PortGroupPutModel = {
       name: this.nameCtr?.value,
       vlan: this.vlanCtr?.value,

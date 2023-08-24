@@ -172,6 +172,7 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
         this.interfacesNotConnectPG = interfaces;
         this.interfaceCtr?.setValidators([Validators.required, autoCompleteValidator(this.interfacesNotConnectPG)]);
         this.filteredInterfaces = this.helpers.filterOptions(this.interfaceCtr, this.interfacesNotConnectPG);
+        this.connectInterfaceToPGForm.updateValueAndValidity();
       }
     })
   }

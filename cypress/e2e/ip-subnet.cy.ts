@@ -10,6 +10,7 @@ describe('Test IP/Subnet in a interface on map', () => {
   let nodeX2: number;
   let nodeY2: number;
   let project:any = {}
+  const random = (Math.random() + 1).toString(36).substring(5);
   beforeEach(() => {
     cy.viewport(window.screen.width, window.screen.height)
     cy.visit('/login')
@@ -33,12 +34,19 @@ describe('Test IP/Subnet in a interface on map', () => {
 
     cy.fixture('project/new-project.json').then(projectData => {
       project = projectData
+      project.name += ` - (${random})`
       project.option = 'blank'
     })
+
+    const setup = () => {
+      cy.visit('/login')
+      cy.login("admin", "password")
+    }
+    cy.session('login', setup)
   })
 
   it('Test IP/Subnet in a interface on map',() => {
-    cy.login(admin.username, admin.password)
+    cy.visit('/')
     // Landing project page
     cy.getByDataCy('btn-create-new').click()
 
@@ -46,7 +54,7 @@ describe('Test IP/Subnet in a interface on map', () => {
     cy.addNewProject(project, true)
 
     // Open project just created
-    cy.get('ag-grid-angular').contains(project.name).dblclick()
+    cy.openProjectByName(project.name)
 
     // Add new node 1
     cy.addNewNodeOnMap(node, node.logical_map.position.x, node.logical_map.position.y, false)
@@ -89,7 +97,7 @@ describe('Test IP/Subnet in a interface on map', () => {
 
     // Update interface
     cy.unSelectAllElementOnMap()
-    cy.wait(4000)
+    cy.wait(2000)
 
     // check update netmask
     cy.get('canvas.expand-collapse-canvas').rightclick(400, 300, {force: true}).then(() => {
@@ -108,25 +116,26 @@ describe('Test IP/Subnet in a interface on map', () => {
       cy.get('.cy-context-menus-cxt-menu').first().should('exist')
       cy.get('#edit').should('exist').click({ force: true });
       cy.getByFormControlName('ipAllocationCtr').children(`mat-radio-button[value="${editEdgeData.ip_allocation}"]`).click()
-      // check Validation for ip_address duplication
+      cy.log('Check IP Address is duplicate')
       cy.getByFormControlName('ipCtr').clear().type(editEdgeData.ip_address)
       cy.getByFormControlName('dnsServerCtr').clear().type('1.2.3.4')
       cy.get('mat-error').should('exist')
       cy.wait(2000)
 
-      // check Validation for ip_address duplication
+      cy.log('Check IP Address is invalid')
       cy.getByFormControlName('ipCtr').clear().type(ipInvalid.ip_address)
       cy.getByFormControlName('dnsServerCtr').clear().type('1.2.3.4')
       cy.get('mat-error').should('exist')
       cy.wait(2000)
 
-      // check Validation for ip_address invalid
+      cy.log('Check IP Address not in port group\'s subnet')
       cy.getByFormControlName('ipCtr').clear().type(ipInSubnet.ip_address)
       cy.getByFormControlName('dnsServerCtr').clear().type('1.2.3.4')
       cy.getByDataCy('cy-interface-btn').click()
-      cy.get('mat-error').should('exist')
+      // Todo: Revert to check mat-error after adding the validate for the IP Address in port group's subnet in Edit mode
+      // cy.get('mat-error').should('exist')
+      cy.get('.toast-error', { timeout: 15000 }).should('exist')
       cy.wait(2000)
-
     })
   });
 })

@@ -1,6 +1,6 @@
 import './images-icon.cy'
 import './map-basic-features.cy'
-describe('E2E Map - Initial Phase', () => {
+describe('E2E Map - Initial Phase', {testIsolation: true}, () => {
   let node: any = {}
   let node2: any = {}
   let nodeX: number;
@@ -14,7 +14,7 @@ describe('E2E Map - Initial Phase', () => {
 
   const random = (Math.random() + 1).toString(36).substring(5);
   beforeEach(() => {
-    cy.viewport(1920, 1080)
+    cy.viewport(1366, 768)
     const setup = () => {
       cy.visit('/login')
       cy.login("admin", "password")
@@ -30,7 +30,6 @@ describe('E2E Map - Initial Phase', () => {
       newProjectTemplate = projectTemplateData
       newProjectTemplate.name += ` (${random})`
       newProjectTemplate = JSON.parse(JSON.stringify(newProjectTemplate))
-      // newProjectTemplate.option = 'blank'
       newProjectTemplate.name =  newProjectTemplate.name + ' blank'
     })
     cy.fixture('map/node.json').then(nodeData => {
@@ -45,7 +44,6 @@ describe('E2E Map - Initial Phase', () => {
       pgY = portGroup.logical_map.position.y
     })
     cy.session('login', setup)
-    // cy.waitingLoadingFinish()
   })
 
   it ('Check - Create new project template and add new images', () => {
@@ -71,9 +69,10 @@ describe('E2E Map - Initial Phase', () => {
     cy.get('#toolpanel-image').click();
     cy.getOptionByContent('import-image').first().click();
     cy.getByDataCy('mapImageForm').submit();
-    cy.wait(4000)
+    cy.wait(1000)
     cy.get('canvas.expand-collapse-canvas').click(450, 250, { force: true });
-    cy.wait(4000)
+    cy.checkingToastSuccess();
+    cy.wait(1000)
 
   })
 
@@ -147,16 +146,6 @@ describe('E2E Map - Initial Phase', () => {
     })
 
     cy.unSelectAllElementOnMap()
-
-    // cy.wait(2000)
-    // cy.get('canvas.expand-collapse-canvas').rightclick(200, 200, {force: true}).then(() => {
-    //   cy.get('.cy-context-menus-cxt-menu').first().should('exist')
-    //   cy.get('#edit').should('exist').click({ force: true });
-    //   cy.getByFormControlName('nameCtr').clear().type('test edit other node')
-    //   cy.get('mat-error').should('not.exist')
-    //   cy.getByDataCy('nodeAddForm').submit()
-    //   cy.waitingLoadingFinish()
-    // })
 
     // [Map editor] The system does not display images when adding a template project that contains an image
     cy.get('#toolpanel-add-template').click();

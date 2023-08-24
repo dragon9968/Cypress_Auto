@@ -144,10 +144,10 @@ describe('Coverage for PortGroup issue', () => {
       cy.get('.cy-context-menus-cxt-menu').first().should('exist')
       cy.get('#view_details').should('exist').click({ force: true });
     })
-    cy.wait(4000)
+    cy.wait(2000)
   })
 
-  it ('Create new blank template', () => {
+  it ('KR-2770 - Preparing/Creating a template', () => {
     cy.viewport(1920, 1080)
     cy.visit('/', { timeout: 15000 })
     cy.getByDataCy('btn-create-new').click({force: true})
@@ -185,23 +185,25 @@ describe('Coverage for PortGroup issue', () => {
     cy.waitingLoadingFinish()
   })
 
-  it ("Test - [Regression Issue] Template's Port group that user linked to project is displayed incorrectly", () => {
-    cy.viewport(1920, 1080)
+  it ('KR-2770 - [Regression Issue] Template\'s Port group that user linked to project is displayed incorrectly', () => {
     cy.visit('/', { timeout: 15000 })
-    cy.getByDataCy('btn-create-new').click({force: true})
-    blankProject.name = blankProject.name + '(1)'
-    cy.addNewProject(blankProject, true)
+    cy.getByDataCy('btn-create-new').click({force: true});
+    blankProject.name = blankProject.name + '(1)';
+    cy.addNewProject(blankProject, true);
 
-    cy.addTemplateIntoProject(blankProject.name, false, blankTemplate.name)
+    cy.addTemplateIntoProject(blankProject.name, false, blankTemplate.name);
+
+    cy.wait(1000);
+    cy.getButtonByTypeAndContent('button', 'Close').click();
 
     cy.selectMatTabByLabel('Option').click();
-    cy.getMatSliderToggleByClass('.groupboxes-toggle').check({ force: true })
-    cy.get('button[matTooltip="Save"]').click()
-    cy.waitingLoadingFinish()
+    cy.getMatSliderToggleByClass('.groupboxes-toggle').check({ force: true });
+    cy.get('button[matTooltip="Save"]').click();
+    cy.waitingLoadingFinish();
 
     cy.selectMatTabByLabel(new RegExp('^group$', 'gi')).click();
     cy.get(`app-info-panel-group ag-grid-angular .ag-row`).contains(group.groupEditDefaultData.name)
-    .parent('.ag-cell-wrapper').parent('.ag-cell').parent('.ag-row').should('contain', "cro_net_66gzpdrp")
-    cy.wait(2000)
+    .parent('.ag-cell-wrapper').parent('.ag-cell').parent('.ag-row').should('contain', "cro_net_66gzpdrp");
+    cy.wait(2000);
   })
 })

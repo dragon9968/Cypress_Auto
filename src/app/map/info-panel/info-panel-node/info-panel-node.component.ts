@@ -121,7 +121,7 @@ export class InfoPanelNodeComponent implements OnDestroy {
         field: 'interfaces',
         cellRenderer: (param: any) => {
           let html_str = "<ul>";
-          const interfaces = param.value?.filter((i: any) => !i.isDeleted);
+          const interfaces = param.value?.filter((i: any) => !i.isDeleted) || [];
           interfaces.forEach((i: any) => {
             const item_html = `<li>${i.value}</li>`
             html_str += item_html

@@ -6,7 +6,7 @@ export function validateNameExist(getData: () => any[], mode: string, id: any, d
     if (nameValue == undefined || typeof nameValue !== 'string' || nameValue == '') {
       return null;
     }
-    let data: any[] = [...getData()];
+    let data: any[] = getData() ? [...getData()]: [];
     if (mode === 'update' || mode === 'view') {
       const index = data.findIndex(ele => ele.id === id);
       data.splice(index, 1);

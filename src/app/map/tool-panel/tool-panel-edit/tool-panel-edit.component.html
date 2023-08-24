@@ -124,7 +124,7 @@
       </div>
 
       <h4>Template</h4>
-      <form [formGroup]="addTemplateForm" (ngSubmit)="addTemplate()" autocomplete="off">
+      <form [formGroup]="addTemplateForm" (ngSubmit)="addTemplate()" autocomplete="off" data-cy="addTemplateForm">
         <mat-form-field class="tab-select-field">
           <mat-label>Template</mat-label>
           <input autocomplete="off" id="toolpanel-add-template" matInput placeholder="Select a template"

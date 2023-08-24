@@ -191,15 +191,18 @@ describe('Map features e2e testing', () => {
     cy.get(`mat-option[value="management"]`).click()
     cy.get('body').click(0,0);
     cy.wait(1000)
+
     cy.get(`app-info-panel-port-group ag-grid-angular .ag-row`).contains('management')
       .parent('.ag-cell-wrapper').parent('.ag-cell').parent('.ag-row').dblclick()
     cy.getByMatToolTip('Edit Port Group').click()
     cy.getByFormControlName('nameCtr').focus().clear().type('Port Group Management Test Edit')
     cy.getByFormControlName('domainCtr').click()
     cy.get('.mat-option-text').contains('management').click()
+    cy.wait(1000)
     cy.getButtonByTypeAndContent('submit', 'Update').click()
     cy.checkingToastSuccess()
     cy.waitingLoadingFinish()
+
     cy.selectMatTabByLabel('Interfaces').click()
     cy.selectInfoPanelRowByLabelAndContent('interface', 'eth1').click()
     cy.wait(1000)
@@ -218,28 +221,12 @@ describe('Map features e2e testing', () => {
     cy.wait(1000)
     cy.get(`app-info-panel-interface ag-grid-angular .ag-row`).contains('management')
       .parent('.ag-cell-wrapper').parent('.ag-cell').parent('.ag-row').first().dblclick()
-    cy.getByMatToolTip('Edit Edge').click()
+    cy.getByMatToolTip('Edit Interface').click()
     cy.getByFormControlName('nameCtr').focus().clear().type('Edge Management Test Edit')
     cy.getButtonByTypeAndContent('submit', 'Update').click()
     cy.checkingToastSuccess()
     cy.waitingLoadingFinish()
   })
-
-  it ('Test Link project', () => {
-    cy.visit('/projects')
-    cy.openProjectByName(project.name)
-    cy.waitingLoadingFinish()
-    cy.selectMatTabByLabel('Option').click();
-    cy.getMatSliderToggleByClass('.direction-toggle').check({ force: true })
-    cy.wait(2000)
-    cy.getMatSliderToggleByClass('.groupboxes-toggle').check({ force: true })
-    cy.wait(2000)
-    cy.getMatSliderToggleByClass('.matgrid-toggle').check({ force: true })
-    cy.wait(2000)
-    cy.getMatSliderToggleByClass('.mapoverview-toggle').check({ force: true })
-    cy.getByMatToolTip('Save').click()
-    cy.checkingToastSuccess()
-  });
 
   it ('Test map - Test domain info panel', () => {
     cy.visit('/projects')
@@ -273,7 +260,8 @@ describe('Map features e2e testing', () => {
 
     // save map
     cy.getByMatToolTip('Save').click();
-    cy.wait(4000)
+    cy.checkingToastSuccess();
+    cy.wait(1000)
   });
 
   it ('Test map style - Change Map Preferences', () => {
@@ -293,7 +281,8 @@ describe('Map features e2e testing', () => {
     cy.getByMatToolTip('Apply').click();
     // save map
     cy.getByMatToolTip('Save').click()
-    cy.wait(4000)
+    cy.checkingToastSuccess();
+    cy.wait(1000)
   });
 
   it ('Test map - Test tool panel Option', () => {
@@ -309,9 +298,9 @@ describe('Map features e2e testing', () => {
     cy.getMatSliderToggleByClass('.matgrid-toggle').check({ force: true })
     cy.wait(2000)
     cy.getMatSliderToggleByClass('.mapoverview-toggle').check({ force: true })
-    // save map
     cy.getByMatToolTip('Save').click()
-    cy.wait(4000)
+    cy.checkingToastSuccess();
+    cy.wait(1000)
   });
 
   it ('Test map - Test domain info panel', () => {
@@ -322,7 +311,6 @@ describe('Map features e2e testing', () => {
     cy.getMatSliderToggleByClass('.direction-toggle').uncheck({ force: true })
     cy.wait(1000)
     cy.getMatSliderToggleByClass('.mapoverview-toggle').uncheck({ force: true })
-    // save map
     cy.getByMatToolTip('Save').click()
 
     // Add new domain
