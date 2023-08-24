@@ -9,7 +9,7 @@ import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { UserService } from 'src/app/core/services/user/user.service';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { checkPasswords } from 'src/app/shared/validations/confirm-password.validation';
-import { retrievedUser } from 'src/app/store/user/user.actions';
+import { retrievedUsers } from 'src/app/store/user/user.actions';
 
 class CrossFieldErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: AbstractControl<any, any> | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -74,7 +74,7 @@ export class ResetPasswordDialogComponent implements OnInit {
     ).subscribe(() => {
       this.dialogRef.close();
       this.toastr.success(`Password Changed`)
-      this.userService.getAll().subscribe((data: any) => this.store.dispatch(retrievedUser({data: data.result})));
+      this.userService.getAll().subscribe((data: any) => this.store.dispatch(retrievedUsers({ users: data.result})));
     });
   }
 

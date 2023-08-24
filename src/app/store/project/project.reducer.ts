@@ -10,7 +10,8 @@ import {
   closeProject,
   projectUpdatedSuccess,
   openProject,
-  defaultPreferencesLoadedSuccess
+  defaultPreferencesLoadedSuccess,
+  sharedProjectsLoadedSuccess
 } from './project.actions';
 
 const initialState = {} as ProjectState;
@@ -58,6 +59,10 @@ export const projectReducer = createReducer(
   on(projectsLoadedSuccess, (state, { projects }) => ({
     ...state,
     projects
+  })),
+  on(sharedProjectsLoadedSuccess, (state, { sharedProjects }) => ({
+    ...state,
+    sharedProjects
   })),
   on(closeProject, (state, { }) => ({
     ...state,

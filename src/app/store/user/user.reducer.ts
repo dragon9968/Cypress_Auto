@@ -1,21 +1,21 @@
 import { createReducer, on } from "@ngrx/store";
 import { UserState } from "./user.state";
-import { retrievedPermissions, retrievedRole, retrievedUser } from "./user.actions";
+import { retrievedPermissions, retrievedRoles, retrievedUsers } from "./user.actions";
 
 const initialState = {} as UserState;
 
 export const userReducer = createReducer(
   initialState,
-  on(retrievedUser, (state, {data}) => ({
+  on(retrievedUsers, (state, { users }) => ({
     ...state,
-    user: data
+    users
   })),
-  on(retrievedRole, (state, {role}) => ({
+  on(retrievedRoles, (state, { roles }) => ({
     ...state,
-    role: role
+    roles
   })),
-  on(retrievedPermissions, (state, {permissions}) => ({
+  on(retrievedPermissions, (state, { permissions }) => ({
     ...state,
-    permissions: permissions
+    permissions
   })),
 )

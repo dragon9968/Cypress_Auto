@@ -15,7 +15,7 @@ import { LoginProfileService } from 'src/app/core/services/login-profile/login-p
 import { retrievedLoginProfiles } from 'src/app/store/login-profile/login-profile.actions';
 import { Store } from '@ngrx/store';
 import { RolesService } from 'src/app/core/services/roles/roles.service';
-import { retrievedRole } from 'src/app/store/user/user.actions';
+import { retrievedRoles } from 'src/app/store/user/user.actions';
 import { ImageService } from 'src/app/core/services/image/image.service';
 import { retrievedImages } from 'src/app/store/map-image/map-image.actions';
 import { retrievedIcons } from 'src/app/store/icon/icon.actions';
@@ -183,7 +183,7 @@ export class ImportDialogComponent implements OnInit {
         break;
       case PageName.ROLES:
         this._getServiceByPageName(this.data.pageName)?.getAll().subscribe((response: any) =>
-          this.store.dispatch(retrievedRole({ role: response.result }))
+          this.store.dispatch(retrievedRoles({ roles: response.result }))
         );
         this.toastr.success(`${this.title} successfully`, 'Success')
         this.dialogRef.close()

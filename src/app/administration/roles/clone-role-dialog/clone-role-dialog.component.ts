@@ -5,7 +5,7 @@ import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { RolesService } from 'src/app/core/services/roles/roles.service';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
-import { retrievedRole } from 'src/app/store/user/user.actions';
+import { retrievedRoles } from 'src/app/store/user/user.actions';
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
 
 @Component({
@@ -45,7 +45,7 @@ export class CloneRoleDialogComponent implements OnInit {
       this.rolesService.clone(jsonData).subscribe({
         next: () => {
           this.toastr.success(`Clone Role successfully`);
-          this.rolesService.getAll().subscribe(data => this.store.dispatch(retrievedRole({ role: data.result })));
+          this.rolesService.getAll().subscribe(data => this.store.dispatch(retrievedRoles({ roles: data.result })));
           this.dialogRef.close();
         },
         error: () => {

@@ -11,7 +11,7 @@ import { selectIsMapOpen } from 'src/app/store/map/map.selectors';
 import { PermissionLevels } from '../../enums/permission-levels.enum';
 import { RouteSegments } from '../../enums/route-segments.enum';
 import { AuthService } from '../../services/auth/auth.service';
-import { selectProject, selectProjectCategory, selectProjectName } from 'src/app/store/project/project.selectors';
+import { selectActiveProjects, selectProject, selectProjectCategory, selectProjectName, selectSharedProjects } from 'src/app/store/project/project.selectors';
 import {
   closeProject,
   loadProjects,
@@ -63,6 +63,8 @@ export class NavBarComponent implements OnInit, OnDestroy {
   selectProjectCategory$ = new Subscription();
   selectProject$ = new Subscription();
   selectUser$ = new Subscription();
+  selectSharedProjects$ = new Subscription();
+  selectActiveProjects$ = new Subscription();
   isHypervisorConnect = false;
   isDatasourceConnect = false;
   isConfiguratorConnect = false;
@@ -74,8 +76,8 @@ export class NavBarComponent implements OnInit, OnDestroy {
   userId: any;
   categoryProject: any;
   isSmallScreen!: boolean;
-  listShare: any[] = [];
-  listProject: any[] = [];
+  sharedProjects: any[] = [];
+  activeProjects: any[] = [];
 
   constructor(
     private authService: AuthService,
@@ -139,7 +141,17 @@ export class NavBarComponent implements OnInit, OnDestroy {
 
     this.selectProjectCategory$ = this.store.select(selectProjectCategory).subscribe(projectCategory => {
       this.categoryProject = projectCategory
-    })
+    });
+    this.selectSharedProjects$ = this.store.select(selectSharedProjects).subscribe(sharedProjects => {
+      if (sharedProjects) {
+        this.sharedProjects = sharedProjects;
+      }
+    });
+    this.selectActiveProjects$ = this.store.select(selectActiveProjects).subscribe(activeProjects => {
+      if (activeProjects) {
+        this.activeProjects = activeProjects.filter((p: any) => p.created_by_fk === this.authService.getUserId());
+      }
+    });
     iconRegistry.addSvgIcon('plant-tree-icon', this.helpersService.setIconPath('/assets/icons/plant-tree-icon.svg'));
     iconRegistry.addSvgIcon('icons8-trash-can', this.helpersService.setIconPath('/assets/icons/icons8-trash-can.svg'));
   }
@@ -317,26 +329,14 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   openProject(projectId: number) {
-    this.projectService.getProjectByStatus(this.status).subscribe((data: any) => {
-      if (data.result) {
-        this.projectService.getShareProject('active', 'project').subscribe((resp: any) => {
-          const shareProject = resp.result;
-          this.listProject = data.result.filter((val: any) => val.created_by_fk === this.userId);
-          if (shareProject) {
-            this.listProject = [...this.listProject, ...shareProject];
-          }
-          const listProjectId = this.listProject.map(val => val.id);
-          if (listProjectId.includes(projectId)) {
-            const project = this.listProject.find(p => p.id == projectId);
-            this.projectService.openProject(projectId, project.map_state);
-          } else {
-            this.projectService.closeProject();
-            this.toastr.warning(`The user is not the owner of project. Cannot open the project`)
-            this.router.navigate([RouteSegments.PROJECTS])
-          }
-        })
-      }
-    });
+    const project = (this.activeProjects.concat(this.sharedProjects)).find(val => val.id == projectId);
+    if (!!project) {
+      this.projectService.openProject(projectId, project.map_state);
+    } else {
+      this.projectService.closeProject();
+      this.toastr.warning(`The user doesn't has access to the project`)
+      this.router.navigate([RouteSegments.PROJECTS])
+    }
   }
 
   validateProject() {

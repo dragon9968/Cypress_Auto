@@ -51,7 +51,12 @@ export const loadProjects = createAction(
 
 export const projectsLoadedSuccess = createAction(
   'projectsLoadedSuccess',
-  props<{ projects: any }>()
+  props<{ projects: any[] }>()
+);
+
+export const sharedProjectsLoadedSuccess = createAction(
+  'sharedProjectsLoadedSuccess',
+  props<{ sharedProjects: any[] }>()
 );
 
 export const closeProject = createAction(

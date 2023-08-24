@@ -6,7 +6,7 @@ import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { Router } from '@angular/router';
 import { FormGroup, FormBuilder, Validators, FormControl, FormGroupDirective, NgForm } from '@angular/forms';
 import { ProjectService } from 'src/app/project/services/project.service';
-import { selectActiveTemplates } from 'src/app/store/project/project.selectors';
+import { selectActiveTemplates, selectAllProjects } from 'src/app/store/project/project.selectors';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -17,7 +17,7 @@ import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmat
 import { MatDialog } from '@angular/material/dialog';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { selectAppPref } from 'src/app/store/app-pref/app-pref.selectors';
-import { loadAppPref, retrievedAppPref } from 'src/app/store/app-pref/app-pref.actions';
+import { loadAppPref } from 'src/app/store/app-pref/app-pref.actions';
 import { MatRadioChange } from '@angular/material/radio';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { MapPrefService } from 'src/app/core/services/map-pref/map-pref.service';
@@ -54,9 +54,9 @@ export class AddProjectComponent implements OnInit {
   errorMatcher = new CrossFieldErrorMatcher();
   routeSegments = RouteSegments;
   errorMessages = ErrorMessages;
-  selectActiveProjects$ = new Subscription();
+  selectAllProjects$ = new Subscription();
   selectActiveTemplates$ = new Subscription();
-  nameProject!: any[];
+  projects!: any[];
   activeTemplates!: any[];
   rowData!: any[];
   checked = false;
@@ -142,7 +142,7 @@ export class AddProjectComponent implements OnInit {
           Validators.minLength(3),
           Validators.maxLength(50),
           Validators.pattern('[^!@#$&*`%=]*'),
-          validateNameExist(() => this.nameProject, 'add', undefined)
+          validateNameExist(() => this.projects, 'add', undefined)
         ]
       ],
       description: [''],
@@ -157,13 +157,15 @@ export class AddProjectComponent implements OnInit {
       enclave_users: [5, [Validators.min(0), Validators.max(100), Validators.required]],
       vlan_min: [2000, [Validators.min(1), Validators.max(4093), Validators.required]],
       vlan_max: [2100]
-    },{ validators: vlanValidator })
-    this.projectService.getAll().subscribe((data: any) => {
-      this.nameProject = data.result;
-    });
+    },{ validators: vlanValidator });
+    this.selectAllProjects$ = this.store.select(selectAllProjects).subscribe(projects => {
+      if (projects) {
+        this.projects = projects;
+      }
+    })
 
     this.selectActiveTemplates$ = this.store.select(selectActiveTemplates).subscribe(activeTemplates => {
-      if (this.activeTemplates) {
+      if (activeTemplates) {
         this.activeTemplates = activeTemplates;
         this.template.setValidators([autoCompleteValidator(this.activeTemplates)]);
         this.filteredTemplate = this.helpers.filterOptions(this.template, this.activeTemplates);

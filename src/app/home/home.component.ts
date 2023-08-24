@@ -3,14 +3,13 @@ import { Subscription } from "rxjs";
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { ProjectService } from "../project/services/project.service";
-import { selectActiveProjects, selectRecentProjects } from "../store/project/project.selectors";
-import { loadProjects, retrievedRecentProjects } from "../store/project/project.actions";
+import { selectActiveProjects, selectRecentProjects, selectSharedProjects } from "../store/project/project.selectors";
+import { retrievedRecentProjects } from "../store/project/project.actions";
 import { AuthService } from "../core/services/auth/auth.service";
 import { ToastrService } from "ngx-toastr";
 import { Router } from "@angular/router";
 import { ImportProjectDialogComponent } from 'src/app/project/import-project-dialog/import-project-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
-import { LocalStorageKeys } from "../core/storage/local-storage/local-storage-keys.enum";
 
 @Component({
   selector: 'app-home',
@@ -23,8 +22,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   recentProjects: any[] = [];
   selectRecentProjects = new Subscription();
   selectActiveProjects$ = new Subscription();
-  listShare: any[] = [];
-  listProject: any[] = [];
+  selectSharedProjects$ = new Subscription();
+  activeProjects: any[] = [];
+  sharedProjects: any[] = [];
   status = 'active';
   constructor(
     private authService: AuthService,
@@ -34,24 +34,22 @@ export class HomeComponent implements OnInit, OnDestroy {
     private router: Router,
     private dialog: MatDialog,
   ) {
-    const userId = this.authService.getUserId();
+    
     this.selectRecentProjects = this.store.select(selectRecentProjects).subscribe(recentProjects => {
       if (recentProjects) {
         this.recentProjects = recentProjects;
       }
     });
-    this.selectActiveProjects$ = this.store.select(selectActiveProjects)
-      .subscribe((data) => {
-        if (data) {
-          this.listProject = data.filter((val: any) => val.created_by_fk === userId);
-          this.projectService.getShareProject('active', 'project').subscribe((resp: any) => {
-            const shareProject = resp.result;
-            if (shareProject) {
-              this.listProject = [...this.listProject, ...shareProject];
-            }
-          })
-        }
-      });
+    this.selectSharedProjects$ = this.store.select(selectSharedProjects).subscribe(sharedProjects => {
+      if (sharedProjects) {
+        this.sharedProjects = sharedProjects;
+      }
+    });
+    this.selectActiveProjects$ = this.store.select(selectActiveProjects).subscribe(activeProjects => {
+      if (activeProjects) {
+        this.activeProjects = activeProjects.filter((p: any) => p.created_by_fk === this.authService.getUserId());
+      }
+    });
   }
 
   importProject() {
@@ -74,7 +72,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   openProject(projectId: any, projectName: string) {
-    const project = this.listProject.find(val => val.id == projectId);
+    const project = (this.activeProjects.concat(this.sharedProjects)).find(val => val.id == projectId);
     if (!!project) {
       this.projectService.openProject(projectId, project.map_state);
     } else {

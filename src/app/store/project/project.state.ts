@@ -1,6 +1,6 @@
 export interface ProjectState {
   projects: any[],
-  currentProject: any,
+  sharedProjects: any[],
   vmStatus: any,
   dashboard: any,
   recentProjects: any[],

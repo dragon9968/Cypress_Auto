@@ -4,7 +4,7 @@ import { Observable, of, Subscription } from 'rxjs';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ProjectService } from './services/project.service';
-import { selectActiveProjects, selectActiveProjectsTemplates, selectActiveTemplates } from '../store/project/project.selectors';
+import { selectActiveProjects, selectActiveProjectsTemplates, selectActiveTemplates, selectSharedProjects } from '../store/project/project.selectors';
 import { AuthService } from '../core/services/auth/auth.service';
 import { HelpersService } from '../core/services/helpers/helpers.service';
 import { Router } from '@angular/router';
@@ -16,8 +16,9 @@ import { EditProjectDialogComponent } from './edit-project-dialog/edit-project-d
 import { ConfirmationDialogComponent } from '../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ExportProjectDialogComponent } from './export-project-dialog/export-project-dialog.component';
 import { UserService } from '../core/services/user/user.service';
-import { retrievedUser } from '../store/user/user.actions';
+import { retrievedUsers } from '../store/user/user.actions';
 import { removeProjects } from '../store/project/project.actions';
+import { selectUsers } from '../store/user/user.selectors';
 
 @Component({
   selector: 'app-project',
@@ -39,9 +40,10 @@ export class ProjectComponent implements OnInit, OnDestroy {
   selectActiveProjects$ = new Subscription();
   selectActiveTemplates$ = new Subscription();
   selectActiveProjectsTemplates$ = new Subscription();
+  selectSharedProjects$ = new Subscription();
   rowData$!: Observable<any[]>;
-  listUsers!: any[];
-  projects!: any[];
+  projects: any[] = [];
+  sharedProjects: any[] = [];
   isAdmin = true;
   isDisableEdit = true;
   isDisableDelete = true;
@@ -109,41 +111,37 @@ export class ProjectComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private router: Router,
     iconRegistry: MatIconRegistry,
-    private toastr: ToastrService,
     private store: Store,
     private authService: AuthService,
     private helpersService: HelpersService,
-    private userService: UserService,
   ) {
     const userId = this.authService.getUserId();
-    this.isAdmin = this.router.url === this.projectAdminUrl
+    this.isAdmin = this.router.url === this.projectAdminUrl;
     if (this.router.url === this.templatePageUrl) {
       this.selectActiveTemplates$ = this.store.select(selectActiveTemplates).subscribe(activeTemplates => {
         if (activeTemplates) {
           this.projects = activeTemplates;
-          this.processUpdateChangedByField(activeTemplates);
+          this.setRowData(this.projects);
         }
       });
     } else if (this.router.url === this.projectPageUrl) {
+      this.selectSharedProjects$ = this.store.select(selectSharedProjects).subscribe(sharedProjects => {
+        if (sharedProjects) {
+          this.sharedProjects = sharedProjects;
+        }
+      });
       this.selectActiveProjects$ = this.store.select(selectActiveProjects).subscribe((activeProjects) => {
         if (activeProjects) {
-          this.projectService.getShareProject(this.status, 'project').subscribe((resp: any) => {
-            const shareProject = resp.result;
-            let filteredProjectsByUserId: any[];
-            filteredProjectsByUserId = activeProjects.filter((val: any) => val.created_by_fk === userId);
-            if (shareProject) {
-              filteredProjectsByUserId = [...filteredProjectsByUserId, ...shareProject];
-            }
-            this.projects = filteredProjectsByUserId;
-            this.processUpdateChangedByField(filteredProjectsByUserId);
-          })
+          const filteredProjectsByUserId = activeProjects.filter((val: any) => val.created_by_fk === userId);
+          this.projects = filteredProjectsByUserId.concat(this.sharedProjects);
+          this.setRowData(this.projects);
         }
       });
     } else {
       this.selectActiveProjectsTemplates$ = this.store.select(selectActiveProjectsTemplates).subscribe(activeProjectsTemplates => {
         if (activeProjectsTemplates) {
           this.projects = activeProjectsTemplates;
-          this.processUpdateChangedByField(activeProjectsTemplates);
+          this.setRowData(this.projects);
         }
       })
     }
@@ -151,7 +149,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.userService.getAll().subscribe(data => this.store.dispatch(retrievedUser({ data: data.result })));
     if (!this.isAdmin && this.router.url === this.projectPageUrl) {
       this.categoryPage = 'project';
     } else if (!this.isAdmin && this.router.url === this.templatePageUrl) {
@@ -170,7 +167,11 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.gridApi.sizeColumnsToFit();
   }
 
-  updateRow() {
+  setRowData(rowData: any[]) {
+    this.gridApi?.setRowData(rowData);
+  }
+
+  setRowActive() {
     if (this.gridApi && this.rowsSelectedIds.length > 0) {
       this.gridApi.forEachNode(rowNode => {
         if (this.rowsSelectedIds.includes(rowNode.data.id)) {
@@ -272,23 +273,4 @@ export class ProjectComponent implements OnInit, OnDestroy {
     }
     this.dialog.open(ExportProjectDialogComponent, { disableClose: true, autoFocus: false, width: '400px', data: dialogData });
   }
-
-  processUpdateChangedByField(data: any) {
-    this.userService.getAll().subscribe(userData => {
-      this.listUsers = userData.result;
-      let projectData = data.map((item: any) => {
-        const fullName = this.listUsers.find(val => item.changed_by_fk === val.id)
-        const changedByValue = fullName?.first_name + ' ' + fullName?.last_name;
-        return Object.assign({}, item, { changed_by: changedByValue })
-      })
-
-      if (this.gridApi) {
-        this.gridApi.setRowData(projectData);
-      } else {
-        this.rowData$ = of(projectData);
-      }
-      this.updateRow();
-    });
-  }
-
 }

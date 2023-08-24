@@ -5,7 +5,7 @@ import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { RolesService } from 'src/app/core/services/roles/roles.service';
 import { validateInputFile } from 'src/app/shared/validations/format-file.validation';
-import { retrievedRole } from 'src/app/store/user/user.actions';
+import { retrievedRoles } from 'src/app/store/user/user.actions';
 
 @Component({
   selector: 'app-import-role-dialog',
@@ -41,7 +41,7 @@ get fileCtr() { return this.importForm.get('fileCtr');}
         next:(rest) => {
           this.toastr.success(`Import roles successfully`);
           this.dialogRef.close();
-          this.rolesService.getAll().subscribe(data => this.store.dispatch(retrievedRole({ role: data.result })));
+          this.rolesService.getAll().subscribe(data => this.store.dispatch(retrievedRoles({ roles: data.result })));
           },
         error:(err) => {
             this.toastr.error(`Error while Import roles`);

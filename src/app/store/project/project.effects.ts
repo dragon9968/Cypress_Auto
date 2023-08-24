@@ -10,6 +10,7 @@ import {
   projectsLoadedSuccess,
   projectsNotLinkYetLoadedSuccess,
   removeProjects,
+  sharedProjectsLoadedSuccess,
   updateProject,
   validateProject
 } from './project.actions';
@@ -23,13 +24,14 @@ import { HistoryService } from 'src/app/core/services/history/history.service';
 import { NotificationTypes } from 'src/app/shared/enums/notifications-types.enum';
 import { SuccessMessages } from 'src/app/shared/enums/success-messages.enum';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
+import { AuthService } from 'src/app/core/services/auth/auth.service';
 
 @Injectable()
 export class ProjectEffects {
 
   loadProjectsNotLinkYet$ = createEffect(() => this.actions$.pipe(
     ofType(loadProjectsNotLinkYet),
-    exhaustMap((payload) => this.projectService.getProjectsNotLinkedYet(+payload.projectId)
+    exhaustMap((payload) => this.projectService.getProjectsNotLinkedYet(payload.projectId)
       .pipe(
         map(res => (projectsNotLinkYetLoadedSuccess({ projectsNotLinkYet: res.result }))),
         catchError(e => (of(pushNotification({
@@ -73,19 +75,25 @@ export class ProjectEffects {
 
   loadProjects$ = createEffect(() => this.actions$.pipe(
     ofType(loadProjects),
-    exhaustMap((payload) => this.projectService.getAll()
-      .pipe(
-        switchMap((res: any) => [
-          projectsLoadedSuccess({ projects: res.result }),
-          openProject({ id: this.projectService.getProjectId() }),
-        ]),
-        catchError(e => (of(pushNotification({
-          notification: {
-            type: 'error',
-            message: 'Load projects failed!'
-          }
-        }))))
-      ))
+    exhaustMap((payload) => forkJoin([
+      this.projectService.getAll(),
+      this.projectService.getShareProject('active', 'project'),
+    ]).pipe(
+      switchMap(([
+        projectsData,
+        sharedProjectsData,
+      ]) => [
+        projectsLoadedSuccess({ projects: projectsData.result }),
+        sharedProjectsLoadedSuccess({ sharedProjects: sharedProjectsData.result }),
+        openProject({ id: this.projectService.getProjectId() }),
+      ]),
+      catchError(e => (of(pushNotification({
+        notification: {
+          type: 'error',
+          message: 'Load projects failed!'
+        }
+      }))))
+    ))
   ));
 
   updateProject$ = createEffect(() => this.actions$.pipe(
@@ -143,10 +151,11 @@ export class ProjectEffects {
     )
   ));
 
-constructor(
-  private actions$: Actions,
-  private dialog: MatDialog,
-  private projectService: ProjectService,
-  private historyService: HistoryService,
-) { }
+  constructor(
+    private actions$: Actions,
+    private dialog: MatDialog,
+    private projectService: ProjectService,
+    private historyService: HistoryService,
+    private authService: AuthService,
+  ) { }
 }

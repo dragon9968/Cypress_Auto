@@ -9,8 +9,8 @@ import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { RolesService } from 'src/app/core/services/roles/roles.service';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
-import { retrievedRole } from 'src/app/store/user/user.actions';
-import { selectPermissions, selectRole } from 'src/app/store/user/user.selectors';
+import { retrievedRoles } from 'src/app/store/user/user.actions';
+import { selectPermissions, selectRoles } from 'src/app/store/user/user.selectors';
 
 @Component({
   selector: 'app-add-edit-role-dialog',
@@ -37,7 +37,7 @@ export class AddEditRoleDialogComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private helpersService: HelpersService
   ) {
-    this.selectRole$ = this.store.select(selectRole).subscribe(roleData => {
+    this.selectRole$ = this.store.select(selectRoles).subscribe(roleData => {
       this.listRole = roleData;
     })
 
@@ -101,7 +101,7 @@ export class AddEditRoleDialogComponent implements OnInit, OnDestroy {
         }
         this.rolesService.associate(respData).subscribe(respData => {
          this.toastr.success("Add user roles successfully");
-         this.rolesService.getAll().subscribe(data => this.store.dispatch(retrievedRole({ role: data.result })));
+         this.rolesService.getAll().subscribe(data => this.store.dispatch(retrievedRoles({ roles: data.result })));
         });
         this.dialogRef.close();
       });
@@ -127,7 +127,7 @@ export class AddEditRoleDialogComponent implements OnInit, OnDestroy {
         }
         this.rolesService.associate(respData).subscribe(respData => {
          this.toastr.success("Update user roles successfully");
-         this.rolesService.getAll().subscribe(data => this.store.dispatch(retrievedRole({ role: data.result })));
+         this.rolesService.getAll().subscribe(data => this.store.dispatch(retrievedRoles({ roles: data.result })));
         });
         this.dialogRef.close();
       });
