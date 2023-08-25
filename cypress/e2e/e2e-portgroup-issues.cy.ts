@@ -137,6 +137,13 @@ describe('Coverage for PortGroup issue', () => {
       cy.getButtonByTypeAndContent('button', 'Cancel').click({ force: true })
       cy.wait(2000)
     })
+    /* START: KR-2983 Test coverage for KR-2948 */
+    cy.log('START: KR-2983 Test coverage for KR-2948')
+    cy.wait(2000);
+    cy.selectMatTabByLabel('Port Groups').click();
+    cy.selectInfoPanelRowByLabelAndContent('port-group', 'cro_net').click();
+    cy.log('END: KR-2983 Test coverage for KR-2948')
+    /* END: KR-2983 */
 
     cy.unSelectAllElementOnMap()
 

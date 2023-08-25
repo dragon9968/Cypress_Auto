@@ -7,6 +7,8 @@ describe('Configuration Template e2e testing', {testIsolation: true},  () => {
   let windowRolesAndServiceEditConfig: any = {}
   let ospfConfig: any = {}
   let bgpConfig: any = {}
+  let dhcpConfig: any = {}
+  let configImportName = ''
 
   const defaultConfig = {
     "bgp": [],
@@ -64,6 +66,12 @@ describe('Configuration Template e2e testing', {testIsolation: true},  () => {
     cy.fixture('config-template/bgp-config.json').then(
       bgpConfigData => bgpConfig = bgpConfigData
     )
+    cy.fixture('config-template/dhcp-config.json').then(
+      dhcpConfigData => dhcpConfig = dhcpConfigData
+    )
+    cy.fixture('config-template/config-export.json').then(
+      configImport => configImportName = configImport.config_template[0].name
+    )
     const setup = () => {
       cy.visit('/login')
       cy.login("admin", "password")
@@ -100,10 +108,16 @@ describe('Configuration Template e2e testing', {testIsolation: true},  () => {
     cy.editConfigTemplate(windowRolesAndServiceConfig, { role_services: windowRolesAndServiceConfig.role_services })
 
     cy.waitingLoadingFinish()
+    cy.addNewConfigTemplate(dhcpConfig)
+    cy.showFormEditByName(dhcpConfig.name)
+    cy.editConfigTemplate(dhcpConfig, { dhcp_server: dhcpConfig.dhcp_server })
+
+    cy.waitingLoadingFinish()
     cy.selectRowByName(routeConfig.name)
     cy.selectRowByName(firewallConfig.name)
     cy.selectRowByName(domainMembershipConfig.name)
     cy.selectRowByName(windowRolesAndServiceConfig.name)
+    cy.selectRowByName(dhcpConfig.name)
 
     cy.waitingLoadingFinish()
     cy.getByMatToolTip('Export as JSON').click()
@@ -114,6 +128,10 @@ describe('Configuration Template e2e testing', {testIsolation: true},  () => {
 
     cy.importJsonData('cypress/fixtures/config-template/config-export.json')
 
+    cy.selectRowByName(configImportName)
+    cy.getByMatToolTip('Delete').click()
+    cy.getButtonByTypeAndContent('submit', 'OK').click()
+    cy.checkingToastSuccess()
   });
 
   it('Test - OSPF Configuration',() => {
