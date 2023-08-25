@@ -18,7 +18,8 @@ import {
   restoreNodesSuccess,
   addInterfaceInNode,
   removeInterfacesInNode,
-  restoreInterfacesInNode
+  restoreInterfacesInNode,
+  addPhysicalInterfaceInNode
 } from "./node.actions";
 import { environment } from "src/environments/environment";
 
@@ -153,21 +154,39 @@ export const nodeReducer = createReducer(
       }
     }
   }),
-  on(removeNodesSuccess, (state, { ids }) => {
-    const logicalNodes = state.logicalNodes.map(n => ids.includes(n.id) ? { ...n, isDeleted: true } : n);
-    return {
-      ...state,
-      isSelectedFlag: false,
-      logicalNodes,
-    };
+  on(removeNodesSuccess, (state, { ids, mapCategory }) => {
+    if (mapCategory === 'logical') {
+      const logicalNodes = state.logicalNodes.map(n => ids.includes(n.id) ? { ...n, isDeleted: true } : n);
+      return {
+        ...state,
+        isSelectedFlag: false,
+        logicalNodes,
+      };
+    } else {
+      const physicalNodes = state.physicalNodes.map(n => ids.includes(n.id) ? { ...n, isDeleted: true } : n);
+      return {
+        ...state,
+        isSelectedFlag: false,
+        physicalNodes,
+      };
+    }
   }),
-  on(restoreNodesSuccess, (state, { ids }) => {
-    const logicalNodes = state.logicalNodes.map(n => ids.includes(n.id) ? { ...n, isDeleted: false } : n);
-    return {
-      ...state,
-      isSelectedFlag: false,
-      logicalNodes,
-    };
+  on(restoreNodesSuccess, (state, { ids, mapCategory }) => {
+    if (mapCategory === 'logical') {
+      const logicalNodes = state.logicalNodes.map(n => ids.includes(n.id) ? { ...n, isDeleted: false } : n);
+      return {
+        ...state,
+        isSelectedFlag: false,
+        logicalNodes,
+      };
+    } else {
+      const physicalNodes = state.physicalNodes.map(n => ids.includes(n.id) ? { ...n, isDeleted: false } : n);
+      return {
+        ...state,
+        isSelectedFlag: false,
+        physicalNodes,
+      };
+    }
   }),
   on(nodeAddedSuccess, (state, { node }) => {
     const logicalNodes = JSON.parse(JSON.stringify(state.logicalNodes))
@@ -191,29 +210,47 @@ export const nodeReducer = createReducer(
       physicalNodes
     };
   }),
-  on(nodeUpdatedSuccess, (state, { node }) => {
-    const logicalNodes = state.logicalNodes.map((n: any) => {
-      if (n.id == node.id) {
-        return node.category !== 'hw' ? {
-          ...n,
-          ...node,
-          hardware: null,
-          hardware_id: null,
-        } : {
-          ...n,
-          ...node
+  on(nodeUpdatedSuccess, (state, { node, mapCategory }) => {
+    if (mapCategory == 'logical') {
+      const logicalNodes = state.logicalNodes.map((n: any) => {
+        if (n.id == node.id) {
+          return node.category !== 'hw' ? {
+            ...n,
+            ...node,
+            hardware: null,
+            hardware_id: null,
+          } : {
+            ...n,
+            ...node
+          }
+        } else {
+          return n;
         }
+      }); 
+      return {
+        ...state,
+        isSelectedFlag: false,
+        logicalNodes
+      };
+    } else {
+      if ((node.category !== 'hw' && !node.infrastructure)) {
+        const physicalNodes = state.physicalNodes.filter((n: any) => n.id !== node.id);
+        return {
+          ...state,
+          isSelectedFlag: false,
+          physicalNodes
+        };
       } else {
-        return n;
+        const physicalNodes = state.physicalNodes.map((n: any) => {
+        return (n.id == node.id) ? { ...n, ...node } : n
+        });
+        return {
+          ...state,
+          isSelectedFlag: false,
+          physicalNodes
+        };
       }
-    });
-    const physicalNodes = state.physicalNodes.map((n: any) => n.id == node.id && node.category == 'hw' ? { ...n, ...node } : n);
-    return {
-      ...state,
-      isSelectedFlag: false,
-      logicalNodes,
-      physicalNodes
-    };
+    }
   }),
   on(bulkUpdatedNodeSuccess, (state, { nodes }) => {
     const logicalNodes = state.logicalNodes.map((node: any) => {
@@ -275,33 +312,87 @@ export const nodeReducer = createReducer(
       logicalNodes,
     }
   }),
-  on(removeInterfacesInNode, (state, { ids }) => {
-    const logicalNodes = state.logicalNodes.map((n: any) => {
-      const interfaces = n.interfaces.map((i: any) => ids.includes(i.id) ? { ...i, isDeleted: true } : i);
-      return {
-        ...n,
-        interfaces
-      };
+  on(addPhysicalInterfaceInNode, (state, { interfaceData }) => {
+    const physicalNodes = state.physicalNodes.map((n: any) => {
+      if (interfaceData.node_id == n.id) {
+        const newEdge = {
+          id: interfaceData.id,
+          value: interfaceData.netmaskName
+            ? `${interfaceData.name} - ${interfaceData.ip + interfaceData.netmaskName}`
+            : interfaceData.name
+        }
+        const interfaces = n.interfaces ? [...n.interfaces, newEdge] : [newEdge]
+        return {
+          ...n,
+          interfaces
+        };
+      } else {
+        return n;
+      }
     });
     return {
       ...state,
       isSelectedFlag: false,
-      logicalNodes,
-    };
+      physicalNodes,
+    }
   }),
-  on(restoreInterfacesInNode, (state, { ids }) => {
-    const logicalNodes = state.logicalNodes.map((n: any) => {
-      const interfaces = n.interfaces.map((i: any) => ids.includes(i.id) ? { ...i, isDeleted: false } : i);
+  on(removeInterfacesInNode, (state, { ids, mapCategory }) => {
+    if (mapCategory === 'logical') {
+      const logicalNodes = state.logicalNodes.map((n: any) => {
+        const interfaces = n.interfaces.map((i: any) => ids.includes(i.id) ? { ...i, isDeleted: true } : i);
+        return {
+          ...n,
+          interfaces
+        };
+      });
       return {
-        ...n,
-        interfaces
+        ...state,
+        isSelectedFlag: false,
+        logicalNodes,
       };
-    });
-    return {
-      ...state,
-      isSelectedFlag: false,
-      logicalNodes,
-    };
+    } else {
+      const physicalNodes = state.physicalNodes.map((n: any) => {
+        const interfaces = n.interfaces.map((i: any) => ids.includes(i.id) ? { ...i, isDeleted: true } : i);
+        return {
+          ...n,
+          interfaces
+        };
+      });
+      return {
+        ...state,
+        isSelectedFlag: false,
+        physicalNodes,
+      };
+    }
+  }),
+  on(restoreInterfacesInNode, (state, { ids, mapCategory }) => {
+    if (mapCategory === 'logical') {
+      const logicalNodes = state.logicalNodes.map((n: any) => {
+        const interfaces = n.interfaces.map((i: any) => ids.includes(i.id) ? { ...i, isDeleted: false } : i);
+        return {
+          ...n,
+          interfaces
+        };
+      });
+      return {
+        ...state,
+        isSelectedFlag: false,
+        logicalNodes,
+      };
+    } else {
+      const physicalNodes = state.physicalNodes.map((n: any) => {
+        const interfaces = n.interfaces.map((i: any) => ids.includes(i.id) ? { ...i, isDeleted: false } : i);
+        return {
+          ...n,
+          interfaces
+        };
+      });
+      return {
+        ...state,
+        isSelectedFlag: false,
+        physicalNodes,
+      };
+    }
   }),
   on(bulkUpdateInterfaceInNode, (state, { interfacesData }) => {
     const logicalNodes = state.logicalNodes.map((n: any) => {

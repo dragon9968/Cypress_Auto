@@ -85,7 +85,7 @@ export const unSelectAllInterface = createAction(
 
 export const removeInterfaces = createAction(
   'removeInterfaces',
-  props<{ ids: number[] }>()
+  props<{ ids: number[], mapCategory: any }>()
 );
 
 export const removeConnectedPhysicalInterfaces = createAction(
@@ -97,17 +97,17 @@ export const removeConnectedPhysicalInterfaces = createAction(
 
 export const removeInterfacesSuccess = createAction(
   'removeInterfaceSuccess',
-  props<{ ids: number[] }>()
+  props<{ ids: number[], mapCategory: any }>()
 );
 
 export const restoreInterfaces = createAction(
   'restoreInterfaces',
-  props<{ ids: number[] }>()
+  props<{ ids: number[], mapCategory: any }>()
 );
 
 export const restoreInterfacesSuccess = createAction(
   'restoreInterfacesSuccess',
-  props<{ ids: number[] }>()
+  props<{ ids: number[], mapCategory: any }>()
 );
 
 export const addLogicalInterface = createAction(

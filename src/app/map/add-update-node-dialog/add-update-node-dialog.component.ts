@@ -835,7 +835,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       id: this.data.genData.id,
       data: jsonData,
       configTemplate: this.configTemplateCtr?.value,
-      configDefaultNode
+      configDefaultNode,
+      mapCategory: this.data.mapCategory
     }));
   }
 

@@ -17,4 +17,4 @@ export const selectProjectCategory = createSelector(selectProject, (selectProjec
 export const selectActiveProjects = createSelector(selectAllProjects, (selectAllProjects) => selectAllProjects?.filter(p => p.status == 'active' && p.category == 'project'));
 export const selectActiveTemplates = createSelector(selectAllProjects, (selectAllProjects) => selectAllProjects?.filter(p => p.status == 'active' && p.category == 'template'));
 export const selectDeletedProjects = createSelector(selectAllProjects, (selectAllProjects) => selectAllProjects?.filter(p => p.status == 'delete'));
-export const selectActiveProjectsTemplates = createSelector(selectActiveProjects, selectActiveTemplates, (selectActiveProjects, selectActiveTemplates) => selectActiveProjects.concat(selectActiveTemplates));
+export const selectActiveProjectsTemplates = createSelector(selectActiveProjects, selectActiveTemplates, (selectActiveProjects, selectActiveTemplates) => selectActiveProjects?.concat(selectActiveTemplates));

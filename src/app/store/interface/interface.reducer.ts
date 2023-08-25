@@ -161,7 +161,7 @@ export const interfaceReducerByIds = createReducer(
     const physicalInterfaces: any[] = [];
     const physicalManagementInterfaces: any[] = [];
     const interfacesCommonMapLinks: any[] = [];
-    const infrastructureNode = nodes.filter((el: any) => el.infrastructure)
+    const infrastructureNode = nodes.filter((el: any) => el.infrastructure && el.category !== 'hw')
     const hwNodes = nodes.filter((el: any) => el.category === 'hw')
     const physicalNodes = hwNodes.concat(infrastructureNode)
     const logicalNodes = nodes.filter((el: any) => !el.infrastructure)
@@ -258,6 +258,7 @@ export const interfaceReducerByIds = createReducer(
     const logicalMapInterfaces = state.logicalMapInterfaces.concat(edgeCY)
     return {
       ...state,
+      isSelectedFlag: false,
       logicalMapInterfaces
     }
   }),
@@ -266,7 +267,8 @@ export const interfaceReducerByIds = createReducer(
     const physicalInterfaces = state.physicalInterfaces.concat(edgeCY)
     return {
       ...state,
-      physicalInterfaces
+      physicalInterfaces,
+      isSelectedFlag: false,
     }
   }),
   on(logicalInterfacesAddedSuccess, (state, { edges }) => {
@@ -282,6 +284,7 @@ export const interfaceReducerByIds = createReducer(
     })
     return {
       ...state,
+      isSelectedFlag: false,
       logicalMapInterfaces,
       logicalManagementInterfaces
     }
@@ -350,21 +353,39 @@ export const interfaceReducerByIds = createReducer(
       logicalMapInterfaces
     }
   }),
-  on(removeInterfacesSuccess, (state, { ids }) => {
-    const logicalMapInterfaces = state.logicalMapInterfaces.map(i => ids.includes(i.id) ? { ...i, isDeleted: true } : i);
-    return {
-      ...state,
-      isSelectedFlag: false,
-      logicalMapInterfaces,
-    };
+  on(removeInterfacesSuccess, (state, { ids, mapCategory }) => {
+    if (mapCategory === 'logical') {
+      const logicalMapInterfaces = state.logicalMapInterfaces.map(i => ids.includes(i.id) ? { ...i, isDeleted: true } : i);
+      return {
+        ...state,
+        isSelectedFlag: false,
+        logicalMapInterfaces,
+      };
+    } else {
+      const physicalInterfaces = state.physicalInterfaces.map(i => ids.includes(i.id) ? { ...i, isDeleted: true } : i);
+      return {
+        ...state,
+        isSelectedFlag: false,
+        physicalInterfaces,
+      };
+    }
   }),
-  on(restoreInterfacesSuccess, (state, { ids }) => {
-    const logicalMapInterfaces = state.logicalMapInterfaces.map(i => ids.includes(i.id) ? { ...i, isDeleted: false } : i);
-    return {
-      ...state,
-      isSelectedFlag: false,
-      logicalMapInterfaces,
-    };
+  on(restoreInterfacesSuccess, (state, { ids, mapCategory }) => {
+    if (mapCategory === 'logical') {
+      const logicalMapInterfaces = state.logicalMapInterfaces.map(i => ids.includes(i.id) ? { ...i, isDeleted: false } : i);
+      return {
+        ...state,
+        isSelectedFlag: false,
+        logicalMapInterfaces,
+      };
+    } else {
+      const physicalInterfaces = state.physicalInterfaces.map(i => ids.includes(i.id) ? { ...i, isDeleted: false } : i);
+      return {
+        ...state,
+        isSelectedFlag: false,
+        physicalInterfaces,
+      };
+    }
   }),
   on(updateNodeInInterfaces, (state, { node }) => {
     const logicalMapInterfaces = state.logicalMapInterfaces.map((i: any) => {

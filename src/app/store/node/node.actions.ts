@@ -36,22 +36,22 @@ export const unSelectAllNode = createAction(
 
 export const removeNodes = createAction(
   'removeNodes',
-  props<{ ids: number[] }>()
+  props<{ ids: number[], mapCategory: any }>()
 );
 
 export const removeNodesSuccess = createAction(
   'removeNodesSuccess',
-  props<{ ids: number[] }>()
+  props<{ ids: number[], mapCategory: any }>()
 );
 
 export const restoreNodes = createAction(
   'restoreNodes',
-  props<{ ids: number[] }>()
+  props<{ ids: number[], mapCategory: any }>()
 );
 
 export const restoreNodesSuccess = createAction(
   'restoreNodesSuccess',
-  props<{ ids: number[] }>()
+  props<{ ids: number[], mapCategory: any }>()
 );
 
 export const updateNode = createAction(
@@ -60,13 +60,19 @@ export const updateNode = createAction(
     id: number,
     data: any,
     configTemplate?: any,
-    configDefaultNode?: any
+    configDefaultNode?: any,
+    mapCategory?: any
   }>()
 );
 
+export const removeNodeOnMap = createAction(
+  'removeNodeOnMap',
+  props<{ node: any, mapCategory: any }>()
+)
+
 export const nodeUpdatedSuccess = createAction(
   'nodeUpdatedSuccess',
-  props<{ node: any }>()
+  props<{ node: any, mapCategory: any }>()
 );
 
 export const bulkUpdatedNodeSuccess = createAction(
@@ -79,6 +85,11 @@ export const addInterfaceInNode = createAction(
   props<{ interfaceData: any }>()
 );
 
+export const addPhysicalInterfaceInNode = createAction(
+  'addPhysicalInterfaceInNode',
+  props<{ interfaceData: any }>()
+);
+
 export const updateInterfaceInNode = createAction(
   'updateInterfaceInNode',
   props<{ interfaceData: any }>()
@@ -86,12 +97,12 @@ export const updateInterfaceInNode = createAction(
 
 export const removeInterfacesInNode = createAction(
   'removeInterfacesInNode',
-  props<{ ids: number[] }>()
+  props<{ ids: number[], mapCategory: any }>()
 );
 
 export const restoreInterfacesInNode = createAction(
   'restoreInterfacesInNode',
-  props<{ ids: number[] }>()
+  props<{ ids: number[], mapCategory: any }>()
 );
 
 export const bulkUpdateInterfaceInNode = createAction(

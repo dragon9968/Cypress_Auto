@@ -44,6 +44,7 @@ import { validateProject } from "../../../store/project/project.actions";
 import { removeMapLinks, restoreMapLinks } from "../../../store/map-link/map-link.actions";
 import { removeMapImages, restoreMapImages } from "../../../store/map-image/map-image.actions";
 import { selectMapCategory } from 'src/app/store/map-category/map-category.selectors';
+import { LocalStorageKeys } from '../../storage/local-storage/local-storage-keys.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -67,7 +68,7 @@ export class HelpersService implements OnDestroy {
   selectMapImages$ = new Subscription();
   selectPhysicalNodes$ = new Subscription();
   selectMapCategory$ = new Subscription();
-  mapCategory = 'logical';
+  mapCategory: any;
   nodes: any[] = [];
   logicalNodes: any[] = [];
   physicalNodes: any[] = [];
@@ -991,13 +992,16 @@ export class HelpersService implements OnDestroy {
       const node = this.cy.getElementById(`node-${id}`);
       const removedEles = node.remove();
       const removedInterfaces = removedEles.filter((ele: any) => ele.data('elem_category') == 'interface');
-      if (removedInterfaces.length > 0) {
-        const removedInterfaceIds = removedInterfaces.map((i: any) => i.data('interface_pk'));
-        this.store.dispatch(removeInterfaces({ ids: removedInterfaceIds }));
+      const removedPhysicalInterfaces = node.data('interfaces').filter((ele: any) => ele.id)
+      if (removedInterfaces.length > 0 || removedPhysicalInterfaces.length > 0) {
+        const removedInterfaceIds = this.mapCategory === 'logical' 
+          ? removedInterfaces.map((i: any) => i.data('interface_pk')) 
+          : removedPhysicalInterfaces.map((i: any) => i.id);
+        this.store.dispatch(removeInterfaces({ ids: removedInterfaceIds , mapCategory: this.mapCategory }));
       }
       return removedEles;
     })
-    this.store.dispatch(removeNodes({ ids: data.ids }));
+    this.store.dispatch(removeNodes({ ids: data.ids, mapCategory: this.mapCategory }));
     return { ids: data.ids, eles };
   }
 
@@ -1007,11 +1011,11 @@ export class HelpersService implements OnDestroy {
       const restoredInterfaces = restoredEles.filter((ele: any) => ele.data('elem_category') == 'interface');
       if (restoredInterfaces.length > 0) {
         const restoredInterfaceIds = restoredInterfaces.map((i: any) => i.data('interface_pk'));
-        this.store.dispatch(restoreInterfaces({ ids: restoredInterfaceIds }));
+        this.store.dispatch(restoreInterfaces({ ids: restoredInterfaceIds, mapCategory: this.mapCategory }));
       }
       return restoredEles;
     });
-    this.store.dispatch(restoreNodes({ ids: data.ids }));
+    this.store.dispatch(restoreNodes({ ids: data.ids, mapCategory: this.mapCategory }));
     return { ids: data.ids, eles };
   }
 
@@ -1022,7 +1026,7 @@ export class HelpersService implements OnDestroy {
       const removedInterfaces = removedEles.filter((ele: any) => ele.data('elem_category') == 'interface');
       if (removedInterfaces.length > 0) {
         const removedInterfaceIds = removedInterfaces.map((i: any) => i.data('interface_pk'));
-        this.store.dispatch(removeInterfaces({ ids: removedInterfaceIds }));
+        this.store.dispatch(removeInterfaces({ ids: removedInterfaceIds, mapCategory: this.mapCategory }));
       }
       return removedEles;
     })
@@ -1036,7 +1040,7 @@ export class HelpersService implements OnDestroy {
       const restoredInterfaces = restoredEles.filter((ele: any) => ele.data('elem_category') == 'interface');
       if (restoredInterfaces.length > 0) {
         const restoredInterfaceIds = restoredInterfaces.map((i: any) => i.data('interface_pk'));
-        this.store.dispatch(restoreInterfaces({ ids: restoredInterfaceIds }));
+        this.store.dispatch(restoreInterfaces({ ids: restoredInterfaceIds, mapCategory: this.mapCategory }));
       }
       return restoredEles;
     });
@@ -1049,13 +1053,13 @@ export class HelpersService implements OnDestroy {
       const i = this.cy.getElementById(`interface-${id}`);
       return i.remove();
     })
-    this.store.dispatch(removeInterfaces({ ids: data.ids }));
+    this.store.dispatch(removeInterfaces({ ids: data.ids, mapCategory: this.mapCategory }));
     return { ids: data.ids, eles };
   }
 
   restoreInterfaces(data: any) {
     const eles = data.eles.map((e: any) => e.restore());
-    this.store.dispatch(restoreInterfaces({ ids: data.ids }));
+    this.store.dispatch(restoreInterfaces({ ids: data.ids, mapCategory: this.mapCategory }));
     return { ids: data.ids, eles };
   }
 
@@ -1066,7 +1070,7 @@ export class HelpersService implements OnDestroy {
       const removedInterfacesCommon = removedMapLinkEles.filter((ele: any) => ele.data('elem_category') == 'interface');
       if (removedInterfacesCommon.length > 0) {
         const removedInterfaceIds = removedInterfacesCommon.map((i: any) => i.data('interface_pk'));
-        this.store.dispatch(removeInterfaces({ ids: removedInterfaceIds }));
+        this.store.dispatch(removeInterfaces({ ids: removedInterfaceIds, mapCategory: this.mapCategory }));
       }
       return removedMapLinkEles;
     })
@@ -1080,7 +1084,7 @@ export class HelpersService implements OnDestroy {
       const restoredInterfaces = restoredEles.filter((ele: any) => ele.data('elem_category') == 'interface');
       if (restoredInterfaces.length > 0) {
         const restoredInterfaceIds = restoredInterfaces.map((i: any) => i.data('interface_pk'));
-        this.store.dispatch(restoreInterfaces({ ids: restoredInterfaceIds }));
+        this.store.dispatch(restoreInterfaces({ ids: restoredInterfaceIds, mapCategory: this.mapCategory }));
       }
       return restoredEles;
     });
@@ -1365,7 +1369,8 @@ export class HelpersService implements OnDestroy {
   }
 
   addNewNodeToMap(id: number) {
-    const nodesData = this.mapCategory === 'logical' ? this.logicalNodes : this.physicalNodes;
+    const mapCategory = this.mapCategory ? this.mapCategory : localStorage.getItem(LocalStorageKeys.MAP_STATE)
+    const nodesData = mapCategory === 'logical' ? this.logicalNodes : this.physicalNodes;
     const cyNodeData = nodesData.find((n: any) => n.id == id);
     this.addCYNode(JSON.parse(JSON.stringify(cyNodeData)));
   }
@@ -1875,6 +1880,12 @@ export class HelpersService implements OnDestroy {
     const edge = this.cy.getElementById(`interface-${id}`);
     edge.unselect();
     this.cy.remove(edge);
+  }
+
+  removeNodeOnMap(id: number) {
+  const node = this.cy.getElementById(`node-${id}`);
+  node.unselect();
+  this.cy.remove(node);
   }
 
   updatePhysicalInterfaceOnMap(id: string, data: any, target: any) {

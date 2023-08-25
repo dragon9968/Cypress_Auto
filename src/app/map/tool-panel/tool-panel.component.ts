@@ -17,8 +17,8 @@ import { selectGroups } from "../../store/group/group.selectors";
 import { selectDeletedPortGroups, selectMapPortGroups } from "../../store/portgroup/portgroup.selectors";
 import { selectDeletedMapImages, selectMapImages } from 'src/app/store/map-image/map-image.selectors';
 import { retrievedMapOption } from "../../store/map-option/map-option.actions";
-import { selectDeletedLogicalNodes, selectLogicalNodes } from 'src/app/store/node/node.selectors';
-import { selectDeletedLogicalInterfaces } from 'src/app/store/interface/interface.selectors';
+import { selectDeletedLogicalNodes, selectDeletedPhysicalNodes, selectLogicalNodes } from 'src/app/store/node/node.selectors';
+import { selectDeletedLogicalInterfaces, selectDeletedPhysicalInterfaces } from 'src/app/store/interface/interface.selectors';
 import { selectDeletedMapLinks } from "../../store/map-link/map-link.selectors";
 import { loadProjectsNotLinkYet } from "../../store/project/project.actions";
 import { loadGroups } from "../../store/group/group.actions";
@@ -59,8 +59,10 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   @Input() isAddProjectNode = false;
   @Input() isAddProjectTemplate = false;
   deletedLogicalNodes: any[] = [];
+  deletedPhysicalNodes: any[] = [];
   deletedPortGroups: any[] = [];
   deletedLogicalInterfaces: any[] = [];
+  deletedPhysicalInterfaces: any[] = [];
   deletedMapLinks: any[] = [];
   deletedMapImages: any[] = [];
   updatedNodes: any[] = [];
@@ -84,8 +86,10 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   saveMap$ = new Subscription();
   selectMapPortGroups$ = new Subscription();
   selectDeletedLogicalNodes$ = new Subscription();
+  selectDeletedPhysicalNodes$ = new Subscription();
   selectDeletedPortGroups$ = new Subscription();
   selectDeletedLogicalInterfaces$ = new Subscription();
+  selectDeletedPhysicalInterfaces$ = new Subscription();
   selectDeletedMapLinks$ = new Subscription();
   selectDeletedMapImages$ = new Subscription();
   selectIsHypervisorConnect$ = new Subscription();
@@ -155,6 +159,11 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         this.deletedLogicalNodes = deletedLogicalNodes;
       }
     });
+    this.selectDeletedPhysicalNodes$ = this.store.select(selectDeletedPhysicalNodes).subscribe(deletedPhysicalNodes => {
+      if (deletedPhysicalNodes) {
+        this.deletedPhysicalNodes = deletedPhysicalNodes;
+      }
+    });
     this.selectDeletedPortGroups$ = this.store.select(selectDeletedPortGroups).subscribe(deletedPortGroups => {
       if (deletedPortGroups) {
         this.deletedPortGroups = deletedPortGroups;
@@ -163,6 +172,11 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     this.selectDeletedLogicalInterfaces$ = this.store.select(selectDeletedLogicalInterfaces).subscribe(deletedLogicalInterfaces => {
       if (deletedLogicalInterfaces) {
         this.deletedLogicalInterfaces = deletedLogicalInterfaces;
+      }
+    });
+    this.selectDeletedPhysicalInterfaces$ = this.store.select(selectDeletedPhysicalInterfaces).subscribe(deletedPhysicalInterfaces => {
+      if (deletedPhysicalInterfaces) {
+        this.deletedPhysicalInterfaces = deletedPhysicalInterfaces;
       }
     });
     this.selectDeletedMapLinks$ = this.store.select(selectDeletedMapLinks).subscribe(deletedMapLinks => {
@@ -204,6 +218,8 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     this.selectDeletedMapLinks$.unsubscribe();
     this.selectDeletedMapImages$.unsubscribe();
     this.selectIsHypervisorConnect$.unsubscribe();
+    this.selectDeletedPhysicalNodes$.unsubscribe();
+    this.selectDeletedPhysicalInterfaces$.unsubscribe();
   }
 
   download() {
@@ -291,9 +307,9 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       });
 
     const jsonData = {
-      deletedNodes: this.deletedLogicalNodes,
+      deletedNodes: this.mapCategory === 'logical' ? this.deletedLogicalNodes : this.deletedPhysicalNodes,
       deletedPGs: this.deletedPortGroups,
-      deletedInterfaces: this.deletedLogicalInterfaces,
+      deletedInterfaces: this.mapCategory === 'logical' ? this.deletedLogicalInterfaces : this.deletedPhysicalInterfaces,
       deletedMapLinks: this.deletedMapLinks,
       deletedMapImages: this.deletedMapImages,
       updatedNodes: this.updatedNodes,

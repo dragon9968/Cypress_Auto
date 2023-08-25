@@ -40,7 +40,7 @@ import {
 } from './interface.actions';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { pushNotification } from '../app/app.actions';
-import { addInterfaceInNode, bulkUpdateInterfaceInNode, removeInterfacesInNode, restoreInterfacesInNode, updateInterfaceInNode } from '../node/node.actions';
+import { addInterfaceInNode, addPhysicalInterfaceInNode, bulkUpdateInterfaceInNode, removeInterfacesInNode, restoreInterfacesInNode, updateInterfaceInNode } from '../node/node.actions';
 import { SuccessMessages } from "../../shared/enums/success-messages.enum";
 import { ErrorMessages } from "../../shared/enums/error-messages.enum";
 
@@ -99,7 +99,7 @@ export class InterfacesEffects {
       switchMap(res => [
         interfacePhysicalMapAddedSuccess({ edge: res.result }),
         addInterfacesToSourceNodeOrTargetNode({ edge: res.result, mode: payload.mode }),
-        addInterfaceInNode({
+        addPhysicalInterfaceInNode({
           interfaceData: {
             id: res.id,
             ...res.result,
@@ -422,8 +422,8 @@ export class InterfacesEffects {
     exhaustMap(payload => of([])
       .pipe(
         switchMap(res => [
-          removeInterfacesSuccess({ ids: payload.ids }),
-          removeInterfacesInNode({ ids: payload.ids }),
+          removeInterfacesSuccess({ ids: payload.ids, mapCategory: payload.mapCategory }),
+          removeInterfacesInNode({ ids: payload.ids, mapCategory: payload.mapCategory }),
           pushNotification({
             notification: {
               type: 'success',
@@ -445,8 +445,8 @@ export class InterfacesEffects {
     exhaustMap(payload => of([])
       .pipe(
         switchMap(res => [
-          restoreInterfacesSuccess({ ids: payload.ids }),
-          restoreInterfacesInNode({ ids: payload.ids }),
+          restoreInterfacesSuccess({ ids: payload.ids, mapCategory: payload.mapCategory }),
+          restoreInterfacesInNode({ ids: payload.ids, mapCategory: payload.mapCategory }),
           pushNotification({
             notification: {
               type: 'success',

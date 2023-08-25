@@ -18,6 +18,7 @@ import {
   restoreNodes,
   restoreNodesSuccess,
   cloneNodeById,
+  removeNodeOnMap,
 } from './node.actions';
 import { ConfigTemplateService } from 'src/app/core/services/config-template/config-template.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
@@ -77,6 +78,15 @@ export class NodesEffects {
     tap((payload) => this.helpersService.addNewNodeToMap(payload.id))
   ), { dispatch: false });
 
+  removeNodeOnMap$ = createEffect(() => this.actions$.pipe(
+    ofType(removeNodeOnMap),
+    tap((payload) => {
+      if (payload.mapCategory === 'physical' && (payload.node.category !== 'hw' && !payload.node.infrastructure)) {
+        return this.helpersService.removeNodeOnMap(payload.node.id)
+      }
+    })
+  ), { dispatch: false });
+
   cloneNewNodeById$ = createEffect(() => this.actions$.pipe(
     ofType(cloneNodeById),
     mergeMap(payload => this.nodeService.get(payload.id).pipe(
@@ -126,8 +136,9 @@ export class NodesEffects {
           return res.result;
         }),
         switchMap((node: any) => [
-          nodeUpdatedSuccess({ node }),
+          nodeUpdatedSuccess({ node: node, mapCategory: payload.mapCategory }),
           updateNodeInInterfaces({ node }),
+          removeNodeOnMap({ node: node, mapCategory: payload.mapCategory}),
           reloadGroupBoxes(),
           pushNotification({
             notification: {
@@ -191,7 +202,7 @@ export class NodesEffects {
     exhaustMap(payload => of([])
       .pipe(
         switchMap(res => [
-          removeNodesSuccess({ ids: payload.ids }),
+          removeNodesSuccess({ ids: payload.ids, mapCategory: payload.mapCategory }),
           removeNodesInGroup({ ids: payload.ids }),
           reloadGroupBoxes(),
           pushNotification({
@@ -215,7 +226,7 @@ export class NodesEffects {
     exhaustMap(payload => of([])
       .pipe(
         switchMap(res => [
-          restoreNodesSuccess({ ids: payload.ids }),
+          restoreNodesSuccess({ ids: payload.ids, mapCategory: payload.mapCategory }),
           restoreNodesInGroup({ ids: payload.ids }),
           reloadGroupBoxes(),
           pushNotification({

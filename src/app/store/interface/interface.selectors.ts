@@ -21,14 +21,15 @@ export const selectLogicalInterfaces = createSelector(
     selectLogicalManagementInterfaces
   ) => (selectLogicalMapInterfaces?.concat(selectLogicalManagementInterfaces))
 );
-export const selectPhysicalInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.physicalInterfaces);
-export const selectPhysicalManagementInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.physicalManagementInterfaces);
+export const selectPhysicalInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.physicalInterfaces?.filter(i => !i.isDeleted));
+export const selectPhysicalManagementInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.physicalManagementInterfaces?.filter(i => !i.isDeleted));
 export const selectLinkedMapInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.linkedMapInterfaces);
 export const selectInterfacesCommonMapLinks = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.interfacesCommonMapLinks);
 export const selectSelectedLogicalInterfaces = createSelector(selectLogicalInterfaces, (selectLogicalInterfaces) => selectLogicalInterfaces?.filter(i => i.isSelected));
 export const selectSelectedPhysicalInterfaces = createSelector(selectPhysicalInterfaces, (selectPhysicalInterfaces) => selectPhysicalInterfaces?.filter(i => i.isSelected));
 export const selectIsSelectedFlag = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.isSelectedFlag);
 export const selectDeletedLogicalMapInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.logicalMapInterfaces?.filter(i => i.isDeleted));
+export const selectDeletedPhysicalInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.physicalInterfaces?.filter(i => i.isDeleted));
 export const selectDeletedLogicalManagementInterfaces = createSelector(selectInterfaceFeature, (state: InterfaceState) => state.logicalManagementInterfaces?.filter(i => i.isDeleted));
 export const selectDeletedLogicalInterfaces = createSelector(
   selectDeletedLogicalMapInterfaces,
