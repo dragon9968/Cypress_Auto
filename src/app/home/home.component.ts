@@ -4,7 +4,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { ProjectService } from "../project/services/project.service";
 import { selectActiveProjects, selectRecentProjects, selectSharedProjects } from "../store/project/project.selectors";
-import { retrievedRecentProjects } from "../store/project/project.actions";
+import { loadRecentProjects } from "../store/project/project.actions";
 import { AuthService } from "../core/services/auth/auth.service";
 import { ToastrService } from "ngx-toastr";
 import { Router } from "@angular/router";
@@ -53,7 +53,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   importProject() {
-    const dialogRef = this.dialog.open(ImportProjectDialogComponent, {
+    this.dialog.open(ImportProjectDialogComponent, {
       disableClose: true,
       autoFocus: false,
       width: '450px',
@@ -61,14 +61,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.projectService.getRecentProjects().subscribe(response => {
-      this.store.dispatch(retrievedRecentProjects({ recentProjects: response.result }));
-    })
+    this.store.dispatch(loadRecentProjects());
   }
 
   ngOnDestroy(): void {
     this.selectRecentProjects.unsubscribe();
     this.selectActiveProjects$.unsubscribe();
+    this.selectSharedProjects$.unsubscribe();
   }
 
   openProject(projectId: any, projectName: string) {

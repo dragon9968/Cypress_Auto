@@ -220,7 +220,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   selectIsMapLoadedSuccess$ = new Subscription();
   selectMapPref$ = new Subscription();
   selectMapEdit$ = new Subscription();
-  selectMapCategory$ = new Subscription();
   selectMapPortGroups$ = new Subscription();
   selectIcons$ = new Subscription();
   selectDomains$ = new Subscription();

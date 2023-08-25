@@ -3,7 +3,6 @@ import { ProjectState } from 'src/app/store/project/project.state';
 import {
   retrievedVMStatus,
   retrievedDashboard,
-  retrievedRecentProjects,
   projectsNotLinkYetLoadedSuccess,
   removeProjectNotLink,
   projectsLoadedSuccess,
@@ -11,7 +10,9 @@ import {
   projectUpdatedSuccess,
   openProject,
   defaultPreferencesLoadedSuccess,
-  sharedProjectsLoadedSuccess
+  sharedProjectsLoadedSuccess,
+  recentProjectsLoadedSuccess,
+  recentProjectUpdatedSuccess
 } from './project.actions';
 
 const initialState = {} as ProjectState;
@@ -26,9 +27,9 @@ export const projectReducer = createReducer(
     ...state,
     dashboard: dashboard
   })),
-  on(retrievedRecentProjects, (state, { recentProjects }) => ({
+  on(recentProjectsLoadedSuccess, (state, { recentProjects }) => ({
     ...state,
-    recentProjects: recentProjects
+    recentProjects
   })),
   on(openProject, (state, { id }) => {
     let defaultPreferences = state.defaultPreferences;
@@ -78,6 +79,12 @@ export const projectReducer = createReducer(
     return {
       ...state,
       defaultPreferences
+    };
+  }),
+  on(recentProjectUpdatedSuccess, (state, { recentProject }) => {
+    return {
+      ...state,
+      recentProjects: state.recentProjects.map(p => p.id == recentProject.id ? { ...p, ...recentProject } : p)
     };
   }),
 );

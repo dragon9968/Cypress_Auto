@@ -5,10 +5,13 @@ import { map, exhaustMap, catchError, mergeMap, switchMap } from 'rxjs/operators
 import {
   loadProjects,
   loadProjectsNotLinkYet,
+  loadRecentProjects,
   openProject,
   projectUpdatedSuccess,
   projectsLoadedSuccess,
   projectsNotLinkYetLoadedSuccess,
+  recentProjectUpdatedSuccess,
+  recentProjectsLoadedSuccess,
   removeProjects,
   sharedProjectsLoadedSuccess,
   updateProject,
@@ -108,6 +111,7 @@ export class ProjectEffects {
         mergeMap(res => this.projectService.get(payload.id)),
         switchMap((res: any) => [
           projectUpdatedSuccess({ project: res.result }),
+          recentProjectUpdatedSuccess({ recentProject: res.result }),
           loadProjects(),
           pushNotification({
             notification: {
@@ -149,6 +153,22 @@ export class ProjectEffects {
         })))
       )
     )
+  ));
+
+  loadRecentProjects$ = createEffect(() => this.actions$.pipe(
+    ofType(loadRecentProjects),
+    exhaustMap((payload) => this.projectService.getRecentProjects()
+    .pipe(
+      switchMap(recentProjects => [
+        recentProjectsLoadedSuccess({ recentProjects: recentProjects.result }),
+      ]),
+      catchError(e => (of(pushNotification({
+        notification: {
+          type: 'error',
+          message: 'Load recent projects failed!'
+        }
+      }))))
+    ))
   ));
 
   constructor(

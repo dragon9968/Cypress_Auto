@@ -8,16 +8,12 @@ import { Store } from '@ngrx/store';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent, ValueSetterParams } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
-import { catchError, Observable, Subscription, throwError } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { UserService } from 'src/app/core/services/user/user.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
-import {
-  loadProjects,
-  retrievedRecentProjects,
-  updateProject
-} from 'src/app/store/project/project.actions';
+import { updateProject } from 'src/app/store/project/project.actions';
 import { ButtonRenderersComponent } from '../renderers/button-renderers-component';
 import { ProjectService } from '../services/project.service';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
@@ -244,20 +240,6 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
       }
       const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.store.dispatch(updateProject({ id: this.data.genData.id, data: jsonData, configData }));
-
-      // Update Recent Projects Storage if the project in recent projects and project is updated
-      const recentProject = this.recentProjects.find(project => project.id === this.data.genData.id);
-      if (recentProject && recentProject.name !== jsonData.name || recentProject?.description !== jsonData.description) {
-        const newRecentProjects = [...this.recentProjects];
-        const index = newRecentProjects.findIndex(project => project.id === this.data.genData.id);
-        const newRecentProject = {
-          id: this.data.genData.id,
-          name: jsonData.name,
-          description: jsonData.description
-        }
-        newRecentProjects.splice(index, 1, newRecentProject);
-        this.store.dispatch(retrievedRecentProjects({ recentProjects: newRecentProjects }));
-      }
       this.dialogRef.close();
     }
     else {

@@ -65,7 +65,6 @@ export class AddUpdateInterfaceDialogComponent implements OnInit, OnDestroy {
   selectMapOption$ = new Subscription();
   selectNetmasks$ = new Subscription();
   selectNodes$ = new Subscription();
-  selectMapCategory$ = new Subscription();
   selectInterfacesByHwNodes$ = new Subscription();
   selectNotification$ = new Subscription();
   gateways: any[] = [];

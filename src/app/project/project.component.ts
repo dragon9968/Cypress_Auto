@@ -1,6 +1,6 @@
 import { Store } from '@ngrx/store';
 import { AgGridAngular } from 'ag-grid-angular';
-import { Observable, of, Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ProjectService } from './services/project.service';
@@ -10,15 +10,11 @@ import { HelpersService } from '../core/services/helpers/helpers.service';
 import { Router } from '@angular/router';
 import { RouteSegments } from '../core/enums/route-segments.enum';
 import { MatIconRegistry } from '@angular/material/icon';
-import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 import { EditProjectDialogComponent } from './edit-project-dialog/edit-project-dialog.component';
 import { ConfirmationDialogComponent } from '../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ExportProjectDialogComponent } from './export-project-dialog/export-project-dialog.component';
-import { UserService } from '../core/services/user/user.service';
-import { retrievedUsers } from '../store/user/user.actions';
 import { removeProjects } from '../store/project/project.actions';
-import { selectUsers } from '../store/user/user.selectors';
 
 @Component({
   selector: 'app-project',
@@ -160,11 +156,13 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.selectActiveProjects$.unsubscribe();
     this.selectActiveTemplates$.unsubscribe();
     this.selectActiveProjectsTemplates$.unsubscribe();
+    this.selectSharedProjects$.unsubscribe();
   }
 
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
     this.gridApi.sizeColumnsToFit();
+    this.setRowData(this.projects);
   }
 
   setRowData(rowData: any[]) {

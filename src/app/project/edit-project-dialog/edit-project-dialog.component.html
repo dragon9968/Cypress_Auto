@@ -15,7 +15,7 @@
           <mat-label>Description</mat-label>
           <input autocomplete="off" id="editproject-description" formControlName="descriptionCtr" type="text" matInput>
         </mat-form-field>
-        <div [hidden]="categoryCtr?.value != 'project'">
+        <div [hidden]="categoryCtr?.value !== 'project'">
           <mat-form-field class="fields">
             <mat-label>Shared</mat-label>
             <mat-chip-list #chipList aria-label="Shared selection">

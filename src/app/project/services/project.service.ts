@@ -25,15 +25,6 @@ export class ProjectService {
     return this.http.get<any>(ApiPaths.PROJECTS);
   }
 
-  getProjectByStatus(status: string): Observable<any> {
-    return this.http.get<any>(ApiPaths.PROJECTS, {
-      params: {
-        q: '(filters:!((col:status,opr:eq,value:' + status + ')),keys:!(list_columns),page:0,page_size:1000)'
-      }
-    });
-  }
-
-
   getShareProject(status: string, category: string): Observable<any> {
     return this.http.get<any>(ApiPaths.SHARE_PROJECT, {
       params: {
@@ -74,9 +65,8 @@ export class ProjectService {
     localStorage.setItem(LocalStorageKeys.MAP_STATE, mapState);
     this.localStorageService.setItem(LocalStorageKeys.PROJECT_ID, projectId);
     this.store.dispatch(openProject({ id: projectId }));
-    this.saveRecentProject({ project_id: projectId }).subscribe(() => {
-      this.router.navigate([RouteSegments.MAP]);
-    });
+    this.saveRecentProject({ project_id: projectId }).subscribe(() => {});
+    this.router.navigate([RouteSegments.MAP]);
   }
 
   getProjectId(): any {

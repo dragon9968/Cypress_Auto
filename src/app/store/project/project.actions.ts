@@ -10,19 +10,18 @@ export const retrievedDashboard = createAction(
   props<{ dashboard: any }>()
 );
 
-export const retrievedRecentProjects = createAction(
-  'retrievedRecentProjects',
-  props<{ recentProjects: any }>()
+export const loadRecentProjects = createAction(
+  'loadRecentProjects',
+);
+
+export const recentProjectsLoadedSuccess = createAction(
+  'recentProjectsLoadedSuccess',
+  props<{ recentProjects: any[] }>()
 );
 
 export const openProject = createAction(
   'openProject',
   props<{ id: number }>()
-);
-
-export const projectLoadedSuccess = createAction(
-  'projectLoadedSuccess',
-  props<{ project: any }>()
 );
 
 export const loadProjectsNotLinkYet = createAction(
@@ -75,6 +74,11 @@ export const updateProject = createAction(
 export const projectUpdatedSuccess = createAction(
   'projectUpdatedSuccess',
   props<{ project: any }>()
+);
+
+export const recentProjectUpdatedSuccess = createAction(
+  'recentProjectUpdatedSuccess',
+  props<{ recentProject: any }>()
 );
 
 export const defaultPreferencesLoadedSuccess = createAction(

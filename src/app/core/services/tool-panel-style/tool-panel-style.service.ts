@@ -8,10 +8,8 @@ import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 })
 export class ToolPanelStyleService implements OnDestroy {
   @Input() ur: any;
-  mapCategory = 'logical';
   isGroupBoxesChecked!: boolean;
   selectMapOption$ = new Subscription();
-  selectMapCategory$ = new Subscription();
 
   constructor(
     private store: Store
@@ -24,7 +22,6 @@ export class ToolPanelStyleService implements OnDestroy {
   }
   ngOnDestroy(): void {
     this.selectMapOption$.unsubscribe();
-    this.selectMapCategory$.unsubscribe();
   }
 
   changTextColor(data: any) {

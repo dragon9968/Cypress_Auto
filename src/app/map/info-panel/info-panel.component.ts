@@ -2,12 +2,10 @@ import { Store } from "@ngrx/store";
 import { ResizeEvent } from 'angular-resizable-element';
 import { Subscription } from "rxjs";
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { NodeService } from "../../core/services/node/node.service";
 import { ProjectService } from "../../project/services/project.service";
 import { DomainUserService } from "../../core/services/domain-user/domain-user.service";
 import { retrievedDomainUsers } from "../../store/domain-user/domain-user.actions";
 import { retrievedIsChangeDomainUsers } from "../../store/domain-user-change/domain-user-change.actions";
-import { InterfaceService } from "../../core/services/interface/interface.service";
 import { LocalStorageKeys } from "../../core/storage/local-storage/local-storage-keys.enum";
 import { selectMapCategory } from "src/app/store/map-category/map-category.selectors";
 
@@ -35,9 +33,7 @@ export class InfoPanelComponent implements OnInit, OnDestroy{
 
   constructor(
     private store: Store,
-    private nodeService: NodeService,
     private projectService: ProjectService,
-    private interfaceService: InterfaceService,
     private domainUserService: DomainUserService,
   ) {
     this.selectMapCategory$ = this.store.select(selectMapCategory).subscribe((mapCategory: any) => {
