@@ -8,7 +8,7 @@ import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { TemplateService } from 'src/app/core/services/template/template.service';
 import { selectIcons } from 'src/app/store/icon/icon.selectors';
 import { selectLoginProfiles } from 'src/app/store/login-profile/login-profile.selectors';
-import { retrievedTemplates } from "../../../store/template/template.actions";
+import { retrievedTemplatesByDevice } from "../../../store/template/template.actions";
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
@@ -47,43 +47,51 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
     })
 
     this.templateForm = new FormGroup({
-      displayName: new FormControl({ value: '', disabled: false }),
-      name: new FormControl({ value: '', disabled: false }, [Validators.required, validateNameExist(() => this.listTemplate, this.data.mode, this.data.genData.id), Validators.minLength(3),
-      Validators.maxLength(50)]),
-      category: new FormControl(['vm']),
-      icon: new FormControl(''),
-      loginProfile: new FormControl({ value: '', disabled: false }),
-      defaultConfigFile: new FormControl({ value: '', disabled: false }),
-    });
+      displayNameCtr: new FormControl({ value: '', disabled: false }),
+      nameCtr: new FormControl({ value: '', disabled: false },[
+        Validators.required,
+        Validators.minLength(3),
+        Validators.maxLength(50),
+        validateNameExist(() => this.listTemplate, this.data.mode, this.data.genData.id)
+      ]),
+      categoryCtr: new FormControl(['vm']),
+      iconCtr: new FormControl(''),
+      loginProfileCtr: new FormControl({ value: '', disabled: false }),
+      defaultConfigFileCtr: new FormControl({ value: '', disabled: false }),
+      versionCtr: new FormControl({ value: '', disabled: false })
+    })
     this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
       this.icons = icons;
-      this.icon.setValidators([autoCompleteValidator(this.icons)]);
-      this.filteredIcons = this.helpers.filterOptions(this.icon, this.icons);
+      this.iconCtr.setValidators([autoCompleteValidator(this.icons)]);
+      this.filteredIcons = this.helpers.filterOptions(this.iconCtr, this.icons);
     })
     this.selectLoginProfiles$ = this.store.select(selectLoginProfiles).subscribe(loginProfiles => {
       this.loginProfiles = loginProfiles;
-      this.loginProfile.setValidators([autoCompleteValidator(this.loginProfiles)]);
-      this.filteredLoginProfiles = this.helpers.filterOptions(this.loginProfile, this.loginProfiles);
+      this.loginProfileCtr.setValidators([autoCompleteValidator(this.loginProfiles)]);
+      this.filteredLoginProfiles = this.helpers.filterOptions(this.loginProfileCtr, this.loginProfiles);
     })
   }
   ngOnDestroy(): void {
     this.selectIcons$.unsubscribe();
     this.selectLoginProfiles$.unsubscribe();
+    this.selectTemplates$.unsubscribe();
   }
 
-  get displayName() { return this.templateForm.get('displayName') }
-  get name() { return this.templateForm.get('name') }
-  get category() { return this.templateForm.get('category') }
-  get icon() { return this.helpers.getAutoCompleteCtr(this.templateForm.get('icon'), this.icons); }
-  get loginProfile() { return this.helpers.getAutoCompleteCtr(this.templateForm.get('loginProfile'), this.loginProfiles); }
-  get defaultConfigFile() { return this.templateForm.get('defaultConfigFile') }
+  get displayNameCtr() { return this.templateForm.get('displayNameCtr') }
+  get nameCtr() { return this.templateForm.get('nameCtr') }
+  get categoryCtr() { return this.templateForm.get('categoryCtr') }
+  get versionCtr() { return this.templateForm.get('versionCtr') }
+  get iconCtr() { return this.helpers.getAutoCompleteCtr(this.templateForm.get('iconCtr'), this.icons); }
+  get loginProfileCtr() { return this.helpers.getAutoCompleteCtr(this.templateForm.get('loginProfileCtr'), this.loginProfiles); }
+  get defaultConfigFileCtr() { return this.templateForm.get('defaultConfigFileCtr') }
 
   ngOnInit(): void {
-    this.displayName?.setValue(this.data.genData.display_name)
-    this.name?.setValue(this.data.genData.name)
-    this.category?.setValue(this.data.genData.category)
-    this.helpers.setAutoCompleteValue(this.icon, this.icons, this.data.genData.icon.id);
-    this.helpers.setAutoCompleteValue(this.loginProfile, this.loginProfiles, this.data.genData.login_profile_id);
+    this.displayNameCtr?.setValue(this.data.genData.display_name)
+    this.nameCtr?.setValue(this.data.genData.name)
+    this.categoryCtr?.setValue(this.data.genData.category)
+    this.versionCtr?.setValue(this.data.genData.version)
+    this.helpers.setAutoCompleteValue(this.iconCtr, this.icons, this.data.genData.icon.id);
+    this.helpers.setAutoCompleteValue(this.loginProfileCtr, this.loginProfiles, this.data.genData.login_profile_id);
   }
 
   onCancel() {
@@ -92,24 +100,25 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
 
   addTemplate() {
     const jsonDataValue = {
-      display_name: this.displayName?.value,
-      name: this.name?.value,
-      category: this.category?.value,
+      display_name: this.displayNameCtr?.value,
+      name: this.nameCtr?.value,
+      category: this.categoryCtr?.value,
+      version: this.versionCtr?.value,
       device_id: this.data.genData.deviceId,
-      icon_id: this.icon?.value.id,
-      login_profile_id: this.loginProfile?.value.id
+      icon_id: this.iconCtr?.value.id,
+      login_profile_id: this.loginProfileCtr?.value.id
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.templateService.add(jsonData).subscribe({
-      next: (rest) => {
+      next: () => {
         this.templateService.getAll().subscribe((data: any) => {
           let templateData = data.result.filter((val: any) => val.device_id === this.data.genData.deviceId);
-          this.store.dispatch(retrievedTemplates({ data: templateData }));
+          this.store.dispatch(retrievedTemplatesByDevice({ templatesByDevice: templateData }));
         })
         this.toastr.success('Added template successfully', 'Success')
         this.dialogRef.close();
       },
-      error: (err) => {
+      error: () => {
         this.toastr.error('Add template failed', 'Error');
       }
     });
@@ -117,25 +126,26 @@ export class AddEditTemplateDialogComponent implements OnInit, OnDestroy {
 
   updateTemplate() {
     const jsonDataValue = {
-      display_name: this.displayName?.value,
-      name: this.name?.value,
-      category: this.category?.value,
+      display_name: this.displayNameCtr?.value,
+      name: this.nameCtr?.value,
+      category: this.categoryCtr?.value,
+      version: this.versionCtr?.value,
       device_id: this.data.deviceId,
-      icon_id: this.icon?.value.id,
-      login_profile_id: this.loginProfile?.value.id ? this.loginProfile?.value.id : null
+      icon_id: this.iconCtr?.value.id,
+      login_profile_id: this.loginProfileCtr?.value.id ? this.loginProfileCtr?.value.id : null
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.templateService.put(this.data.genData.id, jsonData).subscribe({
-      next: (rest) => {
+      next: () => {
         this.templateService.getAll().subscribe((data: any) => {
           let templateData = data.result.filter((val: any) => val.device_id === this.data.deviceId);
-          this.store.dispatch(retrievedTemplates({ data: templateData }));
+          this.store.dispatch(retrievedTemplatesByDevice({ templatesByDevice: templateData }));
         })
-        this.toastr.success(`Updated template successfully`, 'Success')
+        this.toastr.success('Updated template successfully', 'Success')
         this.dialogRef.close();
       },
-      error: (err) => {
-        this.toastr.error(`Update template failed`, 'Error');
+      error: () => {
+        this.toastr.error('Update template failed', 'Error');
       }
     });
   }

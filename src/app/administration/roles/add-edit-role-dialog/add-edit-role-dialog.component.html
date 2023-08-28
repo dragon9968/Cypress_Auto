@@ -14,7 +14,7 @@
   </div>
   <div mat-dialog-actions [align]="'end'" class="create-btn">
     <button mat-raised-button type="button" (click)="onCancel()">{{ data.mode === 'view' ? 'Close' : 'Cancel' }}</button>
-    <button *ngIf="data.mode !== 'view'" mat-raised-button color="primary" [disabled]="!rolesForm.valid">
+    <button type="submit" *ngIf="data.mode !== 'view'" mat-raised-button color="primary" [disabled]="!rolesForm.valid">
      {{ data.mode === 'add' ? 'Create' : 'Update' }}
     </button>
   </div>

@@ -2,39 +2,19 @@
   [resizeSnapGrid]="{ left: 1, right: 1 }" (resizeEnd)="onResizeEnd($event)">
   <mat-tab-group dynamicHeight class="map-info-panel">
     <mat-tab label="Nodes">
-      <app-info-panel-node [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs" [activeEdges]="activeEdges"
-        [activeGBs]="activeGBs" [deletedNodes]="deletedNodes" [deletedInterfaces]="deletedInterfaces" [infoPanelheight]="style.height">
-      </app-info-panel-node>
+      <app-info-panel-node [cy]="cy" [infoPanelheight]="style.height"></app-info-panel-node>
     </mat-tab>
-    <mat-tab label="Port Groups">
-      <app-info-panel-port-group [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs"
-        [activeEdges]="activeEdges" [activeGBs]="activeGBs" [deletedNodes]="deletedNodes"
-        [deletedInterfaces]="deletedInterfaces" [infoPanelheight]="style.height">
-      </app-info-panel-port-group>
-    </mat-tab>
-    <mat-tab label="Management Port Groups">
-      <app-info-panel-port-group-management [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs"
-                                 [activeEdges]="activeEdges" [activeGBs]="activeGBs" [deletedNodes]="deletedNodes"
-                                 [deletedInterfaces]="deletedInterfaces" [infoPanelheight]="style.height">
-      </app-info-panel-port-group-management>
+    <mat-tab *ngIf="!isHiddenPgTab" label="Port Groups">
+      <app-info-panel-port-group [cy]="cy" [infoPanelheight]="style.height"></app-info-panel-port-group>
     </mat-tab>
     <mat-tab label="Interfaces">
-      <app-info-panel-interface [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs"
-        [activeEdges]="activeEdges" [activeGBs]="activeGBs" [deletedNodes]="deletedNodes"
-        [deletedInterfaces]="deletedInterfaces" [infoPanelheight]="style.height">
-      </app-info-panel-interface>
-    </mat-tab>
-    <mat-tab label="Management Interfaces">
-      <app-info-panel-interface-management [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs"
-                                            [activeEdges]="activeEdges" [activeGBs]="activeGBs" [deletedNodes]="deletedNodes"
-                                            [deletedInterfaces]="deletedInterfaces" [infoPanelheight]="style.height">
-      </app-info-panel-interface-management>
+      <app-info-panel-interface [cy]="cy" [infoPanelheight]="style.height"></app-info-panel-interface>
     </mat-tab>
     <mat-tab label="Domains">
       <app-info-panel-domain [infoPanelheight]="style.height"></app-info-panel-domain>
     </mat-tab>
     <mat-tab label="Group">
-      <app-info-panel-group [activeNodes]="activeNodes" [activePGs]="activePGs" [activeEdges]="activeEdges" [infoPanelheight]="style.height"></app-info-panel-group>
+      <app-info-panel-group [cy]="cy" [infoPanelheight]="style.height"></app-info-panel-group>
     </mat-tab>
     <ng-template [ngxPermissionsOnly]="['can_read on Tasks']">
       <mat-tab label="Task List">
@@ -42,5 +22,10 @@
       </mat-tab>
     </ng-template>
   </mat-tab-group>
+  <div class="resize-buttons-area">
+    <button *ngIf="isShowMinimize" type="button" mat-button class="resize-button" (click)="minimizeInfoPanel()"><mat-icon>minimize</mat-icon></button>
+    <button *ngIf="isShowRestoreHeight" type="button" mat-button class="resize-button" (click)="restoreHeight()"><mat-icon>fullscreen_exit</mat-icon></button>
+    <button *ngIf="isShowMaximize" type="button" mat-button class="resize-button" (click)="maximizeInfoPanel()"><mat-icon>zoom_out_map</mat-icon></button>
+  </div>
   <div class="resize-handle-top" mwlResizeHandle [resizeEdges]="{ top: true }"></div>
 </div>

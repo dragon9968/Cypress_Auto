@@ -5,12 +5,12 @@ import { Store } from '@ngrx/store';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
-import { catchError, Observable, of, Subscription, throwError } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
-import { retrievedProjects } from 'src/app/store/project/project.actions';
-import { selectProjects } from 'src/app/store/project/project.selectors';
+import { selectDeletedProjects } from 'src/app/store/project/project.selectors';
 import { ProjectService } from '../services/project.service';
+import { loadProjects } from 'src/app/store/project/project.actions';
 
 @Component({
   selector: 'app-trash-bin-project',
@@ -27,7 +27,7 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
   status = 'delete';
   isSubmitBtnDisabled: boolean = true;
   private gridApi!: GridApi;
-  private selectProjects$ = new Subscription();
+  private selectDeletedProjects$ = new Subscription();
   rowData$!: Observable<any[]>;
   defaultColDef: ColDef = {
     sortable: true,
@@ -55,7 +55,7 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
     private authService: AuthService,
   ) {
     const userId = this.authService.getUserId();
-    this.selectProjects$ = this.store.select(selectProjects)
+    this.selectDeletedProjects$ = this.store.select(selectDeletedProjects)
       .subscribe((data: any) => {
         const filteredProjectsByUserId = data?.filter((val: any) => val.created_by_fk === userId);
         this.rowData$ = of(filteredProjectsByUserId);
@@ -63,11 +63,11 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.projectService.getProjectByStatus(this.status).subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
+    this.store.dispatch(loadProjects());
   }
 
   ngOnDestroy(): void {
-    this.selectProjects$.unsubscribe();
+    this.selectDeletedProjects$.unsubscribe();
   }
 
   onGridReady(params: GridReadyEvent) {
@@ -99,7 +99,7 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
           this.projectService.deleteOrRecoverProject(jsonData).subscribe({
             next: (rest) => {
               this.toastr.success(`Recover Project successfully`);
-              this.projectService.getProjectByStatus(this.status).subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
+              this.store.dispatch(loadProjects());
               this.clearRowSelected();
             },
             error: (error) => {
@@ -126,10 +126,10 @@ export class TrashBinProjectComponent implements OnInit, OnDestroy {
           pk: this.rowsSelectedId,
         }
         if (result) {
-          this.projectService.permanentDeteleProject(jsonData).subscribe({
+          this.projectService.permanentDeleteProject(jsonData).subscribe({
             next: (rest) => {
               this.toastr.success(`Permanent delete Project successfully`);
-              this.projectService.getProjectByStatus(this.status).subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
+              this.store.dispatch(loadProjects());
               this.clearRowSelected();
             },
             error: (error) => {

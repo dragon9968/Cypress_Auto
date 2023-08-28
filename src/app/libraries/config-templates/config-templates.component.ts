@@ -13,10 +13,6 @@ import { retrievedConfigTemplates } from 'src/app/store/config-template/config-t
 import { selectConfigTemplates } from 'src/app/store/config-template/config-template.selectors';
 import { AddEditConfigTemplateComponent } from './add-edit-config-template/add-edit-config-template.component';
 import { ConfirmationDialogComponent } from "../../shared/components/confirmation-dialog/confirmation-dialog.component";
-import { AddRouteDialogComponent } from "./add-route-dialog/add-route-dialog.component";
-import { AddFirewallRuleDialogComponent } from "./add-firewall-rule-dialog/add-firewall-rule-dialog.component";
-import { AddDomainMembershipDialogComponent } from "./add-domain-membership-dialog/add-domain-membership-dialog.component";
-import { AddEditRolesServicesDialogComponent } from "./add-edit-roles-services-dialog/add-edit-roles-services-dialog.component";
 import { PageName } from "../../shared/enums/page-name.enum";
 import { ImportDialogComponent } from "../../shared/components/import-dialog/import-dialog.component";
 
@@ -32,142 +28,59 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
   quickFilterValue = '';
   rowsSelected: any[] = [];
   rowsSelectedId: any[] = [];
-  rowData$! : Observable<any[]>;
+  rowData$!: Observable<any[]>;
   private gridApi!: GridApi;
   selectConfigTemplates$ = new Subscription();
   defaultColDef: ColDef = {
     sortable: true,
     resizable: true
   };
+  cellStyle = { display: 'flex', 'justify-content': 'center', 'align-items': 'center' };
   columnDefs: ColDef[] = [
     {
       headerCheckboxSelection: true,
       checkboxSelection: true,
       suppressSizeToFit: true,
-      width: 52
+      width: 52,
+      cellStyle: { display: 'flex' }
     },
     {
       field: 'id',
       hide: true,
-      getQuickFilterText: () => ''
-    },
-    { field: 'name',
-    },
-    { field: 'description'},
-    {
-      headerName: 'Join Domain',
-      field: 'configuration.join_domain',
-      cellRenderer: (param: any) => param.value
+      getQuickFilterText: () => '',
+      cellStyle: this.cellStyle
     },
     {
-      headerName: 'Firewall',
-      field: 'configuration.firewall_rule',
+      field: 'name',
+      cellStyle: this.cellStyle
+    },
+    {
+      field: 'description',
+      cellStyle: this.cellStyle
+    },
+    {
+      field: 'configuration',
       autoHeight: true,
-      cellRenderer: function(param: any) {
-        if (param.value){
-          let html_str = "<div>"
-          for(let i in param.value) {
-            let item_html = `<div style='text-align:left'>Category: <b>${param.value[i]['category']}</b></div>`;
-            html_str += item_html;
-          }
-          html_str += "</div>"
-
-          return html_str;
-        }else {
-          return
+      cellRenderer: function (param: any) {
+        let html_str = "<ul>";
+        for (let i in param.value) {
+          let item_html = `<li>${i}</li>`;
+          html_str += item_html;
         }
+        html_str += "</ul>"
+        return html_str != '<ul></ul>' ? html_str : '';
       },
-    },
-    {
-      headerName: 'Roles & Services',
-      suppressSizeToFit: true,
-      autoHeight: true,
-      field: 'configuration.role_services',
-      cellRenderer: function(param: any) {
-        if (param.value){
-          let html_str = ""
-          for(let i in param.value) {
-            let item_html = `<div>${param.value[i]}</div>`;
-            html_str += item_html;
-          }
-          return html_str;
-        }else {
-          return
-        }
-      }
-    },
-    {
-      headerName: 'Static Routes',
-      field: 'configuration.static_routes',
-      suppressSizeToFit: true,
-      minWidth: 300,
-      autoHeight: true,
-      cellRenderer: function(param: any) {
-        if (param.value){
-          let html_str = "<div>"
-          for(let i in param.value) {
-            let item_html = `<div style='text-align:left'>interface: <b>${param.value[i]['interface']}</b>, route: <b>${param.value[i]['route']}</b>, next_hop: <b>${param.value[i]['next_hop']}</b></div>`;
-            html_str += item_html;
-          }
-          html_str += "</div>"
-
-          return html_str;
-        }else {
-          return
-        }
-      },
-    },
-    {
-      headerName: 'OSPF',
-      field: 'configuration.ospf',
-      suppressSizeToFit: true,
-      minWidth: 300,
-      autoHeight: true,
-      cellRenderer: function(param: any) {
-        if (param.value){
-          let html_str = "<div>"
-          for(let i in param.value) {
-            let item_html = `<div style='text-align:left'>Networks: <b>${param.value[i]['networks']}</b></div>`;
-            html_str += item_html;
-          }
-          html_str += "</div>"
-
-          return html_str;
-        }else {
-          return
-        }
-      },
-    },
-    {
-      headerName: 'BGP',
-      field: 'configuration.bgp',
-      suppressSizeToFit: true,
-      minWidth: 60,
-      autoHeight: true,
-      cellRenderer: function(param: any) {
-        if (param.value){
-          let html_str = "<div>"
-          for(let i in param.value) {
-            let item_html = `<div style='text-align:left'>IP: <b>${param.value[i]['ip_address']}</b></div>`;
-            html_str += item_html;
-          }
-          html_str += "</div>"
-
-          return html_str;
-        }else {
-          return
-        }
-      },
+      cellStyle: this.cellStyle
     },
   ];
+
   constructor(
     private store: Store,
     private configTemplateService: ConfigTemplateService,
     private dialog: MatDialog,
     private toastr: ToastrService,
     private helpers: HelpersService,
-    iconRegistry: MatIconRegistry,
-
+    iconRegistry: MatIconRegistry
   ) {
     this.selectConfigTemplates$ = this.store.select(selectConfigTemplates).subscribe((data: any) => {
       if (data) {
@@ -180,10 +93,10 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
       }
     });
     iconRegistry.addSvgIcon('export-json', this.helpers.setIconPath('/assets/icons/export-json.svg'));
-   }
+  }
 
   ngOnInit(): void {
-    this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
+    this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
   }
 
   ngOnDestroy(): void {
@@ -219,7 +132,7 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
     const dialogData = {
       mode: 'add',
       genData: {
-        name:  '',
+        name: '',
         description: '',
       }
     }
@@ -237,7 +150,7 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
     } else {
       let file = new Blob();
       this.configTemplateService.export(this.rowsSelectedId).subscribe(response => {
-        file = new Blob([JSON.stringify(response, null, 4)], {type: 'application/json'});
+        file = new Blob([JSON.stringify(response, null, 4)], { type: 'application/json' });
         this.helpers.downloadBlob('Config-Export.json', file);
         this.toastr.success(`Exported Config as ${'json'.toUpperCase()} file successfully`);
       })
@@ -302,9 +215,9 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
                 this.toastr.error('Delete configuration template failed!', 'Error');
                 return throwError(() => error);
               })
-            ).subscribe(() =>{
+            ).subscribe(() => {
               this.configTemplateService.getAll().subscribe(
-                (data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result}))
+                (data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result }))
               );
               this.clearRow();
               this.toastr.success(`Delete configuration template successfully`, 'Success');
@@ -312,94 +225,6 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
           })
         }
       });
-    }
-  }
-
-  addRouter() {
-    if (this.rowsSelectedId.length === 0) {
-      this.toastr.info('No row selected');
-    } else if (this.rowsSelectedId.length === 1) {
-      this.configTemplateService.get(this.id).subscribe(configTemplateData => {
-        const dialogData = {
-          mode: 'update',
-          genData: configTemplateData.result
-        }
-        this.dialog.open(AddRouteDialogComponent, {
-          disableClose: true,
-          autoFocus: false,
-          width: '450px',
-          data: dialogData
-        });
-      })
-    } else {
-      this.toastr.info('Add router do not apply to multiple config template.<br>Please select only one config template.',
-        'Info', { enableHtml: true });
-    }
-  }
-
-  addFirewallRule() {
-    if (this.rowsSelectedId.length === 0) {
-      this.toastr.info('No row selected');
-    } else if (this.rowsSelectedId.length === 1) {
-      this.configTemplateService.get(this.id).subscribe(configTemplateData => {
-        const dialogData = {
-          mode: 'update',
-          genData: configTemplateData.result
-        }
-        this.dialog.open(AddFirewallRuleDialogComponent, {
-          disableClose: true,
-          autoFocus: false,
-          width: '450px',
-          data: dialogData
-        });
-      })
-    } else {
-      this.toastr.info('Add firewall rule do not apply to multiple config template.<br>Please select only one config template.',
-        'Info', { enableHtml: true });
-    }
-  }
-
-  openDomainMembership() {
-    if (this.rowsSelectedId.length === 0) {
-      this.toastr.info('No row selected');
-    } else if (this.rowsSelectedId.length === 1) {
-      this.configTemplateService.get(this.id).subscribe(configTemplateData => {
-        const dialogData = {
-          mode: 'update',
-          genData: configTemplateData.result
-        }
-        this.dialog.open(AddDomainMembershipDialogComponent, {
-          disableClose: true,
-          autoFocus: false,
-          width: '450px',
-          data: dialogData
-        });
-      })
-    } else {
-      this.toastr.info('Add domain membership do not apply to multiple config template.<br>Please select only one config template.',
-        'Info', { enableHtml: true });
-    }
-  }
-
-  openRoleService() {
-    if (this.rowsSelectedId.length === 0) {
-      this.toastr.info('No row selected');
-    } else if (this.rowsSelectedId.length === 1) {
-      this.configTemplateService.get(this.id).subscribe(configTemplateData => {
-        const dialogData = {
-          mode: 'update',
-          genData: configTemplateData.result
-        }
-        this.dialog.open(AddEditRolesServicesDialogComponent, {
-          disableClose: true,
-          autoFocus: false,
-          width: '450px',
-          data: dialogData
-        });
-      })
-    } else {
-      this.toastr.info('Add role and service do not apply to multiple config template.<br>Please select only one config template.',
-        'Info', { enableHtml: true });
     }
   }
 
@@ -413,6 +238,11 @@ export class ConfigTemplatesComponent implements OnInit, OnDestroy {
     const dialogData = {
       pageName: PageName.CONFIGURATION_TEMPLATE
     }
-    this.dialog.open(ImportDialogComponent, { data: dialogData, width: '450px' })
+    this.dialog.open(ImportDialogComponent, {
+      data: dialogData,
+      disableClose: true,
+      autoFocus: false,
+      width: '450px'
+    })
   }
 }

@@ -327,6 +327,11 @@ export class ConnectionProfilesComponent implements OnInit, OnDestroy{
     const dialogData = {
       pageName: PageName.CONNECTION_PROFILE
     }
-    this.dialog.open(ImportDialogComponent, { data: dialogData, width: '450px' })
+    this.dialog.open(ImportDialogComponent, {
+      data: dialogData,
+      disableClose: true,
+      autoFocus: false,
+      width: '450px'
+    })
   }
 }

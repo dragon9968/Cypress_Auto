@@ -9,13 +9,12 @@ import { catchError, forkJoin, Observable, of, Subscription, throwError } from '
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { RolesService } from 'src/app/core/services/roles/roles.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
-import { retrievedPermissions, retrievedRole } from 'src/app/store/user/user.actions';
-import { selectRole } from 'src/app/store/user/user.selectors';
+import { retrievedPermissions, retrievedRoles } from 'src/app/store/user/user.actions';
+import { selectRoles } from 'src/app/store/user/user.selectors';
 import { ActionRenderersComponent } from '../action-renderers/action-renderers.component';
 import { AddEditRoleDialogComponent } from './add-edit-role-dialog/add-edit-role-dialog.component';
 import { CloneRoleDialogComponent } from './clone-role-dialog/clone-role-dialog.component';
 import { ExportRoleDialogComponent } from './export-role-dialog/export-role-dialog.component';
-import { ImportRoleDialogComponent } from './import-role-dialog/import-role-dialog.component';
 import { ImportDialogComponent } from 'src/app/shared/components/import-dialog/import-dialog.component';
 import { PageName } from 'src/app/shared/enums/page-name.enum';
 
@@ -99,7 +98,7 @@ export class RolesComponent implements OnInit {
     private store: Store,
   ) {
     this.rolesService.getRolesProtected().subscribe(data => this.rolesHasProtected = data.roles.map((role: any) => role.name));
-    this.selectRole$ = this.store.select(selectRole).subscribe(roleData => {
+    this.selectRole$ = this.store.select(selectRoles).subscribe(roleData => {
       if (roleData) {
         if (this.gridApi) {
           this.gridApi.setRowData(roleData);
@@ -114,7 +113,7 @@ export class RolesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.rolesService.getAll().subscribe(data => this.store.dispatch(retrievedRole({ role: data.result })));
+    this.rolesService.getAll().subscribe(data => this.store.dispatch(retrievedRoles({ roles: data.result })));
     this.rolesService.getPermissions().subscribe(data => this.store.dispatch(retrievedPermissions({ permissions: data.result })));
   }
 
@@ -211,7 +210,7 @@ export class RolesComponent implements OnInit {
           })).subscribe(() => {
             this.toastr.success('Deleted role(s) successfully', 'Success');
             this.rolesService.getAll().subscribe(
-              data => this.store.dispatch(retrievedRole({role: data.result}))
+              data => this.store.dispatch(retrievedRoles({roles: data.result}))
             );
             this.clearRow();
           })

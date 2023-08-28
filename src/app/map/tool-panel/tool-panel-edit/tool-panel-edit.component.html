@@ -48,7 +48,7 @@
     </form>
   </section>
   <mat-divider></mat-divider>
-  <section class="tab-section">
+  <section *ngIf="mapCategory === 'logical'" class="tab-section">
     <h4>Port Group</h4>
     <div class="tab-field pg-actions">
       <button mat-raised-button color="primary" class="add-pg-btn" matTooltip="Add Public" (click)="addPublicPG()"
@@ -71,7 +71,7 @@
   <section class="tab-section">
     <h4>Images</h4>
     <div>
-      <form [formGroup]="mapImageForm" (ngSubmit)="addImage()" autocomplete="off">
+      <form [formGroup]="mapImageForm" data-cy="mapImageForm" (ngSubmit)="addImage()" autocomplete="off">
         <mat-form-field class="inline-select-field">
           <mat-label>Image</mat-label>
           <input autocomplete="off" id="toolpanel-image" matInput type="text" placeholder="Select Image"
@@ -92,74 +92,75 @@
     </div>
   </section>
 
-  <mat-divider></mat-divider>
-  <section class="tab-section">
-    <div *ngIf="!isTemplateCategory">
-      <h4>Project</h4>
-      <form [formGroup]="linkProjectForm" data-cy="linkProjectForm" (ngSubmit)="addProjectNode()" autocomplete="off">
-        <div>
-          <mat-form-field class="inline-select-field">
-            <mat-label>Link Project</mat-label>
-            <input matInput autocomplete="off" id="toolpanel-linkproject" placeholder="Select a project"
-              formControlName="linkProjectCtr" [matAutocomplete]="autoProject">
-            <mat-autocomplete #autoProject="matAutocomplete" [displayWith]="helpers.optionDisplay"
-              (optionSelected)="selectProject()">
-              <mat-option *ngFor="let project of filteredProjects | async" [value]="project">
-                <div class="template-option">
-                  <span class="template-option__text">{{ project.name }}</span>
-                </div>
-              </mat-option>
-            </mat-autocomplete>
-            <mat-error *ngIf="linkProjectCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
-            <mat-error *ngIf="linkProjectCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-          </mat-form-field>
-          <button type="submit" color="primary" matTooltip="Link Project" mat-raised-button class="add-inline-btn"
-            [disabled]="isDisableLinkProject || linkProjectForm.invalid || !this.linkProjectCtr.value.id">
+  <div *ngIf="mapCategory === 'logical'">
+    <mat-divider></mat-divider>
+    <section class="tab-section">
+      <div *ngIf="!isTemplateCategory">
+        <h4>Project</h4>
+        <form [formGroup]="linkProjectForm" data-cy="linkProjectForm" (ngSubmit)="addProjectNode()" autocomplete="off">
+          <div>
+            <mat-form-field class="inline-select-field">
+              <mat-label>Link Project</mat-label>
+              <input matInput autocomplete="off" id="toolpanel-linkproject" placeholder="Select a project"
+                formControlName="linkProjectCtr" [matAutocomplete]="autoProject">
+              <mat-autocomplete #autoProject="matAutocomplete" [displayWith]="helpers.optionDisplay"
+                (optionSelected)="selectProject()">
+                <mat-option *ngFor="let project of filteredProjectsNotLinkYet | async" [value]="project">
+                  <div class="template-option">
+                    <span class="template-option__text">{{ project.name }}</span>
+                  </div>
+                </mat-option>
+              </mat-autocomplete>
+              <mat-error *ngIf="linkProjectCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+              <mat-error *ngIf="linkProjectCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+            </mat-form-field>
+            <button type="submit" color="primary" matTooltip="Link Project" mat-raised-button class="add-inline-btn"
+              [disabled]="isDisableLinkProject || linkProjectForm.invalid || !this.linkProjectCtr.value.id">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+        </form>
+        <mat-divider></mat-divider>
+      </div>
+
+      <h4>Template</h4>
+      <form [formGroup]="addTemplateForm" (ngSubmit)="addTemplate()" autocomplete="off" data-cy="addTemplateForm">
+        <mat-form-field class="tab-select-field">
+          <mat-label>Template</mat-label>
+          <input autocomplete="off" id="toolpanel-add-template" matInput placeholder="Select a template"
+            formControlName="projectTemplateCtr" [matAutocomplete]="autoProjectTemplate">
+          <mat-autocomplete #autoProjectTemplate="matAutocomplete" [displayWith]="helpers.optionDisplay"
+            (optionSelected)="selectProjectTemplate()">
+            <mat-option *ngFor="let template of filteredProjectTemplates | async" [value]="template">
+              <div class="template-option">
+                <span class="template-option__text">{{ template.name }}</span>
+                <span class="template-option__text">{{ template.description }}</span>
+              </div>
+            </mat-option>
+          </mat-autocomplete>
+          <mat-error *ngIf="projectTemplateCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+          <mat-error *ngIf="projectTemplateCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+        </mat-form-field>
+        <div class="tab-field">
+          <mat-checkbox formControlName="isLayoutOnlyCtr" [labelPosition]="'before'">Layout Only</mat-checkbox>
+          <button type="submit" color="primary" matTooltip="Add" mat-raised-button class="tab-field-btn"
+            [disabled]="isDisableAddProjectTemplate || addTemplateForm.invalid || !this.projectTemplateCtr.value.id">
             <mat-icon>add</mat-icon>
           </button>
         </div>
       </form>
       <mat-divider></mat-divider>
-    </div>
-
-    <h4>Template</h4>
-    <form [formGroup]="addTemplateForm" (ngSubmit)="addTemplate()" autocomplete="off">
-      <mat-form-field class="tab-select-field">
-        <mat-label>Template</mat-label>
-        <input autocomplete="off" id="toolpanel-add-template" matInput placeholder="Select a template"
-          formControlName="projectTemplateCtr" [matAutocomplete]="autoProjectTemplate">
-        <mat-autocomplete #autoProjectTemplate="matAutocomplete" [displayWith]="helpers.optionDisplay"
-          (optionSelected)="selectProjectTemplate()">
-          <mat-option *ngFor="let template of filteredProjectTemplates | async" [value]="template">
-            <div class="template-option">
-              <span class="template-option__text">{{ template.name }}</span>
-              <span class="template-option__text">{{ template.description }}</span>
-            </div>
-          </mat-option>
-        </mat-autocomplete>
-        <mat-error *ngIf="projectTemplateCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-        <mat-error *ngIf="projectTemplateCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
-      </mat-form-field>
-      <div class="tab-field">
-        <mat-checkbox formControlName="isLayoutOnlyCtr" [labelPosition]="'before'">Layout Only</mat-checkbox>
-        <button type="submit" color="primary" matTooltip="Add" mat-raised-button class="tab-field-btn"
-          [disabled]="isDisableAddProjectTemplate || addTemplateForm.invalid || !this.projectTemplateCtr.value.id">
+      <div>
+        <h5>Clone selected items to new a project</h5>
+        <button mat-raised-button color="primary" [disabled]="isDisableNewFromSelected"
+          (click)="addNewProjectFromSelected()">
           <mat-icon>add</mat-icon>
         </button>
       </div>
-    </form>
 
+    </section>
     <mat-divider></mat-divider>
-    <div>
-      <h5>Clone selected items to new a project</h5>
-      <button mat-raised-button color="primary" [disabled]="isDisableNewFromSelected"
-        (click)="addNewProjectFromSelected()">
-        <mat-icon>add</mat-icon>
-      </button>
-    </div>
-
-  </section>
-  <mat-divider></mat-divider>
+  </div>
 </ng-template>
 
 <ng-template #elseBlock>

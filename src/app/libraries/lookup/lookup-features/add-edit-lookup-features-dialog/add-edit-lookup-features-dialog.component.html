@@ -20,16 +20,6 @@
       <mat-label>Platform</mat-label>
       <input autocomplete="off" id="lookupfeatures-platform" type="text" formControlName="platformCtr" matInput>
     </mat-form-field>
-    <!-- <div *ngIf="data.mode === 'view'">
-      <div class="features-section">
-        <label class="features-label">Features:</label>
-      </div>
-      <div class="features-section">
-        <ag-grid-angular class="ag-theme-alpine features-table" [pagination]="true" [paginationPageSize]="25"
-          [columnDefs]="columnDefs" [defaultColDef]="defaultColDef" [rowData]="rowData" rowSelection="multiple" (gridReady)="onGridReady($event)">
-        </ag-grid-angular>
-      </div>
-    </div> -->
   </div>
   <div mat-dialog-actions [align]="'end'" class="create-btn">
     <button mat-raised-button type="button" (click)="onCancel()">{{ data.mode === 'view' ? 'Close' : 'Cancel' }}</button>

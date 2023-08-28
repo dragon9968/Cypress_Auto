@@ -1,0 +1,35 @@
+<mat-card class="table">
+  <mat-card-title class="table__title">History</mat-card-title>
+  <div class="table__nav">
+    <div class="table__nav--actions">
+      <button mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteHistory()">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+    <div class="table__nav--search">
+      <input
+        matInput
+        name="historySearch" id="search-history"
+        type="search"
+        [(ngModel)]="quickFilterValue"
+        placeholder="Search..."
+        (input)="onQuickFilterInput($event)"
+      >
+    </div>
+  </div>
+  <mat-card-content class="table__content">
+    <ag-grid-angular
+      class="ag-theme-alpine"
+      [pagination]="true"
+      [columnDefs]="columnDefs"
+      [defaultColDef]="defaultColDef"
+      [rowData]="rowData$ | async"
+      [rowSelection]="'multiple'"
+      [suppressRowClickSelection]="true"
+      [animateRows]="true"
+      (gridReady)="onGridReady($event)"
+      (rowSelected)="selectedRows()"
+    >
+    </ag-grid-angular>
+  </mat-card-content>
+</mat-card>

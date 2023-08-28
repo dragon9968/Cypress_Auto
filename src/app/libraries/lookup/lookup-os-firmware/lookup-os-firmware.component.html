@@ -1,0 +1,49 @@
+<mat-card class="table">
+  <mat-card-title class="table__title">Lookup OS/Firmware</mat-card-title>
+  <div class="table__nav">
+    <div class="table__nav--actions">
+      <button mat-button mat-mini-fab color="primary" matTooltip="Add" (click)="addLookupOSFirmware()">
+        <mat-icon>add</mat-icon>
+      </button>
+      <button mat-button mat-mini-fab color="primary" matTooltip="Edit" (click)="updateLookupOSFirmware()">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteLookupOSFirmware()">
+        <mat-icon>delete</mat-icon>
+      </button>
+      <button mat-button mat-mini-fab color="primary" matTooltip="Export as JSON" (click)="exportLookupOSFirmware()">
+        <mat-icon svgIcon="export-json"></mat-icon>
+      </button>
+      <button mat-button mat-mini-fab color="primary" matTooltip="Import" (click)="importLookupOSFirmware()">
+        <i class="fa-solid fa-upload"></i>
+      </button>
+    </div>
+    <div class="table__nav--search">
+      <input
+        matInput
+        name="lookup-os-firmware-search" id="search-lookup-os-firmware"
+        type="search"
+        [(ngModel)]="quickFilterValue"
+        placeholder="Search..."
+        (input)="onQuickFilterInput($event)"
+      >
+    </div>
+  </div>
+  <mat-card-content class="table__content">
+    <ag-grid-angular
+      class="ag-theme-alpine"
+      [pagination]="true"
+      [paginationPageSize]="25"
+      [columnDefs]="columnDefs"
+      [defaultColDef]="defaultColDef"
+      [rowData]="rowData$ | async"
+      [rowSelection]="'multiple'"
+      [suppressRowClickSelection]="true"
+      [animateRows]="true"
+      (gridReady)="onGridReady($event)"
+      (rowSelected)="selectedRows()"
+      (rowDoubleClicked)="onRowDoubleClicked($event)"
+    >
+    </ag-grid-angular>
+  </mat-card-content>
+</mat-card>

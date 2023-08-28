@@ -18,15 +18,7 @@ export class InterfaceService {
     });
   }
 
-  genDataConnectPG(interfaceId: any, nodeId: string, portgroupId: any): Observable<any> {
-    return this.http.post<any>(ApiPaths.GEN_INTERFACE_DATA_CONNECT_PG, {
-      interface_id: interfaceId,
-      node_id: nodeId,
-      pg_id: portgroupId
-    });
-  }
-
-  get(id: string): Observable<any> {
+  get(id: number): Observable<any> {
     return this.http.get<any>(ApiPaths.INTERFACE + id);
   }
 
@@ -34,12 +26,8 @@ export class InterfaceService {
     return this.http.post<any>(ApiPaths.INTERFACE, data);
   }
 
-  put(id: string, data: any): Observable<any> {
+  put(id: number, data: any): Observable<any> {
     return this.http.put<any>(ApiPaths.INTERFACE + id, data);
-  }
-
-  randomizeIP(id: string): Observable<any> {
-    return this.http.get<any>(ApiPaths.INTERFACE_RANDOMIZE_IP + id);
   }
 
   validate(data: any): Observable<any> {
@@ -62,6 +50,22 @@ export class InterfaceService {
     return this.http.get<any>(ApiPaths.INTERFACE, {
       params: {
         q: `(filters:!((col:node_id,opr:eq,value:${nodeId})),page:0,page_size:1000)`
+      }
+    });
+  }
+
+  getByNodeAndNotConnected(nodeId: any): Observable<any> {
+    return this.http.get<any>(ApiPaths.INTERFACE, {
+      params: {
+        q: `(filters:!((col:node_id,opr:eq,value:${nodeId}),(col:interface_id,opr:eq,value:null)),page:0,page_size:1000)`
+      }
+    });
+  }
+
+  getByNodeAndConnectedToInterface(nodeId: any): Observable<any> {
+    return this.http.get<any>(ApiPaths.INTERFACE, {
+      params: {
+        q: `(filters:!((col:node_id,opr:eq,value:${nodeId}),(col:interface_id,opr:neq,value:null)),page:0,page_size:1000)`
       }
     });
   }
@@ -90,7 +94,15 @@ export class InterfaceService {
     });
   }
 
-  getByProjectIdAndCategory(projectId: any, category: string): Observable<any> {
-    return this.http.get<any>(ApiPaths.INTERFACE_DATA_CATEGORY + projectId + '/' + category)
+  getByProjectId(projectId: number): Observable<any> {
+    return this.http.get<any>(ApiPaths.INTERFACE, {
+      params: {
+        q: `(filters:!((col:project_id,opr:eq,value:${projectId})),page:0,page_size:1000)`
+      }
+    })
+  }
+
+  getByProjectIdAndHwNode(projectId: any): Observable<any> {
+    return this.http.get<any>(ApiPaths.INTERFACE_DATA_BY_HW_NODE + projectId)
   }
 }

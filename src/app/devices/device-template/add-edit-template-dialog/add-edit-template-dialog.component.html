@@ -3,20 +3,19 @@
   <div mat-dialog-content>
     <mat-form-field class="field">
       <mat-label>Display Name</mat-label>
-      <input autocomplete="off" id="template-displayname" type="text" formControlName="displayName" matInput>
+      <input autocomplete="off" id="template-displayname" type="text" formControlName="displayNameCtr" matInput>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Name</mat-label>
-      <input autocomplete="off" id="name-template" type="text" formControlName="name" matInput>
-      <mat-error *ngIf="name?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-      <mat-error *ngIf="name?.errors?.minlength || name?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH_50
-        }}</mat-error>
-      <mat-error *ngIf="name?.errors?.isExist">{{ errorMessages.NAME_EXISTS }}</mat-error>
+      <input autocomplete="off" id="name-template" type="text" formControlName="nameCtr" matInput>
+      <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+      <mat-error *ngIf="nameCtr?.errors?.minlength || nameCtr?.errors?.maxlength">{{ errorMessages.RANGE_LENGTH_50}}</mat-error>
+      <mat-error *ngIf="nameCtr?.errors?.isExist">{{ errorMessages.NAME_EXISTS }}</mat-error>
     </mat-form-field>
 
     <div class="category">
       <label class="category-label">Category:</label>
-      <mat-radio-group class="category-group" formControlName="category">
+      <mat-radio-group class="category-group" formControlName="categoryCtr">
         <mat-radio-button class="category-items" value="vm">VM</mat-radio-button>
         <mat-radio-button class="category-items" value="hw">HW</mat-radio-button>
         <mat-radio-button class="category-items" value="other">Other</mat-radio-button>
@@ -25,7 +24,7 @@
 
     <mat-form-field class="field">
       <mat-label>Icon</mat-label>
-      <input autocomplete="off" id="template-icon" matInput type="text" [formControl]="icon" [matAutocomplete]="autoIcon">
+      <input autocomplete="off" id="template-icon" matInput type="text" [formControl]="iconCtr" [matAutocomplete]="autoIcon">
       <mat-autocomplete #autoIcon="matAutocomplete" [displayWith]="helpers.optionDisplay">
         <mat-option *ngFor="let option of filteredIcons | async" [value]="option">
           <div class="option-text">
@@ -35,12 +34,12 @@
           </div>
         </mat-option>
       </mat-autocomplete>
-      <mat-error *ngIf="icon?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+      <mat-error *ngIf="iconCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
     </mat-form-field>
 
     <mat-form-field class="field">
       <mat-label>Login Profile</mat-label>
-      <input autocomplete="off" id="template-login-profile" matInput type="text" [formControl]="loginProfile" [matAutocomplete]="autoLoginProfile">
+      <input autocomplete="off" id="template-login-profile" matInput type="text" [formControl]="loginProfileCtr" [matAutocomplete]="autoLoginProfile">
       <mat-autocomplete #autoLoginProfile="matAutocomplete" [displayWith]="helpers.optionDisplay">
         <mat-option *ngFor="let option of filteredLoginProfiles | async" [value]="option" style="height: 60px !important;">
           <div class="login-profiles-option-text">
@@ -50,7 +49,12 @@
           </div>
         </mat-option>
       </mat-autocomplete>
-      <mat-error *ngIf="loginProfile?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+      <mat-error *ngIf="loginProfileCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="field">
+      <mat-label>Version</mat-label>
+      <input autocomplete="off" id="template-version" type="text" formControlName="versionCtr" matInput>
     </mat-form-field>
 
     <div class="default-config-file">

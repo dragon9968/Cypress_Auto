@@ -63,12 +63,20 @@ export class RolesService {
     return this.http.get<any>(ApiPaths.ROLES_PROTECTED);
   }
 
-  updateUserPermissions(permissions: string) {
+  setUserPermissions(permissions: any[]) {
     this.localStorageService.setItem(LocalStorageKeys.PERMISSIONS, permissions);
   }
 
   getUserPermissions() {
     return this.localStorageService.getItem(LocalStorageKeys.PERMISSIONS);
+  }
+
+  setUserRoles(roles: any[]) {
+    this.localStorageService.setItem(LocalStorageKeys.ROLES, roles);
+  }
+
+  getUserRoles() {
+    return this.localStorageService.getItem(LocalStorageKeys.ROLES);
   }
 
 }

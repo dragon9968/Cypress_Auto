@@ -22,25 +22,6 @@ export class AddEditLookupFeaturesDialogComponent implements OnInit, OnDestroy {
   lookupFeaturesForm!: FormGroup;
   selectLookupFeatures$ = new Subscription();
   listFeatures!: any[];
-  rowData!: any[];
-  private gridApi!: GridApi;
-  defaultColDef: ColDef = {
-    sortable: true,
-    resizable: true
-  };
-  columnDefs: ColDef[] = [
-    {
-      field: 'id',
-      hide: true,
-    },
-    {
-      field: 'display_name',
-      sort: 'asc',
-    },
-    {
-      field: 'feature_name',
-    },
-  ];
   constructor(
     private toastr: ToastrService,
     private lookupFeaturesService: LookupFeaturesService,
@@ -52,7 +33,6 @@ export class AddEditLookupFeaturesDialogComponent implements OnInit, OnDestroy {
     this.selectLookupFeatures$ = this.store.select(selectLookupFeatures).subscribe((data: any) => {
       this.listFeatures = data
     });
-    this.rowData = this.data.genData.features?.features
     this.lookupFeaturesForm = new FormGroup({
       nameCtr: new FormControl({value: '', disabled: this.isViewMode}, [Validators.required, validateNameExist(() => this.listFeatures, this.data.mode, this.data.genData.id)]),
       displayNameCtr: new FormControl({value: '', disabled: this.isViewMode}),
@@ -72,11 +52,6 @@ export class AddEditLookupFeaturesDialogComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.selectLookupFeatures$.unsubscribe();
-  }
-
-  onGridReady(params: GridReadyEvent) {
-    this.gridApi = params.api;
-    this.gridApi.sizeColumnsToFit();
   }
 
   addLookupFeatures() {

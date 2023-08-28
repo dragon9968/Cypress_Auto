@@ -8,8 +8,8 @@ import { catchError, forkJoin, Observable, of, Subscription, throwError } from '
 import { RolesService } from 'src/app/core/services/roles/roles.service';
 import { UserService } from 'src/app/core/services/user/user.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
-import { retrievedRole, retrievedUser } from 'src/app/store/user/user.actions';
-import { selectUser } from 'src/app/store/user/user.selectors';
+import { retrievedRoles, retrievedUsers } from 'src/app/store/user/user.actions';
+import { selectUsers } from 'src/app/store/user/user.selectors';
 import { AddEditUserDialogComponent } from './add-edit-user-dialog/add-edit-user-dialog.component';
 import { ResetPasswordDialogComponent } from './reset-password-dialog/reset-password-dialog.component';
 
@@ -18,7 +18,7 @@ import { ResetPasswordDialogComponent } from './reset-password-dialog/reset-pass
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.scss']
 })
-export class UsersComponent implements OnInit, OnDestroy{
+export class UsersComponent implements OnInit, OnDestroy {
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
   selectUser$ = new Subscription();
   rowData$!: Observable<any[]>;
@@ -74,7 +74,7 @@ export class UsersComponent implements OnInit, OnDestroy{
     private dialog: MatDialog,
     private toastr: ToastrService,
   ) {
-    this.selectUser$ = this.store.select(selectUser).subscribe((data: any) => {
+    this.selectUser$ = this.store.select(selectUsers).subscribe((data: any) => {
       if (data) {
         if (this.gridApi) {
           this.gridApi.setRowData(data);
@@ -84,11 +84,11 @@ export class UsersComponent implements OnInit, OnDestroy{
         this.updateRow();
       }
     });
-   }
+  }
 
   ngOnInit(): void {
-    this.userService.getAll().subscribe(data => this.store.dispatch(retrievedUser({ data: data.result })))
-    this.rolesService.getAll().subscribe(role => this.store.dispatch(retrievedRole({ role: role.result })))
+    this.userService.getAll().subscribe(data => this.store.dispatch(retrievedUsers({ users: data.result })))
+    this.rolesService.getAll().subscribe(role => this.store.dispatch(retrievedRoles({ roles: role.result })))
   }
 
   ngOnDestroy(): void {
@@ -158,7 +158,7 @@ export class UsersComponent implements OnInit, OnDestroy{
       })
     } else {
       this.toastr.info('Bulk edits do not apply to user.<br> Please select only one user',
-          'Info', { enableHtml: true });
+        'Info', { enableHtml: true });
     }
   }
 
@@ -184,7 +184,7 @@ export class UsersComponent implements OnInit, OnDestroy{
             );
           })).subscribe(() => {
             this.toastr.success('Deleted User(s) successfully', 'Success');
-            this.userService.getAll().subscribe((data: any) => this.store.dispatch(retrievedUser({data: data.result})));
+            this.userService.getAll().subscribe((data: any) => this.store.dispatch(retrievedUsers({ users: data.result })));
             this.clearRow();
           })
         }
@@ -224,7 +224,7 @@ export class UsersComponent implements OnInit, OnDestroy{
       })
     } else {
       this.toastr.info('Bulk edits do not apply to user.<br> Please select only one user',
-          'Info', { enableHtml: true });
+        'Info', { enableHtml: true });
     }
   }
 

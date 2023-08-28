@@ -4,8 +4,3 @@ export const retrievedMapPrefs = createAction(
   'retrievedMapPrefs',
   props<{ data: any }>()
 );
-
-export const retrievedDefaultMapPref = createAction(
-  'retrievedDefaultMapPref',
-  props<{ data: any }>()
-);

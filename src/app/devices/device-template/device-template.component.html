@@ -13,8 +13,11 @@
           <button mat-button mat-mini-fab color="primary" matTooltip="Delete Device" (click)="deleteDevice()">
             <mat-icon>delete</mat-icon>
           </button>
+          <button mat-button mat-mini-fab color="primary" matTooltip="Import Device" (click)="importDevice()">
+            <i class="fa-solid fa-upload"></i>
+          </button>
         </ng-template>
-        <button mat-button mat-mini-fab color="primary" matTooltip="Export as JSON" (click)="exportDevice()">
+        <button mat-button mat-mini-fab color="primary" matTooltip="Export Device as JSON" (click)="exportDevice()">
           <mat-icon svgIcon="export-json"></mat-icon>
         </button>
       </div>
@@ -61,8 +64,11 @@
           <button mat-button mat-mini-fab color="primary" matTooltip="Delete Template" (click)="deleteTemplate()">
             <mat-icon>delete</mat-icon>
           </button>
+          <button mat-button mat-mini-fab color="primary" matTooltip="Import Template" (click)="importTemplate()">
+            <i class="fa-solid fa-upload"></i>
+          </button>
         </ng-template>
-        <button mat-button mat-mini-fab color="primary" matTooltip="Export as JSON" (click)="exportTemplate()">
+        <button mat-button mat-mini-fab color="primary" matTooltip="Export Template as JSON" (click)="exportTemplate()">
           <mat-icon svgIcon="export-json"></mat-icon>
         </button>
       </div>
@@ -78,7 +84,7 @@
       </div>
     </div>
     <mat-card-content class="table__content">
-      <ag-grid-angular #agGrid2
+      <ag-grid-angular #agGrid2 id="ag-grid-template"
         class="ag-theme-alpine"
         [pagination]="true"
         [paginationPageSize]="25"

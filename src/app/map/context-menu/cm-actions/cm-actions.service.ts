@@ -1,5 +1,5 @@
 import { Store } from "@ngrx/store";
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription, catchError, throwError } from 'rxjs';
@@ -7,18 +7,32 @@ import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { InterfaceService } from 'src/app/core/services/interface/interface.service';
 import { NodeService } from 'src/app/core/services/node/node.service';
 import { PortGroupService } from 'src/app/core/services/portgroup/portgroup.service';
-import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { InfoPanelShowValidationResultsComponent } from '../../../shared/components/info-panel-show-validation-results/info-panel-show-validation-results.component';
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
-import { environment } from "../../../../environments/environment";
 import { selectMapOption } from "src/app/store/map-option/map-option.selectors";
+import { PortGroupValidateModel } from "../../../core/models/port-group.model";
+import { selectLogicalMapInterfaces } from "src/app/store/interface/interface.selectors";
+import { selectSelectedLogicalNodes, selectSelectedPhysicalNodes } from "../../../store/node/node.selectors";
+import { cloneNodeById } from "../../../store/node/node.actions";
+import { selectSelectedPortGroups } from "src/app/store/portgroup/portgroup.selectors";
 
 @Injectable({
   providedIn: 'root'
 })
-export class CMActionsService {
+export class CMActionsService implements OnDestroy {
   selectMapOption$ = new Subscription();
+  selectLogicalMapInterfaces$ = new Subscription();
+  selectSelectedLogicalNodes = new Subscription();
+  selectSelectedPortGroups$ = new Subscription();
+  selectedPortGroups!: any[];
+  selectSelectedLogicalNodes$ = new Subscription();
+  selectSelectedPhysicalNodes$ = new Subscription();
   isEdgeDirectionChecked = false;
+  logicalMapInterfaces!: any[];
+  selectedNodes: any[] = [];
+  selectedLogicalNodes: any[] = [];
+  selectedPhysicalNodes: any[] = [];
+  
   constructor(
     private store: Store,
     private dialog: MatDialog,
@@ -31,10 +45,39 @@ export class CMActionsService {
   ) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe(mapOption => {
       this.isEdgeDirectionChecked = mapOption?.isEdgeDirectionChecked != undefined ? mapOption.isEdgeDirectionChecked : false;
-    })
+    });
+    this.selectLogicalMapInterfaces$ = this.store.select(selectLogicalMapInterfaces).subscribe(logicalMapInterfaces => {
+      if (logicalMapInterfaces) {
+        this.logicalMapInterfaces = logicalMapInterfaces;
+      }
+    });
+    this.selectSelectedPortGroups$ = this.store.select(selectSelectedPortGroups).subscribe((selectedPortGroups: any) => {
+      if (selectedPortGroups) {
+        this.selectedPortGroups = selectedPortGroups;
+      }
+    });
+    this.selectSelectedLogicalNodes$ = this.store.select(selectSelectedLogicalNodes).subscribe(selectedNodes => {
+      if (selectedNodes) {
+        this.selectedLogicalNodes = selectedNodes;
+      }
+    });
+    this.selectSelectedPhysicalNodes$ = this.store.select(selectSelectedPhysicalNodes).subscribe(selectedNodes => {
+      if (selectedNodes) {
+        this.selectedPhysicalNodes = selectedNodes;
+      }
+    });
    }
 
-  getNodeActionsMenu(cy: any, activeNodes: any[], isCanWriteOnProject: boolean) {
+  ngOnDestroy(): void {
+    this.selectMapOption$.unsubscribe();
+    this.selectSelectedLogicalNodes.unsubscribe();
+    this.selectLogicalMapInterfaces$.unsubscribe();
+    this.selectSelectedLogicalNodes$.unsubscribe();
+    this.selectSelectedPortGroups$.unsubscribe();
+    this.selectSelectedPhysicalNodes$.unsubscribe();
+  }
+
+  getNodeActionsMenu(isCanWriteOnProject: boolean, mapCategory: any) {
     return {
       id: "node_actions",
       content: "Actions",
@@ -45,8 +88,9 @@ export class CMActionsService {
           id: "clone_node",
           content: "Clone",
           onClickFunction: ($event: any) => {
-            const ids = activeNodes.map((ele: any) => ele.data('node_id'));
-            this.cloneNodes(cy, ids);
+            this.selectedNodes = mapCategory === 'logical' ? this.selectedLogicalNodes : this.selectedPhysicalNodes
+            const ids = this.selectedNodes.map((node: any) => node.id);
+            this.cloneNodes(ids);
           },
           hasTrailingDivider: true,
           disabled: !isCanWriteOnProject,
@@ -55,7 +99,8 @@ export class CMActionsService {
           id: "validate_node",
           content: "Validate",
           onClickFunction: (_$event: any) => {
-            const pks = activeNodes.map((ele: any) => ele.data('node_id'));
+            this.selectedNodes = mapCategory === 'logical' ? this.selectedLogicalNodes : this.selectedPhysicalNodes
+            const pks = this.selectedNodes.map((node: any) => node.id);
             this.nodeService.validate({ pks }).pipe(
               catchError((e: any) => {
                 this.toastr.error(e.error.message);
@@ -77,7 +122,7 @@ export class CMActionsService {
     }
   }
 
-  getPortGroupActionsMenu(cy: any, projectId: string, activePGs: any[]) {
+  getPortGroupActionsMenu(projectId: number) {
     return {
       id: "pg_actions",
       content: "Actions",
@@ -88,7 +133,7 @@ export class CMActionsService {
           id: "randomize_pg_subnet",
           content: "Randomize Subnet",
           onClickFunction: (event: any) => {
-            const pks = activePGs.map(pg => pg.data('pg_id'));
+            const pks = this.selectedPortGroups.map(pg => pg.id);
             this.infoPanelService.randomizeSubnetPortGroups(pks, projectId);
           },
           hasTrailingDivider: true,
@@ -98,8 +143,10 @@ export class CMActionsService {
           id: "validate_pg",
           content: "Validate",
           onClickFunction: (event: any) => {
-            const pks = activePGs.map((ele: any) => ele.data('pg_id'));
-            this.portGroupService.validate({ pks }).pipe(
+            const jsonData: PortGroupValidateModel = {
+              pks: this.selectedPortGroups.map((ele: any) => ele.id)
+            }
+            this.portGroupService.validate(jsonData).pipe(
               catchError((e: any) => {
                 this.toastr.error(e.error.message);
                 this.dialog.open(InfoPanelShowValidationResultsComponent, {
@@ -122,27 +169,19 @@ export class CMActionsService {
     }
   }
 
-  getEdgeActionsMenu(cy: any, activeEdges: any[]) {
+  getEdgeActionsMenu() {
     return {
       id: "edge_actions",
       content: "Actions",
       selector: "edge",
       hasTrailingDivider: true,
       submenu: [
-        // {
-        //   id: "add_edge_config",
-        //   content: "Add Configuration",
-        //   selector: "edge",
-        //   onClickFunction: (event: any) => { },
-        //   hasTrailingDivider: true,
-        //   disabled: true,
-        // },
         {
           id: "randomize_edge_ip",
           content: "Randomize IP",
           selector: "edge",
           onClickFunction: (event: any) => {
-            const listInterfaces = activeEdges.map(edge => edge.data());
+            const listInterfaces = this.logicalMapInterfaces.filter(i => i.isSelected);
             this.infoPanelService.randomizeIpInterfaces(listInterfaces);
           },
           hasTrailingDivider: true,
@@ -153,7 +192,7 @@ export class CMActionsService {
           content: "Validate",
           selector: "edge",
           onClickFunction: (event: any) => {
-            const pks = activeEdges.map((ele: any) => ele.data('interface_id'));
+            const pks = this.logicalMapInterfaces.map((ele: any) => ele.id);
             this.interfaceService.validate({ pks }).pipe(
               catchError((e: any) => {
                 this.toastr.error(e.error.message);
@@ -176,7 +215,7 @@ export class CMActionsService {
     }
   }
 
-  cloneNodes(cy: any, ids: any[]) {
+  cloneNodes(ids: any[]) {
     const jsonData = { ids }
     this.nodeService.cloneBulk(jsonData).pipe(
       catchError((e: any) => {
@@ -186,70 +225,8 @@ export class CMActionsService {
     ).subscribe(response => {
       const newNodes = response.result;
       newNodes.map((node: any) => {
-        const id = node.data.id
-        const deviceCategory = cy.nodes(`[node_id=${node.ids}]`).data('device_category')
-        const configs = cy.nodes(`[node_id=${node.ids}]`).data('configs')
-        this.nodeService.get(id).subscribe(nodeData => {
-          const cyData = nodeData.result;
-          cyData.id = 'node-' + id;
-          cyData.node_id = id;
-          cyData.height = cyData.logical_map_style.height;
-          cyData.width = cyData.logical_map_style.width;
-          cyData.text_color = cyData.logical_map_style.text_color;
-          cyData.text_size = cyData.logical_map_style.text_size;
-          cyData.elem_category = "node";
-          cyData.device_category = deviceCategory
-          cyData.configs = configs
-          cyData.icon = ICON_PATH + cyData.icon.photo;
-          cyData.type = cyData.role;
-          cyData.zIndex = 999;
-          cyData['background-image'] = cyData.icon;
-          cyData['background-opacity'] = 0;
-          cyData.shape = "roundrectangle";
-          cyData['text-opacity'] = 1;
-          this.helpers.addCYNode(cy, { newNodeData: cyData, newNodePosition: cyData.logical_map_position });
-          this.helpers.reloadGroupBoxes(cy);
-          // Draw interface related to Nodes
-          this.interfaceService.getByNode(id).subscribe((respData: any) => {
-            respData.result.map((edgeData: any) => {
-              if (edgeData.category !== 'management') {
-                const id = edgeData.id;
-                const ip_str = edgeData.ip ? edgeData.ip : "";
-                const ip = ip_str.split(".");
-                const last_octet = ip.length == 4 ? "." + ip[3] : "";
-                const cyData = edgeData;
-                cyData.id = id;
-                cyData.interface_id = id;
-                cyData.ip_last_octet = last_octet;
-                const logicalMapStyle = cyData.logical_map_style;
-                cyData.width = logicalMapStyle.width;
-                cyData.text_color = logicalMapStyle.text_color;
-                cyData.text_size = logicalMapStyle.text_size;
-                cyData.color = logicalMapStyle.color;
-                cyData.node = nodeData.result.name;
-                cyData.port_group = cyData.port_group.name;
-                cyData.netmask = cyData.netmask.mask;
-                const newEdgeData = {
-                  source: 'node-' + edgeData.node_id,
-                  target: 'pg-' + edgeData.port_group_id,
-                  id: 'new_edge_' + this.helpers.createUUID(),
-                  name: "",
-                  category: cyData.category,
-                  direction: cyData.direction,
-                  curve_style: 'bezier',
-                  color: logicalMapStyle.color,
-                  width: logicalMapStyle.width,
-                }
-                this.helpers.addCYEdge(cy, { ...newEdgeData, ...cyData });
-                this.helpers.changeEdgeDirectionOnMap(cy, this.isEdgeDirectionChecked);
-              }
-            })
-          });
-        });
+        this.store.dispatch(cloneNodeById({ id: node.node_id }));
       });
-      response.result.map((ele: any) => {
-        this.toastr.success(`Cloned node ${ele.data.name}`, 'Success');
-      })
     });
   }
 }

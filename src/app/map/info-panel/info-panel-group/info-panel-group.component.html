@@ -9,6 +9,23 @@
     <button mat-button mat-mini-fab class="btn-action-item" color="primary" matTooltip="Delete" (click)="deleteGroup()">
       <mat-icon>delete</mat-icon>
     </button>
+    <button class="btn-action-item" [matMenuTriggerFor]="filterMenu" #menuContacts="matMenuTrigger" mat-mini-fab color="primary" matTooltip="Filter Table">
+      <mat-icon>filter_list</mat-icon>
+    </button>
+    <mat-menu #filterMenu="matMenu">
+      <form [formGroup]="filterOptionForm">
+        <mat-form-field class="field">
+          <mat-label>Options</mat-label>
+          <mat-select
+            formControlName="filterOptionCtr"
+            (click)="selectOption($event)"
+            (selectionChange)="changeFilterOption(menuContacts, $event)">
+          <mat-option value="all">All</mat-option>
+          <mat-option value="selected">Selected</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </form>
+    </mat-menu>
   </ng-template>
   <ng-template #elseBlock>
     <button mat-button mat-mini-fab class="btn-action-item" color="primary" matTooltip="Add new group" (click)="addGroup()" disabled="true">
@@ -23,4 +40,4 @@
   </ng-template>
 </div>
 
-<app-info-panel-table [infoPanelheight]="infoPanelheight" [gridOptions]="gridOptions" [tabName]="tabName"></app-info-panel-table>
+<app-info-panel-table [cy]="cy" [infoPanelheight]="infoPanelheight" [gridOptions]="gridOptions" [tabName]="tabName"></app-info-panel-table>

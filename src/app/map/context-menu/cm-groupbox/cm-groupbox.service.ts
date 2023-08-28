@@ -1,33 +1,52 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
+import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
+import { Subscription } from 'rxjs';
+import { selectSelectedGroups } from 'src/app/store/group/group.selectors';
 
 @Injectable({
   providedIn: 'root'
 })
-export class CMGroupBoxService {
+export class CMGroupBoxService implements OnDestroy {
 
-  constructor(private toastr: ToastrService) { }
+  selectSelectedGroups$ = new Subscription();
+  selectedGroups: any[] = [];
 
-  getCollapseMenu(cy: any, activeGBs: any[]) {
+  constructor(
+    private toastr: ToastrService,
+    private store: Store
+  ) {
+    this.selectSelectedGroups$ = this.store.select(selectSelectedGroups).subscribe(selectedGroups => {
+      if (selectedGroups) {
+        this.selectedGroups = selectedGroups;
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.selectSelectedGroups$.unsubscribe();
+  }
+
+  getCollapseMenu(cy: any) {
     return {
       id: "collapse_groupbox",
       content: "Collapse",
       selector: "node[label='group_box']",
       onClickFunction: (event: any) => {
-        this.collapse(cy, activeGBs);
+        this.collapse(cy);
       },
       hasTrailingDivider: true,
       disabled: false,
     }
   }
 
-  getExpandMenu(cy: any, activeGBs: any[]) {
+  getExpandMenu(cy: any) {
     return {
       id: "expand_groupbox",
       content: "Expand",
       selector: "node[label='group_box']",
       onClickFunction: (event: any) => {
-        this.expand(cy, activeGBs);
+        this.expand(cy);
       },
       hasTrailingDivider: true,
       disabled: false,
@@ -62,10 +81,9 @@ export class CMGroupBoxService {
     }
   }
 
-  collapse(cy: any, activeGBs: any[]) {
-    activeGBs.map((gb: any) => {
-      gb._private['data'] = { ...gb._private['data'] };
-      if (gb.data().collapsedChildren) {
+  collapse(cy: any) {
+    this.selectedGroups.map((gb: any) => {
+      if (gb.data.collapsedChildren) {
         this.toastr.warning("Already Collapsed")
       } else {
         cy.expandCollapse('get').collapseRecursively(gb, {});
@@ -76,10 +94,9 @@ export class CMGroupBoxService {
     });
   }
 
-  expand(cy: any, activeGBs: any[]) {
-    activeGBs.map((gb: any) => {
-      gb._private['data'] = { ...gb._private['data'] };
-      if (!(gb.data().collapsedChildren)) {
+  expand(cy: any) {
+    this.selectedGroups.map((gb: any) => {
+      if (!(gb.data.collapsedChildren)) {
         this.toastr.warning("Already Expanded")
       } else {
         cy.expandCollapse('get').expandRecursively(gb, {});

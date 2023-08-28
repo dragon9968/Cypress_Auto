@@ -38,6 +38,8 @@
             ],
             "allowedCommonJsDependencies": [
               "cytoscape",
+              "brace",
+              "ag-grid-community",
               "src/app/shared/validations/ip-subnet.validation.ag-grid",
               "src/app/shared/validations/ip-subnet.validation",
               "src/app/shared/validations/networks.validation",

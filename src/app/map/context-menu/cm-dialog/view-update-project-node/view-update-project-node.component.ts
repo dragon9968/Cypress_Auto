@@ -7,8 +7,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { Store } from "@ngrx/store";
 import { HelpersService } from "../../../../core/services/helpers/helpers.service";
 import { validateNameExist } from "../../../../shared/validations/name-exist.validation";
-import { selectNodesByProjectId } from "../../../../store/node/node.selectors";
 import { MapLinkService } from "../../../../core/services/map-link/map-link.service";
+import { selectAllProjects } from "../../../../store/project/project.selectors";
 
 @Component({
   selector: 'app-view-update-project-node',
@@ -18,9 +18,9 @@ import { MapLinkService } from "../../../../core/services/map-link/map-link.serv
 export class ViewUpdateProjectNodeComponent implements OnInit, OnDestroy {
   projectNodeAddForm!: FormGroup;
   errorMessages = ErrorMessages;
-  selectNodes$ = new Subscription();
+  selectAllProjects$ = new Subscription();
+  projects: any[] = [];
   isViewMode = false;
-  nodes!: any[];
   constructor(
     private store: Store,
     private toastr: ToastrService,
@@ -32,11 +32,11 @@ export class ViewUpdateProjectNodeComponent implements OnInit, OnDestroy {
     this.projectNodeAddForm = new FormGroup({
       nameCtr: new FormControl('', [
         Validators.required,
-        validateNameExist(() => this.nodes, this.data.mode, this.data.genData.node_id)
+        Validators.minLength(3),
+        Validators.maxLength(50)
       ]),
       notesCtr: new FormControl('')
     })
-    this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes);
     this.isViewMode = this.data.mode == 'view';
   }
 
@@ -44,21 +44,32 @@ export class ViewUpdateProjectNodeComponent implements OnInit, OnDestroy {
   get notesCtr() { return this.projectNodeAddForm.get('notesCtr'); }
 
   ngOnInit(): void {
-    this.nameCtr?.setValue(this.data.genData.name);
-    this.notesCtr?.setValue(this.data.genData.notes);
+    this.selectAllProjects$ = this.store.select(selectAllProjects).subscribe(projects => {
+      if (projects) {
+        this.projects = projects;
+        const project = projects.find(project => project.id === this.data.genData.linked_project_id);
+        this.notesCtr?.setValue(project.description)
+        this.nameCtr?.setValue(project.name);
+        this.nameCtr?.setValidators([
+          validateNameExist(() => this.projects, this.data.mode, this.data.genData.linked_project_id)
+        ])
+      }
+    });
+
   }
 
   ngOnDestroy(): void {
-    this.selectNodes$.unsubscribe();
+    this.selectAllProjects$.unsubscribe();
   }
 
   updateProjectNode() {
-    const ele = this.data.cy.getElementById(this.data.genData.id);
+    const ele = this.data.cy.getElementById(this.data.genData.data.id);
     const jsonDataValue = {
-      name: this.nameCtr?.value
+      name: this.nameCtr?.value,
+      notes: this.notesCtr?.value
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.mapLinkService.put(this.data.genData.map_link_id, jsonData).pipe(
+    this.mapLinkService.put(this.data.genData.id, jsonData).pipe(
       catchError((e: any) => {
         this.toastr.error('Update project link failed!', 'Error');
         return throwError(() => e);

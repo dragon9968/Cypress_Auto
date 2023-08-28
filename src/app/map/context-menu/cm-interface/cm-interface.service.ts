@@ -1,16 +1,30 @@
 import { Store } from "@ngrx/store";
 import { MatDialog } from "@angular/material/dialog";
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { InterfaceService } from "../../../core/services/interface/interface.service";
-import { retrievedInterfacesNotConnectPG } from "../../../store/interface/interface.actions";
-import { ConnectInterfaceToPgDialogComponent } from "../cm-dialog/connect-interface-to-pg-dialog/connect-interface-to-pg-dialog.component";
+import {
+  retrievedIsInterfaceConnectPG,
+  retrievedInterfacePkConnectNode,
+  retrievedInterfacesBySourceNode,
+  retrievedInterfacesConnectedNode,
+  retrievedInterfacesNotConnectPG,
+  retrievedInterfacesConnectedPG
+} from "../../../store/interface/interface.actions";
 import { ToastrService } from "ngx-toastr";
 import { ProjectService } from "../../../project/services/project.service";
+import { ConnectInterfaceToPgDialogComponent } from "../cm-dialog/connect-interface-to-pg-dialog/connect-interface-to-pg-dialog.component";
+import { Subscription } from "rxjs";
+import { selectSelectedLogicalNodes, selectSelectedPhysicalNodes } from "../../../store/node/node.selectors";
 
 @Injectable({
   providedIn: 'root'
 })
-export class CMInterfaceService {
+export class CMInterfaceService implements OnDestroy {
+
+  selectSelectedLogicalNodes$ = new Subscription();
+  selectSelectedPhysicalNodes$ = new Subscription();
+  selectedLogicalNodes: any[] = [];
+  selectedPhysicalNodes: any[] = [];
 
   constructor(
     private store: Store,
@@ -18,37 +32,46 @@ export class CMInterfaceService {
     private toastr: ToastrService,
     private projectService: ProjectService,
     private interfaceService: InterfaceService
-  ) { }
+  ) {
+    this.selectSelectedLogicalNodes$ = this.store.select(selectSelectedLogicalNodes).subscribe(selectedLogicalNodes => {
+      if (selectedLogicalNodes) {
+        this.selectedLogicalNodes = selectedLogicalNodes;
+      }
+    })
+    this.selectSelectedPhysicalNodes$ = this.store.select(selectSelectedPhysicalNodes).subscribe(selectedPhysicalNodes => {
+      if (selectedPhysicalNodes) {
+        this.selectedPhysicalNodes = selectedPhysicalNodes;
+      }
+    });
+  }
 
-  getNodeInterfaceMenu(queueEdge: Function, cy: any, activeNodes: any[], isCanWriteOnProject: boolean) {
-    const addInterface = {
-      id: "add_new_interface",
-      content: "New",
-      onClickFunction: (event: any) => {
-        queueEdge(event.target, event.position, "wired");
-      },
-      hasTrailingDivider: true,
-      disabled: !isCanWriteOnProject,
-    }
+  ngOnDestroy(): void {
+     this.selectSelectedLogicalNodes$.unsubscribe();
+     this.selectSelectedPhysicalNodes$.unsubscribe();
+  }
 
-    const connectInterfaceToPortGroup = {
-      id: "connect_interface_port_group",
+  getNodeInterfaceMenu(queueEdge: Function, cy: any, isCanWriteOnProject: boolean, mapCategory: any) {
+    const connectInterface = {
+      id: "connect_interface",
       content: "Connect",
       hasTrailingDivider: true,
       disabled: !isCanWriteOnProject,
       onClickFunction: (event: any) => {
-        const nodeId = activeNodes[0].data('node_id');
-        const dialogData = {
-          mode: 'connect',
-          nodeId: nodeId,
-          queueEdge: queueEdge,
-          event: event,
-          cy
+        const nodeData = mapCategory === 'logical' ? this.selectedLogicalNodes : this.selectedPhysicalNodes
+        const nodeId = nodeData[0].id;
+        if (mapCategory == 'logical') {
+          this.interfaceService.getByNodeAndNotConnectToPG(nodeId).subscribe(response => {
+            this.store.dispatch(retrievedInterfacesNotConnectPG({ interfacesNotConnectPG: response.result }));
+            this.store.dispatch(retrievedIsInterfaceConnectPG({ isInterfaceConnectPG: true }))
+            queueEdge(event.target, event.position, "wired");
+          })
+        } else {
+          this.interfaceService.getByNodeAndNotConnected(nodeId).subscribe(response => {
+            this.store.dispatch(retrievedInterfacesBySourceNode({ interfacesBySourceNode: response.result }));
+            this.store.dispatch(retrievedInterfacePkConnectNode({ interfacePkConnectNode: true }))
+            queueEdge(event.target, event.position, "wired");
+          })
         }
-        this.interfaceService.getByNodeAndNotConnectToPG(nodeId).subscribe(response => {
-          this.store.dispatch(retrievedInterfacesNotConnectPG({ interfacesNotConnectPG: response.result }));
-          this.dialog.open(ConnectInterfaceToPgDialogComponent, { disableClose: true, width: '450px', data: dialogData, autoFocus: false })
-        })
       }
     }
 
@@ -58,7 +81,8 @@ export class CMInterfaceService {
       hasTrailingDivider: true,
       disabled: !isCanWriteOnProject,
       onClickFunction: (event: any) => {
-        const nodeId = activeNodes[0].data('node_id');
+        const nodeData = mapCategory === 'logical' ? this.selectedLogicalNodes : this.selectedPhysicalNodes
+        const nodeId = nodeData[0].id;
         const dialogData = {
           mode: 'disconnect',
           nodeId: nodeId,
@@ -67,7 +91,7 @@ export class CMInterfaceService {
           cy
         }
         this.interfaceService.getByNodeAndConnectedToPG(nodeId).subscribe(response => {
-          this.store.dispatch(retrievedInterfacesNotConnectPG({ interfacesNotConnectPG: response.result }));
+          this.store.dispatch(retrievedInterfacesConnectedPG({interfacesConnectedPG: response.result}))
           this.dialog.open(ConnectInterfaceToPgDialogComponent, { disableClose: true, width: '450px', data: dialogData, autoFocus: false })
         })
       }
@@ -80,30 +104,8 @@ export class CMInterfaceService {
       hasTrailingDivider: false,
       disabled: false,
       submenu: [
-        addInterface,
-        connectInterfaceToPortGroup,
-        disconnectInterfacePortGroup
-      ]
-    }
-  }
-
-  getPortGroupInterfaceMenu(queueEdge: Function) {
-    return {
-      id: "pg_interface",
-      content: "Interface",
-      selector: "node[elem_category='port_group']",
-      hasTrailingDivider: false,
-      submenu: [
-        {
-          id: "add_interface",
-          content: "New",
-          selector: "node[label!='group_box']",
-          onClickFunction: (event: any) => {
-            queueEdge(event.target, event.position, "wired");
-          },
-          hasTrailingDivider: true,
-          disabled: false,
-        },
+        connectInterface,
+        disconnectInterfacePortGroup,
       ]
     }
   }

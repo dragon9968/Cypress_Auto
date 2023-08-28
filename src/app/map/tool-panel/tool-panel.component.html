@@ -26,26 +26,23 @@
   <mat-tab-group>
     <mat-tab label="Edit">
       <app-tool-panel-edit [cy]="cy" [isDisableAddNode]="isDisableAddNode" [isDisableAddPG]="isDisableAddPG"
-        [isDisableAddImage]="isDisableAddImage" [activeNodes]="activeNodes" [activePGs]="activePGs"
-        [activeEdges]="activeEdges" [activeGBs]="activeGBs" [activeMBs]="activeMBs" [deletedNodes]="deletedNodes"
-        [deletedInterfaces]="deletedInterfaces" [config]="config" [isDisableAddProjectTemplate]="isDisableAddProjectTemplate"
+        [isDisableAddImage]="isDisableAddImage" [config]="config" [isDisableAddProjectTemplate]="isDisableAddProjectTemplate"
         [isDisableLinkProject]="isDisableLinkProject" [isDisableNewFromSelected]="isDisableNewFromSelected"
         [isTemplateCategory]="isTemplateCategory" [isAddNode]="isAddNode" [isAddPublicPG]="isAddPublicPG"
         [isAddPrivatePG]="isAddPrivatePG" [isAddMapImage]="isAddMapImage" [isAddProjectNode]="isAddProjectNode"
-        [isAddProjectTemplate]="isAddProjectTemplate"
+        [isAddProjectTemplate]="isAddProjectTemplate" [mapCategory]="mapCategory"
       >
       </app-tool-panel-edit>
     </mat-tab>
     <mat-tab label="Style" data-cy="tool-panel-style">
-      <app-tool-panel-style [cy]="cy" [ur]="ur" [config]="config" [activeNodes]="activeNodes" [activePGs]="activePGs"
-        [activeEdges]="activeEdges" [activeGBs]="activeGBs" [activeMBs]="activeMBs" [activeMapLinks]="activeMapLinks">
+      <app-tool-panel-style [cy]="cy" [ur]="ur" [config]="config" [mapCategory]="mapCategory">
       </app-tool-panel-style>
     </mat-tab>
     <mat-tab label="Option">
       <app-tool-panel-option [cy]="cy" [config]="config"></app-tool-panel-option>
     </mat-tab>
     <mat-tab *ngIf="!isTemplateCategory" label="Remote">
-      <app-tool-panel-remote [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs"></app-tool-panel-remote>
+      <app-tool-panel-remote [cy]="cy"></app-tool-panel-remote>
     </mat-tab>
   </mat-tab-group>
 </section>

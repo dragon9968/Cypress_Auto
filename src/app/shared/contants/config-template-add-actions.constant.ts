@@ -22,5 +22,9 @@ export const CONFIG_TEMPLATE_ADDS_TYPE = [
   {
     id: 'add_bgp',
     name: 'Add BGP'
+  },
+  {
+    id: 'add_dhcp',
+    name: 'Add DHCP'
   }
 ]

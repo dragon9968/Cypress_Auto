@@ -13,9 +13,11 @@ export enum ReducerKeys {
     MAP_EDIT = 'mapEdit',
     MAP_STYLE = 'mapStyle',
     MAP_OPTION = 'mapOption',
+    MAP_CATEGORY = 'mapCategory',
     PORTGROUP = 'portgroup',
     MAP_CM = 'mapContextMenu',
     NODE = 'node',
+    MAP_LINK = 'MAP_LINK',
     DOMAIN_USER = 'domainUser',
     DOMAIN_USER_CHANGE = 'domainUserChange',
     GROUP = 'group',
@@ -30,6 +32,10 @@ export enum ReducerKeys {
     USER_PROFILE = 'userProfile',
     USER_GUIDE = 'userGuide',
     LOOKUP_FEATURES = 'lookupFeatures',
+    LOOKUP_OS_FIRMWARE = 'lookupOSFirmware',
     LOOKUP_NAMES = 'lookupNames',
     NETMASKS = 'netmasks',
+    HISTORIES = 'histories',
+    FILTER_OPTION = 'filterOption',
+    APP = 'app'
 }

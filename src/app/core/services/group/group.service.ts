@@ -17,15 +17,15 @@ export class GroupService {
     return this.http.get<any>(ApiPaths.GROUP);
   }
 
-  getGroupByProjectId(projectId: string): Observable<any> {
+  getGroupByProjectId(projectId: number): Observable<any> {
     return this.http.get<any>(ApiPaths.GROUP, {
       params: {
-        q: '(columns:!(id,name,project,project_id,description,domain,domain_id,category,nodes,map_images,port_groups),filters:!((col:project_id,opr:eq,value:' + projectId + ')),keys:!(list_columns),page:0,page_size:1000)'
+        q: '(filters:!((col:project_id,opr:eq,value:' + projectId + ')),keys:!(list_columns),page:0,page_size:1000)'
       }
     });
   }
 
-  get(groupId: string): Observable<any> {
+  get(groupId: number): Observable<any> {
     return this.http.get<any>(ApiPaths.GROUP + groupId);
   }
 
@@ -33,12 +33,12 @@ export class GroupService {
     return this.http.post<any>(ApiPaths.GROUP + 'add', data);
   }
 
-  put(groupId: string, data: any): Observable<any> {
+  put(groupId: number, data: any): Observable<any> {
     const params = new HttpParams().set('group_id', groupId);
     return this.http.put<any>(ApiPaths.UPDATE_GROUP, data, { params });
   }
 
-  delete(groupId: string): Observable<any> {
+  delete(groupId: number): Observable<any> {
     return this.http.delete<any>(ApiPaths.GROUP + groupId);
   }
 }

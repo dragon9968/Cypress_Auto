@@ -15,7 +15,7 @@ import { LoginProfileService } from 'src/app/core/services/login-profile/login-p
 import { retrievedLoginProfiles } from 'src/app/store/login-profile/login-profile.actions';
 import { Store } from '@ngrx/store';
 import { RolesService } from 'src/app/core/services/roles/roles.service';
-import { retrievedRole } from 'src/app/store/user/user.actions';
+import { retrievedRoles } from 'src/app/store/user/user.actions';
 import { ImageService } from 'src/app/core/services/image/image.service';
 import { retrievedImages } from 'src/app/store/map-image/map-image.actions';
 import { retrievedIcons } from 'src/app/store/icon/icon.actions';
@@ -61,17 +61,16 @@ export class ImportDialogComponent implements OnInit {
     if (this.importForm.valid) {
       const formData = new FormData();
       formData.append('file', this.selectedFile);
+      if (this.pageName === PageName.DEVICE_TEMPLATE) {
+        formData.append('device_id', this.data.deviceId);
+      }
       this._getServiceByPageName(this.data.pageName)?.import(formData).pipe(
         catchError((error) => {
           this.toastr.error(`${this.title} failed!`, 'Error')
           return throwError(() => error)
         })
       ).subscribe((response: any) => {
-        if (response.result) {
-          this._updateDataInStore(this.pageName, response.result)
-        }
-        this.toastr.success(`${this.title} successfully`, 'Success')
-        this.dialogRef.close()
+        this._handleImportResponse(this.pageName, response)
       })
     }
   }
@@ -138,38 +137,83 @@ export class ImportDialogComponent implements OnInit {
         return
     }
   }
-  private _updateDataInStore(pageName: string, newItem: any) {
+  private _handleImportResponse(pageName: string, response: any) {
     switch (pageName) {
       case PageName.CONNECTION_PROFILE:
-        this.serverConnectionService.updateConnectionStore(newItem)
+        this.serverConnectionService.updateConnectionStore(response.result)
+        this.toastr.success(`${this.title} successfully`, 'Success')
+        this.dialogRef.close()
         break;
       case PageName.CONFIGURATION_TEMPLATE:
-        this.configTemplateService.updateConfigTemplate(newItem)
+        this.configTemplateService.updateConfigTemplateStore(response.result)
+        this.toastr.success(`${this.title} successfully`, 'Success')
+        this.dialogRef.close()
         break;
       case PageName.DEVICE:
-        this.toastr.success(`${this.title}`, 'Success');
+        const newDevices = response.result
+        if (newDevices.length > 0) {
+          this.deviceService.updateDeviceStore(newDevices)
+        }
+        this._showToastrMessages(response.messages)
+        this.dialogRef.close()
         break;
       case PageName.DEVICE_TEMPLATE:
-        this.toastr.success(`${this.title}`, 'Success');
+        let newTemplates = response.result
+        newTemplates.forEach((el: any) => {el.icon = el.icon[0]})
+        if (newTemplates.length > 0) {
+          this.templateService.updateTemplateStore(newTemplates)
+        }
+        this._showToastrMessages(response.messages)
+        this.dialogRef.close()
         break;
       case PageName.HARDWARE:
-        this.toastr.success(`${this.title}`, 'Success');
+        const newHardware = response.result
+        if (newHardware.length > 0) {
+          this.hardwareService.updateHardwareStore(newHardware)
+        }
+        this._showToastrMessages(response.messages)
+        this.dialogRef.close()
         break;
       case PageName.LOGIN_PROFILES:
-        this._getServiceByPageName(this.data.pageName)?.getAll().subscribe((data: any) => this.store.dispatch(retrievedLoginProfiles({ data: data.result })));
+        this._getServiceByPageName(this.data.pageName)?.getAll().subscribe((response: any) =>
+          this.store.dispatch(retrievedLoginProfiles({ data: response.result }))
+        );
+        this.toastr.success(`${this.title} successfully`, 'Success')
+        this.dialogRef.close()
         break;
       case PageName.ROLES:
-        this._getServiceByPageName(this.data.pageName)?.getAll().subscribe((data: any) => this.store.dispatch(retrievedRole({ role: data.result })));
+        this._getServiceByPageName(this.data.pageName)?.getAll().subscribe((response: any) =>
+          this.store.dispatch(retrievedRoles({ roles: response.result }))
+        );
+        this.toastr.success(`${this.title} successfully`, 'Success')
+        this.dialogRef.close()
         break;
       case PageName.IMAGES:
-        this.imageService.getByCategory('image').subscribe((data: any) => this.store.dispatch(retrievedImages({data: data.result})))
+        this.imageService.getByCategory('image').subscribe((response: any) =>
+          this.store.dispatch(retrievedImages({data: response.result}))
+        )
+        this.toastr.success(`${this.title} successfully`, 'Success')
+        this.dialogRef.close()
         break;
       case PageName.ICON:
-        this.imageService.getByCategory('icon').subscribe((data: any) => this.store.dispatch(retrievedIcons({data: data.result})))
+        this.imageService.getByCategory('icon').subscribe((response: any) =>
+          this.store.dispatch(retrievedIcons({data: response.result}))
+        )
+        this.toastr.success(`${this.title} successfully`, 'Success')
+        this.dialogRef.close()
         break;
       default:
         this.toastr.warning('Page name is not match', 'Warning');
     }
   }
 
+  private _showToastrMessages(messages: string[]) {
+    messages.map((message: string) => {
+      if (message.includes('successfully')) {
+        this.toastr.success(message, 'Success')
+      } else {
+        this.toastr.warning(message, 'Waring')
+      }
+    })
+  }
 }

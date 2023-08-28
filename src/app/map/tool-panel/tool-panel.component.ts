@@ -12,16 +12,25 @@ import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
 import { CommonService } from 'src/app/map/context-menu/cm-common-service/common.service';
 import { retrievedMapContextMenu } from 'src/app/store/map-context-menu/map-context-menu.actions';
-import { retrievedMap } from 'src/app/store/map/map.actions';
-import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
-import { GroupService } from "../../core/services/group/group.service";
+import { loadMap } from 'src/app/store/map/map.actions';
 import { selectGroups } from "../../store/group/group.selectors";
-import { selectNodesByProjectId } from "../../store/node/node.selectors";
-import { retrievedGroups } from "../../store/group/group.actions";
-import { selectPortGroups } from "../../store/portgroup/portgroup.selectors";
-import { ProjectService } from "../../project/services/project.service";
-import { selectMapImages } from 'src/app/store/map-image/map-image.selectors';
+import { selectDeletedPortGroups, selectMapPortGroups } from "../../store/portgroup/portgroup.selectors";
+import { selectDeletedMapImages, selectMapImages } from 'src/app/store/map-image/map-image.selectors';
 import { retrievedMapOption } from "../../store/map-option/map-option.actions";
+import { selectDeletedLogicalNodes, selectDeletedPhysicalNodes, selectLogicalNodes } from 'src/app/store/node/node.selectors';
+import { selectDeletedLogicalInterfaces, selectDeletedPhysicalInterfaces } from 'src/app/store/interface/interface.selectors';
+import { selectDeletedMapLinks } from "../../store/map-link/map-link.selectors";
+import { loadProjectsNotLinkYet } from "../../store/project/project.actions";
+import { loadGroups } from "../../store/group/group.actions";
+import { loadNodes, updateNode } from "../../store/node/node.actions";
+import { loadPGs, updatePG } from "../../store/portgroup/portgroup.actions";
+import { LocalStorageKeys } from "../../core/storage/local-storage/local-storage-keys.enum";
+import { selectIsHypervisorConnect } from "../../store/server-connect/server-connect.selectors";
+import { RemoteCategories } from "../../core/enums/remote-categories.enum";
+import { ServerConnectService } from "../../core/services/server-connect/server-connect.service";
+import { loadUserTasks } from "../../store/user-task/user-task.actions";
+import { loadInterfaces } from "../../store/interface/interface.actions";
+import { loadMapImages } from "../../store/map-image/map-image.actions";
 
 @Component({
   selector: 'app-tool-panel',
@@ -42,14 +51,6 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   @Input() isDisableAddProjectTemplate = true;
   @Input() isDisableNewFromSelected = true;
   @Input() isTemplateCategory = false;
-  @Input() activeNodes: any[] = [];
-  @Input() activePGs: any[] = [];
-  @Input() activeEdges: any[] = [];
-  @Input() activeGBs: any[] = [];
-  @Input() activeMBs: any[] = [];
-  @Input() activeMapLinks: any[] = [];
-  @Input() deletedNodes: any[] = [];
-  @Input() deletedInterfaces: any[] = [];
   @Input() saveMapSubject!: Observable<any>;
   @Input() isAddNode = false;
   @Input() isAddPublicPG = false;
@@ -57,8 +58,17 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   @Input() isAddMapImage = false;
   @Input() isAddProjectNode = false;
   @Input() isAddProjectTemplate = false;
+  deletedLogicalNodes: any[] = [];
+  deletedPhysicalNodes: any[] = [];
+  deletedPortGroups: any[] = [];
+  deletedLogicalInterfaces: any[] = [];
+  deletedPhysicalInterfaces: any[] = [];
+  deletedMapLinks: any[] = [];
+  deletedMapImages: any[] = [];
   updatedNodes: any[] = [];
+  updatedPGs: any[] = [];
   updatedInterfaces: any[] = [];
+  updatedMapLinks: any[] = [];
   updatedGroupBoxes: any[] = [];
   updatedMapBackgrounds: any[] = [];
   updatedNodeAndPGInGroups: any[] = [];
@@ -74,8 +84,21 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   selectNodes$ = new Subscription();
   selectMapImages$ = new Subscription();
   saveMap$ = new Subscription();
-  selectPortGroup$ = new Subscription();
+  selectMapPortGroups$ = new Subscription();
+  selectDeletedLogicalNodes$ = new Subscription();
+  selectDeletedPhysicalNodes$ = new Subscription();
+  selectDeletedPortGroups$ = new Subscription();
+  selectDeletedLogicalInterfaces$ = new Subscription();
+  selectDeletedPhysicalInterfaces$ = new Subscription();
+  selectDeletedMapLinks$ = new Subscription();
+  selectDeletedMapImages$ = new Subscription();
+  selectIsHypervisorConnect$ = new Subscription();
   isEdgeDirectionChecked!: boolean;
+  isPGNameLabelChecked = false;
+  isPGSubnetLabelChecked = false;
+  isPGVLANLabelChecked = false;
+  isEdgeIPLabelChecked = false;
+  isEdgeVLANModeLabelChecked = false;
   isGroupBoxesChecked!: boolean;
   isMapGridChecked!: boolean;
   isSnapToGridChecked!: boolean;
@@ -84,16 +107,16 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
   groupCategoryId!: string;
   selectedMapPrefId!: string;
   defaultPreferences: any;
+  hypervisorId = 0;
 
   constructor(
     private store: Store,
     private toastr: ToastrService,
     private mapService: MapService,
     private dialog: MatDialog,
-    private groupService: GroupService,
-    private projectService: ProjectService,
     private helpersService: HelpersService,
-    private commonService: CommonService
+    private commonService: CommonService,
+    private serverConnectionService: ServerConnectService
   ) {
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
@@ -104,6 +127,11 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         this.isMapOverviewChecked = mapOption.isMapOverviewChecked;
         this.gridSpacingSize = mapOption.gridSpacingSize;
         this.groupCategoryId = mapOption.groupCategoryId;
+        this.isPGNameLabelChecked = mapOption.isPGNameLabelChecked;
+        this.isPGSubnetLabelChecked = mapOption.isPGSubnetLabelChecked;
+        this.isPGVLANLabelChecked = mapOption.isPGVLANLabelChecked;
+        this.isEdgeIPLabelChecked = mapOption.isEdgeIPLabelChecked;
+        this.isEdgeVLANModeLabelChecked = mapOption.isEdgeVLANModeLabelChecked;
       }
     });
     this.selectMapPref$ = this.store.select(selectMapPref).subscribe((selectedMapPref: any) => {
@@ -125,9 +153,50 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       }
     });
     this.selectGroups$ = this.store.select(selectGroups).subscribe(groups => this.groups = groups);
-    this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes);
-    this.selectPortGroup$ = this.store.select(selectPortGroups).subscribe(portGroups => this.portGroups = portGroups);
+    this.selectNodes$ = this.store.select(selectLogicalNodes).subscribe(nodes => this.nodes = nodes);
+    this.selectDeletedLogicalNodes$ = this.store.select(selectDeletedLogicalNodes).subscribe(deletedLogicalNodes => {
+      if (deletedLogicalNodes) {
+        this.deletedLogicalNodes = deletedLogicalNodes;
+      }
+    });
+    this.selectDeletedPhysicalNodes$ = this.store.select(selectDeletedPhysicalNodes).subscribe(deletedPhysicalNodes => {
+      if (deletedPhysicalNodes) {
+        this.deletedPhysicalNodes = deletedPhysicalNodes;
+      }
+    });
+    this.selectDeletedPortGroups$ = this.store.select(selectDeletedPortGroups).subscribe(deletedPortGroups => {
+      if (deletedPortGroups) {
+        this.deletedPortGroups = deletedPortGroups;
+      }
+    });
+    this.selectDeletedLogicalInterfaces$ = this.store.select(selectDeletedLogicalInterfaces).subscribe(deletedLogicalInterfaces => {
+      if (deletedLogicalInterfaces) {
+        this.deletedLogicalInterfaces = deletedLogicalInterfaces;
+      }
+    });
+    this.selectDeletedPhysicalInterfaces$ = this.store.select(selectDeletedPhysicalInterfaces).subscribe(deletedPhysicalInterfaces => {
+      if (deletedPhysicalInterfaces) {
+        this.deletedPhysicalInterfaces = deletedPhysicalInterfaces;
+      }
+    });
+    this.selectDeletedMapLinks$ = this.store.select(selectDeletedMapLinks).subscribe(deletedMapLinks => {
+      if (deletedMapLinks) {
+        this.deletedMapLinks = deletedMapLinks;
+      }
+    });
+    this.selectDeletedMapImages$ = this.store.select(selectDeletedMapImages).subscribe(deletedMapImages => {
+      if (deletedMapImages) {
+        this.deletedMapImages = deletedMapImages;
+      }
+    });
+    this.selectMapPortGroups$ = this.store.select(selectMapPortGroups).subscribe(portGroups => this.portGroups = portGroups);
     this.selectMapImages$ = this.store.select(selectMapImages).subscribe(mapImage => this.mapImages = mapImage);
+    this.selectIsHypervisorConnect$ = this.store.select(selectIsHypervisorConnect).subscribe(isHypervisorConnect => {
+      if (isHypervisorConnect !== undefined) {
+        const connection = this.serverConnectionService.getConnection(RemoteCategories.HYPERVISOR);
+        this.hypervisorId = connection ? connection.id : 0;
+      }
+    })
   }
 
   ngOnInit(): void {
@@ -140,10 +209,17 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     this.selectGroups$.unsubscribe();
     this.selectMapPref$.unsubscribe();
     this.selectMapOption$.unsubscribe();
-    this.selectPortGroup$.unsubscribe();
+    this.selectMapPortGroups$.unsubscribe();
     this.selectMapContextMenu$.unsubscribe();
     this.selectDefaultPreferences$.unsubscribe();
     this.selectMapImages$.unsubscribe();
+    this.selectDeletedLogicalNodes$.unsubscribe();
+    this.selectDeletedLogicalInterfaces$.unsubscribe();
+    this.selectDeletedMapLinks$.unsubscribe();
+    this.selectDeletedMapImages$.unsubscribe();
+    this.selectIsHypervisorConnect$.unsubscribe();
+    this.selectDeletedPhysicalNodes$.unsubscribe();
+    this.selectDeletedPhysicalInterfaces$.unsubscribe();
   }
 
   download() {
@@ -172,10 +248,13 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     });
   }
 
+  isNotChildrenOfMapLink(ele: any) {
+    return Boolean(ele.parent()?.data('elem_category') != 'map_link');
+  }
+
   save() {
     this.cy.elements().forEach((ele: any) => {
-      const isNotChildrenOfLinkProject = Boolean(ele.parent()?.data('elem_category') != 'map_link');
-      if (ele.group() == "nodes" && isNotChildrenOfLinkProject) {
+      if (ele.group() == "nodes" && this.isNotChildrenOfMapLink(ele)) {
         if (ele.data('elem_category') == 'map_link') {
           this.getUpdateMapLinkNode(ele);
         } else {
@@ -202,7 +281,12 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         enabled: this.isMapGridChecked,
         spacing: this.gridSpacingSize,
         snap_to_grid: this.isSnapToGridChecked
-      }
+      },
+      pg_name_label_checkbox: this.isPGNameLabelChecked,
+      pg_subnet_label_checkbox: this.isPGSubnetLabelChecked,
+      pg_vlan_label_checkbox: this.isPGVLANLabelChecked,
+      edge_ip_label_checkbox: this.isEdgeIPLabelChecked,
+      edge_vlan_mode_label_checkbox: this.isEdgeVLANModeLabelChecked,
     }
 
     const text = this.cy.png({
@@ -215,21 +299,27 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     formData.append('file', file, 'map_overview.png');
     this.mapService.uploadMapOverviewImage(formData)
       .pipe(catchError((error: any) => {
-          this.toastr.error("Map Overview saved failed");
-          return throwError(() => error);
-        })
+        this.toastr.error("Map Overview saved failed");
+        return throwError(() => error);
+      })
       ).subscribe((resp: any) => {
-      this.toastr.success("Map Overview saved");
-    });
+        this.toastr.success("Map Overview saved");
+      });
 
     const jsonData = {
+      deletedNodes: this.mapCategory === 'logical' ? this.deletedLogicalNodes : this.deletedPhysicalNodes,
+      deletedPGs: this.deletedPortGroups,
+      deletedInterfaces: this.mapCategory === 'logical' ? this.deletedLogicalInterfaces : this.deletedPhysicalInterfaces,
+      deletedMapLinks: this.deletedMapLinks,
+      deletedMapImages: this.deletedMapImages,
       updatedNodes: this.updatedNodes,
+      updatedPGs: this.updatedPGs,
       updatedInterfaces: this.updatedInterfaces,
-      deletedNodes: this.deletedNodes,
-      deletedInterfaces: this.deletedInterfaces,
+      updatedMapLinks: this.updatedMapLinks,
+      updatedMapBackgrounds: this.updatedMapBackgrounds,
       updatedGroupBoxes: this.updatedGroupBoxes,
       updatedNodeAndPGInGroups: this.updatedNodeAndPGInGroups,
-      updatedMapBackgrounds: this.updatedMapBackgrounds,
+      hypervisor_id: this.hypervisorId,
       updatedMapOptions
     }
     this.mapService.saveMap(this.projectId, this.mapCategory, jsonData).pipe(
@@ -237,33 +327,44 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         this.toastr.error("Map saved failed");
         return throwError(() => error);
       })
-    ).subscribe((_respData: any) => {
-      if (this.deletedNodes.length > 0) {
-        const nodeDeletedIds = this.deletedNodes.map(node => node.elem_category == 'node' && node.id);
-        if (nodeDeletedIds.length > 0) {
-          this.helpersService.removeNodesInStorage(nodeDeletedIds);
-        }
-        const deletedNodesLinkProject = this.deletedNodes.filter(node => node.linked_project_id);
-        if (deletedNodesLinkProject.length > 0) {
-          this.toastr.success('Unlink Project Successfully', 'Success');
-          this.projectService.getProjectByStatusAndCategory('active', 'project').subscribe(
-            (data: any) => {
-              this.helpersService.updateProjectLinksStorage(this.cy, data.result);
-            }
-          );
-        }
-      }
-      this.deletedNodes.splice(0);
-      this.deletedInterfaces.splice(0);
+    ).subscribe((_) => {
       this.cy.elements().forEach((ele: any) => {
         const data = ele.data();
         if (data.updated) {
           data.updated = false;
         }
       });
-      if (this.updatedNodeAndPGInGroups.length > 0) {
-        this.updateNodesAndPGInGroupStorageAndMap();
+      if (this.hypervisorId && (this.deletedLogicalNodes.length > 0 || this.deletedPortGroups.length > 0)) {
+        this.store.dispatch(loadUserTasks());
       }
+      if (this.deletedMapLinks.length > 0) {
+        this.store.dispatch(loadProjectsNotLinkYet({ projectId: this.projectId }));
+      }
+      if (this.updatedNodeAndPGInGroups.length > 0) {
+        this.updateDomainInNodesAndPGs(this.updatedNodeAndPGInGroups)
+        this.store.dispatch(loadGroups({ projectId: this.projectId }));
+      }
+      if (this.deletedLogicalNodes.length > 0) {
+        this.store.dispatch(loadNodes({ projectId: this.projectId }));
+      }
+      if (this.deletedPortGroups.length > 0) {
+        this.store.dispatch(loadPGs({ projectId: this.projectId }));
+      }
+      if (this.deletedLogicalInterfaces.length > 0) {
+        this.store.dispatch(loadInterfaces({ projectId: this.projectId }));
+      }
+      if (this.deletedMapImages.length > 0) {
+        this.store.dispatch(loadMapImages({ projectId: this.projectId, mapCategory: this.mapCategory }));
+      }
+      this.updatedNodes.splice(0);
+      this.updatedPGs.splice(0);
+      this.updatedInterfaces.splice(0);
+      this.updatedMapLinks.splice(0);
+      this.updatedMapBackgrounds.splice(0);
+      this.updatedGroupBoxes.splice(0);
+      this.updatedNodeAndPGInGroups.splice(0);
+      this.cy.elements().map((ele: any) => ele.data('update', false));
+      localStorage.setItem(LocalStorageKeys.MAP_STATE, this.mapCategory);
       this.store.dispatch(retrievedMapOption({
         data: {
           isEdgeDirectionChecked: this.isEdgeDirectionChecked,
@@ -272,13 +373,16 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
           isSnapToGridChecked: this.isSnapToGridChecked,
           isMapOverviewChecked: this.isMapOverviewChecked,
           gridSpacingSize: this.gridSpacingSize,
-          groupCategoryId: this.groupCategoryId
+          groupCategoryId: this.groupCategoryId,
+          isPGNameLabelChecked: this.isPGNameLabelChecked,
+          isPGSubnetLabelChecked: this.isPGSubnetLabelChecked,
+          isPGVLANLabelChecked: this.isPGVLANLabelChecked,
+          isEdgeIPLabelChecked: this.isEdgeIPLabelChecked,
+          isEdgeVLANModeLabelChecked: this.isEdgeVLANModeLabelChecked
         }
       }));
       this.toastr.success("Map saved");
     })
-    this.updatedNodes.splice(0);
-    this.updatedInterfaces.splice(0);
   }
 
   refresh() {
@@ -297,12 +401,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData });
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
-          this.mapService.getMapData(this.mapCategory, this.projectId).subscribe((data: any) => this.store.dispatch(retrievedMap({ data })));
-          this.activeNodes.splice(0);
-          this.activePGs.splice(0);
-          this.activeEdges.splice(0);
-          this.activeGBs.splice(0);
-          this.store.dispatch(retrievedMapSelection({ data: true }));
+          this.store.dispatch(loadMap({ projectId: this.projectId, mapCategory: this.mapCategory }));
         }
       });
     }
@@ -348,7 +447,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       source: data.source,
       subnet: data.subnet,
       target: data.target,
-      id: data.updated ? data.interface_id : null,
+      id: data.updated ? data.interface_pk : null,
       label: "edge",
       map_style: {
         direction: data?.direction,
@@ -359,6 +458,8 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         text_color: ele.style("color"),
         text_bg_color: ele.style("text-background-color"),
         text_bg_opacity: ele.style("text-background-opacity"),
+        text_outline_color: ele.style("text-outline-color"),
+        text_outline_width: ele.style("text-outline-width"),
         text_valign: ele.style("text-valign"),
         text_halign: ele.style("text-halign"),
         'line-style': ele.style("line-style"),
@@ -384,6 +485,8 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       border_width: ele.style('border-width'),
       text_size: ele.style("font-size"),
       text_color: ele.style("color"),
+      text_outline_color: ele.style("text-outline-color"),
+      text_outline_width: ele.style("text-outline-width"),
       zIndex: data.zIndex,
       locked: ele.locked()
     };
@@ -418,7 +521,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
 
   getUpdateMapLinkNode(ele: any) {
     const data = ele.data();
-    const {collapsedChildren, ...dataParent} = data;
+    const { collapsedChildren, ...dataParent } = data;
     const updatedNode = {
       id: data.id,
       position: ele.position(),
@@ -428,6 +531,8 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         width: ele.style("width"),
         text_size: ele.style("font-size"),
         text_color: ele.style("color"),
+        text_outline_color: ele.style("text-outline-color"),
+        text_outline_width: ele.style("text-outline-width"),
         text_bg_color: ele.style("text-background-color"),
         text_bg_opacity: ele.style("text-background-opacity"),
         text_valign: ele.style("text-valign"),
@@ -444,9 +549,8 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         locked: ele.locked()
       }
     };
-    this.updatedNodes.push(updatedNode);
+    this.updatedMapLinks.push(updatedNode);
   }
-
 
   getUpdatedNodeOrPG(ele: any, position: any) {
     const data = ele.data();
@@ -459,6 +563,8 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         width: ele.style("width"),
         text_size: ele.style("font-size"),
         text_color: ele.style("color"),
+        text_outline_color: ele.style("text-outline-color"),
+        text_outline_width: ele.style("text-outline-width"),
         text_bg_color: ele.style("text-background-color"),
         text_bg_opacity: ele.style("text-background-opacity"),
         text_valign: ele.style("text-valign"),
@@ -476,8 +582,10 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       }
     };
     if (data.updated) {
-      if (data.id?.includes('node-') || data.id?.includes('pg-')) {
+      if (data.elem_category == 'node' || data.id?.includes('node-')) {
         this.updatedNodes.push(updatedNode);
+      } else if (data.elem_category == 'port_group') {
+        this.updatedPGs.push(updatedNode);
       }
     }
   }
@@ -498,6 +606,8 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
         text_bg_opacity: ele.style("text-background-opacity"),
         text_valign: ele.style("text-valign"),
         text_halign: ele.style("text-halign"),
+        text_outline_color: ele.style("text-outline-color"),
+        text_outline_width: ele.style("text-outline-width"),
         label: "map_background",
         elem_category: "bg_image",
         scale_image: ele.data("scale_image"),
@@ -528,8 +638,7 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
       const mapImageIdsInGroupElement = groupElement.children('[elem_category="bg_image"]').map((image: any) => image.data('map_image_id'));
       const isMapImageIdsInGroupChange = JSON.stringify(mapImageIdsInGroup.sort()) !== JSON.stringify(mapImageIdsInGroupElement.sort())
 
-
-      if ((isNodesInGroupChange || isPortGroupsInGroupChange || isMapImageIdsInGroupChange) && this.isGroupBoxesChecked) {
+      if (this.isGroupBoxesChecked && (isNodesInGroupChange || isPortGroupsInGroupChange || isMapImageIdsInGroupChange)) {
         let item: any = {
           group_id: group.id,
           domain_id: group.domain_id,
@@ -555,154 +664,27 @@ export class ToolPanelComponent implements OnInit, OnDestroy {
     })
   }
 
-  updateNodesAndPGInGroupStorageAndMap() {
-    let newGroups = JSON.parse(JSON.stringify(this.groups));
-    let nodeInGB: any[] = [];
-    let portGroupsInGB: any[] = [];
-    let mapImagesInGB: any[] = [];
-    this.cy.nodes().forEach((el: any) => {
-      if (el.data('label') == 'group_box') {
-        nodeInGB.push(el.children('[elem_category="node"]').map((node: any) => node.data('node_id')))
-        portGroupsInGB.push(el.children('[elem_category="port_group"]').map((pg: any) => pg.data('pg_id')))
-        mapImagesInGB.push(el.children('[elem_category="bg_image"]').map((image: any) => image.data('map_image_id')))
-      }
-    })
-    this.updatedNodeAndPGInGroups.map(group => {
-      const indexGroup = newGroups.findIndex((ele: any) => ele.id === group.group_id);
-      let newGroup = newGroups[indexGroup];
-      let newNodes: any[] = [];
-      let newPortGroups: any[] = [];
-      let newMapImages: any[] = [];
-      const nodesInGroup = group.nodes;
-      const portGroupInGroup = group.port_groups;
-      const mapImagesInGroup = group.map_images;
-      if (nodesInGroup) {
-        if (nodesInGroup.length > 0) {
+  updateDomainInNodesAndPGs(updatedNodeAndPGInGroups: any[]) {
+    updatedNodeAndPGInGroups.map(group => {
+        const nodesInGroup = group.nodes;
+        const portGroupInGroup = group.port_groups;
+        if (nodesInGroup && nodesInGroup.length > 0) {
           nodesInGroup.map((nodeId: any) => {
-            // Update domain data for the nodes
-            const nodeEle = this.cy.getElementById(`node-${nodeId}`);
-            nodeEle.data('domain_id', group.domain_id);
-            nodeEle.data('domain', group.domain);
-            // Update the list of nodes in the group's storage
-            const node = this.nodes.find(node => node.id === nodeId)
-            newNodes.push({id: nodeId, name: node.name})
+            this.store.dispatch(updateNode({
+              id: nodeId,
+              data: { domain_id: group.domain_id, is_add_log: false }
+            }));
           });
-          newGroup.nodes = newNodes;
-          this._updateGroupsPropertyOfNodeOnMap(nodesInGroup, newGroup, 'node')
-        } else {
-          this._removeGroupsPropertyOfNodeOnMap([], newGroup.id, 'node')
-          this._updateGroupsElements(nodeInGB, newGroup, newNodes, this.nodes, 'node')
         }
-      }
-      if (portGroupInGroup) {
-        if (portGroupInGroup.length > 0) {
+        if (portGroupInGroup && portGroupInGroup.length > 0) {
           portGroupInGroup.map((pgId: number) => {
-            const pgEle = this.cy.getElementById(`pg-${pgId}`);
-            pgEle.data('domain_id', group.domain_id);
-            pgEle.data('domain', group.domain);
-            const pg = this.portGroups.find(pg => pg.id === pgId);
-            newPortGroups.push({id: pgId, name: pg.name});
+            this.store.dispatch(updatePG({
+              id: pgId,
+              data: { domain_id: group.domain_id, is_add_log: false }
+            }));
           })
-          newGroup.port_groups = newPortGroups;
-          this._updateGroupsPropertyOfNodeOnMap(portGroupInGroup, newGroup, 'pg')
-        } else {
-          this._removeGroupsPropertyOfNodeOnMap([], newGroup.id, 'pg')
-          this._updateGroupsElements(portGroupsInGB, newGroup, newPortGroups, this.portGroups, 'pg')
         }
       }
-      if (mapImagesInGroup) {
-        if (mapImagesInGroup.length > 0) {
-          mapImagesInGroup.map((mapImageId: number) => {
-            // const mapImageEle = this.cy.getElementById(`map_image-${mapImageId}`);
-            const mapImage = this.mapImages.find(el => el.id === mapImageId);
-            newMapImages.push({id: mapImageId, name: mapImage.name});
-          })
-          newGroup.map_images = newMapImages;
-          this._updateGroupsPropertyOfNodeOnMap(mapImagesInGroup, newGroup, 'map_image')
-        } else {
-          this._removeGroupsPropertyOfNodeOnMap([], newGroup.id, 'map_image')
-          this._updateGroupsElements(mapImagesInGB, newGroup, newMapImages, this.mapImages, 'map_image')
-        }
-      }
-      newGroups.splice(indexGroup, 1, newGroup);
-    })
-    this.updatedNodeAndPGInGroups.splice(0);
-    this.store.dispatch(retrievedGroups({ data: newGroups }));
-    this.store.dispatch(retrievedMapSelection({ data: true }));
-  }
-
-  private _updateGroupsPropertyOfNodeOnMap(itemsIds: any[], group: any, typeOfElement: string) {
-    // Add new group into element's groups property
-    itemsIds.map((itemId: any) => {
-      const element = this.cy.getElementById(`${typeOfElement}-${itemId}`);
-      const currentGroups = element.data('groups')
-      const isGroupExistInNodeGroup = currentGroups.some((g: any) => g.id === group.id)
-      if (!isGroupExistInNodeGroup) {
-        const newGroupItem = {
-          category: group.category,
-          id: group.id,
-          name: group.name
-        }
-        currentGroups.push(newGroupItem)
-        element.data('groups', currentGroups)
-      }
-    });
-    this._removeGroupsPropertyOfNodeOnMap(itemsIds, group.id, typeOfElement)
-  }
-
-  private _removeGroupsPropertyOfNodeOnMap(itemsIds: any[], groupId: any, typeOfElement: string) {
-    // Remove group is not belong to nodes in element's groups property
-    const elemCategory = typeOfElement == 'node' ? 'node' : typeOfElement == 'pg' ? 'port_group' : 'bg_image';
-    const elementsOnMapBelongToGroup = this.cy.nodes().filter(
-      (ele: any) => ele.data('elem_category') == elemCategory && ele.data('groups')
-        && ele.data('groups').some((g: any) => g.id === groupId)
     )
-    elementsOnMapBelongToGroup.map((ele: any) => {
-      if (!itemsIds.includes(ele.data(`${typeOfElement}_id`))) {
-        const groups = ele.data('groups')
-        const groupIndex = groups.findIndex((g: any) => g.id === groupId)
-        groups.splice(groupIndex, 1)
-        ele.data('groups', groups)
-      }
-    })
   }
-
-  private _updateGroupsElements(itemInGB: any[], newGroup: any, newItems: any[], data: any[], typeOfElement: any) {
-    let itemInOldGroup = typeOfElement === 'node' ? newGroup.nodes : typeOfElement === 'pg' ? newGroup.port_groups : newGroup.map_images;
-    if (itemInGB.length > 0) {
-      itemInGB.forEach(value => {
-        if (value.length > 0) {
-          const isExistsItemId = itemInOldGroup.some((item: any) => value.includes(item.id));
-          if (isExistsItemId) {
-            itemInOldGroup = itemInOldGroup.filter((item: any) => !value.includes(item.id));
-            const itemInOldGroupId = itemInOldGroup.map((item: any) => item.id)
-            if (itemInOldGroupId.length > 0) {
-              itemInOldGroupId.map((val: any) => {
-                const element = data.find(el => el.id === val)
-                newItems.push({id: val, name: element.name})
-              })
-              this._assignElementWithType(newGroup, typeOfElement, newItems)
-            } else {
-              this._assignElementWithType(newGroup, typeOfElement, [])
-            }
-          }
-        } else {
-          this._assignElementWithType(newGroup, typeOfElement, [])
-        }
-      })
-    } else {
-      this._assignElementWithType(newGroup, typeOfElement, [])
-    }
-  }
-
-  private _assignElementWithType(newGroup: any, typeOfElement: any, result: any[]) {
-    if (typeOfElement === 'node') {
-      newGroup.nodes = result;
-    } else if (typeOfElement === 'pg') {
-      newGroup.port_groups = result;
-    } else if (typeOfElement === 'map_image') {
-      newGroup.map_images = result;
-    }
-  }
-
 }

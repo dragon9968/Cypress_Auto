@@ -27,9 +27,23 @@
   <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Validate" (click)="validateNode()">
     <mat-icon>check</mat-icon>
   </button>
-  <button class="btn-action-item" mat-button mat-mini-fab color="primary" matTooltip="Clear Table" (click)="clearTable()">
-    <mat-icon>clear</mat-icon>
+  <button class="btn-action-item" [matMenuTriggerFor]="filterMenu" #menuContacts="matMenuTrigger" mat-mini-fab color="primary" matTooltip="Filter Table">
+    <mat-icon>filter_list</mat-icon>
   </button>
+  <mat-menu #filterMenu="matMenu">
+    <form [formGroup]="filterOptionForm">
+      <mat-form-field class="field">
+        <mat-label>Options</mat-label>
+        <mat-select
+          formControlName="filterOptionCtr"
+          (click)="selectOption($event)"
+          (selectionChange)="changeFilterOption(menuContacts, $event)">
+        <mat-option value="all">All</mat-option>
+        <mat-option value="selected">Selected</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </form>
+  </mat-menu>
 </div>
 
 <app-info-panel-table [cy]="cy" [infoPanelheight]="infoPanelheight" [gridOptions]="gridOptions" [tabName]="tabName"></app-info-panel-table>

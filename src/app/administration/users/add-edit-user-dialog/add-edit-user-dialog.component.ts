@@ -13,8 +13,8 @@ import { UserService } from 'src/app/core/services/user/user.service';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { checkPasswords } from 'src/app/shared/validations/confirm-password.validation';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
-import { retrievedUser } from 'src/app/store/user/user.actions';
-import { selectRole, selectUser } from 'src/app/store/user/user.selectors';
+import { retrievedUsers } from 'src/app/store/user/user.actions';
+import { selectRoles, selectUsers } from 'src/app/store/user/user.selectors';
 
 class CrossFieldErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: AbstractControl<any, any> | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -52,11 +52,11 @@ export class AddEditUserDialogComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private helpersService: HelpersService
   ) {
-    this.selectRole$ = this.store.select(selectRole).subscribe(data => {
+    this.selectRole$ = this.store.select(selectRoles).subscribe(data => {
       this.listRole = data;
     });
 
-    this.selectUser$ = this.store.select(selectUser).subscribe((data: any) => {
+    this.selectUser$ = this.store.select(selectUsers).subscribe((data: any) => {
       this.listUser = data
     })
 
@@ -68,8 +68,8 @@ export class AddEditUserDialogComponent implements OnInit, OnDestroy {
       [Validators.required, validateNameExist(() => this.listUser, this.data.mode, this.data.genData.id, "username")]),
       activeCtr: new FormControl({value: '', disabled: this.isViewMode}),
       emailCtr: new FormControl({value: '', disabled: this.isViewMode},
-      [Validators.email, Validators.required, validateNameExist(() => this.listUser, this.data.mode, this.data.genData.id, "email")]),
-      roleCtr: new FormControl({value: '', disabled: this.isViewMode}, [Validators.required]),
+      [Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$'), Validators.required, validateNameExist(() => this.listUser, this.data.mode, this.data.genData.id, "email")]),
+      roleCtr: new FormControl({value: '', disabled: this.isViewMode}),
       passwordCtr: new FormControl({value: '', disabled: this.isViewMode}, [Validators.required]),
       confirmPasswordCtr: new FormControl({value: '', disabled: this.isViewMode}),
       loginCountCtr: new FormControl({value: '', disabled: this.isViewMode})
@@ -109,6 +109,9 @@ export class AddEditUserDialogComponent implements OnInit, OnDestroy {
       this.roleCtr?.setErrors({
         required: this.errorMessages.FIELD_IS_REQUIRED
       });
+    }
+    if (this.data.mode === 'add') {
+      this.roleCtr?.setValidators([Validators.required]);
     }
   }
 
@@ -188,7 +191,7 @@ export class AddEditUserDialogComponent implements OnInit, OnDestroy {
       }
       this.userService.associate(roleData).subscribe(() => {
         this.toastr.success(`Add User successfully`)
-        this.userService.getAll().subscribe((data: any) => this.store.dispatch(retrievedUser({data: data.result})));
+        this.userService.getAll().subscribe((data: any) => this.store.dispatch(retrievedUsers({ users: data.result})));
       });
       this.dialogRef.close();
     });
@@ -203,7 +206,6 @@ export class AddEditUserDialogComponent implements OnInit, OnDestroy {
       active: this.activeCtr?.value,
       email: this.emailCtr?.value,
       password: this.passwordCtr?.value,
-      update_password: ''
     }
     const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.userService.put(this.data.genData.id, jsonData).pipe(
@@ -218,7 +220,7 @@ export class AddEditUserDialogComponent implements OnInit, OnDestroy {
       }
       this.userService.associate(roleData).subscribe(() => {
         this.toastr.success(`Updated User successfully`)
-        this.userService.getAll().subscribe((data: any) => this.store.dispatch(retrievedUser({data: data.result})));
+        this.userService.getAll().subscribe((data: any) => this.store.dispatch(retrievedUsers({ users: data.result})));
       });
       this.dialogRef.close();
     });

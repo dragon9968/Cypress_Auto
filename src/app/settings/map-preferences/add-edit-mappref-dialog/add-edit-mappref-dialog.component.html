@@ -83,7 +83,7 @@
     <div class="tab-field">
       <label class="label">Port Group Size</label>
       <div>
-        <mat-slider class="slider" formControlName="pgSizeCtr" step="1" min="0" max="100" (change)="setPgSize($event)"></mat-slider>
+        <mat-slider class="slider" formControlName="pgSizeCtr" step="1" min="1" max="100" (change)="setPgSize($event)"></mat-slider>
       </div>
       <label>{{ textPGSizeLabel }}px</label>
     </div>
@@ -94,12 +94,12 @@
     </div>
     <div class="tab-field">
       <label class="label">Edge Width</label>
-      <mat-slider class="slider" formControlName="edgeWidthCtr" step="1" min="0" max="100" (change)="setEdgeWidth($event)"></mat-slider>
+      <mat-slider class="slider" formControlName="edgeWidthCtr" step="1" min="1" max="100" (change)="setEdgeWidth($event)"></mat-slider>
       <label>{{ textEdgeWidthLabel }}px</label>
     </div>
     <div class="tab-field">
       <label class="label">Node Size</label>
-      <mat-slider class="slider" formControlName="nodeSizeCtr" step="1" min="0" max="100" (change)="setNodeSize($event)"></mat-slider>
+      <mat-slider class="slider" formControlName="nodeSizeCtr" step="1" min="1" max="100" (change)="setNodeSize($event)"></mat-slider>
       <label>{{ textNodeSizeLabel }}px</label>
     </div>
     <div class="tab-field">
@@ -111,6 +111,16 @@
       <label class="label" for="textColor">Text Color </label>
       <button type="button" mat-mini-fab id="textColor" class="color-picker" [(colorPicker)]="textColor"
         [style.background]="textColor" cpPosition="bottom" (colorPickerChange)="setTextColor($event)"></button>
+    </div>
+    <div class="tab-field text-color">
+      <label class="label" for="textOulineColor">Text Outline Color </label>
+      <button type="button" mat-mini-fab id="textOulineColor" class="color-picker" [(colorPicker)]="textOutlineColor"
+        [style.background]="textOutlineColor" cpPosition="bottom" (colorPickerChange)="setTextOutlineColor($event)"></button>
+    </div>
+    <div class="tab-field">
+      <label class="label">Text Outline Width</label>
+      <mat-slider class="slider" formControlName="textOutlineWidthCtr" step="1" min="0" max="10" (change)="setTextOutlineWidth($event)"></mat-slider>
+      <label>{{ textOutlieWidthLabel }}px</label>
     </div>
     <mat-form-field class="field">
       <mat-label>Text Horizontal Alignment</mat-label>
@@ -177,7 +187,7 @@
     </mat-form-field>
     <div class="tab-field">
       <label class="label">Edge Arrow Size</label>
-      <mat-slider class="slider" formControlName="edgeArrowSizeCtr" step="1" min="0" max="50" (change)="setEdgeArrowSize($event)"></mat-slider>
+      <mat-slider class="slider" formControlName="edgeArrowSizeCtr" step="1" min="1" max="10" (change)="setEdgeArrowSize($event)"></mat-slider>
       <label>{{ textEdgeArrowSizeLabel }}px</label>
     </div>
     <div class="tab-field">

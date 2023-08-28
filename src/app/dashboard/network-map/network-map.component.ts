@@ -6,21 +6,21 @@ import { ToastrService } from "ngx-toastr";
 import { MatIconRegistry } from "@angular/material/icon";
 import { Subscription, throwError } from "rxjs";
 import { Component, OnDestroy, OnInit, Output, EventEmitter, Input } from '@angular/core';
-import { MapState } from "../../store/map/map.state";
 import { environment } from "../../../environments/environment";
 import { RouteSegments } from "../../core/enums/route-segments.enum";
-import { MapService } from "../../core/services/map/map.service";
 import { HelpersService } from "../../core/services/helpers/helpers.service";
 import { ProjectService } from "../../project/services/project.service";
 import { InfoPanelService } from "../../core/services/info-panel/info-panel.service";
 import { ServerConnectService } from "../../core/services/server-connect/server-connect.service";
-import { retrievedMap } from "../../store/map/map.actions";
+import { loadMap } from "../../store/map/map.actions";
 import { selectIsHypervisorConnect } from "../../store/server-connect/server-connect.selectors";
-import { selectMapFeature } from "../../store/map/map.selectors";
 import { retrievedIsHypervisorConnect } from "../../store/server-connect/server-connect.actions";
-import { selectDashboard, selectVMStatus } from "../../store/project/project.selectors";
-import { retrievedDashboard, retrievedIsOpen, retrievedVMStatus } from "../../store/project/project.actions";
+import { selectDashboard, selectDefaultPreferences, selectVMStatus } from "../../store/project/project.selectors";
+import { retrievedDashboard, retrievedVMStatus } from "../../store/project/project.actions";
 import { RemoteCategories } from "../../core/enums/remote-categories.enum";
+import { selectLogicalNodes, selectPhysicalNodes } from "src/app/store/node/node.selectors";
+import { selectLogicalMapInterfaces, selectPhysicalInterfaces } from "src/app/store/interface/interface.selectors";
+import { selectMapPortGroups } from "src/app/store/portgroup/portgroup.selectors";
 
 const expandCollapse = require('cytoscape-expand-collapse');
 const nodeEditing = require('cytoscape-node-editing');
@@ -38,17 +38,27 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
   cy: any;
   eles: any;
   config: any;
-  projectId = '0';
+  projectId = 0;
   category = 'logical';
   vmStatusChecked: any;
-  selectMap$ = new Subscription();
+  selectDefaultPreferences$ = new Subscription();
   selectVMStatus$ = new Subscription();
   selectIsHypervisorConnect$ = new Subscription();
+  selectLogicalNodes$ = new Subscription();
+  selectPhysicalNodes$ = new Subscription();
   selectDashboard$ = new Subscription();
+  selectLogicalMapInterfaces$ = new Subscription();
+  selectPhysicalInterfaces$ = new Subscription();
+  selectMapPortGroups$ = new Subscription();
   isEdgeDirectionChecked = false;
   styleExists: any;
   cleared: any;
   nodes: any[] = [];
+  logicalNodes: any[] = [];
+  physicalNodes: any[] = [];
+  logicalMapInterfaces: any[] = [];
+  physicalInterfaces: any[] = [];
+  portGroups: any[] = [];
   interfaces: any[] = [];
   defaultPreferences: any;
   dashboard: any;
@@ -63,7 +73,6 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
     private store: Store,
     private router: Router,
     private toastr: ToastrService,
-    private mapService: MapService,
     private iconRegistry: MatIconRegistry,
     private helpersService: HelpersService,
     private projectService: ProjectService,
@@ -75,9 +84,7 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
     this.iconRegistry.addSvgIcon('minus', this.helpersService.setIconPath('/assets/icons/dashboard/minus.svg'));
     this.iconRegistry.addSvgIcon('plus', this.helpersService.setIconPath('/assets/icons/dashboard/plus.svg'));
     this.projectId = this.projectService.getProjectId();
-    this.mapService.getMapData(this.category, this.projectId).subscribe(
-      (data: any) => this.store.dispatch(retrievedMap({ data }))
-    );
+    this.store.dispatch(loadMap({ projectId: this.projectId, mapCategory: this.category }));
     const connection = this.serverConnectionService.getConnection(RemoteCategories.HYPERVISOR);
     this.connection = connection ? connection : this.connection;
     this.selectIsHypervisorConnect$ = this.store.select(selectIsHypervisorConnect).subscribe(isHypervisorConnect => {
@@ -100,6 +107,31 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
         this.dashboard = dashboard;
       }
     })
+    this.selectLogicalNodes$ = this.store.select(selectLogicalNodes).subscribe((logicalNodes: any) => {
+      if (logicalNodes) {
+        this.logicalNodes = logicalNodes;
+      }
+    });
+    this.selectPhysicalNodes$ = this.store.select(selectPhysicalNodes).subscribe((physicalNodes: any) => {
+      if (physicalNodes) {
+        this.physicalNodes = physicalNodes;
+      }
+    });
+    this.selectLogicalMapInterfaces$ = this.store.select(selectLogicalMapInterfaces).subscribe(logicalMapInterfaces => {
+      if (logicalMapInterfaces) {
+        this.logicalMapInterfaces = logicalMapInterfaces;
+      }
+    });
+    this.selectPhysicalInterfaces$ = this.store.select(selectPhysicalInterfaces).subscribe(physicalWiredInterfaces => {
+      if (physicalWiredInterfaces) {
+        this.physicalInterfaces = physicalWiredInterfaces;
+      }
+    });
+    this.selectMapPortGroups$ = this.store.select(selectMapPortGroups).subscribe((portGroups: any) => {
+      if (portGroups) {
+        this.portGroups = portGroups;
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -112,18 +144,16 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
       this.store.dispatch(retrievedIsHypervisorConnect({ data: true }));
     }
     if (this.dashboard?.map) {
-      this.selectMap$ = this.store.select(selectMapFeature).subscribe((map: MapState) => {
-        if (map.defaultPreferences) {
-          this.nodes = map.nodes;
-          this.interfaces = map.interfaces;
-          this.defaultPreferences = map.defaultPreferences;
-          this.isEdgeDirectionChecked = map.defaultPreferences.edge_direction_checkbox != undefined
-            ? map.defaultPreferences.edge_direction_checkbox : this.isEdgeDirectionChecked;
+      this.selectDefaultPreferences$ = this.store.select(selectDefaultPreferences).subscribe(defaultPreferences => {
+        if (defaultPreferences) {
+          this.defaultPreferences = defaultPreferences;
+          this.isEdgeDirectionChecked = defaultPreferences.edge_direction_checkbox != undefined
+            ? defaultPreferences.edge_direction_checkbox : this.isEdgeDirectionChecked;
           this._initCytoscapeNetworkMap();
           if (this.connection && this.connection.id !== 0 && this.vmStatusChecked) {
             this.infoPanelService.changeVMStatusOnMap(+this.projectId, this.connection.id);
           }
-          this.helpersService.initCollapseExpandMapLink(this.cy)
+          this.helpersService.initCollapseExpandMapLink()
           this.helpersService.changeEdgeDirectionOnMap(this.cy, this.isEdgeDirectionChecked)
         }
       });
@@ -131,10 +161,15 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.selectMap$.unsubscribe();
+    this.selectDefaultPreferences$.unsubscribe();
     this.selectVMStatus$.unsubscribe();
     this.selectIsHypervisorConnect$.unsubscribe();
     this.selectDashboard$.unsubscribe();
+    this.selectLogicalNodes$.unsubscribe();
+    this.selectPhysicalNodes$.unsubscribe();
+    this.selectMapPortGroups$.unsubscribe();
+    this.selectPhysicalInterfaces$.unsubscribe();
+    this.selectLogicalMapInterfaces$.unsubscribe();
   }
 
   private _initCytoscapeNetworkMap() {
@@ -152,11 +187,15 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
     }
     this.styleExists = this.config.styleExists;
     this.cleared = this.config.cleared;
-    this.eles = JSON.parse(JSON.stringify(this.nodes.concat(this.interfaces)));
+    const nodeData = this.category === 'logical' ? this.logicalNodes : this.physicalNodes; 
+    const interfacesData = this.category === 'logical' ? this.logicalMapInterfaces : this.physicalInterfaces
+    const interfacesValid = this.category == 'logical' ? interfacesData.filter(i => i.port_group_id) : interfacesData.filter(i => i.data.target)
+    const portGroupsData = this.category === 'logical' ? this.portGroups : []
+    this.eles = JSON.parse(JSON.stringify(nodeData.concat(interfacesValid).concat(portGroupsData)));
     this.eles.forEach((ele: any) => {
       ele.locked = ele.data.locked
       if (ele.data.elem_category == 'node' || ele.data.elem_category == 'map_link') {
-        ele.data.icon = environment.apiBaseUrl + ele.data.icon;
+        ele.data.icon = ele.data.icon;
       } else if (ele.data.elem_category == 'bg_image') {
         ele.data.src = environment.apiBaseUrl + ele.data.image;
       }
@@ -183,6 +222,7 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
       wheelSensitivity: 0.2,
     });
     this.infoPanelService.cy = this.cy;
+    this.helpersService.cy = this.cy;
     this.helpersService.randomPositionForElementsNoPosition(this.cy)
     this.cy.expandCollapse({
       layoutBy: null,
@@ -222,7 +262,6 @@ export class NetworkMapComponent implements OnInit, OnDestroy {
   }
 
   openMap() {
-    this.store.dispatch(retrievedIsOpen({data: true}));
     this.router.navigate([RouteSegments.MAP]);
   }
 

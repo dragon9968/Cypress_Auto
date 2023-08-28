@@ -1,5 +1,5 @@
 <form [formGroup]="importForm" (ngSubmit)="import()" data-cy="importForm">
-  <h1 mat-dialog-title>{{title}}?</h1>
+  <h1 mat-dialog-title>{{title}}</h1>
   <div mat-dialog-content class="import-file">
     <input id="file" formControlName="fileCtr" type="file" name='file' (change)="onFileSelected($event)">
     <mat-error *ngIf="fileCtr?.hasError('isNotFile')">The imported file is invalid</mat-error>

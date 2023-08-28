@@ -10,7 +10,7 @@ describe('CMConnectDialogComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ ConnectInterfaceToPgDialogComponent ]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(ConnectInterfaceToPgDialogComponent);
     component = fixture.componentInstance;

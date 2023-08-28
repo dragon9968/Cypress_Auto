@@ -4,3 +4,4 @@ import { ReducerKeys } from "../reducer-keys.enum";
 
 export const selectGroupFeature = createFeatureSelector<GroupState>(ReducerKeys.GROUP);
 export const selectGroups = createSelector(selectGroupFeature, (state: GroupState) => state.groups);
+export const selectSelectedGroups = createSelector(selectGroupFeature, (state: GroupState) => state.groups?.filter(g => g.isSelected));

@@ -11,7 +11,7 @@ import { retrievedServerConnect } from "../../../store/server-connect/server-con
 @Injectable({
   providedIn: 'root'
 })
-export class ServerConnectService implements OnDestroy{
+export class ServerConnectService implements OnDestroy {
 
   selectServerConnects$ = new Subscription()
   serverConnects: any[] = []
@@ -109,7 +109,14 @@ export class ServerConnectService implements OnDestroy{
 
   updateConnectionStore(newServerConnect: any) {
     const currentState: any[] = JSON.parse(JSON.stringify(this.serverConnects)) || []
-    const newState = currentState.concat(newServerConnect)
+    const newState = currentState.concat(newServerConnect).sort((a: any, b: any) => {
+      if (a.name.toLowerCase() < b.name.toLowerCase()) return -1
+      return a.name.toLowerCase() > b.name.toLowerCase() ? 1 : 0
+    })
     this.store.dispatch(retrievedServerConnect({data: newState }))
+  }
+
+  getConnectionInfo(data: { pk: number }) {
+    return this.http.post<any>(ApiPaths.GET_CONNECTION_INFO, data);
   }
 }

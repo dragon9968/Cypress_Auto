@@ -1,4 +1,6 @@
 export interface PortGroupState {
   portgroups: any[];
-  portGroupsManagement: any[];
+  managementPGs: any[];
+  linkedMapPortGroups: any[] | undefined;
+  isSelectedFlag: boolean;
 }

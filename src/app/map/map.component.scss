@@ -21,6 +21,14 @@
   position: absolute;
   margin: 10px 0 0 15px;
   left: 40px;
+  top: 5px;
+}
+
+.switch-map {
+  z-index: 999;
+  position: absolute;
+  margin: 10px 0 0 80px;
+  left: 40px;
 }
 
 .map-editor {

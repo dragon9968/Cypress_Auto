@@ -1,0 +1,17 @@
+{
+  "name": "peripheral-1",
+  "notes": "E2E - Create new node",
+  "icon_name": "Windows Client",
+  "category": "hw",
+  "device_name": "Peripheral",
+  "template_name": "Generic Copier",
+  "folder": "/e2e-folder",
+  "parent_folder": "E2E - New project 21",
+  "role": "none",
+  "domain_id": 1,
+  "hostname": "peripheral-1",
+  "is_customize_node": true,
+  "logical_map": {
+    "position": {"x": 300, "y": 300}
+  }
+}

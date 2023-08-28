@@ -1,10 +1,8 @@
 export interface MapState {
-  mapItems: any;
-  mapProperties: any;
-  defaultPreferences: any;
   nodes: any;
+  portgroups: any;
   interfaces: any;
-  groupBoxes: any;
+  groups: any;
   icons: any;
   devices: any;
   templates: any;
@@ -13,4 +11,6 @@ export interface MapState {
   configs: any;
   loginProfiles: any;
   isMapOpen: boolean;
+  IsFinishLoadedElements: boolean
+  isLoaded: boolean
 }

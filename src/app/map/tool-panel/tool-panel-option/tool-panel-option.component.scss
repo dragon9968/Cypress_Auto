@@ -23,3 +23,48 @@ $margin: 8px;
     width: 60%;
     margin: auto;
 }
+
+.option-title {
+  margin-bottom: 0;
+}
+
+.option-item {
+  margin: $margin;
+  width: calc($tool-panel-width - $margin*2);
+  display: table;
+
+  &__title {
+    margin: $margin 0 $margin*2;
+    text-align: center;
+  }
+
+  &__field {
+    margin-bottom: $margin;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    border-bottom: 1px solid #ccc;
+
+    &--label {
+      display: flex;
+      justify-content: space-between;
+      margin-right: $margin;
+      width: 70%;
+      text-align: left;
+    }
+  }
+
+  &__field--no-border {
+    border-bottom: none;
+    margin: 0;
+  }
+
+  &__grid-spacing {
+    &--label {
+      margin-right: 4px;
+    }
+    margin-top: 0;
+    border-bottom: 1px solid #ccc;
+  }
+
+}

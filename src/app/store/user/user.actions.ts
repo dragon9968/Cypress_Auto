@@ -1,16 +1,16 @@
 import { createAction, props } from "@ngrx/store";
 
-export const retrievedUser = createAction(
-  'retrievedUser',
-  props<{data: any}>()
+export const retrievedUsers = createAction(
+  'retrievedUsers',
+  props<{ users: any }>()
 )
 
-export const retrievedRole = createAction(
-  'retrievedRole',
-  props<{role: any}>()
+export const retrievedRoles = createAction(
+  'retrievedRoles',
+  props<{ roles: any }>()
 )
 
 export const retrievedPermissions = createAction(
   'retrievedPermissions',
-  props<{permissions: any}>()
+  props<{ permissions: any }>()
 )

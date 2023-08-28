@@ -1,4 +1,4 @@
-describe('Test Images/Icon', () => {
+describe('Test Images/Icon', {testIsolation: true}, () => {
 
   const imagesData = {
     name: 'E2E - Test new Images',
@@ -32,7 +32,7 @@ describe('Test Images/Icon', () => {
     name: 'E2E - Test Images',
     filePath: 'cypress/fixtures/images-icon/images-size-gt-5mb.png'
   }
-  
+
   beforeEach(() => {
     cy.viewport(1920, 1080)
     const setup = () => {
@@ -53,7 +53,7 @@ describe('Test Images/Icon', () => {
 
     //  validaiton maxsize file
     cy.actionImages(validaitonSizeImages, 'add', 'images', true);
-    cy.wait(4000)
+    cy.wait(2000)
   })
 
   it ('Test - add/update images', () => {
@@ -103,7 +103,6 @@ describe('Test Images/Icon', () => {
     // Test import icon
     cy.getByMatToolTip('Import').click( {force: true} );
     cy.actionImages(importIconData, 'import', 'import', false);
-    cy.wait(3000)
-    Cypress.session.clearAllSavedSessions();
+    cy.wait(2000)
   })
 })

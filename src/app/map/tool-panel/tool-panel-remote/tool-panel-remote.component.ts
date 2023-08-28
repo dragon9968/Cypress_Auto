@@ -33,6 +33,10 @@ import { CreateNodeSnapshotDialogComponent } from "../../deployment-dialog/deplo
 import { DeleteNodeSnapshotDialogComponent } from "../../deployment-dialog/deployment-node-dialog/delete-node-snapshot-dialog/delete-node-snapshot-dialog.component";
 import { RevertNodeSnapshotDialogComponent } from "../../deployment-dialog/deployment-node-dialog/revert-node-snapshot-dialog/revert-node-snapshot-dialog.component";
 import { AddUpdateNodeDeployDialogComponent } from "../../deployment-dialog/deployment-node-dialog/add-update-node-deploy-dialog/add-update-node-deploy-dialog.component";
+import { ConnectionInfoDialogComponent } from "./connection-info-dialog/connection-info-dialog.component";
+import { TaskService } from "../../../core/services/task/task.service";
+import { selectSelectedLogicalNodes } from "src/app/store/node/node.selectors";
+import { selectSelectedPortGroups } from "src/app/store/portgroup/portgroup.selectors";
 
 
 @Component({
@@ -43,13 +47,15 @@ import { AddUpdateNodeDeployDialogComponent } from "../../deployment-dialog/depl
 export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
 
   @Input() cy: any;
-  @Input() activeNodes: any;
-  @Input() activePGs: any
   vmStatusChecked = false;
   selectVMStatus$ = new Subscription();
   selectIsHypervisorConnect$ = new Subscription();
   selectIsDatasourceConnect$ = new Subscription();
   selectIsConfiguratorConnect$ = new Subscription();
+  selectSelectedLogicalNodes$ = new Subscription();
+  selectSelectedPortGroups$ = new Subscription();
+  selectedNodes: any[] = [];
+  selectedPGs: any[] = [];
   projectId!: any;
   isHyperConnect = false;
   isDatasourceConnect = false;
@@ -87,14 +93,14 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
     private store: Store,
     private dialog: MatDialog,
     private toastr: ToastrService,
-    private mapService: MapService,
     private nodeService: NodeService,
     private helpersService: HelpersService,
     private projectService: ProjectService,
     private cmRemoteService: CMRemoteService,
     private infoPanelService: InfoPanelService,
     private serverConnectionService: ServerConnectService,
-    private searchService: SearchService
+    private searchService: SearchService,
+    private taskService: TaskService
   ) {
     this.projectId = this.projectService.getProjectId();
     this.selectIsHypervisorConnect$ = this.store.select(selectIsHypervisorConnect).subscribe(isHypervisorConnect => {
@@ -145,6 +151,16 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
       pgTaskCtr: new FormControl('')
     });
     this.filteredTasks = this.helpersService.filterOptions(this.pgTaskCtr, this.portGroupTaskList);
+    this.selectSelectedLogicalNodes$ = this.store.select(selectSelectedLogicalNodes).subscribe(selectedNodes => {
+      if (selectedNodes) {
+        this.selectedNodes = selectedNodes;
+      }
+    });
+    this.selectSelectedPortGroups$ = this.store.select(selectSelectedPortGroups).subscribe(selectedPGs => {
+      if (selectedPGs) {
+        this.selectedPGs = selectedPGs;
+      }
+    });
   }
 
   get nodeTaskCtr() { return this.helpersService.getAutoCompleteCtr(this.nodeTaskForm.get('nodeTaskCtr'), this.nodeTaskList); }
@@ -175,8 +191,11 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
     this.selectIsHypervisorConnect$.unsubscribe();
     this.selectIsDatasourceConnect$.unsubscribe();
     this.selectIsConfiguratorConnect$.unsubscribe();
+    this.selectSelectedLogicalNodes$.unsubscribe();
+    this.selectSelectedPortGroups$.unsubscribe();
     this.destroy$.next(true);
     this.destroy$.unsubscribe();
+    this.selectSelectedLogicalNodes$.unsubscribe();
   }
 
   toggleVMStatus($event: any) {
@@ -208,46 +227,62 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
 
   goNodeTask(category: string) {
     const nodeTaskId = this.nodeTaskCtr?.value.id;
-    let dialogData, activeNodeIds, projectId, connection, pks, jsonData;
+    let dialogData, projectId, connection, pks, jsonData, taskData;
+    const selectedNodeIds = this.selectedNodes.map((ele: any) => ele.id);
     switch (nodeTaskId) {
       case 'deploy_node':
         dialogData = {
           jobName: 'deploy_node',
-          activeNodes: this.activeNodes,
+          selectedNodes: this.selectedNodes,
           category
         };
+        taskData = {
+          job_name: 'deploy_node',
+          category: 'node',
+          pks: selectedNodeIds.join(","),
+        }
+        if (this.taskService.isTaskInQueue(taskData)) return;
         this.dialog.open(AddUpdateNodeDeployDialogComponent,{ disableClose: true, width: '600px', data: dialogData, autoFocus: false });
         break;
       case 'delete_node':
         dialogData = {
-          activeNodes: this.activeNodes,
+          selectedNodes: this.selectedNodes,
           category
         };
+        taskData = {
+          job_name: 'delete_node',
+          category: 'node',
+          pks: selectedNodeIds.join(","),
+        }
+        if (this.taskService.isTaskInQueue(taskData)) return;
         this.dialog.open(DeleteNodeDeployDialogComponent,{ disableClose: true, width: '600px', data: dialogData, autoFocus: false });
         break;
       case 'update_node':
         dialogData = {
           jobName: 'update_node',
-          activeNodes: this.activeNodes,
+          selectedNodes: this.selectedNodes,
           category
         };
+        taskData = {
+          job_name: 'update_node',
+          category: 'node',
+          pks: selectedNodeIds.join(","),
+        }
+        if (this.taskService.isTaskInQueue(taskData)) return;
         this.dialog.open(AddUpdateNodeDeployDialogComponent,{ disableClose: true, width: '600px', data: dialogData, autoFocus: false });
         break;
       case 'power_on_node':
-        activeNodeIds = this.activeNodes.map((ele: any) => ele.data('node_id')).join(',');
-        this.cmRemoteService.add_task('node', 'power_on_node', activeNodeIds, category);
+        this.cmRemoteService.add_task('node', 'power_on_node', selectedNodeIds.join(","), category);
         break;
       case 'power_off_node':
-        activeNodeIds = this.activeNodes.map((ele: any) => ele.data('node_id')).join(',');
-        this.cmRemoteService.add_task('node', 'power_off_node', activeNodeIds, category);
+        this.cmRemoteService.add_task('node', 'power_off_node', selectedNodeIds.join(","), category);
         break;
       case 'restart_node':
-        activeNodeIds = this.activeNodes.map((ele: any) => ele.data('node_id')).join(',');
-        this.cmRemoteService.add_task('node', 'restart_node', activeNodeIds, category);
+        this.cmRemoteService.add_task('node', 'restart_node', selectedNodeIds.join(","), category);
         break;
       case 'create_snapshot':
         dialogData = {
-          activeNodes: this.activeNodes,
+          selectedNodes: this.selectedNodes,
           category
         };
         this.dialog.open(CreateNodeSnapshotDialogComponent,{ disableClose: true, width: '600px', data: dialogData, autoFocus: false });
@@ -255,15 +290,14 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
       case 'delete_snapshot':
         projectId = this.projectService.getProjectId();
         connection = this.serverConnectionService.getConnection(category);
-        pks = this.activeNodes.map((ele: any) => ele.data('node_id'));
         jsonData = {
-          pks: pks,
+          pks: selectedNodeIds,
           project_id: projectId,
           connection_id: connection ? connection?.id : 0
         }
         this.nodeService.getSnapshots(jsonData).subscribe(response => {
           const dialogData = {
-            activeNodes: this.activeNodes,
+            selectedNodes: this.selectedNodes,
             names: response,
             category
           };
@@ -273,15 +307,14 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
       case 'revert_snapshot':
         projectId = this.projectService.getProjectId()
         connection = this.serverConnectionService.getConnection(category);
-        pks = this.activeNodes.map((ele: any) => ele.data('node_id'));
         jsonData = {
-          pks: pks,
+          pks: selectedNodeIds,
           project_id: projectId,
           connection_id: connection ? connection?.id : 0
         }
         this.nodeService.getSnapshots(jsonData).subscribe(response => {
           const dialogData = {
-            activeNodes: this.activeNodes,
+            selectedNodes: this.selectedNodes,
             names: response,
             category
           };
@@ -290,7 +323,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
         break;
       case 'update_facts':
         dialogData = {
-          activeNodes: this.activeNodes,
+          selectedNodes: this.selectedNodes,
           category
         };
         this.dialog.open(UpdateFactsNodeDialogComponent,{ disableClose: true, width: '600px', data: dialogData, autoFocus: false });
@@ -298,7 +331,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
       case 'remote_config':
           dialogData = {
             jobName: 'remote_config',
-            activeNodes: this.activeNodes,
+            selectedNodes: this.selectedNodes,
             category
           };
           this.dialog.open(AddUpdateNodeDeployDialogComponent,{ disableClose: true, width: '600px', data: dialogData, autoFocus: false });
@@ -314,7 +347,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
     switch (nodeToolId) {
       case 'ping_test':
         dialogData = {
-          activeNodes: this.activeNodes,
+          selectedNodes: this.selectedNodes,
           jobName: 'ping_test',
           category
         }
@@ -322,7 +355,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
         break;
       case 'shell_command':
         dialogData = {
-          activeNodes: this.activeNodes,
+          selectedNodes: this.selectedNodes,
           jobName: 'shell_command',
           category
         }
@@ -335,33 +368,52 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
 
   goPGTask(category: string) {
     const portGroupTaskId = this.pgTaskCtr?.value.id;
-    let dialogData;
+    let dialogData, taskData;
+    const selectedPGIds = this.selectedPGs.map((ele: any) => ele.id);
     switch (portGroupTaskId) {
       case 'deploy_pg':
         dialogData = {
           jobName: 'create_pg',
-          activePGs: this.activePGs,
+          selectedPGs: this.selectedPGs,
           message: 'Deploy this port group?',
           category
         };
+        taskData = {
+          job_name: 'create_pg',
+          category: 'port_group',
+          pks: selectedPGIds.join(','),
+        }
+        if (this.taskService.isTaskInQueue(taskData)) return;
         this.dialog.open(AddDeletePGDeployDialogComponent, { disableClose: true, width: '450px', data: dialogData, autoFocus: false });
         break;
       case 'delete_pg':
         dialogData = {
           jobName: 'delete_pg',
-          activePGs: this.activePGs,
+          selectedPGs: this.selectedPGs,
           message: 'Delete port group(s)?',
           category
         };
+        taskData = {
+          job_name: 'delete_pg',
+          category: 'port_group',
+          pks: selectedPGIds.join(','),
+        }
+        if (this.taskService.isTaskInQueue(taskData)) return;
         this.dialog.open(AddDeletePGDeployDialogComponent, { disableClose: true, width: '450px', data: dialogData, autoFocus: false });
         break;
       case 'update_pg':
         dialogData = {
           jobName: 'update_pg',
-          activePGs: this.activePGs,
+          selectedPGs: this.selectedPGs,
           message: 'Update port group(s)?',
           category
         };
+        taskData = {
+          job_name: 'update_pg',
+          category: 'port_group',
+          pks: selectedPGIds.join(','),
+        }
+        if (this.taskService.isTaskInQueue(taskData)) return;
         this.dialog.open(AddDeletePGDeployDialogComponent, { disableClose: true, width: '450px', data: dialogData, autoFocus: false });
         break;
       default:
@@ -373,7 +425,7 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
     let connection = this.serverConnectionService.getConnection(RemoteCategories.DATASOURCE);
     const data = {
       connect_id: connection.id,
-      pks: this.activeNodes.map((ele: any) => ele.data('node_id'))
+      pks: this.selectedNodes.map((ele: any) => ele.id)
     }
     this.searchService.queryES(data)
       .subscribe({
@@ -386,4 +438,25 @@ export class ToolPanelRemoteComponent implements OnInit, OnDestroy {
       })
   }
 
+  openConnectionView() {
+    const connection = this.serverConnectionService.getConnection(RemoteCategories.HYPERVISOR);
+    const dialogData = {
+      id: connection.id,
+      name: this.connectionName,
+      category: this.connectionCategory,
+      server: this.connectionServer,
+      datacenter: this.connectionDatacenter,
+      cluster: this.connectionCluster,
+      switch: this.connectionSwitch,
+      datastore: this.connectionDatastore,
+      username: this.userName
+    }
+    this.dialog.open(ConnectionInfoDialogComponent, {
+      width: '1000px',
+      data: dialogData,
+      autoFocus: false,
+      disableClose: true,
+      panelClass: 'custom-node-form-modal'
+    })
+  }
 }

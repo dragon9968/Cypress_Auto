@@ -10,7 +10,7 @@
       <mat-label>Name</mat-label>
       <input matInput formControlName="nameCtr" [readonly]="isViewMode">
       <mat-error *ngIf="nameCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
-      <mat-error *ngIf="nameCtr?.errors?.isExist">{{ errorMessages.NODE_NAME_EXIST }}</mat-error>
+      <mat-error *ngIf="nameCtr?.errors?.isExist">{{ errorMessages.NAME_EXISTS }}</mat-error>
     </mat-form-field>
     <mat-form-field class="field">
       <mat-label>Notes</mat-label>

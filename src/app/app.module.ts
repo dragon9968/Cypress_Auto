@@ -14,6 +14,10 @@ import { CoreModule } from './core/core.module';
 import { AuthInterceptor } from './core/interceptors/auth/auth.interceptor';
 import { LoadingInterceptor } from './core/interceptors/loading/loading.interceptor';
 import { NgxPermissionsModule } from "ngx-permissions";
+import { EffectsModule } from '@ngrx/effects';
+import { effects } from './store/app.effects';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { environment } from 'src/environments/environment';
 
 
 @NgModule({
@@ -29,8 +33,13 @@ import { NgxPermissionsModule } from "ngx-permissions";
     CoreModule,
     SharedModule,
     StoreModule.forRoot(reducers),
+    EffectsModule.forRoot(effects),
     ToastrModule.forRoot(),
-    NgxPermissionsModule.forRoot()
+    NgxPermissionsModule.forRoot(),
+    StoreDevtoolsModule.instrument({
+      maxAge: 25, // Retains last 25 states
+      logOnly: environment.production, // Restrict extension to log-only mode
+    }),
   ],
   providers: [
     {

@@ -7,7 +7,7 @@ import { IconGalleryComponent } from './image/icon-gallery/icon-gallery.componen
 import { ImagesComponent } from './image/images/images.component';
 import { LookupFeaturesComponent } from './lookup/lookup-features/lookup-features.component';
 import { LookupNamesComponent } from './lookup/lookup-names/lookup-names.component';
-import { NetworkTemplatesComponent } from './network-templates/network-templates.component';
+import { LookupOsFirmwareComponent } from "./lookup/lookup-os-firmware/lookup-os-firmware.component";
 
 const routes: Routes = [
   {
@@ -20,13 +20,6 @@ const routes: Routes = [
       {
         path: 'config',
         component: ConfigTemplatesComponent,
-        data: {
-          permissionLevel: PermissionLevels.USER,
-        }
-      },
-      {
-        path: 'network',
-        component: NetworkTemplatesComponent,
         data: {
           permissionLevel: PermissionLevels.USER,
         }
@@ -55,6 +48,13 @@ const routes: Routes = [
       {
         path: 'lookup_names',
         component: LookupNamesComponent,
+        data: {
+          permissionLevel: PermissionLevels.USER,
+        }
+      },
+      {
+        path: 'os_firmwares',
+        component: LookupOsFirmwareComponent,
         data: {
           permissionLevel: PermissionLevels.USER,
         }

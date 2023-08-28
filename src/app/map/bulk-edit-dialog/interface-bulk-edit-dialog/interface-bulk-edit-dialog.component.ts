@@ -7,13 +7,11 @@ import { DIRECTIONS } from "../../../shared/contants/directions.constant";
 import { STATUS } from "../../../shared/contants/status.constant";
 import { ErrorMessages } from "../../../shared/enums/error-messages.enum";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
-import { InterfaceService } from "../../../core/services/interface/interface.service";
-import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { autoCompleteValidator } from "../../../shared/validations/auto-complete.validation";
-import { retrievedMapSelection } from "src/app/store/map-selection/map-selection.actions";
-import { retrievedInterfacesManagement } from "../../../store/interface/interface.actions";
 import { Observable, Subscription } from "rxjs";
 import { selectMapOption } from "../../../store/map-option/map-option.selectors";
+import { bulkEditLogicalInterface } from "src/app/store/interface/interface.actions";
+import { selectNotification } from "src/app/store/app/app.selectors";
 
 @Component({
   selector: 'app-interface-bulk-edit-dialog',
@@ -26,10 +24,11 @@ export class InterfaceBulkEditDialogComponent implements OnInit, OnDestroy {
   STATUS = STATUS;
   errorMessages = ErrorMessages;
   isEdgeDirectionChecked = false;
-  mapCategory = '';
+  mapCategory = 'logical';
   filteredStatus!: Observable<any[]>;
   filteredDirections!: Observable<any[]>;
   selectMapOption$ = new Subscription();
+  selectNotification$ = new Subscription();
 
   constructor(
     private store: Store,
@@ -37,8 +36,6 @@ export class InterfaceBulkEditDialogComponent implements OnInit, OnDestroy {
     public dialogRef: MatDialogRef<InterfaceBulkEditDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public helpers: HelpersService,
-    private interfaceService: InterfaceService,
-    private infoPanelService: InfoPanelService
   ) {
     this.interfaceBulkEditForm = new FormGroup({
       statusCtr: new FormControl(''),
@@ -51,7 +48,12 @@ export class InterfaceBulkEditDialogComponent implements OnInit, OnDestroy {
     });
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe(mapOption => {
       this.isEdgeDirectionChecked = mapOption.isEdgeDirectionChecked
-    })
+    });
+    this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
+      if (notification?.type == 'success') {
+        this.dialogRef.close();
+      }
+    });
   }
 
   get statusCtr() { return this.interfaceBulkEditForm.get('statusCtr'); }
@@ -70,6 +72,7 @@ export class InterfaceBulkEditDialogComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.selectMapOption$.unsubscribe();
+    this.selectNotification$.unsubscribe();
   }
 
   private _updateInterfaceOnMap(data: any) {
@@ -108,34 +111,10 @@ export class InterfaceBulkEditDialogComponent implements OnInit, OnDestroy {
         is_nat: isNat
       }
       const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-      this.interfaceService.editBulk(jsonData).subscribe(response => {
-        let interfacesData: any[] = [];
-        this.data.genData.activeEles.map((edge: any) => {
-          const data = {
-            ...edge,
-            ...jsonData,
-          }
-          if (data.category == 'management') {
-            interfacesData.push(data);
-          } else {
-            this._updateInterfaceOnMap(data);
-            const edgeEle = this.data.cy.getElementById(edge.id);
-            if (!this.isEdgeDirectionChecked) {
-              const current_dir = edgeEle.data('direction');
-              edgeEle.data('prev_direction', current_dir);
-              edgeEle.data('direction', 'none');
-            }
-          }
-        });
-        if (interfacesData.length > 0) {
-          const newInterfacesManagement = this.infoPanelService.getNewInterfacesManagement(interfacesData)
-          this.store.dispatch(retrievedInterfacesManagement({ data: newInterfacesManagement }))
-        } else {
-          this.store.dispatch(retrievedMapSelection({ data: true }));
-        }
-        this.dialogRef.close();
-        this.toastr.success(response.message, 'Success');
-      })
+      this.store.dispatch(bulkEditLogicalInterface({
+        ids: ids,
+        data: jsonData
+      }));
     } else {
       this.dialogRef.close();
       this.toastr.info('You\'re not updating anything in the bulk edit interfaces');

@@ -11,7 +11,7 @@ import { ServerConnectService } from "../server-connect/server-connect.service";
 import { catchError } from "rxjs/operators";
 import { forkJoin, of, throwError } from "rxjs";
 import { ToastrService } from "ngx-toastr";
-import { retrievedIsOpen, retrievedVMStatus } from "../../../store/project/project.actions";
+import { retrievedVMStatus } from "../../../store/project/project.actions";
 import { Store } from "@ngrx/store";
 import { NgxPermissionsService, NgxRolesService } from "ngx-permissions";
 import { HelpersService } from "../helpers/helpers.service";
@@ -110,15 +110,16 @@ export class AuthService {
   }
 
   private _removeDataInLocalStorageAndPermission() {
-    this.ngxRolesService.flushRolesAndPermissions();
-    this.ngxPermissionsService.flushPermissions();
-    this.store.dispatch(retrievedIsOpen({data: false}));
     this.localStorageService.removeItem(LocalStorageKeys.ACCESS_TOKEN);
     this.localStorageService.removeItem(LocalStorageKeys.REFRESH_TOKEN);
     this.localStorageService.removeItem(LocalStorageKeys.CONNECTIONS);
     this.localStorageService.removeItem(LocalStorageKeys.USER_ID);
     this.localStorageService.removeItem(LocalStorageKeys.PROJECT_ID);
     this.localStorageService.removeItem(LocalStorageKeys.PERMISSIONS);
+    this.localStorageService.removeItem(LocalStorageKeys.ROLES);
+    this.localStorageService.removeItem(LocalStorageKeys.PROJECT_ID);
+    this.ngxRolesService.flushRolesAndPermissions();
+    this.ngxPermissionsService.flushPermissions();
   }
 
 }

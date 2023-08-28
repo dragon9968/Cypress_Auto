@@ -1,0 +1,334 @@
+<form [formGroup]="connectInterfacePhysicalForm" data-cy="connectInterfacePhysicalForm"
+  (ngSubmit)="
+    data.mode==='connect_node' ? connectInterfacePhysical() : updateConnectedInterfacePhysical()"  autocomplete="off">
+  <h1 mat-dialog-title>
+    {{ title }}
+  </h1>
+  <mat-dialog-content class="connection-interface-content">
+    <div class="connect-interface-title">
+      <span class="connect-interface-title__left">Source Node: <b>{{ nameSourceNode }}</b></span>
+      <span class="connect-interface-title__right">Destination Node: <b>{{ nameTargetNode }}</b></span>
+    </div>
+    <div class="connect-interface-area">
+      <section class="connect-interface-area__left">
+        <div *ngIf="!isOpenAddInterfaceFormOfSource">
+          <div class="new-button">
+            <button mat-raised-button type='button' color="primary" (click)="changeSection('source')" data-cy="addInterfaceSource"><mat-icon>add</mat-icon> Add New Interface</button>
+          </div>
+          <mat-form-field class="field">
+            <mat-label>Source Interface</mat-label>
+            <input autocomplete="off" id="connect-interface" matInput placeholder="Select a interface" formControlName="sourceInterfaceCtr"
+                  [matAutocomplete]="autoSourceInterface">
+            <mat-autocomplete #autoSourceInterface="matAutocomplete"
+                              [displayWith]="helpersService.ipAndNameDisplay">
+              <mat-option class="edge-option" *ngFor="let option of filteredBySourceInterfaces | async" [value]="option">
+                <div class="interfaces-option-text">
+                  <span class="option-text-items">Interface Name: <b>{{ option.name }}</b></span>
+                  <span class="option-text-items">Interface IP Address: {{ option.ip }}</span>
+                  <span class="option-text-items">Node: {{ option.node }}</span>
+                </div>
+              </mat-option>
+            </mat-autocomplete>
+            <mat-error *ngIf="sourceInterfaceCtr?.errors?.required && sourceInterfaceCtr?.touched">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+            <mat-error *ngIf="sourceInterfaceCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+          </mat-form-field>
+        </div>
+        <div *ngIf="isOpenAddInterfaceFormOfSource" class="interface-source-content">
+          <form [formGroup]="interfaceAddFormSource" data-cy="interfaceAddFormSource"
+                (ngSubmit)="addInterface('source')" autocomplete="off">
+            <div class="dialog-title">
+              <h1 mat-dialog-title>Interface Add</h1>
+            </div>
+            <div mat-dialog-content class="interface-content">
+              <div class="interface-content__top">
+                <div class="interface-content__top__left">
+                  <mat-form-field class="field">
+                    <mat-label>Name</mat-label>
+                    <input autocomplete="off" id="interface-name" matInput formControlName="nameSourceCtr">
+                    <mat-error *ngIf="nameSourceCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+                  </mat-form-field>
+                  <mat-form-field class="field">
+                    <mat-label>Order</mat-label>
+                    <input autocomplete="off" id="interface-order" matInput formControlName="orderSourceCtr">
+                    <mat-error *ngIf="orderSourceCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+                    <mat-error *ngIf="orderSourceCtr?.errors?.pattern">{{ errorMessages.FIELD_IS_NUMBER }}</mat-error>
+                  </mat-form-field>
+                  <mat-form-field class="field">
+                    <mat-label>Gateway</mat-label>
+                    <input autocomplete="off" id="interface-gateway" matInput formControlName="gatewaySourceCtr">
+                  </mat-form-field>
+                  <mat-form-field class="field">
+                    <mat-label>Tagged VLAN ID</mat-label>
+                    <input autocomplete="off" id="interface-vlanid" matInput formControlName="vlanIdSourceCtr">
+                    <mat-error *ngIf="vlanIdSourceCtr?.errors?.pattern">{{ errorMessages.FIELD_IS_NUMBER }}</mat-error>
+                    <mat-error *ngIf="vlanIdSourceCtr?.errors?.isNotMatch">{{ vlanIdSourceCtr?.errors?.value }}</mat-error>
+                  </mat-form-field>
+                </div>
+                <div class="interface-content__top__right">
+                  <mat-form-field class="field">
+                    <mat-label>Description</mat-label>
+                    <input autocomplete="off" id="interface-description" matInput formControlName="descriptionSourceCtr">
+                    <mat-error *ngIf="descriptionSourceCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+                  </mat-form-field>
+                  <mat-form-field class="field">
+                    <mat-label>Direction</mat-label>
+                    <input autocomplete="off" id="interface-direction" matInput placeholder="Select or enter a direction" formControlName="directionSourceCtr"
+                      [matAutocomplete]="autoDirection" [readonly]="isViewMode">
+                    <mat-autocomplete #autoDirection="matAutocomplete" [displayWith]="helpersService.optionDisplay">
+                      <mat-option *ngFor="let option of filteredDirections | async" [value]="option">
+                        <div class="option-text">
+                          {{ option.name }}
+                        </div>
+                      </mat-option>
+                    </mat-autocomplete>
+                   <mat-error *ngIf="directionSourceCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+                    <mat-error *ngIf="directionSourceCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+                  </mat-form-field>
+                  <mat-form-field class="field">
+                    <mat-label>MAC Address</mat-label>
+                    <input autocomplete="off" id="interface-macaddress" matInput formControlName="macAddressSourceCtr">
+                  </mat-form-field>
+                  <mat-form-field class="field">
+                    <mat-label>VLAN Mode</mat-label>
+                    <mat-select data-cy="select-vlanmode" formControlName="vlanModeSourceCtr">
+                      <mat-option value="access">Access</mat-option>
+                      <mat-option value="trunk">Trunk</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="interface-content__center">
+                <div class="category">
+                  <label class="category-label">Category:</label>
+                  <mat-radio-group class="category-group" color="primary" formControlName="categorySourceCtr">
+                    <mat-radio-button class="category-items" value="wired">Wired</mat-radio-button>
+                    <mat-radio-button class="category-items" value="wireless">Wireless</mat-radio-button>
+                    <mat-radio-button class="category-items" value="management">Management</mat-radio-button>
+                  </mat-radio-group>
+                </div>
+                <div class="category">
+                  <label class="category-label">IP Allocation:</label>
+                  <mat-radio-group class="category-group" color="primary" formControlName="ipAllocationSourceCtr" (change)="changeAllocationSource($event)">
+                    <mat-radio-button  class="category-items" value="static_auto">Static Auto</mat-radio-button>
+                    <mat-radio-button  class="category-items" value="static_manual">Static Manual</mat-radio-button>
+                    <mat-radio-button  class="category-items" value="dhcp">Dhcp</mat-radio-button>
+                  </mat-radio-group>
+                </div>
+              </div>
+              <div class="interface-content__bottom">
+                <div class="interface-content__bottom__left">
+                  <mat-form-field class="field">
+                    <mat-label>IP Address</mat-label>
+                    <input autocomplete="off" id="interface-ip" matInput formControlName="ipSourceCtr">
+                    <mat-error *ngIf="ipSourceCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+                    <!-- <mat-error *ngIf="ipSourceCtr?.errors?.isExist">{{ errorMessages.IP_IS_EXISTING }}</mat-error> -->
+                    <mat-error *ngIf="ipSourceCtr?.errors?.isNotMatchIP">{{ ipSourceCtr?.errors?.value }}</mat-error>
+                    <mat-error *ngIf="ipSourceCtr?.errors?.serverError">{{ ipSourceCtr?.errors?.serverError }}</mat-error>
+                    <mat-error *ngIf="ipSourceCtr?.errors?.errorServerExist">{{ ipSourceCtr?.errors?.errorServerExist }}</mat-error>
+                  </mat-form-field>
+                  <div class="field checkbox-field">
+                    <mat-checkbox formControlName="isGatewaySourceCtr" labelPosition="before">Is Gateway</mat-checkbox>
+                  </div>
+                  <div class="field checkbox-field">
+                    <mat-checkbox formControlName="isNatSourceCtr" labelPosition="before">Is Nat</mat-checkbox>
+                  </div>
+                </div>
+                <div class="interface-content__bottom__right">
+                  <mat-form-field class="field">
+                    <mat-label>Netmask</mat-label>
+                    <input autocomplete="off" id="interface-netmask" matInput placeholder="Select or enter a netmask" formControlName="netMaskSourceCtr"
+                      [matAutocomplete]="autoNetmask" [readonly]="isViewMode">
+                    <mat-autocomplete #autoNetmask="matAutocomplete" [displayWith]="helpersService.netmaskDisplay">
+                      <mat-option *ngFor="let option of filteredNetmasksSource | async" [value]="option">
+                        <div class="option-text">
+                          {{ option.mask }}
+                        </div>
+                      </mat-option>
+                    </mat-autocomplete>
+                    <mat-error *ngIf="netMaskSourceCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+                    <mat-error *ngIf="netMaskSourceCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+                  </mat-form-field>
+                  <mat-form-field class="field">
+                    <mat-label>DNS Server</mat-label>
+                    <input autocomplete="off" id="interface-server" matInput formControlName="dnsServerSourceCtr">
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+            <div mat-dialog-actions [align]="'end'" class="interface-actions-areas">
+              <button mat-raised-button type="button" (click)="onCancelSource()">
+                Cancel
+              </button>
+              <button *ngIf="data.mode !== 'view'" mat-raised-button type="submit" data-cy="cy-interface-btn" color="primary" [disabled]="!interfaceAddFormSource.valid">
+                Add
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+      <section class="connect-interface-area__right">
+        <div *ngIf="!isOpenAddInterfaceFormOfDestination">
+          <div class="new-button">
+            <button mat-raised-button type='button' color="primary" (click)="changeSection('target')" data-cy="addInterfaceTarget"><mat-icon>add</mat-icon> Add New Interface</button>
+          </div>
+          <mat-form-field class="field">
+            <mat-label>Destination Interface</mat-label>
+            <input autocomplete="off" id="destimation-interface" matInput placeholder="Select a interface" formControlName="destinationInterfaceCtr"
+                  [matAutocomplete]="autoDestinationInterface">
+            <mat-autocomplete #autoDestinationInterface="matAutocomplete"
+                              [displayWith]="helpersService.ipAndNameDisplay">
+              <mat-option class="edge-option" *ngFor="let option of filteredByDestinationInterfaces | async" [value]="option">
+                <div class="interfaces-option-text">
+                  <span class="option-text-items">Interface Name: <b>{{ option.name }}</b></span>
+                  <span class="option-text-items">Interface IP Address: {{ option.ip }}</span>
+                  <span class="option-text-items">Node: {{ option.node }}</span>
+                </div>
+              </mat-option>
+            </mat-autocomplete>
+            <mat-error *ngIf="destinationInterfaceCtr?.errors?.required && destinationInterfaceCtr?.touched">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+            <mat-error *ngIf="destinationInterfaceCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+          </mat-form-field>
+        </div>
+        <div *ngIf="isOpenAddInterfaceFormOfDestination">
+          <form [formGroup]="interfaceAddFormTarget" data-cy="interfaceAddFormTarget"
+                (ngSubmit)="addInterface('target')" autocomplete="off">
+            <div class="dialog-title">
+              <h1 mat-dialog-title>Interface Add</h1>
+            </div>
+            <div mat-dialog-content class="interface-content">
+              <div class="interface-content__top">
+                <div class="interface-content__top__left">
+                  <mat-form-field class="field">
+                    <mat-label>Name</mat-label>
+                    <input autocomplete="off" id="interface-name" matInput formControlName="nameTargetCtr">
+                    <mat-error *ngIf="nameTargetCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+                  </mat-form-field>
+                  <mat-form-field class="field">
+                    <mat-label>Order</mat-label>
+                    <input autocomplete="off" id="interface-order" matInput formControlName="orderTargetCtr">
+                    <mat-error *ngIf="orderTargetCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+                    <mat-error *ngIf="orderTargetCtr?.errors?.pattern">{{ errorMessages.FIELD_IS_NUMBER }}</mat-error>
+                  </mat-form-field>
+                  <mat-form-field class="field">
+                    <mat-label>Gateway</mat-label>
+                    <input autocomplete="off" id="interface-gateway" matInput formControlName="gatewayTargetCtr">
+                  </mat-form-field>
+                  <mat-form-field class="field">
+                    <mat-label>Tagged VLAN ID</mat-label>
+                    <input autocomplete="off" id="interface-vlanid" matInput formControlName="vlanIdTargetCtr">
+                    <mat-error *ngIf="vlanIdTargetCtr?.errors?.pattern">{{ errorMessages.FIELD_IS_NUMBER }}</mat-error>
+                    <mat-error *ngIf="vlanIdTargetCtr?.errors?.isNotMatch">{{ vlanIdTargetCtr?.errors?.value }}</mat-error>
+                  </mat-form-field>
+                </div>
+                <div class="interface-content__top__right">
+                  <mat-form-field class="field">
+                    <mat-label>Description</mat-label>
+                    <input autocomplete="off" id="interface-description" matInput formControlName="descriptionTargetCtr">
+                    <mat-error *ngIf="descriptionTargetCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+                  </mat-form-field>
+                  <mat-form-field class="field">
+                    <mat-label>Direction</mat-label>
+                    <input autocomplete="off" id="interface-direction" matInput placeholder="Select or enter a direction" formControlName="directionTargetCtr"
+                      [matAutocomplete]="autoDirection" [readonly]="isViewMode">
+                    <mat-autocomplete #autoDirection="matAutocomplete" [displayWith]="helpersService.optionDisplay">
+                      <mat-option *ngFor="let option of filteredDirections | async" [value]="option">
+                        <div class="option-text">
+                          {{ option.name }}
+                        </div>
+                      </mat-option>
+                    </mat-autocomplete>
+                   <mat-error *ngIf="directionTargetCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+                    <mat-error *ngIf="directionTargetCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+                  </mat-form-field>
+                  <mat-form-field class="field">
+                    <mat-label>MAC Address</mat-label>
+                    <input autocomplete="off" id="interface-macaddress" matInput formControlName="macAddressTargetCtr">
+                  </mat-form-field>
+                  <mat-form-field class="field">
+                    <mat-label>VLAN Mode</mat-label>
+                    <mat-select data-cy="select-vlanmode" formControlName="vlanModeTargetCtr">
+                      <mat-option value="access">Access</mat-option>
+                      <mat-option value="trunk">Trunk</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="interface-content__center">
+                <div class="category">
+                  <label class="category-label">Category:</label>
+                  <mat-radio-group class="category-group" color="primary" formControlName="categoryTargetCtr">
+                    <mat-radio-button class="category-items" value="wired">Wired</mat-radio-button>
+                    <mat-radio-button class="category-items" value="wireless">Wireless</mat-radio-button>
+                    <mat-radio-button class="category-items" value="management">Management</mat-radio-button>
+                  </mat-radio-group>
+                </div>
+                <div class="category">
+                  <label class="category-label">IP Allocation:</label>
+                  <mat-radio-group class="category-group" color="primary" formControlName="ipAllocationTargetCtr" (change)="changeAllocationTarget($event)">
+                    <mat-radio-button  class="category-items" value="static_auto">Static Auto</mat-radio-button>
+                    <mat-radio-button  class="category-items" value="static_manual">Static Manual</mat-radio-button>
+                    <mat-radio-button  class="category-items" value="dhcp">Dhcp</mat-radio-button>
+                  </mat-radio-group>
+                </div>
+              </div>
+              <div class="interface-content__bottom">
+                <div class="interface-content__bottom__left">
+                  <mat-form-field class="field">
+                    <mat-label>IP Address</mat-label>
+                    <input autocomplete="off" id="interface-ip" matInput formControlName="ipTargetCtr">
+                    <mat-error *ngIf="ipTargetCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+                    <!-- <mat-error *ngIf="ipCtr?.errors?.isExist">{{ errorMessages.IP_IS_EXISTING }}</mat-error> -->
+                    <mat-error *ngIf="ipTargetCtr?.errors?.isNotMatchIP">{{ ipTargetCtr?.errors?.value }}</mat-error>
+                    <mat-error *ngIf="ipTargetCtr?.errors?.serverError">{{ ipTargetCtr?.errors?.serverError }}</mat-error>
+                    <mat-error *ngIf="ipTargetCtr?.errors?.errorServerExist">{{ ipTargetCtr?.errors?.errorServerExist }}</mat-error>
+                  </mat-form-field>
+                  <div class="field checkbox-field">
+                    <mat-checkbox formControlName="isGatewayTargetCtr" labelPosition="before">Is Gateway</mat-checkbox>
+                  </div>
+                  <div class="field checkbox-field">
+                    <mat-checkbox formControlName="isNatTargetCtr" labelPosition="before">Is Nat</mat-checkbox>
+                  </div>
+                </div>
+                <div class="interface-content__bottom__right">
+                  <mat-form-field class="field">
+                    <mat-label>Netmask</mat-label>
+                    <input autocomplete="off" id="interface-netmask" matInput placeholder="Select or enter a netmask" formControlName="netMaskTargetCtr"
+                      [matAutocomplete]="autoNetmask" [readonly]="isViewMode">
+                    <mat-autocomplete #autoNetmask="matAutocomplete" [displayWith]="helpersService.netmaskDisplay">
+                      <mat-option *ngFor="let option of filteredNetmasksTarget | async" [value]="option">
+                        <div class="option-text">
+                          {{ option.mask }}
+                        </div>
+                      </mat-option>
+                    </mat-autocomplete>
+                    <mat-error *ngIf="netMaskTargetCtr?.errors?.isNotMatch">{{ errorMessages.OPTION_NOT_MATCH }}</mat-error>
+                    <mat-error *ngIf="netMaskTargetCtr?.errors?.required">{{ errorMessages.FIELD_IS_REQUIRED }}</mat-error>
+                  </mat-form-field>
+                  <mat-form-field class="field">
+                    <mat-label>DNS Server</mat-label>
+                    <input autocomplete="off" id="interface-server" matInput formControlName="dnsServerTargetCtr">
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+            <div mat-dialog-actions [align]="'end'" class="interface-actions-areas">
+              <button mat-raised-button type="button" (click)="onCancelTarget()">
+                Cancel
+              </button>
+              <button *ngIf="data.mode !== 'view'" mat-raised-button type="submit" data-cy="cy-interface-btn" color="primary" [disabled]="!interfaceAddFormTarget.valid">
+                Add
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions [align]="'end'">
+    <button mat-raised-button type="button" mat-dialog-close>Cancel</button>
+    <button mat-raised-button type="submit" color="primary" [disabled]="connectInterfacePhysicalForm.invalid">
+      {{data.mode === 'connect_node' ? 'Connect' : data.mode === 'edit_connected_interface' ? 'Update' : 'Delete'}}
+    </button>
+  </mat-dialog-actions>
+</form>
+

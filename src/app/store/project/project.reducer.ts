@@ -2,54 +2,89 @@ import { createReducer, on } from '@ngrx/store';
 import { ProjectState } from 'src/app/store/project/project.state';
 import {
   retrievedVMStatus,
-  retrievedProjects,
-  retrievedIsOpen,
   retrievedDashboard,
-  retrievedProjectName,
-  retrievedRecentProjects,
-  retrievedProjectsTemplate,
-  retrievedAllProjects,
-  retrievedProjectCategory
+  projectsNotLinkYetLoadedSuccess,
+  removeProjectNotLink,
+  projectsLoadedSuccess,
+  closeProject,
+  projectUpdatedSuccess,
+  openProject,
+  defaultPreferencesLoadedSuccess,
+  sharedProjectsLoadedSuccess,
+  recentProjectsLoadedSuccess,
+  recentProjectUpdatedSuccess
 } from './project.actions';
 
 const initialState = {} as ProjectState;
 
 export const projectReducer = createReducer(
   initialState,
-  on(retrievedProjects, (state, { data }) => ({
-    ...state,
-    projects: data,
-  })),
   on(retrievedVMStatus, (state, { vmStatus }) => ({
     ...state,
     vmStatus: vmStatus,
-  })),
-  on(retrievedIsOpen, (state, { data }) => ({
-    ...state,
-    isOpen: data,
   })),
   on(retrievedDashboard, (state, { dashboard }) => ({
     ...state,
     dashboard: dashboard
   })),
-  on(retrievedProjectName, (state, { projectName }) => ({
+  on(recentProjectsLoadedSuccess, (state, { recentProjects }) => ({
     ...state,
-    projectName: projectName
+    recentProjects
   })),
-  on(retrievedRecentProjects, (state, { recentProjects }) => ({
+  on(openProject, (state, { id }) => {
+    let defaultPreferences = state.defaultPreferences;
+    return {
+      ...state,
+      projects: state.projects?.map(p => {
+        if (p.id == id) {
+          defaultPreferences = p.logical_map.map_style;
+          return { ...p, isOpen: true };
+        } else {
+          return { ...p, isOpen: false };
+        }
+      }),
+      defaultPreferences
+    };
+  }),
+  on(projectsNotLinkYetLoadedSuccess, (state, { projectsNotLinkYet }) => ({
     ...state,
-    recentProjects: recentProjects
+    projectsNotLinkYet
   })),
-  on(retrievedProjectsTemplate, (state, { template }) => ({
+  on(removeProjectNotLink, (state, { projectNotLinkId }) => {
+    const projectsNotLinkYet = state.projectsNotLinkYet.filter(project => project.id !== projectNotLinkId)
+    return {
+      ...state,
+      projectsNotLinkYet
+    }
+  }),
+  on(projectsLoadedSuccess, (state, { projects }) => ({
     ...state,
-    template: template
+    projects
   })),
-  on(retrievedAllProjects, (state, { listAllProject }) => ({
+  on(sharedProjectsLoadedSuccess, (state, { sharedProjects }) => ({
     ...state,
-    listAllProject: listAllProject
+    sharedProjects
   })),
-  on(retrievedProjectCategory, (state, { projectCategory }) => ({
+  on(closeProject, (state, { }) => ({
     ...state,
-    projectCategory: projectCategory
-  }))
+    projects: state.projects.map(p => p.isOpen ? { ...p, isOpen: false } : p)
+  })),
+  on(projectUpdatedSuccess, (state, { project }) => {
+    return {
+      ...state,
+      projects: state.projects.map(p => p.id == project.id ? { ...p, ...project } : p)
+    };
+  }),
+  on(defaultPreferencesLoadedSuccess, (state, { defaultPreferences }) => {
+    return {
+      ...state,
+      defaultPreferences
+    };
+  }),
+  on(recentProjectUpdatedSuccess, (state, { recentProject }) => {
+    return {
+      ...state,
+      recentProjects: state.recentProjects.map(p => p.id == recentProject.id ? { ...p, ...recentProject } : p)
+    };
+  }),
 );

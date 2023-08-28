@@ -1,18 +1,8 @@
 import { createAction, props } from '@ngrx/store';
 
-export const retrievedProjects = createAction(
-    'retrievedProjects',
-    props<{ data: any }>()
-);
-
 export const retrievedVMStatus = createAction(
   'retrievedVMStatus',
   props<{ vmStatus: any }>()
-);
-
-export const retrievedIsOpen = createAction(
-  'retrievedIsOpen',
-  props<{ data: any }>()
 );
 
 export const retrievedDashboard = createAction(
@@ -20,28 +10,83 @@ export const retrievedDashboard = createAction(
   props<{ dashboard: any }>()
 );
 
-export const retrievedProjectName = createAction(
-  'retrievedProjectName',
-  props<{ projectName: any }>()
+export const loadRecentProjects = createAction(
+  'loadRecentProjects',
 );
 
-export const retrievedRecentProjects = createAction(
-  'retrievedRecentProjects',
-  props<{ recentProjects: any }>()
+export const recentProjectsLoadedSuccess = createAction(
+  'recentProjectsLoadedSuccess',
+  props<{ recentProjects: any[] }>()
 );
 
-export const retrievedProjectsTemplate = createAction(
-  'retrievedProjectsTemplate',
-  props<{ template: any }>()
+export const openProject = createAction(
+  'openProject',
+  props<{ id: number }>()
 );
 
-export const retrievedAllProjects = createAction(
-  'retrievedAllProjects',
-  props<{ listAllProject: any }>()
-);
-
-export const retrievedProjectCategory = createAction(
-  'retrievedProjectCategory',
-  props<{ projectCategory: string }>()
+export const loadProjectsNotLinkYet = createAction(
+  'loadProjectsNotLinkYet',
+  props<{ projectId: number }>()
 )
 
+export const projectsNotLinkYetLoadedSuccess = createAction(
+  'projectsNotLinkYetLoadedSuccess',
+  props<{ projectsNotLinkYet: any[] }>()
+)
+
+export const removeProjectNotLink = createAction(
+  'removeProjectNotLink',
+  props<{ projectNotLinkId: number }>()
+)
+
+export const validateProject = createAction(
+  'validateProject',
+  props<{ id: number }>()
+)
+
+export const loadProjects = createAction(
+  'loadProjects',
+);
+
+export const projectsLoadedSuccess = createAction(
+  'projectsLoadedSuccess',
+  props<{ projects: any[] }>()
+);
+
+export const sharedProjectsLoadedSuccess = createAction(
+  'sharedProjectsLoadedSuccess',
+  props<{ sharedProjects: any[] }>()
+);
+
+export const closeProject = createAction(
+  'closeProject',
+);
+
+export const updateProject = createAction(
+  'updateProject',
+  props<{
+    id: number,
+    data: any,
+    configData: any
+  }>()
+);
+
+export const projectUpdatedSuccess = createAction(
+  'projectUpdatedSuccess',
+  props<{ project: any }>()
+);
+
+export const recentProjectUpdatedSuccess = createAction(
+  'recentProjectUpdatedSuccess',
+  props<{ recentProject: any }>()
+);
+
+export const defaultPreferencesLoadedSuccess = createAction(
+  'defaultPreferencesLoadedSuccess',
+  props<{ defaultPreferences: any }>()
+);
+
+export const removeProjects = createAction(
+  'removeProjects',
+  props<{ ids: number[] }>()
+)

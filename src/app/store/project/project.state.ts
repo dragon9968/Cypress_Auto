@@ -1,11 +1,9 @@
 export interface ProjectState {
   projects: any[],
+  sharedProjects: any[],
   vmStatus: any,
-  isOpen: boolean,
   dashboard: any,
-  projectName: any,
   recentProjects: any[],
-  template: any[],
-  listAllProject: any[],
-  projectCategory: string
+  projectsNotLinkYet: any[],
+  defaultPreferences: any
 }

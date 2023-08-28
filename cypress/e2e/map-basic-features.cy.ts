@@ -2,16 +2,8 @@ describe('Map features e2e testing', () => {
   let mapData: any = {};
   let mapStyleData: any = {};
   let editData: any = {};
-
-  const blankProject = {
-    name: "Test map - East ISP",
-    description: "East cluster representing part of the grayspace",
-    category: "project",
-    target: "VMWare vCenter",
-    option: "blank",
-    vlan_min: 2000,
-    vlan_max: 2100
-  }
+  let project: any = {};
+  const random = (Math.random() + 1).toString(36).substring(5);
 
   const domainData = {
     name: 'Test new domain',
@@ -46,19 +38,24 @@ describe('Map features e2e testing', () => {
     cy.fixture('map/node-pg-edge.data.json').then(data => {
       editData = data
     })
+    cy.fixture('project/new-project.json').then(projectData => {
+      project = projectData
+      project.name = "Test map - East ISP"
+      project.description = "East cluster representing part of the grayspace"
+      project.option = 'blank'
+      project.name += ` (${random})`
+    })
     cy.session('login', setup)
   })
 
   it ('Create new blank project and add node, port group', () => {
-    cy.viewport(1920, 1080)
     cy.visit('/')
-    cy.getByDataCy('btn-create-new').click({force: true})
-    cy.addNewProject(blankProject, true)
-    cy.wait(2000)
-    // cy.getByDataCy('btn-open-project').click()
-    // cy.wait(2000)
-    cy.get('.ag-row').contains(blankProject.name).first().dblclick({ force: true }).type(" ");
-    cy.wait(4000)
+    cy.waitingLoadingFinish()
+    cy.getByDataCy('btn-create-new').click()
+    cy.waitingLoadingFinish()
+    cy.addNewProject(project, true)
+    cy.waitingLoadingFinish()
+    cy.openProjectByName(project.name)
     // Add new port group
     mapData.collection[0].port_group.forEach((element: any) => {
       cy.addNewPortGroupOnMap(element, element.map_data.logical.position.x, element.map_data.logical.position.y, true)
@@ -70,7 +67,7 @@ describe('Map features e2e testing', () => {
       element.interface.forEach((interfaceData: any) => {
         let pgX: any;
         let pgY: any;
-        if (interfaceData.port_group === 'EASTNET-2') {
+        if (interfaceData.port_group === 'EASTNET-2' || interfaceData.port_group === 'Management') {
           pgX = 1000
           pgY = 500
         } else if (interfaceData.port_group === 'EASTNET-3') {
@@ -80,8 +77,9 @@ describe('Map features e2e testing', () => {
           pgX = 250
           pgY = 600
         }
-        cy.addNewInterface(interfaceData, 
-          element.map_data.logical.position.x, 
+        cy.wait(2000)
+        cy.addNewInterface(interfaceData,
+          element.map_data.logical.position.x,
           element.map_data.logical.position.y,
           pgX,
           pgY,
@@ -90,7 +88,7 @@ describe('Map features e2e testing', () => {
       })
     });
 
-    cy.wait(2000)
+    cy.waitingLoadingFinish()
     // Update node
     cy.selectElementOnMap('node', 'e-dns-1')
     cy.get('canvas.expand-collapse-canvas').rightclick(300, 500, {force: true}).then(() => {
@@ -110,7 +108,8 @@ describe('Map features e2e testing', () => {
       cy.getByFormControlName('hostnameCtr').clear().type(editData.nodeData.hostname)
       cy.get('mat-error').should('not.exist')
       cy.getByDataCy('nodeAddForm').submit()
-      cy.wait(2000)
+      cy.checkingToastSuccess()
+      cy.waitingLoadingFinish()
     })
 
     // Update port group
@@ -124,66 +123,127 @@ describe('Map features e2e testing', () => {
       cy.getByFormControlName('subnetAllocationCtr').children(`mat-radio-button[value="${editData.portGroupData.subnet_allocation}"]`).click()
       cy.get('mat-error').should('not.exist')
       cy.getByDataCy('pgAddForm').submit()
-      cy.wait(2000)
+      cy.checkingToastSuccess()
+      cy.waitingLoadingFinish()
     })
 
-    // Update interface
-    cy.get('#cy').then((el: any) => {
-      const cytoscape = el[0]._cyreg.cy
-      cytoscape.nodes().unselect()
-      cytoscape.edges().unselect()
-    })
-    cy.wait(2000)
-    // cy.selectElementOnMap('edge', 'eth1')
-    cy.get('canvas.expand-collapse-canvas').rightclick(900, 500, {force: true}).then(() => {
-      cy.get('.cy-context-menus-cxt-menu').first().should('exist')
-      cy.get('#edit').should('exist').click({ force: true });
-      cy.getByFormControlName('nameCtr').clear().type(editData.edgeData.name)
-      cy.getByFormControlName('descriptionCtr').clear().type(editData.edgeData.description)
-      cy.getByFormControlName('directionCtr').click()
-      cy.get('.option-text').contains(editData.edgeData.direction).first().click()
-      cy.getByFormControlName('ipAllocationCtr').children(`mat-radio-button[value="${editData.edgeData.subnet_allocation}"]`).click()
-      cy.getByFormControlName('ipCtr').clear().type(editData.edgeData.ip_address)
-      cy.getByFormControlName('netMaskCtr').click()
-      cy.get('.option-text').contains(editData.edgeData.netmask).first().click()
-      cy.get('mat-error').should('not.exist')
-      cy.getByDataCy('interfaceAddForm').submit()
-      cy.wait(2000)
-    })
-
+    //  delete interface
+    cy.unSelectAllElementOnMap()
+    cy.deleteInterfaceOnMap(850, 300)
+    cy.unSelectAllElementOnMap()
     //  Test clone node
-    cy.selectElementOnMap('node', editData.nodeData.name)
-    cy.getByMatToolTip('Clone').click();
-    cy.wait(2000)
-    cy.getButtonByTypeAndContent('submit', 'OK').click()
-    cy.wait(2000)
-    cy.exportProject(blankProject.name, true)
-    cy.wait(3000)
-    cy.importProject('cypress/fixtures/project/West_ISP.json')
-    cy.wait(8000)
+    cy.get('canvas.expand-collapse-canvas').click(300, 500, { force: true })
+    .rightclick(300, 500,{force: true}).then(() => {
+      cy.get('.cy-context-menus-cxt-menu').first().should('exist')
+      cy.get('#node_actions').should('exist').click({ force: true })
+      cy.get('#clone_node').should('exist').click({ force: true })
+      cy.waitingLoadingFinish()
+      cy.checkingToastSuccess()
+    })
 
+    cy.exportProject(project.name, true)
+    cy.waitingLoadingFinish()
+    cy.importProject('cypress/fixtures/project/West_ISP.json')
+    cy.waitingLoadingFinish()
   });
 
-  it ('Test Link project', () => {
-    cy.viewport(1920, 1080)
+  it ('Test Table Filter', () => {
     cy.visit('/projects')
-    cy.get('.ag-row').contains(blankProject.name).first().dblclick({ force: true }).type(" ");
-    cy.wait(8000)
+    cy.waitingLoadingFinish()
+    cy.openProjectByName(project.name)
+    cy.url().should('include', 'map')
+    cy.waitingLoadingFinish()
 
-    cy.get('#toolpanel-linkproject').click();
-    cy.getOptionByContent('West ISP').first().click();
-    cy.getByMatToolTip('Link Project').should('be.enabled')
-    cy.getByDataCy('linkProjectForm').submit();
+    cy.getByMatToolTip('Filter Table').click( {force: true} )
+    cy.getByFormControlName('filterOptionCtr').click()
+    cy.get(`mat-option[value="all"]`).click()
+    cy.get('body').click(0,0);
+
+    cy.selectInfoPanelRowByLabelAndContent('node', 'lc-1').click()
+    cy.wait(1000)
+    cy.selectInfoPanelRowByLabelAndContent('node', 'wc-1').click()
+    cy.wait(1000)
+
+    cy.getByMatToolTip('Filter Table').click( {force: true} )
+    cy.getByFormControlName('filterOptionCtr').click()
+    cy.get(`mat-option[value="selected"]`).click()
+    cy.get('body').click(0,0);
+    cy.selectElementOnMap('node', 'wr-1')
+    cy.selectElementOnMap('node', 'er-3')
+    cy.getByMatToolTip('Filter Table').click( {force: true} )
+    cy.getByFormControlName('filterOptionCtr').click()
+    cy.get(`mat-option[value="all"]`).click()
+
+    cy.wait(2000)
+    cy.selectMatTabByLabel('Port Groups').click()
+    cy.selectInfoPanelRowByLabelAndContent('port-group', 'Test edit port group').click()
+    cy.wait(1000)
+    cy.selectInfoPanelRowByLabelAndContent('port-group', 'EASTNET-3').click()
+    cy.wait(1000)
+    cy.selectInfoPanelRowByLabelAndContent('port-group', 'Test edit port group').click()
+    cy.getByMatToolTip('Filter Table').click( {force: true} )
+    cy.getByFormControlName('filterOptionCtr').click()
+    cy.get(`mat-option[value="selected"]`).click()
+    cy.selectElementOnMap('node', 'cro_net_pmk8310w')
+
+    cy.getByMatToolTip('Filter Table').click({force: true})
+    cy.getByFormControlName('filterOptionCtr').click()
+    cy.get(`mat-option[value="management"]`).click()
+    cy.get('body').click(0,0);
+    cy.wait(1000)
+
+    cy.get(`app-info-panel-port-group ag-grid-angular .ag-row`).contains('management')
+      .parent('.ag-cell-wrapper').parent('.ag-cell').parent('.ag-row').dblclick()
+    cy.getByMatToolTip('Edit Port Group').click()
+    cy.getByFormControlName('nameCtr').focus().clear().type('Port Group Management Test Edit')
+    cy.getByFormControlName('domainCtr').click()
+    cy.get('.mat-option-text').contains('management').click()
+    cy.wait(1000)
+    cy.getButtonByTypeAndContent('submit', 'Update').click()
+    cy.checkingToastSuccess()
+    cy.waitingLoadingFinish()
+
+    cy.selectMatTabByLabel('Interfaces').click()
+    cy.selectInfoPanelRowByLabelAndContent('interface', 'eth1').click()
+    cy.wait(1000)
+    cy.getByMatToolTip('Filter Table').click( {force: true} )
+    cy.getByFormControlName('filterOptionCtr').click()
+    cy.get(`mat-option[value="selected"]`).click()
+    cy.selectElementOnMap('edge', 'lan')
+    cy.selectInfoPanelRowByLabelAndContent('interface', 'lan').click()
+    cy.getByMatToolTip('Filter Table').click( {force: true} )
+    cy.getByFormControlName('filterOptionCtr').click()
+    cy.get(`mat-option[value="all"]`).click()
+    cy.getByMatToolTip('Filter Table').click({force: true})
+    cy.getByFormControlName('filterOptionCtr').click()
+    cy.get(`mat-option[value="management"]`).click()
+    cy.get('body').click(0,0);
+    cy.wait(1000)
+    cy.get(`app-info-panel-interface ag-grid-angular .ag-row`).contains('management')
+      .parent('.ag-cell-wrapper').parent('.ag-cell').parent('.ag-row').first().dblclick()
+    cy.getByMatToolTip('Edit Interface').click()
+    cy.getByFormControlName('nameCtr').focus().clear().type('Edge Management Test Edit')
+    cy.getButtonByTypeAndContent('submit', 'Update').click()
+    cy.checkingToastSuccess()
+    cy.waitingLoadingFinish()
+  })
+
+  it ('Test map - Test domain info panel', () => {
+    cy.visit('/projects')
+    cy.openProjectByName(project.name)
+    cy.waitingLoadingFinish()
+    cy.selectMatTabByLabel('Option').click();
+    cy.getMatSliderToggleByClass('.direction-toggle').uncheck({ force: true })
     cy.wait(1000)
     cy.get('canvas.expand-collapse-canvas').click(100, 100, { force: true });
-    cy.wait(4000)
+    cy.wait(2000)
   });
 
   it ('Test map style', () => {
-    cy.viewport(1920, 1080)
     cy.visit('/projects')
-    cy.get('.ag-row').contains(blankProject.name).first().dblclick({ force: true }).type(" ");
-    cy.wait(8000)
+    cy.waitingLoadingFinish()
+    cy.openProjectByName(project.name)
+    cy.waitingLoadingFinish()
 
     cy.selectElementOnMap('node', editData.nodeData.name)
     cy.selectMatTabByLabel('Style').click();
@@ -194,20 +254,20 @@ describe('Map features e2e testing', () => {
     cy.selectMatTabByLabel('Style').click();
     cy.updateMapStyle(mapStyleData, 'port-group')
     cy.wait(2000)
-    cy.selectElementOnMap('edge', editData.edgeData.name)
+    cy.selectElementOnMap('edge', 'lan')
     cy.selectMatTabByLabel('Style').click();
     cy.updateMapStyle(mapStyleData, 'edge')
 
     // save map
     cy.getByMatToolTip('Save').click();
-    cy.wait(4000)
+    cy.checkingToastSuccess();
+    cy.wait(1000)
   });
 
   it ('Test map style - Change Map Preferences', () => {
-    cy.viewport(1920, 1080)
     cy.visit('/projects')
-    cy.get('.ag-row').contains(blankProject.name).first().dblclick({ force: true }).type(" ");
-    cy.wait(8000)
+    cy.openProjectByName(project.name)
+    cy.waitingLoadingFinish()
     cy.selectMatTabByLabel('Style').click();
     cy.selectElementOnMap('node', editData.nodeData.name)
     cy.get('#toolpanel-style-mappref').click();
@@ -221,14 +281,15 @@ describe('Map features e2e testing', () => {
     cy.getByMatToolTip('Apply').click();
     // save map
     cy.getByMatToolTip('Save').click()
-    cy.wait(4000)
+    cy.checkingToastSuccess();
+    cy.wait(1000)
   });
 
   it ('Test map - Test tool panel Option', () => {
-    cy.viewport(1920, 1080)
     cy.visit('/projects')
-    cy.get('.ag-row').contains(blankProject.name).first().dblclick({ force: true }).type(" ");
-    cy.wait(8000)
+    cy.openProjectByName(project.name)
+    cy.url().should('include', 'map')
+    cy.waitingLoadingFinish()
     cy.selectMatTabByLabel('Option').click();
     cy.getMatSliderToggleByClass('.direction-toggle').check({ force: true })
     cy.wait(2000)
@@ -237,21 +298,19 @@ describe('Map features e2e testing', () => {
     cy.getMatSliderToggleByClass('.matgrid-toggle').check({ force: true })
     cy.wait(2000)
     cy.getMatSliderToggleByClass('.mapoverview-toggle').check({ force: true })
-    // save map
     cy.getByMatToolTip('Save').click()
-    cy.wait(4000)
+    cy.checkingToastSuccess();
+    cy.wait(1000)
   });
 
   it ('Test map - Test domain info panel', () => {
-    cy.viewport(1920, 1080)
     cy.visit('/projects')
-    cy.get('.ag-row').contains(blankProject.name).first().dblclick({ force: true });
-    cy.wait(8000)
+    cy.openProjectByName(project.name)
+    cy.waitingLoadingFinish()
     cy.selectMatTabByLabel('Option').click();
     cy.getMatSliderToggleByClass('.direction-toggle').uncheck({ force: true })
     cy.wait(1000)
     cy.getMatSliderToggleByClass('.mapoverview-toggle').uncheck({ force: true })
-    // save map
     cy.getByMatToolTip('Save').click()
 
     // Add new domain
@@ -288,52 +347,35 @@ describe('Map features e2e testing', () => {
   });
 
   it ('Test map - Test group info panel', () => {
-    cy.viewport(1920, 1080)
-    cy.visit('/projects')
-    cy.get('.ag-row').contains(blankProject.name).first().dblclick({ force: true });
-    cy.wait(8000)
+    cy.visit('/')
+    cy.openProjectByName(project.name)
+    cy.url().should('include', 'map')
+    cy.waitingLoadingFinish()
 
     // Add new group
     cy.selectMatTabByLabel(new RegExp('^group$', 'gi')).click();
     cy.getByMatToolTip('Add new group').click();
     cy.addEditGroup(editData.groupData, 'add')
-    cy.wait(4000)
+    cy.checkingToastSuccess()
+    cy.waitingLoadingFinish()
 
     // Edit group
     cy.selectInfoPanelRowByLabelAndContent('group', editData.groupEditDefaultData.name).check({force: true})
-    cy.getByMatToolTip('Edit').click();
+    cy.wait(1000)
+    cy.getByMatToolTip('Edit').click({force: true});
     cy.addEditGroup(editData.groupEditDefaultData, 'edit')
-    cy.wait(4000)
+    cy.checkingToastSuccess()
+    cy.waitingLoadingFinish()
 
     // Edit group
     cy.selectInfoPanelRowByLabelAndContent('group', editData.groupEditDefaultData.name).uncheck({force: true})
+    cy.wait(1000)
     cy.selectInfoPanelRowByLabelAndContent('group', editData.groupData.name).check({force: true})
     cy.getByMatToolTip('Edit').click();
     cy.addEditGroup(editData.groupEditData, 'edit')
-    cy.wait(4000)
+    cy.checkingToastSuccess()
+    cy.waitingLoadingFinish()
 
   });
 
-  it ('Test delete project', () => {
-    //  delete project
-    cy.viewport(1920, 1080)
-    cy.visit('/projects')
-    cy.get('.ag-row').contains(blankProject.name).first().dblclick({ force: true });
-    cy.wait(5000)
-    cy.getByDataCy('btn-nav-project').click({ force: true })
-    cy.wait(1000)
-    cy.getByDataCy('btn-delete-project').click({force: true})
-    cy.wait(2000)
-    cy.getButtonByTypeAndContent('submit', 'Delete').click()
-    cy.wait(2000)
-    cy.getByDataCy('btn-nav-project').click({ force: true })
-    cy.wait(1000)
-    cy.getByDataCy('btn-delete-permanently-project').click()
-    cy.wait(1000)
-    cy.get('.ag-row').contains(blankProject.name).first().click({ force: true });
-    cy.wait(1000)
-    cy.get('.actions').click()
-    cy.getByDataCy('btn-perdelete-project').click()
-    cy.getButtonByTypeAndContent('submit', 'Delete').click()
-  })
 })

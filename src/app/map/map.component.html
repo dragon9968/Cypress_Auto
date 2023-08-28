@@ -1,16 +1,13 @@
 <mat-sidenav-container class="sidenav-container" [hasBackdrop]="false" autosize>
   <mat-sidenav #sidenav mode="side" [opened]="isOpenToolPanel">
     <app-tool-panel [cy]="cy" [ur]="ur" [config]="config" [projectId]="projectId" [mapCategory]="mapCategory"
-                    [isDisableCancel]="isDisableCancel" [isDisableAddNode]="isDisableAddNode" [isDisableAddPG]="isDisableAddPG"
-                    [isDisableAddImage]="isDisableAddImage" [isTemplateCategory]="isTemplateCategory" [activeNodes]="activeNodes"
-                    [activePGs]="activePGs" [activeEdges]="activeEdges" [activeGBs]="activeGBs" [activeMBs]="activeMBs"
-                    [deletedNodes]="deletedNodes" [deletedInterfaces]="deletedInterfaces" [activeMapLinks]="activeMapLinks"
-                    [isDisableAddProjectTemplate]="isDisableAddProjectTemplate" [isDisableLinkProject]="isDisableLinkProject"
-                    [isDisableNewFromSelected]="isDisableNewFromSelected" [saveMapSubject]="saveMapSubject.asObservable()"
-                    [isAddNode]="isAddNode" [isAddPublicPG]="isAddPublicPG" [isAddPrivatePG]="isAddPrivatePG"
-                    [isAddMapImage]="isAddMapImage" [isAddProjectNode]="isAddProjectNode"
-                    [isAddProjectTemplate]="isAddProjectTemplate"
-    >
+      [isDisableCancel]="isDisableCancel" [isDisableAddNode]="isDisableAddNode" [isDisableAddPG]="isDisableAddPG"
+      [isDisableAddImage]="isDisableAddImage" [isTemplateCategory]="isTemplateCategory"
+      [isDisableAddProjectTemplate]="isDisableAddProjectTemplate" [isDisableLinkProject]="isDisableLinkProject"
+      [isDisableNewFromSelected]="isDisableNewFromSelected" [saveMapSubject]="saveMapSubject.asObservable()"
+      [isAddNode]="isAddNode" [isAddPublicPG]="isAddPublicPG" [isAddPrivatePG]="isAddPrivatePG"
+      [isAddMapImage]="isAddMapImage" [isAddProjectNode]="isAddProjectNode"
+      [isAddProjectTemplate]="isAddProjectTemplate" [mapCategory]="mapCategory">
     </app-tool-panel>
   </mat-sidenav>
   <mat-sidenav-content>
@@ -22,16 +19,20 @@
         </button>
       </div>
       <div *ngIf="!isTemplateCategory" class="dashboard">
-        <button mat-mini-fab mat-button class="dashboard-btn" color="primary" matTooltip="Dashboard" (click)="openDashboard()">
+        <button mat-mini-fab mat-button class="dashboard-btn" color="primary" matTooltip="Dashboard"
+          (click)="openDashboard()">
           <mat-icon>dashboard</mat-icon>
         </button>
       </div>
+      <div class="switch-map">
+        <mat-button-toggle-group class="button-group" (change)="switchMap($event)" [(ngModel)]="mapCategory">
+          <mat-button-toggle value="logical" matTooltip="Logical"><i class="fa-solid fa-xl fa-diagram-project"></i></mat-button-toggle>
+          <mat-button-toggle value="physical" matTooltip="Physical"><i class="fa-solid fa-xl fa-network-wired"></i></mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
       <div class="map-editor">
         <div id="cy" style="height: calc(100vh - 64px); width:100%; z-index: 1;"></div>
-        <app-info-panel [cy]="cy" [activeNodes]="activeNodes" [activePGs]="activePGs" [activeEdges]="activeEdges"
-          [activeGBs]="activeGBs" [deletedNodes]="deletedNodes" [deletedInterfaces]="deletedInterfaces">
-
-        </app-info-panel>
+        <app-info-panel [cy]="cy"></app-info-panel>
       </div>
     </div>
   </mat-sidenav-content>

@@ -6,8 +6,8 @@ import { Store } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { validateInputFile } from 'src/app/shared/validations/format-file.validation';
-import { retrievedProjects } from 'src/app/store/project/project.actions';
 import { ProjectService } from '../services/project.service';
+import { loadProjects } from 'src/app/store/project/project.actions';
 
 @Component({
   selector: 'app-import-project-dialog',
@@ -43,8 +43,8 @@ export class ImportProjectDialogComponent implements OnInit {
         next:(rest) => {
           this.toastr.success(`Import project successfully`);
           this.dialogRef.close();
+          this.store.dispatch(loadProjects());
           this.router.navigate([RouteSegments.PROJECTS]);
-          this.projectService.getProjectByStatusAndCategory('active', 'project').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
           },
         error:(err) => {
             this.toastr.error(`Error while Import project`);

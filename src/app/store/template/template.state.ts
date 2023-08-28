@@ -1,3 +1,4 @@
 export interface TemplateState {
-  templates: any[]
+  templates: any[],
+  templatesByDevice: any[]
 }

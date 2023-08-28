@@ -8,10 +8,12 @@ import { GroupService } from "../../../core/services/group/group.service";
 import { ProjectService } from "../../../project/services/project.service";
 import { InfoPanelService } from "../../../core/services/info-panel/info-panel.service";
 import { selectGroups } from "../../../store/group/group.selectors";
-import { retrievedGroups } from "../../../store/group/group.actions";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { AddUpdateGroupDialogComponent } from "../../add-update-group-dialog/add-update-group-dialog.component";
 import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-table/info-panel-table.component";
+import { MatMenuTrigger } from "@angular/material/menu";
+import { FormControl, FormGroup } from "@angular/forms";
+import { deleteGroups } from "src/app/store/group/group.actions";
 
 @Component({
   selector: 'app-info-panel-group',
@@ -21,15 +23,17 @@ import { InfoPanelTableComponent } from "src/app/shared/components/info-panel-ta
 export class InfoPanelGroupComponent implements OnInit, OnDestroy {
   @ViewChild(InfoPanelTableComponent) infoPanelTableComponent: InfoPanelTableComponent | undefined;
 
+  @Input() cy: any;
   @Input() infoPanelheight = '300px';
-  @Input() activeNodes: any[] = [];
-  @Input() activePGs: any[] = [];
-  @Input() activeEdges: any[] = [];
+  filterOptionForm!: FormGroup;
   mapCategory = '';
   projectId: string = '0';
   selectGroups$ = new Subscription();
   groups!: any[];
   tabName = 'group';
+  groupDataAg: any[] = [];
+  filterOption = 'all';
+  activeEleIds: any[] = [];
 
   gridOptions: GridOptions = {
     headerHeight: 48,
@@ -110,38 +114,43 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
     private projectService: ProjectService,
     private infoPanelService: InfoPanelService
   ) {
-    this.selectGroups$ = this.store.select(selectGroups).subscribe(groupData => {
-      if (groupData) {
-        const groupDataAg = groupData.map(ele => {
+    this.selectGroups$ = this.store.select(selectGroups).subscribe(groups => {
+      if (groups) {
+        this.groups = groups.map(ele => {
           return {
-            id: ele.id,
-            name: ele.name,
-            project_id: ele.project_id,
-            description: ele.description,
-            domain_id: ele.domain_id,
-            domain: ele.domain?.name,
-            category: ele.category,
+            ...ele,
             nodes: '[' + ele.nodes?.map((nodeData: any) => nodeData.name).join(', ') + ']',
             port_groups: '[' + ele.port_groups?.map((pgData: any) => pgData.name).join(', ') + ']',
             map_images: '[' + ele.map_images?.map((mapImageData: any) => mapImageData.name).join(', ') + ']',
           }
         });
-        this.infoPanelTableComponent?.setRowData(groupDataAg);
-        this.infoPanelTableComponent?.setRowActive(this.infoPanelTableComponent?.rowsSelectedId);
+        this.loadGroupsTable();
       }
     })
+    this.filterOptionForm = new FormGroup({
+      filterOptionCtr: new FormControl('all')
+    });
   }
 
   ngOnInit(): void {
     this.mapCategory = 'logical';
     this.projectId = this.projectService.getProjectId();
-    this.groupService.getGroupByProjectId(this.projectId).subscribe(
-      groupData => this.store.dispatch(retrievedGroups({ data: groupData.result }))
-    )
   }
 
   ngOnDestroy(): void {
     this.selectGroups$.unsubscribe();
+  }
+
+  private loadGroupsTable() {
+    const selectedEles = this.groups.filter(n => n.isSelected);
+    const selectedEleIds = selectedEles.map(n => n.id);
+    if (this.filterOption == 'all') {
+      this.infoPanelTableComponent?.setRowData(this.groups);
+      this.infoPanelTableComponent?.deselectAll();
+      this.infoPanelTableComponent?.setRowActive(selectedEleIds);
+    } else if (this.filterOption == 'selected') {
+      this.infoPanelTableComponent?.setSelectedEles(selectedEleIds, selectedEles);
+    }
   }
 
   addGroup() {
@@ -155,45 +164,38 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
   }
 
   editGroup() {
-    if (this.infoPanelTableComponent?.rowsSelectedId.length === 0) {
+    if (this.infoPanelTableComponent?.rowsSelectedIds.length === 0) {
       this.toastr.info('No row selected');
-    } else if (this.infoPanelTableComponent?.rowsSelectedId.length === 1) {
-      this.groupService.get(this.infoPanelTableComponent?.rowsSelectedId[0]).subscribe(groupData => {
+    } else if (this.infoPanelTableComponent?.rowsSelectedIds.length === 1) {
+      this.groupService.get(this.infoPanelTableComponent?.rowsSelectedIds[0]).subscribe(groupData => {
         const dialogData = {
           mode: 'update',
           genData: groupData.result,
           project_id: groupData.result.project_id,
           map_category: 'logical'
         };
-        const dialogRef = this.dialog.open(AddUpdateGroupDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
-        dialogRef.afterClosed().subscribe(result => {
-          if (result) {
-            this.activePGs.splice(0);
-            this.activeEdges.splice(0);
-            this.activeNodes.splice(0);
-          }
-        });
+        this.dialog.open(AddUpdateGroupDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
       })
     } else {
       this.toastr.info('Bulk edits do not apply to the Group.<br>Please select only one Group',
-                          'Info', {enableHtml: true});
+        'Info', { enableHtml: true });
     }
   }
 
   deleteGroup() {
-    if (this.infoPanelTableComponent?.rowsSelectedId.length === 0) {
+    if (this.infoPanelTableComponent?.rowsSelectedIds.length === 0) {
       this.toastr.info('No row selected');
     } else {
-      const item = this.infoPanelTableComponent?.rowsSelectedId.length === 1 ? 'this' : 'these';
+      const item = this.infoPanelTableComponent?.rowsSelectedIds.length === 1 ? 'this' : 'these';
       const dialogData = {
         title: 'User confirmation needed',
         message: `Are you sure you want to delete ${item}?`,
         submitButtonName: 'OK'
       }
-      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {disableClose: true, width: '450px', data: dialogData});
+      const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '450px', data: dialogData });
       dialogConfirm.afterClosed().subscribe(confirm => {
-        if (confirm) {
-          this.infoPanelService.deleteInfoPanelNotAssociateMap(this.tabName, this.infoPanelTableComponent?.rowsSelectedId);
+        if (confirm && this.infoPanelTableComponent && this.infoPanelTableComponent.rowsSelectedIds.length > 0) {
+          this.store.dispatch(deleteGroups({ ids: this.infoPanelTableComponent.rowsSelectedIds }));
           this.clearRowSelected();
         }
       })
@@ -205,4 +207,16 @@ export class InfoPanelGroupComponent implements OnInit, OnDestroy {
   clearRowSelected() {
     this.infoPanelTableComponent?.deselectAll();
   }
+
+  changeFilterOption(menuTrigger: MatMenuTrigger, $event: any) {
+    menuTrigger.closeMenu();
+    this.filterOption = $event.value;
+    this.loadGroupsTable();
+  }
+
+  selectOption($event: any) {
+    $event.stopPropagation();
+    $event.preventDefault();
+  }
+
 }

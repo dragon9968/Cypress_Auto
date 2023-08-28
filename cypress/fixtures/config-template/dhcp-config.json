@@ -1,0 +1,36 @@
+{
+  "name": "DHCP Template",
+  "description": "E2E testing for the DHCP configuration",
+  "dhcp_server": {
+    "name": "CRO",
+    "subnet": "172.16.0.0/22",
+    "lease": 86400,
+    "authoritative": true,
+    "dns_server": "10.10.10.10",
+    "ntp_server": "10.10.10.11",
+    "ranges": [
+      {
+        "name": "Clients",
+        "start": "172.16.0.100",
+        "stop": "172.16.2.255"
+      },
+      {
+        "name": "Servers",
+        "start": "172.16.3.1",
+        "stop": "172.16.3.250"
+      }
+    ],
+    "ip_reservations": [
+      {
+        "name": "Box1_ZyXel",
+        "ip_address": "172.16.0.10",
+        "mac_address": ""
+      },
+      {
+        "name":"Box2_ZyXEL",
+        "ip_address": "172.16.0.20",
+        "mac_address": ""
+      }
+    ]
+  }
+}

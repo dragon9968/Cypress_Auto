@@ -3,7 +3,7 @@ import './map-preferences.cy'
 import './device-template.cy'
 import './login-profile.cy'
 
-describe('Project Settings', () => {
+describe('Project Settings', {testIsolation: true}, () => {
   let project:any = {}
   let blankProject:any = {}
   let projectImport:any = {}
@@ -25,35 +25,20 @@ describe('Project Settings', () => {
       cy.login("admin", "password")
     }
     cy.session('login', setup)
-    cy.waitingLoadingFinish()
   })
 
   it('1. Create a blank project', function () {
     cy.visit('/')
-
-    // Landing project page
     cy.getByDataCy('btn-create-new').click()
-
-    // Click on the first project
     cy.addNewProject(blankProject, true)
-
-    // Open project just created
     cy.openProjectByName(blankProject.name)
-    cy.wait(3000)
   });
 
   it('2. Create a random project', function () {
     cy.visit('/')
-
-    // Landing project page
     cy.getByDataCy('btn-create-new').click()
-
-    // Click on the first project
     cy.addNewProject(project, true)
-
-    // Open project just created
     cy.openProjectByName(project.name)
-    cy.wait(3000)
   });
 
   it('3. Import a saved map (West_ISP.json)', function () {
@@ -62,13 +47,12 @@ describe('Project Settings', () => {
     cy.openProjectByName(projectImport.collection[0].name)
     cy.waitingLoadingFinish()
     cy.get('.tool-panel-actions button[mattooltip="Save"]').first().click()
-    cy.wait(2000)
+    cy.checkingToastSuccess()
   });
 
   it('4. Export West_ISP Project', () => {
     cy.visit('/')
     cy.exportProject(projectImport.collection[0].name, false)
-    cy.wait(3000)
   })
 
   it('5. Save as Project Template (Editing project change category from project to template)', () => {
@@ -80,20 +64,23 @@ describe('Project Settings', () => {
   it('6. Clone random project', () => {
     cy.visit('/')
     cy.cloneProject(project.name, 'template', false)
-    cy.wait(3000)
   });
 
 
   it('7. Delete random project', () => {
     cy.visit('/')
     cy.deleteProject(project.name, false)
-    cy.wait(3000)
   })
 
   it('8. Permanently delete random project', () => {
     cy.visit('/')
     cy.deletePermanentlyProject(project.name, false)
-    cy.wait(3000)
   })
+
+  it('9. Import old project data without any errors', function () {
+    cy.visit('/')
+    cy.importProject('cypress/fixtures/project/project-dev-old.json')
+    cy.checkingToastSuccess()
+  });
 
 })

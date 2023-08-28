@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
 import { ROLES } from 'src/app/shared/contants/roles.constant';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
@@ -19,21 +19,27 @@ import { selectDomains } from '../../store/domain/domain.selectors';
 import { selectConfigTemplates } from '../../store/config-template/config-template.selectors';
 import { selectLoginProfiles } from '../../store/login-profile/login-profile.selectors';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
-import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
-import { selectNodesByProjectId } from 'src/app/store/node/node.selectors';
+import { selectLogicalNodes } from 'src/app/store/node/node.selectors';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 import { hostnameValidator } from 'src/app/shared/validations/hostname.validation';
 import { ErrorStateMatcher } from '@angular/material/core';
-import { GridApi, GridOptions, GridReadyEvent } from "ag-grid-community";
+import { ColDef, GridApi, GridOptions, GridReadyEvent, ValueSetterParams } from "ag-grid-community";
 import { InterfaceService } from "../../core/services/interface/interface.service";
 import { ConfigTemplateService } from "../../core/services/config-template/config-template.service";
 import { retrievedConfigTemplates } from "../../store/config-template/config-template.actions";
 import { PORT } from "../../shared/contants/port.constant";
-import { AceEditorComponent } from "ng2-ace-editor";
+import { AceEditorComponent } from "ng12-ace-editor";
 import { networksValidation } from 'src/app/shared/validations/networks.validation';
 import { selectIsConfiguratorConnect, selectIsDatasourceConnect, selectIsHypervisorConnect } from 'src/app/store/server-connect/server-connect.selectors';
 import { RemoteCategories } from 'src/app/core/enums/remote-categories.enum';
 import { ServerConnectService } from 'src/app/core/services/server-connect/server-connect.service';
+import { AgGridAngular } from 'ag-grid-angular';
+import { addNewNode, updateNode } from 'src/app/store/node/node.actions';
+import { selectNotification } from 'src/app/store/app/app.selectors';
+import { ipSubnetValidation } from "../../shared/validations/ip-subnet.validation";
+import { IpReservationModel, RangeModel } from "../../core/models/config-template.model";
+import { ConfirmationDialogComponent } from "../../shared/components/confirmation-dialog/confirmation-dialog.component";
+import { ButtonRenderersComponent } from "../../project/renderers/button-renderers-component";
 
 class CrossFieldErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -52,6 +58,10 @@ class CrossFieldErrorMatcher implements ErrorStateMatcher {
 })
 export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild("editor") editor!: AceEditorComponent;
+  @ViewChild("agGridInterfaces") agGridInterfaces!: AgGridAngular;
+  @ViewChild("agGridDeployInterfaces") agGridDeployInterfaces!: AgGridAngular;
+  private rangeGridApi!: GridApi;
+  private reservationGridApi!: GridApi;
   private gridApi!: GridApi;
   nodeAddForm: FormGroup;
   errorMatcher = new CrossFieldErrorMatcher();
@@ -86,7 +96,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   filteredConfigTemplates!: Observable<any[]>;
   filteredLoginProfiles!: Observable<any[]>;
   filteredNodeIP!: Observable<any[]>;
-  rowData$!: Observable<any[]>;
+  rowDataInterfaces$!: Observable<any[]>;
+  rowDeployInterfacesData$!: Observable<any[]>;
   configTemplateAddsType: any[] = [];
   configTemplateForm!: FormGroup;
   actionsAddForm!: FormGroup;
@@ -96,6 +107,9 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   roleServicesForm!: FormGroup;
   ospfForm!: FormGroup;
   bgpForm!: FormGroup;
+  rangeRowData: any[] = [];
+  reservationRowData: any[] = [];
+  dhcpForm!: FormGroup;
   isAddMode = false;
   isAddRoute = false;
   isAddFirewallRule = false;
@@ -106,6 +120,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   connectedChecked = true;
   staticChecked = true;
   isAddBGP = false;
+  isAddDHCP = false;
+  isDisableAddDHCP = false;
   bgpConnectedChecked = true;
   bgpOspfChecked = true;
   rolesAndService: any[] = [];
@@ -114,12 +130,14 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   selectIsHypervisorConnect$ = new Subscription();
   selectIsDatasourceConnect$ = new Subscription();
   selectIsConfiguratorConnect$ = new Subscription();
+  selectNotification$ = new Subscription();
   isHypervisorConnect = false;
   isDatasourceConnect = false;
   isConfiguratorConnect = false;
   connectionCategory = '';
+  infrastructureChecked = false;
 
-  public gridOptions: GridOptions = {
+  public gridOptionsInterfaces: GridOptions = {
     headerHeight: 48,
     defaultColDef: {
       sortable: true,
@@ -165,11 +183,103 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       }
     ]
   };
+
+  public gridOptionsDeployInterfaces: GridOptions = {
+    headerHeight: 48,
+    defaultColDef: {
+      sortable: true,
+      resizable: true,
+      singleClickEdit: true,
+      filter: true
+    },
+    rowSelection: 'multiple',
+    suppressRowDeselection: true,
+    suppressCellFocus: true,
+    enableCellTextSelection: true,
+    pagination: true,
+    paginationPageSize: 25,
+    suppressRowClickSelection: true,
+    animateRows: true,
+    rowData: [],
+    columnDefs: [
+      {
+        field: 'name',
+        minWidth: 160,
+        flex: 1,
+      },
+      {
+        field: 'ip',
+        headerName: 'IP Address',
+        minWidth: 145,
+        flex: 1,
+      },
+      {
+        field: 'macaddress',
+        headerName: 'Mac Address',
+        minWidth: 160,
+        flex: 1,
+      }
+    ]
+  };
   defaultConfig: any = {}
+
+  defaultColDef: ColDef = {
+    sortable: true,
+    resizable: true,
+    editable: true,
+  };
+
+  rangeColumnDefs: ColDef[] = [
+    {
+      headerName: '',
+      editable: false,
+      maxWidth: 90,
+      cellRenderer: ButtonRenderersComponent,
+      cellRendererParams: {
+        onClick: this.onDelete.bind(this),
+      }
+    },
+    {
+      field: 'name'
+    },
+    {
+      field: 'start',
+      valueSetter: this.setterValueNetwork.bind(this)
+    },
+    {
+      field: 'stop',
+      valueSetter: this.setterValueNetwork.bind(this),
+    }
+  ];
+
+  reservationColumnDefs: ColDef[] = [
+    {
+      headerName: '',
+      editable: false,
+      maxWidth: 90,
+      cellRenderer: ButtonRenderersComponent,
+      cellRendererParams: {
+        onClick: this.onDeleteReservation.bind(this),
+      }
+    },
+    {
+      field: 'name'
+    },
+    {
+      field: 'ip_address',
+      headerName: 'IP Address',
+      valueSetter: this.setterValueNetwork.bind(this)
+    },
+    {
+      field: 'mac_address',
+      headerName: 'MAC Address'
+    }
+  ];
 
   constructor(
     private nodeService: NodeService,
     private toastr: ToastrService,
+    private dialog: MatDialog,
     public dialogRef: MatDialogRef<AddUpdateNodeDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public helpers: HelpersService,
@@ -178,6 +288,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     private configTemplateService: ConfigTemplateService,
     private serverConnectionService: ServerConnectService,
   ) {
+    this.infrastructureChecked = this.data.mapCategory != 'logical'
     this.actionsAddForm = new FormGroup({
       addTypeCtr: new FormControl('')
     })
@@ -187,21 +298,21 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       interfaceCtr: new FormControl('')
     });
     this.firewallRuleForm = new FormGroup({
-      categoryFirewallRuleCtr: new FormControl({value: 'rule', disabled: false}),
-      nameFirewallRuleCtr: new FormControl({value: '', disabled: false}),
-      stateCtr: new FormControl({value: 'present', disabled: false}),
+      categoryFirewallRuleCtr: new FormControl({ value: 'rule', disabled: false }),
+      nameFirewallRuleCtr: new FormControl({ value: '', disabled: false }),
+      stateCtr: new FormControl({ value: 'present', disabled: false }),
       actionCtr: new FormControl('pass'),
-      interfaceFirewallCtr: new FormControl({value: '', disabled: false}),
-      protocolCtr: new FormControl({value: 'any', disabled: false}),
-      sourceCtr: new FormControl({value: 'any', disabled: false}),
-      sourcePortCtr: new FormControl({value: 'any', disabled: false}),
-      sourceCustomPortCtr: new FormControl({value: 'any', disabled: true}),
-      destinationCtr: new FormControl({value: 'any', disabled: false}),
-      destinationPortCtr: new FormControl({value: 'any', disabled: false}),
-      destCustomPortCtr: new FormControl({value: '', disabled: true}),
-      targetCtr: new FormControl({value: '', disabled: true}),
-      targetPortCtr: new FormControl({value: 'any', disabled: true}),
-      targetCustomPortCtr: new FormControl({value: '', disabled: true}),
+      interfaceFirewallCtr: new FormControl({ value: '', disabled: false }),
+      protocolCtr: new FormControl({ value: 'any', disabled: false }),
+      sourceCtr: new FormControl({ value: 'any', disabled: false }),
+      sourcePortCtr: new FormControl({ value: 'any', disabled: false }),
+      sourceCustomPortCtr: new FormControl({ value: 'any', disabled: true }),
+      destinationCtr: new FormControl({ value: 'any', disabled: false }),
+      destinationPortCtr: new FormControl({ value: 'any', disabled: false }),
+      destCustomPortCtr: new FormControl({ value: '', disabled: true }),
+      targetCtr: new FormControl({ value: '', disabled: true }),
+      targetPortCtr: new FormControl({ value: 'any', disabled: true }),
+      targetCustomPortCtr: new FormControl({ value: '', disabled: true }),
     });
     this.domainMemberForm = new FormGroup({
       joinDomainCtr: new FormControl(false),
@@ -231,15 +342,26 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       bgpOspfStateCtr: new FormControl(''),
       bgpOspfMetricCtr: new FormControl('', [Validators.pattern('^[0-9]*$')])
     })
+
+    this.dhcpForm = new FormGroup({
+      nameDHCPCtr: new FormControl(''),
+      authoritativeCtr: new FormControl(true),
+      subnetCtr: new FormControl('', [ipSubnetValidation(true)]),
+      leaseCtr: new FormControl('', [Validators.pattern('^[0-9]*$')]),
+      dnsServerCtr: new FormControl('', [networksValidation('single')]),
+      ntpServerCtr: new FormControl('', [networksValidation('single')]),
+    })
+
     this.isViewMode = this.data.mode == 'view';
     this.nodeAddForm = new FormGroup({
       nameCtr: new FormControl('', [
         Validators.required, Validators.minLength(3), Validators.maxLength(50),
-        validateNameExist(() => this.nodes, this.data.mode, this.data.genData.node_id)
+        validateNameExist(() => this.nodes, this.data.mode, this.data.genData.id)
       ]),
       notesCtr: new FormControl(''),
       iconCtr: new FormControl(''),
       categoryCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      infrastructureCtr: new FormControl({ value: '', disabled: this.isViewMode }),
       deviceCtr: new FormControl(''),
       templateCtr: new FormControl(''),
       hardwareCtr: new FormControl(''),
@@ -260,6 +382,11 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       changeCtr: new FormControl(''),
       tasksCtr: new FormControl(''),
     }, { validators: hostnameValidator });
+    this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
+      if (notification?.type == 'success') {
+        this.dialogRef.close();
+      }
+    });
     this.selectIcons$ = this.store.select(selectIcons).subscribe((icons: any) => {
       this.icons = icons;
       this.iconCtr.setValidators([autoCompleteValidator(this.icons)]);
@@ -269,6 +396,13 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       this.devices = devices;
       this.deviceCtr.setValidators([Validators.required, autoCompleteValidator(this.devices)]);
       this.filteredDevices = this.helpers.filterOptions(this.deviceCtr, this.devices);
+      const deviceCategories = devices.find((device: any) => device.id === this.data.genData.device_id)
+                                      .category.map((deviceCategory: any) => deviceCategory.name);
+      this.configTemplateAddsType = this.helpers.getConfigAddsTypeByDeviceCategory(deviceCategories);
+      this.filteredAddActions = this.helpers.filterOptions(this.addTypeCtr, this.configTemplateAddsType);
+      this.addTypeCtr?.setValue(this.configTemplateAddsType[0]);
+      this.addTypeCtr?.setValidators([Validators.required, autoCompleteValidator(this.configTemplateAddsType)]);
+      this.helpers.setAutoCompleteValue(this.addTypeCtr, this.configTemplateAddsType, this.configTemplateAddsType[0].id);
     });
     this.selectTemplates$ = this.store.select(selectTemplates).subscribe((templates: any) => {
       this.templates = templates;
@@ -296,20 +430,18 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       this.loginProfileCtr.setValidators([autoCompleteValidator(this.loginProfiles)]);
       this.filteredLoginProfiles = this.helpers.filterOptions(this.loginProfileCtr, this.loginProfiles);
     });
-    this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes);
-    this.interfaceService.getByNode(this.data.genData.node_id).subscribe(response => {
+    this.selectNodes$ = this.store.select(selectLogicalNodes).subscribe(nodes => this.nodes = nodes);
+    this.interfaceService.getByNode(this.data.genData.id).subscribe(response => {
       const interfaceData = response.result;
-      if (this.gridApi) {
-        this.gridApi.setRowData(interfaceData);
+      if (this.agGridInterfaces) {
+        this.agGridInterfaces.api.setRowData(interfaceData);
       } else {
-        this.rowData$ = of(interfaceData);
+        this.rowDeployInterfacesData$ = of(interfaceData);
       }
       this.listNodeIP = interfaceData.filter((ip: any) => ip.category !== 'management')
       this.ipCtr.setValidators([autoCompleteValidator(this.listNodeIP, 'ip')]);
       this.filteredNodeIP = this.helpers.filterOptions(this.ipCtr, this.listNodeIP, 'ip');
     })
-    this.configTemplateAddsType = this.helpers.getConfigAddsTypeByDeviceCategory(this.data.genData.device_category);
-    this.filteredAddActions = this.helpers.filterOptions(this.addTypeCtr, this.configTemplateAddsType);
     this.configTemplateService.getWinRoles().subscribe(data => {
       this.rolesAndService = data;
       this.rolesCtr.setValidators([Validators.required, autoCompleteValidator(this.rolesAndService)]);
@@ -334,6 +466,38 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
         this.connectionCategory = RemoteCategories.CONFIGURATOR
       }
     })
+
+    if (this.data.mode === 'view') {
+      const connection = this.serverConnectionService.getConnection(this.connectionCategory);
+      const connectionId = connection ? connection?.id : 0;
+      if (connectionId !== 0) {
+        this.nodeService.getDeployData(this.data.genData.id, connectionId).subscribe((respData: any) => {
+          const resp = respData.result;
+          if (this.agGridDeployInterfaces) {
+            this.agGridDeployInterfaces.api.setRowData(resp.interfaces);
+          } else {
+            this.rowDataInterfaces$ = of(resp.interfaces);
+          }
+          this.uuidCtr?.setValue(resp?.uuid)
+          if (resp?.info?.Hardware) {
+            let hardwareInfo = [];
+            for (const [key, value] of Object.entries(resp?.info?.Hardware)) {
+              hardwareInfo.push(`${key}: ${value}`)
+            }
+            this.hardwareInfoCtr?.setValue(hardwareInfo)
+          }
+          this.serviceCtr?.setValue(resp?.running_services)
+          if (resp?.installed_features) {
+            const features = resp?.installed_features.map((val: any) => val.name)
+            this.featuresCtr?.setValue(features)
+          }
+          this.runningConfigCtr?.setValue(resp?.deploy_config)
+        })
+      } else {
+        this.toastr.info('Could not get Instance information due to no connection.', 'Info')
+      }
+
+    }
   }
 
   ngAfterViewInit(): void {
@@ -347,7 +511,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       this.editor.setTheme('textmate');
       const data = {
         config_id: this.data.genData.default_config_id,
-        node_id: this.data.genData.node_id
+        node_id: this.data.genData.id
       }
       this.configTemplateService.getNodeDefaultConfiguration(data).subscribe(res => {
         this.defaultConfig = res.configuration;
@@ -360,6 +524,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   get notesCtr() { return this.nodeAddForm.get('notesCtr'); }
   get iconCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('iconCtr'), this.icons); }
   get categoryCtr() { return this.nodeAddForm.get('categoryCtr'); }
+  get infrastructureCtr() { return this.nodeAddForm.get('infrastructureCtr'); }
   get deviceCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('deviceCtr'), this.devices); }
   get templateCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('templateCtr'), this.templates); }
   get hardwareCtr() { return this.helpers.getAutoCompleteCtr(this.nodeAddForm.get('hardwareCtr'), this.hardwares); }
@@ -399,25 +564,31 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   get targetPortCtr() { return this.firewallRuleForm.get('targetPortCtr'); }
   get targetCustomPortCtr() { return this.firewallRuleForm.get('targetCustomPortCtr'); }
   get joinDomainCtr() { return this.domainMemberForm.get('joinDomainCtr'); }
-  get ouPathCtr() { return this.domainMemberForm.get('ouPathCtr');}
-  get rolesCtr() { return this.helpers.getAutoCompleteCtr(this.roleServicesForm.get('rolesCtr'), this.rolesAndService);}
-  get networksCtr() { return this.ospfForm.get('networksCtr');}
-  get bgpStateCtr() { return this.ospfForm.get('bgpStateCtr');}
-  get bgpMetricTypeCtr() { return this.ospfForm.get('bgpMetricTypeCtr');}
-  get connectedStateCtr() { return this.ospfForm.get('connectedStateCtr');}
-  get connectedMetricTypeCtr() { return this.ospfForm.get('connectedMetricTypeCtr');}
-  get staticStateCtr() { return this.ospfForm.get('staticStateCtr');}
-  get staticMetricTypeCtr() { return this.ospfForm.get('staticMetricTypeCtr');}
+  get ouPathCtr() { return this.domainMemberForm.get('ouPathCtr'); }
+  get rolesCtr() { return this.helpers.getAutoCompleteCtr(this.roleServicesForm.get('rolesCtr'), this.rolesAndService); }
+  get networksCtr() { return this.ospfForm.get('networksCtr'); }
+  get bgpStateCtr() { return this.ospfForm.get('bgpStateCtr'); }
+  get bgpMetricTypeCtr() { return this.ospfForm.get('bgpMetricTypeCtr'); }
+  get connectedStateCtr() { return this.ospfForm.get('connectedStateCtr'); }
+  get connectedMetricTypeCtr() { return this.ospfForm.get('connectedMetricTypeCtr'); }
+  get staticStateCtr() { return this.ospfForm.get('staticStateCtr'); }
+  get staticMetricTypeCtr() { return this.ospfForm.get('staticMetricTypeCtr'); }
 
   get ipCtr() { return this.helpers.getAutoCompleteCtr(this.bgpForm.get('ipCtr'), this.listNodeIP); }
-  get asnCtr() { return this.bgpForm.get('asnCtr');}
-  get neighborIpCtr() { return this.bgpForm.get('neighborIpCtr');}
-  get neighborAsnCtr() { return this.bgpForm.get('neighborAsnCtr');}
-  get bgpConnectedStateCtr() { return this.bgpForm.get('bgpConnectedStateCtr');}
-  get bgpConnectedMetricCtr() { return this.bgpForm.get('bgpConnectedMetricCtr');}
-  get bgpOspfStateCtr() { return this.bgpForm.get('bgpOspfStateCtr');}
-  get bgpOspfMetricCtr() { return this.bgpForm.get('bgpOspfMetricCtr');}
+  get asnCtr() { return this.bgpForm.get('asnCtr'); }
+  get neighborIpCtr() { return this.bgpForm.get('neighborIpCtr'); }
+  get neighborAsnCtr() { return this.bgpForm.get('neighborAsnCtr'); }
+  get bgpConnectedStateCtr() { return this.bgpForm.get('bgpConnectedStateCtr'); }
+  get bgpConnectedMetricCtr() { return this.bgpForm.get('bgpConnectedMetricCtr'); }
+  get bgpOspfStateCtr() { return this.bgpForm.get('bgpOspfStateCtr'); }
+  get bgpOspfMetricCtr() { return this.bgpForm.get('bgpOspfMetricCtr'); }
 
+  get nameDHCPCtr() { return this.dhcpForm.get('nameDHCPCtr') }
+  get authoritativeCtr() { return this.dhcpForm.get('authoritativeCtr') }
+  get subnetCtr() { return this.dhcpForm.get('subnetCtr') }
+  get leaseCtr() { return this.dhcpForm.get('leaseCtr') }
+  get dnsServerCtr() { return this.dhcpForm.get('dnsServerCtr') }
+  get ntpServerCtr() { return this.dhcpForm.get('ntpServerCtr') }
 
   ngOnInit(): void {
     this.roleCtr.setValidators([Validators.required, autoCompleteValidator(this.ROLES)]);
@@ -427,6 +598,9 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     this.notesCtr?.setValue(this.data.genData.notes);
     this.categoryCtr?.setValue(this.data.genData.category);
     this.disableItems(this.categoryCtr?.value);
+    if (this.data.mode !== 'add') {
+      this.infrastructureChecked = this.data.genData.infrastructure
+    }
     this.helpers.setAutoCompleteValue(this.deviceCtr, this.devices, this.data.genData.device_id);
     this.filteredTemplatesByDevice = this.templates.filter((template: any) => template.device_id == this.data.genData.device_id);
     this.filteredTemplates = this.helpers.filterOptions(this.templateCtr, this.filteredTemplatesByDevice, 'display_name');
@@ -445,31 +619,6 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       this.configTemplateCtr?.setValue(this.data.genData.configs.map((item: any) => item.id));
     }
     this.helpers.validateAllFormFields(this.nodeAddForm);
-    this.addTypeCtr?.setValue(this.configTemplateAddsType[0]);
-    this.addTypeCtr?.setValidators([Validators.required, autoCompleteValidator(this.configTemplateAddsType)])
-    this.helpers.setAutoCompleteValue(this.addTypeCtr, this.configTemplateAddsType, this.configTemplateAddsType[0].id)
-    if (this.data.mode === 'view') {
-      const connection = this.serverConnectionService.getConnection(this.connectionCategory);
-      const connectionId = connection ? connection?.id : 0;
-      const nodeId = this.data.genData.node_id
-      this.nodeService.getDeployData(nodeId, connectionId).subscribe((respData: any) => {
-        const resp = respData.result;
-        this.uuidCtr?.setValue(resp?.uuid)
-        if (resp?.info?.Hardware) {
-          let hardwareInfo = [];
-          for (const [key, value] of Object.entries(resp?.info?.Hardware)) {
-            hardwareInfo.push(`${key}: ${value}`)
-          }
-          this.hardwareInfoCtr?.setValue(hardwareInfo)
-        }
-        this.serviceCtr?.setValue(resp?.running_services)
-        if (resp?.installed_features) {
-          const features = resp?.installed_features.map((val: any) => val.name)
-          this.featuresCtr?.setValue(features)
-        }
-        this.runningConfigCtr?.setValue(resp?.deploy_config)
-      })
-    }
   }
 
   ngOnDestroy(): void {
@@ -481,6 +630,73 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     this.selectConfigTemplates$.unsubscribe();
     this.selectLoginProfiles$.unsubscribe();
     this.selectNodes$.unsubscribe();
+    this.selectNotification$.unsubscribe();
+  }
+
+  onRangeGridReady(params: GridReadyEvent) {
+    this.rangeGridApi = params.api;
+    this.rangeGridApi.sizeColumnsToFit();
+  }
+
+  onReservationGridReady(params: GridReadyEvent) {
+    this.reservationGridApi = params.api;
+    this.reservationGridApi.sizeColumnsToFit();
+  }
+
+  onDelete(params: any) {
+    const dialogData = {
+      title: 'User confirmation needed',
+      message: 'You sure you want to delete this item?',
+      submitButtonName: 'OK'
+    }
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData, autoFocus: false });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.rangeRowData.splice(params.rowData.index, 1);
+        this.rangeGridApi.applyTransaction({ remove: [params.rowData] });
+        this.toastr.success('Deleted range successfully', 'Success')
+      }
+    });
+    return this.rangeRowData;
+  }
+
+  onDeleteReservation(params: any) {
+    const dialogData = {
+      title: 'User confirmation needed',
+      message: 'You sure you want to delete this item?',
+      submitButtonName: 'OK'
+    }
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData, autoFocus: false });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.reservationRowData.splice(params.rowData.index, 1);
+        this.reservationGridApi.applyTransaction({ remove: [params.rowData] });
+        this.toastr.success('Deleted range successfully', 'Success')
+      }
+    });
+    return this.reservationRowData;
+  }
+
+  addRange() {
+    const jsonData = {
+      name: '',
+      start: '',
+      stop: ''
+    }
+    this.rangeGridApi.applyTransaction({ add: [jsonData] });
+  }
+
+  addReservation() {
+    const jsonData = {
+      name: '',
+      ip_address: '',
+      mac_address: ''
+    }
+    this.reservationGridApi.applyTransaction({ add: [jsonData] });
+  }
+
+  setterValueNetwork(params: ValueSetterParams) {
+    return this.helpers.setterValue(params)
   }
 
   private disableItems(category: string) {
@@ -528,6 +744,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       notes: this.notesCtr?.value,
       icon_id: this.iconCtr?.value.id,
       category: this.categoryCtr?.value,
+      infrastructure: this.infrastructureCtr?.value ? this.infrastructureCtr?.value : false,
       device_id: this.deviceCtr?.value.id,
       template_id: this.templateCtr?.value.id,
       hardware_id: this.hardwareCtr?.value ? this.hardwareCtr?.value.id : undefined,
@@ -538,72 +755,54 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       hostname: this.hostnameCtr?.value,
       login_profile_id: this.loginProfileCtr?.value.id,
       project_id: this.data.projectId,
-      logical_map_position: this.data.newNodePosition,
-      logical_map_style: (this.data.mode == 'add') ? {
-        "height": this.data.selectedMapPref.node_size,
-        "width": this.data.selectedMapPref.node_size,
-        "text_size": this.data.selectedMapPref.text_size,
-        "text_color": this.data.selectedMapPref.text_color,
-        "text_halign": this.data.selectedMapPref.text_halign,
-        "text_valign": this.data.selectedMapPref.text_valign,
-        "text_bg_color": this.data.selectedMapPref.text_bg_color,
-        "text_bg_opacity": this.data.selectedMapPref.text_bg_opacity,
-        "background-color": "rgb(255,255,255)",
-        "background-image": "",
-        "background-fit": "contain"
+      logical_map: (this.data.mode == 'add') ? {
+        map_style: {
+          height: this.data.selectedMapPref.node_size,
+          width: this.data.selectedMapPref.node_size,
+          text_size: this.data.selectedMapPref.text_size,
+          text_color: this.data.selectedMapPref.text_color,
+          text_halign: this.data.selectedMapPref.text_halign,
+          text_valign: this.data.selectedMapPref.text_valign,
+          text_outline_color: this.data.selectedMapPref.text_outline_color,
+          text_outline_width: this.data.selectedMapPref.text_outline_width,
+          text_bg_color: this.data.selectedMapPref.text_bg_color,
+          text_bg_opacity: this.data.selectedMapPref.text_bg_opacity,
+          "background-color": "rgb(255,255,255)",
+          "background-image": "",
+          "background-fit": "contain"
+        },
+        position: this.data.newNodePosition
+      } : undefined,
+      physical_map: (this.data.mode == 'add') ? {
+        map_style: {
+          height: this.data.selectedMapPref.node_size,
+          width: this.data.selectedMapPref.node_size,
+          text_size: this.data.selectedMapPref.text_size,
+          text_color: this.data.selectedMapPref.text_color,
+          text_halign: this.data.selectedMapPref.text_halign,
+          text_valign: this.data.selectedMapPref.text_valign,
+          text_outline_color: this.data.selectedMapPref.text_outline_color,
+          text_outline_width: this.data.selectedMapPref.text_outline_width,
+          text_bg_color: this.data.selectedMapPref.text_bg_color,
+          text_bg_opacity: this.data.selectedMapPref.text_bg_opacity,
+          "background-color": "rgb(255,255,255)",
+          "background-image": "",
+          "background-fit": "contain"
+        },
+        position: this.data.newNodePosition
       } : undefined,
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.nodeService.add(jsonData).pipe(
-      catchError((e: any) => {
-        this.toastr.error('Add new node failed', 'Error');
-        return throwError(() => e);
-      })
-    ).subscribe((respData: any) => {
-      this.nodeService.get(respData.id).subscribe(respData => {
-        const cyData = respData.result;
-        this.helpers.updateNodesStorage({...cyData});
-        cyData.id = 'node-' + respData.id;
-        cyData.node_id = respData.id;
-        cyData.domain = this.domainCtr?.value.name;
-        cyData.device_category = this.data.genData.device_category;
-        cyData.height = cyData.logical_map_style.height;
-        cyData.width = cyData.logical_map_style.width;
-        cyData.text_color = cyData.logical_map_style.text_color;
-        cyData.text_size = cyData.logical_map_style.text_size;
-        cyData.text_bg_color = cyData.logical_map_style.text_bg_color;
-        cyData.text_bg_opacity = cyData.logical_map_style.text_bg_opacity;
-        cyData.text_valign = cyData.logical_map_style.text_valign;
-        cyData.text_halign = cyData.logical_map_style.text_halign;
-        cyData.groups = respData.result.groups;
-        cyData.icon = ICON_PATH + respData.result.icon.photo;
-        this.helpers.addCYNode(this.data.cy, { newNodeData: { ...this.data.newNodeData, ...cyData }, newNodePosition: this.data.newNodePosition });
-        if (this.configTemplateCtr?.value) {
-          const configData = {
-            pk: respData.id,
-            config_ids: this.configTemplateCtr?.value
-          }
-          this.nodeService.associate(configData).subscribe(respData => {
-            this.nodeService.get(cyData.node_id).subscribe(nodeData => {
-              this.data.genData.id = cyData.id;
-              this.helpers.updateNodeOnMap(this.data.cy, this.data.genData.id, nodeData.result);
-            })
-          });
-        }
-        this.helpers.reloadGroupBoxes(this.data.cy);
-        this.toastr.success('Node details added!');
-        this.dialogRef.close();
-      });
-    });
+    this.store.dispatch(addNewNode({ node: jsonData }));
   }
 
   updateNode() {
-    const ele = this.data.cy.getElementById(this.data.genData.id);
     const jsonDataValue = {
       name: this.nameCtr?.value,
       notes: this.notesCtr?.value,
       icon_id: this.iconCtr?.value.id,
       category: this.categoryCtr?.value,
+      infrastructure: this.infrastructureCtr?.value ? this.infrastructureCtr?.value : false,
       device_id: this.deviceCtr?.value.id,
       template_id: this.templateCtr?.value.id,
       hardware_id: this.hardwareCtr?.value ? this.hardwareCtr?.value.id : undefined,
@@ -614,60 +813,37 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       hostname: this.hostnameCtr?.value,
       login_profile_id: this.loginProfileCtr?.value.id ? this.loginProfileCtr?.value.id : null,
       project_id: this.data.genData.project_id,
-      logical_map_position: ele.position(),
+      is_add_log: true
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-    this.nodeService.put(this.data.genData.node_id, jsonData).pipe(
-      catchError((e: any) => {
-        this.toastr.error('Update node failed!', 'Error');
-        return throwError(() => e);
-      })
-    ).subscribe((_respData: any) => {
-      if (this.configTemplateCtr?.value) {
-        const configData = {
-          pk: this.data.genData.node_id,
-          config_ids: this.configTemplateCtr?.value
+    const isUpdateConfigDefault = JSON.stringify(this.defaultConfig, null, 2) !== this.editor.value;
+    let configDefaultNode;
+    if (isUpdateConfigDefault) {
+      const isNodeConfigDataFormatted = this.helpers.validateJSONFormat(this.editor.value)
+      const isValidJsonForm = this.helpers.validateFieldFormat(this.editor.value)
+      const isValidJsonFormBGP = this.helpers.validationBGP(this.editor.value)
+      const isDCHPFormValid = this.helpers.validateDHCPData(this.editor.value)
+      if (isNodeConfigDataFormatted && isValidJsonForm && isValidJsonFormBGP && isDCHPFormValid) {
+        configDefaultNode = {
+          node_id: this.data.genData.id,
+          config_id: this.data.genData.default_config_id,
+          ...JSON.parse(this.editor.value)
         }
-        this.nodeService.associate(configData).subscribe(respData => {
-          const isUpdateConfigDefault = JSON.stringify(this.defaultConfig, null, 2) !== this.editor.value;
-          if (isUpdateConfigDefault) {
-            const isNodeConfigDataFormatted = this.helpers.validateJSONFormat(this.editor.value)
-            const isValidJsonForm = this.helpers.validateFieldFormat(this.editor.value)
-            const isValidJsonFormBGP = this.helpers.validationBGP(this.editor.value)
-            if (isNodeConfigDataFormatted && isValidJsonForm && isValidJsonFormBGP) {
-              const configDefaultNode = {
-                node_id: this.data.genData.node_id,
-                config_id: this.data.genData.default_config_id,
-                ...JSON.parse(this.editor.value)
-              }
-              this.configTemplateService.putConfiguration(configDefaultNode).subscribe(res => {
-                this._updateNodeOnMapAndStorage();
-              })
-            }
-          } else {
-            this._updateNodeOnMapAndStorage();
-          }
-        });
       }
-    });
-  }
-
-  private _updateNodeOnMapAndStorage() {
-    this.store.dispatch(retrievedMapSelection({ data: true }));
-    this.nodeService.get(this.data.genData.node_id).subscribe(nodeData => {
-      this.helpers.updateNodesStorage(nodeData.result);
-      this.helpers.updateNodesOnGroupStorage(nodeData.result, 'node');
-      this.helpers.updateNodeOnMap(this.data.cy, this.data.genData.id, nodeData.result);
-      this.helpers.reloadGroupBoxes(this.data.cy);
-      this.dialogRef.close();
-      this.store.dispatch(retrievedMapSelection({ data: true }));
-      this.toastr.success('Node details updated!');
-    });
+    }
+    this.store.dispatch(updateNode({
+      id: this.data.genData.id,
+      data: jsonData,
+      configTemplate: this.configTemplateCtr?.value,
+      configDefaultNode,
+      mapCategory: this.data.mapCategory
+    }));
   }
 
   changeViewToEdit() {
     this.configTemplateCtr?.enable();
     this.categoryCtr?.enable();
+    this.infrastructureCtr?.enable();
     this.data.mode = 'update';
     this.isViewMode = false;
     this.folderCtr?.setValidators([Validators.required])
@@ -726,34 +902,10 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
   onChangeTargetPort($event: any) {
     if ($event.value === "other") {
       this.targetCustomPortCtr?.enable();
-    }else {
+    } else {
       this.targetCustomPortCtr?.disable();
     }
   }
-
-  // selectBgpState(event: any) {
-  //   if (event.checked) {
-  //     this.isHiddenBgpMetricType = false;
-  //   } else {
-  //     this.isHiddenBgpMetricType = true;
-  //   }
-  // }
-
-  // selectConnectedState(event: any) {
-  //   if (event.checked) {
-  //     this.isHiddenConnectedMetricType = false;
-  //   } else {
-  //     this.isHiddenConnectedMetricType = true;
-  //   }
-  // }
-
-  // selectStaticState(event: any) {
-  //   if (event.checked) {
-  //     this.isHiddenStaticMetricType = false;
-  //   } else {
-  //     this.isHiddenStaticMetricType = true;
-  //   }
-  // }
 
   addRoute() {
     const jsonDataValue = {
@@ -764,7 +916,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       route: this.routeCtr?.value,
       next_hop: this.nextHopCtr?.value,
       interface: this.interfaceCtr?.value,
-      node_id: this.data.genData.node_id
+      node_id: this.data.genData.id
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.configTemplateService.addConfiguration(jsonData).pipe(
@@ -798,7 +950,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       target: this.targetCtr?.value,
       target_port: this.targetPortCtr?.value,
       target_port_custom: this.targetCustomPortCtr?.value,
-      node_id: this.data.genData.node_id
+      node_id: this.data.genData.id
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.configTemplateService.addConfiguration(jsonData).pipe(
@@ -809,7 +961,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     ).subscribe((response) => {
       this._setEditorData(response.result)
       this.toastr.success('Add Firewall Rule successfully', 'Success');
-      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
+      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
     });
   }
 
@@ -819,7 +971,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       config_id: this.data.genData.default_config_id,
       join_domain: this.joinDomainCtr?.value,
       ou_path: this.ouPathCtr?.value,
-      node_id: this.data.genData.node_id
+      node_id: this.data.genData.id
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.configTemplateService.addConfiguration(jsonData).pipe(
@@ -830,7 +982,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     ).subscribe((response) => {
       this._setEditorData(response.result)
       this.toastr.success('Add Domain Membership successfully', 'Success');
-      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
+      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
     });
   }
 
@@ -839,7 +991,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       config_type: "role_services",
       config_id: this.data.genData.default_config_id,
       role_services: this.rolesCtr?.value,
-      node_id: this.data.genData.node_id
+      node_id: this.data.genData.id
     }
     this.configTemplateService.addConfiguration(jsonData).pipe(
       catchError(err => {
@@ -864,7 +1016,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       connected_metric_type: parseInt(this.connectedMetricTypeCtr?.value),
       static_state: this.staticStateCtr?.value,
       static_metric_type: parseInt(this.staticMetricTypeCtr?.value),
-      node_id: this.data.genData.node_id
+      node_id: this.data.genData.id
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.configTemplateService.addConfiguration(jsonData).pipe(
@@ -875,7 +1027,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     ).subscribe((response) => {
       this._setEditorData(response.result);
       this.toastr.success('Add OPSF successfully', 'Success');
-      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
+      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
     });
   }
 
@@ -891,7 +1043,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
       bgp_connected_metric: parseInt(this.bgpConnectedMetricCtr?.value),
       bgp_ospf_state: this.bgpOspfStateCtr?.value,
       bgp_ospf_metric: parseInt(this.bgpOspfMetricCtr?.value),
-      node_id: this.data.genData.node_id
+      node_id: this.data.genData.id
     }
     const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
     this.configTemplateService.addConfiguration(jsonData).pipe(
@@ -902,8 +1054,50 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
     ).subscribe((response) => {
       this._setEditorData(response.result)
       this.toastr.success('Add BGP successfully', 'Success');
-      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
+      this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({ data: data.result })));
     });
+  }
+
+  addDHCP() {
+    let ranges: RangeModel[] = [];
+    let ipReservations: IpReservationModel[] = [];
+    this.rangeGridApi.forEachNode(rangeNode => ranges.push(rangeNode.data));
+    this.reservationGridApi.forEachNode(ipReservationNode => ipReservations.push(ipReservationNode.data))
+    const isRangesExistEmptyValue = ranges.some(range => range.name === '' || range.start === '' || range.stop === '')
+    if (isRangesExistEmptyValue) {
+      this.toastr.warning('All fields in the Range table are required!', 'Warning')
+    } else {
+      const isIpReservationExistEmptyValue = ipReservations.some(ipReservation => ipReservation.name === '' &&
+        ipReservation.ip_address === '')
+      if (isIpReservationExistEmptyValue) {
+        this.toastr.warning('All fields in the IP Reservation table are required!', 'Warning')
+      } else {
+        const jsonDataValue = {
+          config_type: 'dhcp_server',
+          config_id: this.data.genData.default_config_id,
+          name: this.nameDHCPCtr?.value,
+          authoritative: this.authoritativeCtr?.value,
+          subnet: this.subnetCtr?.value,
+          lease: parseInt(this.leaseCtr?.value),
+          dns_server: this.dnsServerCtr?.value,
+          ntp_server: this.ntpServerCtr?.value,
+          ranges: ranges,
+          ip_reservations: ipReservations,
+          node_id: this.data.genData.id
+        }
+        const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue)
+        this.configTemplateService.addConfiguration(jsonData).pipe(
+          catchError(error => {
+            this.toastr.error('Add a new DHCP failed', 'Error');
+            return throwError(() => error)
+          })
+        ).subscribe(response => {
+          this._setEditorData(response.result)
+          this.toastr.success('Add a new DHCP successfully', 'Success');
+          this.configTemplateService.getAll().subscribe((data: any) => this.store.dispatch(retrievedConfigTemplates({data: data.result})));
+        })
+      }
+    }
   }
 
   showFormAdd(addType: string) {
@@ -915,6 +1109,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
         this.isAddRolesAndService = false;
         this.isAddOSPF = false;
         this.isAddBGP = false;
+        this.isAddDHCP = false;
+        this.dialogRef.updateSize('1000px')
         break;
       case 'add_firewall_rule':
         this.isAddRoute = false;
@@ -923,6 +1119,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
         this.isAddRolesAndService = false;
         this.isAddOSPF = false;
         this.isAddBGP = false;
+        this.isAddDHCP = false;
+        this.dialogRef.updateSize('1000px')
         break;
       case 'add_domain_membership':
         this.isAddRoute = false;
@@ -931,6 +1129,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
         this.isAddRolesAndService = false;
         this.isAddOSPF = false;
         this.isAddBGP = false;
+        this.isAddDHCP = false;
+        this.dialogRef.updateSize('1000px')
         break;
       case 'add_roles_service':
         this.isAddRoute = false;
@@ -939,6 +1139,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
         this.isAddRolesAndService = true;
         this.isAddOSPF = false;
         this.isAddBGP = false;
+        this.isAddDHCP = false;
+        this.dialogRef.updateSize('1000px')
         break;
       case 'add_ospf':
         this.isAddRoute = false;
@@ -947,6 +1149,8 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
         this.isAddRolesAndService = false;
         this.isAddOSPF = true;
         this.isAddBGP = false;
+        this.isAddDHCP = false;
+        this.dialogRef.updateSize('1000px')
         break;
       case 'add_bgp':
         this.isAddRoute = false;
@@ -955,6 +1159,18 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
         this.isAddRolesAndService = false;
         this.isAddOSPF = false;
         this.isAddBGP = true;
+        this.isAddDHCP = false;
+        this.dialogRef.updateSize('1000px')
+        break;
+      case 'add_dhcp':
+        this.isAddDHCP = true;
+        this.isAddRoute = false;
+        this.isAddFirewallRule = false;
+        this.isAddDomainMembership = false;
+        this.isAddRolesAndService = false;
+        this.isAddOSPF = false;
+        this.isAddBGP = false;
+        this.dialogRef.updateSize('1200px')
         break;
       default:
         this.isAddRoute = false;
@@ -963,6 +1179,7 @@ export class AddUpdateNodeDialogComponent implements OnInit, OnDestroy, AfterVie
         this.isAddRolesAndService = false;
         this.isAddOSPF = false;
         this.isAddBGP = false;
+        this.isAddDHCP = false;
     }
   }
 

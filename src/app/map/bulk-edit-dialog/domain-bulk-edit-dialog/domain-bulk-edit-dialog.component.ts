@@ -4,8 +4,8 @@ import { FormControl, FormGroup } from "@angular/forms";
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { DomainService } from "../../../core/services/domain/domain.service";
-import { retrievedDomains } from "../../../store/domain/domain.actions";
 import { HelpersService } from "../../../core/services/helpers/helpers.service";
+import { loadDomains } from "src/app/store/domain/domain.actions";
 
 @Component({
   selector: 'app-domain-bulk-edit-dialog',
@@ -47,9 +47,7 @@ export class DomainBulkEditDialogComponent implements OnInit {
       }
       const jsonData = this.helpersService.removeLeadingAndTrailingWhitespace(jsonDataValue);
       this.domainService.editBulk(jsonData).subscribe(response => {
-        this.domainService.getDomainByProjectId(this.data.genData.projectId).subscribe(domains => {
-          this.store.dispatch(retrievedDomains({ data: domains.result }));
-        });
+        this.store.dispatch(loadDomains({ projectId: this.data.genData.projectId }));
         this.dialogRef.close();
         this.toastr.success(response.message, 'Success');
       })

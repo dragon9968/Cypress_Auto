@@ -42,5 +42,9 @@ export const NODE_TASKS = [
   {
     id: 'remote_config',
     name : 'Remote Config'
+  }, 
+  {
+    id: 'custom_play',
+    name: 'Custom Playbook'
   }
 ]

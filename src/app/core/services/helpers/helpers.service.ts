@@ -3,95 +3,240 @@ import { map, startWith, Subscription } from 'rxjs';
 import { Injectable, Input, OnDestroy } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
-import { selectGroupBoxes } from 'src/app/store/map/map.selectors';
 import { FormControl, FormGroup } from '@angular/forms';
-import { validatieIP } from 'src/app/shared/validations/ip-subnet.validation.ag-grid';
+import { validateIP } from 'src/app/shared/validations/ip-subnet.validation.ag-grid';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { ToastrService } from 'ngx-toastr';
-import { selectNodesByProjectId } from "../../../store/node/node.selectors";
-import { retrievedNodes } from "../../../store/node/node.actions";
-import { environment } from "../../../../environments/environment";
+import { selectLinkedMapNodes, selectLogicalNodes, selectPhysicalNodes, } from "../../../store/node/node.selectors";
+import { removeNodes, restoreNodes } from "../../../store/node/node.actions";
 import { RemoteCategories } from "../../enums/remote-categories.enum";
 import {
   retrievedIsConfiguratorConnect,
-  retrievedIsHypervisorConnect,
-  retrievedIsDatasourceConnect
+  retrievedIsDatasourceConnect,
+  retrievedIsHypervisorConnect
 } from "../../../store/server-connect/server-connect.actions";
 import { ServerConnectService } from "../server-connect/server-connect.service";
-import { retrievedProjects } from "../../../store/project/project.actions";
-import { PortGroupService } from "../portgroup/portgroup.service";
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { AddUpdateGroupDialogComponent } from "../../../map/add-update-group-dialog/add-update-group-dialog.component";
 import { MatDialog } from "@angular/material/dialog";
-import { retrievedMapSelection } from 'src/app/store/map-selection/map-selection.actions';
 import { CONFIG_TEMPLATE_ADDS_TYPE } from "../../../shared/contants/config-template-add-actions.constant";
 import { selectGroups } from 'src/app/store/group/group.selectors';
-import { retrievedGroups } from 'src/app/store/group/group.actions';
 import { isIPv4 } from 'is-ip';
+import { selectNetmasks } from 'src/app/store/netmask/netmask.selectors';
+import { selectLinkedMapPortGroups, selectMapPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
+import { clearNotification } from 'src/app/store/app/app.actions';
+import { IpReservationModel, RangeModel } from '../../models/config-template.model';
+import { selectNotification } from 'src/app/store/app/app.selectors';
+import { selectMapLinks } from "../../../store/map-link/map-link.selectors";
+import {
+  selectInterfacesCommonMapLinks,
+  selectLinkedMapInterfaces,
+  selectLogicalMapInterfaces,
+  selectPhysicalInterfaces
+} from "../../../store/interface/interface.selectors";
+import { selectLinkedMapImages, selectMapImages } from "../../../store/map-image/map-image.selectors";
+import { clearLinkedMap } from "../../../store/map/map.actions";
+import { removePGs, restorePGs } from 'src/app/store/portgroup/portgroup.actions';
+import { removeInterfaces, restoreInterfaces } from 'src/app/store/interface/interface.actions';
+import { retrievedMapContextMenu } from "../../../store/map-context-menu/map-context-menu.actions";
+import { ProjectService } from "../../../project/services/project.service";
+import { validateProject } from "../../../store/project/project.actions";
+import { removeMapLinks, restoreMapLinks } from "../../../store/map-link/map-link.actions";
+import { removeMapImages, restoreMapImages } from "../../../store/map-image/map-image.actions";
+import { selectMapCategory } from 'src/app/store/map-category/map-category.selectors';
+import { LocalStorageKeys } from '../../storage/local-storage/local-storage-keys.enum';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HelpersService implements OnDestroy {
+  @Input() cy: any;
+  @Input() ur: any;
   selectMapOption$ = new Subscription();
-  selectGroupBoxes$ = new Subscription();
-  selectNodes$ = new Subscription();
   selectGroups$ = new Subscription();
+  selectNodes$ = new Subscription();
+  selectNetmasks$ = new Subscription();
+  selectMapPortGroups$ = new Subscription();
+  selectNotification$ = new Subscription();
+  selectMapLinks$ = new Subscription();
+  selectLinkedMapNodes$ = new Subscription();
+  selectLinkedMapPGs$ = new Subscription();
+  selectLinkedMapInterfaces$ = new Subscription();
+  selectLinkedMapImages$ = new Subscription();
+  selectInterfacesCommonMapLinks$ = new Subscription();
+  selectLogicalMapInterfaces$ = new Subscription();
+  selectMapImages$ = new Subscription();
+  selectPhysicalNodes$ = new Subscription();
+  selectMapCategory$ = new Subscription();
+  mapCategory: any;
   nodes: any[] = [];
+  logicalNodes: any[] = [];
+  physicalNodes: any[] = [];
+  portGroups: any[] = [];
+  interfacesLogical: any[] = [];
+  physicalInterface: any[] = [];
+  linkedMapNodes: any;
+  linkedMapPGs: any;
+  linkedMapInterfaces: any;
+  linkedMapImages: any;
+  interfacesCommonMapLinks!: any[];
+  mapImages!: any[];
   groupCategoryId!: string;
   errorMessages = ErrorMessages;
   isGroupBoxesChecked!: boolean;
   isEdgeDirectionChecked!: boolean;
-  groupBoxes!: any[];
-  groups!: any[];
+  netmasks: any[] = [];
+  groups: any[] = [];
+  histories: any[] = [];
+  mapLinks: any[] = [];
   lastWidth = 0;
   lastHeight = 0;
   zoomLimit = false;
   configTemplateAddsType = CONFIG_TEMPLATE_ADDS_TYPE;
-  @Input() deletedInterfaces!: any[];
-  @Input() deletedNodes!: any[];
   isValidOSPFBgpMetric: boolean = true;
   isValidOSPFConnectedMetric: boolean = true;
   isValidOSPFStaticMetric: boolean = true;
   isValidOSPFBgpState: boolean = true;
   isValidOSPFConnectedState: boolean = true;
   isValidOSPFStaticState: boolean = true;
-  isValidOSPFMetric: boolean = true; 
+  isValidOSPFMetric: boolean = true;
   isValidOSPFState: boolean = true;
   isValidOSPFNetworks: boolean = true;
+  isPGNameLabelChecked = false;
+  isPGSubnetLabelChecked = false;
+  isPGVLANLabelChecked = false;
+  isEdgeIPLabelChecked = false;
+  isEdgeVLANModeLabelChecked = false;
 
-  constructor(private store: Store,
+  constructor(
+    private store: Store,
     private toastr: ToastrService,
     private domSanitizer: DomSanitizer,
     private serverConnectionService: ServerConnectService,
-    private portGroupService: PortGroupService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private projectService: ProjectService,
   ) {
+    this.selectNotification$ = this.store.select(selectNotification).subscribe((notification: any) => {
+      if (notification) {
+        this.showNotification(notification);
+      }
+    });
+    this.selectMapCategory$ = this.store.select(selectMapCategory).subscribe((mapCategory: any) => {
+      if (mapCategory) {
+        this.mapCategory = mapCategory
+      }
+    })
     this.selectMapOption$ = this.store.select(selectMapOption).subscribe((mapOption: any) => {
       if (mapOption) {
         this.isGroupBoxesChecked = mapOption.isGroupBoxesChecked;
         this.isEdgeDirectionChecked = mapOption.isEdgeDirectionChecked;
         this.groupCategoryId = mapOption.groupCategoryId;
+        this.isPGNameLabelChecked = mapOption.isPGNameLabelChecked;
+        this.isPGSubnetLabelChecked = mapOption.isPGSubnetLabelChecked;
+        this.isPGVLANLabelChecked = mapOption.isPGVLANLabelChecked;
+        this.isEdgeIPLabelChecked = mapOption.isEdgeIPLabelChecked;
+        this.isEdgeVLANModeLabelChecked = mapOption.isEdgeVLANModeLabelChecked;
       }
     });
-    this.selectGroupBoxes$ = this.store.select(selectGroupBoxes).subscribe((groupBoxes: any[]) => {
-      this.groupBoxes = groupBoxes;
-    });
 
-    this.selectGroups$ = this.store.select(selectGroups).subscribe(groupData => {
-      this.groups = groupData;
+    this.selectGroups$ = this.store.select(selectGroups).subscribe(groups => {
+      if (groups) {
+        this.groups = groups;
+      }
     })
-    this.selectNodes$ = this.store.select(selectNodesByProjectId).subscribe(nodes => this.nodes = nodes);
+    this.selectNodes$ = this.store.select(selectLogicalNodes).subscribe(nodes => this.logicalNodes = nodes);
+    this.selectPhysicalNodes$ = this.store.select(selectPhysicalNodes).subscribe(nodes => this.physicalNodes = nodes);
+    this.selectMapPortGroups$ = this.store.select(selectMapPortGroups).subscribe((portGroups: any) => {
+      this.portGroups = portGroups;
+    });
+    this.selectNetmasks$ = this.store.select(selectNetmasks).subscribe((netmasks: any) => {
+      this.netmasks = netmasks;
+    });
+    this.selectMapLinks$ = this.store.select(selectMapLinks).subscribe(mapLinks => this.mapLinks = mapLinks)
+    this.selectLinkedMapNodes$ = this.store.select(selectLinkedMapNodes).subscribe(linkedMapNodes => {
+      if (linkedMapNodes) {
+        this.linkedMapNodes = linkedMapNodes
+      }
+    })
+    this.selectLinkedMapPGs$ = this.store.select(selectLinkedMapPortGroups).subscribe(linkedMapPGs => {
+      if (linkedMapPGs) {
+        this.linkedMapPGs = linkedMapPGs
+      }
+    })
+    this.selectLinkedMapInterfaces$ = this.store.select(selectLinkedMapInterfaces).subscribe(linkedMapInterfaces => {
+      if (linkedMapInterfaces) {
+        this.linkedMapInterfaces = linkedMapInterfaces
+      }
+    })
+    this.selectLinkedMapImages$ = this.store.select(selectLinkedMapImages).subscribe(linkedMapImages => {
+      if (linkedMapImages) {
+        this.linkedMapImages = linkedMapImages
+      }
+    })
+    this.selectInterfacesCommonMapLinks$ = this.store.select(selectInterfacesCommonMapLinks).subscribe(interfacesCommonMapLinks => {
+      if (interfacesCommonMapLinks) {
+        this.interfacesCommonMapLinks = interfacesCommonMapLinks
+      }
+    })
+    this.selectLogicalMapInterfaces$ = this.store.select(selectLogicalMapInterfaces).subscribe(interfacesLogical => {
+      if (interfacesLogical) {
+        this.interfacesLogical = interfacesLogical
+      }
+    })
+    this.selectLogicalMapInterfaces$ = this.store.select(selectPhysicalInterfaces).subscribe(physicalInterface => {
+      if (physicalInterface) {
+        this.physicalInterface = physicalInterface
+      }
+    })
+    this.selectMapImages$ = this.store.select(selectMapImages).subscribe(mapImage => {
+      if (mapImage) {
+        this.mapImages = mapImage
+      }
+    });
   }
 
   ngOnDestroy(): void {
     this.selectMapOption$.unsubscribe();
-    this.selectGroupBoxes$.unsubscribe();
     this.selectNodes$.unsubscribe();
+    this.selectMapPortGroups$.unsubscribe();
+    this.selectNetmasks$.unsubscribe();
+    this.selectGroups$.unsubscribe();
+    this.selectNotification$.unsubscribe();
+    this.selectMapLinks$.unsubscribe();
+    this.selectLinkedMapNodes$.unsubscribe();
+    this.selectLinkedMapPGs$.unsubscribe();
+    this.selectLinkedMapInterfaces$.unsubscribe();
+    this.selectLinkedMapImages$.unsubscribe();
+    this.selectInterfacesCommonMapLinks$.unsubscribe();
+    this.selectLogicalMapInterfaces$.unsubscribe();
+    this.selectMapImages$.unsubscribe();
+    this.selectPhysicalNodes$.unsubscribe();
+    this.selectMapCategory$.unsubscribe();
+  }
+
+  showNotification(notification: any) {
+    if (notification.type == 'success') {
+      this.toastr.success(notification.message);
+    } else if (notification.type == 'error') {
+      this.toastr.error(notification.message);
+    }
+    this.store.dispatch(clearNotification());
+  }
+
+  interfaceDisplay(option: any) {
+    return option && option.ip ? option.ip : option && option.name ? option.name : '';
   }
 
   optionDisplay(option: any) {
     return option && option.name ? option.name : '';
+  }
+
+  ipAndNameDisplay(option: any) {
+    if (option && option.ip) {
+      return option.name + '-' + option.ip;
+    } else {
+      return option.name
+    }
   }
 
   templateDisplay(option: any) {
@@ -123,10 +268,13 @@ export class HelpersService implements OnDestroy {
           "font-style": "normal",
           "text-valign": "bottom",
           "text-halign": "center",
+          "text-outline-color": "#ffffff",
+          "text-outline-width": 3,
           "background-fit": "contain",
           "background-image-opacity": 1,
-          "z-index": (ele: any) => ele.data('zIndex'),
+          "z-index": (ele: any) => ele.data('zIndex') ? ele.data('zIndex') : 1,
           "z-compound-depth": "bottom",
+          "min-zoomed-font-size": 10
         },
         locked: (ele: any) => ele.data('locked'),
       },
@@ -279,23 +427,23 @@ export class HelpersService implements OnDestroy {
       {
         selector: "edge",
         style: {
-          "text-opacity": 1,
           "curve-style": "bezier",
           "line-color": defaults.edge.color,
           "width": defaults.edge.size,
           "zIndex": 999,
           "z-compound-depth": "bottom",
-          "text-margin-x": 20,
-          "text-margin-y": -20,
+          "font-size": 18,
+          "text-background-padding": 3,
+          "text-background-opacity": 0,
+          "text-background-shape": "round-rectangle",
+          "text-outline-color": "#ffffff",
+          "text-outline-width": 3,
+          "text-opacity": 1,
           "text-rotation": "autorotate",
-          "arrow-scale": 3,
+          "arrow-scale": 2,
           "control-point-step-size": 100,
-        },
-      },
-      {
-        selector: "edge[ip]",
-        style: {
-          "content": (ele: any) => ele.data('ip'),
+          "min-zoomed-font-size": 9,
+          "text-wrap": "wrap",
         },
       },
       {
@@ -315,6 +463,24 @@ export class HelpersService implements OnDestroy {
         style: {
           "width": (ele: any) => ele.data('width'),
         },
+      },
+      {
+        selector: 'edge[text_size]',
+        style: {
+          'font-size': (ele: any) => ele.data('text_size'),
+        }
+      },
+      {
+        selector: 'edge[text_bg_color]',
+        style: {
+          'text-background-color': (ele: any) => ele.data('text_bg_color'),
+        }
+      },
+      {
+        selector: 'edge[text_bg_opacity]',
+        style: {
+          'text-background-opacity': (ele: any) => ele.data('text_bg_opacity'),
+        }
       },
       {
         selector: "[category='wireless']",
@@ -340,6 +506,22 @@ export class HelpersService implements OnDestroy {
         selector: "[ip_last_octet]",
         style: {
           "content": (ele: any) => ele.data('ip_last_octet'),
+        },
+      },
+      {
+        selector: "[source_label]",
+        style: {
+          "source-label": (ele: any) => ele.data('source_label'),
+          "source-text-offset": (ele: any) => (ele.data('source_label').length / 2 * 10) + 15,
+          "source-text-rotation": "autorotate",
+        }
+      },
+      {
+        selector: "[target_label]",
+        style: {
+          "target-label": (ele: any) => ele.data('target_label'),
+          "target-text-offset": (ele: any) => (ele.data('target_label').length / 2 * 10) + 15,
+          "target-text-rotation": "autorotate",
         },
       },
       {
@@ -392,121 +574,134 @@ export class HelpersService implements OnDestroy {
         }
       },
       {
-        selector: "[?updated]",
+        selector: "node[text_outline_color]",
         style: {
-          'text-border-opacity': 1,
-          'text-border-color': '#808080',
-          'text-border-style': 'dashed',
-          'text-border-width': 1,
+          "text-outline-color": (ele: any) => ele.data('text_outline_color')
+        }
+      },
+      {
+        selector: "node[text_outline_width]",
+        style: {
+          "text-outline-width": (ele: any) => ele.data('text_outline_width')
+        }
+      },
+      {
+        selector: "edge[text_outline_color]",
+        style: {
+          "text-outline-color": (ele: any) => ele.data('text_outline_color')
+        }
+      },
+      {
+        selector: "edge[text_outline_width]",
+        style: {
+          "text-outline-width": (ele: any) => ele.data('text_outline_width')
+        }
+      },
+      {
+        selector: "[updated]",
+        style: {
+          "text-border-color": "#FF0000",
+          "text-border-opacity": 1,
+          "text-border-style": "solid",
+          "text-border-width": "1px"
         }
       },
       {
         selector: "[!updated]",
         style: {
-          'text-border-opacity': 0,
+          "text-border-opacity": 0,
         }
       }
     ]
   }
 
-  addCYNode(cy: any, data: any) {
-    return cy.add({
+  addCYNode(data: any) {
+    return this.cy.add({
       group: "nodes",
-      data: data.newNodeData,
-      position: data.newNodePosition,
+      data: data.newNodeData ? data.newNodeData : data.data,
+      position: data.newNodePosition ? data.newNodePosition : data.position,
     });
   }
 
-  addCYEdge(cy: any, data: any) {
-    return cy.add({
+  addCYEdge(data: any) {
+    return this.cy.add({
       group: "edges",
       data,
     });
   }
 
-  addCYNodeAndEdge(cy: any, nodes: any[], edges: any[], newPosition: any = { x: 0, y: 0 }, mapLinkId = undefined) {
+  addCYNodeAndEdge(cy: any, nodes: any[], edges: any[], newPosition: any = { x: 0, y: 0 }) {
     // Draw new nodes from the other project into the current project.
     nodes.map((node: any) => {
-      if (node.data.elem_category == 'node' || node.data.elem_category == 'map_link') {
-        node.data.icon = environment.apiBaseUrl + node.data.icon;
-      }
-      node.data.updated = true;
       let position = null;
       if (node.position) {
         position = { x: newPosition.x + node.position.x, y: newPosition.y + node.position.y }
       }
-      const nodeEle = this.addCYNode(cy, { newNodeData: node.data, newNodePosition: position });
-      if (mapLinkId) {
-        nodeEle.move({ parent: `project-link-${mapLinkId}` });
-      }
+      this.addCYNode({ newNodeData: node.data, newNodePosition: position });
     })
 
     // Draw new interfaces from the other project into the current project.
     edges.map((edge: any) => {
-      this.addCYEdge(cy, edge.data);
+      if (edge.data.port_group_id) {
+        this.addCYEdge(edge.data);
+      }
     })
   }
 
-  removeGroupBoxes(cy: any) {
-    const gbs = cy.nodes().filter('[label="group_box"]');
+  removeGroupBoxes() {
+    const gbs = this.cy.nodes().filter('[label="group_box"]');
     gbs.forEach((gb: any) => {
       const data = gb.data();
       if (data.collapsedChildren) {
-        cy.expandCollapse('get').expandRecursively(gb, {});
+        this.cy.expandCollapse('get').expandRecursively(gb, {});
       }
       const gbNodes = gb.children();
       gbNodes.forEach((node: any) => {
         node.move({ 'parent': null });
       });
-      cy.remove(gb);
+      this.cy.remove(gb);
     });
-    const gbsTemplate = cy.nodes().filter(this.isGroupBoxCreatedFromCdnd)
+    const gbsTemplate = this.cy.nodes().filter(this.isGroupBoxCreatedFromCdnd)
     gbsTemplate.forEach((gb: any) => {
       this.removeParent(gb)
     })
     return true;
   }
 
-  removeGroupBox(cy: any, groupBoxId: any) {
-    const groupBox = cy.getElementById(`group-${groupBoxId}`)
-    if (groupBox && groupBox.length > 0) {
-      const data = groupBox.data();
-      if (data.collapsedChildren) {
-        cy.expandCollapse('get').expandRecursively(groupBox, {});
-      }
-      const gbNodes = groupBox.children();
-      gbNodes.forEach((node: any) => {
-        node.move({ 'parent': null });
-      });
-      cy.remove(groupBox);
-    }
-  }
-
   isGroupBoxCreatedFromCdnd(node: any) {
     return Object.values(node.classes()).includes('cdnd-new-parent')
   }
 
-  addGroupBoxes(cy: any) {
-    const gbs = this.groupBoxes.filter((gb: any) => gb.data.group_category == this.groupCategoryId);
-    cy.add(gbs);
-    cy.nodes().forEach((ele: any) => {
-      if (!Boolean(ele.data('parent_id')) && ele.data('elem_category') != 'map_link') {
-        const data = ele.data();
-        if (data.elem_category != 'group') {
-          const g = data.groups.filter((gb: any) => gb.category == this.groupCategoryId);
-          if (g.length > 0) ele.move({ parent: 'group-' + g[0].id });
-        }
+  addGroupBoxes() {
+    const gbs = this.groups.filter((gb: any) => gb.data.group_category == this.groupCategoryId);
+    this.cy.add(JSON.parse(JSON.stringify(gbs)));
+    gbs.map(g => {
+      if (g.nodes.length > 0 || g.port_groups.length > 0 || g.map_images.length > 0) {
+        this.cy.nodes().forEach((ele: any) => {
+          if (!Boolean(ele.data('parent_id')) && ele.data('elem_category') != 'map_link') {
+            const data = ele.data();
+            if (data.elem_category == 'node' || data.elem_category == 'port_group' || data.elem_category == 'bg_image') {
+              const node = g.nodes.find((n: any) => !n.isDeleted && n.id == data.node_id);
+              const pg = g.port_groups.find((pg: any) => !pg.isDeleted && pg.id == data.pg_id);
+              const map_image = g.map_images.find((mi: any) => !mi.isDeleted && mi.id == data.map_image_id);
+              if (node || pg || map_image) {
+                ele.move({ parent: g.data.id });
+              }
+            }
+          }
+        });
       }
     });
+
     let done = false;
     for (let i = 0; i < gbs.length; i++) {
       let gb = gbs[i];
-      const gbn = cy.getElementById(gb.data.id);
+      const gbn = this.cy.getElementById(gb.data.id);
       if (gbn.children().length > 0) {
         if (gb.data.collapsed) {
-          gb = cy.getElementById(gb.data.id);
+          gb = this.cy.getElementById(gb.data.id);
           const pos = gbn.position();
-          cy.expandCollapse('get').collapseRecursively(gbn, {});
+          this.cy.expandCollapse('get').collapseRecursively(gbn, {});
           gbn.data('width', '90px');
           gbn.data('height', '90px');
           gbn.position(pos);
@@ -524,24 +719,24 @@ export class HelpersService implements OnDestroy {
           gbn.lock();
         }
       } else {
-        cy.remove(gbn);
+        this.cy.remove(gbn);
       }
     }
-    const z = cy.zoom();
-    const cyW = cy.container().clientWidth;
-    const cyH = cy.container().clientHeight;
+    const z = this.cy.zoom();
+    const cyW = this.cy.container().clientWidth;
+    const cyH = this.cy.container().clientHeight;
     const nW = this.lastWidth || 100;
     const nH = this.lastHeight || 100;
     const lim = (nW * nH * z) / (cyW * cyH);
     this.zoomLimit = lim < 0.0005;
-    cy.resize();
+    this.cy.resize();
     return true;
   }
 
-  reloadGroupBoxes(cy: any) {
+  reloadGroupBoxes() {
     if (this.isGroupBoxesChecked) {
-      this.removeGroupBoxes(cy);
-      this.addGroupBoxes(cy);
+      this.removeGroupBoxes();
+      this.addGroupBoxes();
     }
   }
 
@@ -549,10 +744,16 @@ export class HelpersService implements OnDestroy {
     if (dropTarget.data() && dropTarget.data('elem_category') != 'group' && dropTarget.hasClass('cdnd-new-parent')) {
       const children = dropTarget.children()
       if (children.length == 2) {
-        const g0 = children[0].map((ele: any) => ele.data('groups'))[0].map((g: any) => g.id).sort()
-        const g1 = children[1].map((ele: any) => ele.data('groups'))[0].map((g: any) => g.id).sort()
-        const isBelongedOneGroup = g0.some((g: any) => g1.includes(g))
-        if (g0.length == 0 || g1.length == 0 || !isBelongedOneGroup) {
+        const nodeId0 = children[0].map((ele: any) => ele.data('elem_category') == 'node' ? ele.data().node_id : ele.data().pg_id )[0];
+        const nodeId1 = children[1].map((ele: any) => ele.data('elem_category') == 'node' ? ele.data().node_id : ele.data().pg_id )[0];
+        const g0 = children[0].map((ele: any) => ele.data('groups'))[0]?.map((g: any) => g.id).sort() || [];
+        const g1 = children[1].map((ele: any) => ele.data('groups'))[0]?.map((g: any) => g.id).sort() || [];
+        const group0 = this.groups.filter((g: any) => g.id === g0[0])
+        const group1 = this.groups.filter((g: any) => g.id === g1[0])
+        const isBelongedOneGroup = group0.some((g: any) => group1.includes(g));
+        const nodeIdInGroup0 = group0.map((ele: any) => ele.nodes.map((node: any) => node.id))
+        const nodeIdInGroup1 = group1.map((ele: any) => ele.nodes.map((node: any) => node.id))
+        if (!nodeIdInGroup0.includes(nodeId0) || !nodeIdInGroup1.includes(nodeId1) || !isBelongedOneGroup) {
           const nodes = children.filter('[elem_category="node"]')
           const portGroups = children.filter('[elem_category="port_group"]')
           const mapImages = children.filter('[elem_category="bg_image"]')
@@ -572,17 +773,78 @@ export class HelpersService implements OnDestroy {
           dialog.afterClosed().subscribe((dialogResult: any) => {
             if (dialogResult && dialogResult.isCanceled) {
               if (nodes.length > 0 || portGroups.length > 0 || mapImages.length > 0) {
-                this.reloadGroupBoxes(cy)
+                this.reloadGroupBoxes();
               }
             }
           })
         }
         else {
           this.toastr.info('Two nodes belonged to a group box', 'Info')
-          this.reloadGroupBoxes(cy);
+          this.reloadGroupBoxes();
         }
       }
     }
+  }
+
+  updateInterfaceOnEle(cy: any, id: string, new_interface: any) {
+    const ele = cy.getElementById(id);
+    const interfaces = ele.data('interfaces')
+    if (interfaces) {
+      let interfacesArr = [...interfaces]
+      interfacesArr.forEach((item: any, index: number, array: any) => {
+        if (item.id == new_interface.id) {
+          array[index] = new_interface;
+        }
+      });
+      ele.data('interfaces', interfacesArr);
+    } else {
+      ele.data('interfaces', [new_interface]);
+    }
+  }
+
+  updateInterfaceOnMap(id: string, data: any) {
+    const ele = this.cy.getElementById(id);
+    ele.data('name', data.name);
+    ele.data('order', data.order);
+    ele.data('description', data.description);
+    ele.data('category', data.category);
+    ele.data('direction', data.direction);
+    ele.data('mac_address', data.mac_address);
+    ele.data('port_group_id', data.port_group_id);
+    ele.data('port_group', data.port_group_id ? this.getOptionById(this.portGroups, data.port_group_id).name : '');
+    ele.data('ip_allocation', data.ip_allocation);
+    ele.data('ip', data.ip);
+    ele.data('dns_server', data.dns_server);
+    ele.data('gateway', data.gateway);
+    ele.data('is_gateway', data.is_gateway);
+    ele.data('is_nat', data.is_nat);
+    const ip_str = data.ip ? data.ip : "";
+    const ip = ip_str.split(".");
+    const last_octet = ip.length == 4 ? "." + ip[3] : "";
+    ele.data('ip_last_octet', last_octet);
+    ele.move({target: `pg-${data.port_group_id}`});
+    ele.data('netmask_id', data.netmask_id);
+    ele.data('vlan', data.vlan);
+    ele.data('vlan_mode', data.vlan_mode);
+    ele.data('netmask', data.netmask_id ? this.getOptionById(this.netmasks, data.netmask_id).mask : '');
+    ele.data('source_label', data.name);
+  }
+
+  removeInterfaceOnPG(cy: any, pgId: number, interfaceId: number) {
+    const pgEle = cy.getElementById(`pg-${pgId}`)
+    const interfaces = pgEle.data('interfaces')
+    const index = interfaces.findIndex((i: any) => i.id === interfaceId)
+    if (index !== -1) {
+      interfaces.splice(index, 1)
+    }
+    pgEle.data('interfaces', interfaces)
+  }
+
+  addInterfaceIntoElement(cy: any, pgId: number, edge: any, type: string = 'node') {
+    const element = cy.getElementById(`${type}-${pgId}`)
+    const currentInterfaces = element.data('interfaces')
+    const newInterfaces = currentInterfaces ? [...currentInterfaces, edge] : [edge]
+    element.data('interfaces', newInterfaces)
   }
 
   createUUID() {
@@ -597,9 +859,7 @@ export class HelpersService implements OnDestroy {
     mapLinkNode.on('expandcollapse.aftercollapse', (event: any) => {
       mapLinkNode.data('width', '90px')
       mapLinkNode.data('height', '90px')
-      mapLinkNode.data('new', false);
       mapLinkNode.data('updated', true);
-      mapLinkNode.data('deleted', false);
       mapLinkNode.data('collapsed', true);
       mapLinkNode.data('lastPos', mapLinkNode.position())
       mapLinkNode.style({
@@ -612,9 +872,7 @@ export class HelpersService implements OnDestroy {
     mapLinkNode.on('expandcollapse.afterexpand', (event: any) => {
       mapLinkNode.data('width', '90px');
       mapLinkNode.data('height', '90px');
-      mapLinkNode.data('new', false);
       mapLinkNode.data('updated', true);
-      mapLinkNode.data('deleted', false);
       mapLinkNode.data('collapsed', false);
       mapLinkNode.data('lastPos', mapLinkNode.position());
       mapLinkNode.style({
@@ -630,10 +888,14 @@ export class HelpersService implements OnDestroy {
   randomPositionForElementsNoPosition(cy: any) {
     // Random position for the nodes if the map has layout preset however the nodes don't have the position
     const elementsNoPosition = cy.elements().filter((ele: any) =>
-      (ele.group() == 'nodes' && ele.position('x') === 0 && ele.position('y') === 0)
-    );
+      ((
+        ele.group() == 'nodes' &&
+        ((ele.position('x') === 0 && ele.position('y') === 0) || ele.position() == undefined))
+      ));
     if (elementsNoPosition.length > 0) {
-      cy.elements().filter((ele: any) => (ele.position('x') !== 0 && ele.position('y') !== 0)).lock();
+      cy.elements().filter((ele: any) => (
+        (ele.position('x') !== 0 && ele.position('y') !== 0) && ele.position() !== undefined)
+      ).lock();
       cy.layout({
         name: "cose",
         avoidOverlap: true,
@@ -705,55 +967,146 @@ export class HelpersService implements OnDestroy {
     );
   }
 
-  removeNode(node: any) {
-    node._private['data'] = { ...node._private['data'] };
-    const data = node.data();
-    if (!data.new) {
-      data.deleted = true;
-      if (data.elem_category == "port_group") {
-        this.deletedNodes.push({
-          'elem_category': data.elem_category,
-          'label': data.label,
-          'id': data.pg_id
-        });
-      } else if (data.elem_category == "node") {
-        this.deletedNodes.push({
-          'elem_category': data.elem_category,
-          'label': data.label,
-          'id': data.node_id
-        });
-      } else if (data.elem_category == "group") {
-        this.deletedNodes.push({
-          'elem_category': data.elem_category,
-          'label': data.label,
-          'id': data.group_id
-        });
-      } else if (data.elem_category == 'bg_image') {
-        this.deletedNodes.push({
-          'elem_category': data.elem_category,
-          'label': data.label,
-          'id': data.map_image_id
-        })
-      } else if (data.elem_category == 'map_link') {
-        this.deletedNodes.push({
-          'linked_project_id': data.linked_project_id,
-          'elem_category': data.elem_category,
-          'id': data.map_link_id
-        });
-      }
+  removeNodesOnMap(ids: number[]) {
+    if (ids.length > 0) this.ur?.do("removeNodes", { ids });
+  }
 
-      node.edges().forEach((ele: any) => {
-        const data = ele.data();
-        if (data && !data.new) {
-          data.deleted = true;
-          this.deletedInterfaces.push({
-            'name': data.id,
-            'interface_id': data.interface_id
-          });
-        }
-      });
-    }
-    return node.remove();
+  removePGsOnMap(ids: number[]) {
+    if (ids.length > 0) this.ur?.do("removePGs", { ids });
+  }
+
+  removeInterfacesOnMap(ids: number[]) {
+    if (ids.length > 0) this.ur?.do("removeInterfaces", { ids });
+  }
+
+  removeMapLinksOnMap(ids: number[]) {
+    if (ids.length > 0) this.ur?.do("removeMapLinks", { ids });
+  }
+
+  removeMapImagesOnMap(ids: number[]) {
+    if (ids.length > 0) this.ur?.do("removeMapImages", { ids });
+  }
+
+  removeNodes(data: any) {
+    const eles = data.ids.map((id: number) => {
+      const node = this.cy.getElementById(`node-${id}`);
+      const removedEles = node.remove();
+      const removedInterfaces = removedEles.filter((ele: any) => ele.data('elem_category') == 'interface');
+      const removedPhysicalInterfaces = node.data('interfaces').filter((ele: any) => ele.id)
+      if (removedInterfaces.length > 0 || removedPhysicalInterfaces.length > 0) {
+        const removedInterfaceIds = this.mapCategory === 'logical' 
+          ? removedInterfaces.map((i: any) => i.data('interface_pk')) 
+          : removedPhysicalInterfaces.map((i: any) => i.id);
+        this.store.dispatch(removeInterfaces({ ids: removedInterfaceIds , mapCategory: this.mapCategory }));
+      }
+      return removedEles;
+    })
+    this.store.dispatch(removeNodes({ ids: data.ids, mapCategory: this.mapCategory }));
+    return { ids: data.ids, eles };
+  }
+
+  restoreNodes(data: any) {
+    const eles = data.eles.map((e: any) => {
+      const restoredEles = e.restore();
+      const restoredInterfaces = restoredEles.filter((ele: any) => ele.data('elem_category') == 'interface');
+      if (restoredInterfaces.length > 0) {
+        const restoredInterfaceIds = restoredInterfaces.map((i: any) => i.data('interface_pk'));
+        this.store.dispatch(restoreInterfaces({ ids: restoredInterfaceIds, mapCategory: this.mapCategory }));
+      }
+      return restoredEles;
+    });
+    this.store.dispatch(restoreNodes({ ids: data.ids, mapCategory: this.mapCategory }));
+    return { ids: data.ids, eles };
+  }
+
+  removePGs(data: any) {
+    const eles = data.ids.map((id: number) => {
+      const node = this.cy.getElementById(`pg-${id}`);
+      const removedEles = node.remove();
+      const removedInterfaces = removedEles.filter((ele: any) => ele.data('elem_category') == 'interface');
+      if (removedInterfaces.length > 0) {
+        const removedInterfaceIds = removedInterfaces.map((i: any) => i.data('interface_pk'));
+        this.store.dispatch(removeInterfaces({ ids: removedInterfaceIds, mapCategory: this.mapCategory }));
+      }
+      return removedEles;
+    })
+    this.store.dispatch(removePGs({ ids: data.ids }));
+    return { ids: data.ids, eles };
+  }
+
+  restorePGs(data: any) {
+    const eles = data.eles.map((e: any) => {
+      const restoredEles = e.restore();
+      const restoredInterfaces = restoredEles.filter((ele: any) => ele.data('elem_category') == 'interface');
+      if (restoredInterfaces.length > 0) {
+        const restoredInterfaceIds = restoredInterfaces.map((i: any) => i.data('interface_pk'));
+        this.store.dispatch(restoreInterfaces({ ids: restoredInterfaceIds, mapCategory: this.mapCategory }));
+      }
+      return restoredEles;
+    });
+    this.store.dispatch(restorePGs({ ids: data.ids }));
+    return { ids: data.ids, eles };
+  }
+
+  removeInterfaces(data: any) {
+    const eles = data.ids.map((id: number) => {
+      const i = this.cy.getElementById(`interface-${id}`);
+      return i.remove();
+    })
+    this.store.dispatch(removeInterfaces({ ids: data.ids, mapCategory: this.mapCategory }));
+    return { ids: data.ids, eles };
+  }
+
+  restoreInterfaces(data: any) {
+    const eles = data.eles.map((e: any) => e.restore());
+    this.store.dispatch(restoreInterfaces({ ids: data.ids, mapCategory: this.mapCategory }));
+    return { ids: data.ids, eles };
+  }
+
+  removeMapLinks(data: any) {
+    const eles = data.ids.map((id: number) => {
+      const mapLink = this.cy.getElementById(`project-link-${id}`);
+      const removedMapLinkEles = mapLink.remove();
+      const removedInterfacesCommon = removedMapLinkEles.filter((ele: any) => ele.data('elem_category') == 'interface');
+      if (removedInterfacesCommon.length > 0) {
+        const removedInterfaceIds = removedInterfacesCommon.map((i: any) => i.data('interface_pk'));
+        this.store.dispatch(removeInterfaces({ ids: removedInterfaceIds, mapCategory: this.mapCategory }));
+      }
+      return removedMapLinkEles;
+    })
+    this.store.dispatch(removeMapLinks({ ids: data.ids }));
+    return { ids: data.ids, eles };
+  }
+
+  restoreMapLinks(data: any) {
+    const eles = data.eles.map((e: any) => {
+      const restoredEles = e.restore();
+      const restoredInterfaces = restoredEles.filter((ele: any) => ele.data('elem_category') == 'interface');
+      if (restoredInterfaces.length > 0) {
+        const restoredInterfaceIds = restoredInterfaces.map((i: any) => i.data('interface_pk'));
+        this.store.dispatch(restoreInterfaces({ ids: restoredInterfaceIds, mapCategory: this.mapCategory }));
+      }
+      return restoredEles;
+    });
+    this.store.dispatch(restoreMapLinks({ ids: data.ids }));
+    return { ids: data.ids, eles };
+  }
+
+  removeMapImages(data: any) {
+    const eles = data.ids.map((id: number) => {
+      const mapImage = this.cy.getElementById(`map_image-${id}`);
+      return mapImage.remove();
+    })
+    this.store.dispatch(removeMapImages({ ids: data.ids }));
+    return { ids: data.ids, eles };
+  }
+
+  restoreMapImages(data: any) {
+    const eles = data.eles.map((e: any) => {
+      return e.restore();
+    });
+    this.store.dispatch(restoreMapImages({ ids: data.ids }));
+    return { ids: data.ids, eles };
   }
 
   isParentOfOneChild(node: any) {
@@ -768,28 +1121,6 @@ export class HelpersService implements OnDestroy {
 
   removeParentsOfOneChild(cy: any) {
     cy.nodes().filter(this.isParentOfOneChild).forEach(this.removeParent)
-  }
-
-  restoreNode(node: any) {
-    node._private['data'] = { ...node._private['data'] };
-    var restored = node.restore();
-    var node = null;
-    restored.forEach((ele: any) => {
-      var d = ele.data()
-      if (ele.group() == 'nodes') {
-        if (!d.new) {
-          d.deleted = false;
-          this.deletedNodes.pop();
-          node = ele;
-        }
-      } else {
-        if (!d.new) {
-          d.deleted = false;
-          this.deletedInterfaces.pop();
-        }
-      }
-    });
-    return node;
   }
 
   addBadge(cy: any, ele: any) {
@@ -822,57 +1153,6 @@ export class HelpersService implements OnDestroy {
     if (existingTarget) {
       existingTarget.remove();
     }
-  }
-
-  removeInterface(ele: any, interface_id: number) {
-    const interfaces = ele.data('interfaces').filter((i: any) => i.id != interface_id);
-    ele.data('interfaces', interfaces);
-  }
-
-  removeEdge(data: any) {
-    const edgeData = data.edge.data();
-    const pg = data.cy.getElementById(`pg-${edgeData.port_group_id}`);
-    const pg_interface = pg.data('interfaces').filter((i: any) => i.id == edgeData.interface_id)[0];
-    this.removeInterface(pg, edgeData.interface_id);
-    const node = data.cy.getElementById(`node-${edgeData.node_id}`);
-    const node_interface = node.data('interfaces').filter((i: any) => i.id == edgeData.interface_id)[0];
-    this.removeInterface(node, edgeData.interface_id);
-
-    if (edgeData && !edgeData.new) {
-      this.deletedInterfaces.push({
-        'name': edgeData.id,
-        'interface_id': edgeData.interface_id,
-        'pg_interface_value': pg_interface.value,
-        'node_interface_value': node_interface.value
-      });
-      edgeData.deleted = true;
-    }
-    this.store.dispatch(retrievedMapSelection({ data: true }));
-    return { cy: data.cy, edge: data.edge.remove() };
-  }
-
-  restoreInterface(ele: any, interface_id: number) {
-    const i = this.deletedInterfaces.filter((i: any) => i.interface_id == interface_id)[0];
-    const interfaces = [...ele.data('interfaces'), {
-      id: interface_id,
-      value: ele.data('elem_category') == 'node' ? i.node_interface_value : i.pg_interface_value
-    }];
-    ele.data('interfaces', interfaces);
-  }
-
-  restoreEdge(data: any) {
-    const edge_restore = data.edge.restore();
-    const edgeData = edge_restore.data();
-    const pg = data.cy.getElementById(`pg-${edgeData.port_group_id}`);
-    this.restoreInterface(pg, edgeData.interface_id);
-    const node = data.cy.getElementById(`node-${edgeData.node_id}`);
-    this.restoreInterface(node, edgeData.interface_id);
-    if (edgeData && !edgeData.new) {
-      edgeData.deleted = false;
-      this.deletedInterfaces.pop();
-    }
-    this.store.dispatch(retrievedMapSelection({ data: true }));
-    return { cy: data.cy, edge: edge_restore };
   }
 
   hexToRGB(hexColor: string) {
@@ -956,6 +1236,11 @@ export class HelpersService implements OnDestroy {
     window.URL.revokeObjectURL(anchor.href);
   }
 
+  downloadBlobWithData(data: any, fileName: string) {
+    let file = new Blob([JSON.stringify(data, null, 4)], { type: 'application/json' });
+    this.downloadBlob(fileName, file);
+  }
+
   public setIconPath(url: string): SafeResourceUrl {
     return this.domSanitizer.bypassSecurityTrustResourceUrl(url);
   }
@@ -975,6 +1260,13 @@ export class HelpersService implements OnDestroy {
       acc[curr] = typeof object[curr] == 'string' ? object[curr].trim() : object[curr]
       return acc;
     }, {});
+  }
+
+  sortListByKeyInObject(array: any[], key: string = 'name') {
+    return array.sort((a: any, b: any) => {
+      if (a[key].toLowerCase() < b[key].toLowerCase()) return -1
+      return a[key].toLowerCase() > b[key].toLowerCase() ? 1 : 0
+    })
   }
 
   validateAllFormFields(formGroup: FormGroup) {
@@ -1008,7 +1300,7 @@ export class HelpersService implements OnDestroy {
     const newValue = params.newValue;
     const data = params.data;
     const field = params.colDef.field
-    const typeOfValidation = validatieIP(params, newValue)
+    const typeOfValidation = validateIP(params, newValue)
     if (newValue === '' && field == 'network') {
       this.toastr.warning(ErrorMessages.FIELD_IS_REQUIRED)
       return false
@@ -1076,51 +1368,50 @@ export class HelpersService implements OnDestroy {
     }
   }
 
-  updateNodesStorage(newNode: any) {
-    const nodeIds = this.nodes.map(node => node.id);
-    const newNodes = [...this.nodes];
-    if (nodeIds.includes(newNode.id)) {
-      const index = this.nodes.findIndex(node => node.id === newNode.id);
-      newNodes.splice(index, 1, newNode);
-      this.store.dispatch(retrievedNodes({ data: newNodes }));
-    } else {
-      this.store.dispatch(retrievedNodes({ data: newNodes.concat(newNode) }));
-    }
+  addNewNodeToMap(id: number) {
+    const mapCategory = this.mapCategory ? this.mapCategory : localStorage.getItem(LocalStorageKeys.MAP_STATE)
+    const nodesData = mapCategory === 'logical' ? this.logicalNodes : this.physicalNodes;
+    const cyNodeData = nodesData.find((n: any) => n.id == id);
+    this.addCYNode(JSON.parse(JSON.stringify(cyNodeData)));
   }
 
-  updateNodesOnGroupStorage(newValue: any, type: any) {
-    let newItemInGroup: any;
-    const groupOfNode = newValue.groups;
-    const groupIds = groupOfNode.map((gr: any) => gr.id);
-    groupOfNode.forEach((group: any) => {
-      const groups = this.groups.filter(gr => gr.id === group.id);
-      if (type === 'node') {
-        const nodeInGroup = groups[0].nodes;
-        newItemInGroup = [...nodeInGroup];
-        const index = nodeInGroup.findIndex((node: any) => node.id === newValue.id);
-        newItemInGroup.splice(index, 1, newValue);
-      } else {
-        const pgInGroup = groups[0].port_groups;
-        newItemInGroup = [...pgInGroup];
-        const index = pgInGroup.findIndex((pg: any) => pg.id === newValue.id);
-        newItemInGroup.splice(index, 1, newValue);
-      }
-    })
-    const indexGroup = this.groups.findIndex(group => group.id === groupIds[0]);
-    const newGroups = [...this.groups];
-    let newGroup = {...newGroups[indexGroup]};
-    if (type == 'node') {
-      newGroup.nodes = newItemInGroup;
-      newGroups.splice(indexGroup, 1, newGroup);
+  addTemplateItemsToMap(data: any, newPosition: { x: number, y: number }) {
+    const newNodeIds = data.node_ids;
+    const newPGIds = data.port_group_ids;
+    const mapImageIds = data.map_image_ids;
+    const newInterfaceIds = data.interface_ids;
+    const nodesData = this.mapCategory === 'logical' ? this.logicalNodes : this.physicalNodes;
+    const nodes = nodesData.filter((node: any) => newNodeIds.includes(node.id));
+    const portGroups = this.portGroups.filter((pg: any) => pg.category !== 'management' && newPGIds.includes(pg.id));
+    const mapImages = this.mapImages.filter((mi: any) => mapImageIds.includes(mi.id));
+    const interfaces = JSON.parse(JSON.stringify(this.interfacesLogical.filter((i: any) => newInterfaceIds.includes(i.id))));
+    const elements = JSON.parse(JSON.stringify([...nodes, ...portGroups, ...mapImages]));
+    const isNodesHasPosition = elements.every((node: any) =>
+      node.position && node.position?.x !== 0 && node.position?.y !== 0
+    );
+    if (isNodesHasPosition) {
+      this.addCYNodeAndEdge(this.cy, elements, interfaces, newPosition);
+      this.store.dispatch(retrievedMapContextMenu({ data: { event: 'save' } }));
     } else {
-      newGroup.port_groups = newItemInGroup;
-      newGroups.splice(indexGroup, 1, newGroup);
+      this.cy.elements().lock();
+      this.addCYNodeAndEdge(this.cy, elements, interfaces);
+      this.cy.layout({
+        name: "cose",
+        avoidOverlap: true,
+        nodeDimensionsIncludeLabels: true,
+        spacingFactor: 5,
+        fit: true,
+        animate: false,
+        padding: 150
+      }).run();
+      this.cy.elements().unlock();
     }
-    this.store.dispatch(retrievedGroups({ data: newGroups }));
+    this.changeEdgeDirectionOnMap(this.cy, this.isEdgeDirectionChecked);
+    this.store.dispatch(validateProject({ id: this.projectService.getProjectId() }))
   }
 
-  updateNodeOnMap(cy: any, id: string, data: any) {
-    const ele = cy.getElementById(id);
+  updateNodeOnMap(id: string, data: any) {
+    const ele = this.cy.getElementById(id);
     ele.data('name', data.name);
     ele.data('notes', data.notes);
     ele.data('icon', ICON_PATH + data.icon.photo);
@@ -1145,10 +1436,11 @@ export class HelpersService implements OnDestroy {
     ele.data('configuration_show', data.configuration_show);
     ele.data('groups', data.groups);
     ele.data('interfaces', data.interfaces);
+    ele.data('infrastructure', data.infrastructure);
   }
 
-  updatePGOnMap(cy: any, portGroupId: any, data: any) {
-    const ele = cy.getElementById(`pg-${portGroupId}`);
+  updatePGOnMap(id: any, data: any) {
+    const ele = this.cy.getElementById(id);
     ele.data('name', data.name);
     ele.data('vlan', data.vlan);
     ele.data('category', data.category);
@@ -1160,9 +1452,9 @@ export class HelpersService implements OnDestroy {
     ele.data('interfaces', data.interfaces);
   }
 
-  initCollapseExpandMapLink(cy: any) {
+  initCollapseExpandMapLink() {
     // Add parent for the elements related to the map link
-    const nodeRelatedMapLink = cy.elements().filter((ele: any) =>
+    const nodeRelatedMapLink = this.cy.elements().filter((ele: any) =>
       (ele.group() == 'nodes' && ele.data('parent_id'))
     )
     nodeRelatedMapLink.forEach((node: any) => {
@@ -1170,10 +1462,10 @@ export class HelpersService implements OnDestroy {
     })
 
     // Set initial collapse and expand based on the project node data
-    const mapLinkNodes = cy.nodes().filter((node: any) => node.data('elem_category') == 'map_link' && !Boolean(node.data('parent_id')))
+    const mapLinkNodes = this.cy.nodes().filter((node: any) => node.data('elem_category') == 'map_link' && !Boolean(node.data('parent_id')))
     mapLinkNodes.map((mapLinkNode: any) => {
       if (mapLinkNode.data('collapsed')) {
-        cy.expandCollapse('get').collapseRecursively(mapLinkNode, {});
+        this.cy.expandCollapse('get').collapseRecursively(mapLinkNode, {});
         mapLinkNode.data('width', '90px');
         mapLinkNode.data('height', '90px');
         mapLinkNode.style({
@@ -1194,17 +1486,8 @@ export class HelpersService implements OnDestroy {
     mapLinkNodes.map((mapLinkNode: any) => {
       this.collapseAndExpandMapLinkNodeEvent(mapLinkNode);
     })
-  }
-
-  removeNodesInStorage(nodeIds: any[]) {
-    const newNodes = [...this.nodes];
-    this.nodes.map(node => {
-      if (nodeIds.includes(node.id)) {
-        const index = newNodes.findIndex(ele => ele.id === node.id);
-        newNodes.splice(index, 1);
-      }
-    })
-    this.store.dispatch(retrievedNodes({ data: newNodes }));
+    this.randomPositionForElementsNoPosition(this.cy)
+    this.changeEdgeDirectionOnMap(this.cy, this.isEdgeDirectionChecked)
   }
 
   validateJSONFormat(json: any) {
@@ -1272,20 +1555,27 @@ export class HelpersService implements OnDestroy {
         })
       } else {
         isIpV4 = isIPv4(data)
-        isValidNetworks = isIpV4
+        isValidNetworks = (isIpV4)
+        if (data.includes('/')) {
+          isIpV4 = isIPv4(data.split('/')[0])
+          const isMatchSubnet = isSubnet(data)
+          isValidNetworks = (isIpV4 && isMatchSubnet)
+        } else {
+          isValidNetworks = isIpV4
+        }
       }
     }
     return isValidNetworks;
   }
 
   validationBGP(json: any) {
-    let isValidBGPConnectedMetric: boolean = true; 
+    let isValidBGPConnectedMetric: boolean = true;
     let isValidBGPOSPFMetric: boolean = true;
     let isValidBGPConnectedState: boolean = true;
     let isValidBGPOSPFState: boolean = true;
     let isValidBGPMetric: boolean = true;
     let isValidBGPState: boolean = true;
-    let isValidBGPIPAdress: boolean = true;
+    let isValidBGPIPAddress: boolean = true;
     let isValidBGPNeighborIP: boolean = true;
     let isValidBGPNetworks: boolean = true;
     const configData = JSON.parse(json)
@@ -1298,33 +1588,105 @@ export class HelpersService implements OnDestroy {
         isValidBGPOSPFMetric = Number.isInteger(ospfMetric)
         isValidBGPConnectedState = (typeof data.redistribute.connected.state === 'boolean')
         isValidBGPOSPFState = (typeof data.redistribute.ospf.state === 'boolean')
-        isValidBGPIPAdress = this.validationNetwork(data.ip_address)
+        isValidBGPIPAddress = this.validationNetwork(data.ip_address)
         isValidBGPNeighborIP = this.validationNetwork(data.neighbor_ip)
         isValidBGPMetric = isValidBGPConnectedMetric && isValidBGPOSPFMetric
         isValidBGPState = isValidBGPConnectedState && isValidBGPOSPFState
-        isValidBGPNetworks = isValidBGPIPAdress && isValidBGPNeighborIP
+        isValidBGPNetworks = isValidBGPIPAddress && isValidBGPNeighborIP
         return (isValidBGPMetric && isValidBGPState && isValidBGPNetworks)
       })
     }
     if (!isValidBGPMetric) {
-      this.toastr.warning(`The metric field is invalid. Metric should be an integer.`)
+      this.toastr.warning('The metric field is invalid. Metric should be an integer.')
       return false
     } else if (!isValidBGPState) {
-      this.toastr.warning(`The state field is invalid. State field should contain only true or false values`)
+      this.toastr.warning('The state field is invalid. State field should contain only true or false values')
       return false
     } else if (!isValidBGPNetworks) {
-      this.toastr.warning(`The ip address is invalid. Expected 4 octets and only decimal digits permitted.`)
+      this.toastr.warning('The ip address is invalid. Expected 4 octets and only decimal digits permitted.')
       return false
     } else {
       return true;
     }
   }
 
+  validateDHCPData(editorData: any) {
+    const configData = JSON.parse(editorData)
+    const dhcpData = configData['dhcp_server']
+    if (!Boolean(dhcpData) || Object.keys(dhcpData).length === 0) return true;
+    const isLeaseNumber = Number.isInteger(dhcpData.lease)
+    if (!isLeaseNumber) {
+      this.toastr.warning('Lease property in DHCP server is a number field', 'Warning');
+      return false;
+    }
+
+    const isAuthoritativeValid = (typeof dhcpData.authoritative === 'boolean')
+    if (!isAuthoritativeValid) {
+      this.toastr.warning('Authoritative property in DHCP server should have true or false values', 'Warning');
+      return false;
+    }
+
+    const isValidDNSServer = this.validationNetwork(dhcpData.dns_server)
+    if (!isValidDNSServer) {
+      this.toastr.warning(
+        'The DNS server property in DHCP server is invalid.<br>Expected 4 octets and only decimal digits permitted.',
+        'Warning',
+        { enableHtml: true }
+      );
+      return false;
+    }
+
+    const isValidNTPServer = this.validationNetwork(dhcpData.ntp_server)
+    if (!isValidNTPServer) {
+      this.toastr.warning(
+        'The NTP server property in DHCP server is invalid.<br>Expected 4 octets and only decimal digits permitted.',
+        'Warning',
+        { enableHtml: true }
+      );
+      return false;
+    }
+
+    const startRanges = dhcpData.ranges.map((range: RangeModel) => range.start)
+    const isStartRangesValid = this.validationNetwork(startRanges)
+    if (!isStartRangesValid) {
+      this.toastr.warning(
+        'The start property in Range is invalid.<br>Expected 4 octets and only decimal digits permitted.',
+        'Warning',
+        { enableHtml: true }
+      );
+      return false;
+    }
+
+    const stopRanges = dhcpData.ranges.map((range: RangeModel) => range.stop)
+    const isStopRangesValid = this.validationNetwork(stopRanges)
+    if (!isStopRangesValid) {
+      this.toastr.warning(
+        'The stop property in Range is invalid.<br>Expected 4 octets and only decimal digits permitted.',
+        'Warning',
+        { enableHtml: true }
+      );
+      return false;
+    }
+
+    const ipAddressReservation = dhcpData.ip_reservations.map((ipReservation: IpReservationModel) => ipReservation.ip_address)
+    const isIpAddressValid = this.validationNetwork(ipAddressReservation)
+    if (!isIpAddressValid) {
+      this.toastr.warning(
+        'The IP address property in Reservation is invalid.<br>Expected 4 octets and only decimal digits permitted.',
+        'Warning',
+        { enableHtml: true }
+      );
+      return false;
+    }
+    return true;
+  }
+
+
   processNetworksField(data: string) {
     const arr: any[] = [];
     if (!data || data === "") {
       return []
-    }else {
+    } else {
       const value = data.split(',');
       for (let i = 0; i < value.length; i++) {
         arr.push(value[i].trim())
@@ -1349,24 +1711,29 @@ export class HelpersService implements OnDestroy {
     }
   }
 
-  getConfigAddsTypeByDeviceCategory(deviceCategory: string) {
-    switch (deviceCategory) {
-      case 'Firewall':
+  getConfigAddsTypeByDeviceCategory(deviceCategory: string | string[]) {
+    if (deviceCategory.includes('Firewall') || deviceCategory.includes('Router')) {
+      if (deviceCategory.includes('Router')) {
+        return this.configTemplateAddsType.filter(
+          addType => addType.id == 'add_firewall_rule'
+                  || addType.id == 'add_route'
+                  || addType.id == 'add_ospf'
+                  || addType.id == 'add_bgp'
+                  || addType.id == 'add_dhcp'
+        );
+      } else {
         return this.configTemplateAddsType.filter(
           addType => addType.id == 'add_firewall_rule' || addType.id == 'add_route'
-        )
-      case 'Router':
-        return this.configTemplateAddsType.filter(
-          addType => addType.id == 'add_firewall_rule' || addType.id == 'add_route' || addType.id == 'add_ospf' || addType.id == 'add_bgp'
-        )
-      case 'Windows Server':
-        return this.configTemplateAddsType.filter(
-          addType => addType.id == 'add_roles_service' || addType.id == 'add_domain_membership'
-        )
-      case 'Windows Client': case 'Linux Client':
-        return this.configTemplateAddsType.filter(addType => addType.id == 'add_domain_membership')
-      default:
-        return this.configTemplateAddsType.filter(addType => addType.id != 'add_ospf' && addType.id != 'add_bgp')
+        );
+      }
+    } else if (deviceCategory.includes('Windows Server')) {
+      return this.configTemplateAddsType.filter(
+        addType => addType.id == 'add_roles_service' || addType.id == 'add_domain_membership'
+      );
+    } else if (deviceCategory.includes('Windows Client') || deviceCategory.includes('Linux Client')) {
+      return this.configTemplateAddsType.filter(addType => addType.id == 'add_domain_membership');
+    } else {
+      return this.configTemplateAddsType.filter(addType => addType.id != 'add_ospf' && addType.id != 'add_bgp')
     }
   }
 
@@ -1382,6 +1749,15 @@ export class HelpersService implements OnDestroy {
     const connectionConfigurator = this.serverConnectionService.getConnection(RemoteCategories.CONFIGURATOR);
     if (connectionConfigurator && connectionConfigurator.id !== 0) {
       this.store.dispatch(retrievedIsConfiguratorConnect({ data: true }));
+    }
+  }
+
+  showOrHideArrowDirectionOnEdge(id: number) {
+    const edge = this.cy.getElementById(`interface-${id}`);
+    if (!this.isEdgeDirectionChecked) {
+      const current_dir = edge.data('direction');
+      edge.data('prev_direction', current_dir);
+      edge.data('direction', 'none');
     }
   }
 
@@ -1408,12 +1784,142 @@ export class HelpersService implements OnDestroy {
     }
   }
 
-  updateProjectLinksStorage(cy: any, newProjects: any[]) {
-    const projectNodeIdsAdded = cy?.nodes().filter('[elem_category="map_link"]').map((ele: any) => ele.data('linked_project_id'));
-    projectNodeIdsAdded?.map((projectId: any) => {
-      const index = newProjects.findIndex(ele => ele.id === projectId);
-      newProjects.splice(index, 1);
+  generatePGLabel(pgEle: any, isPGNameLabelChecked: boolean, isPGSubnetLabelChecked: boolean, isPGVLANLabelChecked: boolean) {
+    return `${ isPGNameLabelChecked ? pgEle.data('name') + '\n': '' }` +
+           `${ isPGSubnetLabelChecked ? pgEle.data('subnet') + '\n' : '' }` +
+           `${ isPGVLANLabelChecked ? pgEle.data('vlan'): '' }`;
+  }
+
+  changePGLabel(isPGNameLabelChecked: boolean, isPGSubnetLabelChecked: boolean, isPGVLANLabelChecked: boolean) {
+    this.cy.nodes('[elem_category="port_group"]').map((portGroup: any) => {
+      const label = this.generatePGLabel(portGroup, isPGNameLabelChecked, isPGSubnetLabelChecked, isPGVLANLabelChecked)
+      portGroup.style({ label });
+      return portGroup;
+      }
+    )
+  }
+
+  changePGLabelById(id: number) {
+    const portGroup = this.cy.getElementById(`pg-${id}`);
+    const label = this.generatePGLabel(portGroup, this.isPGNameLabelChecked, this.isPGSubnetLabelChecked, this.isPGVLANLabelChecked);
+    portGroup.style({ label })
+  }
+
+  generateEdgeLabel(edgeEle: any, isEdgeIPLabelChecked: boolean, isEdgeVLANModeLabelChecked: boolean) {
+    return `${isEdgeIPLabelChecked && edgeEle.data('ip_last_octet') ? edgeEle.data('ip_last_octet') + '\n' : ''}` +
+           `${isEdgeVLANModeLabelChecked && edgeEle.data('vlan_mode') ? edgeEle.data('vlan_mode') : ''}`;
+  }
+
+  changeEdgeLabel(isEdgeIPLabelChecked: boolean, isEdgeVLANModeLabelChecked: boolean) {
+    this.cy.edges('[elem_category!="link"]').map((edge: any) => {
+      const label = this.generateEdgeLabel(edge, isEdgeIPLabelChecked, isEdgeVLANModeLabelChecked);
+      edge.style({ label });
     })
-    this.store.dispatch(retrievedProjects({ data: newProjects }));
+  }
+
+  changeEdgeLabelById(id: number) {
+    const edge = this.cy.getElementById(`interface-${id}`);
+    const label = this.generateEdgeLabel(edge, this.isEdgeIPLabelChecked, this.isEdgeVLANModeLabelChecked);
+    edge.style({ label });
+  }
+
+  addNewMapLinkToMap(id: number) {
+    const mapLink = this.mapLinks.find(m => m.id === id)
+    this.addCYNode(JSON.parse(JSON.stringify(mapLink)))
+  }
+
+  addLinkedElementsToMap() {
+    JSON.parse(JSON.stringify(this.linkedMapNodes)).map((node: any) => {
+      this.addCYNode(node)
+    })
+    JSON.parse(JSON.stringify(this.linkedMapPGs)).map((portGroup: any) => {
+      this.addCYNode(portGroup)
+    })
+    JSON.parse(JSON.stringify(this.linkedMapImages)).map((mi: any) => {
+      this.addCYNode(mi)
+    })
+    JSON.parse(JSON.stringify(this.linkedMapInterfaces)).map((edge: any) => {
+      this.addCYEdge(edge.data)
+    })
+    this.initCollapseExpandMapLink()
+    this.store.dispatch(clearLinkedMap())
+  }
+
+  addInterfaceMapLinkToMap(id: number) {
+    const edge = this.interfacesCommonMapLinks.find(e => e.id === id);
+    if (edge) {
+      this.addCYEdge(JSON.parse(JSON.stringify(edge.data)));
+      this.showOrHideArrowDirectionOnEdge(edge.id);
+    }
+  }
+
+  addInterfacesLogicalToMap(edges: any[]) {
+    edges.map(edge => {
+      this.addInterfaceLogicalToMap(edge.id);
+    });
+  }
+
+  addInterfaceLogicalToMap(id: number) {
+    const edge = this.interfacesLogical.find(e => e.id === id);
+    if (edge) {
+      this.addCYEdge(JSON.parse(JSON.stringify(edge.data)));
+      this.showOrHideArrowDirectionOnEdge(id);
+      this.changeEdgeLabelById(id);
+    }
+  }
+
+  addPhysicalInterfaceToMap(id: number) {
+    const edge = this.physicalInterface.find(e => e.id === id);
+    if (edge) {
+      this.addCYEdge(JSON.parse(JSON.stringify(edge.data)));
+      this.showOrHideArrowDirectionOnEdge(edge.id);
+    }
+  }
+  
+  removePhysicalInterfaceOnMap(id: number) {
+    const edge = this.cy.getElementById(`interface-${id}`);
+    edge.unselect();
+    this.cy.remove(edge);
+  }
+
+  removeNodeOnMap(id: number) {
+  const node = this.cy.getElementById(`node-${id}`);
+  node.unselect();
+  this.cy.remove(node);
+  }
+
+  updatePhysicalInterfaceOnMap(id: string, data: any, target: any) {
+    const edge = this.cy.getElementById(id);
+    edge.move({ source: `node-${data.node_id}` });
+    edge.move({ target: `node-${target.node_id}` });
+    edge.data('source_label', data.name);
+    edge.data('target_label', target.name);
+  }
+
+  addPGToMap(id: number) {
+    const portGroup = this.portGroups.find(pg => pg.id === id);
+    this.addCYNode(JSON.parse(JSON.stringify(portGroup)));
+    this.changePGLabelById(id);
+  }
+
+  addMapImageToMap(id: number) {
+    const mapImage = this.mapImages.find(mi => mi.id === id)
+    this.addCYNode(JSON.parse(JSON.stringify(mapImage)))
+  }
+
+  updateSubnetPgOnMap(pgData: any) {
+    const element = this.cy.getElementById('pg-' + pgData.id);
+    element.data('subnet', pgData.subnet);
+    element.data('name', pgData.name);
+  }
+
+  updateUnSelectedNodeInGroup(groupId: any) {
+    const element = this.cy.getElementById('group-' + groupId)
+    element.unselect();
+  }
+
+  updateSelectedNodeInGroup(groupId: any) {
+    const element = this.cy.getElementById('group-' + groupId)
+    element.select();
   }
 }

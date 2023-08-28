@@ -1,29 +1,32 @@
 import { ToastrService } from "ngx-toastr";
 import { FormGroup , FormControl} from "@angular/forms";
-import { AfterViewInit, Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
-import { UserTaskService } from "../../../../core/services/user-task/user-task.service";
-import { InfoPanelService } from "../../../../core/services/info-panel/info-panel.service";
 import { ConfirmationDialogComponent } from "../../../../shared/components/confirmation-dialog/confirmation-dialog.component";
-import { AceEditorComponent } from "ng2-ace-editor";
+import { AceEditorComponent } from "ng12-ace-editor";
+import { Store } from "@ngrx/store";
+import { postTasks, rerunTasks, revokeTasks } from "../../../../store/user-task/user-task.actions";
+import { Subscription } from "rxjs";
+import { selectNotification } from "../../../../store/app/app.selectors";
+import { NotificationTypes } from "../../../../shared/enums/notifications-types.enum";
 
 @Component({
   selector: 'app-show-user-task-dialog',
   templateUrl: './show-user-task-dialog.component.html',
   styleUrls: ['./show-user-task-dialog.component.scss']
 })
-export class ShowUserTaskDialogComponent implements OnInit, AfterViewInit {
+export class ShowUserTaskDialogComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild("editor") editor!: AceEditorComponent;
   showUserTaskForm: FormGroup;
   textareaRows = 1;
+  selectNotification$ = new Subscription();
 
   constructor(
+    private store: Store,
     private toastr: ToastrService,
     private dialog: MatDialog,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private dialogRef: MatDialogRef<ShowUserTaskDialogComponent>,
-    private userTaskService: UserTaskService,
-    private infoPanelService: InfoPanelService
   ) {
     this.showUserTaskForm = new FormGroup({
       appuserIdCtr: new FormControl(''),
@@ -36,6 +39,15 @@ export class ShowUserTaskDialogComponent implements OnInit, AfterViewInit {
       taskStateCtr: new FormControl(''),
       taskMetadataCtr: new  FormControl('')
     })
+    this.selectNotification$ = this.store.select(selectNotification).subscribe(notification => {
+      if (notification?.type === NotificationTypes.SUCCESS) {
+        this.dialogRef.close();
+      }
+    })
+  }
+
+  ngOnDestroy(): void {
+    this.selectNotification$.unsubscribe();
   }
 
   get appuserIdCtr() { return this.showUserTaskForm.get('appuserIdCtr'); };
@@ -87,14 +99,13 @@ export class ShowUserTaskDialogComponent implements OnInit, AfterViewInit {
   postTask() {
     const dialogData = {
       title: 'User confirmation needed',
-      message: 'Rerun post task?',
+      message: 'Post this task?',
       submitButtonName: 'OK'
     }
     const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {disableClose: true, width: '450px', data: dialogData});
     dialogConfirm.afterClosed().subscribe(confirm => {
       if (confirm) {
-        this.infoPanelService.postTask([this.data.genData.id]);
-        this.dialogRef.close();
+        this.store.dispatch(postTasks({ pks: [this.data.genData.id] }))
       }
     })
   }
@@ -108,8 +119,7 @@ export class ShowUserTaskDialogComponent implements OnInit, AfterViewInit {
     const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {disableClose: true, width: '450px', data: dialogData});
     dialogConfirm.afterClosed().subscribe(confirm => {
       if (confirm) {
-        this.infoPanelService.rerunTask([this.data.genData.id]);
-        this.dialogRef.close();
+        this.store.dispatch(rerunTasks({ pks: [this.data.genData.id] }))
       }
     })
   }
@@ -123,8 +133,7 @@ export class ShowUserTaskDialogComponent implements OnInit, AfterViewInit {
     const dialogConfirm = this.dialog.open(ConfirmationDialogComponent, {disableClose: true, width: '450px', data: dialogData});
     dialogConfirm.afterClosed().subscribe(confirm => {
       if (confirm) {
-        this.infoPanelService.revokeTask([this.data.genData.id]);
-        this.dialogRef.close();
+        this.store.dispatch(revokeTasks({ pks: [this.data.genData.id] }))
       }
     })
   }

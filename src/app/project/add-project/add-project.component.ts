@@ -6,8 +6,7 @@ import { RouteSegments } from 'src/app/core/enums/route-segments.enum';
 import { Router } from '@angular/router';
 import { FormGroup, FormBuilder, Validators, FormControl, FormGroupDirective, NgForm } from '@angular/forms';
 import { ProjectService } from 'src/app/project/services/project.service';
-import { selectProjectTemplate } from 'src/app/store/project/project.selectors';
-import { retrievedProjects, retrievedProjectsTemplate } from 'src/app/store/project/project.actions';
+import { selectActiveTemplates, selectAllProjects } from 'src/app/store/project/project.selectors';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -18,16 +17,16 @@ import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmat
 import { MatDialog } from '@angular/material/dialog';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { selectAppPref } from 'src/app/store/app-pref/app-pref.selectors';
-import { retrievedAppPref } from 'src/app/store/app-pref/app-pref.actions';
+import { loadAppPref } from 'src/app/store/app-pref/app-pref.actions';
 import { MatRadioChange } from '@angular/material/radio';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
-import { NgxPermissionsService } from "ngx-permissions";
 import { MapPrefService } from 'src/app/core/services/map-pref/map-pref.service';
-import { retrievedDefaultMapPref } from 'src/app/store/map-pref/map-pref.actions';
-import { selectDefaultMapPref } from 'src/app/store/map-pref/map-pref.selectors';
+import { retrievedMapPrefs } from 'src/app/store/map-pref/map-pref.actions';
+import { selectMapPrefs } from 'src/app/store/map-pref/map-pref.selectors';
 import { vlanValidator } from "../../shared/validations/vlan.validation";
 import { ErrorStateMatcher } from "@angular/material/core";
 import { RolesService } from 'src/app/core/services/roles/roles.service';
+import { loadProjects } from 'src/app/store/project/project.actions';
 
 class CrossFieldErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -55,10 +54,10 @@ export class AddProjectComponent implements OnInit {
   errorMatcher = new CrossFieldErrorMatcher();
   routeSegments = RouteSegments;
   errorMessages = ErrorMessages;
-  selectProjects$ = new Subscription();
-  selectProjectTemplate$ = new Subscription();
-  nameProject!: any[];
-  projectTemplate!: any[];
+  selectAllProjects$ = new Subscription();
+  selectActiveTemplates$ = new Subscription();
+  projects!: any[];
+  activeTemplates!: any[];
   rowData!: any[];
   checked = false;
   status = 'active';
@@ -72,6 +71,7 @@ export class AddProjectComponent implements OnInit {
   isCreateNewFromSelected = false;
   filteredTemplate!: Observable<any[]>;
   selectedDefaultMapPref: any;
+  selectedMapPrefByAppPref: any;
 
   defaultColDef: ColDef = {
     sortable: true,
@@ -142,7 +142,7 @@ export class AddProjectComponent implements OnInit {
           Validators.minLength(3),
           Validators.maxLength(50),
           Validators.pattern('[^!@#$&*`%=]*'),
-          validateNameExist(() => this.nameProject, 'add', undefined)
+          validateNameExist(() => this.projects, 'add', undefined)
         ]
       ],
       description: [''],
@@ -157,21 +157,20 @@ export class AddProjectComponent implements OnInit {
       enclave_users: [5, [Validators.min(0), Validators.max(100), Validators.required]],
       vlan_min: [2000, [Validators.min(1), Validators.max(4093), Validators.required]],
       vlan_max: [2100]
-    },{ validators: vlanValidator })
-    this.projectService.getAll().subscribe((data: any) => {
-      this.nameProject = data.result;
-    });
-
-    this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(templateData => {
-      this.projectTemplate = templateData;
-      if (this.projectTemplate) {
-        this.template.setValidators([autoCompleteValidator(this.projectTemplate)]);
-        this.filteredTemplate = this.helpers.filterOptions(this.template, this.projectTemplate);
+    },{ validators: vlanValidator });
+    this.selectAllProjects$ = this.store.select(selectAllProjects).subscribe(projects => {
+      if (projects) {
+        this.projects = projects;
       }
     })
-    this.selectDefaultMapPref$ = this.store.select(selectDefaultMapPref).subscribe((selectedMapPref: any) => {
-      this.selectedDefaultMapPref = selectedMapPref;
-    });
+
+    this.selectActiveTemplates$ = this.store.select(selectActiveTemplates).subscribe(activeTemplates => {
+      if (activeTemplates) {
+        this.activeTemplates = activeTemplates;
+        this.template.setValidators([autoCompleteValidator(this.activeTemplates)]);
+        this.filteredTemplate = this.helpers.filterOptions(this.template, this.activeTemplates);
+      }
+    })
     this.selectAppPref$ = this.store.select(selectAppPref).subscribe((data: any)=> {
       if (data) {
         let pubNetwork = {
@@ -190,8 +189,15 @@ export class AddProjectComponent implements OnInit {
           "reserved_ip": data.management_reserved_ip
         }
         this.rowData = [pubNetwork, privNetwork, manNetwork]
+        this.selectedMapPrefByAppPref = data.default_map_pref
       }
     })
+
+    this.selectDefaultMapPref$ = this.store.select(selectMapPrefs).subscribe((selectedMapPref: any) => {
+      if (selectedMapPref) {
+        this.selectedDefaultMapPref = selectedMapPref.find((mapPref: any) => mapPref.name === this.selectedMapPrefByAppPref);
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -199,7 +205,7 @@ export class AddProjectComponent implements OnInit {
     let isCanWriteProject = false
     let isCanReadSettings = false
     if (permissions) {
-      for (let p of JSON.parse(permissions)) {
+      for (let p of permissions) {
         if (p === "can_write on Project") {
           isCanWriteProject = true
         }
@@ -212,13 +218,9 @@ export class AddProjectComponent implements OnInit {
       this.toastr.warning('Not authorized!', 'Warning');
       this.router.navigate([RouteSegments.ROOT]);
     }
-    this.helpers.setAutoCompleteValue(this.template, this.projectTemplate, '');
-    this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe(data => {
-      this.store.dispatch(retrievedProjects({data: data.result}));
-    })
-    this.appPrefService.get("2").subscribe((data: any) => this.store.dispatch(retrievedAppPref({ data: data.result })));
-    this.mapPrefService.get("1").subscribe((data: any) => this.store.dispatch(retrievedDefaultMapPref({ data: data.result })));
-    this.projectService.getProjectByStatusAndCategory(this.status, 'template').subscribe((data: any) => this.store.dispatch(retrievedProjectsTemplate({ template: data.result })));
+    this.helpers.setAutoCompleteValue(this.template, this.activeTemplates, '');
+    this.store.dispatch(loadAppPref());
+    this.mapPrefService.getAll().subscribe((data: any) => this.store.dispatch(retrievedMapPrefs({ data: data.result })));
   }
 
   get name() { return this.projectForm.get('name'); }
@@ -227,7 +229,7 @@ export class AddProjectComponent implements OnInit {
   get target() { return this.projectForm.get('target'); }
   get option() { return this.projectForm.get('option'); }
   get layoutOnly() { return this.projectForm.get('layoutOnly'); }
-  get template() { return this.helpers.getAutoCompleteCtr(this.projectForm.get('template'), this.projectTemplate);  }
+  get template() { return this.helpers.getAutoCompleteCtr(this.projectForm.get('template'), this.activeTemplates);  }
   get enclave_number() { return this.projectForm.get('enclave_number'); }
   get enclave_clients() { return this.projectForm.get('enclave_clients'); }
   get enclave_servers() { return this.projectForm.get('enclave_servers'); }
@@ -236,11 +238,7 @@ export class AddProjectComponent implements OnInit {
   get vlan_max() { return this.projectForm.get('vlan_max'); }
 
   selectLayout(event: any) {
-    if (event.checked) {
-      this.isHiddenNetwork = false
-    } else {
-      this.isHiddenNetwork = true
-    }
+    this.isHiddenNetwork = !event.checked;
   }
 
   onOptionChange(event: MatRadioChange) {
@@ -274,7 +272,7 @@ export class AddProjectComponent implements OnInit {
       if (!Array.isArray(val.reserved_ip)) {
         val.reserved_ip = this.helpers.processIpForm(val.reserved_ip)
       }
-      this.isDisableButton = true ? ((val.network === '') || (val.category === '')) : false
+      this.isDisableButton = ((val.network === '') || (val.category === ''))
     })
     if (this.projectForm.valid && !this.isDisableButton) {
       const jsonDataValue = {
@@ -292,17 +290,32 @@ export class AddProjectComponent implements OnInit {
         vlan_min: this.vlan_min?.value,
         vlan_max: this.vlan_max?.value,
         networks: items,
-        logical_map_style: {
-          node: { "width": this.selectedDefaultMapPref.node_size + "px", "height": this.selectedDefaultMapPref.node_size + "px"},
-          port_group: { "size": this.selectedDefaultMapPref.port_group_size + "px", "color": this.selectedDefaultMapPref.port_group_color },
-          edge: { "size": this.selectedDefaultMapPref.edge_width + "px", "color": this.selectedDefaultMapPref.edge_color },
-          text: { "size": this.selectedDefaultMapPref.text_size + "px", "color": this.selectedDefaultMapPref.text_color },
-          group_box: { "color": this.selectedDefaultMapPref.group_box_color, "group_opacity": "20%", "zIndex": 997, "gbs": [] },
-          map_background: { "zIndex": 998, "bgs": [] },
-          "grid_settings": { "enabled": false, "spacing": this.selectedDefaultMapPref.grid_spacing+ "px", "snap": false },
-          "accessed": false,
-          "cleared": false,
-          "default_map_pref_id": this.selectedDefaultMapPref.id
+        logical_map: {
+          map_style: {
+            node: { "width": this.selectedDefaultMapPref?.node_size + "px", "height": this.selectedDefaultMapPref?.node_size + "px"},
+            port_group: { "size": this.selectedDefaultMapPref?.port_group_size + "px", "color": this.selectedDefaultMapPref?.port_group_color },
+            edge: { "size": this.selectedDefaultMapPref?.edge_width + "px", "color": this.selectedDefaultMapPref?.edge_color },
+            text: { "size": this.selectedDefaultMapPref?.text_size + "px", "color": this.selectedDefaultMapPref?.text_color },
+            group_box: { "color": this.selectedDefaultMapPref?.group_box_color, "group_opacity": "20%", "zIndex": 997, "gbs": [] },
+            map_background: { "zIndex": 998, "bgs": [] },
+            "grid_settings": { "enabled": false, "spacing": this.selectedDefaultMapPref?.grid_spacing+ "px", "snap": false },
+            "accessed": false,
+            "cleared": false,
+            "default_map_pref_id": this.selectedDefaultMapPref?.id
+          }
+        },
+        physical_map: {
+          map_style: {
+            node: { "width": this.selectedDefaultMapPref?.node_size + "px", "height": this.selectedDefaultMapPref?.node_size + "px"},
+            edge: { "size": this.selectedDefaultMapPref?.edge_width + "px", "color": this.selectedDefaultMapPref?.edge_color },
+            text: { "size": this.selectedDefaultMapPref?.text_size + "px", "color": this.selectedDefaultMapPref?.text_color },
+            group_box: { "color": this.selectedDefaultMapPref?.group_box_color, "group_opacity": "20%", "zIndex": 997, "gbs": [] },
+            map_background: { "zIndex": 998, "bgs": [] },
+            "grid_settings": { "enabled": false, "spacing": this.selectedDefaultMapPref?.grid_spacing+ "px", "snap": false },
+            "accessed": false,
+            "cleared": false,
+            "default_map_pref_id": this.selectedDefaultMapPref?.id
+          }
         }
       }
       let jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
@@ -332,6 +345,7 @@ export class AddProjectComponent implements OnInit {
             } else {
               this.router.navigate([RouteSegments.PROJECTS_TEMPLATES]);
             }
+            this.store.dispatch(loadProjects());
         });
       }
     } else {

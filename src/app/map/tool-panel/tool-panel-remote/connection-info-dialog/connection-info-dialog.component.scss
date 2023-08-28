@@ -1,0 +1,78 @@
+$margin: 8px;
+
+.connection-title {
+  margin-bottom: 0;
+}
+
+.field {
+  width: 100%;
+}
+
+.server-connection-area {
+  max-height: 85vh;
+}
+
+.title {
+  text-align: center;
+  font: 500 16px/0px Roboto, "Helvetica Neue", sans-serif;
+  letter-spacing: normal;
+}
+
+.info-area {
+  &__list {
+    display: flex;
+    margin-top: 4px;
+    &__item {
+      width: 50%;
+      display: flex;
+      flex-direction: column;
+      margin-right: $margin;
+      padding: $margin;
+      background-color: #fff;
+      border-radius: 4px;
+    }
+  }
+}
+
+.hosts-area {
+  overflow-y: auto;
+  background-color: #fff;
+  padding: 2px 8px 4px 8px;
+  max-height: 75vh;
+  min-height: 40vh;
+}
+
+.hosts {
+  width: 100%;
+  position: relative;
+  bottom: 0;
+  margin-top: $margin;
+  &__table ag-grid-angular {
+    text-align: center;
+    .ag-header-cell-label {
+      justify-content: center;
+    }
+  }
+}
+
+.switches-area {
+  display: flex;
+  justify-content: space-between;
+  margin-top: $margin;
+  &__distributed {
+    width: 48%;
+  }
+  &__standard {
+    width: 48%;
+  }
+  ag-grid-angular {
+    text-align: center;
+    .ag-header-cell-label {
+      justify-content: center;
+    }
+  }
+}
+
+::ng-deep ng-dropdown-panel {
+  position: relative !important;
+}

@@ -56,7 +56,7 @@ export class UpdateDomainUserDialogComponent implements OnInit, OnDestroy {
       passwordCtr: new FormControl(''),
       companyCtr: new FormControl(''),
       upnCtr: new FormControl('', [Validators.required]),
-      emailCtr: new FormControl(''),
+      emailCtr: new FormControl('', [Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')]),
       streetAddressCtr: new FormControl(''),
       cityCtr: new FormControl(''),
       stateProvinceCtr: new FormControl(''),

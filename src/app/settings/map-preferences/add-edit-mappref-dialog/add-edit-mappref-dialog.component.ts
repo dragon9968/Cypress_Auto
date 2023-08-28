@@ -31,6 +31,7 @@ export class AddEditMapprefDialogComponent {
   gbColor = '#000000';
   groupBoxOpacity = 0.2;
   textGBOpacityLabel = 0;
+  textOutlieWidthLabel = 3;
   textPGSizeLabel: any;
   textEdgeWidthLabel: any;
   textNodeSizeLabel: any;
@@ -44,6 +45,7 @@ export class AddEditMapprefDialogComponent {
   pgColor = '#000000';
   edgeColor = '#000000';
   textColor = '#000000';
+  textOutlineColor = '#fff000';
   TextBG = '#000000';
   mapPrefForm!: FormGroup;
   selectIcons$ = new Subscription();
@@ -106,6 +108,7 @@ export class AddEditMapprefDialogComponent {
       edgeArrowDirectionCtr: new FormControl({ value: '', disabled: this.isViewMode }),
       edgeArrowSizeCtr: new FormControl({ value: '', disabled: this.isViewMode }),
       mapImageSizeCtr: new FormControl({ value: '', disabled: this.isViewMode }),
+      textOutlineWidthCtr: new FormControl({ value: '', disabled: this.isViewMode }),
     });
     this.selectMapPrefs$ = this.store.select(selectMapPrefs).subscribe((data: any) => {
       this.listMapPref = data;
@@ -133,6 +136,8 @@ export class AddEditMapprefDialogComponent {
         this.snapToGridCtr?.setValue(this.listDefaultMapPref[0].grid_snap);
         this.gridSpacingCtr?.setValue(this.listDefaultMapPref[0].grid_spacing);
         this.mapImageSizeCtr?.setValue(this.listDefaultMapPref[0].scale_image);
+        this.textOutlineColor = this.listDefaultMapPref[0].text_outline_color;
+        this.textOutlineWidthCtr?.setValue(Number(this.listDefaultMapPref[0].text_outline_width));
         this.gbBorderSize?.setValue(this.listDefaultMapPref[0].group_box_border_size)
         this._setPropertiesCommon(this.listDefaultMapPref[0]);
       }
@@ -177,6 +182,7 @@ export class AddEditMapprefDialogComponent {
   get snapToGridCtr() { return this.mapPrefForm.get('snapToGridCtr') }
   get gridSpacingCtr() { return this.mapPrefForm.get('gridSpacingCtr') }
   get mapImageSizeCtr() { return this.mapPrefForm.get('mapImageSizeCtr') }
+  get textOutlineWidthCtr() { return this.mapPrefForm.get('textOutlineWidthCtr') }
   get gbBorderSize() { return this.mapPrefForm.get('gbBorderSize'); }
 
   onCancel() {
@@ -194,6 +200,7 @@ export class AddEditMapprefDialogComponent {
     this.textGridSpacingLabel = data.grid_spacing;
     this.textMapImageSizeLabel = data.scale_image;
     this.textGBBorderSizeLabel = data.group_box_border_size;
+    this.textOutlieWidthLabel = data.text_outline_width
   }
 
   addMapPref() {
@@ -211,6 +218,8 @@ export class AddEditMapprefDialogComponent {
       node_size: this.nodeSizeCtr?.value,
       text_size: this.textSizeCtr?.value,
       text_color: this.textColor,
+      text_outline_color: this.textOutlineColor,
+      text_outline_width: this.textOutlineWidthCtr?.value,
       text_halign: this.textHorizontalAlignmentCtr?.value,
       text_valign: this.textVerticalAlignmentCtr?.value,
       text_bg_color: this.TextBG,
@@ -252,6 +261,8 @@ export class AddEditMapprefDialogComponent {
       node_size: this.nodeSizeCtr?.value,
       text_size: this.textSizeCtr?.value,
       text_color: this.textColor,
+      text_outline_color: this.textOutlineColor,
+      text_outline_width: this.textOutlineWidthCtr?.value,
       text_halign: this.textHorizontalAlignmentCtr?.value,
       text_valign: this.textVerticalAlignmentCtr?.value,
       text_bg_color: this.TextBG,
@@ -303,6 +314,10 @@ export class AddEditMapprefDialogComponent {
     this.textSizeLabel = size.value;
   }
 
+  setTextOutlineWidth(size: any) {
+    this.textOutlieWidthLabel = size.value;
+  }
+
   setTextBGOpacity(size: any) {
     this.textBGOpacityLabel = size.value ? Math.round(size.value * 100) : 0;
   }
@@ -339,6 +354,10 @@ export class AddEditMapprefDialogComponent {
     this.textColor = event;
   }
 
+  setTextOutlineColor(event: any) {
+    this.textOutlineColor = event
+  }
+
   setTextBG(event: any) {
     this.TextBG = event;
   }
@@ -364,6 +383,7 @@ export class AddEditMapprefDialogComponent {
     this.nodeSizeCtr?.setValue(this.data.genData.node_size);
     this.textSizeCtr?.setValue(this.data.genData.text_size);
     this.textColor = this.data.genData.text_color;
+    this.textOutlineColor = this.data.genData.text_outline_color;
     this.textHorizontalAlignmentCtr?.setValue(this.data.genData.text_halign);
     this.textVerticalAlignmentCtr?.setValue(this.data.genData.text_valign);
     this.TextBG = this.data.genData.text_bg_color;
@@ -378,6 +398,7 @@ export class AddEditMapprefDialogComponent {
     this.snapToGridCtr?.setValue(this.data.genData.grid_snap);
     this.gridSpacingCtr?.setValue(this.data.genData.grid_spacing);
     this.mapImageSizeCtr?.setValue(this.data.genData.scale_image);
+    this.textOutlineWidthCtr?.setValue(Number(this.data.genData.text_outline_width));
     this._setPropertiesCommon(this.data.genData);
   }
 }

@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { Store } from '@ngrx/store';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
@@ -11,16 +11,21 @@ import { Observable, Subscription } from 'rxjs';
 import { selectMapOption } from 'src/app/store/map-option/map-option.selectors';
 import { ICON_PATH } from 'src/app/shared/contants/icon-path.constant';
 import { autoCompleteValidator } from 'src/app/shared/validations/auto-complete.validation';
-import { selectImages } from 'src/app/store/map-image/map-image.selectors';
+import { selectImages, selectSelectedMapImages } from 'src/app/store/map-image/map-image.selectors';
 import { selectMapPref } from 'src/app/store/map-style/map-style.selectors';
 import { MatDialog } from "@angular/material/dialog";
-import { retrievedProjectsTemplate } from "../../../store/project/project.actions";
 import { ProjectService } from "../../../project/services/project.service";
 import { Router } from "@angular/router";
 import { ToastrService } from "ngx-toastr";
 import { RouteSegments } from "../../../core/enums/route-segments.enum";
-import { selectProjects, selectProjectTemplate } from "../../../store/project/project.selectors";
+import {
+  selectActiveTemplates,
+  selectProjectsNotLinkYet,
+} from "../../../store/project/project.selectors";
 import { AuthService } from "../../../core/services/auth/auth.service";
+import { selectSelectedLogicalNodes } from 'src/app/store/node/node.selectors';
+import { selectSelectedPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
+import { loadProjects } from 'src/app/store/project/project.actions';
 
 @Component({
   selector: 'app-tool-panel-edit',
@@ -30,13 +35,6 @@ import { AuthService } from "../../../core/services/auth/auth.service";
 export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
   @Input() cy: any;
   @Input() config: any;
-  @Input() activeNodes: any[] = [];
-  @Input() activePGs: any[] = [];
-  @Input() activeEdges: any[] = [];
-  @Input() activeGBs: any[] = [];
-  @Input() activeMBs: any[] = [];
-  @Input() deletedNodes: any[] = [];
-  @Input() deletedInterfaces: any[] = [];
   @Input() isDisableAddNode = true;
   @Input() isDisableAddPG = false;
   @Input() isDisableAddImage = true;
@@ -50,6 +48,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
   @Input() isAddMapImage = false;
   @Input() isAddProjectNode = false;
   @Input() isAddProjectTemplate = false;
+  @Input() mapCategory: any;
   status = 'active';
   category = 'template';
   nodeAddForm!: FormGroup;
@@ -64,12 +63,18 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
   selectImages$ = new Subscription();
   selectMapOption$ = new Subscription();
   selectMapPref$ = new Subscription();
-  selectProjects$ = new Subscription();
-  selectProjectTemplate$ = new Subscription();
+  selectProjectsNotLinkYet$ = new Subscription();
+  selectActiveTemplates$ = new Subscription();
+  selectSelectedLogicalNodes$ = new Subscription();
+  selectSelectedMapImages$ = new Subscription();
+  selectSelectedPortGroups$ = new Subscription();
+  selectedNodes: any[] = [];
+  selectedPGs: any[] = [];
+  selectedMapImages: any[] = [];
   devices!: any[];
   templates!: any[];
   mapImages!: any[];
-  projects: any[] = [];
+  projectsNotLinkYet: any[] = [];
   projectTemplates: any[] = [];
   filteredTemplatesByDevice!: any[];
   isGroupBoxesChecked!: boolean;
@@ -79,7 +84,7 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
   filteredTemplates!: Observable<any[]>;
   filteredMapImages!: Observable<any[]>;
   filteredProjectTemplates!: Observable<any[]>;
-  filteredProjects!: Observable<any[]>;
+  filteredProjectsNotLinkYet!: Observable<any[]>;
 
   constructor(
     private store: Store,
@@ -135,31 +140,45 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
     this.selectMapPref$ = this.store.select(selectMapPref).subscribe((selectedMapPref: any) => {
       this.selectedMapPref = selectedMapPref;
     });
-    this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(projectTemplates => {
+    this.selectActiveTemplates$ = this.store.select(selectActiveTemplates).subscribe(projectTemplates => {
       if (projectTemplates != undefined) {
         this.projectTemplates = projectTemplates;
         this.projectTemplateCtr.setValidators([autoCompleteValidator(this.projectTemplates)]);
         this.filteredProjectTemplates = this.helpers.filterOptions(this.projectTemplateCtr, this.projectTemplates)
       }
     });
-    this.selectProjects$ = this.store.select(selectProjects).subscribe(projectData => {
-      if (projectData) {
+    this.selectProjectsNotLinkYet$ = this.store.select(selectProjectsNotLinkYet).subscribe(projectsNotLinkYet => {
+      if (projectsNotLinkYet) {
+        let projectsNotIncludeCurrentProject: any[];
+        const projectId = this.projectService.getProjectId();
+        projectsNotIncludeCurrentProject = projectsNotLinkYet.filter(project => project.id !== Number(projectId));
         this.projectService.getShareProject(this.status, 'project').subscribe((resp: any) => {
           const shareProject = resp.result;
-          let newProjectData: any[];
-          const userId = this.authService.getUserId();
-          const projectId = this.projectService.getProjectId();
-          newProjectData = projectData.filter(project => project.created_by_fk === userId);
-          if (shareProject) {
-            newProjectData = [...newProjectData, ...shareProject];
+          if (shareProject.length > 0) {
+            this.projectsNotLinkYet = [...projectsNotIncludeCurrentProject, ...shareProject];
+          } else {
+            this.projectsNotLinkYet = projectsNotIncludeCurrentProject;
           }
-          newProjectData = newProjectData.filter(project => project.id !== projectId);
-          this.projects = newProjectData;
-          this.linkProjectCtr.setValidators([autoCompleteValidator(this.projects)]);
-          this.filteredProjects = this.helpers.filterOptions(this.linkProjectCtr, this.projects);
+          this.linkProjectCtr.setValidators([autoCompleteValidator(this.projectsNotLinkYet)]);
+          this.filteredProjectsNotLinkYet = this.helpers.filterOptions(this.linkProjectCtr, this.projectsNotLinkYet);
         })
       }
-    })
+    });
+    this.selectSelectedLogicalNodes$ = this.store.select(selectSelectedLogicalNodes).subscribe(selectedNodes => {
+      if (selectedNodes) {
+        this.selectedNodes = selectedNodes;
+      }
+    });
+    this.selectSelectedPortGroups$ = this.store.select(selectSelectedPortGroups).subscribe(selectedPGs => {
+      if (selectedPGs) {
+        this.selectedPGs = selectedPGs;
+      }
+    });
+    this.selectSelectedMapImages$ = this.store.select(selectSelectedMapImages).subscribe(selectedMapImages => {
+      if (selectedMapImages) {
+        this.selectedMapImages = selectedMapImages;
+      }
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -197,22 +216,20 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
     return this.helpers.getAutoCompleteCtr(this.addTemplateForm.get('projectTemplateCtr'), this.projectTemplates);
   }
   get isLayoutOnlyCtr() { return this.addTemplateForm.get('isLayoutOnlyCtr'); }
-  get linkProjectCtr() { return this.helpers.getAutoCompleteCtr(this.linkProjectForm.get('linkProjectCtr'), this.projects) };
+  get linkProjectCtr() { return this.helpers.getAutoCompleteCtr(this.linkProjectForm.get('linkProjectCtr'), this.projectsNotLinkYet) };
 
   ngOnInit(): void {
     this.templateCtr?.disable();
-    this.projectService.getProjectByStatusAndCategory('active', 'template').subscribe(
-      data => this.store.dispatch(retrievedProjectsTemplate({ template: data.result }))
-    );
+    this.store.dispatch(loadProjects());
   }
 
   ngOnDestroy(): void {
     this.selectDevices$.unsubscribe();
-    this.selectProjects$.unsubscribe();
+    this.selectProjectsNotLinkYet$.unsubscribe();
     this.selectTemplates$.unsubscribe();
     this.selectMapOption$.unsubscribe();
     this.selectMapPref$.unsubscribe();
-    this.selectProjectTemplate$.unsubscribe();
+    this.selectActiveTemplates$.unsubscribe();
     this.selectImages$.unsubscribe();
   }
 
@@ -336,63 +353,19 @@ export class ToolPanelEditComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  // loadMapImage(bg: any) {
-  //   if (this.config.gb_exists) {
-  //     if (!(this.cy.getElementById('default.test'))) {
-  //       const gb = {
-  //         data: Object.assign({
-  //           id: 'default.test',
-  //           domain_id: this.config.default_domain_id,
-  //           label: "group_box"
-  //         }, {
-  //           "group_color": this.helpers.fullColorHex(this.selectedMapPref.group_box_color),
-  //           "group_opacity": this.selectedMapPref.group_box_opacity,
-  //           "border-width": "4",
-  //           "text-valign": "top",
-  //           "zIndex": 997
-  //         }),
-  //         position: {
-  //           x: 0,
-  //           y: 0
-  //         },
-  //         group: "nodes",
-  //         removed: false,
-  //         selected: false,
-  //       };
-  //       this.cy.add(gb);
-  //     }
-  //   }
-  //   this.cy.add({
-  //     group: "nodes",
-  //     data: {
-  //       "label": "map_background",
-  //       "elem_category": "bg_image",
-  //       "new": true,
-  //       "updated": false,
-  //       "deleted": false,
-  //       "src": bg.src,
-  //       "zIndex": 998,
-  //       "width": bg.width,
-  //       "height": bg.height,
-  //       "locked": false
-  //     },
-  //     position: { x: 0, y: 0 }
-  //   })[0];
-  // }
-
   addNewProjectFromSelected() {
-    const nodeIds = this.activeNodes.map(node => node.data('node_id'));
-    const portGroupIds = this.activePGs.map(pg => pg.data('pg_id'));
-    const mapImageIds = this.activeMBs.map(pg => pg.data('map_image_id'));
+    const nodeIds = this.selectedNodes.map(node => node.id);
+    const portGroupIds = this.selectedPGs.map(pg => pg.id);
+    const mapImageIds = this.selectedMapImages.map(m => m.id);
     if (nodeIds.length > 0 || portGroupIds.length > 0 || mapImageIds.length > 0) {
-      const nodeDomains = this.activeNodes.filter(node => node.data('domain_id') && node.data('domain_id') !== null)
-      const nodeDomainIds = nodeIds.length > 0 ? nodeDomains.map(node => node.data('domain_id')) : [];
+      const nodeDomains = this.selectedNodes.filter(node => node.domain_id && node.domain_id !== null)
+      const nodeDomainIds = nodeIds.length > 0 ? nodeDomains.map(node => node.domain_id) : [];
 
-      const portGroupDomains = this.activePGs.filter(pg => pg.data('domain_id') && pg.data('domain_id') !== null)
-      const portGroupDomainIds = portGroupIds.length > 0 ? portGroupDomains.map(pg => pg.data('domain_id')) : [];
+      const portGroupDomains = this.selectedPGs.filter(pg => pg.domain_id && pg.domain_id !== null)
+      const portGroupDomainIds = portGroupIds.length > 0 ? portGroupDomains.map(pg => pg.domain_id) : [];
 
-      const mapImageDomains = this.activeMBs.filter(mi => mi.data('domain_id') && mi.data('domain_id') !== null)
-      const mapImageDomainIds = mapImageIds.length > 0 ? mapImageDomains.map(mi => mi.data('domain_id')) : [];
+      const mapImageDomains = this.selectedMapImages.filter(mi => mi.domain_id && mi.domain_id !== null)
+      const mapImageDomainIds = mapImageIds.length > 0 ? mapImageDomains.map(mi => mi.domain_id) : [];
 
       const domainIds = [...new Set([...nodeDomainIds, ...portGroupDomainIds, ...mapImageDomainIds])];
       const jsonData = {

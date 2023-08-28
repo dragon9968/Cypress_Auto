@@ -1,0 +1,44 @@
+{
+    "name": "hardware",
+    "version": "v0.12.2-17-ga3b3e26",
+    "hardware": [
+        {
+            "created_on": "2023-06-12T17:44:49.235169",
+            "changed_on": "2023-06-12T17:44:49.235188",
+            "id": 14,
+            "device_id": 1,
+            "template_id": 4,
+            "serial_number": "QWET",
+            "asset_tag": "ASD111",
+            "firmware": "Intel NIC firmware",
+            "info": {
+                "mac_address": {}
+            },
+            "created_by_fk": 1,
+            "changed_by_fk": 1,
+            "device": "Linux Client",
+            "template": "centos_7-template"
+        }
+    ],
+    "device": [
+        {
+            "id": 1,
+            "name": "Linux Client",
+            "icon_id": 6,
+            "default": true,
+            "template": [
+                {
+                    "id": 4,
+                    "name": "centos_7-template",
+                    "display_name": "CentOS 7",
+                    "category": "vm",
+                    "device_id": 1,
+                    "icon_id": 6,
+                    "properties": {},
+                    "login_profile_id": null,
+                    "device": "Linux Client"
+                }
+            ]
+        }
+    ]
+}

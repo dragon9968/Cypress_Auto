@@ -8,18 +8,12 @@ import { Store } from '@ngrx/store';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent, ValueSetterParams } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
-import { catchError, Observable, Subscription, throwError } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
 import { UserService } from 'src/app/core/services/user/user.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ErrorMessages } from 'src/app/shared/enums/error-messages.enum';
-import {
-  retrievedAllProjects, retrievedProjectCategory,
-  retrievedProjectName,
-  retrievedProjects,
-  retrievedProjectsTemplate,
-  retrievedRecentProjects
-} from 'src/app/store/project/project.actions';
+import { updateProject } from 'src/app/store/project/project.actions';
 import { ButtonRenderersComponent } from '../renderers/button-renderers-component';
 import { ProjectService } from '../services/project.service';
 import { validateNameExist } from 'src/app/shared/validations/name-exist.validation';
@@ -29,6 +23,7 @@ import { selectUserProfile } from 'src/app/store/user-profile/user-profile.selec
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { RolesService } from 'src/app/core/services/roles/roles.service';
 import { selectIsMapOpen } from "../../store/map/map.selectors";
+import { HistoryService } from "../../core/services/history/history.service";
 
 @Component({
   selector: 'app-edit-project-dialog',
@@ -42,7 +37,6 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
   errorMessages = ErrorMessages;
   selectAllProjects$ = new Subscription();
   selectRecentProjects$ = new Subscription();
-  selectProjectTemplate$ = new Subscription();
   selectIsMapOpen$ = new Subscription();
   selectUser$ = new Subscription();
   currentUser: any = {};
@@ -112,6 +106,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     public dialogRef: MatDialogRef<EditProjectDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
+    private historyService: HistoryService
   ) {
     this.rowData = this.data.genData.networks
     const userId = this.authService.getUserId();
@@ -173,7 +168,6 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
     this.selectRecentProjects$.unsubscribe();
     this.selectUser$.unsubscribe();
     this.selectIsMapOpen$.unsubscribe();
-    this.selectProjectTemplate$.unsubscribe();
   }
 
   get nameCtr() { return this.editProjectForm.get('nameCtr'); }
@@ -188,7 +182,7 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
     let isCanReadSettings = false;
     const permissions = this.rolesService.getUserPermissions();
     if (permissions) {
-      for (let p of JSON.parse(permissions)) {
+      for (let p of permissions) {
         if (p === "can_write on Project") {
           isCanWriteProject = true
         }
@@ -222,14 +216,18 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
   }
 
   updateProject() {
-    const sharedUpdate = this.listShared.map(el => el.username)
+    const sharedUpdate = this.listShared.map(el => el.username);
+    const configData = {
+      pk: this.data.genData.id,
+      username: sharedUpdate
+    }
     let items: any[] = [];
     this.gridApi.forEachNode(node => items.push(node.data));
     Object.values(items).forEach(val => {
       if (!Array.isArray(val.reserved_ip)) {
         val.reserved_ip = this.helpers.processIpForm(val.reserved_ip)
       }
-      this.isDisableButton = true ? ((val.network === '') || (val.category === '')) : false
+      this.isDisableButton = ((val.network === '') || (val.category === ''))
     })
     if (this.editProjectForm.valid && !this.isDisableButton) {
       const jsonDataValue = {
@@ -241,48 +239,8 @@ export class EditProjectDialogComponent implements OnInit, OnDestroy {
         networks: items
       }
       const jsonData = this.helpers.removeLeadingAndTrailingWhitespace(jsonDataValue);
-      this.projectService.put(this.data.genData.id, jsonData).pipe(
-        catchError((e: any) => {
-          this.toastr.error(e.error.message);
-          return throwError(() => e);
-        })
-      ).subscribe((_respData: any) => {
-        this.store.dispatch(retrievedProjectCategory({ projectCategory: jsonData.category }))
-        this.store.dispatch(retrievedProjectName({ projectName: jsonData.name }));
-        // Update Recent Projects Storage if the project in recent projects and project is updated
-        const recentProject = this.recentProjects.find(project => project.id === this.data.genData.id);
-        if (recentProject && recentProject.name !== jsonData.name || recentProject?.description !== jsonData.description) {
-          const newRecentProjects = [...this.recentProjects];
-          const index = newRecentProjects.findIndex(project => project.id === this.data.genData.id);
-          const newRecentProject = {
-            id: this.data.genData.id,
-            name: jsonData.name,
-            description: jsonData.description
-          }
-          newRecentProjects.splice(index, 1, newRecentProject);
-          this.store.dispatch(retrievedRecentProjects({ recentProjects: newRecentProjects }));
-        }
-        const configData = {
-          pk: this.data.genData.id,
-          username: sharedUpdate
-        }
-        this.projectService.associate(configData).subscribe(respData => {
-          this.toastr.success(`Update ${jsonData.category} successfully`)
-          if (jsonData.category === 'project') {
-            if (this.isMapOpen) {
-              this.projectService.getProjectsNotLinkedYet(this.projectService.getProjectId()).subscribe(res => {
-                this.store.dispatch(retrievedProjects({ data: res.result }))
-              })
-            } else {
-              this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
-            }
-          } else {
-            this.projectService.getProjectByStatusAndCategory(this.status, 'template').subscribe((data: any) => this.store.dispatch(retrievedProjectsTemplate({ template: data.result })));
-          }
-          this.projectService.getProjectByStatus(this.status).subscribe((data: any) => this.store.dispatch(retrievedAllProjects({ listAllProject: data.result })));
-        });
-        this.dialogRef.close();
-      });
+      this.store.dispatch(updateProject({ id: this.data.genData.id, data: jsonData, configData }));
+      this.dialogRef.close();
     }
     else {
       this.toastr.warning('Category and network fields are required.')

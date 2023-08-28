@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { AddUpdateNodeDialogComponent } from 'src/app/map/add-update-node-dialog/add-update-node-dialog.component';
@@ -8,104 +8,206 @@ import { NodeBulkEditDialogComponent } from "../../bulk-edit-dialog/node-bulk-ed
 import { PortGroupBulkEditDialogComponent } from "../../bulk-edit-dialog/port-group-bulk-edit-dialog/port-group-bulk-edit-dialog.component";
 import { InterfaceBulkEditDialogComponent } from "../../bulk-edit-dialog/interface-bulk-edit-dialog/interface-bulk-edit-dialog.component";
 import { ViewUpdateProjectNodeComponent } from "../cm-dialog/view-update-project-node/view-update-project-node.component";
+import { Store } from '@ngrx/store';
+import { InterfaceService } from 'src/app/core/services/interface/interface.service';
+import { retrievedInterfacesByDestinationNode, retrievedInterfacesByHwNodes, retrievedInterfacesBySourceNode } from 'src/app/store/interface/interface.actions';
+import { ConnectInterfaceDialogComponent } from '../cm-dialog/connect-interface-dialog/connect-interface-dialog.component';
+import { selectSelectedLogicalInterfaces, selectSelectedPhysicalInterfaces } from 'src/app/store/interface/interface.selectors';
+import { Subscription } from 'rxjs';
+import { selectSelectedLogicalNodes, selectSelectedPhysicalNodes } from 'src/app/store/node/node.selectors';
+import { selectSelectedPortGroups } from 'src/app/store/portgroup/portgroup.selectors';
+import { selectSelectedMapLinks } from "../../../store/map-link/map-link.selectors";
+
 
 @Injectable({
   providedIn: 'root'
 })
-export class CMEditService {
+export class CMEditService implements OnDestroy {
 
+  selectedNodes: any[] = [];
+  selectedLogicalNodes: any[] = [];
+  selectedPhysicalNodes: any[] = [];
+  selectedPGs: any[] = [];
+  selectedInterfaces: any[] = [];
+  selectedLogicalInterfaces: any[] = [];
+  selectedPhysicalInterfaces: any[] = [];
+  selectedMapLinks: any[] = [];
+  selectSelectedLogicalNodes$ = new Subscription();
+  selectSelectedPortGroups$ = new Subscription();
+  selectSelectedLogicalInterfaces$ = new Subscription();
+  selectSelectedMapLinks$ = new Subscription();
+  selectSelectedPhysicalNodes$ = new Subscription();
+  selectSelectedPhysicalInterfaces$ = new Subscription();
   constructor(
     private dialog: MatDialog,
     private toastr: ToastrService,
+    private store: Store,
+    private interfaceService: InterfaceService,
   ) {
+    this.selectSelectedLogicalNodes$ = this.store.select(selectSelectedLogicalNodes).subscribe(selectedNodes => {
+      if (selectedNodes) {
+        this.selectedLogicalNodes = selectedNodes;
+      }
+    });
+    this.selectSelectedPhysicalNodes$ = this.store.select(selectSelectedPhysicalNodes).subscribe(selectedNodes => {
+      if (selectedNodes) {
+        this.selectedPhysicalNodes = selectedNodes;
+      }
+    });
+    this.selectSelectedPortGroups$ = this.store.select(selectSelectedPortGroups).subscribe(selectedPGs => {
+      if (selectedPGs) {
+        this.selectedPGs = selectedPGs;
+      }
+    });
+    this.selectSelectedLogicalInterfaces$ = this.store.select(selectSelectedLogicalInterfaces).subscribe(selectedInterfaces => {
+      if (selectedInterfaces) {
+        this.selectedLogicalInterfaces = selectedInterfaces;
+      }
+    });
+    this.selectSelectedPhysicalInterfaces$ = this.store.select(selectSelectedPhysicalInterfaces).subscribe(selectedInterfaces => {
+      if (selectedInterfaces) {
+        this.selectedPhysicalInterfaces = selectedInterfaces;
+      }
+    });
+    this.selectSelectedMapLinks$ = this.store.select(selectSelectedMapLinks).subscribe(selectedMapLinks => {
+      if (selectedMapLinks) {
+        this.selectedMapLinks = selectedMapLinks;
+      }
+    });
   }
 
-  getMenu(cy: any, activeNodes: any, activePGs: any, activeEdges: any, activeMapLinks: any, isCanWriteOnProject: boolean) {
+  ngOnDestroy(): void {
+    this.selectSelectedLogicalNodes$.unsubscribe();
+    this.selectSelectedPortGroups$.unsubscribe();
+    this.selectSelectedLogicalInterfaces$.unsubscribe();
+    this.selectSelectedMapLinks$.unsubscribe();
+    this.selectSelectedPhysicalNodes$.unsubscribe();
+    this.selectSelectedPhysicalInterfaces$.unsubscribe();
+  }
+
+  getMenu(cy: any, isCanWriteOnProject: boolean, mapCategory: string, projectId: number) {
     return {
       id: "edit",
       content: "Edit",
       selector: "node[label!='group_box'], node[label='map_background'], edge, node[elem_category='map_link']",
       onClickFunction: (event: any) => {
-        this.openEditForm(cy, activeNodes, activePGs, activeEdges, activeMapLinks);
+        this.openEditForm(cy, mapCategory, projectId);
       },
       hasTrailingDivider: false,
       disabled: !isCanWriteOnProject,
     }
   }
 
-  openEditForm(cy: any, activeNodes: any, activePGs: any, activeEdges: any, activeMapLinks: any) {
-    const activeNodesLength = activeNodes.length;
-    const activePGsLength = activePGs.length;
-    const activeEdgesLength = activeEdges.length;
-    const activeMapLinksLength = activeMapLinks.length;
+  openEditForm(cy: any, mapCategory: string, projectId: number) {
+    this.selectedNodes = mapCategory === 'logical' ? this.selectedLogicalNodes : this.selectedPhysicalNodes
+    this.selectedInterfaces = mapCategory === 'logical' ? this.selectedLogicalInterfaces : this.selectedPhysicalInterfaces
+    const selectedNodesLength = this.selectedNodes.length;
+    const selectedPGsLength = this.selectedPGs.length;
+    const selectedInterfacesLength = this.selectedInterfaces.length;
+    const selectedMapLinksLength = this.selectedMapLinks.length;
 
-    if (activeMapLinksLength == 1) {
+    if (selectedMapLinksLength == 1) {
       const dialogData = {
         mode: 'update',
-        genData: activeMapLinks[0].data(),
+        genData: this.selectedMapLinks[0],
         cy
       }
       this.dialog.open(ViewUpdateProjectNodeComponent, { disableClose: true, width: '450px', autoFocus: false, data: dialogData });
-    } else if (activeNodesLength == 0 && activePGsLength == 0) {
-      if (activeEdgesLength > 1) {
-        const edgeActiveIds = activeEdges.map((ele: any) => ele.data('interface_id'));
+    } else if (selectedNodesLength == 0 && selectedPGsLength == 0) {
+      if (selectedInterfacesLength > 1) {
+        const edgeActiveIds = this.selectedInterfaces.map((ele: any) => ele.id);
         const dialogData = {
           genData: {
             ids: edgeActiveIds,
-            activeEles: activeEdges.map((ele: any) => ele.data())
+            activeEles: this.selectedInterfaces
           },
           cy
         };
         this.dialog.open(InterfaceBulkEditDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
-      } else if (activeEdgesLength == 1) {
+      } else if (selectedInterfacesLength == 1) {
         const dialogData = {
           mode: 'update',
-          genData: activeEdges[0].data(),
-          cy
+          genData: this.selectedInterfaces[0],
+          cy,
+          projectId: projectId
         }
-        this.dialog.open(AddUpdateInterfaceDialogComponent, { disableClose: true, width: '650px', autoFocus: false, data: dialogData });
+        if (mapCategory === 'logical') {
+          this.interfaceService.getByProjectIdAndHwNode(projectId).subscribe(response => {
+            this.store.dispatch(retrievedInterfacesByHwNodes({ interfacesByHwNodes: response.result }))
+            this.dialog.open(AddUpdateInterfaceDialogComponent, { disableClose: true, width: '650px', autoFocus: false, data: dialogData });
+          })
+        } else {
+          const nodeId = this.selectedInterfaces[0].data.node_id;
+          const nameSourceNode = this.selectedInterfaces[0].data.node.name;
+          this.interfaceService.getByNode(nodeId).subscribe(response => {
+            this.store.dispatch(retrievedInterfacesBySourceNode({ interfacesBySourceNode: response.result }));
+            this.interfaceService.getByProjectIdAndHwNode(projectId).subscribe(interfaceData => {
+                const listInterface = interfaceData.result.filter((val: any) => val.node_id != nodeId)
+                this.store.dispatch(retrievedInterfacesByDestinationNode({ interfacesByDestinationNode: listInterface }));
+                const dialogData = {
+                  mode: 'edit_connected_interface',
+                  nodeId: nodeId,
+                  cy,
+                  mapCategory: mapCategory,
+                  genData: this.selectedInterfaces[0],
+                  nameSourceNode
+                }
+                const dialogRef =  this.dialog.open(ConnectInterfaceDialogComponent, { disableClose: true, width: '850px', data: dialogData, autoFocus: false, panelClass: 'custom-connect-interfaces-form-modal'})
+                dialogRef.afterClosed().subscribe(result => {
+                  cy.edges().unselect();
+              })
+            })
+          })
+        }
       }
-    } else if (activeNodesLength == 0 && activeEdgesLength == 0) {
-      if (activePGsLength > 1) {
-        const pgActiveIds = activePGs.map((ele: any) => ele.data('pg_id'));
+    } else if (selectedNodesLength == 0 && selectedInterfacesLength == 0) {
+      if (selectedPGsLength > 1) {
+        const pgActiveIds = this.selectedPGs.map((ele: any) => ele.id);
         const dialogData = {
           genData: {
             ids: pgActiveIds,
-            activeEles: activePGs.map((ele: any) => ele.data())
+            activeEles: this.selectedPGs
           },
           cy
         }
         this.dialog.open(PortGroupBulkEditDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
-      } else if (activePGsLength == 1) {
+      } else if (selectedPGsLength == 1) {
         const dialogData = {
           mode: 'update',
-          genData: activePGs[0].data(),
+          genData: this.selectedPGs[0],
           cy
         }
-        this.dialog.open(AddUpdatePGDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
+        this.dialog.open(AddUpdatePGDialogComponent, {
+          disableClose: true,
+          width: '600px',
+          autoFocus: false,
+          data: dialogData,
+          panelClass: 'custom-node-form-modal'
+        });
       }
-    } else if (activePGsLength == 0 && activeEdgesLength == 0) {
-      if (activeNodesLength > 1) {
-        const nodeActiveIds = activeNodes.map((ele: any) => ele.data('node_id'));
+    } else if (selectedPGsLength == 0 && selectedInterfacesLength == 0) {
+      if (selectedNodesLength > 1) {
+        const nodeActiveIds = this.selectedNodes.map((ele: any) => ele.id);
         const dialogData = {
           genData: {
             ids: nodeActiveIds,
-            activeEles: activeNodes.map((ele: any) => ele.data())
+            activeEles: this.selectedNodes
           },
           cy
         }
         this.dialog.open(NodeBulkEditDialogComponent, { disableClose: true, width: '600px', autoFocus: false, data: dialogData });
-      } else if (activeNodesLength == 1) {
+      } else if (selectedNodesLength == 1) {
         const dialogData = {
           mode: 'update',
-          genData: activeNodes[0].data(),
-          cy
+          genData: this.selectedNodes[0],
+          cy,
+          mapCategory: mapCategory
         }
         this.dialog.open(AddUpdateNodeDialogComponent,
           { disableClose: true, width: '1000px', autoFocus: false, data: dialogData, panelClass: 'custom-node-form-modal' }
         );
       }
-    } else  {
+    } else {
       this.toastr.success("Cannot bulk edit for various of element types");
     }
   }

@@ -1,5 +1,5 @@
 export interface UserState {
-  user: any[],
-  role: any[],
+  users: any[],
+  roles: any[],
   permissions: any[]
 }

@@ -20,7 +20,6 @@ import { serverConnect } from "./server-connect/server-connect.reducer";
 import { interfaceReducerByIds } from "./interface/interface.reducer";
 import { deviceCategoryReducer } from "./device-category/device-category.reducer";
 import { userTaskReducer } from "./user-task/user-task.reducer";
-import { mapSelectionReducer } from "./map-selection/map-selection.reducer";
 import { mapImagesReducer } from "./map-image/map-image.reducer";
 import { isChangeDomainUserReducer } from "./domain-user-change/domain-user-change.reducer";
 import { deviceChangeReducer } from "./device-change/device-change.reducer";
@@ -32,6 +31,11 @@ import { userProfileReducer } from "./user-profile/user-profile.reducer";
 import { lookupFeaturesReducer } from "./lookup-features/lookup-features.reducer";
 import { LookupNamesReducer } from "./lookup-names/lookup-names.reducer";
 import { netmaskReducer } from "./netmask/netmask.reducer";
+import { historyReducer } from "./history/history.reducer";
+import { appReducer } from "./app/app.reducer";
+import { lookupOsFirmwaresReducer } from "./lookup-os-firmware/lookup-os-firmwares.reducer";
+import { mapLinkReducer } from "./map-link/map-link.reducer";
+import { mapCategoryReducer } from "./map-category/map-category.reducer";
 
 export const reducers = {
     [ReducerKeys.MAP]: mapReducer,
@@ -51,12 +55,12 @@ export const reducers = {
     [ReducerKeys.PORTGROUP]: portGroupReducer,
     [ReducerKeys.MAP_CM]: mapContextMenuReducer,
     [ReducerKeys.NODE]: nodeReducer,
+    [ReducerKeys.MAP_LINK]: mapLinkReducer,
     [ReducerKeys.DOMAIN_USER]: domainUserReducer,
     [ReducerKeys.GROUP]: groupReducer,
     [ReducerKeys.SERVER_CONNECT]: serverConnect,
     [ReducerKeys.INTERFACE]: interfaceReducerByIds,
     [ReducerKeys.USER_TASK]: userTaskReducer,
-    [ReducerKeys.MAP_SELECTION]: mapSelectionReducer,
     [ReducerKeys.MAP_IMAGE]: mapImagesReducer,
     [ReducerKeys.DOMAIN_USER_CHANGE]: isChangeDomainUserReducer,
     [ReducerKeys.APP_PREF]: appPrefReducer,
@@ -66,5 +70,9 @@ export const reducers = {
     [ReducerKeys.USER_GUIDE]: userGuideReducer,
     [ReducerKeys.LOOKUP_FEATURES]: lookupFeaturesReducer,
     [ReducerKeys.LOOKUP_NAMES]: LookupNamesReducer,
+    [ReducerKeys.LOOKUP_OS_FIRMWARE]: lookupOsFirmwaresReducer,
     [ReducerKeys.NETMASKS]: netmaskReducer,
+    [ReducerKeys.HISTORIES]: historyReducer,
+    [ReducerKeys.MAP_CATEGORY]: mapCategoryReducer,
+    [ReducerKeys.APP]: appReducer,
 }

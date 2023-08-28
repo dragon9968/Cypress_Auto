@@ -1,14 +1,30 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Injectable, OnDestroy } from '@angular/core';
+import { Observable, Subscription } from 'rxjs';
 import { ApiPaths } from 'src/app/core/enums/api-paths.enum';
+import { Store } from "@ngrx/store";
+import { HelpersService } from "../helpers/helpers.service";
+import { selectTemplatesByDevice } from "../../../store/template/template.selectors";
+import { retrievedTemplatesByDevice } from "../../../store/template/template.actions";
 
 @Injectable({
   providedIn: 'root'
 })
-export class TemplateService {
+export class TemplateService implements OnDestroy {
 
-  constructor(private http: HttpClient) { }
+  templates: any[] = []
+  selectTemplates$ = new Subscription()
+  constructor(
+    private store: Store,
+    private http: HttpClient,
+    private helpersService: HelpersService
+  ) {
+    this.selectTemplates$ = this.store.select(selectTemplatesByDevice).subscribe(templates => this.templates = templates)
+  }
+
+  ngOnDestroy(): void {
+     this.selectTemplates$.unsubscribe()
+  }
 
   getAll(): Observable<any> {
     return this.http.get<any>(ApiPaths.TEMPLATES)
@@ -36,5 +52,11 @@ export class TemplateService {
 
   import(data: any): Observable<any> {
     return this.http.post<any>(ApiPaths.TEMPLATE_IMPORT, data)
+  }
+
+  updateTemplateStore(newItem: any) {
+    const currentState: any[] = JSON.parse(JSON.stringify(this.templates)) || []
+    const newState = this.helpersService.sortListByKeyInObject(currentState.concat(newItem))
+    this.store.dispatch(retrievedTemplatesByDevice({ templatesByDevice: newState }))
   }
 }

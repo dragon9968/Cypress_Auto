@@ -1,23 +1,20 @@
 import { Store } from '@ngrx/store';
 import { AgGridAngular } from 'ag-grid-angular';
-import { catchError, forkJoin, Observable, of, Subscription, throwError } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ProjectService } from './services/project.service';
-import { selectAllProjects, selectProjects, selectProjectTemplate } from '../store/project/project.selectors';
-import { retrievedAllProjects, retrievedProjects, retrievedProjectsTemplate } from '../store/project/project.actions';
+import { selectActiveProjects, selectActiveProjectsTemplates, selectActiveTemplates, selectSharedProjects } from '../store/project/project.selectors';
 import { AuthService } from '../core/services/auth/auth.service';
 import { HelpersService } from '../core/services/helpers/helpers.service';
 import { Router } from '@angular/router';
 import { RouteSegments } from '../core/enums/route-segments.enum';
 import { MatIconRegistry } from '@angular/material/icon';
-import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 import { EditProjectDialogComponent } from './edit-project-dialog/edit-project-dialog.component';
 import { ConfirmationDialogComponent } from '../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ExportProjectDialogComponent } from './export-project-dialog/export-project-dialog.component';
-import { UserService } from '../core/services/user/user.service';
-import { retrievedUser } from '../store/user/user.actions';
+import { removeProjects } from '../store/project/project.actions';
 
 @Component({
   selector: 'app-project',
@@ -33,16 +30,20 @@ export class ProjectComponent implements OnInit, OnDestroy {
   categoryPage: any;
   status = 'active';
   rowsSelected: any[] = [];
-  rowsSelectedId: any[] = [];
+  rowsSelectedIds: any[] = [];
   isSubmitBtnDisabled: boolean = true;
   private gridApi!: GridApi;
-  private selectProjects$ = new Subscription();
-  selectProjectTemplate$ = new Subscription();
-  selectUser$ = new Subscription();
-  selectAllProjects$ = new Subscription();
+  selectActiveProjects$ = new Subscription();
+  selectActiveTemplates$ = new Subscription();
+  selectActiveProjectsTemplates$ = new Subscription();
+  selectSharedProjects$ = new Subscription();
   rowData$!: Observable<any[]>;
-  listUsers!: any[];
+  projects: any[] = [];
+  sharedProjects: any[] = [];
   isAdmin = true;
+  isDisableEdit = true;
+  isDisableDelete = true;
+  isDisableExport = true;
   projectAdminUrl = `${this.routeSegments.ROOT + this.routeSegments.PROJECTS_ADMINISTRATION}`
   templatePageUrl = `${this.routeSegments.ROOT + this.routeSegments.PROJECTS_TEMPLATES}`
   projectPageUrl = `${this.routeSegments.ROOT + this.routeSegments.PROJECTS}`
@@ -106,37 +107,37 @@ export class ProjectComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private router: Router,
     iconRegistry: MatIconRegistry,
-    private toastr: ToastrService,
     private store: Store,
     private authService: AuthService,
     private helpersService: HelpersService,
-    private userService: UserService,
   ) {
     const userId = this.authService.getUserId();
-    this.isAdmin = this.router.url === this.projectAdminUrl
+    this.isAdmin = this.router.url === this.projectAdminUrl;
     if (this.router.url === this.templatePageUrl) {
-      this.selectProjectTemplate$ = this.store.select(selectProjectTemplate).subscribe(templateData => {
-        this.processUpdateChangedByField(templateData);
+      this.selectActiveTemplates$ = this.store.select(selectActiveTemplates).subscribe(activeTemplates => {
+        if (activeTemplates) {
+          this.projects = activeTemplates;
+          this.setRowData(this.projects);
+        }
       });
     } else if (this.router.url === this.projectPageUrl) {
-      this.selectProjects$ = this.store.select(selectProjects)
-      .subscribe((data) => {
-        if (data) {
-          this.projectService.getShareProject(this.status, 'project').subscribe((resp: any) => {
-            const shareProject = resp.result;
-            let filteredProjectsByUserId: any[];
-            filteredProjectsByUserId = data.filter((val: any) => val.created_by_fk === userId);
-            if (shareProject) {
-              filteredProjectsByUserId = [...filteredProjectsByUserId, ...shareProject];
-            }
-            this.processUpdateChangedByField(filteredProjectsByUserId);
-          })
+      this.selectSharedProjects$ = this.store.select(selectSharedProjects).subscribe(sharedProjects => {
+        if (sharedProjects) {
+          this.sharedProjects = sharedProjects;
+        }
+      });
+      this.selectActiveProjects$ = this.store.select(selectActiveProjects).subscribe((activeProjects) => {
+        if (activeProjects) {
+          const filteredProjectsByUserId = activeProjects.filter((val: any) => val.created_by_fk === userId);
+          this.projects = filteredProjectsByUserId.concat(this.sharedProjects);
+          this.setRowData(this.projects);
         }
       });
     } else {
-      this.selectAllProjects$ = this.store.select(selectAllProjects).subscribe((data: any) => {
-        if (data) {
-          this.processUpdateChangedByField(data);
+      this.selectActiveProjectsTemplates$ = this.store.select(selectActiveProjectsTemplates).subscribe(activeProjectsTemplates => {
+        if (activeProjectsTemplates) {
+          this.projects = activeProjectsTemplates;
+          this.setRowData(this.projects);
         }
       })
     }
@@ -144,34 +145,34 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.userService.getAll().subscribe(data => this.store.dispatch(retrievedUser({ data: data.result })));
     if (!this.isAdmin && this.router.url === this.projectPageUrl) {
-      this.categoryPage = 'project'
-      this.projectService.getProjectByStatusAndCategory(this.status, 'project').subscribe((data: any) => this.store.dispatch(retrievedProjects({ data: data.result })));
+      this.categoryPage = 'project';
     } else if (!this.isAdmin && this.router.url === this.templatePageUrl) {
       this.categoryPage = 'template'
-      this.projectService.getProjectByStatusAndCategory(this.status, 'template').subscribe((data: any) => this.store.dispatch(retrievedProjectsTemplate({ template: data.result })));
-    } else {
-      this.projectService.getProjectByStatus(this.status).subscribe((data: any) => this.store.dispatch(retrievedAllProjects({ listAllProject: data.result })));
     }
   }
 
   ngOnDestroy(): void {
-    this.selectProjects$.unsubscribe();
-    this.selectProjectTemplate$.unsubscribe();
-    this.selectAllProjects$.unsubscribe();
-    this.selectUser$.unsubscribe();
+    this.selectActiveProjects$.unsubscribe();
+    this.selectActiveTemplates$.unsubscribe();
+    this.selectActiveProjectsTemplates$.unsubscribe();
+    this.selectSharedProjects$.unsubscribe();
   }
 
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
     this.gridApi.sizeColumnsToFit();
+    this.setRowData(this.projects);
   }
 
-  updateRow() {
-    if (this.gridApi && this.rowsSelectedId.length > 0) {
+  setRowData(rowData: any[]) {
+    this.gridApi?.setRowData(rowData);
+  }
+
+  setRowActive() {
+    if (this.gridApi && this.rowsSelectedIds.length > 0) {
       this.gridApi.forEachNode(rowNode => {
-        if (this.rowsSelectedId.includes(rowNode.data.id)) {
+        if (this.rowsSelectedIds.includes(rowNode.data.id)) {
           rowNode.setSelected(true);
         }
       })
@@ -189,21 +190,33 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   onRowDoubleClicked() {
     if (!this.isAdmin) {
-      const projectIdSelected = this.gridApi.getSelectedRows()[0]["id"];
-      this.projectService.openProject(projectIdSelected);
+      this.openProject();
     }
   }
 
   selectedRows() {
     if (this.isAdmin) {
       this.rowsSelected = this.gridApi.getSelectedRows();
-      this.rowsSelectedId = this.rowsSelected.map(ele => ele.id);
+      this.rowsSelectedIds = this.rowsSelected.map(ele => ele.id);
+      if (this.rowsSelectedIds.length == 0) {
+        this.isDisableEdit = true;
+        this.isDisableDelete = true;
+        this.isDisableExport = true;
+      } else if (this.rowsSelectedIds.length == 1) {
+        this.isDisableEdit = false;
+        this.isDisableDelete = false;
+        this.isDisableExport = false;
+      } else if (this.rowsSelectedIds.length > 1) {
+        this.isDisableEdit = true;
+        this.isDisableDelete = false;
+        this.isDisableExport = false;
+      }
     }
   }
 
   openProject() {
-    const projectIdSelected = this.gridApi.getSelectedRows()[0]["id"];
-    this.projectService.openProject(projectIdSelected);
+    const project = this.gridApi.getSelectedRows()[0];
+    this.projectService.openProject(project["id"], project["map_state"]);
   }
 
   onQuickFilterInput(event: any) {
@@ -213,98 +226,49 @@ export class ProjectComponent implements OnInit, OnDestroy {
   clearRow() {
     this.gridApi.deselectAll();
     this.rowsSelected = [];
-    this.rowsSelectedId = [];
+    this.rowsSelectedIds = [];
   }
 
   editProject() {
-    if (this.rowsSelectedId.length === 0) {
-      this.toastr.info('No row selected');
-    } else if (this.rowsSelectedId.length === 1) {
-        this.projectService.get(this.rowsSelectedId[0]).subscribe(data => {
-          this.projectService.getProjectByStatus(this.status).subscribe(resp => {
-            this.store.dispatch(retrievedAllProjects({listAllProject: resp.result}));
-            const dialogData = {
-              mode: 'update',
-              category: data.result.category,
-              genData: data.result
-            }
-            this.dialog.open(EditProjectDialogComponent, {
-              disableClose: true,
-              autoFocus: false,
-              width: '600px',
-              data: dialogData
-            });
-          });
-        });
-    } else {
-      this.toastr.info('Bulk edits do not apply to projects.<br> Please select only one project',
-          'Info', { enableHtml: true });
+    const selectedProject = this.projects.filter(p => p.id == this.rowsSelectedIds[0])[0];
+    const dialogData = {
+      mode: 'update',
+      category: selectedProject.category,
+      genData: selectedProject
     }
-  }
-
-  deleteProject() {
-    if (this.rowsSelectedId.length == 0) {
-      this.toastr.info('No row selected');
-    } else {
-      const suffix = this.rowsSelectedId.length === 1 ? 'this item' : 'these items';
-      const dialogData = {
-        title: 'User confirmation needed',
-        message: `Are you sure you want to delete ${suffix}?`,
-        submitButtonName: 'OK'
-      }
-      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData });
-      dialogRef.afterClosed().subscribe(result => {
-        if (result) {
-          forkJoin(this.rowsSelectedId.map(id => {
-            const jsonData = {
-              pk: id,
-              status: 'delete'
-            }
-            return this.projectService.deleteOrRecoverProject(jsonData).pipe(
-              catchError((e: any) => {
-                this.toastr.error(e.error.message);
-                return throwError(() => e);
-              })
-            );
-          })).subscribe(() => {
-            this.toastr.success('Deleted Project(s) successfully', 'Success');
-            this.projectService.getProjectByStatus(this.status).subscribe((data: any) => this.store.dispatch(retrievedAllProjects({ listAllProject: data.result })));
-            this.clearRow();
-          })
-        }
-      })
-    }
-  }
-
-  exportProject() {
-    if (this.rowsSelectedId.length === 0) {
-      this.toastr.info('No row selected');
-    } else {
-      const dialogData = {
-        pks: this.rowsSelectedId,
-        name: this.rowsSelectedId.length === 1 ? this.rowsSelected[0].name : 'Projects',
-        type: 'admin'
-      }
-      this.dialog.open(ExportProjectDialogComponent, { disableClose: true, autoFocus: false, width: '400px', data: dialogData });
-    }
-  }
-
-  processUpdateChangedByField(data: any) {
-    this.userService.getAll().subscribe(userData => {
-      this.listUsers = userData.result;
-      let projectData = data.map((item: any) => {
-        const fullName = this.listUsers.find(val => item.changed_by_fk === val.id)
-        const changedByValue = fullName?.first_name + ' ' + fullName?.last_name;
-        return Object.assign({}, item, {changed_by: changedByValue})
-      })
-
-      if (this.gridApi) {
-        this.gridApi.setRowData(projectData);
-      } else {
-        this.rowData$ = of(projectData);
-      }
-      this.updateRow();
+    this.dialog.open(EditProjectDialogComponent, {
+      disableClose: true,
+      autoFocus: false,
+      width: '600px',
+      data: dialogData
     });
   }
 
+  deleteProject() {
+    const suffix = this.rowsSelectedIds.length === 1 ? 'this item' : 'these items';
+    const dialogData = {
+      title: 'User confirmation needed',
+      message: `Are you sure you want to delete ${suffix}?`,
+      submitButtonName: 'OK'
+    }
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { disableClose: true, width: '400px', data: dialogData });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.store.dispatch(removeProjects({ ids: this.rowsSelectedIds }));
+        if (this.rowsSelectedIds.includes(this.projectService.getProjectId())) {
+          this.projectService.closeProject();
+        }
+        this.clearRow();
+      }
+    })
+  }
+
+  exportProject() {
+    const dialogData = {
+      pks: this.rowsSelectedIds,
+      name: this.rowsSelectedIds.length === 1 ? this.rowsSelected[0].name : 'Projects',
+      type: 'admin'
+    }
+    this.dialog.open(ExportProjectDialogComponent, { disableClose: true, autoFocus: false, width: '400px', data: dialogData });
+  }
 }

@@ -1,17 +1,17 @@
 import { Store } from "@ngrx/store";
-import { ToastrService } from 'ngx-toastr';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { catchError, Observable, Subscription, throwError } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { ErrorMessages } from "../../../../shared/enums/error-messages.enum";
-import { TaskService } from 'src/app/core/services/task/task.service';
 import { HelpersService } from 'src/app/core/services/helpers/helpers.service';
-import { InfoPanelService } from "../../../../core/services/info-panel/info-panel.service";
 import { ServerConnectService } from "../../../../core/services/server-connect/server-connect.service";
 import { selectLoginProfiles } from "../../../../store/login-profile/login-profile.selectors";
 import { autoCompleteValidator } from "../../../../shared/validations/auto-complete.validation";
-import { RemoteCategories } from "../../../../core/enums/remote-categories.enum";
+import { addTask } from "../../../../store/user-task/user-task.actions";
+import { selectNotification } from "../../../../store/app/app.selectors";
+import { TaskAddModel } from "../../../../core/models/task.model";
+import { NotificationTypes } from "../../../../shared/enums/notifications-types.enum";
 
 @Component({
   selector: 'app-add-node-deploy-dialog',
@@ -21,18 +21,16 @@ import { RemoteCategories } from "../../../../core/enums/remote-categories.enum"
 export class AddUpdateNodeDeployDialogComponent implements OnInit, OnDestroy {
   deployNewNodeForm: FormGroup;
   selectLoginProfiles$ = new Subscription();
+  selectNotification$ = new Subscription();
   loginProfiles: any[] = [];
   errorMessages = ErrorMessages;
   filteredLoginProfiles!: Observable<any[]>;
 
   constructor(
     private store: Store,
-    private toastr: ToastrService,
     public dialogRef: MatDialogRef<AddUpdateNodeDeployDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public helpers: HelpersService,
-    private taskService: TaskService,
-    private infoPanelService: InfoPanelService,
     private serverConnectionService: ServerConnectService
   ) {
     this.deployNewNodeForm = new FormGroup({
@@ -45,11 +43,15 @@ export class AddUpdateNodeDeployDialogComponent implements OnInit, OnDestroy {
       this.loginProfileCtr.setValidators([autoCompleteValidator(this.loginProfiles)]);
       this.filteredLoginProfiles = this.helpers.filterOptions(this.loginProfileCtr, this.loginProfiles);
     });
+    this.selectNotification$ = this.store.select(selectNotification).subscribe(notification => {
+      if (notification?.type === NotificationTypes.SUCCESS) {
+        this.dialogRef.close();
+      }
+    })
   }
 
   ngOnInit(): void {
-    const activeNodes = this.data.activeNodes;
-    const loginProfileId = activeNodes.find((node: any) => node.data('login_profile_id'))?.data('login_profile_id');
+    const loginProfileId = this.data.selectedNodes[0].login_profile_id;
     if (loginProfileId) {
       this.helpers.setAutoCompleteValue(this.loginProfileCtr, this.loginProfiles, loginProfileId);
     }
@@ -57,6 +59,7 @@ export class AddUpdateNodeDeployDialogComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.selectLoginProfiles$.unsubscribe();
+    this.selectNotification$.unsubscribe();
   }
 
   get isBackupVMCtr() { return this.deployNewNodeForm.get('isBackupVMCtr'); }
@@ -71,26 +74,17 @@ export class AddUpdateNodeDeployDialogComponent implements OnInit, OnDestroy {
     const connection = this.serverConnectionService.getConnection(this.data.category);
     const configurator = this.serverConnectionService.getConnection("configurator");
     const datasource = this.serverConnectionService.getConnection("datasource");
-    const jsonData = {
+    const jsonData: TaskAddModel = {
       hypervisor_id: connection ? connection.id : 0,
       configurator_id: configurator ? configurator.id : 0,
       datasource_id: datasource ? datasource.id : 0,
       job_name: this.data.jobName,
       category: 'node',
-      pks: this.data.activeNodes.map((ele: any) => ele.data('node_id')).join(","),
+      pks: this.data.selectedNodes.map((ele: any) => ele.id).join(","),
       backup_vm: this.isBackupVMCtr?.value,
       os_customization: this.isOSCustomizationCtr?.value,
       login_profile_id: this.loginProfileCtr?.value?.id
     };
-    this.taskService.add(jsonData).pipe(
-      catchError((e: any) => {
-        this.toastr.error(e.error.message);
-        return throwError(() => e);
-      })
-    ).subscribe(respData => {
-      this.infoPanelService.updateTaskList();
-      this.dialogRef.close();
-      this.toastr.success("Task added to the queue", 'Success');
-    });
+    this.store.dispatch(addTask({ task: jsonData }));
   }
 }

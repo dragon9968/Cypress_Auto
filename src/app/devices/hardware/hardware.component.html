@@ -12,6 +12,9 @@
         <button mat-button mat-mini-fab color="primary" matTooltip="Delete" (click)="deleteHardware()">
           <mat-icon>delete</mat-icon>
         </button>
+        <button mat-button mat-mini-fab color="primary" matTooltip="Import Hardware" (click)="importHardware()">
+          <i class="fa-solid fa-upload"></i>
+        </button>
       </ng-template>
       <button mat-button mat-mini-fab color="primary" matTooltip="Export as JSON" (click)="exportHardware('json')">
         <mat-icon svgIcon="export-json"></mat-icon>
